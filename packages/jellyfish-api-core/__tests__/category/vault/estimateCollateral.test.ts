@@ -20,15 +20,12 @@ describe('Vault estimateCollateral', () => {
     // Setup non collateral token
     await tGroup.get(0).token.create({ symbol: 'DOGE', collateralAddress })
     await tGroup.get(0).generate(1)
-    await tGroup.get(0).token.mint({ symbol: 'DOGE', amount: 50000 })
-    await tGroup.get(0).generate(1)
 
     // oracle setup
     const addr = await tGroup.get(0).generateAddress()
     const priceFeeds = [
       { token: 'DFI', currency: 'USD' },
       { token: 'BTC', currency: 'USD' },
-      { token: 'DOGE', currency: 'USD' },
       { token: 'TSLA', currency: 'USD' },
       { token: 'MSFT', currency: 'USD' }
     ]
@@ -38,7 +35,6 @@ describe('Vault estimateCollateral', () => {
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, oracleTickTimestamp, {
       prices: [
         { tokenAmount: '1@DFI', currency: 'USD' },
-        { tokenAmount: '0.01@DOGE', currency: 'USD' },
         { tokenAmount: '10000@BTC', currency: 'USD' },
         { tokenAmount: '2@TSLA', currency: 'USD' },
         { tokenAmount: '5@MSFT', currency: 'USD' }
@@ -92,11 +88,6 @@ describe('Vault estimateCollateral', () => {
 
     await tGroup.get(0).rpc.vault.depositToVault({
       vaultId: vaultId, from: collateralAddress, amount: '10000@DFI'
-    })
-    await tGroup.get(0).generate(1)
-
-    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
-      prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }, { tokenAmount: '5@MSFT', currency: 'USD' }]
     })
     await tGroup.get(0).generate(1)
 
