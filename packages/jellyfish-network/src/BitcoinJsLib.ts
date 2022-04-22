@@ -18,7 +18,7 @@ export namespace BitcoinJsLib {
 }
 
 /**
- * https://github.com/bitcoinjs/bitcoinjs-lib
+ * https://github.com/bitcoinjs/bip32/blob/ccc8fa7eedd7ff072f2f5c2d1ef89f0222391235/src/bip32.js#L18-L28
  *
  * @param network name
  * @return Network specific DeFi configuration in BitcoinJsLib.Network interface
