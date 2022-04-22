@@ -200,7 +200,12 @@ export class Vault {
    * @return {Promise<VaultEstimation>}
    */
   async estimateVault (collateralAmounts: string[], loanAmounts: string[]): Promise<VaultEstimation> {
-    return await this.client.call('estimatevault', [collateralAmounts, loanAmounts], 'number')
+    return await this.client.call('estimatevault', [collateralAmounts, loanAmounts], {
+      collateralValue: 'bignumber',
+      loanValue: 'bignumber',
+      informativeRatio: 'bignumber',
+      collateralRatio: 'number'
+    })
   }
 
   /**
@@ -356,11 +361,12 @@ export interface ListAuctionHistoryDetail {
 }
 
 export interface VaultEstimation {
-  collateralValue: number // n.nnnnnnnn (amount) The total collateral value in USD
-  loanValue: number // n.nnnnnnnn (amount) The total loan value in USD
-  informativeRatio: number // n.nnnnnnnn (amount) Informative ratio with 8 digit precision
+  collateralValue: string // n.nnnnnnnn (amount) The total collateral value in USD
+  loanValue: string // n.nnnnnnnn (amount) The total loan value in USD
+  informativeRatio: string // n.nnnnnnnn (amount) Informative ratio with 8 digit precision
   collateralRatio: number // n (uint) Ratio as unsigned int
 }
+
 export interface TokenPercentageSplit {
   [token: string]: number // Token: split
 }

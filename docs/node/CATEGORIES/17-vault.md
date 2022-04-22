@@ -347,10 +347,10 @@ interface vault {
   estimateVault (collateralAmounts: string[], loanAmounts: string[]): Promise<VaultEstimation>
 }
 
-export interface VaultEstimation {
-  collateralValue: number // n.nnnnnnnn (amount) The total collateral value in USD
-  loanValue: number // n.nnnnnnnn (amount) The total loan value in USD
-  informativeRatio: number // n.nnnnnnnn (amount) Informative ratio with 8 digit precision
+interface VaultEstimation {
+  collateralValue: string // n.nnnnnnnn (amount) The total collateral value in USD
+  loanValue: string // n.nnnnnnnn (amount) The total loan value in USD
+  informativeRatio: string // n.nnnnnnnn (amount) Informative ratio with 8 digit precision
   collateralRatio: number // n (uint) Ratio as unsigned int
 }
 ```
@@ -363,7 +363,7 @@ Returns amount of collateral tokens needed to take an amount of loan tokens for 
 interface vault {
   estimateCollateral (loanAmounts: string[], targetRatio: number, tokenSplit: TokenPercentageSplit = { DFI: 1 }): Promise<string[]> // Returns array of token@amount`
 }
-export interface TokenPercentageSplit {
+interface TokenPercentageSplit {
   [token: string]: number // Token: split
 }
 ```
@@ -377,7 +377,7 @@ interface vault {
   estimateLoan (vaultId: string, tokenSplit: TokenPercentageSplit, targetRatio?: number): Promise<string[]> // Returns array of token@amount`
 }
 
-export interface TokenPercentageSplit {
+interface TokenPercentageSplit {
   [token: string]: number // Token: split
 }
 ```

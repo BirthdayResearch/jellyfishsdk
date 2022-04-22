@@ -2,14 +2,12 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
+import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
 
 describe('Vault estimateVault', () => {
-  const tGroup = TestingGroup.create(2, i => new MasterNodeRegTestContainer())
+  const tGroup = TestingGroup.create(1, i => new MasterNodeRegTestContainer())
 
-  async function setup (tGroup: TestingGroup): Promise<{
-    collateralAddress: string
-    oracleId: string
-  }> {
+  async function setup (tGroup: TestingGroup): Promise<void> {
     // token setup
     const collateralAddress = await tGroup.get(0).container.getNewAddress()
     await tGroup.get(0).token.dfi({ address: collateralAddress, amount: 30000 })
@@ -92,8 +90,6 @@ describe('Vault estimateVault', () => {
     await tGroup.waitForSync()
     await tGroup.get(0).container.waitForPriceValid('TSLA/USD')
     await tGroup.get(0).container.waitForPriceValid('MSFT/USD')
-
-    return { collateralAddress, oracleId }
   }
 
   beforeAll(async () => {
@@ -107,63 +103,63 @@ describe('Vault estimateVault', () => {
   })
 
   it('should fail if collateralAmounts array contains non collateral token', async () => {
-    const tokenInfo: Record<string, any> = await tGroup.get(1).container.call('gettoken', ['DOGE'])
-    const promise = tGroup.get(1).rpc.vault.estimateVault(['5000@DOGE'], ['100@TSLA'])
+    const tokenInfo: Record<string, any> = await tGroup.get(0).container.call('gettoken', ['DOGE'])
+    const promise = tGroup.get(0).rpc.vault.estimateVault(['5000@DOGE'], ['100@TSLA'])
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow(`Token with id (${Object.keys(tokenInfo)[0]}) is not a valid collateral!`)
   })
 
   it('should fail if collateralAmounts array contains non collateral token (loan token)', async () => {
-    const tokenInfo: Record<string, any> = await tGroup.get(1).container.call('gettoken', ['MSFT'])
-    const promise = tGroup.get(1).rpc.vault.estimateVault(['500@MSFT'], ['100@TSLA'])
+    const tokenInfo: Record<string, any> = await tGroup.get(0).container.call('gettoken', ['MSFT'])
+    const promise = tGroup.get(0).rpc.vault.estimateVault(['500@MSFT'], ['100@TSLA'])
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow(`Token with id (${Object.keys(tokenInfo)[0]}) is not a valid collateral!`)
   })
 
   it('should fail if loanAmounts array contains non loan token', async () => {
-    const tokenInfo: Record<string, any> = await tGroup.get(1).container.call('gettoken', ['BTC'])
-    const promise = tGroup.get(1).rpc.vault.estimateVault(['10000@DFI'], ['1@BTC'])
+    const tokenInfo: Record<string, TokenInfo> = await tGroup.get(0).container.call('gettoken', ['BTC'])
+    const promise = tGroup.get(0).rpc.vault.estimateVault(['10000@DFI'], ['1@BTC'])
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow(`Token with id (${Object.keys(tokenInfo)[0]}) is not a loan token!`)
   })
 
   it('should estimateVault for empty values', async () => {
-    const estimation = await tGroup.get(1).rpc.vault.estimateVault([], [])
-    expect(estimation.collateralValue).toStrictEqual(0)
-    expect(estimation.loanValue).toStrictEqual(0)
-    expect(estimation.informativeRatio).toStrictEqual(-1)
+    const estimation = await tGroup.get(0).rpc.vault.estimateVault([], [])
+    expect(estimation.collateralValue).toStrictEqual(new BigNumber('0'))
+    expect(estimation.loanValue).toStrictEqual(new BigNumber('0'))
+    expect(estimation.informativeRatio).toStrictEqual(new BigNumber('-1'))
     expect(estimation.collateralRatio).toStrictEqual(-1)
   })
 
   it('should estimateVault (overcollateralized)', async () => {
-    const estimation = await tGroup.get(1).rpc.vault.estimateVault(['10000@DFI', '1@BTC'], ['1000@MSFT'])
-    expect(estimation.collateralValue).toStrictEqual(15000) // DFI is 1 to 1 USD, BTC is 10k USD with 0.5 factor making it 5000
-    expect(estimation.loanValue).toStrictEqual(5000) // TSLA price/USD + MSFT price/USD = 1000 * 5
-    expect(estimation.informativeRatio).toStrictEqual(300) // informativeRatio = collateralValue / loanValue = 15000 / 5000 * 100
+    const estimation = await tGroup.get(0).rpc.vault.estimateVault(['10000@DFI', '1@BTC'], ['1000@MSFT'])
+    expect(estimation.collateralValue).toStrictEqual(new BigNumber('15000')) // DFI is 1 to 1 USD, BTC is 10k USD with 0.5 factor making it 5000
+    expect(estimation.loanValue).toStrictEqual(new BigNumber('5000')) // TSLA price/USD + MSFT price/USD = 1000 * 5
+    expect(estimation.informativeRatio).toStrictEqual(new BigNumber('300')) // informativeRatio = collateralValue / loanValue = 15000 / 5000 * 100
     expect(estimation.collateralRatio).toStrictEqual(300) // collateralRatio = informativeRatio rounded
   })
 
   it('should estimateVault (undercollateralized)', async () => {
-    const estimation = await tGroup.get(1).rpc.vault.estimateVault(['5000@DFI', '1@BTC'], ['5000@TSLA', '1000@MSFT'])
-    expect(estimation.collateralValue).toStrictEqual(10000) // DFI is 1 to 1 USD, BTC is 10k USD with 0.5 factor making it 5000
-    expect(estimation.loanValue).toStrictEqual(15000) // TSLA price/USD + MSFT price/USD = 5000 * 2 + 1000 * 5
-    expect(estimation.informativeRatio).toStrictEqual(66.66666666) // informativeRatio = collateralValue / loanValue = 10000 / 15000 * 100
+    const estimation = await tGroup.get(0).rpc.vault.estimateVault(['5000@DFI', '1@BTC'], ['5000@TSLA', '1000@MSFT'])
+    expect(estimation.collateralValue).toStrictEqual(new BigNumber('10000')) // DFI is 1 to 1 USD, BTC is 10k USD with 0.5 factor making it 5000
+    expect(estimation.loanValue).toStrictEqual(new BigNumber('15000')) // TSLA price/USD + MSFT price/USD = 5000 * 2 + 1000 * 5
+    expect(estimation.informativeRatio).toStrictEqual(new BigNumber('66.66666666')) // informativeRatio = collateralValue / loanValue = 10000 / 15000 * 100
     expect(estimation.collateralRatio).toStrictEqual(67) // collateralRatio = informativeRatio rounded
   })
 
   it('should estimateVault with collateral only', async () => {
-    const estimation = await tGroup.get(1).rpc.vault.estimateVault(['5000@DFI', '1@BTC'], [])
-    expect(estimation.collateralValue).toStrictEqual(10000) // DFI is 1 to 1 USD, BTC is 10k USD with 0.5 factor making it 5000
-    expect(estimation.loanValue).toStrictEqual(0)
-    expect(estimation.informativeRatio).toStrictEqual(-1) // informativeRatio = collateralValue / loanValue = 10000 / 0 * 100
+    const estimation = await tGroup.get(0).rpc.vault.estimateVault(['5000@DFI', '1@BTC'], [])
+    expect(estimation.collateralValue).toStrictEqual(new BigNumber('10000')) // DFI is 1 to 1 USD, BTC is 10k USD with 0.5 factor making it 5000
+    expect(estimation.loanValue).toStrictEqual(new BigNumber('0'))
+    expect(estimation.informativeRatio).toStrictEqual(new BigNumber('-1')) // informativeRatio = collateralValue / loanValue = 10000 / 0 * 100
     expect(estimation.collateralRatio).toStrictEqual(-1) // collateralRatio = informativeRatio rounded
   })
 
   it('should estimateVault with loan only', async () => {
-    const estimation = await tGroup.get(1).rpc.vault.estimateVault([], ['5000@TSLA', '1000@MSFT'])
-    expect(estimation.collateralValue).toStrictEqual(0)
-    expect(estimation.loanValue).toStrictEqual(15000) // TSLA price/USD + MSFT price/USD = 5000 * 2 + 1000 * 5
-    expect(estimation.informativeRatio).toStrictEqual(0) // informativeRatio = collateralValue / loanValue = 0 / 15000 * 100
+    const estimation = await tGroup.get(0).rpc.vault.estimateVault([], ['5000@TSLA', '1000@MSFT'])
+    expect(estimation.collateralValue).toStrictEqual(new BigNumber('0'))
+    expect(estimation.loanValue).toStrictEqual(new BigNumber('15000')) // TSLA price/USD + MSFT price/USD = 5000 * 2 + 1000 * 5
+    expect(estimation.informativeRatio).toStrictEqual(new BigNumber('0')) // informativeRatio = collateralValue / loanValue = 0 / 15000 * 100
     expect(estimation.collateralRatio).toStrictEqual(0) // collateralRatio = informativeRatio rounded
   })
 })
