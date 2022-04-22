@@ -346,7 +346,7 @@ Returns amount of collateral tokens needed to take an amount of loan tokens for 
 interface vault {
   estimateCollateral (loanAmounts: string[], targetRatio: number, tokenSplit: TokenPercentageSplit = { DFI: 1 }): Promise<string[]> // Returns array of token@amount`
 }
-export interface TokenPercentageSplit {
+interface TokenPercentageSplit {
   [token: string]: number // Token: split
 }
 ```
@@ -360,7 +360,7 @@ interface vault {
   estimateLoan (vaultId: string, tokenSplit: TokenPercentageSplit, targetRatio?: number): Promise<string[]> // Returns array of token@amount`
 }
 
-export interface TokenPercentageSplit {
+interface TokenPercentageSplit {
   [token: string]: number // Token: split
 }
 ```
