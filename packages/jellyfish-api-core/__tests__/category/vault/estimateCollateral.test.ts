@@ -2,15 +2,12 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
+import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
 
 describe('Vault estimateCollateral', () => {
-  const tGroup = TestingGroup.create(2, i => new MasterNodeRegTestContainer())
+  const tGroup = TestingGroup.create(1, i => new MasterNodeRegTestContainer())
 
-  async function setupVault (tGroup: TestingGroup): Promise<{
-    vaultId: string
-    collateralAddress: string
-    oracleId: string
-  }> {
+  async function setupVault (tGroup: TestingGroup): Promise<void> {
     // token setup
     const collateralAddress = await tGroup.get(0).container.getNewAddress()
     await tGroup.get(0).token.dfi({ address: collateralAddress, amount: 30000 })
@@ -106,8 +103,6 @@ describe('Vault estimateCollateral', () => {
     await tGroup.waitForSync()
     await tGroup.get(0).container.waitForPriceValid('TSLA/USD')
     await tGroup.get(0).container.waitForPriceValid('MSFT/USD')
-
-    return { vaultId, collateralAddress, oracleId }
   }
 
   beforeAll(async () => {
@@ -121,44 +116,44 @@ describe('Vault estimateCollateral', () => {
   })
 
   it('should fail if given token is not loan token', async () => {
-    const tokenInfo: Record<string, any> = await tGroup.get(1).container.call('gettoken', ['BTC'])
-    const promise = tGroup.get(1).rpc.vault.estimateCollateral(['100@BTC'], 150)
+    const tokenInfo: Record<string, TokenInfo> = await tGroup.get(0).container.call('gettoken', ['BTC'])
+    const promise = tGroup.get(0).rpc.vault.estimateCollateral(['100@BTC'], 150)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow(`Token with id (${Object.keys(tokenInfo)[0]}) is not a loan token!`)
   })
 
   it('should fail if sum of collateral token ratio does not add up to 1 (upper bound)', async () => {
-    const promise = tGroup.get(1).rpc.vault.estimateCollateral(['1000@TSLA', '1000@MSFT'], 150, { DFI: 0.5, BTC: 0.6 })
+    const promise = tGroup.get(0).rpc.vault.estimateCollateral(['1000@TSLA', '1000@MSFT'], 150, { DFI: 0.5, BTC: 0.6 })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('total split between collateral tokens = 1.10000000 vs expected 1.00000000')
   })
 
   it('should fail if sum of collateral token ratio does not add up to 1 (lower bound)', async () => {
-    const promise = tGroup.get(1).rpc.vault.estimateCollateral(['1000@TSLA', '1000@MSFT'], 150, { DFI: 0.5, BTC: 0.4 })
+    const promise = tGroup.get(0).rpc.vault.estimateCollateral(['1000@TSLA', '1000@MSFT'], 150, { DFI: 0.5, BTC: 0.4 })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('total split between collateral tokens = 0.90000000 vs expected 1.00000000')
   })
 
   it('should fail if sum of collateral token ratio does not add up to 1 (0)', async () => {
-    const promise = tGroup.get(1).rpc.vault.estimateCollateral(['1000@TSLA', '1000@MSFT'], 150, { DFI: 0, BTC: 0 })
+    const promise = tGroup.get(0).rpc.vault.estimateCollateral(['1000@TSLA', '1000@MSFT'], 150, { DFI: 0, BTC: 0 })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('total split between collateral tokens = 0.00000000 vs expected 1.00000000')
   })
 
   it('should fail if non collateral token given', async () => {
-    const promise = tGroup.get(1).rpc.vault.estimateCollateral(['1000@TSLA'], 150, { DFI: 0.5, DOGE: 0.5 })
+    const promise = tGroup.get(0).rpc.vault.estimateCollateral(['1000@TSLA'], 150, { DFI: 0.5, DOGE: 0.5 })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('(DOGE) is not a valid collateral!')
   })
 
   it('should fail if collateral token does not exists', async () => {
-    const promise = tGroup.get(1).rpc.vault.estimateCollateral(['1000@TSLA'], 150, { DFI: 0.5, CAT: 0.5 })
+    const promise = tGroup.get(0).rpc.vault.estimateCollateral(['1000@TSLA'], 150, { DFI: 0.5, CAT: 0.5 })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('Token CAT does not exist!')
   })
 
   it('should estimateCollateral for single loan & collateral token', async () => {
-    const estimation = await tGroup.get(1).rpc.vault.estimateCollateral(['1000@TSLA'], 150)
+    const estimation = await tGroup.get(0).rpc.vault.estimateCollateral(['1000@TSLA'], 150)
     /**
      * Taking loan of 1000 TSLA with DFI as collateral (Default DFI ratio is 1)
      * loanValueInCollateral = 1000 * 1
@@ -174,7 +169,7 @@ describe('Vault estimateCollateral', () => {
   })
 
   it('should estimateCollateral with single loan token & 0.5 split for collateral tokens', async () => {
-    const estimation = await tGroup.get(1).rpc.vault.estimateCollateral(['1000@TSLA'], 150, { DFI: 0.5, BTC: 0.5 })
+    const estimation = await tGroup.get(0).rpc.vault.estimateCollateral(['1000@TSLA'], 150, { DFI: 0.5, BTC: 0.5 })
     /**
      * Taking loan of 1000 TSLA with DFI and BTC s collateral
      * loanValueInCollateral = 1000 * 0.5 = 500 for both DFI and BTC
@@ -195,7 +190,7 @@ describe('Vault estimateCollateral', () => {
   })
 
   it('should estimateCollateral with single loan token & 0.3/0.7 split for collateral tokens', async () => {
-    const estimation = await tGroup.get(1).rpc.vault.estimateCollateral(['1000@TSLA'], 150, { DFI: 0.3, BTC: 0.7 })
+    const estimation = await tGroup.get(0).rpc.vault.estimateCollateral(['1000@TSLA'], 150, { DFI: 0.3, BTC: 0.7 })
     /**
      * Taking loan of 1000 TSLA with DFI and BTC s collateral
      * loanValueInCollateral
@@ -218,7 +213,7 @@ describe('Vault estimateCollateral', () => {
 
   // Alternative col ratio of 200
   it('should estimateCollateral for single loan & collateral token with targetRatio of 200', async () => {
-    const estimation = await tGroup.get(1).rpc.vault.estimateCollateral(['1000@TSLA'], 200)
+    const estimation = await tGroup.get(0).rpc.vault.estimateCollateral(['1000@TSLA'], 200)
     /**
      * Taking loan of 1000 TSLA with DFI as collateral (Default DFI ratio is 1)
      * loanValueInCollateral = 1000 * 1
@@ -235,7 +230,7 @@ describe('Vault estimateCollateral', () => {
 
   // More than one loan tokens
   it('should estimateCollateral for 2 loan tokens & single collateral token', async () => {
-    const estimation = await tGroup.get(1).rpc.vault.estimateCollateral(['500@TSLA', '1000@MSFT'], 150)
+    const estimation = await tGroup.get(0).rpc.vault.estimateCollateral(['500@TSLA', '1000@MSFT'], 150)
     /**
      * Taking loan of 500 TSLA & 1000 MSFT with DFI as collateral (Default DFI ratio is 1)
      * loanValueInCollateral
@@ -259,7 +254,7 @@ describe('Vault estimateCollateral', () => {
   })
 
   it('should estimateCollateral with 2 loan tokens & 0.3/0.7 split for collateral tokens', async () => {
-    const estimation = await tGroup.get(1).rpc.vault.estimateCollateral(['500@TSLA', '1000@MSFT'], 150, { DFI: 0.3, BTC: 0.7 })
+    const estimation = await tGroup.get(0).rpc.vault.estimateCollateral(['500@TSLA', '1000@MSFT'], 150, { DFI: 0.3, BTC: 0.7 })
     /**
      * Taking loan of 500 TSLA & 1000 MSFT with DFI as collateral
      * loanValueInCollateral
