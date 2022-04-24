@@ -1,4 +1,4 @@
-[![CI](https://github.com/DeFiCh/jellyfish/actions/workflows/ci.yml/badge.svg)](https://github.com/DeFiCh/jellyfish/actions/workflows/ci.yml)
+[![CI](https://github.com/JellyfishSDK/jellyfish/actions/workflows/ci.yml/badge.svg)](https://github.com/JellyfishSDK/jellyfish/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/DeFiCh/jellyfish/branch/main/graph/badge.svg?token=IYL9K0WROA)](https://codecov.io/gh/DeFiCh/jellyfish)
 [![npm](https://img.shields.io/npm/v/@defichain/jellyfish-network)](https://www.npmjs.com/package/@defichain/jellyfish-network)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/c5b7a65e-aeec-4e12-a7b7-300cbc1a8069/deploy-status)](https://app.netlify.com/sites/cranky-franklin-5e59ef/deploys)
