@@ -40,14 +40,7 @@ beforeEach(async () => {
   await providers.randomizeEllipticPair()
   await container.waitForWalletBalanceGTE(101)
 
-  await fundEllipticPair(container, providers.elliptic.ellipticPair, 1.1) // 1.1
-  await fundEllipticPair(container, providers.elliptic.ellipticPair, 5.5) // 6.6
-  await fundEllipticPair(container, providers.elliptic.ellipticPair, 10.566) // 17.166
-  await fundEllipticPair(container, providers.elliptic.ellipticPair, 15.51345) // 32.67945
-  await fundEllipticPair(container, providers.elliptic.ellipticPair, 20) // 52.67945
-  await fundEllipticPair(container, providers.elliptic.ellipticPair, 37.98) // 90.65945
-  await fundEllipticPair(container, providers.elliptic.ellipticPair, 9.34055) // 100
-
+  await fundEllipticPair(container, providers.elliptic.ellipticPair, 100) // 100
   await providers.setupMocks()
 })
 
@@ -56,7 +49,7 @@ describe('createDeFiTx()', () => {
     const change = await providers.elliptic.script()
     const result = await builder.createDeFiTx(dummyDfTx, change)
 
-    expect(result.vin.length).toStrictEqual(7)
+    expect(result.vin.length).toStrictEqual(1)
     expect(result.vout.length).toStrictEqual(2) // 1 DfTx, 1 change
     expect(result.vout[0].value).toStrictEqual(new BigNumber(0))
     expect(result.vout[1].script).toStrictEqual(change)
@@ -80,16 +73,19 @@ describe('createDeFiTx()', () => {
   })
 
   it('balance should be deducted accordingly based on spent on DfTx', async () => {
-    const spendAmount = new BigNumber(34.56) // eg: utxosToAccount, the custom tx costed this
+    // add another utxo of 35
+    await fundEllipticPair(container, providers.elliptic.ellipticPair, 35) // 135
+
+    const spendAmount = new BigNumber(134.56) // eg: utxosToAccount, the custom tx costed this
 
     const change = await providers.elliptic.script()
     const result = await builder.createDeFiTx(dummyDfTx, change, spendAmount)
 
-    expect(result.vin.length).toStrictEqual(7)
+    expect(result.vin.length).toStrictEqual(2)
     expect(result.vout.length).toStrictEqual(2) // 1 DfTx, 1 change
     expect(result.vout[0].value).toStrictEqual(spendAmount)
     expect(result.vout[1].script).toStrictEqual(change)
-    expect(result.vout[1].value.gt(new BigNumber(99.999).minus(spendAmount))).toBeTruthy()
-    expect(result.vout[1].value.lt(new BigNumber(100).minus(spendAmount))).toBeTruthy()
+    expect(result.vout[1].value.gt(new BigNumber(134.999).minus(spendAmount))).toBeTruthy()
+    expect(result.vout[1].value.lt(new BigNumber(135).minus(spendAmount))).toBeTruthy()
   })
 })
