@@ -42,6 +42,20 @@ describe('OracleStatusController - Status test', () => {
     })
     expect(res.statusCode).toStrictEqual(200)
   })
+
+  it('/oracles/<address> - should get outage no results are returned', async () => {
+    jest.spyOn(apiTesting.app.get(WhaleApiClient).oracles, 'getPriceFeed')
+      .mockReturnValueOnce(getMockedOraclePriceFeedEmpty('df1qm7f2cx8vs9lqn8v43034nvp0fjsnvie93j'))
+
+    const res = await apiTesting.app.inject({
+      method: 'GET',
+      url: 'oracles/df1qm7f2cx8vs9lqn8v43034nvp0fjsnvie93j'
+    })
+    expect(res.json()).toStrictEqual({
+      status: 'outage'
+    })
+    expect(res.statusCode).toStrictEqual(200)
+  })
 })
 
 async function getMockedOraclePriceFeed (oracleAddress: string, minutesDiff: number): Promise<ApiPagedResponse<OraclePriceFeed>> {
@@ -65,6 +79,12 @@ async function getMockedOraclePriceFeed (oracleAddress: string, minutesDiff: num
       time: 0,
       amount: ''
     }]
+  }, 'GET', `oracles/${oracleAddress}/AAPL-USD/feed`)
+}
+
+async function getMockedOraclePriceFeedEmpty (oracleAddress: string): Promise<ApiPagedResponse<OraclePriceFeed>> {
+  return new ApiPagedResponse({
+    data: []
   }, 'GET', `oracles/${oracleAddress}/AAPL-USD/feed`)
 }
 
