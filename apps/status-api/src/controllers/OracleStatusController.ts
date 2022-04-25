@@ -20,13 +20,11 @@ export class OracleStatusController {
    * @return {Promise<OracleStatus>}
    */
   @Get('/:address')
-  async getOracleStatus (
-    @Param('address') oracleAddress: string
-  ): Promise<{ status: OracleStatus }> {
+  async getOracleStatus (@Param('address') oracleAddress: string): Promise<{ status: OracleStatus }> {
     const oraclePriceFeed: OraclePriceFeed = await this.cachedGet(`oracle-${oracleAddress}`, async () => {
       const oracle = await this.client.oracles.getOracleByAddress(oracleAddress)
       return (await this.client.oracles.getPriceFeed(oracle.id, oracle.priceFeeds[0].token, oracle.priceFeeds[0].currency, 1))[0]
-    }, 5000)
+    }, 5) // cache result for 5 seconds
 
     const nowEpoch = Date.now()
     const latestPublishedTime = oraclePriceFeed.block.medianTime * 1000
