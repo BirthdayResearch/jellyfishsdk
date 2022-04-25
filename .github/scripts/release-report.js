@@ -18,5 +18,5 @@ Built with commit ${context.sha}
 
 function getContainerLinks ({ payload: { number } }) {
   const apps = process.env.APPS.split(',')
-  return apps.map(app => `ghcr.io/defich/${app}:pr-${number}`)
+  return apps.map(app => `ghcr.io/jellyfishsdk/${app}:pr-${number}`)
 }
