@@ -15,7 +15,7 @@ afterAll(async () => {
 })
 
 describe('OracleStatusController - Status test', () => {
-  it('/oracles/<address> - should get operational as last published < 45 mins ago', async () => {
+  it('/oracles/<address> - should get operational as last published <= 60 mins ago', async () => {
     jest.spyOn(apiTesting.app.get(WhaleApiClient).oracles, 'getPriceFeed')
       .mockReturnValueOnce(getMockedOraclePriceFeed('df1qm7f2cx8vs9lqn8v43034nvckz6dxxpqezfh6dw', 5))
 
@@ -29,9 +29,9 @@ describe('OracleStatusController - Status test', () => {
     expect(res.statusCode).toStrictEqual(200)
   })
 
-  it('/oracles/<address> - should get outage as last published >= 45 mins ago', async () => {
+  it('/oracles/<address> - should get outage as last published > 60 mins ago', async () => {
     jest.spyOn(apiTesting.app.get(WhaleApiClient).oracles, 'getPriceFeed')
-      .mockReturnValueOnce(getMockedOraclePriceFeed('df1qcpp3entq53tdyklm5v0lnvqer4verr4puxchq4', 46))
+      .mockReturnValueOnce(getMockedOraclePriceFeed('df1qcpp3entq53tdyklm5v0lnvqer4verr4puxchq4', 62))
 
     const res = await apiTesting.app.inject({
       method: 'GET',

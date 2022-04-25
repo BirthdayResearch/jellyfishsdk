@@ -39,7 +39,8 @@ export class OracleStatusController {
         const latestPublishedTime = oraclePriceFeed[0].block.medianTime * 1000
         const timeDiff = nowEpoch - latestPublishedTime
 
-        if (timeDiff <= (45 * 60 * 1000)) { // check if ticker last published price within 45 min, else move on to next ticker
+        // check if ticker last published price within 60 min, else move on to next ticker
+        if (timeDiff <= (60 * 60 * 1000)) { // increasing to 60 min as there are occurrences where publishing txn did not go through (~3 times)
           return { status: 'operational' }
         }
       }
