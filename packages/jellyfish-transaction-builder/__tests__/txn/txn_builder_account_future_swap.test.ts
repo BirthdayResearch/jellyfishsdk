@@ -162,14 +162,11 @@ async function checkTxouts (outs: TxOut[]): Promise<void> {
 }
 
 // send transaction without minting a single block in the process
-async function sendTransactionWithoutBlockMint (transaction: TransactionSegWit): Promise<TxOut[]> {
+async function sendTransactionWithoutBlockMint (transaction: TransactionSegWit): Promise<void> {
   const buffer = new SmartBuffer()
   new CTransactionSegWit(transaction).toBuffer(buffer)
   const hex = buffer.toBuffer().toString('hex')
-  const txid = await testing.container.call('sendrawtransaction', [hex])
-
-  const tx = await container.call('getrawtransaction', [txid, true])
-  return tx.vout as TxOut[]
+  await testing.container.call('sendrawtransaction', [hex])
 }
 
 describe('create futureswap', () => {
@@ -584,7 +581,7 @@ describe('create futureswap', () => {
     const burnAfter = await testing.rpc.account.getBurnInfo()
     expect(burnAfter.dfip2203).toStrictEqual([`${(0.4 + 0.6).toFixed(8)}@TSLA`, `${(13).toFixed(8)}@DUSD`])
 
-    // check results can be retrieve d via account history
+    // check results can be retrieved via account history
     const accountHistories = await testing.rpc.account.listAccountHistory('all', { txtype: DfTxType.FUTURE_SWAP_EXECUTION })
     expect(accountHistories.length).toStrictEqual(3)
     expect(accountHistories).toStrictEqual(expect.arrayContaining([

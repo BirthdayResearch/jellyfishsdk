@@ -46,7 +46,7 @@ export class MockPrevoutProvider implements PrevoutProvider {
     // return the correct result without providing options. However, with 'minimumSumAmount', it
     // will appear sometimes.
     // Refer -> https://github.com/DeFiCh/ain/issues/1208
-    // Due to the above, we collect all utxos for the given address here and extract what's required to statisfy the minBalance
+    // Due to the above, we collect all utxos for the given address here and extract what's required to satisfy the minBalance
     // in jellyfish code.
     const unspent: any[] = await this.container.call('listunspent', [
       1, 9999999, [address], true

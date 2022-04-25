@@ -74,7 +74,7 @@ describe('createDeFiTx()', () => {
 
   it('balance should be deducted accordingly based on spent on DfTx', async () => {
     // add another utxo of 35
-    await fundEllipticPair(container, providers.elliptic.ellipticPair, 35) // 135
+    await fundEllipticPair(container, providers.elliptic.ellipticPair, 35) // 35
 
     const spendAmount = new BigNumber(134.56) // eg: utxosToAccount, the custom tx costed this
 
