@@ -57,7 +57,7 @@ export class MockPrevoutProvider implements PrevoutProvider {
     let total = new BigNumber(0)
 
     for (const utxo of unspent) {
-      if (total.isGreaterThan(minBalance)) {
+      if (total.isGreaterThanOrEqualTo(minBalance)) {
         break
       }
 
