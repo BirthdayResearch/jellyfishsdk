@@ -1,7 +1,7 @@
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
-  title: 'Jellyfish Ecosystem',
-  tagline: 'A collection of TypeScript + JavaScript tools and libraries to build Native DeFi products.',
+  title: 'Jellyfish',
+  tagline: 'SDK & Ecosystem for building modern lite DeFi Applications at scale',
   url: 'https://jellyfishsdk.com',
   baseUrl: '/',
   onBrokenLinks: 'throw',
@@ -94,7 +94,7 @@ module.exports = {
             },
             {
               label: 'GitHub',
-              to: 'https://github.com/DeFiCh'
+              to: 'https://github.com/JellyfishSDK'
             }
           ]
         },
