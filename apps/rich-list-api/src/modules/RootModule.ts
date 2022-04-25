@@ -3,7 +3,6 @@ import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { ControllerModule } from './ControllerModule'
 import { ActuatorModule } from '@defichain-apps/libs/actuator'
-import { BlockchainCppModule } from '@defichain-apps/libs/blockchaincpp'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { QueueItem, QueueModule } from './QueueModule'
 import { CrawledBlockModel } from '../models/CrawledBlock'
@@ -39,7 +38,6 @@ import { RichListDroppedOutModel } from '../models/RichListDroppedOut'
       inject: [ConfigService]
     }),
     QueueModule,
-    BlockchainCppModule,
     RichListDatabaseModule,
     RichListModule,
     ControllerModule
