@@ -7,12 +7,12 @@ interface argsType {
   secondParam: string | undefined
 }
 export class RPCMethod extends Command {
-  static description = 'Run an RPC command to the blockchain'
+  static description = 'Run an RPC command to the blockchain (in small caps)'
 
   static examples = [
-    '$ defi-cli rpc getBlockchainInfo',
-    '$ defi-cli rpc getBlockHeight',
-    '$ defi-cli rpc getMempoolEntry TXID'
+    '$ defi-cli rpc getblockchaininfo',
+    '$ defi-cli rpc getblockcount',
+    '$ defi-cli rpc getmempoolentry TXID'
   ]
 
   static args = [
@@ -31,11 +31,15 @@ export class RPCMethod extends Command {
       args.secondParam = ''
     }
     const script = exec(`docker exec -i 'defi-cli-container' defi-cli ${args.method} ${args.firstParam} ${args.secondParam}`)
-    script.stdout!.on('data', data => {
-      console.log(data.toString())
-    })
-    script.stderr!.on('data', data => {
-      console.log(data.toString())
-    })
+    if (script.stdout !== null) {
+      script.stdout.on('data', data => {
+        console.log(data.toString())
+      })
+    }
+    if (script.stderr !== null) {
+      script.stderr.on('data', data => {
+        console.log(data.toString())
+      })
+    }
   }
 }

@@ -1,6 +1,6 @@
 import { Command } from '@oclif/core'
 import axios from 'axios'
-export class Start extends Command {
+export class Snapshots extends Command {
   static description = 'Get a list of DeFiChain Snapshots'
   async run (): Promise<void> {
     // TODO: change AWS provider location based on user location
