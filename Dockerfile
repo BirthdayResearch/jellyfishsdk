@@ -19,7 +19,7 @@ COPY packages ./packages
 COPY apps ./apps
 
 RUN npm ci
-RUN npx lerna run build
+RUN npm run build --workspace=apps
 
 ARG APP
 ENV APP ${APP}
