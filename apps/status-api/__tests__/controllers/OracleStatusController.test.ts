@@ -43,7 +43,7 @@ describe('OracleStatusController - Status test', () => {
     expect(res.statusCode).toStrictEqual(200)
   })
 
-  it('/oracles/<address> - should get outage no results are returned', async () => {
+  it('/oracles/<address> - should get outage if no results are returned', async () => {
     jest.spyOn(apiTesting.app.get(WhaleApiClient).oracles, 'getPriceFeed')
       .mockReturnValueOnce(getMockedOraclePriceFeedEmpty('df1qm7f2cx8vs9lqn8v43034nvp0fjsnvie93j'))
 
