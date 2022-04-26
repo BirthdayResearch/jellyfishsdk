@@ -1,7 +1,18 @@
 import { Command } from '@oclif/core'
 import Dockerode from 'Dockerode'
-
+import { existsSync } from 'fs'
 // TODO: attach should be a flag
+
+function checkSnapshotValidity (snapshotFolders: string[]): boolean {
+  let valid = true
+  snapshotFolders.forEach((folder) => {
+    if (!existsSync(folder)) {
+      console.log(`${folder} does not exist in path!`)
+      valid = false
+    }
+  })
+  return valid
+}
 export class Start extends Command {
   static description = 'Start a DeFiChain Node with or without linking a local snapshot repository'
 
@@ -11,6 +22,7 @@ export class Start extends Command {
   ]
 
   async run (): Promise<void> {
+    console.log(await this.parse(Start))
     const { args } = await this.parse(Start)
     const docker = new Dockerode()
     const startOptions = {
@@ -26,17 +38,29 @@ export class Start extends Command {
     }
     const snapshot: string = args.snapshot
     if (snapshot !== undefined) {
-      // TODO: return error if path not valid
-
+      const snapshotFolders = [
+        `${snapshot}/anchors`,
+        `${snapshot}/blocks`,
+        `${snapshot}/burn`,
+        `${snapshot}/chainstate`,
+        `${snapshot}/enhancedcs`,
+        `${snapshot}/history`,
+        `${snapshot}/indexes`,
+        `${snapshot}/spv`
+      ]
+      if (!checkSnapshotValidity(snapshotFolders)) {
+        console.log(`Your snapshot path: ${snapshot}, appears to be invalid.`)
+        console.log('Please check your path again!')
+        return
+      }
       startOptions.HostConfig = {
         AutoRemove: true,
         Binds: [
           `${snapshot}:/data`
         ]
       }
+      console.log('Valid Snapshot loaded!')
     }
-    // TODO: Refactor this
-
     try {
       const container = await docker.createContainer(startOptions)
       await container.start()
@@ -51,29 +75,5 @@ export class Start extends Command {
     } catch (err) {
       console.log(err)
     }
-
-    // await docker.createContainer(startOptions).then(
-    //   (container) => {
-    //     if (container !== undefined) {
-    //       container.start()
-    //         .then(() => {
-    //           if (args.attach === 'attach') {
-    //             container.attach({ stream: true, stdout: true, stderr: true, stdin: true })
-    //               .then((stream) => {
-    //                 stream.pipe(process.stdout)
-    //               })
-    //               .catch((err) => console.log(err))
-    //           } else {
-    //             console.log('The local node has successfully booted up! :)')
-    //             console.log('Type defi-cli --help to see the full list of commands.')
-    //             console.log('Happy hacking!')
-    //           }
-    //         })
-    //         .catch((err) => console.log(err))
-    //     } else {
-    //       console.log('ERR: Container is undefined. Please try again.')
-    //     }
-    //   }
-    // ).catch((err) => console.log(err))
   }
 }

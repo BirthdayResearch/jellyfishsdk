@@ -11,21 +11,20 @@ describe('start', () => {
     consoleSpy.mockClear()
   })
   // TODO: Figure out why this doesn't work
-  // afterEach(async () => {
-  //   const container = docker.getContainer('defi-cli-container')
-  //   await container.stop()
-  //   await container.remove()
-  // })
-  it('should start container in detached mode', async () => {
-    await Start.run([])
-    // TODO: test directly if docker container starts?
-    expect(console.log).toHaveBeenLastCalledWith('Happy hacking!')
+  afterEach(async () => {
     const container = docker.getContainer('defi-cli-container')
     await container.stop()
     await container.remove()
   })
-  it('should start container with valid snapshot', async () => {
-    await Start.run(['/Users/justinwong/Documents/snapshot'])
+  it('should start container in detached mode', async () => {
+    await Start.run([])
+    // TODO: test directly if docker container starts?
     expect(console.log).toHaveBeenLastCalledWith('Happy hacking!')
   })
+  it('should start container with valid snapshot', async () => {
+    await Start.run(['/Users/justinwong/Documents/snapshot'])
+    // Follow jellyfish testing package design
+    expect(console.log).toHaveBeenLastCalledWith('Happy hacking!')
+  })
+  // TODO: Test with invalid snapshot
 })

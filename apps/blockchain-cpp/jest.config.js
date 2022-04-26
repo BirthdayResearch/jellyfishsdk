@@ -16,7 +16,8 @@ module.exports = {
   transform: {
     '^.+\\.(ts|tsx)?$': 'ts-jest',
     '^.+\\.(js|jsx)$': 'babel-jest'
-  }
+  },
+  testTimeout: 30000
 }
 // export default {
 //   // All imported modules in your tests should be mocked automatically
