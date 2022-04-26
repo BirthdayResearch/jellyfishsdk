@@ -27,7 +27,7 @@ describe('NetworkParamValidation', () => {
 
       const result = await apiTesting.app.inject({
         method: 'GET',
-        url: url + '?network=abc' // Query with some invalid network
+        url: `${url}?network=abc` // Query with some invalid network
       })
 
       const { message, statusCode } = result.json()

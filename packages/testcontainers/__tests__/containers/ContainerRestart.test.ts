@@ -22,7 +22,7 @@ describe('container restart with setDeFiConf', () => {
     await container.call('createmasternode', [address])
     await container.generate(1)
 
-    await container.setDeFiConf(['masternode_operator=' + address])
+    await container.setDeFiConf([`masternode_operator=${address}`])
     await container.restart()
 
     await container.generate(20)
