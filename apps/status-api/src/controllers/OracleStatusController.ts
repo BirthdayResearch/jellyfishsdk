@@ -1,6 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common'
 import { WhaleApiClient } from '@defichain/whale-api-client'
-import { OraclePriceFeed } from '@defichain/whale-api-client/dist/api/Oracles'
+import { Oracle } from '@defichain/whale-api-client/dist/api/Oracles'
 import { SemaphoreCache } from '../../../whale/src/module.api/cache/semaphore.cache'
 
 type OracleStatus = 'outage' | 'operational'
@@ -21,18 +21,35 @@ export class OracleStatusController {
    */
   @Get('/:address')
   async getOracleStatus (@Param('address') oracleAddress: string): Promise<{ status: OracleStatus }> {
-    const oraclePriceFeed: OraclePriceFeed = await this.cachedGet(`oracle-${oracleAddress}`, async () => {
+    return await this.cachedGet(`oracle-${oracleAddress}`, async () => {
       const oracle = await this.client.oracles.getOracleByAddress(oracleAddress)
-      return (await this.client.oracles.getPriceFeed(oracle.id, oracle.priceFeeds[0].token, oracle.priceFeeds[0].currency, 1))[0]
-    }, 5) // cache result for 5 seconds
+      return await this.getAlivePriceFeed(oracle)
+    }, 5) // cache status result for 5 seconds
+  }
 
-    const nowEpoch = Date.now()
-    const latestPublishedTime = oraclePriceFeed.block.medianTime * 1000
-    const timeDiff = nowEpoch - latestPublishedTime
+  private async getAlivePriceFeed (oracle: Oracle): Promise<{ status: OracleStatus }> {
+    const id = oracle.id
 
-    return {
-      status: timeDiff <= (45 * 60 * 1000) ? 'operational' : 'outage'
+    for (const priceFeed of oracle.priceFeeds) {
+      const token = priceFeed.token
+      const currency = priceFeed.currency
+      const oraclePriceFeed = await this.client.oracles.getPriceFeed(id, token, currency, 1)
+
+      // move on to the next ticker if oraclePriceFeed does not return any data
+      if (oraclePriceFeed.length === 0) {
+        continue
+      }
+
+      const nowEpoch = Date.now()
+      const latestPublishedTime = oraclePriceFeed[0].block.medianTime * 1000
+      const timeDiff = nowEpoch - latestPublishedTime
+
+      // check if ticker last published price within 60 min, else move on to next ticker
+      if (timeDiff <= (60 * 60 * 1000)) { // increasing to 60 min as there are occurrences where publishing txn did not go through (~3 times)
+        return { status: 'operational' }
+      }
     }
+    return { status: 'outage' } // return as outage if all tickers from this oracle does not fulfill above conditions
   }
 
   private async cachedGet<T> (field: string, fetch: () => Promise<T>, ttl: number): Promise<T> {
