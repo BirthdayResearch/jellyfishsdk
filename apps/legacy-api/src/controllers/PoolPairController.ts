@@ -70,7 +70,7 @@ export class PoolPairController {
 
       const [baseVolume, quoteVolume] = getVolumes(poolPair)
 
-      const pairKey = base.symbol + '_' + quote.symbol
+      const pairKey = `${base.symbol}_${quote.symbol}`
       result[pairKey] = {
         base_id: base.id,
         base_name: base.symbol,
@@ -362,7 +362,7 @@ export class PoolPairControllerV2 {
 
       const [baseVolume, quoteVolume] = getVolumes(poolPair)
 
-      const pairKey = base.symbol + '_' + quote.symbol
+      const pairKey = `${base.symbol}_${quote.symbol}`
       result[pairKey] = {
         base_id: base.id,
         base_name: base.symbol,
@@ -421,8 +421,8 @@ export class SwapCacheFiller {
         swapsCount += result.data.swaps.length
       } catch (err) {
         this.logger.error(
-          `[${network}] ` +
-          'last page: ' + (next !== undefined ? JSON.stringify(decodeNextToken(next)) : 'none'),
+          `${`[${network}] ` +
+          'last page: '}${next !== undefined ? JSON.stringify(decodeNextToken(next)) : 'none'}`,
           err
         )
       }
@@ -549,7 +549,7 @@ function mapPoolPairsToLegacyYieldFarmingPool (poolPair: PoolPairData): LegacyLi
     // Identity
     pair: poolPair.symbol,
     name: poolPair.name,
-    pairLink: 'https://defiscan.live/tokens/' + poolPair.id,
+    pairLink: `https://defiscan.live/tokens/${poolPair.id}`,
     logo: 'https://defichain.com/downloads/symbol-defi-blockchain.svg',
 
     // Tokenomics
