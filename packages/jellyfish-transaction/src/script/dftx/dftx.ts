@@ -89,25 +89,27 @@ import {
   SetLoanToken,
   CUpdateLoanToken,
   UpdateLoanToken,
+  TakeLoan,
+  CTakeLoan,
+  CPaybackLoan,
+  PaybackLoan,
+  CPaybackLoanV2,
+  PaybackLoanV2
+} from './dftx_loans'
+import {
   CCreateVault,
   CreateVault,
   CUpdateVault,
   UpdateVault,
-  DepositToVault,
   CDepositToVault,
-  WithdrawFromVault,
+  DepositToVault,
   CWithdrawFromVault,
-  CloseVault,
+  WithdrawFromVault,
   CCloseVault,
-  CTakeLoan,
-  TakeLoan,
-  CPaybackLoan,
-  PaybackLoan,
-  CPaybackLoanV2,
-  PaybackLoanV2,
-  PlaceAuctionBid,
-  CPlaceAuctionBid
-} from './dftx_loans'
+  CloseVault,
+  CPlaceAuctionBid,
+  PlaceAuctionBid
+} from './dftx_vault'
 
 /**
  * DeFi Transaction
