@@ -33,8 +33,8 @@ jobs:
         uses: docker/login-action@dd4fa0671be5250ee6f50aedf4cb05514abda2c7
         with:
           registry: public.ecr.aws
-          username: ${{ secrets.OPEN_IMAGE_REGISTRY_AWS_ACCESS_KEY_ID }}
-          password: ${{ secrets.OPEN_IMAGE_REGISTRY_AWS_SECRET_ACCESS_KEY }}
+          username: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Resolve ECR Tags
         uses: actions/github-script@9ac08808f993958e9de277fe43a64532a609130e
