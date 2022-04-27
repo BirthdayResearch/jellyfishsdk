@@ -25,7 +25,15 @@ it('should bi-directional buffer-object-buffer', () => {
         amount: '1@BTC'
       }
      */
-    '6a454466547853aec2e44aa7a618b4b8d911c3e270616553debabf90199c8147d5038f55b059ed16001488d52b9b1dded932272e0c9bebb0dccdd46ecf990100e1f50500000000'
+    '6a454466547853aec2e44aa7a618b4b8d911c3e270616553debabf90199c8147d5038f55b059ed16001488d52b9b1dded932272e0c9bebb0dccdd46ecf990100e1f50500000000',
+    /**
+     * WithdrawFromVault : {
+        vaultId: 'a9e685e0de7f3923bd578c03c5c207a0eb234f0ae3c420303f00792e3856651f',
+        to: 'bcrt1q4wpnc2l3h6zrpnm4unm8m4nvxstgtsvz44j8md',
+        amount: '1@BTC'
+      }
+     */
+    '6a4544665478531f6556382e79003f3020c4e30a4f23eba007c2c5038c57bd23397fdee085e6a9160014ab833c2bf1be8430cf75e4f67dd66c341685c1820200e1f50500000000'
   ]
 
   fixtures.forEach(hex => {
