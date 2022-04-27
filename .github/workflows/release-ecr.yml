@@ -16,7 +16,7 @@ jobs:
     if: github.actor != 'dependabot[bot]'
     name: Publish
     runs-on: ubuntu-latest
-    environment: Release Apps
+    environment: ECR Release Publishing
     strategy:
       matrix:
         app: [ status-api ]
