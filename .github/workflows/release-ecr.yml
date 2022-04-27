@@ -1,0 +1,53 @@
+name: Release Apps for ECR
+
+on:
+  release:
+    types: [ published ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  APPS: 'status-api'
+
+jobs:
+  build:
+    if: github.actor != 'dependabot[bot]'
+    name: Publish
+    runs-on: ubuntu-latest
+    environment: Release Apps
+    strategy:
+      matrix:
+        app: [ status-api ]
+    steps:
+      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@27d0a4f181a40b142cce983c5393082c365d1480
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@94ab11c41e45d028884a99163086648e898eed25
+
+      - name: Login to Public ECR
+        uses: docker/login-action@dd4fa0671be5250ee6f50aedf4cb05514abda2c7
+        with:
+          registry: public.ecr.aws
+          username: ${{ secrets.OPEN_IMAGE_REGISTRY_AWS_ACCESS_KEY_ID }}
+          password: ${{ secrets.OPEN_IMAGE_REGISTRY_AWS_SECRET_ACCESS_KEY }}
+
+      - name: Resolve ECR Tags
+        uses: actions/github-script@9ac08808f993958e9de277fe43a64532a609130e
+        id: ecr-tags
+        with:
+          script: return require('./.github/scripts/release-ecr-tags.js')({ context })
+          result-encoding: string
+
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: public.ecr.aws/x0i4b0k2
+          ECR_REPOSITORY: ${{ matrix.app }}
+          IMAGE_TAG: ${{ steps.ecr-tags.outputs.result }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
