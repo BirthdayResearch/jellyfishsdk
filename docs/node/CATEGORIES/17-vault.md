@@ -6,8 +6,8 @@ slug: /jellyfish/api/vault
 ---
 
 ```js
-import {Client} from '@defichain/jellyfish'
-const client = new Client()
+import {JsonRpcClient} from '@defichain/jellyfish-api-jsonrpc'
+const client = new JsonRpcClient('http://foo:bar@localhost:8554')
 
 // Using client.vault.
 const something = await client.vault.method()
@@ -335,5 +335,19 @@ interface ListAuctionHistoryDetail {
   batchIndex: number
   auctionBid: string
   auctionWon: string[]
+}
+```
+
+## estimateLoan
+
+Returns amount of loan tokens a vault can take depending on a target collateral ratio.
+
+```ts title="client.vault.estimateLoan()"
+interface vault {
+  estimateLoan (vaultId: string, tokenSplit: TokenPercentageSplit, targetRatio?: number): Promise<string[]> // Returns array of token@amount`
+}
+
+export interface TokenPercentageSplit {
+  [token: string]: number // Token: split
 }
 ```

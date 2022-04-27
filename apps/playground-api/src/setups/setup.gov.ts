@@ -71,4 +71,26 @@ export class SetupGov extends PlaygroundSetup<Record<string, any>> {
     }
     return false
   }
+
+  async after (): Promise<void> {
+    await this.generate(1)
+
+    // separate the dfip2203 setgov as
+    // set dfip2203 in the list above will throw
+    // `RpcApiError: 'scriptpubkey (code 64)', code: -26, method: setgov`
+    await this.client.masternode.setGov({
+      ATTRIBUTES: {
+        'v0/params/dfip2203/reward_pct': '0.05',
+        'v0/params/dfip2203/block_period': '10'
+      }
+    })
+    await this.generate(1)
+
+    await this.client.masternode.setGov({
+      ATTRIBUTES: {
+        'v0/params/dfip2203/active': 'true'
+      }
+    })
+    await this.generate(1)
+  }
 }

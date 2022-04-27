@@ -1,13 +1,13 @@
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
-  title: 'Jellyfish Ecosystem',
-  tagline: 'A collection of TypeScript + JavaScript tools and libraries to build Native DeFi products.',
-  url: 'https://jellyfish.defichain.com',
+  title: 'Jellyfish',
+  tagline: 'SDK & Ecosystem for building modern lite DeFi Applications at scale',
+  url: 'https://jellyfishsdk.com',
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
-  organizationName: 'DeFiChain',
+  organizationName: 'JellyfishSDK',
   projectName: 'Jellyfish',
   themeConfig: {
     prism: {
@@ -56,7 +56,7 @@ module.exports = {
           position: 'left'
         },
         {
-          href: 'https://github.com/DeFiCh/jellyfish',
+          href: 'https://github.com/JellyfishSDK/jellyfish',
           label: 'GitHub',
           position: 'right'
         }
@@ -94,7 +94,7 @@ module.exports = {
             },
             {
               label: 'GitHub',
-              to: 'https://github.com/DeFiCh'
+              to: 'https://github.com/JellyfishSDK'
             }
           ]
         },
@@ -107,7 +107,7 @@ module.exports = {
             },
             {
               label: 'MIT License',
-              to: 'https://github.com/DeFiCh/jellyfish/blob/main/LICENSE'
+              to: 'https://github.com/JellyfishSDK/jellyfish/blob/main/LICENSE'
             }
           ]
         },
@@ -132,7 +132,7 @@ module.exports = {
         docs: {
           path: '../docs/ecosystem',
           routeBasePath: 'ecosystem',
-          editUrl: 'https://github.com/DeFiCh/jellyfish/tree/main/website',
+          editUrl: 'https://github.com/JellyfishSDK/jellyfish/tree/main/website',
           sidebarCollapsed: false,
         },
         theme: {
@@ -148,7 +148,7 @@ module.exports = {
         id: 'node',
         path: '../docs/node',
         routeBasePath: 'node',
-        editUrl: 'https://github.com/DeFiCh/jellyfish/tree/main/website',
+        editUrl: 'https://github.com/JellyfishSDK/jellyfish/tree/main/website',
         sidebarCollapsed: false,
       },
     ],
@@ -158,7 +158,7 @@ module.exports = {
         id: 'ocean',
         path: '../docs/ocean',
         routeBasePath: 'ocean',
-        editUrl: 'https://github.com/DeFiCh/jellyfish/tree/main/website',
+        editUrl: 'https://github.com/JellyfishSDK/jellyfish/tree/main/website',
         sidebarCollapsed: false,
       },
     ],
@@ -168,7 +168,7 @@ module.exports = {
         id: 'testing',
         path: '../docs/testing',
         routeBasePath: 'testing',
-        editUrl: 'https://github.com/DeFiCh/jellyfish/tree/main/website',
+        editUrl: 'https://github.com/JellyfishSDK/jellyfish/tree/main/website',
         sidebarCollapsed: false,
       },
     ],
@@ -178,7 +178,7 @@ module.exports = {
         id: 'legacy',
         path: '../docs/legacy',
         routeBasePath: 'legacy',
-        editUrl: 'https://github.com/DeFiCh/jellyfish/tree/main/website',
+        editUrl: 'https://github.com/JellyfishSDK/jellyfish/tree/main/website',
         sidebarCollapsed: false,
       },
     ],
