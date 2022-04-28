@@ -395,13 +395,12 @@ interface ChainTxStats {
 
 ## getMempoolDescendants
 
- Get all in-mempool descendants if txId is in mempool as string[] if verbose is false else as json object.
+Get all in-mempool descendants if txId is in mempool as string[] if verbose is false else as json object.
 
- ```ts title="client.blockchain.getMempoolDescendants()"
- interface blockchain {
-   getMempoolDescendants (txId: string, verbose: true): Promise<MempoolTx>
-   getMempoolDescendants (txId: string, verbose: false): Promise<string[]>
-   getMempoolDescendants (txId: string, verbose: boolean): Promise<MempoolTx | string[]>
- }
- ```
- 
+```ts title="client.blockchain.getMempoolDescendants()"
+interface blockchain {
+  getMempoolDescendants (txId: string, verbose: true): Promise<MempoolTx>
+  getMempoolDescendants (txId: string, verbose: false): Promise<string[]>
+  getMempoolDescendants (txId: string, verbose: boolean): Promise<MempoolTx | string[]>
+}
+```
