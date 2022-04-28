@@ -6,8 +6,8 @@ slug: /jellyfish/api/vault
 ---
 
 ```js
-import {Client} from '@defichain/jellyfish'
-const client = new Client()
+import {JsonRpcClient} from '@defichain/jellyfish-api-jsonrpc'
+const client = new JsonRpcClient('http://foo:bar@localhost:8554')
 
 // Using client.vault.
 const something = await client.vault.method()

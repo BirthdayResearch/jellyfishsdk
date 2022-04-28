@@ -23,6 +23,8 @@
 /docs/legacy/                                   @fuxingloh @eli-lim
 /apps/legacy-api/                               @fuxingloh @joeldavidw @eli-lim
 
+/apps/status-api/                               @fuxingloh @joeldavidw @nichellekoh
+
 /docs/ocean/                                    @fuxingloh @canonbrother @ivan-zynesis
 /apps/ocean-api/                                @fuxingloh @canonbrother @kodemon
 /packages/ocean-api-client/                     @fuxingloh @canonbrother @kodemon
@@ -44,8 +46,8 @@
 /packages/jellyfish-crypto/                     @fuxingloh @ivan-zynesis @surangap
 /packages/jellyfish-transaction-signature/      @fuxingloh @ivan-zynesis @surangap
 
-/packages/jellyfish-wallet/                     @fuxingloh @ivan-zynesis @monstrobishi
-/packages/jellyfish-wallet-classic/             @fuxingloh @ivan-zynesis @monstrobishi
+/packages/jellyfish-wallet/                     @fuxingloh @ivan-zynesis
+/packages/jellyfish-wallet-classic/             @fuxingloh @ivan-zynesis
 /packages/jellyfish-wallet-encrypted/           @fuxingloh @ivan-zynesis
 /packages/jellyfish-wallet-mnemonic/            @fuxingloh @ivan-zynesis
 

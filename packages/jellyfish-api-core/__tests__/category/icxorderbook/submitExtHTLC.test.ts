@@ -522,7 +522,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
     }
     const promise = client.icxorderbook.submitExtHTLC(ExtHTLC)
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test ICXSubmitEXTHTLCTx execution failed:\noffer (' + makeOfferTxId + ') needs to have dfc htlc submitted first, but no dfc htlc found!\', code: -32600, method: icx_submitexthtlc')
+    await expect(promise).rejects.toThrow(`RpcApiError: 'Test ICXSubmitEXTHTLCTx execution failed:\noffer (${makeOfferTxId}) needs to have dfc htlc submitted first, but no dfc htlc found!', code: -32600, method: icx_submitexthtlc`)
 
     // List htlc
     const listHTLCOptions: ICXListHTLCOptions = {
