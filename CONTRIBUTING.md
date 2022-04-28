@@ -1,7 +1,7 @@
 # DeFi Jellyfish Contributing Guide
 
 You need `node v16`, and `npm v8` for this project, it's required to set
-up [npm workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces).
+up [npm workspaces](https://docs.npmjs.com/cli/v8/using-npm/workspaces).
 
 ```shell
 npm install
@@ -91,16 +91,16 @@ TODO comments should usually include the author's github username in parentheses
 ## Publishing
 
 `"version": "0.0.0"` is used because publishing will be done automatically
-by [GitHub releases](https://github.com/DeFiCh/jellyfish/releases) with connected workflows. On
+by [GitHub releases](https://github.com/JellyfishSDK/jellyfish/releases) with connected workflows. On
 release `types: [ published ]`, GitHub Action will automatically build all packages in this repo and publish it into
 npm. All packages in this mono-repo will require `"peerDependencies": "defichain"` this setup ensures all
 subsequent `@defichain/*` package uses the same version.
 
 For packages with accompanying docker images, they are published automatically to GitHub Container Registry
-(ghcr.io/defich). When a new [GitHub releases](https://github.com/DeFiCh/whale/releases) is triggered, GitHub Action
-will automatically build the docker image in this repo and publish it. Two images are created for each release
-targeting `linux/amd64` and `linux/arm64`. The latest tag will always be updated with the last release and semantic
-release is enforced for each release.
+(ghcr.io/jellyfishsdk). When a new [GitHub releases](https://github.com/JellyfishSDK/jellyfish/releases) is triggered,
+GitHub Action will automatically build the docker image in this repo and publish it. Two images are created for each
+release targeting `linux/amd64` and `linux/arm64`. The latest tag will always be updated with the last release and
+semantic release is enforced for each release.
 
 ## Explicit over implicit
 
@@ -143,7 +143,7 @@ mass of code concentration within project that were better separated.
 
 ## Code of conduct
 
-Please follow the guidelines outlined at https://github.com/DeFiCh/.github/blob/main/CODE_OF_CONDUCT.md
+Please follow the guidelines outlined at https://github.com/JellyfishSDK/.github/blob/main/CODE_OF_CONDUCT.md
 
 ## IntelliJ IDEA
 

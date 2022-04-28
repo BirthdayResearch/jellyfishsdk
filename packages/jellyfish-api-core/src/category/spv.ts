@@ -121,6 +121,23 @@ export class Spv {
   }
 
   /**
+   * Gets all HTLC contracts stored in wallet and creates refunds transactions for all that have expired
+   *
+   * @param {string} destinationAddress Destination for funds in the HTLC
+   * @param {SpvDefaultOptions} [options]
+   * @param {BigNumber} [options.feeRate=10000] Fee rate in satoshis per KB. Minimum is 1000.
+   * @return {Promise<string[]>} array of txid
+   */
+  async refundHtlcAll (destinationAddress: string, options: SpvDefaultOptions = { feeRate: new BigNumber('10000') }): Promise<string[]> {
+    /**
+     * Looking at ain, it's returning an array of txid containing only 1 txid.
+     * Considering some factors, this implementation is different from the rpc docs
+     * on ain side. Refer to PR https://github.com/JellyfishSDK/jellyfish/pull/1324
+     */
+    return await this.client.call<string[]>('spv_refundhtlcall', [destinationAddress, options.feeRate], 'number')
+  }
+
+  /**
    * List all outputs related to HTLC addresses in the wallet.
    *
    * @param {string | undefined} [scriptAddress] HTLC address to filter result

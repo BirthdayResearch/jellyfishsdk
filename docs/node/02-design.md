@@ -12,16 +12,16 @@ A `Promise<?>` based design is used as async/await implementation are very matur
 life to modern development.
 
 ```js
-import {Client} from '@defichain/jellyfish'
+import {JsonRpcClient} from '@defichain/jellyfish-api-jsonrpc'
 
-const client = new Client()
+const client = new JsonRpcClient('http://foo:bar@localhost:8554')
 const {blocks} = await client.mining.getMiningInfo()
 ```
 
 ## IEEE-754 arbitrary precision
 
 Due to the dynamic nature of the JavaScript language, it forces all number to be interpolated as IEEE-754 which can 
-cause precision to be lost. [DeFiCh/jellyfish/issues/18](https://github.com/DeFiCh/jellyfish/issues/18)
+cause precision to be lost. [JellyfishSDK/jellyfish/issues/18](https://github.com/JellyfishSDK/jellyfish/issues/18)
 
 ```js
 it('lost precision converting DFI 😥', () => {
