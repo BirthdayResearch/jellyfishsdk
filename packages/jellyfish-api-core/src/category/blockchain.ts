@@ -225,6 +225,34 @@ export class Blockchain {
   async getChainTxStats (nBlocks?: number, blockHash?: string): Promise<ChainTxStats> {
     return await this.client.call('getchaintxstats', [nBlocks, blockHash], 'number')
   }
+
+  /**
+  * Get all in-mempool descendants for the given transaction as string[]
+  * @param {string} txId the transaction id in mempool
+  * @param {boolean} verbose false
+  * @returns {Promise<string[]>}
+  */
+  getMempoolDescendants (txId: string, verbose: false): Promise<string[]>
+
+  /**
+  * Get all in-mempool descendants for the given transaction as MempoolTx object
+  * @param {string} txId the transaction id
+  * @param {boolean} verbose true
+  * @returns {Promise<MempoolTx>}
+  */
+  getMempoolDescendants (txId: string, verbose: true): Promise<MempoolTx>
+
+  /**
+   * Get all in-mempool descendants for the given transaction as JSON object
+   * if verbose is true else as string[]
+   *
+   * @param {string} txId the transaction id
+   * @param {boolean} verbose true for json object, false for array of transaction ids
+   * @returns {Promise<string[] | MempoolTx>}
+   */
+   async getMempoolDescendants (txId: string, verbose: boolean): Promise<string[] | MempoolTx> {
+    return await this.client.call('getmempooldescendants', [txId, verbose], 'bignumber')
+  }
 }
 
 /**
