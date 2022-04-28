@@ -31,6 +31,7 @@ describe('getMempoolDescendants', () => {
       expect(mempoolEntry.length).toBeGreaterThan(0)
     }, 10000)
 
+    const mempoolEntry: MempoolTx = await testing.rpc.blockchain.getMempoolDescendants(ancestorTxId, true)
     const entryKey = Object.keys(mempoolEntry)[0]
     expect(mempoolEntry[entryKey]).toStrictEqual({
       fees: expect.any(Object),
