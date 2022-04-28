@@ -3,7 +3,6 @@ import BigNumber from 'bignumber.js'
 import { MempoolTx } from '../../../src/category/blockchain'
 import waitForExpect from 'wait-for-expect'
 import { Testing } from '@defichain/jellyfish-testing'
-import { expectHexBufferToObject } from 'packages/jellyfish-transaction/__tests__/tx_composer'
 
 describe('getMempoolDescendants', () => {
   const container = new MasterNodeRegTestContainer()
