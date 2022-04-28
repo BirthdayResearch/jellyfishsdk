@@ -42,7 +42,7 @@
     "@nestjs/typeorm": "^8.0.3",
     "async-mutex": "^0.3.2",
     "bignumber.js": "^9.0.2",
-    "cache-manager": "^3.6.0",
+    "cache-manager": "^3.6.1",
     "cbor": "^8.1.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
