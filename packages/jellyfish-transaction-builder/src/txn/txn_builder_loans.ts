@@ -155,7 +155,7 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @returns {Promise<TransactionSegWit>}
    * @deprecated vault methods are moving to TxnBuilderVault
- */
+   */
   async createVault (createVault: CreateVault, changeScript: Script): Promise<TransactionSegWit> {
     const creationFee = this.network.name === 'mainnet' ? new BigNumber('2') : new BigNumber('1')
 
