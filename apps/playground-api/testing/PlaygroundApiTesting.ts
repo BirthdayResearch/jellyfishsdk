@@ -2,23 +2,25 @@ import { Testing, TestingGroup } from '@defichain/jellyfish-testing'
 import { PlaygroundApiClient } from '@defichain/playground-api-client'
 import { PlaygroundStubServer } from './PlaygroundStubServer'
 import { PlaygroundStubClient } from './PlaygroundStubClient'
+import { NestFastifyApplication } from '@nestjs/platform-fastify'
+import { ApiTesting } from '../../libs/rootserver/testing/ApiTesting'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ApiClient } from '@defichain/jellyfish-api-core'
-import { NestFastifyApplication } from '@nestjs/platform-fastify'
 
 /**
  * PlaygroundApi Testing framework.
  */
-export class PlaygroundApiTesting {
+export class PlaygroundApiTesting extends ApiTesting {
   constructor (
-    private readonly testingGroup: TestingGroup,
-    private readonly stubServer: PlaygroundStubServer = new PlaygroundStubServer(testingGroup.get(0).container),
+    private readonly testingGroup: TestingGroup = TestingGroup.create(1),
+    readonly stubServer: PlaygroundStubServer = new PlaygroundStubServer(testingGroup.get(0).container),
     private readonly stubApiClient: PlaygroundStubClient = new PlaygroundStubClient((stubServer))
   ) {
+    super(stubServer)
   }
 
-  static create (testingGroup: TestingGroup = TestingGroup.create(1)): PlaygroundApiTesting {
-    return new PlaygroundApiTesting(testingGroup)
+  static create (): PlaygroundApiTesting {
+    return new PlaygroundApiTesting()
   }
 
   get group (): TestingGroup {
@@ -57,7 +59,7 @@ export class PlaygroundApiTesting {
    */
   async start (): Promise<void> {
     await this.group.start()
-    await this.stubServer.start()
+    await super.start()
   }
 
   /**
@@ -68,11 +70,7 @@ export class PlaygroundApiTesting {
    * @see PlaygroundStubServer
    */
   async stop (): Promise<void> {
-    try {
-      await this.stubServer.stop()
-    } catch (err) {
-      console.error(err)
-    }
+    await super.stop()
     try {
       await this.group.stop()
     } catch (err) {

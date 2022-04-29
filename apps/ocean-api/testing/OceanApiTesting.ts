@@ -2,23 +2,25 @@ import { Testing, TestingGroup } from '@defichain/jellyfish-testing'
 import { OceanApiClient } from '@defichain/ocean-api-client'
 import { OceanStubServer } from './OceanStubServer'
 import { OceanStubClient } from './OceanStubClient'
+import { NestFastifyApplication } from '@nestjs/platform-fastify'
+import { ApiTesting } from '../../libs/rootserver/testing/ApiTesting'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ApiClient } from '@defichain/jellyfish-api-core'
-import { NestFastifyApplication } from '@nestjs/platform-fastify'
 
 /**
  * OceanApi Testing framework.
  */
-export class OceanApiTesting {
+export class OceanApiTesting extends ApiTesting {
   constructor (
-    private readonly testingGroup: TestingGroup,
-    private readonly stubServer: OceanStubServer = new OceanStubServer(testingGroup.get(0).container),
+    private readonly testingGroup: TestingGroup = TestingGroup.create(1),
+    readonly stubServer: OceanStubServer = new OceanStubServer(testingGroup.get(0).container),
     private readonly stubApiClient: OceanStubClient = new OceanStubClient((stubServer))
   ) {
+    super(stubServer)
   }
 
-  static create (testingGroup: TestingGroup = TestingGroup.create(1)): OceanApiTesting {
-    return new OceanApiTesting(testingGroup)
+  static create (): OceanApiTesting {
+    return new OceanApiTesting()
   }
 
   get group (): TestingGroup {
@@ -65,7 +67,7 @@ export class OceanApiTesting {
    */
   async start (): Promise<void> {
     await this.group.start()
-    await this.stubServer.start()
+    await super.start()
   }
 
   /**
@@ -76,11 +78,7 @@ export class OceanApiTesting {
    * @see OceanStubServer
    */
   async stop (): Promise<void> {
-    try {
-      await this.stubServer.stop()
-    } catch (err) {
-      console.error(err)
-    }
+    await super.stop()
     try {
       await this.group.stop()
     } catch (err) {

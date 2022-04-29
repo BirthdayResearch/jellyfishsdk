@@ -1,55 +1,23 @@
 import { LegacyStubServer, RegisteredRoute } from './LegacyStubServer'
-import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { InjectOptions, Response as LightMyRequestResponse } from 'light-my-request'
+import { ApiTesting } from '../../libs/rootserver/testing/ApiTesting'
 
 /**
  * LegacyApi Testing framework.
  */
-export class LegacyApiTesting {
+export class LegacyApiTesting extends ApiTesting {
   constructor (
-    private readonly stubServer: LegacyStubServer = new LegacyStubServer()
+    readonly stubServer: LegacyStubServer = new LegacyStubServer()
   ) {
+    super(stubServer)
   }
 
   static create (): LegacyApiTesting {
     return new LegacyApiTesting()
   }
 
-  get app (): NestFastifyApplication {
-    if (this.stubServer.app === undefined) {
-      throw new Error('not yet initialized')
-    }
-    return this.stubServer.app
-  }
-
   async inject (opts: InjectOptions | string): Promise<LightMyRequestResponse> {
     return await this.app.inject(opts)
-  }
-
-  /**
-   * Start connected services for testing.
-   *
-   * @see TestingGroup
-   * @see Testing
-   * @see LegacyStubServer
-   */
-  async start (): Promise<void> {
-    await this.stubServer.start()
-  }
-
-  /**
-   * Stop all connected services.
-   *
-   * @see TestingGroup
-   * @see Testing
-   * @see LegacyStubServer
-   */
-  async stop (): Promise<void> {
-    try {
-      await this.stubServer.stop()
-    } catch (err) {
-      console.error(err)
-    }
   }
 
   getAllRoutes (): RegisteredRoute[] {
