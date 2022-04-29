@@ -193,22 +193,6 @@ export class Vault {
   }
 
   /**
-   * Returns estimated vault for given collateral and loan amounts.
-   *
-   * @param {string[]} collateralAmounts Collateral amounts as string array. [ "amount@token" ]
-   * @param {string[]} loanAmounts Loan amounts as string array. [ "amount@token" ]
-   * @return {Promise<VaultEstimation>}
-   */
-  async estimateVault (collateralAmounts: string[], loanAmounts: string[]): Promise<VaultEstimation> {
-    return await this.client.call('estimatevault', [collateralAmounts, loanAmounts], {
-      collateralValue: 'bignumber',
-      loanValue: 'bignumber',
-      informativeRatio: 'bignumber',
-      collateralRatio: 'number'
-    })
-  }
-
-  /**
    * Returns amount of collateral tokens needed to take an amount of loan tokens for a target collateral ratio.
    *
    * @param {string[]} loanAmounts Amount as array. Example: [ "amount@token" ]
@@ -231,6 +215,22 @@ export class Vault {
   async estimateLoan (vaultId: string, tokenSplit: TokenPercentageSplit, targetRatio?: number): Promise<string[]> {
     const params = targetRatio === undefined ? [vaultId, tokenSplit] : [vaultId, tokenSplit, targetRatio]
     return await this.client.call('estimateloan', params, 'number')
+  }
+
+  /**
+   * Returns estimated vault for given collateral and loan amounts.
+   *
+   * @param {string[]} collateralAmounts Collateral amounts as string array. [ "amount@token" ]
+   * @param {string[]} loanAmounts Loan amounts as string array. [ "amount@token" ]
+   * @return {Promise<VaultEstimation>}
+   */
+  async estimateVault (collateralAmounts: string[], loanAmounts: string[]): Promise<VaultEstimation> {
+    return await this.client.call('estimatevault', [collateralAmounts, loanAmounts], {
+      collateralValue: 'bignumber',
+      loanValue: 'bignumber',
+      informativeRatio: 'bignumber',
+      collateralRatio: 'number'
+    })
   }
 }
 
