@@ -28,7 +28,7 @@ describe('getMempoolDescendants', () => {
     await waitForExpect(async () => {
       await testing.rpc.wallet.sendToAddress('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 0.0003)
       const mempoolEntry: MempoolTx = await testing.rpc.blockchain.getMempoolDescendants(ancestorTxId, true)
-      expect(mempoolEntry.length).toBeGreaterThan(0)
+      expect(Object.keys(mempoolEntry).length).toBeGreaterThan(0)
     }, 10000)
 
     const mempoolEntry: MempoolTx = await testing.rpc.blockchain.getMempoolDescendants(ancestorTxId, true)
@@ -60,14 +60,14 @@ describe('getMempoolDescendants', () => {
       await testing.rpc.wallet.sendToAddress('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 0.0003)
       const mempoolEntry: string[] = await testing.rpc.blockchain.getMempoolDescendants(ancestorTxId, false)
       expect(mempoolEntry.length).toBeGreaterThan(0)
+      expect(mempoolEntry.values().next().value.toString().length).toStrictEqual(64)
     }, 10000)
   })
 
   it('should return error if tx not in mempool', async () => {
     const txId = '9fb9c46b1d12dae8a4a35558f7ef4b047df3b444b1ead61d334e4f187f5f58b7'
-    await waitForExpect(async () => {
-      await expect(testing.rpc.blockchain.getMempoolDescendants(txId, false)).rejects
-        .toThrow('RpcApiError: \'Transaction not in mempool\', code: -5, method: getmempooldescendants')
-    }, 10000)
+    const promise = testing.rpc.blockchain.getMempoolDescendants(txId, false)
+    await expect(promise).rejects
+      .toThrow('RpcApiError: \'Transaction not in mempool\', code: -5, method: getmempooldescendants')
   })
 })
