@@ -29,9 +29,9 @@ describe('getMempoolAncestors', () => {
     }
     const txId = await testing.rpc.wallet.sendToAddress('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 0.0003)
     const mempoolEntry: MempoolTx = await testing.rpc.blockchain.getMempoolAncestors(txId, true)
-    const entryKey = Object.keys(mempoolEntry)[0]
     await waitForExpect(async () => {
-      expect(Object.keys(mempoolEntry).length).toBeGreaterThan(0)
+        expect(Object.keys(mempoolEntry).length).toBeGreaterThan(0)
+        const entryKey = Object.keys(mempoolEntry)[0]
       expect(mempoolEntry[entryKey]).toStrictEqual({
         fees: expect.any(Object),
         vsize: expect.any(BigNumber),
