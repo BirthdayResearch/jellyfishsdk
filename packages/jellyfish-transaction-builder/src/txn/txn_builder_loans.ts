@@ -201,12 +201,12 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
   }
 
   /**
-     * PaybackLoan to vault transaction.
-     *
-     * @param {PaybackLoan} paybackLoan txn to create
-     * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
-     * @returns {Promise<TransactionSegWit>}
-     */
+   * PaybackLoan to vault transaction.
+   *
+   * @param {PaybackLoan} paybackLoan txn to create
+   * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
+   * @returns {Promise<TransactionSegWit>}
+   */
 
   async paybackLoan (paybackLoan: PaybackLoan, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
@@ -216,12 +216,12 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
   }
 
   /**
-     * PaybackLoanV2 transaction.
-     *
-     * @param {PaybackLoanV2} paybackLoanV2 txn to create
-     * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
-     * @returns {Promise<TransactionSegWit>}
-     */
+   * PaybackLoanV2 transaction.
+   *
+   * @param {PaybackLoanV2} paybackLoanV2 txn to create
+   * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
+   * @returns {Promise<TransactionSegWit>}
+   */
 
   async paybackLoanV2 (paybackLoanV2: PaybackLoanV2, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
