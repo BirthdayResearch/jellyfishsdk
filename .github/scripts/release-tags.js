@@ -1,6 +1,6 @@
 /**
  * Release Tags
- * 
+ *
  * Extracts tags which we can attach to our docker build processes for
  * container versioning. Looking at the context we determine what the
  * tag needs to look like in the scenarios of 'release', 'staging',
@@ -14,7 +14,7 @@
  *             step before a full release. The version is tagged with
  *             'main-${hash}'
  *
- * 'dev'     - relates to PRs which are submitted against the main 
+ * 'dev'     - relates to PRs which are submitted against the main
  *             branch. The version is tagged with 'pr-${hash}'.
  *
  * This script is tied to actions/github-script jobs in our workflows.
@@ -55,8 +55,8 @@ function getDomain(context) {
 }
 
 function getReleaseTag(domain, app, context) {
-  const semver = context.payload.release.tag_name.replace('v', '')
-  if (semver.match(/^[0-9]+\.[0-9]+\.[0-9]+$/) === false) {
+  const semver = context.payload.release.tag_name
+  if (semver.match(/^v[0-9]+\.[0-9]+\.[0-9]+$/) === null) {
     throw new Error(`Release Violation: Provided version '${semver}' is not valid semver.`)
   }
   return `ghcr.io/${domain}/${app}:latest,ghcr.io/${domain}/${app}:${semver}`
