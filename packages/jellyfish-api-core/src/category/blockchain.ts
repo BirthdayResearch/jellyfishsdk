@@ -171,7 +171,7 @@ export class Blockchain {
    * @param {boolean} verbose false
    * @returns {Promise<string[]>}
    */
-  getMempoolAncestors (txId: string, verbose: false): Promise<string[]>
+  getMempoolAncestors (txId: string, verbose?: false): Promise<string[]>
 
   /**
    *
@@ -180,7 +180,7 @@ export class Blockchain {
    * @param {boolean} verbose true
    * @returns {Promise<MempoolTx>}
    */
-  getMempoolAncestors (txId: string, verbose: true): Promise<MempoolTx>
+  getMempoolAncestors (txId: string, verbose?: true): Promise<MempoolTx>
 
   /**
    *
@@ -188,10 +188,10 @@ export class Blockchain {
    * if verbose is true else as string[]
    *
    * @param {string} txId the transaction id
-   * @param {boolean} verbose true for json object, false for array of transaction ids
+   * @param {boolean} verbose default = false, verbose true for json object, false for array of transaction ids
    * @returns {Promise<string[] | MempoolTx>}
    */
-  async getMempoolAncestors (txId: string, verbose: boolean): Promise<string[] | MempoolTx> {
+  async getMempoolAncestors (txId: string, verbose?: boolean): Promise<string[] | MempoolTx> {
     return await this.client.call('getmempoolancestors', [txId, verbose], 'bignumber')
   }
 
