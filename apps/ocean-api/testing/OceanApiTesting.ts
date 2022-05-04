@@ -12,11 +12,11 @@ import { ApiClient } from '@defichain/jellyfish-api-core'
  */
 export class OceanApiTesting extends ApiTesting {
   constructor (
-    private readonly testingGroup: TestingGroup = TestingGroup.create(1),
+    readonly testingGroup: TestingGroup = TestingGroup.create(1),
     readonly stubServer: OceanStubServer = new OceanStubServer(testingGroup.get(0).container),
     private readonly stubApiClient: OceanStubClient = new OceanStubClient((stubServer))
   ) {
-    super(stubServer)
+    super()
   }
 
   static create (): OceanApiTesting {

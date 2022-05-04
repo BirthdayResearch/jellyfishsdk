@@ -16,7 +16,7 @@ export class PlaygroundApiTesting extends ApiTesting {
     readonly stubServer: PlaygroundStubServer = new PlaygroundStubServer(testingGroup.get(0).container),
     private readonly stubApiClient: PlaygroundStubClient = new PlaygroundStubClient((stubServer))
   ) {
-    super(stubServer)
+    super()
   }
 
   static create (): PlaygroundApiTesting {
