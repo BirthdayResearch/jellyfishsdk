@@ -1,8 +1,5 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { InjectOptions, Response as LightMyRequestResponse } from 'light-my-request'
-import { Testing, TestingGroup } from '@defichain/jellyfish-testing'
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { ApiClient } from '@defichain/jellyfish-api-core'
 
 /**
  * Testing framework.
@@ -42,26 +39,4 @@ export abstract class ApiTesting {
 interface StubServer {
   start: () => Promise<void>
   stop: () => Promise<void>
-}
-
-export class PlaygroundOceanTestingGroup {
-  constructor (
-    private readonly testingGroup: TestingGroup
-  ) {}
-
-  get group (): TestingGroup {
-    return this.testingGroup
-  }
-
-  get testing (): Testing {
-    return this.testingGroup.get(0)
-  }
-
-  get container (): MasterNodeRegTestContainer {
-    return this.testing.container
-  }
-
-  get rpc (): ApiClient {
-    return this.testing.rpc
-  }
 }
