@@ -9,6 +9,7 @@ import { Testing } from '@defichain/jellyfish-testing'
 import { ForbiddenException } from '@nestjs/common'
 import BigNumber from 'bignumber.js'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
+import { FutureSwap } from '@defichain/jellyfish-api-core/dist/category/account'
 
 const container = new MasterNodeRegTestContainer()
 let app: NestFastifyApplication
@@ -958,5 +959,230 @@ describe('listTokens', () => {
 
     await expect(controller.listTokens('invalid', { size: 30 }))
       .rejects.toThrow('recipient (invalid) does not refer to any valid address')
+  })
+})
+
+describe.only('listFutureSwap', () => {
+  let colAddr: string
+  let fromAddr: string
+  let fromAddr1: string
+  const attributeKey = 'ATTRIBUTES'
+
+  async function setup (): Promise<void> {
+    colAddr = await testing.generateAddress()
+    await testing.token.dfi({ address: colAddr, amount: 300000 })
+    await testing.token.create({ symbol: 'BTC', collateralAddress: colAddr })
+    await testing.generate(1)
+    await testing.token.mint({ symbol: 'BTC', amount: 20000 })
+    await testing.generate(1)
+
+    // loan scheme
+    await testing.container.call('createloanscheme', [100, 1, 'default'])
+    await testing.generate(1)
+
+    // price oracle
+    const priceFeeds = [
+      { token: 'DFI', currency: 'USD' },
+      { token: 'BTC', currency: 'USD' },
+      { token: 'TSLA', currency: 'USD' },
+      { token: 'DUSD', currency: 'USD' }
+    ]
+
+    const addr = await testing.generateAddress()
+    const oracleId = await testing.rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
+    await testing.generate(1)
+
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(
+      oracleId,
+      timestamp,
+      {
+        prices: [
+          { tokenAmount: '1@DFI', currency: 'USD' },
+          { tokenAmount: '10000@BTC', currency: 'USD' },
+          { tokenAmount: '2@TSLA', currency: 'USD' },
+          { tokenAmount: '1@DUSD', currency: 'USD' }
+        ]
+      }
+    )
+    await testing.generate(1)
+
+    // collateral tokens
+    await testing.rpc.loan.setCollateralToken({
+      token: 'DFI',
+      factor: new BigNumber(1),
+      fixedIntervalPriceId: 'DFI/USD'
+    })
+
+    await testing.rpc.loan.setCollateralToken({
+      token: 'BTC',
+      factor: new BigNumber(0.5),
+      fixedIntervalPriceId: 'BTC/USD'
+    })
+
+    // loan token
+    await testing.rpc.loan.setLoanToken({
+      symbol: 'TSLA',
+      fixedIntervalPriceId: 'TSLA/USD'
+    })
+    await testing.generate(1)
+
+    await testing.rpc.loan.setLoanToken({
+      symbol: 'DUSD',
+      fixedIntervalPriceId: 'DUSD/USD'
+    })
+    await testing.generate(1)
+
+    // create a vault and take loans
+    const vaultAddr = await testing.generateAddress()
+    const vaultId = await testing.rpc.vault.createVault({
+      ownerAddress: vaultAddr,
+      loanSchemeId: 'default'
+    })
+    await testing.generate(1)
+
+    await testing.rpc.vault.depositToVault({
+      vaultId: vaultId, from: colAddr, amount: '100000@DFI'
+    })
+    await testing.generate(1)
+
+    // wait till the price valid.
+    await testing.container.waitForPriceValid('TSLA/USD')
+    await testing.container.waitForPriceValid('DUSD/USD')
+
+    // take multiple loans
+    await testing.rpc.loan.takeLoan({
+      vaultId: vaultId,
+      to: colAddr,
+      amounts: ['300@TSLA', '500@DUSD']
+    })
+    await testing.generate(1)
+
+    // Futures setup
+    // set the dfip2203/active to false
+    await testing.rpc.masternode.setGov({ [attributeKey]: { 'v0/params/dfip2203/active': 'false' } })
+    await testing.generate(1)
+
+    // set dfip2203 params
+    const futInterval = 25
+    const futRewardPercentage = 0.05
+    await testing.rpc.masternode.setGov({ [attributeKey]: { 'v0/params/dfip2203/reward_pct': `${futRewardPercentage}`, 'v0/params/dfip2203/block_period': `${futInterval}` } })
+    await testing.generate(1)
+
+    // set the dfip2203/active to true
+    await testing.rpc.masternode.setGov({ [attributeKey]: { 'v0/params/dfip2203/active': 'true' } })
+    await testing.generate(1)
+
+    // Retrieve and verify gov vars
+    const attributes = await testing.rpc.masternode.getGov(attributeKey)
+    expect(attributes.ATTRIBUTES['v0/params/dfip2203/active']).toStrictEqual('true')
+    expect(attributes.ATTRIBUTES['v0/params/dfip2203/reward_pct']).toStrictEqual(`${futRewardPercentage}`)
+    expect(attributes.ATTRIBUTES['v0/params/dfip2203/block_period']).toStrictEqual(`${futInterval}`)
+  }
+
+  async function swap (
+    addr: string, amt: number, fromToken: string, toToken?: string
+  ): Promise<void> {
+    await testing.rpc.account.accountToAccount(colAddr, { [addr]: `${amt}@${fromToken}` })
+    await testing.generate(1)
+
+    const fswap: FutureSwap = {
+      address: addr,
+      amount: `${amt}@${fromToken}`
+    }
+    if (toToken !== undefined) {
+      fswap.destination = toToken
+    }
+    await testing.rpc.account.futureSwap(fswap)
+    await testing.generate(1)
+  }
+
+  async function withdraw (
+    addr: string, amt: number, fromToken: string, toToken?: string
+  ): Promise<void> {
+    const fswap: FutureSwap = {
+      address: addr,
+      amount: `${amt}@${fromToken}`
+    }
+    if (toToken !== undefined) {
+      fswap.destination = toToken
+    }
+    await testing.rpc.account.withdrawFutureSwap(fswap)
+    await testing.generate(1)
+  }
+
+  beforeAll(async () => {
+    await container.start()
+    await container.waitForWalletCoinbaseMaturity()
+
+    await setup()
+
+    const current = await testing.container.getBlockCount()
+    const next = await testing.container.call('getfutureswapblock')
+    await testing.generate(next - current)
+
+    {
+      fromAddr = await testing.generateAddress()
+      await swap(fromAddr, 1.92, 'TSLA')
+      await swap(fromAddr, 2.3576, 'TSLA')
+      await swap(fromAddr, 3.487004, 'DUSD', 'TSLA')
+      await swap(fromAddr, 5.67751, 'DUSD', 'TSLA')
+      await swap(fromAddr, 0.8, 'TSLA')
+
+      await withdraw(fromAddr, 0.0005, 'DUSD', 'TSLA')
+      await withdraw(fromAddr, 4.444, 'TSLA')
+    }
+
+    {
+      fromAddr1 = await testing.generateAddress()
+      await swap(fromAddr1, 5.78, 'TSLA')
+      await swap(fromAddr1, 24.000256, 'DUSD', 'TSLA')
+
+      await withdraw(fromAddr1, 24.000256, 'DUSD', 'TSLA')
+      await withdraw(fromAddr1, 5.78, 'TSLA')
+    }
+
+    app = await createTestingApp(container)
+    controller = app.get(AddressController)
+
+    const height = await container.getBlockCount()
+    await container.generate(1)
+    await waitForIndexedHeight(app, height)
+  })
+
+  afterAll(async () => {
+    await stopTestingApp(container, app)
+  })
+
+  it('should listFutureSwap', async () => {
+    {
+      const first = await controller.listFutureSwap(fromAddr, 1, {
+        size: 3
+      })
+      expect(first.data.length).toStrictEqual(3)
+      expect(first.page?.next).not.toBeUndefined()
+      console.log('first: ', first)
+
+      const next = await controller.listFutureSwap(fromAddr, 1, {
+        size: 3,
+        next: first.page?.next
+      })
+      console.log('next: ', next)
+      // expect(next.data.length).toStrictEqual(3)
+      // expect(next.page?.next).not.toBeUndefined()
+
+      const last = await controller.listFutureSwap(fromAddr, 1, {
+        size: 3,
+        next: next.page?.next
+      })
+      console.log('last: ', last)
+    }
+
+    {
+      const res = await controller.listFutureSwap(fromAddr1, 1, {
+        size: 30
+      })
+      expect(res.data.length).toStrictEqual(4)
+    }
   })
 })

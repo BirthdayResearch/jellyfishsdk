@@ -17,6 +17,7 @@ import { SetLoanTokenIndexer } from './set.loan.token'
 import { ActivePriceIndexer } from './active.price'
 import { PlaceAuctionBidIndexer } from './place.auction.bid'
 import { PoolSwapAggregatedIndexer } from './pool.swap.aggregated'
+import { SetFutureSwapIndexer } from './set.future.swap'
 
 const indexers = [
   AppointOracleIndexer,
@@ -34,7 +35,8 @@ const indexers = [
   CompositeSwapIndexer,
   SetLoanTokenIndexer,
   ActivePriceIndexer,
-  PlaceAuctionBidIndexer
+  PlaceAuctionBidIndexer,
+  SetFutureSwapIndexer
 ]
 
 @Module({

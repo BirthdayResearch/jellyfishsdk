@@ -9,6 +9,7 @@ import { PaginationQuery } from '@src/module.api/_core/api.query'
 import { ScriptActivity, ScriptActivityMapper } from '@src/module.model/script.activity'
 import { ScriptAggregation, ScriptAggregationMapper } from '@src/module.model/script.aggregation'
 import { ScriptUnspent, ScriptUnspentMapper } from '@src/module.model/script.unspent'
+import { FutureSwapMapper } from '@src/module.model/future.swap'
 import { DeFiAddress } from '@defichain/jellyfish-address'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { HexEncoder } from '@src/module.model/_hex.encoder'
@@ -26,6 +27,7 @@ export class AddressController {
     protected readonly aggregationMapper: ScriptAggregationMapper,
     protected readonly activityMapper: ScriptActivityMapper,
     protected readonly unspentMapper: ScriptUnspentMapper,
+    protected readonly futureSwapMapper: FutureSwapMapper,
     protected readonly vaultService: LoanVaultService,
     @Inject('NETWORK') protected readonly network: NetworkName
   ) {
@@ -183,6 +185,24 @@ export class AddressController {
     const items = await this.unspentMapper.query(hid, query.size, query.next)
 
     return ApiPagedResponse.of(items, query.size, item => {
+      return item.sort
+    })
+  }
+
+  @Get('/future-swaps')
+  async listFutureSwap (
+    @Param('address') address: string,
+      @Param('height', ParseIntPipe) height: number,
+      @Query() query: PaginationQuery
+  ): Promise<ApiPagedResponse<any>> {
+    const gt = query.next ?? `${HexEncoder.encodeHeight(height)}-${'0'.repeat(64)}`
+
+    const nextSettleBlock = await this.rpcClient.oracle.getFutureSwapBlock()
+    const lt = `${HexEncoder.encodeHeight(nextSettleBlock)}-${'f'.repeat(64)}`
+
+    const list = await this.futureSwapMapper.query(address, query.size, lt, gt)
+
+    return ApiPagedResponse.of(list, query.size, item => {
       return item.sort
     })
   }
