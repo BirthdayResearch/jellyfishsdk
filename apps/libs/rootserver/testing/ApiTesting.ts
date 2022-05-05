@@ -1,11 +1,8 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { InjectOptions, Response as LightMyRequestResponse } from 'light-my-request'
-// import { Testing, TestingGroup } from '@defichain/jellyfish-testing'
-// import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-// import { ApiClient } from '@defichain/jellyfish-api-core'
-// import { PlaygroundStubServer } from '../../../playground-api/testing/PlaygroundStubServer'
-// import { RegisteredRoute, StatusStubServer } from '../../../status-api/testing/StatusStubServer'
-// import { LegacyStubServer } from '../../../legacy-api/testing/LegacyStubServer'
+import { Testing, TestingGroup } from '@defichain/jellyfish-testing'
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { ApiClient } from '@defichain/jellyfish-api-core'
 
 /**
  * Testing framework.
@@ -47,43 +44,24 @@ interface StubServer {
   stop: () => Promise<void>
 }
 
-// export abstract class PlaygroundOceanTestingGroup {
-//   abstract testingGroup: TestingGroup
-//
-//   get group (): TestingGroup {
-//     return this.testingGroup
-//   }
-//
-//   get testing (): Testing {
-//     return this.testingGroup.get(0)
-//   }
-//
-//   get container (): MasterNodeRegTestContainer {
-//     return this.testing.container
-//   }
-//
-//   get rpc (): ApiClient {
-//     return this.testing.rpc
-//   }
-// }
-//
-// interface TestingGroup {
-//   group: () => TestingGroup
-//   testing: () => Testing
-//   container: () => MasterNodeRegTestContainer
-//   rpc: () => ApiClient
-// }
+export class PlaygroundOceanTestingGroup {
+  constructor (
+    private readonly testingGroup: TestingGroup
+  ) {}
 
-// export abstract class LegacyStatusAPI {
-//   abstract stubServer: LegacyStubServer | StatusStubServer
-//   get app (): NestFastifyApplication {
-//     if (this.stubServer.app === undefined) {
-//       throw new Error('not yet initialized')
-//     }
-//     return this.stubServer.app
-//   }
-//
-//   getAllRoutes (): RegisteredRoute[] {
-//     return this.stubServer.getAllRoutes()
-//   }
-// }
+  get group (): TestingGroup {
+    return this.testingGroup
+  }
+
+  get testing (): Testing {
+    return this.testingGroup.get(0)
+  }
+
+  get container (): MasterNodeRegTestContainer {
+    return this.testing.container
+  }
+
+  get rpc (): ApiClient {
+    return this.testing.rpc
+  }
+}
