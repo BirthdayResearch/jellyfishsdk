@@ -2,7 +2,6 @@ import { Testing, TestingGroup } from '@defichain/jellyfish-testing'
 import { PlaygroundApiClient } from '@defichain/playground-api-client'
 import { PlaygroundStubServer } from './PlaygroundStubServer'
 import { PlaygroundStubClient } from './PlaygroundStubClient'
-import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { ApiTesting } from '../../libs/rootserver/testing/ApiTesting'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ApiClient } from '@defichain/jellyfish-api-core'
@@ -37,13 +36,6 @@ export class PlaygroundApiTesting extends ApiTesting {
 
   get rpc (): ApiClient {
     return this.testing.rpc
-  }
-
-  get app (): NestFastifyApplication {
-    if (this.stubServer.app === undefined) {
-      throw new Error('not yet initialized')
-    }
-    return this.stubServer.app
   }
 
   get client (): PlaygroundApiClient {

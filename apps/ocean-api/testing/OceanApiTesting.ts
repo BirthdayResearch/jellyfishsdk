@@ -2,7 +2,6 @@ import { Testing, TestingGroup } from '@defichain/jellyfish-testing'
 import { OceanApiClient } from '@defichain/ocean-api-client'
 import { OceanStubServer } from './OceanStubServer'
 import { OceanStubClient } from './OceanStubClient'
-import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { ApiTesting } from '../../libs/rootserver/testing/ApiTesting'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ApiClient } from '@defichain/jellyfish-api-core'
@@ -21,13 +20,6 @@ export class OceanApiTesting extends ApiTesting {
 
   static create (testingGroup: TestingGroup = TestingGroup.create(1)): OceanApiTesting {
     return new OceanApiTesting(testingGroup)
-  }
-
-  get app (): NestFastifyApplication {
-    if (this.stubServer.app === undefined) {
-      throw new Error('not yet initialized')
-    }
-    return this.stubServer.app
   }
 
   get group (): TestingGroup {
