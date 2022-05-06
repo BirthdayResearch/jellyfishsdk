@@ -45,14 +45,14 @@ export class FutureSwapMapper {
 }
 
 export interface FutureSwap extends Model {
-  id: string // ---------| txid
-  key: string // --------| fromAddress
-  sort: string // -------| hexEncodedHeight-txid
+  id: string // -------------| txid
+  key: string // ------------| fromAddress
+  sort: string // -----------| hexEncodedHeight-txid
   source: {
     token: number
     amount: BigNumber
   }
-  destination: number // toTokenId
+  destination: number // ----| toTokenId
   withdraw: boolean
 
   block: {
