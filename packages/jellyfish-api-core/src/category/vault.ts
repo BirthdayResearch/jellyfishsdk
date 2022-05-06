@@ -216,6 +216,22 @@ export class Vault {
     const params = targetRatio === undefined ? [vaultId, tokenSplit] : [vaultId, tokenSplit, targetRatio]
     return await this.client.call('estimateloan', params, 'number')
   }
+
+  /**
+   * Returns estimated vault for given collateral and loan amounts.
+   *
+   * @param {string[]} collateralAmounts Collateral amounts as string array. [ "amount@token" ]
+   * @param {string[]} loanAmounts Loan amounts as string array. [ "amount@token" ]
+   * @return {Promise<VaultEstimation>}
+   */
+  async estimateVault (collateralAmounts: string[], loanAmounts: string[]): Promise<VaultEstimation> {
+    return await this.client.call('estimatevault', [collateralAmounts, loanAmounts], {
+      collateralValue: 'bignumber',
+      loanValue: 'bignumber',
+      informativeRatio: 'bignumber',
+      collateralRatio: 'number'
+    })
+  }
 }
 
 export interface CreateVault {
@@ -342,6 +358,13 @@ export interface ListAuctionHistoryDetail {
   batchIndex: number
   auctionBid: string
   auctionWon: string[]
+}
+
+export interface VaultEstimation {
+  collateralValue: BigNumber // n.nnnnnnnn (amount) The total collateral value in USD
+  loanValue: BigNumber // n.nnnnnnnn (amount) The total loan value in USD
+  informativeRatio: BigNumber // n.nnnnnnnn (amount) Informative ratio with 8 digit precision
+  collateralRatio: number // n (uint) Ratio as unsigned int
 }
 
 export interface TokenPercentageSplit {
