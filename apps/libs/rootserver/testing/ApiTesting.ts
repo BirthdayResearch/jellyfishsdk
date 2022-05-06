@@ -1,13 +1,19 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { InjectOptions, Response as LightMyRequestResponse } from 'light-my-request'
+import { RootServer } from '@defichain-apps/libs/rootserver'
 
 /**
  * Testing framework.
  */
 export abstract class ApiTesting {
-  abstract stubServer: StubServer
+  protected abstract stubServer: StubServer
 
-  abstract get app (): NestFastifyApplication
+  get app (): NestFastifyApplication {
+    if (this.stubServer.app === undefined) {
+      throw new Error('app not initialised')
+    }
+    return this.stubServer.app
+  }
 
   async inject (opts: InjectOptions | string): Promise<LightMyRequestResponse> {
     return await this.app.inject(opts)
@@ -36,7 +42,5 @@ export abstract class ApiTesting {
   }
 }
 
-interface StubServer {
-  start: () => Promise<void>
-  stop: () => Promise<void>
+interface StubServer extends RootServer {
 }
