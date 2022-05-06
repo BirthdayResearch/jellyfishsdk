@@ -18,7 +18,6 @@ export class TxnBuilderVault extends P2WPKHTxnBuilder {
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @returns {Promise<TransactionSegWit>}
    */
-
   async createVault (createVault: CreateVault, changeScript: Script): Promise<TransactionSegWit> {
     const creationFee = this.network.name === 'mainnet' ? new BigNumber('2') : new BigNumber('1')
 
@@ -36,7 +35,6 @@ export class TxnBuilderVault extends P2WPKHTxnBuilder {
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @returns {Promise<TransactionSegWit>}
    */
-
   async updateVault (updateVault: UpdateVault, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_UPDATE_VAULT(updateVault),
@@ -51,7 +49,6 @@ export class TxnBuilderVault extends P2WPKHTxnBuilder {
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @returns {Promise<TransactionSegWit>}
    */
-
   async depositToVault (depositToVault: DepositToVault, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_DEPOSIT_TO_VAULT(depositToVault),
@@ -66,7 +63,6 @@ export class TxnBuilderVault extends P2WPKHTxnBuilder {
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @returns {Promise<TransactionSegWit>}
    */
-
   async withdrawFromVault (withdrawFromVault: WithdrawFromVault, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_WITHDRAW_FROM_VAULT(withdrawFromVault),
@@ -81,7 +77,6 @@ export class TxnBuilderVault extends P2WPKHTxnBuilder {
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @returns {Promise<TransactionSegWit>}
    */
-
   async closeVault (closeVault: CloseVault, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_CLOSE_VAULT(closeVault),
@@ -96,7 +91,6 @@ export class TxnBuilderVault extends P2WPKHTxnBuilder {
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @returns {Promise<TransactionSegWit>}
    */
-
   async placeAuctionBid (placeAuctionBid: PlaceAuctionBid, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_AUCTION_BID(placeAuctionBid),
