@@ -218,7 +218,6 @@ it('should index future swap', async () => {
   {
     const res = await futureSwapMapper.query(fromAddr1, 30)
     expect(res.length).toStrictEqual(4)
-    expect(res[0].withdraw).toStrictEqual(true)
     expect(res[0]).toStrictEqual({
       id: expect.any(String),
       key: fromAddr1,

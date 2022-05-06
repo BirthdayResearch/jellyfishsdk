@@ -1,7 +1,6 @@
 import { Model, ModelMapping } from '@src/module.database/model'
 import { Injectable } from '@nestjs/common'
 import { Database, SortOrder } from '@src/module.database/database'
-import BigNumber from 'bignumber.js'
 
 const FutureSwapMapping: ModelMapping<FutureSwap> = {
   type: 'future_swap',
@@ -50,7 +49,7 @@ export interface FutureSwap extends Model {
   sort: string // -----------| hexEncodedHeight-txid
   source: {
     token: number
-    amount: BigNumber
+    amount: string // -------| stringified bignumber
   }
   destination: number // ----| toTokenId
   withdraw: boolean

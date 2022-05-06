@@ -29,7 +29,10 @@ export class SetFutureSwapIndexer extends DfTxIndexer<SetFutureSwap> {
       id: txid,
       key: fromScript(data.owner, this.network)!.address,
       sort: `${HexEncoder.encodeHeight(block.height)}-${txid}`,
-      source: data.source,
+      source: {
+        token: data.source.token,
+        amount: data.source.amount.toString()
+      },
       destination: data.destination,
       withdraw: data.withdraw,
       block: {

@@ -4,7 +4,7 @@ import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
 import { DeFiDCache } from '@src/module.api/cache/defid.cache'
 import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
-import { AddressToken, AddressHistory } from '@whale-api-client/api/address'
+import { AddressToken, AddressHistory, FutureSwap } from '@whale-api-client/api/address'
 import { PaginationQuery } from '@src/module.api/_core/api.query'
 import { ScriptActivity, ScriptActivityMapper } from '@src/module.model/script.activity'
 import { ScriptAggregation, ScriptAggregationMapper } from '@src/module.model/script.aggregation'
@@ -194,7 +194,7 @@ export class AddressController {
     @Param('address') address: string,
       @Param('height', ParseIntPipe) height: number,
       @Query() query: PaginationQuery
-  ): Promise<ApiPagedResponse<any>> {
+  ): Promise<ApiPagedResponse<FutureSwap>> {
     const size = query.size > 30 ? 30 : query.size
     const nextSettleBlock = await this.rpcClient.oracle.getFutureSwapBlock()
     // mapper is sorted DESC
