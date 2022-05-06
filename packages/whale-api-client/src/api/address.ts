@@ -101,6 +101,19 @@ export class Address {
   async listTransactionUnspent (address: string, size: number = 30, next?: string): Promise<ApiPagedResponse<AddressUnspent>> {
     return await this.client.requestList('GET', `address/${address}/transactions/unspent`, size, next)
   }
+
+  /**
+   * List future swap
+   *
+   * @param {string} address to list future swap
+   * @param {number} height to set range of future swap
+   * @param {string} size to query
+   * @param {string} next token for next slice of FutureSwap
+   * @return {Promise<ApiPagedResponse<FutureSwap>>}
+   */
+  async listFutureSwap (address: string, height: number, size: number = 30, next?: string): Promise<ApiPagedResponse<FutureSwap>> {
+    return await this.client.requestList('GET', `address/${address}/future-swaps/${height}`, size, next)
+  }
 }
 
 /**
@@ -215,6 +228,24 @@ export interface AddressHistory {
   block: {
     height: number
     hash: string
+    time: number
+  }
+}
+
+export interface FutureSwap {
+  id: string
+  key: string
+  sort: string
+  source: {
+    token: number
+    amount: string
+  }
+  destination: number
+  withdraw: boolean
+  block: {
+    hash: string
+    height: number
+    medianTime: number
     time: number
   }
 }
