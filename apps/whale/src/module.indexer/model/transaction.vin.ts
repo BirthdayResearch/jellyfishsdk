@@ -72,7 +72,7 @@ export class TransactionVinIndexer extends Indexer {
    */
   mapId (txn: defid.Transaction, vin: defid.Vin): string {
     if (vin.coinbase !== undefined) {
-      return txn.txid + '00'
+      return `${txn.txid}00`
     }
     return txn.txid + vin.txid + HexEncoder.encodeVoutIndex(vin.vout)
   }

@@ -90,6 +90,6 @@ export class ApiException<P = any> extends Error {
       throw new ApiException(error)
     }
 
-    throw new Error('Unrecognized Error: ' + JSON.stringify(response))
+    throw new Error(`Unrecognized Error: ${JSON.stringify(response)}`)
   }
 }
