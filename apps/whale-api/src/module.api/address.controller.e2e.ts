@@ -962,7 +962,7 @@ describe('listTokens', () => {
   })
 })
 
-describe.only('listFutureSwap', () => {
+describe('listFutureSwap', () => {
   let colAddr: string
   let fromAddr: string
   let fromAddr1: string
@@ -1155,27 +1155,37 @@ describe.only('listFutureSwap', () => {
   })
 
   it('should listFutureSwap', async () => {
+    const list = await controller.listFutureSwap(fromAddr, 1, {
+      size: 30
+    })
+
     {
       const first = await controller.listFutureSwap(fromAddr, 1, {
         size: 3
       })
       expect(first.data.length).toStrictEqual(3)
       expect(first.page?.next).not.toBeUndefined()
-      console.log('first: ', first)
+      expect(first.data[0].id).toStrictEqual(list.data[0].id)
+      expect(first.data[1].id).toStrictEqual(list.data[1].id)
+      expect(first.data[2].id).toStrictEqual(list.data[2].id)
 
       const next = await controller.listFutureSwap(fromAddr, 1, {
         size: 3,
         next: first.page?.next
       })
-      console.log('next: ', next)
-      // expect(next.data.length).toStrictEqual(3)
-      // expect(next.page?.next).not.toBeUndefined()
+      expect(next.data.length).toStrictEqual(3)
+      expect(next.page?.next).not.toBeUndefined()
+      expect(next.data[0].id).toStrictEqual(list.data[3].id)
+      expect(next.data[1].id).toStrictEqual(list.data[4].id)
+      expect(next.data[2].id).toStrictEqual(list.data[5].id)
 
       const last = await controller.listFutureSwap(fromAddr, 1, {
         size: 3,
         next: next.page?.next
       })
-      console.log('last: ', last)
+      expect(last.data.length).toStrictEqual(1)
+      expect(last.page?.next).toBeUndefined()
+      expect(last.data[0].id).toStrictEqual(list.data[6].id)
     }
 
     {
@@ -1183,6 +1193,14 @@ describe.only('listFutureSwap', () => {
         size: 30
       })
       expect(res.data.length).toStrictEqual(4)
+      expect(res.page?.next).toBeUndefined()
     }
+  })
+
+  it('should get empty as out of range', async () => {
+    const empty = await controller.listFutureSwap(fromAddr, 999, {
+      size: 30
+    })
+    expect(empty.data.length).toStrictEqual(0)
   })
 })

@@ -189,20 +189,21 @@ export class AddressController {
     })
   }
 
-  @Get('/future-swaps')
+  @Get('/future-swaps/:height')
   async listFutureSwap (
     @Param('address') address: string,
       @Param('height', ParseIntPipe) height: number,
       @Query() query: PaginationQuery
   ): Promise<ApiPagedResponse<any>> {
-    const gt = query.next ?? `${HexEncoder.encodeHeight(height)}-${'0'.repeat(64)}`
-
+    const size = query.size > 30 ? 30 : query.size
     const nextSettleBlock = await this.rpcClient.oracle.getFutureSwapBlock()
-    const lt = `${HexEncoder.encodeHeight(nextSettleBlock)}-${'f'.repeat(64)}`
+    // mapper is sorted DESC
+    const lt = query.next ?? `${HexEncoder.encodeHeight(nextSettleBlock)}-${'f'.repeat(64)}`
+    const gt = `${HexEncoder.encodeHeight(height)}-${'0'.repeat(64)}`
 
-    const list = await this.futureSwapMapper.query(address, query.size, lt, gt)
+    const list = await this.futureSwapMapper.query(address, size, lt, gt)
 
-    return ApiPagedResponse.of(list, query.size, item => {
+    return ApiPagedResponse.of(list, size, item => {
       return item.sort
     })
   }
