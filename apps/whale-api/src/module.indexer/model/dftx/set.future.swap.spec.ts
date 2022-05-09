@@ -5,6 +5,8 @@ import { FutureSwap } from '@defichain/jellyfish-api-core/dist/category/account'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
 import { FutureSwapMapper } from '@src/module.model/future.swap'
+import { fromAddress } from '@defichain/jellyfish-address'
+import { toBuffer } from '@defichain/jellyfish-transaction/dist/script/_buffer'
 
 const testing = Testing.create(new MasterNodeRegTestContainer())
 let app: NestFastifyApplication
@@ -200,11 +202,12 @@ it('should index future swap', async () => {
 
   const futureSwapMapper = app.get(FutureSwapMapper)
   {
-    const res = await futureSwapMapper.query(fromAddr, 30)
+    const hex = addressToHex(fromAddr)
+    const res = await futureSwapMapper.query(hex, 30)
     expect(res.length).toStrictEqual(7)
     expect(res[3]).toStrictEqual({
       id: expect.any(String),
-      key: fromAddr,
+      key: hex,
       sort: expect.any(String),
       source: {
         token: 3, amount: '5.67751'
@@ -216,11 +219,12 @@ it('should index future swap', async () => {
   }
 
   {
-    const res = await futureSwapMapper.query(fromAddr1, 30)
+    const hex = addressToHex(fromAddr1)
+    const res = await futureSwapMapper.query(hex, 30)
     expect(res.length).toStrictEqual(4)
     expect(res[0]).toStrictEqual({
       id: expect.any(String),
-      key: fromAddr1,
+      key: hex,
       sort: expect.any(String),
       source: {
         token: 2, amount: '5.78'
@@ -231,3 +235,8 @@ it('should index future swap', async () => {
     })
   }
 })
+
+function addressToHex (addr: string): string {
+  const script = fromAddress(addr, 'regtest')!.script
+  return toBuffer(script.stack).toString('hex')
+}

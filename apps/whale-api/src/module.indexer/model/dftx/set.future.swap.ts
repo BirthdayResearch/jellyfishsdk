@@ -5,7 +5,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common'
 import { HexEncoder } from '@src/module.model/_hex.encoder'
 import { FutureSwapMapper } from '@src/module.model/future.swap'
 import { NetworkName } from '@defichain/jellyfish-network'
-import { fromScript } from '@defichain/jellyfish-address'
+import { toBuffer } from '@defichain/jellyfish-transaction/dist/script/_buffer'
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
@@ -27,7 +27,7 @@ export class SetFutureSwapIndexer extends DfTxIndexer<SetFutureSwap> {
 
     await this.futureSwapMapper.put({
       id: txid,
-      key: fromScript(data.owner, this.network)!.address,
+      key: toBuffer(data.owner.stack).toString('hex'),
       sort: `${HexEncoder.encodeHeight(block.height)}-${txid}`,
       source: {
         token: data.source.token,

@@ -10,7 +10,7 @@ import { ScriptActivity, ScriptActivityMapper } from '@src/module.model/script.a
 import { ScriptAggregation, ScriptAggregationMapper } from '@src/module.model/script.aggregation'
 import { ScriptUnspent, ScriptUnspentMapper } from '@src/module.model/script.unspent'
 import { FutureSwapMapper } from '@src/module.model/future.swap'
-import { DeFiAddress } from '@defichain/jellyfish-address'
+import { DeFiAddress, fromAddress } from '@defichain/jellyfish-address'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { HexEncoder } from '@src/module.model/_hex.encoder'
 import { toBuffer } from '@defichain/jellyfish-transaction/dist/script/_buffer'
@@ -18,6 +18,8 @@ import { LoanVaultActive, LoanVaultLiquidated } from '@whale-api-client/api/loan
 import { LoanVaultService } from '@src/module.api/loan.vault.service'
 import { parseDisplaySymbol } from '@src/module.api/token.controller'
 import { AccountHistory } from '@defichain/jellyfish-api-core/dist/category/account'
+
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 @Controller('/address/:address')
 export class AddressController {
@@ -189,7 +191,7 @@ export class AddressController {
     })
   }
 
-  @Get('/future-swaps/:height')
+  @Get('/future/swaps/:height')
   async listFutureSwap (
     @Param('address') address: string,
       @Param('height', ParseIntPipe) height: number,
@@ -201,7 +203,10 @@ export class AddressController {
     const lt = query.next ?? `${HexEncoder.encodeHeight(nextSettleBlock)}-${'f'.repeat(64)}`
     const gt = `${HexEncoder.encodeHeight(height)}-${'0'.repeat(64)}`
 
-    const list = await this.futureSwapMapper.query(address, size, lt, gt)
+    const script = fromAddress(address, this.network)!.script
+    const haddr = toBuffer(script.stack).toString('hex')
+
+    const list = await this.futureSwapMapper.query(haddr, size, lt, gt)
 
     return ApiPagedResponse.of(list, size, item => {
       return item.sort
