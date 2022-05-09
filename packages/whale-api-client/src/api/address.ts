@@ -112,7 +112,7 @@ export class Address {
    * @return {Promise<ApiPagedResponse<FutureSwap>>}
    */
   async listFutureSwap (address: string, height: number, size: number = 30, next?: string): Promise<ApiPagedResponse<FutureSwap>> {
-    return await this.client.requestList('GET', `address/${address}/future-swaps/${height}`, size, next)
+    return await this.client.requestList('GET', `address/${address}/future/swaps/${height}`, size, next)
   }
 }
 
