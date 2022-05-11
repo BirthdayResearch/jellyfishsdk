@@ -72,7 +72,8 @@ describe('Spv', () => {
      * Assert that the destination address received the refund
      */
     const listReceivingAddresses: ReceivedByAddressInfo[] = await container.call('spv_listreceivedbyaddress')
-    const receivingAddress = listReceivingAddresses.find(address => address === destinationAddress)
+
+    const receivingAddress = listReceivingAddresses.find(l => l.address === destinationAddress)
     expect(receivingAddress?.address).toStrictEqual(destinationAddress)
     expect(receivingAddress?.txids.some((txid: string) => txid === results[0])).toStrictEqual(true)
   })
@@ -127,7 +128,7 @@ describe('Spv', () => {
      * Assert that the destination address received the refund
      */
     const listReceivingAddresses: ReceivedByAddressInfo[] = await container.call('spv_listreceivedbyaddress')
-    const receivingAddress = listReceivingAddresses.find(address => address === destinationAddress)
+    const receivingAddress = listReceivingAddresses.find(l => l.address === destinationAddress)
     expect(receivingAddress?.address).toStrictEqual(destinationAddress)
     expect(receivingAddress?.txids.some((txid: string) => txid === results[0])).toStrictEqual(true)
   })
@@ -172,7 +173,7 @@ describe('Spv', () => {
      * Assert that the destination address received the refund
      */
     const listReceivingAddresses: ReceivedByAddressInfo[] = await container.call('spv_listreceivedbyaddress')
-    const receivingAddress = listReceivingAddresses.find(address => address === destinationAddress)
+    const receivingAddress = listReceivingAddresses.find(l => l.address === destinationAddress)
     expect(receivingAddress?.address).toStrictEqual(destinationAddress)
     expect(receivingAddress?.txids.some((txid: string) => txid === results[0])).toStrictEqual(true)
   })
