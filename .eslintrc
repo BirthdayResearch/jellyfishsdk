@@ -65,7 +65,7 @@
     {
       "files": [
         "**/jellyfish-api-core/__tests__/**/*.test.ts",
-        "**/jellyfish-api-core/src/*.ts"
+        "**/jellyfish-api-core/src/**/*.ts"
       ],
       "rules": {
         "@typescript-eslint/no-explicit-any": "error"
