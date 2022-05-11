@@ -34,7 +34,7 @@ describe('Poolpair', () => {
     await container.generate(1)
   }
 
-  async function createPoolPair (tokenB: string, metadata?: any): Promise<void> {
+  async function createPoolPair (tokenB: string): Promise<void> {
     const address = await container.call('getnewaddress')
     const defaultMetadata = {
       tokenA: 'DFI',
@@ -43,7 +43,7 @@ describe('Poolpair', () => {
       status: true,
       ownerAddress: address
     }
-    await client.poolpair.createPoolPair({ ...defaultMetadata, ...metadata })
+    await client.poolpair.createPoolPair({ ...defaultMetadata })
     await container.generate(1)
   }
 

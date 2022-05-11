@@ -95,7 +95,7 @@ describe('poolSwap', () => {
 
     await container.fundAddress(dfiAddress, 25)
     const utxos = await container.call('listunspent')
-    const utxo = utxos.find((utxo: any) => utxo.address === dfiAddress)
+    const utxo = utxos.find((utxo: { address: string }) => utxo.address === dfiAddress)
 
     const hex = await client.poolpair.poolSwap(metadata, [utxo])
     expect(typeof hex).toStrictEqual('string')

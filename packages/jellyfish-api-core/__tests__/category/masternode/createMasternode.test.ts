@@ -117,7 +117,7 @@ describe('Masternode', () => {
     const ownerAddress = await client.wallet.getNewAddress()
     await container.fundAddress(ownerAddress, 10)
     const utxos = await container.call('listunspent')
-    const utxo = utxos.find((utxo: any) => utxo.address === ownerAddress)
+    const utxo = utxos.find((utxo: { address: string }) => utxo.address === ownerAddress)
 
     const txid = await client.masternode.createMasternode(
       ownerAddress, ownerAddress, { utxos: [{ txid: utxo.txid, vout: utxo.vout }] }
