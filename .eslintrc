@@ -61,7 +61,8 @@
         "@typescript-eslint/no-non-null-assertion": "off",
         "no-lone-blocks": "off"
       }
-    }, {
+    },
+    {
       "files": [
         "**/jellyfish-api-core/__tests__/**/*.test.ts",
         "**/jellyfish-api-core/src/*.ts"
