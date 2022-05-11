@@ -242,7 +242,7 @@ export class Account {
    * @param {number} [utxos.vout]
    * @return {Promise<string>}
    */
-  async utxosToAccount (payload: BalanceTransferPayload, utxos: UTXO[] = []): Promise<string> {
+  async utxosToAccount (payload: BalanceTransferPayload, utxos: any[] = []): Promise<string> {
     return await this.client.call('utxostoaccount', [payload, utxos], 'number')
   }
 
