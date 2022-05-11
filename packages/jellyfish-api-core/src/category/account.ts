@@ -443,7 +443,7 @@ export class Account {
 }
 
 export interface AccountPagination {
-  start?: number
+  start?: number | string
   including_start?: boolean
   limit?: number
 }

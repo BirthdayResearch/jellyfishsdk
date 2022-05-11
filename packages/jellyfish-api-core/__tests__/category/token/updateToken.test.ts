@@ -38,7 +38,7 @@ describe('Token', () => {
     }
   }
 
-  async function createToken (symbol: string, metadata?: any): Promise<void> {
+  async function createToken (symbol: string, metadata?: { isDAT?: boolean, mintable?: boolean, tradeable?: boolean}): Promise<void> {
     const address = await container.call('getnewaddress')
     const defaultMetadata = {
       symbol,
