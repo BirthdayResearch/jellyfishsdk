@@ -1,6 +1,7 @@
 import { spv } from '@defichain/jellyfish-api-core'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { GenesisKeys } from '@defichain/testcontainers'
+import { ListAnchorsResult } from '@defichain/jellyfish-api-core/dist/category/spv'
 
 describe('Spv', () => {
   const tGroup = TestingGroup.create(3)
@@ -103,7 +104,7 @@ describe('Spv', () => {
 
     const anchors = await tGroup.get(0).container.call('spv_listanchors')
     expect(anchors.length).toBeGreaterThan(0)
-    const activeAnchor = anchors.find((anchor: any) => anchor.active)
+    const activeAnchor = anchors.find((anchor: ListAnchorsResult) => anchor.active)
 
     const rewardConfs = await tGroup.get(0).container.call('spv_listanchorrewardconfirms')
     expect(rewardConfs.length).toBeGreaterThan(0)

@@ -327,7 +327,7 @@ describe('Loan listAuctionHistory', () => {
 
     // When there is liquidation
     const list = await alice.container.call('listauctions', [])
-    list.forEach((l: { state: any }) =>
+    list.forEach((l: { state: string }) =>
       expect(l.state).toStrictEqual('inLiquidation')
     )
 

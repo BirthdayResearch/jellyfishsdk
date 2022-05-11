@@ -123,9 +123,9 @@ export class ICXSetup {
   async setTakerFee (fee: number): Promise<void> {
     await this.container.call('setgov', [{ ICX_TAKERFEE_PER_BTC: fee }])
     await this.container.generate(1)
-    const result: any = await this.container.call('getgov', ['ICX_TAKERFEE_PER_BTC'])
-    expect(result.ICX_TAKERFEE_PER_BTC as number).toStrictEqual(fee)
-    ICX_TAKERFEE_PER_BTC = result.ICX_TAKERFEE_PER_BTC as number
+    const result: { ICX_TAKERFEE_PER_BTC: number} = await this.container.call('getgov', ['ICX_TAKERFEE_PER_BTC'])
+    expect(result.ICX_TAKERFEE_PER_BTC).toStrictEqual(fee)
+    ICX_TAKERFEE_PER_BTC = result.ICX_TAKERFEE_PER_BTC
   }
 
   async closeAllOpenOffers (): Promise<void> {

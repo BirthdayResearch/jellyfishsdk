@@ -2,6 +2,7 @@ import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { GenesisKeys, LoanMasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { createPoolPair, createToken } from '@defichain/testing'
 import { ContainerAdapterClient } from '../../container_adapter_client'
+import { UTXO } from '@defichain/jellyfish-api-core/dist/category/masternode'
 
 describe('Masternode', () => {
   let container!: LoanMasterNodeRegTestContainer
@@ -81,7 +82,7 @@ describe('Masternode', () => {
 
     { // before utxo spent
       const utxos = await client.wallet.listUnspent(1, 99999, { addresses: [GenesisKeys[0].owner.address] })
-      const found = utxos.find((u: any) => u.txid === utxo.txid && u.vout === utxo.vout)
+      const found = utxos.find((u: UTXO) => u.txid === utxo.txid && u.vout === utxo.vout)
       expect(found).not.toStrictEqual(undefined)
     }
 
@@ -104,7 +105,7 @@ describe('Masternode', () => {
 
     { // after utxo spent
       const utxos = await client.wallet.listUnspent(1, 99999, { addresses: [GenesisKeys[0].owner.address] })
-      const found = utxos.find((u: any) => u.txid === utxo.txid && u.vout === utxo.vout)
+      const found = utxos.find((u: UTXO) => u.txid === utxo.txid && u.vout === utxo.vout)
       expect(found).toStrictEqual(undefined)
     }
   })

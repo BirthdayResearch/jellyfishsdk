@@ -1,6 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { BigNumber, RpcApiError } from '@defichain/jellyfish-api-core'
 import { Testing } from '@defichain/jellyfish-testing'
+import { ListHtlcsOutputsResult, ReceivedByAddressInfo } from '@defichain/jellyfish-api-core/dist/category/spv'
 
 describe('Spv', () => {
   let testing: Testing
@@ -40,7 +41,7 @@ describe('Spv', () => {
      * confirms at 11 as it `increaseSpvHeight` increased height by 10,
      * and refund action adds 1.
      */
-    const outputList: any[] = await container.call('spv_listhtlcoutputs')
+    const outputList: ListHtlcsOutputsResult[] = await container.call('spv_listhtlcoutputs')
     expect(outputList.length).toStrictEqual(2)
     const output1 = outputList.find(({ txid }: { txid: string }) => txid === fund1.txid)
     const output2 = outputList.find(({ txid }: { txid: string }) => txid === fund2.txid)
@@ -70,10 +71,10 @@ describe('Spv', () => {
     /**
      * Assert that the destination address received the refund
      */
-    const listReceivingAddresses: any[] = await container.call('spv_listreceivedbyaddress')
+    const listReceivingAddresses: ReceivedByAddressInfo[] = await container.call('`spv_listreceivedbyaddress`')
     const receivingAddress = listReceivingAddresses.find(({ address }: { address: string }) => address === destinationAddress)
-    expect(receivingAddress.address).toStrictEqual(destinationAddress)
-    expect(receivingAddress.txids.some((txid: string) => txid === results[0])).toStrictEqual(true)
+    expect(receivingAddress?.address).toStrictEqual(destinationAddress)
+    expect(receivingAddress?.txids.some((txid: string) => txid === results[0])).toStrictEqual(true)
   })
 
   it('should refundHtlcAll for expired only', async () => {
@@ -99,7 +100,7 @@ describe('Spv', () => {
      * confirms at 11 as it `increaseSpvHeight` increased height by 10,
      * and refund action adds 1.
      */
-    const outputList: any[] = await container.call('spv_listhtlcoutputs')
+    const outputList: ListHtlcsOutputsResult[] = await container.call('spv_listhtlcoutputs')
     expect(outputList.length).toStrictEqual(2)
     const output1 = outputList.find(({ txid }: { txid: string }) => txid === fund1.txid)
     const output2 = outputList.find(({ txid }: { txid: string }) => txid === fund2.txid)
@@ -125,10 +126,10 @@ describe('Spv', () => {
     /**
      * Assert that the destination address received the refund
      */
-    const listReceivingAddresses: any[] = await container.call('spv_listreceivedbyaddress')
+    const listReceivingAddresses: ReceivedByAddressInfo[] = await container.call('spv_listreceivedbyaddress')
     const receivingAddress = listReceivingAddresses.find(({ address }: { address: string }) => address === destinationAddress)
-    expect(receivingAddress.address).toStrictEqual(destinationAddress)
-    expect(receivingAddress.txids.some((txid: string) => txid === results[0])).toStrictEqual(true)
+    expect(receivingAddress?.address).toStrictEqual(destinationAddress)
+    expect(receivingAddress?.txids.some((txid: string) => txid === results[0])).toStrictEqual(true)
   })
 
   it('should refundHtlcAll with custom feeRate', async () => {
@@ -152,7 +153,7 @@ describe('Spv', () => {
      * confirms at 11 as it `increaseSpvHeight` increased height by 10,
      * and refund action adds 1.
      */
-    const outputList: any[] = await container.call('spv_listhtlcoutputs')
+    const outputList: ListHtlcsOutputsResult[] = await container.call('spv_listhtlcoutputs')
     expect(outputList.length).toStrictEqual(1)
     const output = outputList.find(({ txid }: { txid: string }) => txid === fund.txid)
     expect(output).toStrictEqual({
