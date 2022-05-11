@@ -67,7 +67,7 @@
         "**/jellyfish-api-core/src/*.ts"
       ],
       "rules": {
-        "no-explicit-any": "on"
+        "no-explicit-any": "error"
       }
     }
   ]
