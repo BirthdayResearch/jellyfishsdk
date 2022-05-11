@@ -67,7 +67,7 @@
         "**/jellyfish-api-core/src/*.ts"
       ],
       "rules": {
-        "@typescript-eslint/no-explicit-any": "error"
+        "no-explicit-any": "error"
       }
     }
   ]
