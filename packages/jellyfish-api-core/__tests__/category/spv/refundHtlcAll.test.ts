@@ -71,8 +71,8 @@ describe('Spv', () => {
     /**
      * Assert that the destination address received the refund
      */
-    const listReceivingAddresses: ReceivedByAddressInfo[] = await container.call('`spv_listreceivedbyaddress`')
-    const receivingAddress = listReceivingAddresses.find(({ address }: { address: string }) => address === destinationAddress)
+    const listReceivingAddresses: ReceivedByAddressInfo[] = await container.call('spv_listreceivedbyaddress')
+    const receivingAddress = listReceivingAddresses.find(address => address === destinationAddress)
     expect(receivingAddress?.address).toStrictEqual(destinationAddress)
     expect(receivingAddress?.txids.some((txid: string) => txid === results[0])).toStrictEqual(true)
   })
@@ -127,7 +127,7 @@ describe('Spv', () => {
      * Assert that the destination address received the refund
      */
     const listReceivingAddresses: ReceivedByAddressInfo[] = await container.call('spv_listreceivedbyaddress')
-    const receivingAddress = listReceivingAddresses.find(({ address }: { address: string }) => address === destinationAddress)
+    const receivingAddress = listReceivingAddresses.find(address => address === destinationAddress)
     expect(receivingAddress?.address).toStrictEqual(destinationAddress)
     expect(receivingAddress?.txids.some((txid: string) => txid === results[0])).toStrictEqual(true)
   })
@@ -171,10 +171,10 @@ describe('Spv', () => {
     /**
      * Assert that the destination address received the refund
      */
-    const listReceivingAddresses = await container.call('spv_listreceivedbyaddress')
-    const receivingAddress = listReceivingAddresses.find(({ address }: { address: string }) => address === destinationAddress)
-    expect(receivingAddress.address).toStrictEqual(destinationAddress)
-    expect(receivingAddress.txids.some((txid: string) => txid === results[0])).toStrictEqual(true)
+    const listReceivingAddresses: ReceivedByAddressInfo[] = await container.call('spv_listreceivedbyaddress')
+    const receivingAddress = listReceivingAddresses.find(address => address === destinationAddress)
+    expect(receivingAddress?.address).toStrictEqual(destinationAddress)
+    expect(receivingAddress?.txids.some((txid: string) => txid === results[0])).toStrictEqual(true)
   })
 
   it('should not refundHtlcAll when no unspent HTLC outputs found', async () => {

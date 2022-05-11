@@ -2,7 +2,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { Testing } from '@defichain/jellyfish-testing'
 import BigNumber from 'bignumber.js'
 import { VaultActive, VaultState } from '../../../src/category/vault'
-import { Interest } from '@defichain/jellyfish-api-core/dist/category/loan'
+import { Interest } from '@defichain/jellyfish-api-core/dist/category/vault'
 
 describe('Vault getVault', () => {
   const container = new MasterNodeRegTestContainer()
