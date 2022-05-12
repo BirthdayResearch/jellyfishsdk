@@ -83,7 +83,7 @@ interface MasternodeInfo {
   resignHeight: number
   resignTx: string
   banHeight: number
-  banTx: string
+  rewardAddress: string
   state: MasternodeState
   mintedBlocks: number
   ownerIsMine: boolean
@@ -122,7 +122,7 @@ interface MasternodeInfo {
   resignHeight: number
   resignTx: string
   banHeight: number
-  banTx: string
+  rewardAddress: string
   state: MasternodeState
   mintedBlocks: number
   ownerIsMine: boolean
