@@ -6,7 +6,7 @@ import { ApiTesting } from '../../libs/rootserver/testing/ApiTesting'
  */
 export class LegacyApiTesting extends ApiTesting {
   constructor (
-    readonly stubServer: LegacyStubServer = new LegacyStubServer()
+    protected readonly stubServer: LegacyStubServer = new LegacyStubServer()
   ) {
     super()
   }

@@ -6,7 +6,7 @@ import { RootServer } from '@defichain-apps/libs/rootserver'
  * Testing framework.
  */
 export abstract class ApiTesting {
-  protected abstract stubServer: StubServer
+  protected abstract stubServer: RootServer
 
   get app (): NestFastifyApplication {
     if (this.stubServer.app === undefined) {
@@ -40,7 +40,4 @@ export abstract class ApiTesting {
       console.error(err)
     }
   }
-}
-
-interface StubServer extends RootServer {
 }

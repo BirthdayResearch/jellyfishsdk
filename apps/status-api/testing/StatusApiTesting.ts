@@ -6,7 +6,7 @@ import { ApiTesting } from '../../libs/rootserver/testing/ApiTesting'
  */
 export class StatusApiTesting extends ApiTesting {
   constructor (
-    readonly stubServer: StatusStubServer = new StatusStubServer()
+    protected readonly stubServer: StatusStubServer = new StatusStubServer()
   ) {
     super()
   }
