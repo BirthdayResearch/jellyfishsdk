@@ -202,7 +202,5 @@ export interface AddressHistory {
   amounts: string[]
   block: {
     height: number
-    hash: string
-    time: number
   }
 }

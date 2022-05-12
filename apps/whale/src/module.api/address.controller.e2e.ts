@@ -163,8 +163,6 @@ describe('listAccountHistory', () => {
       const accountHistory = history.data[i]
       expect(typeof accountHistory.owner).toStrictEqual('string')
       expect(typeof accountHistory.block.height).toStrictEqual('number')
-      expect(typeof accountHistory.block.hash).toStrictEqual('string')
-      expect(typeof accountHistory.block.time).toStrictEqual('number')
       expect(typeof accountHistory.type).toStrictEqual('string')
       expect(typeof accountHistory.txn).toStrictEqual('number')
       expect(typeof accountHistory.txid).toStrictEqual('string')

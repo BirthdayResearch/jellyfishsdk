@@ -204,9 +204,7 @@ function mapAddressHistory (list: AccountHistory[]): AddressHistory[] {
       type: each.type,
       amounts: each.amounts,
       block: {
-        height: each.blockHeight,
-        hash: each.blockHash,
-        time: each.blockTime
+        height: each.blockHeight
       }
     }
   })
