@@ -495,8 +495,8 @@ export interface UTXO {
 export interface AccountHistory {
   owner: string
   blockHeight: number
-  blockHash: string
-  blockTime: number
+  blockHash?: string
+  blockTime?: number
   type: string
   txn: number
   txid: string

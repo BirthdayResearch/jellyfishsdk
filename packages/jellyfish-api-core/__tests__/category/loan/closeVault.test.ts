@@ -307,7 +307,7 @@ describe('Loan', () => {
 
   it('should not closeVault as vault does not exist', async () => {
     const promise = tGroup.get(0).rpc.loan.closeVault({ vaultId: '0'.repeat(64), to: await tGroup.get(0).generateAddress() })
-    await expect(promise).rejects.toThrow(`RpcApiError: 'Vault <${'0'.repeat(64)}> does not found', code: -5, method: closevault`)
+    await expect(promise).rejects.toThrow(`RpcApiError: 'Vault <${'0'.repeat(64)}> not found', code: -5, method: closevault`)
   })
 
   it('should not closeVault for vault with loan taken', async () => {

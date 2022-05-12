@@ -167,7 +167,7 @@ describe('loan.setCollateralToken() with activateAfterBlock', () => {
     }, script)
     await sendTransaction(testing.container, txn)
     const collateralTokenId = calculateTxid(txn)
-    const data = await testing.rpc.loan.listCollateralTokens({ all: true })
+    const data = await testing.rpc.loan.listCollateralTokens()
     expect(data).toStrictEqual([{
       token: 'AAPL',
       factor: new BigNumber(0.5),

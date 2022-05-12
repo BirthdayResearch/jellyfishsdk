@@ -84,6 +84,7 @@ describe('Loan getLoanToken', () => {
             }
           },
           fixedIntervalPriceId: 'AAPL/USD',
+          mintable: true,
           interest: new BigNumber(0.01)
         }
       )
