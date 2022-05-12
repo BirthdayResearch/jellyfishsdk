@@ -118,6 +118,7 @@ describe('Loan getLoanToken', () => {
             }
           },
           fixedIntervalPriceId: 'TSLA/USD',
+          mintable: false,
           interest: new BigNumber(0.02)
         }
       )
