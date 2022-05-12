@@ -177,14 +177,17 @@ describe('Loan setCollateralToken with activateAfterBlock', () => {
     expect(collateralTokenId.length).toStrictEqual(64)
     await testing.generate(1)
 
+    // Wait for block 110
+    await testing.container.waitForBlockHeight(120)
+
     const data = await testing.container.call('getcollateraltoken', ['AAPL'])
-    expect(data).toStrictEqual([{
+    expect(data).toStrictEqual({
       token: 'AAPL',
       factor: 0.5,
       fixedIntervalPriceId: 'AAPL/USD',
       activateAfterBlock: 120,
       tokenId: collateralTokenId
-    }])
+    })
   })
 })
 
