@@ -79,16 +79,19 @@ interface MasternodePagination {
 interface MasternodeInfo {
   ownerAuthAddress: string
   operatorAuthAddress: string
+  rewardAddress: string
   creationHeight: number
   resignHeight: number
   resignTx: string
-  banHeight: number
-  rewardAddress: string
+  collateralTx: string
   state: MasternodeState
   mintedBlocks: number
   ownerIsMine: boolean
   operatorIsMine: boolean
   localMasternode: boolean
+  targetMultiplier?: number
+  targetMultipliers?: number[]
+  timelock?: number
 }
 
 interface MasternodeResult<T> {
