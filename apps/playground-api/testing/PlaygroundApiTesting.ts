@@ -12,7 +12,7 @@ import { ApiClient } from '@defichain/jellyfish-api-core'
 export class PlaygroundApiTesting extends ApiTesting {
   constructor (
     private readonly testingGroup: TestingGroup,
-    readonly stubServer: PlaygroundStubServer = new PlaygroundStubServer(testingGroup.get(0).container),
+    protected readonly stubServer: PlaygroundStubServer = new PlaygroundStubServer(testingGroup.get(0).container),
     private readonly stubApiClient: PlaygroundStubClient = new PlaygroundStubClient((stubServer))
   ) {
     super()
