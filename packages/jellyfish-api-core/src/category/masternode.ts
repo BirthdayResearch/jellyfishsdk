@@ -107,6 +107,10 @@ export class Masternode {
     return await this.client.call('listmasternodes', [pagination, verbose], 'number')
   }
 
+  async updateMasterNode (masternodeId: string, values: UpdateMasterNode): Promise<any> {
+    return await this.client.call('updatemasternode', [masternodeId], 'number')
+  }
+
   /**
    * Returns information about a single masternode
    *
@@ -236,6 +240,12 @@ export class Masternode {
   async listAnchors (): Promise<MasternodeResult<MasternodeAnchor>> {
     return await this.client.call('listanchors', [], 'number')
   }
+}
+
+export interface UpdateMasterNode {
+  ownerAddress: string
+  operatorAddress: string
+  rewardAddress: string
 }
 
 export interface UTXO {
