@@ -43,3 +43,4 @@ services:
       -fortcanningmuseumheight=9
       -fortcanninghillheight=10
       -fortcanningroadheight=11
+      -greatworldheight=12

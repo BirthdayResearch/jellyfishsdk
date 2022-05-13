@@ -1,8 +1,9 @@
+import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { MasterNodeRegTestContainer, StartOptions } from '@defichain/testcontainers'
 
 export class GovernanceMasterNodeRegTestContainer extends MasterNodeRegTestContainer {
   constructor () {
-    super(undefined, 'defi/defichain:HEAD-5c71531')
+    super(RegTestFoundationKeys[RegTestFoundationKeys.length - 1])
   }
 
   /**
