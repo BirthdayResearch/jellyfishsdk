@@ -107,8 +107,8 @@ export class Masternode {
     return await this.client.call('listmasternodes', [pagination, verbose], 'number')
   }
 
-  async updateMasterNode (masternodeId: string, values: UpdateMasterNode): Promise<any> {
-    return await this.client.call('updatemasternode', [masternodeId], 'number')
+  async updateMasternode (masternodeId: string, values: UpdateMasterNode): Promise<any> {
+    return await this.client.call('updatemasternode', [masternodeId, values], 'number')
   }
 
   /**
@@ -244,8 +244,8 @@ export class Masternode {
 
 export interface UpdateMasterNode {
   ownerAddress: string
-  operatorAddress: string
-  rewardAddress: string
+  operatorAddress?: string
+  rewardAddress?: string
 }
 
 export interface UTXO {
