@@ -110,8 +110,8 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
    * @param {CreateVault} createVault txn to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @returns {Promise<TransactionSegWit>}
+   * @deprecated vault methods are moving to TxnBuilderVault
    */
-
   async createVault (createVault: CreateVault, changeScript: Script): Promise<TransactionSegWit> {
     const creationFee = this.network.name === 'mainnet' ? new BigNumber('2') : new BigNumber('1')
 
@@ -128,8 +128,8 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
    * @param {UpdateVault} updateVault txn to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @returns {Promise<TransactionSegWit>}
+   * @deprecated vault methods are moving to TxnBuilderVault
    */
-
   async updateVault (updateVault: UpdateVault, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_UPDATE_VAULT(updateVault),
@@ -143,8 +143,8 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
    * @param {DepositToVault} depositToVault txn to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @returns {Promise<TransactionSegWit>}
+   * @deprecated vault methods are moving to TxnBuilderVault
    */
-
   async depositToVault (depositToVault: DepositToVault, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_DEPOSIT_TO_VAULT(depositToVault),
@@ -158,8 +158,8 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
    * @param {withdrawFromVault} withdrawFromVault txn to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @returns {Promise<TransactionSegWit>}
+   * @deprecated vault methods are moving to TxnBuilderVault
    */
-
   async withdrawFromVault (withdrawFromVault: WithdrawFromVault, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_WITHDRAW_FROM_VAULT(withdrawFromVault),
@@ -173,8 +173,8 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
    * @param {CloseVault} closeVault txn to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @returns {Promise<TransactionSegWit>}
+   * @deprecated vault methods are moving to TxnBuilderVault
    */
-
   async closeVault (closeVault: CloseVault, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_CLOSE_VAULT(closeVault),
@@ -203,7 +203,6 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @returns {Promise<TransactionSegWit>}
    */
-
   async paybackLoan (paybackLoan: PaybackLoan, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_PAYBACK_LOAN(paybackLoan),
@@ -218,7 +217,6 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @returns {Promise<TransactionSegWit>}
    */
-
   async paybackLoanV2 (paybackLoanV2: PaybackLoanV2, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_PAYBACK_LOAN_V2(paybackLoanV2),
@@ -232,8 +230,8 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
    * @param {PlaceAuctionBid} placeAuctionBid txn to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @returns {Promise<TransactionSegWit>}
+   * @deprecated vault methods are moving to TxnBuilderVault
    */
-
   async placeAuctionBid (placeAuctionBid: PlaceAuctionBid, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_AUCTION_BID(placeAuctionBid),
