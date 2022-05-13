@@ -243,7 +243,7 @@ export class Masternode {
 }
 
 export interface UpdateMasterNode {
-  ownerAddress: string
+  ownerAddress?: string
   operatorAddress?: string
   rewardAddress?: string
 }

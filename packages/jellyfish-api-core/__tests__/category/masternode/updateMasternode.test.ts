@@ -23,7 +23,7 @@ describe('Masternode', () => {
 
   it('any', async () => {
     const ownerAddress1 = await alice.rpc.wallet.getNewAddress()
-    await alice.rpc.masternode.createMasternode(ownerAddress1)
+    const tx1 = await alice.rpc.masternode.createMasternode(ownerAddress1)
     await alice.generate(1)
 
     const ownerAddress2 = await alice.rpc.wallet.getNewAddress()
@@ -60,10 +60,27 @@ describe('Masternode', () => {
       await expect(promise).rejects.toThrow(`RpcApiError: 'Incorrect authorization for ${ownerAddress2}', code: -5, method: updatemasternode`)
     }
 
+    // {
+    //   const promise = alice.rpc.masternode.updateMasternode('3e1e9a9595b81bb78b4cc176c7eacbe8557df78da55545f35b8bc5b7a9d022bb', { ownerAddress: ownerAddress2 })
+    //   await expect(promise).rejects.toThrow(RpcApiError)
+    //   await expect(promise).rejects.toThrow(`RpcApiError: 'Incorrect authorization for ${ownerAddress2}', code: -5, method: updatemasternode`)
+    // }
+
+    const ownerAddress4 = await alice.rpc.wallet.getNewAddress()
+    await alice.rpc.masternode.createMasternode(ownerAddress4)
+    await alice.generate(1)
+
+    const data = await alice.rpc.masternode.getMasternode(tx1)
+
     {
-      const promise = alice.rpc.masternode.updateMasternode('3e1e9a9595b81bb78b4cc176c7eacbe8557df78da55545f35b8bc5b7a9d022bb', { ownerAddress: ownerAddress2 })
+      const x = await alice.rpc.masternode.updateMasternode(Object.keys(data)[0], { ownerAddress: ownerAddress3 })
+      console.log(x)
+    }
+
+    {
+      const promise = alice.rpc.masternode.updateMasternode(Object.keys(data)[0], {})
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(`RpcApiError: 'Incorrect authorization for ${ownerAddress2}', code: -5, method: updatemasternode`)
+      await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateMasternodeTx execution failed:\nNo update arguments provided\', code: -32600, method: updatemasternode')
     }
   })
 })
