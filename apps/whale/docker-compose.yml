@@ -32,6 +32,8 @@ services:
       -fortcanningheight=8
       -fortcanningmuseumheight=9
       -fortcanninghillheight=10
+      -fortcanningroadheight=11
+      -greatworldheight=12
 
   defi-whale:
     build:

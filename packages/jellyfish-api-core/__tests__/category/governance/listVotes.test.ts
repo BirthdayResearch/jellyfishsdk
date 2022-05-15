@@ -1,58 +1,42 @@
-import { GenesisKeys, StartOptions } from '@defichain/testcontainers'
+import { StartFlags } from '@defichain/testcontainers'
 import { MasternodeType, VoteDecision } from '../../../src/category/governance'
-import { GovernanceMasterNodeRegTestContainer } from './governance_container'
-import { Testing } from '@defichain/jellyfish-testing'
+import { TestingGroup } from '@defichain/jellyfish-testing'
 import { masternode } from '@defichain/jellyfish-api-core'
 
-class MultiOperatorGovernanceMasterNodeRegTestContainer extends GovernanceMasterNodeRegTestContainer {
-  protected getCmd (opts: StartOptions): string[] {
-    return [
-      ...super.getCmd(opts),
-      `-masternode_operator=${GenesisKeys[1].operator.address}`,
-      `-masternode_operator=${GenesisKeys[2].operator.address}`
-    ]
-  }
-}
-
 describe('Governance', () => {
-  const testing = Testing.create(new MultiOperatorGovernanceMasterNodeRegTestContainer())
+  const tGroup = TestingGroup.create(4)
+  const greatWorldHeight = 101
 
   let masternodes: masternode.MasternodeResult<masternode.MasternodeInfo>
 
   beforeAll(async () => {
-    await testing.container.start()
-    await testing.container.waitForWalletCoinbaseMaturity()
+    const startFlags: StartFlags[] = [{ name: 'greatworldheight', value: greatWorldHeight }]
+    await tGroup.start({ startFlags: startFlags })
+    await tGroup.get(0).generate(100)
+    await tGroup.get(3).generate(1)
+    await tGroup.waitForSync()
 
-    /**
-     * Import the private keys of the masternode_operator in order to be able to mint blocks and vote on proposals.
-     * This setup uses the default masternode + two additional masternodes for a total of 3 masternodes.
-     */
-    await testing.rpc.wallet.importPrivKey(GenesisKeys[1].owner.privKey)
-    await testing.rpc.wallet.importPrivKey(GenesisKeys[1].operator.privKey)
-    await testing.rpc.wallet.importPrivKey(GenesisKeys[2].owner.privKey)
-    await testing.rpc.wallet.importPrivKey(GenesisKeys[2].operator.privKey)
-
-    masternodes = await testing.rpc.masternode.listMasternodes()
+    masternodes = await tGroup.get(1).rpc.masternode.listMasternodes()
   })
 
   afterAll(async () => {
-    await testing.container.stop()
+    await tGroup.stop()
   })
 
   it('should listVotes', async () => {
-    const proposalId = await testing.rpc.governance.createVoc('A vote of confidence') // Creates a vote of confidence on which to vote
-    await testing.container.generate(1)
+    const proposalId = await tGroup.get(1).rpc.governance.createVoc('A vote of confidence') // Creates a vote of confidence on which to vote
+    await tGroup.get(1).container.generate(1)
 
     for (const [id, data] of Object.entries(masternodes)) {
       if (data.operatorIsMine) {
-        await testing.container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
-        await testing.rpc.governance.vote({ proposalId, masternodeId: id, decision: VoteDecision.YES })
+        await tGroup.get(1).container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
+        await tGroup.get(1).rpc.governance.vote({ proposalId, masternodeId: id, decision: VoteDecision.YES })
       }
     }
-    await testing.container.generate(1)
+    await tGroup.get(1).container.generate(1)
 
-    const votes = await testing.rpc.governance.listVotes(proposalId)
-    expect(votes.length).toStrictEqual(3) // The three masternodes should have voted on the proposal
+    const votes = await tGroup.get(1).rpc.governance.listVotes(proposalId)
+    expect(votes.length).toStrictEqual(1)
     expect(typeof votes[0].masternodeId).toStrictEqual('string')
     expect(votes[0].masternodeId.length).toStrictEqual(64)
     expect(votes[0].proposalId).toStrictEqual(proposalId)
@@ -61,19 +45,19 @@ describe('Governance', () => {
   })
 
   it('should listVotes with filter masternode=MasternodeType.ALL', async () => {
-    const proposalId = await testing.rpc.governance.createVoc('A vote of confidence') // Creates a vote of confidence on which to vote
-    await testing.container.generate(1)
+    const proposalId = await tGroup.get(1).rpc.governance.createVoc('A vote of confidence') // Creates a vote of confidence on which to vote
+    await tGroup.get(1).container.generate(1)
 
     for (const [id, data] of Object.entries(masternodes)) {
       if (data.operatorIsMine) {
-        await testing.container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
-        await testing.rpc.governance.vote({ proposalId, masternodeId: id, decision: VoteDecision.YES })
+        await tGroup.get(1).container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
+        await tGroup.get(1).rpc.governance.vote({ proposalId, masternodeId: id, decision: VoteDecision.YES })
       }
     }
-    await testing.container.generate(1)
+    await tGroup.get(1).container.generate(1)
 
-    const votes = await testing.rpc.governance.listVotes(proposalId, MasternodeType.ALL)
-    expect(votes.length).toStrictEqual(3) // The three masternodes should have voted on the proposal
+    const votes = await tGroup.get(1).rpc.governance.listVotes(proposalId, MasternodeType.ALL)
+    expect(votes.length).toStrictEqual(1)
     expect(typeof votes[0].masternodeId).toStrictEqual('string')
     expect(votes[0].masternodeId.length).toStrictEqual(64)
     expect(votes[0].proposalId).toStrictEqual(proposalId)
@@ -82,21 +66,21 @@ describe('Governance', () => {
   })
 
   it('should listVotes with filter on a specific masternodeId', async () => {
-    const proposalId = await testing.rpc.governance.createVoc('A vote of confidence') // Creates a vote of confidence on which to vote
+    const proposalId = await tGroup.get(1).rpc.governance.createVoc('A vote of confidence') // Creates a vote of confidence on which to vote
     let masternodeId = ''
 
-    await testing.container.generate(1)
+    await tGroup.get(1).container.generate(1)
 
     for (const [id, data] of Object.entries(masternodes)) {
       if (data.operatorIsMine) {
-        await testing.container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
-        await testing.rpc.governance.vote({ proposalId, masternodeId: id, decision: VoteDecision.YES })
+        await tGroup.get(1).container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
+        await tGroup.get(1).rpc.governance.vote({ proposalId, masternodeId: id, decision: VoteDecision.YES })
         masternodeId = id // Uses the last id as masternodeId
       }
     }
-    await testing.container.generate(1)
+    await tGroup.get(1).container.generate(1)
 
-    const votes = await testing.rpc.governance.listVotes(proposalId, masternodeId)
+    const votes = await tGroup.get(1).rpc.governance.listVotes(proposalId, masternodeId)
     expect(votes.length).toStrictEqual(1)
     expect(votes[0].masternodeId).toStrictEqual(masternodeId)
     expect(votes[0].proposalId).toStrictEqual(proposalId)
