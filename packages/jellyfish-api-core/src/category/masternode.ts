@@ -31,9 +31,9 @@ export class Masternode {
    * @param {string} ownerAddress Any valid address for keeping collateral amount
    * @param {string} [operatorAddress]  Masternode operator auth address (P2PKH only, unique). If empty, owner address will be used.
    * @param {CreateMasternodeOptions} [options]
-   * @param {UTXO[]} [options.utxos = []]
+   * @param {UTXO[]} [options.utxos = []] Specific UTXOs to spend
    * @param {string} [options.utxos.txid] The transaction id
-   * @param {string} [options.utxos.vout] The output number
+   * @param {number} [options.utxos.vout] The output number
    * @param {MasternodeTimeLock} [options.timelock] specify a fix period (5 or 10 years) lock which cannot be resigned and cannot spend the collateral
    * @return {Promise<string>}
    */
@@ -49,6 +49,23 @@ export class Masternode {
       ...(options.timelock !== undefined ? [options.timelock] : [])
     ]
     return await this.client.call('createmasternode', params, 'number')
+  }
+
+  /**
+   * Creates a masternode update transaction.
+   *
+   * @param {string} id The Masternode's ID
+   * @param {UpdateMasternodeOptions} options
+   * @param {string} [options.ownerAddress] The new masternode owner address, requires masternode collateral fee (P2PKH or P2WPKH)
+   * @param {string} [options.operatorAddress] The new masternode operator address (P2PKH or P2WPKH)
+   * @param {string} [options.rewardAddress] Masternode`s new reward address, empty to remove old reward address
+   * @param {UTXO[]} [options.utxos = []] Specific UTXOs to spend
+   * @param {string} [options.utxos.txid] The transaction id
+   * @param {number} [options.utxos.vout] The output number
+   * @return {Promise<string>}
+   */
+  async updateMasternode (id: string, options: UpdateMasternodeOptions, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('updatemasternode', [id, options, utxos], 'number')
   }
 
   /**
@@ -246,6 +263,26 @@ export interface UTXO {
 export interface CreateMasternodeOptions {
   utxos: UTXO[]
   timelock?: MasternodeTimeLock
+}
+
+type UpdateMasternodeOptions = UpdateMasternodeOptions1 | UpdateMasternodeOptions2 | UpdateMasternodeOptions3
+
+export interface UpdateMasternodeOptions1 {
+  ownerAddress: string
+  operatorAddress?: string
+  rewardAddress?: string
+}
+
+export interface UpdateMasternodeOptions2 {
+  ownerAddress?: string
+  operatorAddress: string
+  rewardAddress?: string
+}
+
+export interface UpdateMasternodeOptions3 {
+  ownerAddress?: string
+  operatorAddress?: string
+  rewardAddress: string
 }
 
 export interface MasternodePagination {

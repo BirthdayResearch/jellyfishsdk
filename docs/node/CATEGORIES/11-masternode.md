@@ -42,6 +42,36 @@ enum MasternodeTimeLock {
 }
 ```
 
+## updateMasternodes
+
+Creates a masternode update transaction.
+
+```ts title="client.masternode.updateMasternodes()"
+interface masternode {
+  updateMasternode (id: string, options: UpdateMasternodeOptions, utxos: UTXO[] = []): Promise<string>
+}
+
+type UpdateMasternodeOptions = UpdateMasternodeOptions1 | UpdateMasternodeOptions2 | UpdateMasternodeOptions3;
+
+interface UpdateMasternodeOptions1 {
+  ownerAddress: string
+  operatorAddress?: string
+  rewardAddress?: string
+}
+
+interface UpdateMasternodeOptions2 {
+  ownerAddress?: string
+  operatorAddress: string
+  rewardAddress?: string
+}
+
+interface UpdateMasternodeOptions3 {
+  ownerAddress?: string
+  operatorAddress?: string
+  rewardAddress: string
+}
+```
+
 ## listMasternodes
 
 Returns information about multiple masternodes.
