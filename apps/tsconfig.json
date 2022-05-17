@@ -2,8 +2,7 @@
   "extends": "../tsconfig.json",
   "include": [
     "./*/src",
-    "./libs/*/src",
-    "./*/__sanity__"
+    "./libs/*/src"
   ],
   "exclude": [
     "**/*spec.ts",
