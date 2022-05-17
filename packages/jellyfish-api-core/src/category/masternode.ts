@@ -65,7 +65,7 @@ export class Masternode {
    * @return {Promise<string>}
    */
   async updateMasternode (id: string, options: UpdateMasternodeOptions, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('updatemasternode', [id, options, utxos], 'number')
+    return await this.client.call('updatemasternode', [id, { ownerAddress: options.ownerAddress, operatorAddress: options.operatorAddress, rewardAddress: options.rewardAddress }, utxos], 'number')
   }
 
   /**
@@ -312,6 +312,7 @@ export interface MasternodeInfo {
   targetMultiplier?: number
   targetMultipliers?: number[]
   timelock?: number
+  rewardAddress: string
 }
 
 export interface MasternodeAnchor {

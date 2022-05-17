@@ -1,8 +1,9 @@
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { MasterNodeRegTestContainer, waitForCondition } from '@defichain/testcontainers'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { Testing } from '@defichain/jellyfish-testing'
+import { MasternodeInfo, MasternodeResult } from '@defichain/jellyfish-api-core/dist/category/masternode'
 
-describe('Masternode equal or after greatworldheight', () => {
+describe('Masternode at or after greatworldheight', () => {
   const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
@@ -13,6 +14,97 @@ describe('Masternode equal or after greatworldheight', () => {
 
   afterAll(async () => {
     await testing.container.stop()
+  })
+
+  async function waitUntilMasternodeEnabled (masternodeId: string, timeout = 30000): Promise<void> {
+    return await waitForCondition(async () => {
+      const data: MasternodeResult<MasternodeInfo> = await container.call('getmasternode', [masternodeId])
+      // eslint-disable-next-line
+      if (Object.values(data)[0].state !== 'ENABLED') {
+        await testing.generate(1)
+        return false
+      }
+      return true
+    }, timeout, 100, 'waitUntilMasternodeEnabled')
+  }
+
+  it('should updateMasternode', async () => {
+    await testing.generate(9) // Generate 9 blocks to move to block 110
+
+    const blockCount = await testing.rpc.blockchain.getBlockCount()
+    expect(blockCount).toStrictEqual(110) // At greatworldheight
+
+    const masternodeId1 = await container.call('createmasternode', [await container.call('getnewaddress', ['', 'legacy'])])
+    await testing.generate(1)
+
+    const masternodeId2 = await container.call('createmasternode', [await container.call('getnewaddress', ['', 'legacy'])])
+    await testing.generate(1)
+
+    const masternodeId3 = await container.call('createmasternode', [await container.call('getnewaddress', ['', 'legacy'])])
+    await testing.generate(1)
+
+    const masternodeId4 = await container.call('createmasternode', [await container.call('getnewaddress', ['', 'legacy'])])
+    await testing.generate(1)
+
+    await waitUntilMasternodeEnabled(masternodeId1)
+    await waitUntilMasternodeEnabled(masternodeId2)
+    await waitUntilMasternodeEnabled(masternodeId3)
+    await waitUntilMasternodeEnabled(masternodeId4)
+
+    const masternode1: MasternodeResult<MasternodeInfo> = await container.call('getmasternode', [masternodeId1])
+    // const masternode2: MasternodeResult<MasternodeInfo> = await container.call('getmasternode', [masternodeId2])
+    // const masternode3: MasternodeResult<MasternodeInfo> = await container.call('getmasternode', [masternodeId3])
+    const masternode4: MasternodeResult<MasternodeInfo> = await container.call('getmasternode', [masternodeId4])
+
+    {
+      let operatorAddress = Object.values(masternode1)[0].operatorAuthAddress
+      const rewardAddress = Object.values(masternode4)[0].rewardAddress
+
+      let ownerAddress = await container.call('getnewaddress', ['', 'legacy'])
+      await testing.rpc.masternode.updateMasternode(masternodeId1, {
+        ownerAddress
+      })
+      await testing.generate(1)
+
+      operatorAddress = await container.call('getnewaddress', ['', 'legacy'])
+      await testing.rpc.masternode.updateMasternode(masternodeId1, {
+        operatorAddress
+      })
+      await testing.generate(1)
+
+      await testing.rpc.masternode.updateMasternode(masternodeId1, {
+        rewardAddress
+      })
+      await testing.generate(1)
+
+      ownerAddress = await testing.generateAddress()
+      await testing.rpc.masternode.updateMasternode(masternodeId1, {
+        ownerAddress,
+        operatorAddress
+      })
+      await testing.generate(1)
+
+      await testing.rpc.masternode.updateMasternode(masternodeId1, {
+        operatorAddress,
+        rewardAddress
+      })
+      await testing.generate(1)
+
+      ownerAddress = await testing.generateAddress()
+      await testing.rpc.masternode.updateMasternode(masternodeId1, {
+        ownerAddress,
+        rewardAddress
+      })
+      await testing.generate(1)
+
+      ownerAddress = await testing.generateAddress()
+      await testing.rpc.masternode.updateMasternode(masternodeId1, {
+        ownerAddress,
+        operatorAddress,
+        rewardAddress
+      })
+      await testing.generate(1)
+    }
   })
 })
 
@@ -45,7 +137,7 @@ describe('Masternode before greatworldheight', () => {
     // Block count = 102
     {
       const blockCount = await testing.rpc.blockchain.getBlockCount()
-      expect(blockCount < 110).toStrictEqual(true) // Less than greatworldheight
+      expect(blockCount).toBeLessThan(110) // Less than greatworldheight
 
       const promise1 = testing.rpc.masternode.updateMasternode(txId, { ownerAddress })
       await expectGreatWorldHeightError(promise1)
