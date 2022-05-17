@@ -2,7 +2,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { Testing } from '@defichain/jellyfish-testing'
 
-describe('Masternode after great world height', () => {
+describe('Masternode equal or after greatworldheight', () => {
   const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
@@ -16,7 +16,7 @@ describe('Masternode after great world height', () => {
   })
 })
 
-describe('Masternode before great world height', () => {
+describe('Masternode before greatworldheight', () => {
   const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
@@ -70,10 +70,16 @@ describe('Masternode before great world height', () => {
 
       const promise6 = testing.rpc.masternode.updateMasternode(txId, {
         ownerAddress,
-        operatorAddress,
         rewardAddress
       })
       await expectGreatWorldHeightError(promise6)
+
+      const promise7 = testing.rpc.masternode.updateMasternode(txId, {
+        ownerAddress,
+        operatorAddress,
+        rewardAddress
+      })
+      await expectGreatWorldHeightError(promise7)
     }
   })
 })
