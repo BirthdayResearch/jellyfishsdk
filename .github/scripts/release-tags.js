@@ -59,7 +59,7 @@ function getReleaseTag(domain, app, context) {
   if (semver.match(/^v[0-9]+\.[0-9]+\.[0-9]+$/) === null) {
     throw new Error(`Release Violation: Provided version '${semver}' is not valid semver.`)
   }
-  return `ghcr.io/${domain}/${app}:latest,ghcr.io/${domain}/${app}:${semver}`
+  return `ghcr.io/${domain}/${app}:latest,ghcr.io/${domain}/${app}:${semver.replace('v','')}`
 }
 
 function getMainTag(domain, app, { sha }) {
