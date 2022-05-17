@@ -48,4 +48,17 @@ export class WhaleSanityContainer extends AppContainer {
       return res.status === 200
     }, 30_000) // 30s
   }
+
+  public async call (rpcEndpoint: string, method: string, params?: any): Promise<Response> {
+    return await this.fetch(rpcEndpoint, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        method: method,
+        params: params
+      })
+    })
+  }
 }
