@@ -1,4 +1,3 @@
-
 import { WhaleSanityContainer } from '@defichain/testcontainers'
 import waitForExpect from 'wait-for-expect'
 
