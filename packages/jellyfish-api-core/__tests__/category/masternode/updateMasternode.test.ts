@@ -34,76 +34,146 @@ describe('Masternode at or after greatworldheight', () => {
     const blockCount = await testing.rpc.blockchain.getBlockCount()
     expect(blockCount).toStrictEqual(110) // At greatworldheight
 
-    const masternodeId1 = await container.call('createmasternode', [await container.call('getnewaddress', ['', 'legacy'])])
-    await testing.generate(1)
-
-    const masternodeId2 = await container.call('createmasternode', [await container.call('getnewaddress', ['', 'legacy'])])
-    await testing.generate(1)
-
-    const masternodeId3 = await container.call('createmasternode', [await container.call('getnewaddress', ['', 'legacy'])])
-    await testing.generate(1)
-
-    const masternodeId4 = await container.call('createmasternode', [await container.call('getnewaddress', ['', 'legacy'])])
-    await testing.generate(1)
-
-    await waitUntilMasternodeEnabled(masternodeId1)
-    await waitUntilMasternodeEnabled(masternodeId2)
-    await waitUntilMasternodeEnabled(masternodeId3)
-    await waitUntilMasternodeEnabled(masternodeId4)
-
-    const masternode1: MasternodeResult<MasternodeInfo> = await container.call('getmasternode', [masternodeId1])
-    // const masternode2: MasternodeResult<MasternodeInfo> = await container.call('getmasternode', [masternodeId2])
-    // const masternode3: MasternodeResult<MasternodeInfo> = await container.call('getmasternode', [masternodeId3])
-    const masternode4: MasternodeResult<MasternodeInfo> = await container.call('getmasternode', [masternodeId4])
-
+    // Several updateMasternode within different blocks
     {
-      let operatorAddress = Object.values(masternode1)[0].operatorAuthAddress
-      const rewardAddress = Object.values(masternode4)[0].rewardAddress
-
-      let ownerAddress = await container.call('getnewaddress', ['', 'legacy'])
-      await testing.rpc.masternode.updateMasternode(masternodeId1, {
-        ownerAddress
-      })
+      const masternodeId1 = await container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
-      operatorAddress = await container.call('getnewaddress', ['', 'legacy'])
-      await testing.rpc.masternode.updateMasternode(masternodeId1, {
-        operatorAddress
-      })
+      const masternodeId2 = await container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
-      await testing.rpc.masternode.updateMasternode(masternodeId1, {
-        rewardAddress
-      })
+      const masternodeId3 = await container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
-      ownerAddress = await testing.generateAddress()
-      await testing.rpc.masternode.updateMasternode(masternodeId1, {
-        ownerAddress,
-        operatorAddress
-      })
+      const masternodeId4 = await container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
-      await testing.rpc.masternode.updateMasternode(masternodeId1, {
-        operatorAddress,
-        rewardAddress
-      })
+      const masternodeId5 = await container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
-      ownerAddress = await testing.generateAddress()
-      await testing.rpc.masternode.updateMasternode(masternodeId1, {
-        ownerAddress,
-        rewardAddress
-      })
+      const masternodeId6 = await container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
-      ownerAddress = await testing.generateAddress()
-      await testing.rpc.masternode.updateMasternode(masternodeId1, {
-        ownerAddress,
-        operatorAddress,
-        rewardAddress
-      })
+      const masternodeId7 = await container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
+
+      await waitUntilMasternodeEnabled(masternodeId1)
+      await waitUntilMasternodeEnabled(masternodeId2)
+      await waitUntilMasternodeEnabled(masternodeId3)
+      await waitUntilMasternodeEnabled(masternodeId4)
+      await waitUntilMasternodeEnabled(masternodeId5)
+      await waitUntilMasternodeEnabled(masternodeId6)
+      await waitUntilMasternodeEnabled(masternodeId7)
+
+      {
+        await testing.rpc.masternode.updateMasternode(masternodeId1, {
+          ownerAddress: await testing.generateAddress()
+        })
+        await testing.generate(1)
+
+        await testing.rpc.masternode.updateMasternode(masternodeId2, {
+          operatorAddress: await testing.generateAddress()
+        })
+        await testing.generate(1)
+
+        await testing.rpc.masternode.updateMasternode(masternodeId3, {
+          rewardAddress: await testing.generateAddress()
+        })
+        await testing.generate(1)
+
+        await testing.rpc.masternode.updateMasternode(masternodeId4, {
+          ownerAddress: await testing.generateAddress(),
+          operatorAddress: await testing.generateAddress()
+        })
+        await testing.generate(1)
+
+        await testing.rpc.masternode.updateMasternode(masternodeId5, {
+          operatorAddress: await testing.generateAddress(),
+          rewardAddress: await testing.generateAddress()
+        })
+        await testing.generate(1)
+
+        await testing.rpc.masternode.updateMasternode(masternodeId6, {
+          ownerAddress: await testing.generateAddress(),
+          rewardAddress: await testing.generateAddress()
+        })
+        await testing.generate(1)
+
+        await testing.rpc.masternode.updateMasternode(masternodeId7, {
+          ownerAddress: await testing.generateAddress(),
+          operatorAddress: await testing.generateAddress(),
+          rewardAddress: await testing.generateAddress()
+        })
+        await testing.generate(1)
+      }
+    }
+
+    // Several updateMasternode within same blocks
+    {
+      const masternodeId1 = await container.call('createmasternode', [await testing.generateAddress()])
+      await testing.generate(1)
+
+      const masternodeId2 = await container.call('createmasternode', [await testing.generateAddress()])
+      await testing.generate(1)
+
+      const masternodeId3 = await container.call('createmasternode', [await testing.generateAddress()])
+      await testing.generate(1)
+
+      const masternodeId4 = await container.call('createmasternode', [await testing.generateAddress()])
+      await testing.generate(1)
+
+      const masternodeId5 = await container.call('createmasternode', [await testing.generateAddress()])
+      await testing.generate(1)
+
+      const masternodeId6 = await container.call('createmasternode', [await testing.generateAddress()])
+      await testing.generate(1)
+
+      const masternodeId7 = await container.call('createmasternode', [await testing.generateAddress()])
+      await testing.generate(1)
+
+      await waitUntilMasternodeEnabled(masternodeId1)
+      await waitUntilMasternodeEnabled(masternodeId2)
+      await waitUntilMasternodeEnabled(masternodeId3)
+      await waitUntilMasternodeEnabled(masternodeId4)
+      await waitUntilMasternodeEnabled(masternodeId5)
+      await waitUntilMasternodeEnabled(masternodeId6)
+      await waitUntilMasternodeEnabled(masternodeId7)
+
+      {
+        await testing.rpc.masternode.updateMasternode(masternodeId1, {
+          ownerAddress: await testing.generateAddress()
+        })
+
+        await testing.rpc.masternode.updateMasternode(masternodeId2, {
+          operatorAddress: await testing.generateAddress()
+        })
+
+        await testing.rpc.masternode.updateMasternode(masternodeId3, {
+          rewardAddress: await testing.generateAddress()
+        })
+
+        await testing.rpc.masternode.updateMasternode(masternodeId4, {
+          ownerAddress: await testing.generateAddress(),
+          operatorAddress: await testing.generateAddress()
+        })
+
+        await testing.rpc.masternode.updateMasternode(masternodeId5, {
+          operatorAddress: await testing.generateAddress(),
+          rewardAddress: await testing.generateAddress()
+        })
+
+        await testing.rpc.masternode.updateMasternode(masternodeId6, {
+          ownerAddress: await testing.generateAddress(),
+          rewardAddress: await testing.generateAddress()
+        })
+
+        await testing.rpc.masternode.updateMasternode(masternodeId7, {
+          ownerAddress: await testing.generateAddress(),
+          operatorAddress: await testing.generateAddress(),
+          rewardAddress: await testing.generateAddress()
+        })
+        await testing.generate(1)
+      }
     }
   })
 })
