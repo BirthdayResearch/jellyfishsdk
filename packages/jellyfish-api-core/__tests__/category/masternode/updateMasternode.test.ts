@@ -3,6 +3,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
+// import { AddressType } from '@defichain/jellyfish-api-core/dist/category/wallet'
 // import { createTestingApp } from '@defichain-apps/nest-apps/whale/src/e2e.module'
 
 // let app: NestFastifyApplication
@@ -82,5 +83,8 @@ describe('Masternode', () => {
       await expect(promise).rejects.toThrow(RpcApiError)
       await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateMasternodeTx execution failed:\nNo update arguments provided\', code: -32600, method: updatemasternode')
     }
+
+    // const operatorAddress = await  alice.generateAddress()
+    // const x = await alice.rpc.masternode.updateMasternode(Object.keys(data)[0], { operatorAddress: operatorAddress })
   })
 })
