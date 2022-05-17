@@ -1,7 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
-import { DfTxType, BalanceTransferPayload } from '../../../src/category/account'
+import { DfTxType, BalanceTransferPayload, AccountResult, AccountOwner } from '../../../src/category/account'
 
 function createTokenForContainer (container: MasterNodeRegTestContainer) {
   return async (address: string, symbol: string, amount: number) => {
@@ -83,7 +83,7 @@ describe('Account', () => {
   })
 
   it('should listAccountHistory with owner CScript', async () => {
-    const accounts: any[] = await client.account.listAccounts()
+    const accounts: Array<AccountResult<AccountOwner, string>> = await client.account.listAccounts()
 
     const { owner } = accounts[0]
     const { hex, addresses } = owner
@@ -263,7 +263,7 @@ describe('Account', () => {
   })
 
   it('should listAccountHistory with owner CScript options block height and txn 1', async () => {
-    const accounts: any[] = await client.account.listAccounts()
+    const accounts: Array<AccountResult<AccountOwner, string>> = await client.account.listAccounts()
 
     const { owner } = accounts[0]
     const { hex, addresses } = owner
@@ -284,7 +284,7 @@ describe('Account', () => {
   })
 
   it('should listAccountHistory with owner CScript options block height and txn 0', async () => {
-    const accounts: any[] = await client.account.listAccounts()
+    const accounts: Array<AccountResult<AccountOwner, string>> = await client.account.listAccounts()
 
     const { owner } = accounts[0]
     const { hex, addresses } = owner

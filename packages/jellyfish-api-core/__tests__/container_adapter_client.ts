@@ -17,6 +17,7 @@ export class ContainerAdapterClient extends ApiClient {
   /**
    * Wrap the call from client to testcontainers.
    */
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   async call<T> (method: string, params: any[], precision: Precision | PrecisionPath): Promise<T> {
     const body = JellyfishJSON.stringify({
       jsonrpc: '1.0',

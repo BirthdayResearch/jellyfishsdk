@@ -1,7 +1,7 @@
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { Testing } from '@defichain/jellyfish-testing'
 import BigNumber from 'bignumber.js'
-import { VaultActive, VaultState } from '../../../src/category/loan'
+import { Interest, VaultActive, VaultState } from '../../../src/category/loan'
 
 describe('Loan getVault', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -134,7 +134,7 @@ describe('Loan getVault', () => {
     await testing.generate(1)
 
     // interest info.
-    const interestInfo: any = await testing.rpc.call('getinterest', ['default', 'TSLA'], 'bignumber')
+    const interestInfo: Interest[] = await testing.rpc.call('getinterest', ['default', 'TSLA'], 'bignumber')
 
     const data = await testing.rpc.loan.getVault(vaultId) as VaultActive
     const informativeRatio: BigNumber = data.collateralValue.dividedBy(data.loanValue).multipliedBy(100)
