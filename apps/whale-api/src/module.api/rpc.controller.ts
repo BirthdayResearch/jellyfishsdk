@@ -36,7 +36,8 @@ export class MethodWhitelist implements PipeTransform {
     'validateaddress',
     'listcommunitybalances',
     'getaccounthistory',
-    'getfutureswapblock'
+    'getfutureswapblock',
+    'getpendingfutureswaps'
   ]
 
   transform (value: string, metadata: ArgumentMetadata): string {
