@@ -42,11 +42,11 @@ enum MasternodeTimeLock {
 }
 ```
 
-## updateMasternodes
+## updateMasternode
 
 Creates a masternode update transaction.
 
-```ts title="client.masternode.updateMasternodes()"
+```ts title="client.masternode.updateMasternode()"
 interface masternode {
   updateMasternode (id: string, options: UpdateMasternodeOptions, utxos: UTXO[] = []): Promise<string>
 }
