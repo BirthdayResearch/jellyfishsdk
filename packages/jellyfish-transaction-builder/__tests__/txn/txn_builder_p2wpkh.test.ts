@@ -40,7 +40,8 @@ beforeEach(async () => {
   await providers.randomizeEllipticPair()
   await container.waitForWalletBalanceGTE(101)
 
-  await fundEllipticPair(container, providers.elliptic.ellipticPair, 100) // 100
+  await fundEllipticPair(container, providers.elliptic.ellipticPair, 10) // 10
+  await fundEllipticPair(container, providers.elliptic.ellipticPair, 10) // 10
   await providers.setupMocks()
 })
 
@@ -56,8 +57,8 @@ describe('createDeFiTx()', () => {
 
     // under normal (non test) env, only required amount of prevout will be taken and aggregated
     // test provider here simply collect everything
-    expect(result.vout[1].value.gt(99.999)).toBeTruthy()
-    expect(result.vout[1].value.lt(100)).toBeTruthy()
+    expect(result.vout[1].value.gt(9.999)).toBeTruthy()
+    expect(result.vout[1].value.lt(10)).toBeTruthy()
 
     expect(result.vout[0].script.stack.length).toStrictEqual(2)
     expect(result.vout[0].script.stack[0]).toStrictEqual(OP_CODES.OP_RETURN)
@@ -72,20 +73,54 @@ describe('createDeFiTx()', () => {
     expect(unmapped.hex).toStrictEqual('001234')
   })
 
-  it('balance should be deducted accordingly based on spent on DfTx', async () => {
-    // add another utxo of 35
-    await fundEllipticPair(container, providers.elliptic.ellipticPair, 35) // 35
+  it('balance should be deducted accordingly based on spent on DfTx - higher val', async () => {
+    {
+      const address = await providers.getAddress()
+      const unspent: any[] = await container.call('listunspent', [
+        1, 9999999, [address], true
+      ])
+
+      console.log(unspent)
+    }
+    // add another utxo of 115
+    await fundEllipticPair(container, providers.elliptic.ellipticPair, 115) // 135
+
+    {
+      const address = await providers.getAddress()
+      const unspent: any[] = await container.call('listunspent', [
+        1, 9999999, [address], true
+      ])
+
+      console.log(unspent)
+    }
 
     const spendAmount = new BigNumber(134.56) // eg: utxosToAccount, the custom tx costed this
 
     const change = await providers.elliptic.script()
     const result = await builder.createDeFiTx(dummyDfTx, change, spendAmount)
 
-    expect(result.vin.length).toStrictEqual(2)
+    expect(result.vin.length).toStrictEqual(3)
     expect(result.vout.length).toStrictEqual(2) // 1 DfTx, 1 change
     expect(result.vout[0].value).toStrictEqual(spendAmount)
     expect(result.vout[1].script).toStrictEqual(change)
     expect(result.vout[1].value.gt(new BigNumber(134.999).minus(spendAmount))).toBeTruthy()
     expect(result.vout[1].value.lt(new BigNumber(135).minus(spendAmount))).toBeTruthy()
+  })
+
+  it('balance should be deducted accordingly based on spent on DfTx', async () => {
+    // add another utxo of 5
+    await fundEllipticPair(container, providers.elliptic.ellipticPair, 5) // 25
+
+    const spendAmount = new BigNumber(24.56) // eg: utxosToAccount, the custom tx costed this
+
+    const change = await providers.elliptic.script()
+    const result = await builder.createDeFiTx(dummyDfTx, change, spendAmount)
+
+    expect(result.vin.length).toStrictEqual(3)
+    expect(result.vout.length).toStrictEqual(2) // 1 DfTx, 1 change
+    expect(result.vout[0].value).toStrictEqual(spendAmount)
+    expect(result.vout[1].script).toStrictEqual(change)
+    expect(result.vout[1].value.gt(new BigNumber(24.999).minus(spendAmount))).toBeTruthy()
+    expect(result.vout[1].value.lt(new BigNumber(25).minus(spendAmount))).toBeTruthy()
   })
 })
