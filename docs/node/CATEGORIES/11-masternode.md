@@ -6,9 +6,9 @@ slug: /jellyfish/api/masternode
 ---
 
 ```js
-import {Client} from '@defichain/jellyfish'
+import {JsonRpcClient} from '@defichain/jellyfish-api-jsonrpc'
+const client = new JsonRpcClient('http://foo:bar@localhost:8554')
 
-const client = new Client()
 // Using client.masternode.
 const something = await client.masternode.method()
 ```

@@ -160,6 +160,15 @@ export class Oracle {
       nextPrice: 'bignumber'
     })
   }
+
+  /**
+   * Get the next block that futures will execute and update on.
+   *
+   * @return {Promise<number>}
+   */
+  async getFutureSwapBlock (): Promise<number> {
+    return await this.client.call('getfutureswapblock', [], 'number')
+  }
 }
 
 export interface AppointOracleOptions {

@@ -13,12 +13,12 @@ afterAll(async () => {
 
 it('should have pool pairs setup', async () => {
   const pairs = await testing.container.call('listpoolpairs')
-  expect(Object.values(pairs).length).toBe(12)
+  expect(Object.values(pairs).length).toBe(15)
 })
 
 it('should have tokens setup', async () => {
   const tokens = await testing.container.call('listtokens')
-  expect(Object.values(tokens).length).toBe(29)
+  expect(Object.values(tokens).length).toBe(32)
 })
 
 it('should have oracles setup', async () => {
@@ -82,11 +82,22 @@ it('should have gov set', async () => {
       'v0/token/16/loan_payback/12': 'true',
       'v0/token/16/loan_payback/14': 'true',
       'v0/token/16/loan_payback_fee_pct/12': '0.01',
-      'v0/token/16/loan_payback_fee_pct/14': '0.01'
+      'v0/token/16/loan_payback_fee_pct/14': '0.01',
+      'v0/params/dfip2203/active': 'true',
+      'v0/params/dfip2203/reward_pct': '0.05',
+      'v0/params/dfip2203/block_period': '10'
     })
   })
 
-  // sanity test
+  async function waitForPriceValid (): Promise<void> {
+    const prices = await testing.container.call('listfixedintervalprices')
+    const invalidPrices = prices.filter((p: any) => p.isLive !== true)
+    for (const p of invalidPrices) {
+      await testing.container.waitForPriceValid(p.priceFeedId)
+    }
+  }
+
+  // paybackV2 test
   const dusdInfo = await testing.rpc.token.getToken('DUSD')
   const dusdId = Object.keys(dusdInfo)[0]
   const td10Info = await testing.rpc.token.getToken('TD10')
@@ -116,11 +127,7 @@ it('should have gov set', async () => {
   })
   await testing.generate(1)
 
-  await testing.container.waitForPriceValid('TD10/USD')
-  await testing.container.waitForPriceValid('TU10/USD')
-  await testing.container.waitForPriceValid('TR50/USD')
-  await testing.container.waitForPriceValid('TS25/USD')
-
+  await waitForPriceValid()
   await testing.rpc.loan.takeLoan({
     vaultId: vaultId,
     to: colAddr,
@@ -129,6 +136,7 @@ it('should have gov set', async () => {
   await testing.generate(1)
 
   // DFI pay dToken
+  await waitForPriceValid()
   await testing.rpc.loan.paybackLoan({
     vaultId: vaultId,
     from: colAddr,
@@ -143,6 +151,7 @@ it('should have gov set', async () => {
   await testing.generate(1)
 
   // dToken (DUSD) pay dToken #1
+  await waitForPriceValid()
   await testing.rpc.loan.paybackLoan({
     vaultId: vaultId,
     from: colAddr,
@@ -156,6 +165,7 @@ it('should have gov set', async () => {
   await testing.generate(1)
 
   // dToken pay dToken #2
+  await waitForPriceValid()
   await testing.rpc.loan.paybackLoan({
     vaultId: vaultId,
     from: colAddr,
@@ -168,6 +178,7 @@ it('should have gov set', async () => {
   await testing.generate(1)
 
   // colToken pay dToken
+  await waitForPriceValid()
   await testing.rpc.loan.paybackLoan({
     vaultId: vaultId,
     from: colAddr,
@@ -181,6 +192,7 @@ it('should have gov set', async () => {
 
   // test fail payback
   // DUSD pay TS25 should be failed
+  await waitForPriceValid()
   const promise = testing.rpc.loan.paybackLoan({
     vaultId: vaultId,
     from: colAddr,
@@ -189,4 +201,36 @@ it('should have gov set', async () => {
     ]
   })
   await expect(promise).rejects.toThrow('Payback of loan via DUSD token is not currently active')
+
+  // future swap test
+  const swapAddr = await testing.generateAddress()
+  await testing.container.call('sendtokenstoaddress', [{}, { [swapAddr]: ['2@TR50'] }])
+  await testing.generate(1)
+
+  await waitForPriceValid()
+  await testing.rpc.account.futureSwap({
+    address: swapAddr,
+    amount: '2@TR50'
+  })
+  await testing.generate(1)
+
+  {
+    const pending = await testing.container.call('listpendingfutureswaps')
+    expect(pending.length).toStrictEqual(1)
+  }
+
+  const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+  expect(attributes.ATTRIBUTES['v0/params/dfip2203/active']).toStrictEqual('true')
+  expect(attributes.ATTRIBUTES['v0/params/dfip2203/block_period']).toStrictEqual('10')
+  expect(attributes.ATTRIBUTES['v0/params/dfip2203/reward_pct']).toStrictEqual('0.05')
+
+  const current = await testing.container.getBlockCount()
+  const next = await testing.container.call('getfutureswapblock')
+  expect(next - current).toBeLessThanOrEqual(10)
+  await testing.generate(next - current)
+
+  {
+    const pending = await testing.container.call('listpendingfutureswaps')
+    expect(pending.length).toStrictEqual(0)
+  }
 })
