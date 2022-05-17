@@ -25,4 +25,4 @@ export * from './utils'
 
 export * from './containers/RegTestContainer/LoanContainer'
 
-export * from './containers/SanityContainer/WhaleSanityContainer'
+export * from './containers/AppContainer/WhaleSanityContainer'

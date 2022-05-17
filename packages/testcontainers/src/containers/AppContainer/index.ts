@@ -4,22 +4,21 @@ import { DockerContainer } from '../DockerContainer'
 import { MasterNodeRegTestContainer } from '../RegTestContainer/Masternode'
 
 /**
- * Sanity Container
+ * App Container
  *
- * We are running sanity containers seperately from the established unit tests as
- * they are designed to test against a simulated prouduction deployment ensuring
- * our containers are resolving incoming requests as expected.
+ * Typically used for "sanity tests" - tests that are run seperately from the
+ * established unit tests to test against a simulated production environment,
+ * ensuring our containerised apps are resolving incoming requests as expected.
  *
- * We do however introduce the container environment so that they can be run via
- * unit tests to create uniformity in our approach to testing. Reducing the
- * cognitive complexity of having to run multiple automated solutions to ensure
- * release quality.
+ * We introduce the container environment so that they can be run via unit tests
+ * to create uniformity in our approach to testing. Reducing the cognitive
+ * complexity of having to run multiple automated solutions to ensure release quality.
  *
  * This solution works by building a new docker image using our root Dockerfile
  * and running instances on random ports to support parallel testing allowing for
  * vertical scaling in our test environments.
  */
-export abstract class SanityContainer extends DockerContainer {
+export abstract class AppContainer extends DockerContainer {
   public readonly name = this.generateName()
 
   constructor (
