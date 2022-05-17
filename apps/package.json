@@ -73,7 +73,7 @@
     "@types/express": "^4.17.13",
     "@types/lodash": "^4.14.182",
     "@types/level": "^6.0.0",
-    "@types/levelup": "4.3.1",
+    "@types/levelup": "5.1.1",
     "@types/lossless-json": "^1.0.1",
     "@types/memdown": "^3.0.0",
     "@types/node": "^16.11.26",
