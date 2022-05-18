@@ -51,7 +51,7 @@ interface masternode {
   updateMasternode (id: string, options: UpdateMasternodeOptions, utxos: UTXO[] = []): Promise<string>
 }
 
-type UpdateMasternodeOptions = UpdateMasternodeOptions1 | UpdateMasternodeOptions2 | UpdateMasternodeOptions3;
+type UpdateMasternodeOptions = UpdateMasternodeOptions1 | UpdateMasternodeOptions2 | UpdateMasternodeOptions3
 
 interface UpdateMasternodeOptions1 {
   ownerAddress: string
