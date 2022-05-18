@@ -4,9 +4,18 @@ import { ProposalStatus, ProposalType } from '../../../src/category/governance'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { MasterNodeRegTestContainer, StartFlags } from '@defichain/testcontainers'
+import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
 describe('Governance', () => {
-  const tGroup = TestingGroup.create(4)
+  const tGroup = TestingGroup.create(4, (index) => {
+    switch (index) {
+      case 0: return new MasterNodeRegTestContainer(RegTestFoundationKeys[0])
+      case 1: return new MasterNodeRegTestContainer(RegTestFoundationKeys[1])
+      case 2: return new MasterNodeRegTestContainer(RegTestFoundationKeys[RegTestFoundationKeys.length - 2])
+      case 3: return new MasterNodeRegTestContainer(RegTestFoundationKeys[RegTestFoundationKeys.length - 1])
+      default: return new MasterNodeRegTestContainer(RegTestFoundationKeys[0])
+    }
+  })
   const greatWorldHeight = 101
 
   beforeAll(async () => {
@@ -21,20 +30,25 @@ describe('Governance', () => {
     await tGroup.stop()
   })
 
-  it('should createCfp', async () => {
-    const blockCount = await tGroup.get(1).container.getBlockCount()
-    expect(blockCount).toStrictEqual(greatWorldHeight)
+  it('should createCfp1', async () => {
+    // Transfer funds
+    await tGroup.get(0).rpc.wallet.sendToAddress(RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.address, 1000)
+    await tGroup.get(0).generate(1)
+    await tGroup.waitForSync()
+
+    const blockCount = await tGroup.get(3).container.getBlockCount()
+    expect(blockCount).toBeGreaterThan(greatWorldHeight)
 
     const data = {
       title: 'Testing new community fund proposal',
       amount: new BigNumber(100),
-      payoutAddress: await tGroup.get(1).container.call('getnewaddress', ['', 'bech32']),
+      payoutAddress: await tGroup.get(3).container.call('getnewaddress', ['', 'bech32']),
       cycles: 2
     }
-    const proposalTx = await tGroup.get(1).rpc.governance.createCfp(data)
-    await tGroup.get(1).generate(1)
+    const proposalTx = await tGroup.get(3).rpc.governance.createCfp(data)
+    await tGroup.get(3).generate(1)
 
-    const proposal = await tGroup.get(1).container.call('getproposal', [proposalTx])
+    const proposal = await tGroup.get(3).container.call('getproposal', [proposalTx])
     expect(proposal.title).toStrictEqual(data.title)
     expect(proposal.type).toStrictEqual(ProposalType.COMMUNITY_FUND_PROPOSAL)
     expect(proposal.status).toStrictEqual(ProposalStatus.VOTING)
