@@ -209,37 +209,38 @@ afterAll(async () => {
 })
 
 it('should listFutureSwap', async () => {
-  const list = await client.address.listFutureSwap(fromAddr, 1, 30)
+  const list = await client.address.listFutureSwap(fromAddr, 30)
 
   {
-    const first = await client.address.listFutureSwap(fromAddr, 1, 3)
+    const first = await client.address.listFutureSwap(fromAddr, 3)
     expect(first.length).toStrictEqual(3)
     expect(first.hasNext).toStrictEqual(true)
     expect(first[0].id).toStrictEqual(list[0].id)
     expect(first[1].id).toStrictEqual(list[1].id)
     expect(first[2].id).toStrictEqual(list[2].id)
 
-    const next = await client.address.listFutureSwap(fromAddr, 1, 3, first.nextToken)
+    const next = await client.address.listFutureSwap(fromAddr, 3, first.nextToken)
     expect(next.length).toStrictEqual(3)
     expect(next.hasNext).toStrictEqual(true)
     expect(next[0].id).toStrictEqual(list[3].id)
     expect(next[1].id).toStrictEqual(list[4].id)
     expect(next[2].id).toStrictEqual(list[5].id)
 
-    const last = await client.address.listFutureSwap(fromAddr, 1, 3, next.nextToken)
+    const last = await client.address.listFutureSwap(fromAddr, 3, next.nextToken)
     expect(last.length).toStrictEqual(1)
     expect(last.hasNext).toStrictEqual(false)
     expect(last[0].id).toStrictEqual(list[6].id)
   }
 
   {
-    const res = await client.address.listFutureSwap(fromAddr1, 1, 30)
+    const res = await client.address.listFutureSwap(fromAddr1, 30)
     expect(res.length).toStrictEqual(4)
     expect(res.hasNext).toStrictEqual(false)
   }
 })
 
-it('should get empty as out of range', async () => {
-  const empty = await client.address.listFutureSwap(fromAddr, 999, 30)
+it('should get empty as non-existent', async () => {
+  const addr = await testing.generateAddress()
+  const empty = await client.address.listFutureSwap(addr, 30)
   expect(empty.length).toStrictEqual(0)
 })

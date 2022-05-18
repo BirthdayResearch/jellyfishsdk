@@ -106,13 +106,12 @@ export class Address {
    * List future swap
    *
    * @param {string} address to list future swap
-   * @param {number} height to set range of future swap
    * @param {string} [size=30] to query
    * @param {string} [next] token for next slice of FutureSwap
    * @return {Promise<ApiPagedResponse<FutureSwap>>}
    */
-  async listFutureSwap (address: string, height: number, size: number = 30, next?: string): Promise<ApiPagedResponse<FutureSwap>> {
-    return await this.client.requestList('GET', `address/${address}/future/swaps/${height}`, size, next)
+  async listFutureSwap (address: string, size: number = 30, next?: string): Promise<ApiPagedResponse<FutureSwap>> {
+    return await this.client.requestList('GET', `address/${address}/future/swaps`, size, next)
   }
 }
 
