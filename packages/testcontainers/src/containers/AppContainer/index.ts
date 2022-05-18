@@ -2,6 +2,7 @@ import { fetch, Response } from 'cross-fetch'
 
 import { DockerContainer } from '../DockerContainer'
 import { MasterNodeRegTestContainer } from '../RegTestContainer/Masternode'
+import { v4 as uuidv4 } from 'uuid'
 
 /**
  * App Container
@@ -60,8 +61,7 @@ export abstract class AppContainer extends DockerContainer {
   }
 
   public generateName (): string {
-    const rand = Math.floor(Math.random() * 10000000)
-    return `${this.app}-${rand}`
+    return `${this.app}-${uuidv4()}`
   }
 
   public async post (endpoint: string, data?: any): Promise<Response> {
