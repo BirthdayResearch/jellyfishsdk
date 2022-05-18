@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 import { ApiClient } from '../.'
 
 export enum ProposalType {
-  COMMUNITY_FUND_PROPOSAL = 'CommunityFundProposal',
+  COMMUNITY_FUND_REQUEST = 'CommunityFundRequest',
   BLOCK_REWARD_RELLOCATION = 'BlockRewardRellocation',
   VOTE_OF_CONFIDENCE = 'VoteOfConfidence'
 }

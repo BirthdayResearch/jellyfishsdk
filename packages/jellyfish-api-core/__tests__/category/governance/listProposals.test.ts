@@ -1,49 +1,43 @@
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { ListProposalsStatus, ListProposalsType, ProposalStatus, ProposalType } from '../../../src/category/governance'
+import { GovernanceMasterNodeRegTestContainer } from './governance_container'
 import BigNumber from 'bignumber.js'
-import { TestingGroup } from '@defichain/jellyfish-testing'
-import { MasterNodeRegTestContainer, StartFlags } from '@defichain/testcontainers'
 
 describe('Governance', () => {
-  const tGroup = TestingGroup.create(4)
-  const greatWorldHeight = 101
+  const container = new GovernanceMasterNodeRegTestContainer()
+  const client = new ContainerAdapterClient(container)
 
   beforeAll(async () => {
-    const startFlags: StartFlags[] = [{ name: 'greatworldheight', value: greatWorldHeight }]
-    await tGroup.start({ startFlags: startFlags })
-    await tGroup.get(0).generate(100)
-    await tGroup.get(3).generate(1)
-    await tGroup.waitForSync()
+    await container.start()
+    await container.waitForWalletCoinbaseMaturity()
 
     await setup()
   })
 
   async function setup (): Promise<void> {
-    await tGroup.get(1).container.call('createcfp', [{
+    await container.call('createcfp', [{
       title: 'First community fund proposal',
       amount: 100,
-      payoutAddress: await tGroup.get(1).container.call('getnewaddress', ['', 'bech32']),
-      cycles: 2
+      payoutAddress: await container.call('getnewaddress')
     }])
-    await tGroup.get(1).container.generate(200) // Expires proposal
+    await container.generate(200) // Expires proposal
 
-    await tGroup.get(1).container.call('createcfp', [{
+    await container.call('createcfp', [{
       title: 'Second community fund proposal',
       amount: 100,
-      payoutAddress: await tGroup.get(1).container.call('getnewaddress', ['', 'bech32']),
-      cycles: 2
+      payoutAddress: await container.call('getnewaddress')
     }])
-    await tGroup.get(1).rpc.governance.createVoc('first vote of confidence')
-    await tGroup.get(1).rpc.governance.createVoc('second vote of confidence')
-    await tGroup.get(1).container.generate(1)
+    await client.governance.createVoc('first vote of confidence')
+    await client.governance.createVoc('second vote of confidence')
+    await container.generate(1)
   }
 
   afterAll(async () => {
-    await tGroup.stop()
+    await container.stop()
   })
 
   it('should listProposals', async () => {
-    const proposals = await tGroup.get(1).rpc.governance.listProposals()
+    const proposals = await client.governance.listProposals()
 
     expect(proposals.length).toStrictEqual(4)
     for (const proposal of proposals) {
@@ -60,7 +54,7 @@ describe('Governance', () => {
   })
 
   it('should listProposals with type ListProposalsType.VOC', async () => {
-    const proposals = await tGroup.get(1).rpc.governance.listProposals({
+    const proposals = await client.governance.listProposals({
       type: ListProposalsType.VOC
     })
     expect(proposals.length).toStrictEqual(2)
@@ -68,7 +62,7 @@ describe('Governance', () => {
   })
 
   it('should listProposals with status ListProposalsStatus.VOTING', async () => {
-    const proposals = await tGroup.get(1).rpc.governance.listProposals({
+    const proposals = await client.governance.listProposals({
       status: ListProposalsStatus.VOTING
     })
     expect(proposals.length).toStrictEqual(3)
@@ -76,23 +70,24 @@ describe('Governance', () => {
   })
 
   it('should listProposals with type ListProposalsType.CFP and status ListProposalsStatus.REJECTED', async () => {
-    const proposals = await tGroup.get(1).rpc.governance.listProposals({
+    const proposals = await client.governance.listProposals({
       type: ListProposalsType.CFP,
       status: ListProposalsStatus.REJECTED
     })
 
     expect(proposals.length).toStrictEqual(1)
-    expect(proposals[0].type).toStrictEqual(ProposalType.COMMUNITY_FUND_PROPOSAL)
+    expect(proposals[0].type).toStrictEqual(ProposalType.COMMUNITY_FUND_REQUEST)
     expect(proposals[0].status).toStrictEqual(ProposalStatus.REJECTED)
   })
 })
 
 describe('Governance without proposals', () => {
-  const container = new MasterNodeRegTestContainer()
+  const container = new GovernanceMasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
   beforeAll(async () => {
     await container.start()
+    await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
   })
 
