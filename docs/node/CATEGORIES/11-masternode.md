@@ -48,7 +48,7 @@ Creates a masternode update transaction.
 
 ```ts title="client.masternode.updateMasternode()"
 interface masternode {
-  updateMasternode (id: string, options: UpdateMasternodeOptions, utxos: UTXO[] = []): Promise<string>
+  updateMasternode (masternodeId: string, options: UpdateMasternodeOptions, utxos: UTXO[] = []): Promise<string>
 }
 
 type UpdateMasternodeOptions = UpdateMasternodeOptions1 | UpdateMasternodeOptions2 | UpdateMasternodeOptions3
