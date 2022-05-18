@@ -472,11 +472,13 @@ describe('Masternode at or after greatworldheight', () => {
     const masternodeId = await testing.container.call('createmasternode', [await testing.generateAddress()])
     await testing.generate(1)
 
+    const data: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId])
+    expect(Object.values(data)[0].state).toStrictEqual(MasternodeState.PRE_ENABLED)
+
     {
       const promise = testing.rpc.masternode.updateMasternode(masternodeId, {
         ownerAddress: await testing.generateAddress()
       })
-
       await expect(promise).rejects.toThrow(RpcApiError)
       await expect(promise).rejects.toThrow(`RpcApiError: 'Test UpdateMasternodeTx execution failed:\nMasternode ${masternodeId as string} is not in 'ENABLED' state', code: -32600, method: updatemasternode`)
     }
