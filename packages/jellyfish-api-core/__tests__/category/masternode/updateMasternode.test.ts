@@ -23,7 +23,7 @@ describe('Masternode at or after greatworldheight', () => {
 
   async function waitUntilMasternodeEnabled (masternodeId: string, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
-      const data: MasternodeResult<MasternodeInfo> = await container.call('getmasternode', [masternodeId])
+      const data: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId])
       // eslint-disable-next-line
       if (Object.values(data)[0].state !== 'ENABLED') {
         await testing.generate(1)
@@ -36,25 +36,25 @@ describe('Masternode at or after greatworldheight', () => {
   it('should updateMasternode', async () => {
     // Several updateMasternode calls within different blocks
     {
-      const masternodeId1 = await container.call('createmasternode', [await testing.generateAddress()])
+      const masternodeId1 = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
-      const masternodeId2 = await container.call('createmasternode', [await testing.generateAddress()])
+      const masternodeId2 = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
-      const masternodeId3 = await container.call('createmasternode', [await testing.generateAddress()])
+      const masternodeId3 = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
-      const masternodeId4 = await container.call('createmasternode', [await testing.generateAddress()])
+      const masternodeId4 = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
-      const masternodeId5 = await container.call('createmasternode', [await testing.generateAddress()])
+      const masternodeId5 = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
-      const masternodeId6 = await container.call('createmasternode', [await testing.generateAddress()])
+      const masternodeId6 = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
-      const masternodeId7 = await container.call('createmasternode', [await testing.generateAddress()])
+      const masternodeId7 = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
       await waitUntilMasternodeEnabled(masternodeId1)
@@ -114,25 +114,25 @@ describe('Masternode at or after greatworldheight', () => {
 
     // Several updateMasternode calls within same block
     {
-      const masternodeId1 = await container.call('createmasternode', [await testing.generateAddress()])
+      const masternodeId1 = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
-      const masternodeId2 = await container.call('createmasternode', [await testing.generateAddress()])
+      const masternodeId2 = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
-      const masternodeId3 = await container.call('createmasternode', [await testing.generateAddress()])
+      const masternodeId3 = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
-      const masternodeId4 = await container.call('createmasternode', [await testing.generateAddress()])
+      const masternodeId4 = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
-      const masternodeId5 = await container.call('createmasternode', [await testing.generateAddress()])
+      const masternodeId5 = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
-      const masternodeId6 = await container.call('createmasternode', [await testing.generateAddress()])
+      const masternodeId6 = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
-      const masternodeId7 = await container.call('createmasternode', [await testing.generateAddress()])
+      const masternodeId7 = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
       await waitUntilMasternodeEnabled(masternodeId1)
@@ -185,8 +185,8 @@ describe('Masternode at or after greatworldheight', () => {
     }
   })
 
-  it('should updateMasternode if operatorAddress or rewardAddress do not belong to the owner', async () => {
-    const masternodeId = await container.call('createmasternode', [await testing.generateAddress()])
+  it('should updateMasternode with operatorAddress and rewardAddress if operatorAddress or rewardAddress do not belong to the owner', async () => {
+    const masternodeId = await testing.container.call('createmasternode', [await testing.generateAddress()])
     await testing.generate(1)
 
     await waitUntilMasternodeEnabled(masternodeId)
@@ -210,12 +210,12 @@ describe('Masternode at or after greatworldheight', () => {
     }
   })
 
-  it('should updateMasternode if rewardAddress is pending to be updated in another masternode', async () => {
+  it('should updateMasternode with rewardAddress if rewardAddress is pending to be updated in another masternode', async () => {
     {
-      const masternodeId1 = await container.call('createmasternode', [await testing.generateAddress()])
+      const masternodeId1 = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
-      const masternodeId2 = await container.call('createmasternode', [await testing.generateAddress()])
+      const masternodeId2 = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
       await waitUntilMasternodeEnabled(masternodeId1)
@@ -233,6 +233,56 @@ describe('Masternode at or after greatworldheight', () => {
       expect(typeof txId).toStrictEqual('string')
       expect(txId.length).toStrictEqual(64)
     }
+  })
+
+  it('should updateMasternode with ownerAddress, operatorAddress or rewardAddress with utxos', async () => {
+    const ownerAddress1 = await testing.generateAddress()
+    const ownerAddress2 = await testing.generateAddress()
+    const ownerAddress3 = await testing.generateAddress()
+
+    const masternodeId1 = await testing.container.call('createmasternode', [ownerAddress1])
+    await testing.generate(1)
+
+    const masternodeId2 = await testing.container.call('createmasternode', [ownerAddress2])
+    await testing.generate(1)
+
+    const masternodeId3 = await testing.container.call('createmasternode', [ownerAddress3])
+    await testing.generate(1)
+
+    await waitUntilMasternodeEnabled(masternodeId1)
+    await waitUntilMasternodeEnabled(masternodeId2)
+    await waitUntilMasternodeEnabled(masternodeId3)
+
+    const newOwnerAddress1 = await testing.generateAddress()
+    const utxo1 = await testing.container.fundAddress(newOwnerAddress1, 10)
+
+    const txId1 = await testing.rpc.masternode.updateMasternode(masternodeId1, { ownerAddress: newOwnerAddress1 }, [utxo1])
+    expect(typeof txId1).toStrictEqual('string')
+    expect(txId1.length).toStrictEqual(64)
+
+    const rawtx1 = await testing.container.call('getrawtransaction', [txId1, true])
+    expect(rawtx1.vin[0].txid).toStrictEqual(utxo1.txid)
+    expect(rawtx1.vin[0].vout).toStrictEqual(utxo1.vout)
+
+    const utxo2 = await testing.container.fundAddress(ownerAddress2, 10)
+
+    const txId2 = await testing.rpc.masternode.updateMasternode(masternodeId2, { operatorAddress: await testing.generateAddress() }, [utxo2])
+    expect(typeof txId2).toStrictEqual('string')
+    expect(txId2.length).toStrictEqual(64)
+
+    const rawtx2 = await testing.container.call('getrawtransaction', [txId2, true])
+    expect(rawtx2.vin[0].txid).toStrictEqual(utxo2.txid)
+    expect(rawtx2.vin[0].vout).toStrictEqual(utxo2.vout)
+
+    const utxo3 = await testing.container.fundAddress(ownerAddress3, 10)
+
+    const txId3 = await testing.rpc.masternode.updateMasternode(masternodeId3, { rewardAddress: await testing.generateAddress() }, [utxo3])
+    expect(typeof txId3).toStrictEqual('string')
+    expect(txId3.length).toStrictEqual(64)
+
+    const rawtx3 = await testing.container.call('getrawtransaction', [txId3, true])
+    expect(rawtx3.vin[0].txid).toStrictEqual(utxo3.txid)
+    expect(rawtx3.vin[0].vout).toStrictEqual(utxo3.vout)
   })
 
   it('should not updateMasternode with ownerAddress, operatorAddress or rewardAddress if masternode id does not exists', async () => {
@@ -265,7 +315,7 @@ describe('Masternode at or after greatworldheight', () => {
   })
 
   it('should not updateMasternode with ownerAddress, operatorAddress or rewardAddress if masternode is not enabled', async () => {
-    const masternodeId = await container.call('createmasternode', [await testing.generateAddress()])
+    const masternodeId = await testing.container.call('createmasternode', [await testing.generateAddress()])
     await testing.generate(1)
 
     {
@@ -300,7 +350,7 @@ describe('Masternode at or after greatworldheight', () => {
     {
       const ownerAddress = await testing.generateAddress()
 
-      const masternodeId = await container.call('createmasternode', [ownerAddress])
+      const masternodeId = await testing.container.call('createmasternode', [ownerAddress])
       await testing.generate(1)
 
       await waitUntilMasternodeEnabled(masternodeId)
@@ -314,7 +364,7 @@ describe('Masternode at or after greatworldheight', () => {
     }
 
     {
-      const masternodeId = await container.call('createmasternode', [await testing.generateAddress()])
+      const masternodeId = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
       await waitUntilMasternodeEnabled(masternodeId)
@@ -337,12 +387,12 @@ describe('Masternode at or after greatworldheight', () => {
 
   it('should not updateMasternode if ownerAddress, operatorAddress or rewardAddress do not refer to a P2PKH or P2WPKH address', async () => {
     {
-      const masternodeId = await container.call('createmasternode', [await testing.generateAddress()])
+      const masternodeId = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
       await waitUntilMasternodeEnabled(masternodeId)
 
-      const ownerAddress = await container.getNewAddress('', 'p2sh-segwit')
+      const ownerAddress = await testing.container.getNewAddress('', 'p2sh-segwit')
       const promise = testing.rpc.masternode.updateMasternode(masternodeId, {
         ownerAddress
       })
@@ -352,12 +402,12 @@ describe('Masternode at or after greatworldheight', () => {
     }
 
     {
-      const masternodeId = await container.call('createmasternode', [await testing.generateAddress()])
+      const masternodeId = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
       await waitUntilMasternodeEnabled(masternodeId)
 
-      const operatorAddress = await container.getNewAddress('', 'p2sh-segwit')
+      const operatorAddress = await testing.container.getNewAddress('', 'p2sh-segwit')
       const promise = testing.rpc.masternode.updateMasternode(masternodeId, {
         operatorAddress
       })
@@ -367,12 +417,12 @@ describe('Masternode at or after greatworldheight', () => {
     }
 
     {
-      const masternodeId = await container.call('createmasternode', [await testing.generateAddress()])
+      const masternodeId = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
       await waitUntilMasternodeEnabled(masternodeId)
 
-      const rewardAddress = await container.getNewAddress('', 'p2sh-segwit')
+      const rewardAddress = await testing.container.getNewAddress('', 'p2sh-segwit')
       const promise = testing.rpc.masternode.updateMasternode(masternodeId, {
         rewardAddress
       })
@@ -385,7 +435,7 @@ describe('Masternode at or after greatworldheight', () => {
   it('should not updateMasternode if ownerAddress does not belong to the owner', async () => {
     const ownerAddress = await testing.generateAddress()
 
-    const masternodeId = await container.call('createmasternode', [ownerAddress])
+    const masternodeId = await testing.container.call('createmasternode', [ownerAddress])
     await testing.generate(1)
 
     await waitUntilMasternodeEnabled(masternodeId)
@@ -402,10 +452,10 @@ describe('Masternode at or after greatworldheight', () => {
 
   it('should not updateMasternode if ownerAddress or operatorAddress is pending to be updated in another masternode', async () => {
     {
-      const masternodeId1 = await container.call('createmasternode', [await testing.generateAddress()])
+      const masternodeId1 = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
-      const masternodeId2 = await container.call('createmasternode', [await testing.generateAddress()])
+      const masternodeId2 = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
       await waitUntilMasternodeEnabled(masternodeId1)
@@ -425,10 +475,10 @@ describe('Masternode at or after greatworldheight', () => {
     }
 
     {
-      const masternodeId1 = await container.call('createmasternode', [await testing.generateAddress()])
+      const masternodeId1 = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
-      const masternodeId2 = await container.call('createmasternode', [await testing.generateAddress()])
+      const masternodeId2 = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
 
       await waitUntilMasternodeEnabled(masternodeId1)
@@ -446,6 +496,32 @@ describe('Masternode at or after greatworldheight', () => {
       await expect(promise).rejects.toThrow(RpcApiError)
       await expect(promise).rejects.toThrow('UpdateMasternodeTx: Masternode with that operator address already exists')
     }
+  })
+
+  it('should not updateMasternode with operatorAddress and rewardAddress for arbitrary utxos', async () => {
+    const ownerAddress1 = await testing.generateAddress()
+    const ownerAddress2 = await testing.generateAddress()
+
+    const masternodeId1 = await testing.container.call('createmasternode', [ownerAddress1])
+    await testing.generate(1)
+
+    const masternodeId2 = await testing.container.call('createmasternode', [ownerAddress2])
+    await testing.generate(1)
+
+    await waitUntilMasternodeEnabled(masternodeId1)
+    await waitUntilMasternodeEnabled(masternodeId2)
+
+    const operatorAddress = await testing.generateAddress()
+    const utxo1 = await testing.container.fundAddress(operatorAddress, 10)
+    const promise1 = testing.rpc.masternode.updateMasternode(masternodeId2, { operatorAddress }, [utxo1])
+    await expect(promise1).rejects.toThrow(RpcApiError)
+    await expect(promise1).rejects.toThrow('Test UpdateMasternodeTx execution failed:\ntx must have at least one input from the owner')
+
+    const rewardAddress = await testing.generateAddress()
+    const utxo2 = await testing.container.fundAddress(rewardAddress, 10)
+    const promise2 = testing.rpc.masternode.updateMasternode(masternodeId2, { rewardAddress }, [utxo2])
+    await expect(promise2).rejects.toThrow(RpcApiError)
+    await expect(promise2).rejects.toThrow('Test UpdateMasternodeTx execution failed:\ntx must have at least one input from the owner')
   })
 })
 
@@ -468,7 +544,7 @@ describe('Masternode before greatworldheight', () => {
   }
 
   it('should not updateMasternode', async () => {
-    const txId = await container.call('createmasternode', [await testing.generateAddress()])
+    const txId = await testing.container.call('createmasternode', [await testing.generateAddress()])
     await testing.generate(1)
 
     const ownerAddress = await testing.generateAddress()
