@@ -1155,12 +1155,12 @@ describe('listFutureSwap', () => {
   })
 
   it('should listFutureSwap', async () => {
-    const list = await controller.listFutureSwap(fromAddr, 1, {
+    const list = await controller.listFutureSwap(fromAddr, {
       size: 30
     })
 
     {
-      const first = await controller.listFutureSwap(fromAddr, 1, {
+      const first = await controller.listFutureSwap(fromAddr, {
         size: 3
       })
       expect(first.data.length).toStrictEqual(3)
@@ -1169,7 +1169,7 @@ describe('listFutureSwap', () => {
       expect(first.data[1].id).toStrictEqual(list.data[1].id)
       expect(first.data[2].id).toStrictEqual(list.data[2].id)
 
-      const next = await controller.listFutureSwap(fromAddr, 1, {
+      const next = await controller.listFutureSwap(fromAddr, {
         size: 3,
         next: first.page?.next
       })
@@ -1179,7 +1179,7 @@ describe('listFutureSwap', () => {
       expect(next.data[1].id).toStrictEqual(list.data[4].id)
       expect(next.data[2].id).toStrictEqual(list.data[5].id)
 
-      const last = await controller.listFutureSwap(fromAddr, 1, {
+      const last = await controller.listFutureSwap(fromAddr, {
         size: 3,
         next: next.page?.next
       })
@@ -1189,7 +1189,7 @@ describe('listFutureSwap', () => {
     }
 
     {
-      const res = await controller.listFutureSwap(fromAddr1, 1, {
+      const res = await controller.listFutureSwap(fromAddr1, {
         size: 30
       })
       expect(res.data.length).toStrictEqual(4)
@@ -1197,8 +1197,9 @@ describe('listFutureSwap', () => {
     }
   })
 
-  it('should get empty as out of range', async () => {
-    const empty = await controller.listFutureSwap(fromAddr, 999, {
+  it('should get empty as non-existent', async () => {
+    const addr = await testing.generateAddress()
+    const empty = await controller.listFutureSwap(addr, {
       size: 30
     })
     expect(empty.data.length).toStrictEqual(0)

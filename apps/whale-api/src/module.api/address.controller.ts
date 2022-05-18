@@ -191,17 +191,19 @@ export class AddressController {
     })
   }
 
-  @Get('/future/swaps/:height')
+  @Get('/future/swaps')
   async listFutureSwap (
     @Param('address') address: string,
-      @Param('height', ParseIntPipe) height: number,
       @Query() query: PaginationQuery
   ): Promise<ApiPagedResponse<FutureSwap>> {
     const size = query.size > 30 ? 30 : query.size
-    const nextSettleBlock = await this.rpcClient.oracle.getFutureSwapBlock()
+    const end = await this.rpcClient.oracle.getFutureSwapBlock() // next settle block height
     // mapper is sorted DESC
-    const lt = query.next ?? `${HexEncoder.encodeHeight(nextSettleBlock)}-${'f'.repeat(64)}`
-    const gt = `${HexEncoder.encodeHeight(height)}-${'0'.repeat(64)}`
+    const lt = query.next ?? `${HexEncoder.encodeHeight(end)}-${'f'.repeat(64)}`
+    const attributes = await this.rpcClient.masternode.getGov('ATTRIBUTES')
+    const interval = attributes.ATTRIBUTES['v0/params/dfip2203/block_period']
+    const start = end - interval
+    const gt = `${HexEncoder.encodeHeight(start)}-${'0'.repeat(64)}`
 
     const script = fromAddress(address, this.network)!.script
     const haddr = toBuffer(script.stack).toString('hex')
