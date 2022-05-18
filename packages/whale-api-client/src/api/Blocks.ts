@@ -1,6 +1,6 @@
 import { WhaleApiClient } from '../whale.api.client'
 import { ApiPagedResponse } from '../whale.api.response'
-import { Transaction } from './transactions'
+import { Transaction } from './Transactions'
 
 export class Blocks {
   constructor (private readonly client: WhaleApiClient) {

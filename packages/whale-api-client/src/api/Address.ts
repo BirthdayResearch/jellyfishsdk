@@ -1,6 +1,6 @@
 import { WhaleApiClient } from '../whale.api.client'
 import { ApiPagedResponse } from '../whale.api.response'
-import { LoanVaultActive, LoanVaultLiquidated } from './loan'
+import { LoanVaultActive, LoanVaultLiquidated } from './Loan'
 
 /**
  * DeFi whale endpoint for address related services.

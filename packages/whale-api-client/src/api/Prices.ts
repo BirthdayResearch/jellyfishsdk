@@ -1,6 +1,6 @@
 import { WhaleApiClient } from '../whale.api.client'
 import { ApiPagedResponse } from '../whale.api.response'
-import { OraclePriceFeed } from './oracles'
+import { OraclePriceFeed } from './Oracles'
 
 /**
  * Time interval for graphing

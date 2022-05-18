@@ -4,7 +4,7 @@ import { WhaleApiClient } from '../../src'
 import { StubWhaleApiClient } from '../stub.client'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { Testing } from '@defichain/jellyfish-testing'
-import { PriceFeedTimeInterval } from '@defichain/whale-api-client/dist/api/prices'
+import { PriceFeedTimeInterval } from '@defichain/whale-api-client/dist/api/Prices'
 import { OracleIntervalSeconds } from '../../../../apps/whale/src/module.model/oracle.price.aggregated.interval'
 
 describe('oracles', () => {
