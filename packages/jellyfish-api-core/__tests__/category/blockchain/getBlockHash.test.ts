@@ -30,6 +30,7 @@ describe('BlockHash', () => {
     expect.assertions(1)
     try {
       await client.blockchain.getBlockHash(10000)
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     } catch (err: any) {
       expect(err.payload).toStrictEqual({
         code: -8,

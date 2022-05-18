@@ -74,7 +74,7 @@ describe('Poolpair', () => {
     const poolLiquidityAddress = await setup('APE', 'BEE')
     await container.fundAddress(poolLiquidityAddress, 25)
     const utxos = await container.call('listunspent')
-    const utxo = utxos.find((utxo: any) => utxo.address === poolLiquidityAddress)
+    const utxo = utxos.find((utxo: { address: string }) => utxo.address === poolLiquidityAddress)
 
     const txid = await client.poolpair.removePoolLiquidity(
       poolLiquidityAddress, '4@APE-BEE', { utxos: [{ txid: utxo.txid, vout: utxo.vout }] }
@@ -97,7 +97,7 @@ describe('Poolpair', () => {
     await container.fundAddress(otherAddress, 25)
 
     const utxos = await container.call('listunspent')
-    const utxo = utxos.find((utxo: any) => utxo.address === otherAddress)
+    const utxo = utxos.find((utxo: { address: string }) => utxo.address === otherAddress)
     const promise = client.poolpair.removePoolLiquidity(
       poolLiquidityAddress, '4@ELF-GOR', { utxos: [{ txid: utxo.txid, vout: utxo.vout }] }
     )

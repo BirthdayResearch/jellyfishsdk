@@ -17,4 +17,5 @@ jobs:
     steps:
       - uses: fuxingloh/multi-labeler@67208f475e36fc4f95e3d5a2d4e450433f288be8
         with:
+          github-token: ${{ secrets.JELLYFISHSDK_BOT_GITHUB_TOKEN }}
           config-path: .github/labeler.yml

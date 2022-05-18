@@ -3,6 +3,7 @@ import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontaine
 import { createPoolPair, createToken } from '@defichain/testing'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { Testing } from '@defichain/jellyfish-testing'
+import { UTXO } from '@defichain/jellyfish-api-core/dist/category/masternode'
 
 describe('Masternode', () => {
   const container = new MasterNodeRegTestContainer()
@@ -40,7 +41,7 @@ describe('Masternode', () => {
 
     { // before utxo spent
       const utxos = await container.call('listunspent')
-      const found = utxos.find((u: any) => u.txid === utxo.txid && u.vout === utxo.vout)
+      const found = utxos.find((u: UTXO) => u.txid === utxo.txid && u.vout === utxo.vout)
       expect(found).not.toStrictEqual(undefined)
     }
 
@@ -53,7 +54,7 @@ describe('Masternode', () => {
 
     { // after utxo spent
       const utxos = await container.call('listunspent')
-      const found = utxos.find((u: any) => u.txid === utxo.txid && u.vout === utxo.vout)
+      const found = utxos.find((u: UTXO) => u.txid === utxo.txid && u.vout === utxo.vout)
       expect(found).toStrictEqual(undefined)
     }
   })
