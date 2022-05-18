@@ -3,7 +3,7 @@ import { PoolSwapPathFindingService } from './poolswap.pathfinding.service'
 import { TokenMapper } from '../module.model/token'
 import { DeFiDCache } from './cache/defid.cache'
 import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
-import { DexPricesResult, TokenIdentifier } from '@whale-api-client/api/poolpairs'
+import { DexPricesResult, TokenIdentifier } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { parseDisplaySymbol } from './token.controller'
 import { SemaphoreCache } from './cache/semaphore.cache'
 
@@ -21,7 +21,7 @@ export class PoolPairPricesService {
 
   async listDexPrices (denominationSymbol: string): Promise<DexPricesResult> {
     const cached = await this.cache.get<DexPricesResult>(
-      'LATEST_DEX_PRICES_' + denominationSymbol,
+      `LATEST_DEX_PRICES_${denominationSymbol}`,
       async () => await this._listDexPrices(denominationSymbol),
       {
         ttl: 30 // 30s
