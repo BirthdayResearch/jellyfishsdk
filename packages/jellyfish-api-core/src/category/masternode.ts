@@ -32,9 +32,9 @@ export class Masternode {
    * @param {string} ownerAddress Any valid address for keeping collateral amount
    * @param {string} [operatorAddress]  Masternode operator auth address (P2PKH only, unique). If empty, owner address will be used.
    * @param {CreateMasternodeOptions} [options]
-   * @param {UTXO[]} [options.utxos = []] Specific UTXOs to spend
-   * @param {string} [options.utxos.txid] The transaction id
-   * @param {number} [options.utxos.vout] The output number
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction id
+   * @param {number} utxos.vout Output number
    * @param {MasternodeTimeLock} [options.timelock] specify a fix period (5 or 10 years) lock which cannot be resigned and cannot spend the collateral
    * @return {Promise<string>}
    */
