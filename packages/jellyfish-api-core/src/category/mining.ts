@@ -6,6 +6,17 @@ export enum EstimateMode {
   CONSERVATIVE = 'CONSERVATIVE'
 }
 
+export enum MasternodeState {
+  PRE_ENABLED = 'PRE_ENABLED',
+  ENABLED = 'ENABLED',
+  PRE_RESIGNED = 'PRE_RESIGNED',
+  RESIGNED = 'RESIGNED',
+  PRE_BANNED = 'PRE_BANNED',
+  BANNED = 'BANNED',
+  UNKNOWN = 'UNKNOWN',
+  TRANSFERRING = 'TRANSFERRING'
+}
+
 /**
  * Mining RPCs for DeFi Blockchain
  */
@@ -57,7 +68,7 @@ export interface MintingInfo {
   isoperator: boolean
   masternodeid?: string
   masternodeoperator?: string
-  masternodestate?: 'PRE_ENABLED' | 'ENABLED' | 'PRE_RESIGNED' | 'RESIGNED' | 'PRE_BANNED' | 'BANNED'
+  masternodestate?: MasternodeState
   generate?: boolean
   mintedblocks?: number
   networkhashps: number
@@ -88,7 +99,7 @@ export interface MiningInfo {
 export interface MasternodeInfo {
   id: string
   operator: string
-  state: 'PRE_ENABLED' | 'ENABLED' | 'PRE_RESIGNED' | 'RESIGNED' | 'PRE_BANNED' | 'BANNED'
+  state: MasternodeState
   generate: boolean
   mintedblocks: number
   lastblockcreationattempt: string

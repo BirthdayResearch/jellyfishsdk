@@ -55,10 +55,21 @@ interface MiningInfo {
 interface MasternodeInfo {
   masternodeid?: string
   masternodeoperator?: string
-  masternodestate?: 'PRE_ENABLED' | 'ENABLED' | 'PRE_RESIGNED' | 'RESIGNED' | 'PRE_BANNED' | 'BANNED'
+  masternodestate?: MasternodeState
   generate?: boolean
   mintedblocks?: number
   lastblockcreationattempt?: string
+}
+
+enum MasternodeState {
+  PRE_ENABLED = 'PRE_ENABLED',
+  ENABLED = 'ENABLED',
+  PRE_RESIGNED = 'PRE_RESIGNED',
+  RESIGNED = 'RESIGNED',
+  PRE_BANNED = 'PRE_BANNED',
+  BANNED = 'BANNED',
+  UNKNOWN = 'UNKNOWN',
+  TRANSFERRING = 'TRANSFERRING'
 }
 ```
 

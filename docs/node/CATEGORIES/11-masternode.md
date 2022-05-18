@@ -120,6 +120,8 @@ interface MasternodeInfo {
   ownerIsMine: boolean
   operatorIsMine: boolean
   localMasternode: boolean
+  rewardAddress: string
+  collateralTx: string
 }
 
 interface MasternodeResult<T> {
@@ -160,6 +162,8 @@ interface MasternodeInfo {
   ownerIsMine: boolean
   operatorIsMine: boolean
   localMasternode: boolean
+  rewardAddress: string
+  collateralTx: string
 }
 
 interface MasternodeResult<T> {

@@ -84,19 +84,20 @@ describe('Masternode at or after greatworldheight', () => {
       await waitUntilMasternodeEnabled(masternodeId7)
 
       const ownerAddress1 = await testing.generateAddress()
-      const txId = await testing.rpc.masternode.updateMasternode(masternodeId1, {
+      const txId1 = await testing.rpc.masternode.updateMasternode(masternodeId1, {
         ownerAddress: ownerAddress1
       })
       await testing.generate(1)
 
       // Only check length for txId of first updateMasternode
-      expect(typeof txId).toStrictEqual('string')
-      expect(txId.length).toStrictEqual(64)
+      expect(typeof txId1).toStrictEqual('string')
+      expect(txId1.length).toStrictEqual(64)
 
       {
         const data1: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId1])
         expect(Object.values(data1)[0].ownerAuthAddress).not.toStrictEqual(ownerAddress1)
         expect(Object.values(data1)[0].state).toStrictEqual(MasternodeState.TRANSFERRING)
+        expect(Object.values(data1)[0].collateralTx).toStrictEqual(txId1)
       }
 
       await waitUntilMasternodePreEnabled(masternodeId1)
@@ -117,7 +118,7 @@ describe('Masternode at or after greatworldheight', () => {
 
       const operatorAddress2 = await testing.generateAddress()
 
-      await testing.rpc.masternode.updateMasternode(masternodeId2, {
+      const txId2 = await testing.rpc.masternode.updateMasternode(masternodeId2, {
         operatorAddress: operatorAddress2
       })
       await testing.generate(1)
@@ -125,10 +126,11 @@ describe('Masternode at or after greatworldheight', () => {
       const data2: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId2])
       expect(Object.values(data2)[0].operatorAuthAddress).toStrictEqual(operatorAddress2)
       expect(Object.values(data2)[0].state).toStrictEqual(MasternodeState.ENABLED)
+      expect(Object.values(data2)[0].collateralTx).not.toStrictEqual(txId2)
 
       const rewardAddress3 = await testing.generateAddress()
 
-      await testing.rpc.masternode.updateMasternode(masternodeId3, {
+      const txId3 = await testing.rpc.masternode.updateMasternode(masternodeId3, {
         rewardAddress: rewardAddress3
       })
       await testing.generate(1)
@@ -136,11 +138,12 @@ describe('Masternode at or after greatworldheight', () => {
       const data3: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId3])
       expect(Object.values(data3)[0].state).toStrictEqual(MasternodeState.ENABLED)
       expect(Object.values(data3)[0].rewardAddress).toStrictEqual(rewardAddress3)
+      expect(Object.values(data3)[0].collateralTx).not.toStrictEqual(txId3)
 
       const ownerAddress4 = await testing.generateAddress()
       const operatorAddress4 = await testing.generateAddress()
 
-      await testing.rpc.masternode.updateMasternode(masternodeId4, {
+      const txId4 = await testing.rpc.masternode.updateMasternode(masternodeId4, {
         ownerAddress: ownerAddress4,
         operatorAddress: operatorAddress4
       })
@@ -151,6 +154,7 @@ describe('Masternode at or after greatworldheight', () => {
         expect(Object.values(data4)[0].state).toStrictEqual(MasternodeState.TRANSFERRING)
         expect(Object.values(data4)[0].ownerAuthAddress).not.toStrictEqual(ownerAddress4)
         expect(Object.values(data4)[0].operatorAuthAddress).toStrictEqual(operatorAddress4)
+        expect(Object.values(data4)[0].collateralTx).toStrictEqual(txId4)
       }
 
       await waitUntilMasternodePreEnabled(masternodeId4)
@@ -174,7 +178,7 @@ describe('Masternode at or after greatworldheight', () => {
       const operatorAddress5 = await testing.generateAddress()
       const rewardAddress5 = await testing.generateAddress()
 
-      await testing.rpc.masternode.updateMasternode(masternodeId5, {
+      const txId5 = await testing.rpc.masternode.updateMasternode(masternodeId5, {
         operatorAddress: operatorAddress5,
         rewardAddress: rewardAddress5
       })
@@ -184,11 +188,12 @@ describe('Masternode at or after greatworldheight', () => {
       expect(Object.values(data5)[0].operatorAuthAddress).toStrictEqual(operatorAddress5)
       expect(Object.values(data5)[0].rewardAddress).toStrictEqual(rewardAddress5)
       expect(Object.values(data5)[0].state).toStrictEqual(MasternodeState.ENABLED)
+      expect(Object.values(data5)[0].collateralTx).not.toStrictEqual(txId5)
 
       const ownerAddress6 = await testing.generateAddress()
       const rewardAddress6 = await testing.generateAddress()
 
-      await testing.rpc.masternode.updateMasternode(masternodeId6, {
+      const txId6 = await testing.rpc.masternode.updateMasternode(masternodeId6, {
         ownerAddress: ownerAddress6,
         rewardAddress: rewardAddress6
       })
@@ -199,6 +204,7 @@ describe('Masternode at or after greatworldheight', () => {
         expect(Object.values(data6)[0].state).toStrictEqual(MasternodeState.TRANSFERRING)
         expect(Object.values(data6)[0].ownerAuthAddress).not.toStrictEqual(ownerAddress6)
         expect(Object.values(data6)[0].rewardAddress).toStrictEqual(rewardAddress6)
+        expect(Object.values(data6)[0].collateralTx).toStrictEqual(txId6)
       }
 
       await waitUntilMasternodePreEnabled(masternodeId6)
@@ -223,7 +229,7 @@ describe('Masternode at or after greatworldheight', () => {
       const operatorAddress7 = await testing.generateAddress()
       const rewardAddress7 = await testing.generateAddress()
 
-      await testing.rpc.masternode.updateMasternode(masternodeId7, {
+      const txId7 = await testing.rpc.masternode.updateMasternode(masternodeId7, {
         ownerAddress: ownerAddress7,
         operatorAddress: operatorAddress7,
         rewardAddress: rewardAddress7
@@ -236,6 +242,7 @@ describe('Masternode at or after greatworldheight', () => {
         expect(Object.values(data7)[0].ownerAuthAddress).not.toStrictEqual(ownerAddress7)
         expect(Object.values(data7)[0].operatorAuthAddress).toStrictEqual(operatorAddress7)
         expect(Object.values(data7)[0].rewardAddress).toStrictEqual(rewardAddress7)
+        expect(Object.values(data7)[0].collateralTx).toStrictEqual(txId7)
       }
 
       await waitUntilMasternodePreEnabled(masternodeId7)

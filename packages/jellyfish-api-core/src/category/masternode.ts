@@ -314,6 +314,7 @@ export interface MasternodeInfo {
   targetMultipliers?: number[]
   timelock?: number
   rewardAddress: string
+  collateralTx: string
 }
 
 export interface MasternodeAnchor {
