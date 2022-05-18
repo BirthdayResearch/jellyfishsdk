@@ -272,7 +272,7 @@ describe('Loan', () => {
         amount: '9.876@DFI'
       })
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(`Vault <${'0'.repeat(64)}> does not found`)
+      await expect(promise).rejects.toThrow(`Vault <${'0'.repeat(64)}> not found`)
     })
 
     it('should not withdrawFromVault with invalid collateral token', async () => {
