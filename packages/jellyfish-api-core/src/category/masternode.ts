@@ -7,7 +7,8 @@ export enum MasternodeState {
   RESIGNED = 'RESIGNED',
   PRE_BANNED = 'PRE_BANNED',
   BANNED = 'BANNED',
-  UNKNOWN = 'UNKNOWN'
+  UNKNOWN = 'UNKNOWN',
+  TRANSFERRING = 'TRANSFERRING'
 }
 
 export enum MasternodeTimeLock {

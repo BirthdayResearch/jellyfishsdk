@@ -97,7 +97,8 @@ enum MasternodeState {
   RESIGNED = 'RESIGNED',
   PRE_BANNED = 'PRE_BANNED',
   BANNED = 'BANNED',
-  UNKNOWN = 'UNKNOWN'
+  UNKNOWN = 'UNKNOWN',
+  TRANSFERRING = 'TRANSFERRING'
 }
 
 interface MasternodePagination {
@@ -142,7 +143,8 @@ enum MasternodeState {
   RESIGNED = 'RESIGNED',
   PRE_BANNED = 'PRE_BANNED',
   BANNED = 'BANNED',
-  UNKNOWN = 'UNKNOWN'
+  UNKNOWN = 'UNKNOWN',
+  TRANSFERRING = 'TRANSFERRING'
 }
 
 interface MasternodeInfo {

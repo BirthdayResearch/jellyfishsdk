@@ -1,7 +1,11 @@
 import { MasterNodeRegTestContainer, waitForCondition } from '@defichain/testcontainers'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { Testing } from '@defichain/jellyfish-testing'
-import { MasternodeInfo, MasternodeResult } from '@defichain/jellyfish-api-core/dist/category/masternode'
+import {
+  MasternodeInfo,
+  MasternodeResult,
+  MasternodeState
+} from '@defichain/jellyfish-api-core/dist/category/masternode'
 
 describe('Masternode at or after greatworldheight', () => {
   const container = new MasterNodeRegTestContainer()
@@ -21,11 +25,25 @@ describe('Masternode at or after greatworldheight', () => {
     await testing.container.stop()
   })
 
-  async function waitUntilMasternodeEnabled (masternodeId: string, timeout = 30000): Promise<void> {
+  async function waitUntilMasternodePreEnabled (masternodeId: string, timeout = 100000): Promise<void> {
     return await waitForCondition(async () => {
       const data: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId])
+
       // eslint-disable-next-line
-      if (Object.values(data)[0].state !== 'ENABLED') {
+      if (Object.values(data)[0].state !== MasternodeState.PRE_ENABLED) {
+        await testing.generate(1)
+        return false
+      }
+      return true
+    }, timeout, 100, 'waitUntilMasternodePreEnabled')
+  }
+
+  async function waitUntilMasternodeEnabled (masternodeId: string, timeout = 100000): Promise<void> {
+    return await waitForCondition(async () => {
+      const data: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId])
+
+      // eslint-disable-next-line
+      if (Object.values(data)[0].state !== MasternodeState.ENABLED) {
         await testing.generate(1)
         return false
       }
@@ -65,50 +83,179 @@ describe('Masternode at or after greatworldheight', () => {
       await waitUntilMasternodeEnabled(masternodeId6)
       await waitUntilMasternodeEnabled(masternodeId7)
 
+      const ownerAddress1 = await testing.generateAddress()
+      const txId = await testing.rpc.masternode.updateMasternode(masternodeId1, {
+        ownerAddress: ownerAddress1
+      })
+      await testing.generate(1)
+
+      // Only check length for txId of first updateMasternode
+      expect(typeof txId).toStrictEqual('string')
+      expect(txId.length).toStrictEqual(64)
+
       {
-        const txId = await testing.rpc.masternode.updateMasternode(masternodeId1, {
-          ownerAddress: await testing.generateAddress()
-        })
-        await testing.generate(1)
+        const data1: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId1])
+        expect(Object.values(data1)[0].ownerAuthAddress).not.toStrictEqual(ownerAddress1)
+        expect(Object.values(data1)[0].state).toStrictEqual(MasternodeState.TRANSFERRING)
+      }
 
-        // Check length for first txId only
-        expect(typeof txId).toStrictEqual('string')
-        expect(txId.length).toStrictEqual(64)
+      await waitUntilMasternodePreEnabled(masternodeId1)
 
-        await testing.rpc.masternode.updateMasternode(masternodeId2, {
-          operatorAddress: await testing.generateAddress()
-        })
-        await testing.generate(1)
+      {
+        const data1: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId1])
+        expect(Object.values(data1)[0].ownerAuthAddress).toStrictEqual(ownerAddress1)
+        expect(Object.values(data1)[0].state).toStrictEqual(MasternodeState.PRE_ENABLED)
+      }
 
-        await testing.rpc.masternode.updateMasternode(masternodeId3, {
-          rewardAddress: await testing.generateAddress()
-        })
-        await testing.generate(1)
+      await waitUntilMasternodeEnabled(masternodeId1)
 
-        await testing.rpc.masternode.updateMasternode(masternodeId4, {
-          ownerAddress: await testing.generateAddress(),
-          operatorAddress: await testing.generateAddress()
-        })
-        await testing.generate(1)
+      {
+        const data1: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId1])
+        expect(Object.values(data1)[0].ownerAuthAddress).toStrictEqual(ownerAddress1)
+        expect(Object.values(data1)[0].state).toStrictEqual(MasternodeState.ENABLED)
+      }
 
-        await testing.rpc.masternode.updateMasternode(masternodeId5, {
-          operatorAddress: await testing.generateAddress(),
-          rewardAddress: await testing.generateAddress()
-        })
-        await testing.generate(1)
+      const operatorAddress2 = await testing.generateAddress()
 
-        await testing.rpc.masternode.updateMasternode(masternodeId6, {
-          ownerAddress: await testing.generateAddress(),
-          rewardAddress: await testing.generateAddress()
-        })
-        await testing.generate(1)
+      await testing.rpc.masternode.updateMasternode(masternodeId2, {
+        operatorAddress: operatorAddress2
+      })
+      await testing.generate(1)
 
-        await testing.rpc.masternode.updateMasternode(masternodeId7, {
-          ownerAddress: await testing.generateAddress(),
-          operatorAddress: await testing.generateAddress(),
-          rewardAddress: await testing.generateAddress()
-        })
-        await testing.generate(1)
+      const data2: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId2])
+      expect(Object.values(data2)[0].operatorAuthAddress).toStrictEqual(operatorAddress2)
+      expect(Object.values(data2)[0].state).toStrictEqual(MasternodeState.ENABLED)
+
+      const rewardAddress3 = await testing.generateAddress()
+
+      await testing.rpc.masternode.updateMasternode(masternodeId3, {
+        rewardAddress: rewardAddress3
+      })
+      await testing.generate(1)
+
+      const data3: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId3])
+      expect(Object.values(data3)[0].state).toStrictEqual(MasternodeState.ENABLED)
+      expect(Object.values(data3)[0].rewardAddress).toStrictEqual(rewardAddress3)
+
+      const ownerAddress4 = await testing.generateAddress()
+      const operatorAddress4 = await testing.generateAddress()
+
+      await testing.rpc.masternode.updateMasternode(masternodeId4, {
+        ownerAddress: ownerAddress4,
+        operatorAddress: operatorAddress4
+      })
+      await testing.generate(1)
+
+      {
+        const data4: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId4])
+        expect(Object.values(data4)[0].state).toStrictEqual(MasternodeState.TRANSFERRING)
+        expect(Object.values(data4)[0].ownerAuthAddress).not.toStrictEqual(ownerAddress4)
+        expect(Object.values(data4)[0].operatorAuthAddress).toStrictEqual(operatorAddress4)
+      }
+
+      await waitUntilMasternodePreEnabled(masternodeId4)
+
+      {
+        const data4: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId4])
+        expect(Object.values(data4)[0].state).toStrictEqual(MasternodeState.PRE_ENABLED)
+        expect(Object.values(data4)[0].ownerAuthAddress).toStrictEqual(ownerAddress4)
+        expect(Object.values(data4)[0].operatorAuthAddress).toStrictEqual(operatorAddress4)
+      }
+
+      await waitUntilMasternodeEnabled(masternodeId4)
+
+      {
+        const data4: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId4])
+        expect(Object.values(data4)[0].ownerAuthAddress).toStrictEqual(ownerAddress4)
+        expect(Object.values(data4)[0].operatorAuthAddress).toStrictEqual(operatorAddress4)
+        expect(Object.values(data4)[0].state).toStrictEqual(MasternodeState.ENABLED)
+      }
+
+      const operatorAddress5 = await testing.generateAddress()
+      const rewardAddress5 = await testing.generateAddress()
+
+      await testing.rpc.masternode.updateMasternode(masternodeId5, {
+        operatorAddress: operatorAddress5,
+        rewardAddress: rewardAddress5
+      })
+      await testing.generate(1)
+
+      const data5: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId5])
+      expect(Object.values(data5)[0].operatorAuthAddress).toStrictEqual(operatorAddress5)
+      expect(Object.values(data5)[0].rewardAddress).toStrictEqual(rewardAddress5)
+      expect(Object.values(data5)[0].state).toStrictEqual(MasternodeState.ENABLED)
+
+      const ownerAddress6 = await testing.generateAddress()
+      const rewardAddress6 = await testing.generateAddress()
+
+      await testing.rpc.masternode.updateMasternode(masternodeId6, {
+        ownerAddress: ownerAddress6,
+        rewardAddress: rewardAddress6
+      })
+      await testing.generate(1)
+
+      {
+        const data6: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId6])
+        expect(Object.values(data6)[0].state).toStrictEqual(MasternodeState.TRANSFERRING)
+        expect(Object.values(data6)[0].ownerAuthAddress).not.toStrictEqual(ownerAddress6)
+        expect(Object.values(data6)[0].rewardAddress).toStrictEqual(rewardAddress6)
+      }
+
+      await waitUntilMasternodePreEnabled(masternodeId6)
+
+      {
+        const data6: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId6])
+        expect(Object.values(data6)[0].state).toStrictEqual(MasternodeState.PRE_ENABLED)
+        expect(Object.values(data6)[0].ownerAuthAddress).toStrictEqual(ownerAddress6)
+        expect(Object.values(data6)[0].rewardAddress).toStrictEqual(rewardAddress6)
+      }
+
+      await waitUntilMasternodeEnabled(masternodeId6)
+
+      {
+        const data6: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId6])
+        expect(Object.values(data6)[0].ownerAuthAddress).toStrictEqual(ownerAddress6)
+        expect(Object.values(data6)[0].rewardAddress).toStrictEqual(rewardAddress6)
+        expect(Object.values(data6)[0].state).toStrictEqual(MasternodeState.ENABLED)
+      }
+
+      const ownerAddress7 = await testing.generateAddress()
+      const operatorAddress7 = await testing.generateAddress()
+      const rewardAddress7 = await testing.generateAddress()
+
+      await testing.rpc.masternode.updateMasternode(masternodeId7, {
+        ownerAddress: ownerAddress7,
+        operatorAddress: operatorAddress7,
+        rewardAddress: rewardAddress7
+      })
+      await testing.generate(1)
+
+      {
+        const data7: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId7])
+        expect(Object.values(data7)[0].state).toStrictEqual(MasternodeState.TRANSFERRING)
+        expect(Object.values(data7)[0].ownerAuthAddress).not.toStrictEqual(ownerAddress7)
+        expect(Object.values(data7)[0].operatorAuthAddress).toStrictEqual(operatorAddress7)
+        expect(Object.values(data7)[0].rewardAddress).toStrictEqual(rewardAddress7)
+      }
+
+      await waitUntilMasternodePreEnabled(masternodeId7)
+
+      {
+        const data7: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId7])
+        expect(Object.values(data7)[0].state).toStrictEqual(MasternodeState.PRE_ENABLED)
+        expect(Object.values(data7)[0].ownerAuthAddress).toStrictEqual(ownerAddress7)
+        expect(Object.values(data7)[0].operatorAuthAddress).toStrictEqual(operatorAddress7)
+        expect(Object.values(data7)[0].rewardAddress).toStrictEqual(rewardAddress7)
+      }
+
+      await waitUntilMasternodeEnabled(masternodeId7)
+
+      {
+        const data7: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId7])
+        expect(Object.values(data7)[0].ownerAuthAddress).toStrictEqual(ownerAddress7)
+        expect(Object.values(data7)[0].operatorAuthAddress).toStrictEqual(operatorAddress7)
+        expect(Object.values(data7)[0].rewardAddress).toStrictEqual(rewardAddress7)
+        expect(Object.values(data7)[0].state).toStrictEqual(MasternodeState.ENABLED)
       }
     }
 
