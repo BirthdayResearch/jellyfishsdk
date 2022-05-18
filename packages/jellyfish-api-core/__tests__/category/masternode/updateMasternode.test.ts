@@ -493,7 +493,7 @@ describe('Masternode at or after greatworldheight', () => {
     }
   })
 
-  it('should not updateMasternode if ownerAddress, operatorAddress or rewardAddress already exists', async () => {
+  it('should not updateMasternode with ownerAddress, operatorAddress or rewardAddress if ownerAddress, operatorAddress or rewardAddress already exists', async () => {
     {
       const ownerAddress = await testing.generateAddress()
 
@@ -532,7 +532,7 @@ describe('Masternode at or after greatworldheight', () => {
     }
   })
 
-  it('should not updateMasternode if ownerAddress, operatorAddress or rewardAddress do not refer to a P2PKH or P2WPKH address', async () => {
+  it('should not updateMasternode with ownerAddress, operatorAddress or rewardAddress if ownerAddress, operatorAddress or rewardAddress do not refer to a P2PKH or P2WPKH address', async () => {
     {
       const masternodeId = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
@@ -579,7 +579,7 @@ describe('Masternode at or after greatworldheight', () => {
     }
   })
 
-  it('should not updateMasternode if ownerAddress does not belong to the owner', async () => {
+  it('should not updateMasternode with ownerAddress if ownerAddress does not belong to the owner', async () => {
     const ownerAddress = await testing.generateAddress()
 
     const masternodeId = await testing.container.call('createmasternode', [ownerAddress])
@@ -597,7 +597,7 @@ describe('Masternode at or after greatworldheight', () => {
     }
   })
 
-  it('should not updateMasternode if ownerAddress or operatorAddress is pending to be updated in another masternode', async () => {
+  it('should not updateMasternode with ownerAddress or operatorAddress if ownerAddress or operatorAddress is pending to be updated in another masternode', async () => {
     {
       const masternodeId1 = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
@@ -645,7 +645,7 @@ describe('Masternode at or after greatworldheight', () => {
     }
   })
 
-  it('should not updateMasternode with operatorAddress and rewardAddress for arbitrary utxos', async () => {
+  it('should not updateMasternode with operatorAddress or rewardAddress for arbitrary utxos', async () => {
     const ownerAddress1 = await testing.generateAddress()
     const ownerAddress2 = await testing.generateAddress()
 
