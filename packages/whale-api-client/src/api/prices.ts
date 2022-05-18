@@ -1,6 +1,6 @@
-import { ApiPagedResponse } from '@defichain/ocean-api-client'
-import { WhaleApiClient } from '../WhaleApiClient'
-import { OraclePriceFeed } from './Oracles'
+import { WhaleApiClient } from '../whale.api.client'
+import { ApiPagedResponse } from '../whale.api.response'
+import { OraclePriceFeed } from './oracles'
 
 /**
  * Time interval for graphing

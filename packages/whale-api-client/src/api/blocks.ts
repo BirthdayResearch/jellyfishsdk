@@ -1,6 +1,6 @@
-import { ApiPagedResponse } from '@defichain/ocean-api-client'
-import { WhaleApiClient } from '../WhaleApiClient'
-import { Transaction } from './Transactions'
+import { WhaleApiClient } from '../whale.api.client'
+import { ApiPagedResponse } from '../whale.api.response'
+import { Transaction } from './transactions'
 
 export class Blocks {
   constructor (private readonly client: WhaleApiClient) {

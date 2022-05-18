@@ -1,12 +1,24 @@
-import { ApiPagedResponse } from '@defichain/ocean-api-client'
-import { WhaleApiClient } from '../WhaleApiClient'
-import { LoanVaultActive, LoanVaultLiquidated } from './Loan'
+import { WhaleApiClient } from '../whale.api.client'
+import { ApiPagedResponse } from '../whale.api.response'
+import { LoanVaultActive, LoanVaultLiquidated } from './loan'
 
 /**
  * DeFi whale endpoint for address related services.
  */
 export class Address {
   constructor (private readonly client: WhaleApiClient) {
+  }
+
+  /**
+   * Get account history
+   *
+   * @param {string} address to get account history
+   * @param {number} height block height of the account history
+   * @param {number} txno order of txn
+   * @return {Promise<AddressHistory | undefined>}
+   */
+  async getAccountHistory (address: string, height: number, txno: number): Promise<AddressHistory | undefined> {
+    return await this.client.requestData('GET', `address/${address}/history/${height}/${txno}`)
   }
 
   /**

@@ -1,12 +1,10 @@
-import { RawTx } from '@defichain/ocean-api-client'
-import { WhaleApiClient } from '../WhaleApiClient'
+import { WhaleApiClient } from '../whale.api.client'
 
 /**
  * DeFi whale endpoint for rawtx related services.
  */
-export class Rawtx extends RawTx {
+export class Rawtx {
   constructor (private readonly client: WhaleApiClient) {
-    super(client)
   }
 
   /**
