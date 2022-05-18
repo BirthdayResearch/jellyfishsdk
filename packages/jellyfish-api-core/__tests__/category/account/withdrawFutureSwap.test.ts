@@ -706,404 +706,420 @@ describe('withdrawFutureSwap', () => {
     expect(currentBlock).toBeLessThan(nextSettleBlock)
   })
 
-  // it('should not withdrawFutureSwap invalid futureswap dtoken to dusd', async () => {
-  //   const swapAmount = 1
-  //   const nextSettleBlock = await testing.container.call('getfutureswapblock', [])
-  //   const tslaAddress = await testing.generateAddress()
-  //   await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount}@TSLA` })
-  //   await testing.generate(1)
-  //
-  //   const fswap: FutureSwap = {
-  //     address: tslaAddress,
-  //     amount: `${swapAmount.toFixed(8)}@TSLA`
-  //   }
-  //   await testing.rpc.account.futureSwap(fswap)
-  //   await testing.generate(1)
-  //
-  //   // withdraw more than the future swap amount
-  //   {
-  //     const withdrawAmount = swapAmount + 0.00000001
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: tslaAddress,
-  //       amount: `${withdrawAmount.toFixed(8)}@TSLA`
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\namount 1.00000000 is less than 1.00000001\', code: -32600, method: withdrawfutureswap')
-  //   }
-  //
-  //   // Withdraw fail - Destination should not be set when source amount is a dToken
-  //   {
-  //     const withdrawAmount = 0.5
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: tslaAddress,
-  //       amount: `${withdrawAmount.toFixed(8)}@TSLA`,
-  //       destination: 'DUSD'
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nDestination should not be set when source amount is a dToken\', code: -32600, method: withdrawfutureswap')
-  //   }
-  //
-  //   // Withdraw fail - try to withdraw from unavailable futureswap
-  //   {
-  //     const withdrawAmount = 0.5
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: tslaAddress,
-  //       amount: `${withdrawAmount.toFixed(8)}@DUSD`,
-  //       destination: 'TSLA'
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\namount 0.00000000 is less than 0.50000000\', code: -32600, method: withdrawfutureswap')
-  //   }
-  //
-  //   // Withdraw fail - Invalid Defi token: INVALID
-  //   {
-  //     const withdrawAmount = 0.5
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: tslaAddress,
-  //       amount: `${withdrawAmount.toFixed(8)}@INVALID`
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \': Invalid Defi token: INVALID\', code: 0, method: withdrawfutureswap')
-  //   }
-  //
-  //   // withdraw with BTC which is not a loan token
-  //   {
-  //     const withdrawAddress = await testing.generateAddress()
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: withdrawAddress,
-  //       amount: `${swapAmount.toFixed(8)}@BTC`
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nCould not get source loan token 1\', code: -32600, method: withdrawfutureswap')
-  //   }
-  //
-  //   // withdraw from arbitrary address
-  //   {
-  //     const withdrawAddress = 'bcrt1qcnfukr6c78wlz2tqpv8vxe0zu339c06pmm3l30'
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: withdrawAddress,
-  //       amount: `${swapAmount.toFixed(8)}@TSLA`
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \'Incorrect authorization for bcrt1qcnfukr6c78wlz2tqpv8vxe0zu339c06pmm3l30\', code: -5, method: withdrawfutureswap')
-  //   }
-  //
-  //   // withdraw from arbitrary valid address
-  //   {
-  //     const withdrawAddress = await testing.generateAddress()
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: withdrawAddress,
-  //       amount: `${swapAmount.toFixed(8)}@TSLA`
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\namount 0.00000000 is less than 1.00000000\', code: -32600, method: withdrawfutureswap')
-  //   }
-  //
-  //   // withdraw from arbitrary utxo
-  //   {
-  //     const utxoAddress = await testing.generateAddress()
-  //     const utxo = await testing.container.fundAddress(utxoAddress, 50)
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: tslaAddress,
-  //       amount: `${swapAmount.toFixed(8)}@TSLA`
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap, [utxo])
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nTransaction must have at least one input from owner\', code: -32600, method: withdrawfutureswap')
-  //   }
-  //
-  //   // withdraw 0 amount
-  //   {
-  //     const withdrawAmount = 0
-  //     const withdrawAddress = await testing.generateAddress()
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: withdrawAddress,
-  //       amount: `${withdrawAmount.toFixed(8)}@TSLA`
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \': Amount out of range\', code: -3, method: withdrawfutureswap')
-  //   }
-  //
-  //   // withdraw -1 amount
-  //   {
-  //     const withdrawAmount = -1
-  //     const withdrawAddress = await testing.generateAddress()
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: withdrawAddress,
-  //       amount: `${withdrawAmount.toFixed(8)}@TSLA`
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \': Amount out of range\', code: -3, method: withdrawfutureswap')
-  //   }
-  //
-  //   // withdraw 0.1 satoshi
-  //   {
-  //     const withdrawAmount = 0.000000001
-  //     const withdrawAddress = await testing.generateAddress()
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: withdrawAddress,
-  //       amount: `${withdrawAmount.toFixed(8)}@TSLA`
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \': Amount out of range\', code: -3, method: withdrawfutureswap')
-  //   }
-  //
-  //   // withdraw after setting ${idTSLA}/dfip2203 to false
-  //   {
-  //     const idTSLA = await testing.token.getTokenId('TSLA')
-  //     await testing.rpc.masternode.setGov({ [attributeKey]: { [`v0/token/${idTSLA}/dfip2203`]: 'false' } })
-  //
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: tslaAddress,
-  //       amount: `${swapAmount.toFixed(8)}@TSLA`
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \'DFIP2203Tx: DFIP2203 currently disabled for token 2 (code 16)\', code: -26, method: withdrawfutureswap')
-  //
-  //     await testing.rpc.masternode.setGov({ [attributeKey]: { [`v0/token/${idTSLA}/dfip2203`]: 'true' } })
-  //   }
-  //
-  //   // withdraw after setting the dfip2203/active to false
-  //   {
-  //     await testing.rpc.masternode.setGov({ [attributeKey]: { 'v0/params/dfip2203/active': 'false' } })
-  //
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: tslaAddress,
-  //       amount: `${swapAmount.toFixed(8)}@TSLA`
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \'DFIP2203Tx: DFIP2203 not currently active (code 16)\', code: -26, method: withdrawfutureswap')
-  //
-  //     await testing.rpc.masternode.setGov({ [attributeKey]: { 'v0/params/dfip2203/active': 'true' } })
-  //   }
-  //
-  //   // verify that all happened before settle block
-  //   const currentBlock = await testing.rpc.blockchain.getBlockCount()
-  //   expect(currentBlock).toBeLessThan(nextSettleBlock)
-  // })
+  it('should not withdrawFutureSwap invalid futureswap dtoken to dusd', async () => {
+    const swapAmount = 1
+    let nextSettleBlock = await testing.container.call('getfutureswapblock', [])
+    const tslaAddress = await testing.generateAddress()
+    await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount}@TSLA` })
+    await testing.generate(1)
 
-  // it('should not withdrawFutureSwap invalid futureswap dusd to dtoken', async () => {
-  //   const swapAmount = 1
-  //   const nextSettleBlock = await testing.container.call('getfutureswapblock', [])
-  //   const tslaAddress = await testing.generateAddress()
-  //   await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount}@DUSD` })
-  //   await testing.generate(1)
-  //
-  //   const fswap: FutureSwap = {
-  //     address: tslaAddress,
-  //     amount: `${swapAmount.toFixed(8)}@DUSD`,
-  //     destination: 'TSLA'
-  //   }
-  //   await testing.rpc.account.futureSwap(fswap)
-  //   await testing.generate(1)
-  //
-  //   // withdraw more than the future swap amount
-  //   {
-  //     const withdrawAmount = swapAmount + 0.00000001
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: tslaAddress,
-  //       amount: `${withdrawAmount.toFixed(8)}@DUSD`,
-  //       destination: 'TSLA'
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\namount 1.00000000 is less than 1.00000001\', code: -32600, method: withdrawfutureswap')
-  //   }
-  //
-  //   // Withdraw fail - without valid destination
-  //   {
-  //     const withdrawAmount = 0.5
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: tslaAddress,
-  //       amount: `${withdrawAmount.toFixed(8)}@DUSD`
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nCould not get destination loan token 0. Set valid destination.\', code: -32600, method: withdrawfutureswap')
-  //   }
-  //
-  //   // withdraw fail - with invalid destination
-  //   {
-  //     const withdrawAmount = 0.5
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: tslaAddress,
-  //       amount: `${withdrawAmount.toFixed(8)}@DUSD`,
-  //       destination: 'INVALID'
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \'Destination token not found\', code: -5, method: withdrawfutureswap')
-  //   }
-  //
-  //   // Withdraw fail - try to withdraw from unavailable futureswap
-  //   {
-  //     const withdrawAmount = 0.5
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: tslaAddress,
-  //       amount: `${withdrawAmount.toFixed(8)}@TSLA`
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\namount 0.00000000 is less than 0.50000000\', code: -32600, method: withdrawfutureswap')
-  //   }
-  //
-  //   // Withdraw fail - Invalid Defi token: INVALID
-  //   {
-  //     const withdrawAmount = 0.5
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: tslaAddress,
-  //       amount: `${withdrawAmount.toFixed(8)}@INVALID`,
-  //       destination: 'TSLA'
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \': Invalid Defi token: INVALID\', code: 0, method: withdrawfutureswap')
-  //   }
-  //
-  //   // withdraw with BTC which is not a loan token
-  //   {
-  //     const withdrawAddress = await testing.generateAddress()
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: withdrawAddress,
-  //       amount: `${swapAmount.toFixed(8)}@DUSD`,
-  //       destination: 'BTC'
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nCould not get destination loan token 1. Set valid destination.\', code: -32600, method: withdrawfutureswap')
-  //   }
-  //
-  //   // withdraw from arbitrary address
-  //   {
-  //     const withdrawAddress = 'bcrt1qcnfukr6c78wlz2tqpv8vxe0zu339c06pmm3l30'
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: withdrawAddress,
-  //       amount: `${swapAmount.toFixed(8)}@DUSD`,
-  //       destination: 'TSLA'
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \'Incorrect authorization for bcrt1qcnfukr6c78wlz2tqpv8vxe0zu339c06pmm3l30\', code: -5, method: withdrawfutureswap')
-  //   }
-  //
-  //   // withdraw from arbitrary valid address
-  //   {
-  //     const withdrawAddress = await testing.generateAddress()
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: withdrawAddress,
-  //       amount: `${swapAmount.toFixed(8)}@DUSD`,
-  //       destination: 'TSLA'
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\namount 0.00000000 is less than 1.00000000\', code: -32600, method: withdrawfutureswap')
-  //   }
-  //
-  //   // withdraw from arbitrary utxo
-  //   {
-  //     const utxoAddress = await testing.generateAddress()
-  //     const utxo = await testing.container.fundAddress(utxoAddress, 50)
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: tslaAddress,
-  //       amount: `${swapAmount.toFixed(8)}@DUSD`,
-  //       destination: 'TSLA'
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap, [utxo])
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nTransaction must have at least one input from owner\', code: -32600, method: withdrawfutureswap')
-  //   }
-  //
-  //   // withdraw 0 amount
-  //   {
-  //     const withdrawAmount = 0
-  //     const withdrawAddress = await testing.generateAddress()
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: withdrawAddress,
-  //       amount: `${withdrawAmount.toFixed(8)}@DUSD`,
-  //       destination: 'TSLA'
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \': Amount out of range\', code: -3, method: withdrawfutureswap')
-  //   }
-  //
-  //   // withdraw -1 amount
-  //   {
-  //     const withdrawAmount = -1
-  //     const withdrawAddress = await testing.generateAddress()
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: withdrawAddress,
-  //       amount: `${withdrawAmount.toFixed(8)}@DUSD`,
-  //       destination: 'TSLA'
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \': Amount out of range\', code: -3, method: withdrawfutureswap')
-  //   }
-  //
-  //   // withdraw 0.1 satoshi
-  //   {
-  //     const withdrawAmount = 0.000000001
-  //     const withdrawAddress = await testing.generateAddress()
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: withdrawAddress,
-  //       amount: `${withdrawAmount.toFixed(8)}@DUSD`,
-  //       destination: 'TSLA'
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \': Amount out of range\', code: -3, method: withdrawfutureswap')
-  //   }
-  //
-  //   // withdraw after setting ${idTSLA}/dfip2203 to false
-  //   {
-  //     const idTSLA = await testing.token.getTokenId('TSLA')
-  //     await testing.rpc.masternode.setGov({ [attributeKey]: { [`v0/token/${idTSLA}/dfip2203`]: 'false' } })
-  //
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: tslaAddress,
-  //       amount: `${swapAmount.toFixed(8)}@DUSD`,
-  //       destination: 'TSLA'
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \'DFIP2203Tx: DFIP2203 currently disabled for token 2 (code 16)\', code: -26, method: withdrawfutureswap')
-  //
-  //     await testing.rpc.masternode.setGov({ [attributeKey]: { [`v0/token/${idTSLA}/dfip2203`]: 'true' } })
-  //   }
-  //
-  //   // withdraw after setting the dfip2203/active to false
-  //   {
-  //     await testing.rpc.masternode.setGov({ [attributeKey]: { 'v0/params/dfip2203/active': 'false' } })
-  //
-  //     const withdrawFutureSwap: FutureSwap = {
-  //       address: tslaAddress,
-  //       amount: `${swapAmount.toFixed(8)}@DUSD`,
-  //       destination: 'TSLA'
-  //     }
-  //     const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-  //     await expect(result).rejects.toThrow(RpcApiError)
-  //     await expect(result).rejects.toThrow('RpcApiError: \'DFIP2203Tx: DFIP2203 not currently active (code 16)\', code: -26, method: withdrawfutureswap')
-  //
-  //     await testing.rpc.masternode.setGov({ [attributeKey]: { 'v0/params/dfip2203/active': 'true' } })
-  //   }
-  //
-  //   // verify that all happened before settle block
-  //   const currentBlock = await testing.rpc.blockchain.getBlockCount()
-  //   expect(currentBlock).toBeLessThan(nextSettleBlock)
-  // })
+    // move to next settle block
+    await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount())
+    nextSettleBlock = await testing.container.call('getfutureswapblock', [])
+
+    const fswap: FutureSwap = {
+      address: tslaAddress,
+      amount: `${swapAmount.toFixed(8)}@TSLA`
+    }
+    await testing.rpc.account.futureSwap(fswap)
+    await testing.generate(1)
+
+    // withdraw more than the future swap amount
+    {
+      const withdrawAmount = swapAmount + 0.00000001
+      const withdrawFutureSwap: FutureSwap = {
+        address: tslaAddress,
+        amount: `${withdrawAmount.toFixed(8)}@TSLA`
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\namount 1.00000000 is less than 1.00000001\', code: -32600, method: withdrawfutureswap')
+    }
+
+    // Withdraw fail - Destination should not be set when source amount is a dToken
+    {
+      const withdrawAmount = 0.5
+      const withdrawFutureSwap: FutureSwap = {
+        address: tslaAddress,
+        amount: `${withdrawAmount.toFixed(8)}@TSLA`,
+        destination: 'DUSD'
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nDestination should not be set when source amount is a dToken\', code: -32600, method: withdrawfutureswap')
+    }
+
+    // Withdraw fail - try to withdraw from unavailable futureswap
+    {
+      const withdrawAmount = 0.5
+      const withdrawFutureSwap: FutureSwap = {
+        address: tslaAddress,
+        amount: `${withdrawAmount.toFixed(8)}@DUSD`,
+        destination: 'TSLA'
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\namount 0.00000000 is less than 0.50000000\', code: -32600, method: withdrawfutureswap')
+    }
+
+    // Withdraw fail - Invalid Defi token: INVALID
+    {
+      const withdrawAmount = 0.5
+      const withdrawFutureSwap: FutureSwap = {
+        address: tslaAddress,
+        amount: `${withdrawAmount.toFixed(8)}@INVALID`
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \': Invalid Defi token: INVALID\', code: 0, method: withdrawfutureswap')
+    }
+
+    // withdraw with BTC which is not a loan token
+    {
+      const withdrawAddress = await testing.generateAddress()
+      const withdrawFutureSwap: FutureSwap = {
+        address: withdrawAddress,
+        amount: `${swapAmount.toFixed(8)}@BTC`
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nCould not get source loan token 1\', code: -32600, method: withdrawfutureswap')
+    }
+
+    // withdraw from arbitrary address
+    {
+      const withdrawAddress = 'bcrt1qcnfukr6c78wlz2tqpv8vxe0zu339c06pmm3l30'
+      const withdrawFutureSwap: FutureSwap = {
+        address: withdrawAddress,
+        amount: `${swapAmount.toFixed(8)}@TSLA`
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \'Incorrect authorization for bcrt1qcnfukr6c78wlz2tqpv8vxe0zu339c06pmm3l30\', code: -5, method: withdrawfutureswap')
+    }
+
+    // withdraw from arbitrary valid address
+    {
+      const withdrawAddress = await testing.generateAddress()
+      const withdrawFutureSwap: FutureSwap = {
+        address: withdrawAddress,
+        amount: `${swapAmount.toFixed(8)}@TSLA`
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\namount 0.00000000 is less than 1.00000000\', code: -32600, method: withdrawfutureswap')
+    }
+
+    // withdraw from arbitrary utxo
+    {
+      const utxoAddress = await testing.generateAddress()
+      const utxo = await testing.container.fundAddress(utxoAddress, 50)
+      const withdrawFutureSwap: FutureSwap = {
+        address: tslaAddress,
+        amount: `${swapAmount.toFixed(8)}@TSLA`
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap, [utxo])
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nTransaction must have at least one input from owner\', code: -32600, method: withdrawfutureswap')
+    }
+
+    // withdraw 0 amount
+    {
+      const withdrawAmount = 0
+      const withdrawAddress = await testing.generateAddress()
+      const withdrawFutureSwap: FutureSwap = {
+        address: withdrawAddress,
+        amount: `${withdrawAmount.toFixed(8)}@TSLA`
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \': Amount out of range\', code: -3, method: withdrawfutureswap')
+    }
+
+    // withdraw -1 amount
+    {
+      const withdrawAmount = -1
+      const withdrawAddress = await testing.generateAddress()
+      const withdrawFutureSwap: FutureSwap = {
+        address: withdrawAddress,
+        amount: `${withdrawAmount.toFixed(8)}@TSLA`
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \': Amount out of range\', code: -3, method: withdrawfutureswap')
+    }
+
+    // withdraw 0.1 satoshi
+    {
+      const withdrawAmount = 0.000000001
+      const withdrawAddress = await testing.generateAddress()
+      const withdrawFutureSwap: FutureSwap = {
+        address: withdrawAddress,
+        amount: `${withdrawAmount.toFixed(8)}@TSLA`
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \': Amount out of range\', code: -3, method: withdrawfutureswap')
+    }
+
+    // withdraw after setting ${idTSLA}/dfip2203 to false
+    {
+      const idTSLA = await testing.token.getTokenId('TSLA')
+      await testing.rpc.masternode.setGov({ [attributeKey]: { [`v0/token/${idTSLA}/dfip2203`]: 'false' } })
+      await testing.generate(1)
+
+      const withdrawFutureSwap: FutureSwap = {
+        address: tslaAddress,
+        amount: `${swapAmount.toFixed(8)}@TSLA`
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nDFIP2203 currently disabled for token 2\', code: -32600, method: withdrawfutureswap')
+
+      await testing.rpc.masternode.setGov({ [attributeKey]: { [`v0/token/${idTSLA}/dfip2203`]: 'true' } })
+      await testing.generate(1)
+    }
+
+    // withdraw after setting the dfip2203/active to false
+    {
+      await testing.rpc.masternode.setGov({ [attributeKey]: { 'v0/params/dfip2203/active': 'false' } })
+      await testing.generate(1)
+
+      const withdrawFutureSwap: FutureSwap = {
+        address: tslaAddress,
+        amount: `${swapAmount.toFixed(8)}@TSLA`
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nDFIP2203 not currently active\', code: -32600, method: withdrawfutureswap')
+
+      await testing.rpc.masternode.setGov({ [attributeKey]: { 'v0/params/dfip2203/active': 'true' } })
+      await testing.generate(1)
+    }
+
+    // verify that all happened before settle block
+    const currentBlock = await testing.rpc.blockchain.getBlockCount()
+    expect(currentBlock).toBeLessThan(nextSettleBlock)
+  })
+
+  it('should not withdrawFutureSwap invalid futureswap dusd to dtoken', async () => {
+    const swapAmount = 1
+    let nextSettleBlock = await testing.container.call('getfutureswapblock', [])
+    const tslaAddress = await testing.generateAddress()
+    await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount}@DUSD` })
+    await testing.generate(1)
+
+    // move to next settle block
+    await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount())
+    nextSettleBlock = await testing.container.call('getfutureswapblock', [])
+
+    const fswap: FutureSwap = {
+      address: tslaAddress,
+      amount: `${swapAmount.toFixed(8)}@DUSD`,
+      destination: 'TSLA'
+    }
+    await testing.rpc.account.futureSwap(fswap)
+    await testing.generate(1)
+
+    // withdraw more than the future swap amount
+    {
+      const withdrawAmount = swapAmount + 0.00000001
+      const withdrawFutureSwap: FutureSwap = {
+        address: tslaAddress,
+        amount: `${withdrawAmount.toFixed(8)}@DUSD`,
+        destination: 'TSLA'
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\namount 1.00000000 is less than 1.00000001\', code: -32600, method: withdrawfutureswap')
+    }
+
+    // Withdraw fail - without valid destination
+    {
+      const withdrawAmount = 0.5
+      const withdrawFutureSwap: FutureSwap = {
+        address: tslaAddress,
+        amount: `${withdrawAmount.toFixed(8)}@DUSD`
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nCould not get destination loan token 0. Set valid destination.\', code: -32600, method: withdrawfutureswap')
+    }
+
+    // withdraw fail - with invalid destination
+    {
+      const withdrawAmount = 0.5
+      const withdrawFutureSwap: FutureSwap = {
+        address: tslaAddress,
+        amount: `${withdrawAmount.toFixed(8)}@DUSD`,
+        destination: 'INVALID'
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \'Destination token not found\', code: -5, method: withdrawfutureswap')
+    }
+
+    // Withdraw fail - try to withdraw from unavailable futureswap
+    {
+      const withdrawAmount = 0.5
+      const withdrawFutureSwap: FutureSwap = {
+        address: tslaAddress,
+        amount: `${withdrawAmount.toFixed(8)}@TSLA`
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\namount 0.00000000 is less than 0.50000000\', code: -32600, method: withdrawfutureswap')
+    }
+
+    // Withdraw fail - Invalid Defi token: INVALID
+    {
+      const withdrawAmount = 0.5
+      const withdrawFutureSwap: FutureSwap = {
+        address: tslaAddress,
+        amount: `${withdrawAmount.toFixed(8)}@INVALID`,
+        destination: 'TSLA'
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \': Invalid Defi token: INVALID\', code: 0, method: withdrawfutureswap')
+    }
+
+    // withdraw with BTC which is not a loan token
+    {
+      const withdrawAddress = await testing.generateAddress()
+      const withdrawFutureSwap: FutureSwap = {
+        address: withdrawAddress,
+        amount: `${swapAmount.toFixed(8)}@DUSD`,
+        destination: 'BTC'
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nCould not get destination loan token 1. Set valid destination.\', code: -32600, method: withdrawfutureswap')
+    }
+
+    // withdraw from arbitrary address
+    {
+      const withdrawAddress = 'bcrt1qcnfukr6c78wlz2tqpv8vxe0zu339c06pmm3l30'
+      const withdrawFutureSwap: FutureSwap = {
+        address: withdrawAddress,
+        amount: `${swapAmount.toFixed(8)}@DUSD`,
+        destination: 'TSLA'
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \'Incorrect authorization for bcrt1qcnfukr6c78wlz2tqpv8vxe0zu339c06pmm3l30\', code: -5, method: withdrawfutureswap')
+    }
+
+    // withdraw from arbitrary valid address
+    {
+      const withdrawAddress = await testing.generateAddress()
+      const withdrawFutureSwap: FutureSwap = {
+        address: withdrawAddress,
+        amount: `${swapAmount.toFixed(8)}@DUSD`,
+        destination: 'TSLA'
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\namount 0.00000000 is less than 1.00000000\', code: -32600, method: withdrawfutureswap')
+    }
+
+    // withdraw from arbitrary utxo
+    {
+      const utxoAddress = await testing.generateAddress()
+      const utxo = await testing.container.fundAddress(utxoAddress, 50)
+      const withdrawFutureSwap: FutureSwap = {
+        address: tslaAddress,
+        amount: `${swapAmount.toFixed(8)}@DUSD`,
+        destination: 'TSLA'
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap, [utxo])
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nTransaction must have at least one input from owner\', code: -32600, method: withdrawfutureswap')
+    }
+
+    // withdraw 0 amount
+    {
+      const withdrawAmount = 0
+      const withdrawAddress = await testing.generateAddress()
+      const withdrawFutureSwap: FutureSwap = {
+        address: withdrawAddress,
+        amount: `${withdrawAmount.toFixed(8)}@DUSD`,
+        destination: 'TSLA'
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \': Amount out of range\', code: -3, method: withdrawfutureswap')
+    }
+
+    // withdraw -1 amount
+    {
+      const withdrawAmount = -1
+      const withdrawAddress = await testing.generateAddress()
+      const withdrawFutureSwap: FutureSwap = {
+        address: withdrawAddress,
+        amount: `${withdrawAmount.toFixed(8)}@DUSD`,
+        destination: 'TSLA'
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \': Amount out of range\', code: -3, method: withdrawfutureswap')
+    }
+
+    // withdraw 0.1 satoshi
+    {
+      const withdrawAmount = 0.000000001
+      const withdrawAddress = await testing.generateAddress()
+      const withdrawFutureSwap: FutureSwap = {
+        address: withdrawAddress,
+        amount: `${withdrawAmount.toFixed(8)}@DUSD`,
+        destination: 'TSLA'
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \': Amount out of range\', code: -3, method: withdrawfutureswap')
+    }
+
+    // withdraw after setting ${idTSLA}/dfip2203 to false
+    {
+      const idTSLA = await testing.token.getTokenId('TSLA')
+      await testing.rpc.masternode.setGov({ [attributeKey]: { [`v0/token/${idTSLA}/dfip2203`]: 'false' } })
+      await testing.generate(1)
+
+      const withdrawFutureSwap: FutureSwap = {
+        address: tslaAddress,
+        amount: `${swapAmount.toFixed(8)}@DUSD`,
+        destination: 'TSLA'
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nDFIP2203 currently disabled for token 2\', code: -32600, method: withdrawfutureswap')
+
+      await testing.rpc.masternode.setGov({ [attributeKey]: { [`v0/token/${idTSLA}/dfip2203`]: 'true' } })
+      await testing.generate(1)
+    }
+
+    // withdraw after setting the dfip2203/active to false
+    {
+      await testing.rpc.masternode.setGov({ [attributeKey]: { 'v0/params/dfip2203/active': 'false' } })
+      await testing.generate(1)
+
+      const withdrawFutureSwap: FutureSwap = {
+        address: tslaAddress,
+        amount: `${swapAmount.toFixed(8)}@DUSD`,
+        destination: 'TSLA'
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nDFIP2203 not currently active\', code: -32600, method: withdrawfutureswap')
+
+      await testing.rpc.masternode.setGov({ [attributeKey]: { 'v0/params/dfip2203/active': 'true' } })
+      await testing.generate(1)
+    }
+
+    // verify that all happened before settle block
+    const currentBlock = await testing.rpc.blockchain.getBlockCount()
+    expect(currentBlock).toBeLessThan(nextSettleBlock)
+  })
 
   it('should not withdrawFutureSwap futureswap - after the settle block', async () => {
     const swapAmount = 1
