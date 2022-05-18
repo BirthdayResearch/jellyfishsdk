@@ -389,6 +389,42 @@ describe('Masternode at or after greatworldheight', () => {
     }
   })
 
+  it('should updateMasternode with rewardAddress if rewardAddress is set to empty string', async () => {
+    {
+      const masternodeId = await testing.container.call('createmasternode', [await testing.generateAddress()])
+      await testing.generate(1)
+
+      await waitUntilMasternodeEnabled(masternodeId)
+
+      {
+        const data: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId])
+        expect(Object.values(data)[0].rewardAddress).toStrictEqual('')
+      }
+
+      const rewardAddress = await testing.generateAddress()
+
+      await testing.rpc.masternode.updateMasternode(masternodeId, {
+        rewardAddress
+      })
+      await testing.generate(1)
+
+      {
+        const data: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId])
+        expect(Object.values(data)[0].rewardAddress).toStrictEqual(rewardAddress)
+      }
+
+      await testing.rpc.masternode.updateMasternode(masternodeId, {
+        rewardAddress: ''
+      })
+      await testing.generate(1)
+
+      {
+        const data: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId])
+        expect(Object.values(data)[0].rewardAddress).toStrictEqual('')
+      }
+    }
+  })
+
   it('should updateMasternode with ownerAddress, operatorAddress or rewardAddress with utxos', async () => {
     const ownerAddress1 = await testing.generateAddress()
     const ownerAddress2 = await testing.generateAddress()
@@ -452,15 +488,6 @@ describe('Masternode at or after greatworldheight', () => {
     {
       const promise = testing.rpc.masternode.updateMasternode('0'.repeat(64), {
         operatorAddress: await testing.generateAddress()
-      })
-
-      await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(`The masternode ${'0'.repeat(64)} does not exist`)
-    }
-
-    {
-      const promise = testing.rpc.masternode.updateMasternode('0'.repeat(64), {
-        rewardAddress: await testing.generateAddress()
       })
 
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -651,6 +678,31 @@ describe('Masternode at or after greatworldheight', () => {
 
       await expect(promise).rejects.toThrow(RpcApiError)
       await expect(promise).rejects.toThrow('UpdateMasternodeTx: Masternode with that operator address already exists')
+    }
+  })
+
+  it('should not updateMasternode with ownerAddress or operatorAddress if ownerAddress or operatorAddress is set to empty string', async () => {
+    {
+      const masternodeId1 = await testing.container.call('createmasternode', [await testing.generateAddress()])
+      await testing.generate(1)
+
+      const masternodeId2 = await testing.container.call('createmasternode', [await testing.generateAddress()])
+      await testing.generate(1)
+
+      await waitUntilMasternodeEnabled(masternodeId1)
+      await waitUntilMasternodeEnabled(masternodeId2)
+
+      const promise1 = testing.rpc.masternode.updateMasternode(masternodeId1, {
+        ownerAddress: ''
+      })
+      await expect(promise1).rejects.toThrow(RpcApiError)
+      await expect(promise1).rejects.toThrow('ownerAddress () does not refer to a P2PKH or P2WPKH address\', code: -8, method: updatemasternode')
+
+      const promise2 = testing.rpc.masternode.updateMasternode(masternodeId1, {
+        operatorAddress: ''
+      })
+      await expect(promise2).rejects.toThrow(RpcApiError)
+      await expect(promise2).rejects.toThrow('operatorAddress () does not refer to a P2PKH or P2WPKH address\', code: -8, method: updatemasternode')
     }
   })
 
