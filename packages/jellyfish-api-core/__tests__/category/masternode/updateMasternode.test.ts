@@ -74,17 +74,11 @@ describe('Masternode', () => {
     const data = await alice.rpc.masternode.getMasternode(tx1)
 
     {
-      const x = await alice.rpc.masternode.updateMasternode(Object.keys(data)[0], { ownerAddress: ownerAddress3 })
-      console.log(x)
+      await alice.rpc.masternode.updateMasternode(Object.keys(data)[0], { rewardAddress: '' })
+      await alice.generate(1)
     }
 
-    {
-      const promise = alice.rpc.masternode.updateMasternode(Object.keys(data)[0], {})
-      await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateMasternodeTx execution failed:\nNo update arguments provided\', code: -32600, method: updatemasternode')
-    }
-
-    // const operatorAddress = await  alice.generateAddress()
-    // const x = await alice.rpc.masternode.updateMasternode(Object.keys(data)[0], { operatorAddress: operatorAddress })
+    const x: any = await alice.container.call('getmasternode', [Object.keys(data)[0]])
+    console.log(x)
   })
 })
