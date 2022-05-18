@@ -110,8 +110,7 @@ describe('Poolpair', () => {
     expect(swapped).toStrictEqual(amountB.minus(dexOutFee).toString())
 
     const burn = await testing.container.call('getburninfo')
-    // TODO(canonbrother): in latest master-8cf78575a, move dex fee from burn.tokens to burn.dexfeetokens
-    expect(burn.tokens).toStrictEqual([`${dexOutFee}@DFI`, `${dexInFee}@CAT`])
+    expect(burn.dexfeetokens).toStrictEqual([`${dexOutFee}@DFI`, `${dexInFee}@CAT`])
   }
 
   it('should listPoolPairs', async () => {
