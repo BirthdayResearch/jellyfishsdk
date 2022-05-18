@@ -11,6 +11,7 @@ import { BlockchainInfo } from '@defichain/jellyfish-api-core/dist/category/bloc
 import { getBlockSubsidy } from '@src/module.api/subsidy'
 import { BlockSubsidy } from '@defichain/jellyfish-network'
 import { BurnInfo } from '@defichain/jellyfish-api-core/dist/category/account'
+import { GetLoanInfoResult } from '@defichain/jellyfish-api-core/dist/category/loan'
 
 @Controller('/stats')
 export class StatsController {
@@ -29,7 +30,7 @@ export class StatsController {
   async get (): Promise<StatsData> {
     const block = requireValue(await this.blockMapper.getHighest(), 'block')
     const burned = await this.cachedGet('burned', this.getBurned.bind(this), 1806)
-    const burnedTotal = await this.cachedGet('Controller.supply.getBurnedTotal', this.getBurnedTotal.bind(this), 1806)
+    const burnedTotal = await this.getCachedBurnTotal()
     return {
       count: {
         ...await this.cachedGet('count', this.getCount.bind(this), 1801),
@@ -42,7 +43,7 @@ export class StatsController {
       tvl: await this.cachedGet('tvl', this.getTVL.bind(this), 310),
       price: await this.cachedGet('price', this.getPrice.bind(this), 220),
       masternodes: await this.cachedGet('masternodes', this.getMasternodes.bind(this), 325),
-      loan: await this.cachedGet('loan', this.getLoan.bind(this), 299),
+      loan: await this.getLoan(),
       emission: await this.cachedGet('emission', this.getEmission.bind(this), 1750),
       net: await this.cachedGet('net', this.getNet.bind(this), 1830),
       blockchain: {
@@ -57,22 +58,32 @@ export class StatsController {
 
     const max = 1200000000
     const total = this.blockSubsidy.getSupply(height).div(100000000)
-    const burned = await this.cachedGet('Controller.supply.getBurnedTotal', this.getBurnedTotal.bind(this), 1806)
-    const circulating = total.minus(burned)
+    const burnedTotal = await this.getCachedBurnTotal()
+    const circulating = total.minus(burnedTotal)
 
     return {
       max: max,
       total: total.gt(max) ? max : total.toNumber(), // as emission burn is taken into the 1.2b calculation post eunos
-      burned: burned.toNumber(),
+      burned: burnedTotal.toNumber(),
       circulating: circulating.toNumber()
     }
   }
 
   @Get('/burn')
-  async getBurn (): Promise<BurnInfo> {
-    return await this.cachedGet('Controller.burn.getBurnInfo', async () => {
+  async getBurnInfo (): Promise<BurnInfo> {
+    return await this.cachedGet('Controller.stats.getBurnInfo', async () => {
       return await this.rpcClient.account.getBurnInfo()
-    }, 123)
+    }, 666)
+  }
+
+  private async getLoanInfo (): Promise<GetLoanInfoResult> {
+    return await this.cachedGet('Controller.stats.getLoanInfo', async () => {
+      return await this.rpcClient.loan.getLoanInfo()
+    }, 299)
+  }
+
+  private async getCachedBurnTotal (): Promise<BigNumber> {
+    return await this.cachedGet('Controller.supply.getBurnedTotal', this.getBurnedTotal.bind(this), 1899)
   }
 
   private async cachedGet<T> (field: string, fetch: () => Promise<T>, ttl: number): Promise<T> {
@@ -128,7 +139,7 @@ export class StatsController {
   }
 
   private async getBurned (): Promise<StatsData['burned']> {
-    const burnInfo = await this.rpcClient.account.getBurnInfo()
+    const burnInfo = await this.getBurnInfo()
 
     const utxo = burnInfo.amount
     const account = findTokenBalance(burnInfo.tokens, 'DFI')
@@ -156,7 +167,7 @@ export class StatsController {
   private async getBurnedTotal (): Promise<BigNumber> {
     const address = '76a914f7874e8821097615ec345f74c7e5bcf61b12e2ee88ac'
     const tokens = await this.rpcClient.account.getAccount(address)
-    const burnInfo = await this.rpcClient.account.getBurnInfo()
+    const burnInfo = await this.getBurnInfo()
 
     const utxo = burnInfo.amount
     const account = findTokenBalance(tokens, 'DFI')
@@ -200,7 +211,7 @@ export class StatsController {
   }
 
   private async getLoan (): Promise<StatsData['loan']> {
-    const info = await this.rpcClient.loan.getLoanInfo()
+    const info = await this.getLoanInfo()
 
     return {
       count: {
