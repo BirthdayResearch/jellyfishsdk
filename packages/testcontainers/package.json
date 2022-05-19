@@ -23,7 +23,7 @@
     "defichain": "^0.0.0"
   },
   "devDependencies": {
-    "@types/dockerode": "^3.3.5",
+    "@types/dockerode": "^3.3.9",
     "@types/uuid": "^8.3.4"
   }
 }
