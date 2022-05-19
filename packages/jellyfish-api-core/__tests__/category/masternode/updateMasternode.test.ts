@@ -572,7 +572,6 @@ describe('Masternode at or after greatworldheight', () => {
   it('should not updateMasternode with ownerAddress or operatorAddress if ownerAddress or operatorAddress already exists', async () => {
     const ownerAddress = await testing.generateAddress()
     const operatorAddress = await testing.generateAddress()
-    const rewardAddress = await testing.generateAddress()
 
     const masternodeId = await testing.container.call('createmasternode', [ownerAddress])
     await testing.generate(1)
@@ -597,58 +596,46 @@ describe('Masternode at or after greatworldheight', () => {
 
     await expect(promise2).rejects.toThrow(RpcApiError)
     await expect(promise2).rejects.toThrow('Test UpdateMasternodeTx execution failed:\nMasternode with that operator address already exists')
-
-    await testing.rpc.masternode.updateMasternode(masternodeId, {
-      rewardAddress
-    })
-    await testing.generate(1)
   })
 
   it('should not updateMasternode with ownerAddress, operatorAddress or rewardAddress if ownerAddress, operatorAddress or rewardAddress do not refer to a P2PKH or P2WPKH address', async () => {
-    {
-      const masternodeId = await testing.container.call('createmasternode', [await testing.generateAddress()])
-      await testing.generate(1)
+    const ownerAddress = await testing.container.getNewAddress('', 'p2sh-segwit')
+    const operatorAddress = await testing.container.getNewAddress('', 'p2sh-segwit')
+    const rewardAddress = await testing.container.getNewAddress('', 'p2sh-segwit')
 
-      await waitUntilMasternodeEnabled(masternodeId)
+    const masternodeId1 = await testing.container.call('createmasternode', [await testing.generateAddress()])
+    await testing.generate(1)
 
-      const ownerAddress = await testing.container.getNewAddress('', 'p2sh-segwit')
-      const promise = testing.rpc.masternode.updateMasternode(masternodeId, {
-        ownerAddress
-      })
+    const masternodeId2 = await testing.container.call('createmasternode', [await testing.generateAddress()])
+    await testing.generate(1)
 
-      await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(`ownerAddress (${ownerAddress}) does not refer to a P2PKH or P2WPKH address`)
-    }
+    const masternodeId3 = await testing.container.call('createmasternode', [await testing.generateAddress()])
+    await testing.generate(1)
 
-    {
-      const masternodeId = await testing.container.call('createmasternode', [await testing.generateAddress()])
-      await testing.generate(1)
+    await waitUntilMasternodeEnabled(masternodeId1)
+    await waitUntilMasternodeEnabled(masternodeId2)
+    await waitUntilMasternodeEnabled(masternodeId3)
 
-      await waitUntilMasternodeEnabled(masternodeId)
+    const promise1 = testing.rpc.masternode.updateMasternode(masternodeId1, {
+      ownerAddress
+    })
 
-      const operatorAddress = await testing.container.getNewAddress('', 'p2sh-segwit')
-      const promise = testing.rpc.masternode.updateMasternode(masternodeId, {
-        operatorAddress
-      })
+    await expect(promise1).rejects.toThrow(RpcApiError)
+    await expect(promise1).rejects.toThrow(`ownerAddress (${ownerAddress}) does not refer to a P2PKH or P2WPKH address`)
 
-      await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(`operatorAddress (${operatorAddress}) does not refer to a P2PKH or P2WPKH address`)
-    }
+    const promise2 = testing.rpc.masternode.updateMasternode(masternodeId2, {
+      operatorAddress
+    })
 
-    {
-      const masternodeId = await testing.container.call('createmasternode', [await testing.generateAddress()])
-      await testing.generate(1)
+    await expect(promise2).rejects.toThrow(RpcApiError)
+    await expect(promise2).rejects.toThrow(`operatorAddress (${operatorAddress}) does not refer to a P2PKH or P2WPKH address`)
 
-      await waitUntilMasternodeEnabled(masternodeId)
+    const promise3 = testing.rpc.masternode.updateMasternode(masternodeId3, {
+      rewardAddress
+    })
 
-      const rewardAddress = await testing.container.getNewAddress('', 'p2sh-segwit')
-      const promise = testing.rpc.masternode.updateMasternode(masternodeId, {
-        rewardAddress
-      })
-
-      await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(`rewardAddress (${rewardAddress}) does not refer to a P2PKH or P2WPKH address`)
-    }
+    await expect(promise3).rejects.toThrow(RpcApiError)
+    await expect(promise3).rejects.toThrow(`rewardAddress (${rewardAddress}) does not refer to a P2PKH or P2WPKH address`)
   })
 
   it('should not updateMasternode with ownerAddress if ownerAddress does not belong to the owner', async () => {
@@ -659,14 +646,12 @@ describe('Masternode at or after greatworldheight', () => {
 
     await waitUntilMasternodeEnabled(masternodeId)
 
-    {
-      const promise = testing.rpc.masternode.updateMasternode(masternodeId, {
-        ownerAddress: 'bcrt1qcnfukr6c78wlz2tqpv8vxe0zu339c06pmm3l30'
-      })
+    const promise = testing.rpc.masternode.updateMasternode(masternodeId, {
+      ownerAddress: 'bcrt1qcnfukr6c78wlz2tqpv8vxe0zu339c06pmm3l30'
+    })
 
-      await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('Incorrect authorization for bcrt1qcnfukr6c78wlz2tqpv8vxe0zu339c06pmm3l30')
-    }
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('Incorrect authorization for bcrt1qcnfukr6c78wlz2tqpv8vxe0zu339c06pmm3l30')
   })
 
   it('should not updateMasternode with ownerAddress or operatorAddress if ownerAddress or operatorAddress is pending to be updated in another masternode', async () => {
@@ -718,36 +703,36 @@ describe('Masternode at or after greatworldheight', () => {
   })
 
   it('should not updateMasternode with ownerAddress or operatorAddress if ownerAddress or operatorAddress is set to empty string', async () => {
-    {
-      const masternodeId1 = await testing.container.call('createmasternode', [await testing.generateAddress()])
-      await testing.generate(1)
+    const masternodeId1 = await testing.container.call('createmasternode', [await testing.generateAddress()])
+    await testing.generate(1)
 
-      const masternodeId2 = await testing.container.call('createmasternode', [await testing.generateAddress()])
-      await testing.generate(1)
+    const masternodeId2 = await testing.container.call('createmasternode', [await testing.generateAddress()])
+    await testing.generate(1)
 
-      await waitUntilMasternodeEnabled(masternodeId1)
-      await waitUntilMasternodeEnabled(masternodeId2)
+    await waitUntilMasternodeEnabled(masternodeId1)
+    await waitUntilMasternodeEnabled(masternodeId2)
 
-      const promise1 = testing.rpc.masternode.updateMasternode(masternodeId1, {
-        ownerAddress: ''
-      })
-      await expect(promise1).rejects.toThrow(RpcApiError)
-      await expect(promise1).rejects.toThrow('ownerAddress () does not refer to a P2PKH or P2WPKH address\', code: -8, method: updatemasternode')
+    const promise1 = testing.rpc.masternode.updateMasternode(masternodeId1, {
+      ownerAddress: ''
+    })
+    await expect(promise1).rejects.toThrow(RpcApiError)
+    await expect(promise1).rejects.toThrow('ownerAddress () does not refer to a P2PKH or P2WPKH address\', code: -8, method: updatemasternode')
 
-      const promise2 = testing.rpc.masternode.updateMasternode(masternodeId1, {
-        operatorAddress: ''
-      })
-      await expect(promise2).rejects.toThrow(RpcApiError)
-      await expect(promise2).rejects.toThrow('operatorAddress () does not refer to a P2PKH or P2WPKH address\', code: -8, method: updatemasternode')
-    }
+    const promise2 = testing.rpc.masternode.updateMasternode(masternodeId1, {
+      operatorAddress: ''
+    })
+    await expect(promise2).rejects.toThrow(RpcApiError)
+    await expect(promise2).rejects.toThrow('operatorAddress () does not refer to a P2PKH or P2WPKH address\', code: -8, method: updatemasternode')
   })
 
   it('should not updateMasternode with operatorAddress or rewardAddress for arbitrary utxos', async () => {
     const ownerAddress1 = await testing.generateAddress()
     const ownerAddress2 = await testing.generateAddress()
+    const operatorAddress = await testing.generateAddress()
 
     const masternodeId1 = await testing.container.call('createmasternode', [ownerAddress1])
     await testing.generate(1)
+    const rewardAddress = await testing.generateAddress()
 
     const masternodeId2 = await testing.container.call('createmasternode', [ownerAddress2])
     await testing.generate(1)
@@ -755,14 +740,14 @@ describe('Masternode at or after greatworldheight', () => {
     await waitUntilMasternodeEnabled(masternodeId1)
     await waitUntilMasternodeEnabled(masternodeId2)
 
-    const operatorAddress = await testing.generateAddress()
     const utxo1 = await testing.container.fundAddress(operatorAddress, 10)
+
     const promise1 = testing.rpc.masternode.updateMasternode(masternodeId2, { operatorAddress }, [utxo1])
     await expect(promise1).rejects.toThrow(RpcApiError)
     await expect(promise1).rejects.toThrow('Test UpdateMasternodeTx execution failed:\ntx must have at least one input from the owner')
 
-    const rewardAddress = await testing.generateAddress()
     const utxo2 = await testing.container.fundAddress(rewardAddress, 10)
+
     const promise2 = testing.rpc.masternode.updateMasternode(masternodeId2, { rewardAddress }, [utxo2])
     await expect(promise2).rejects.toThrow(RpcApiError)
     await expect(promise2).rejects.toThrow('Test UpdateMasternodeTx execution failed:\ntx must have at least one input from the owner')
