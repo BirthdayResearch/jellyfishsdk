@@ -401,7 +401,7 @@ describe('Loan - getLoanInfo', () => {
         }
       })
       // loan value will include some interest
-      expect(data.totals.loanValue.gt(10)).toStrictEqual(true) // 2 * 5
+      expect(data.totals.loanValue.eq(10)).toStrictEqual(true) // 2 * 5
       expect(data.totals.loanValue.lt(10.0001)).toStrictEqual(true)
     }
 
