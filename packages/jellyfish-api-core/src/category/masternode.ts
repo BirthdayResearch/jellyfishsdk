@@ -154,6 +154,7 @@ export class Masternode {
    * @return {Promise<string>} hash
    *
    */
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   async setGov (input: Record<string, any>, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('setgov', [input, utxos], 'number')
   }
@@ -169,6 +170,7 @@ export class Masternode {
    * @return {Promise<string>} hash
    *
    */
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   async setGovHeight (input: Record<string, any>, activationHeight: number, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('setgovheight', [input, activationHeight, utxos], 'number')
   }
@@ -179,6 +181,7 @@ export class Masternode {
    * @param {string} name governance name
    * @return {Promise<Record<string, any>} governance information as json object
    */
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   async getGov (name: string): Promise<Record<string, any>> {
     return await this.client.call('getgov', [name], 'bignumber')
   }
@@ -194,6 +197,7 @@ export class Masternode {
    *
    * @returns {Promise<Array<Array<Record<string, any>>>>}
    */
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   async listGovs (): Promise<Array<Array<Record<string, any>>>> {
     return await this.client.call('listgovs', [], 'bignumber')
   }

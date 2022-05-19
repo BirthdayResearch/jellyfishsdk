@@ -1,4 +1,4 @@
-export * from '@defichain/ocean-api-client'
+export * from './errors'
 
 export * as rpc from './api/Rpc'
 export * as address from './api/Address'
@@ -15,4 +15,5 @@ export * as fee from './api/Fee'
 export * as loan from './api/Loan'
 
 export * from './WhaleApiClient'
+export * from './WhaleApiResponse'
 export * from './WhaleRpcClient'

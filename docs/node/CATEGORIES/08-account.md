@@ -31,7 +31,7 @@ interface account {
 }
 
 interface AccountPagination {
-  start?: number
+  start?: number | string
   including_start?: boolean
   limit?: number
 }
@@ -98,7 +98,7 @@ interface AccountAmount {
 }
 
 interface AccountPagination {
-  start?: string | number
+  start?: number | string
   including_start?: boolean
   limit?: number
 }

@@ -1,5 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
+import { UTXO } from '@defichain/jellyfish-api-core/dist/category/poolpair'
 
 describe('Poolpair', () => {
   const container = new MasterNodeRegTestContainer()
@@ -33,7 +34,7 @@ describe('Poolpair', () => {
     await container.generate(1)
   }
 
-  async function createPoolPair (tokenB: string, metadata?: any): Promise<void> {
+  async function createPoolPair (tokenB: string): Promise<void> {
     const address = await container.call('getnewaddress')
     const defaultMetadata = {
       tokenA: 'DFI',
@@ -42,7 +43,7 @@ describe('Poolpair', () => {
       status: true,
       ownerAddress: address
     }
-    await client.poolpair.createPoolPair({ ...defaultMetadata, ...metadata })
+    await client.poolpair.createPoolPair({ ...defaultMetadata })
     await container.generate(1)
   }
 
@@ -99,7 +100,7 @@ describe('Poolpair', () => {
     await container.generate(1)
 
     const utxos = await container.call('listunspent')
-    const inputs = utxos.filter((utxo: any) => utxo.txid === txid).map((utxo: any) => {
+    const inputs = utxos.filter((utxo: UTXO) => utxo.txid === txid).map((utxo: UTXO) => {
       return {
         txid: utxo.txid,
         vout: utxo.vout
@@ -126,7 +127,7 @@ describe('Poolpair', () => {
     const tokenBAddress = await container.call('getnewaddress')
 
     const utxos = await container.call('listunspent')
-    const inputs = utxos.map((utxo: any) => {
+    const inputs = utxos.map((utxo: UTXO) => {
       return {
         txid: utxo.txid,
         vout: utxo.vout

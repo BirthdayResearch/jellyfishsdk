@@ -80,6 +80,7 @@ export abstract class ApiClient {
    * @throws RpcApiError
    * @throws ClientApiError
    */
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   abstract call<T> (method: string, params: any[], precision: Precision | PrecisionPath): Promise<T>
 }
 
