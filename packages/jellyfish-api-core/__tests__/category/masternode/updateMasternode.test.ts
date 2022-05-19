@@ -699,7 +699,7 @@ describe('Masternode at or after greatworldheight', () => {
       })
 
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('UpdateMasternodeTx: Masternode exist with that owner address pending already')
+      await expect(promise).rejects.toThrow('Test UpdateMasternodeTx execution failed:\nMasternode exist with that owner address pending already')
     }
 
     {
@@ -743,7 +743,7 @@ describe('Masternode at or after greatworldheight', () => {
     await expect(promise1).rejects.toThrow(RpcApiError)
     await expect(promise1).rejects.toThrow('ownerAddress () does not refer to a P2PKH or P2WPKH address\', code: -8, method: updatemasternode')
 
-    const promise2 = testing.rpc.masternode.updateMasternode(masternodeId1, {
+    const promise2 = testing.rpc.masternode.updateMasternode(masternodeId2, {
       operatorAddress: ''
     })
     await expect(promise2).rejects.toThrow(RpcApiError)
