@@ -512,6 +512,21 @@ describe('Masternode at or after greatworldheight', () => {
     expect(rawtx3.vin[0].vout).toStrictEqual(utxo3.vout)
   })
 
+  it('should updateMasternode with ownerAddress for arbitrary utxos', async () => {
+    const ownerAddress = await testing.generateAddress()
+
+    const masternodeId = await testing.container.call('createmasternode', [await testing.generateAddress()])
+    await testing.generate(1)
+
+    await waitUntilMasternodeEnabled(masternodeId)
+
+    const utxo = await testing.container.fundAddress(ownerAddress, 10)
+
+    const txId = await testing.rpc.masternode.updateMasternode(masternodeId, { ownerAddress }, [utxo])
+    expect(typeof txId).toStrictEqual('string')
+    expect(txId.length).toStrictEqual(64)
+  })
+
   it('should not updateMasternode with ownerAddress, operatorAddress or rewardAddress if masternode id does not exists', async () => {
     {
       const promise = testing.rpc.masternode.updateMasternode('0'.repeat(64), {
@@ -726,15 +741,13 @@ describe('Masternode at or after greatworldheight', () => {
   })
 
   it('should not updateMasternode with operatorAddress or rewardAddress for arbitrary utxos', async () => {
-    const ownerAddress1 = await testing.generateAddress()
-    const ownerAddress2 = await testing.generateAddress()
     const operatorAddress = await testing.generateAddress()
-
-    const masternodeId1 = await testing.container.call('createmasternode', [ownerAddress1])
-    await testing.generate(1)
     const rewardAddress = await testing.generateAddress()
 
-    const masternodeId2 = await testing.container.call('createmasternode', [ownerAddress2])
+    const masternodeId1 = await testing.container.call('createmasternode', [await testing.generateAddress()])
+    await testing.generate(1)
+
+    const masternodeId2 = await testing.container.call('createmasternode', [await testing.generateAddress()])
     await testing.generate(1)
 
     await waitUntilMasternodeEnabled(masternodeId1)
@@ -742,7 +755,7 @@ describe('Masternode at or after greatworldheight', () => {
 
     const utxo1 = await testing.container.fundAddress(operatorAddress, 10)
 
-    const promise1 = testing.rpc.masternode.updateMasternode(masternodeId2, { operatorAddress }, [utxo1])
+    const promise1 = testing.rpc.masternode.updateMasternode(masternodeId1, { operatorAddress }, [utxo1])
     await expect(promise1).rejects.toThrow(RpcApiError)
     await expect(promise1).rejects.toThrow('Test UpdateMasternodeTx execution failed:\ntx must have at least one input from the owner')
 
@@ -768,12 +781,12 @@ describe('Masternode before greatworldheight', () => {
   })
 
   it('should not updateMasternode', async () => {
-    const txId = await testing.container.call('createmasternode', [await testing.generateAddress()])
-    await testing.generate(1)
-
     const ownerAddress = await testing.generateAddress()
     const operatorAddress = await testing.generateAddress()
     const rewardAddress = await testing.generateAddress()
+
+    const txId = await testing.container.call('createmasternode', [await testing.generateAddress()])
+    await testing.generate(1)
 
     // Block count = 102
     const blockCount = await testing.rpc.blockchain.getBlockCount()
