@@ -614,9 +614,9 @@ describe('Masternode at or after greatworldheight', () => {
   })
 
   it('should not updateMasternode with ownerAddress, operatorAddress or rewardAddress if ownerAddress, operatorAddress or rewardAddress do not refer to a P2PKH or P2WPKH address', async () => {
-    const ownerAddress = await testing.container.getNewAddress('', 'p2sh-segwit')
-    const operatorAddress = await testing.container.getNewAddress('', 'p2sh-segwit')
-    const rewardAddress = await testing.container.getNewAddress('', 'p2sh-segwit')
+    const ownerAddress = await testing.container.getNewAddress('p2sh-segwit')
+    const operatorAddress = await testing.container.getNewAddress('p2sh-segwit')
+    const rewardAddress = await testing.container.getNewAddress('p2sh-segwit')
 
     const masternodeId1 = await testing.container.call('createmasternode', [await testing.generateAddress()])
     await testing.generate(1)
