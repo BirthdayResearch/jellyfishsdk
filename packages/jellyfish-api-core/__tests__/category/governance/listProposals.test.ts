@@ -1,15 +1,19 @@
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { ListProposalsStatus, ListProposalsType, ProposalStatus, ProposalType } from '../../../src/category/governance'
-import { GovernanceMasterNodeRegTestContainer } from './governance_container'
 import BigNumber from 'bignumber.js'
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
 describe('Governance', () => {
-  const container = new GovernanceMasterNodeRegTestContainer()
+  const container = new MasterNodeRegTestContainer(RegTestFoundationKeys[RegTestFoundationKeys.length - 1])
   const client = new ContainerAdapterClient(container)
 
   beforeAll(async () => {
     await container.start()
     await container.waitForWalletCoinbaseMaturity()
+
+    await client.wallet.sendToAddress(RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.address, 10)
+    await container.generate(1)
 
     await setup()
   })
@@ -76,18 +80,17 @@ describe('Governance', () => {
     })
 
     expect(proposals.length).toStrictEqual(1)
-    expect(proposals[0].type).toStrictEqual(ProposalType.COMMUNITY_FUND_REQUEST)
+    expect(proposals[0].type).toStrictEqual(ProposalType.COMMUNITY_FUND_PROPOSAL)
     expect(proposals[0].status).toStrictEqual(ProposalStatus.REJECTED)
   })
 })
 
 describe('Governance without proposals', () => {
-  const container = new GovernanceMasterNodeRegTestContainer()
+  const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
   beforeAll(async () => {
     await container.start()
-    await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
   })
 

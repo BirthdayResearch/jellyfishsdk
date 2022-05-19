@@ -1,25 +1,25 @@
-import { GenesisKeys, StartOptions } from '@defichain/testcontainers'
+import { MasterNodeRegTestContainer, StartOptions } from '@defichain/testcontainers'
 import { MasternodeType, VoteDecision } from '../../../src/category/governance'
-import { GovernanceMasterNodeRegTestContainer } from './governance_container'
 import { Testing } from '@defichain/jellyfish-testing'
 import { masternode } from '@defichain/jellyfish-api-core'
+import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
-class MultiOperatorGovernanceMasterNodeRegTestContainer extends GovernanceMasterNodeRegTestContainer {
+class MultiOperatorMasterNodeRegTestContainer extends MasterNodeRegTestContainer {
   protected getCmd (opts: StartOptions): string[] {
     return [
       ...super.getCmd(opts),
-      `-masternode_operator=${GenesisKeys[1].operator.address}`,
-      `-masternode_operator=${GenesisKeys[2].operator.address}`
+      `-masternode_operator=${RegTestFoundationKeys[1].operator.address}`,
+      `-masternode_operator=${RegTestFoundationKeys[2].operator.address}`
     ]
   }
 }
 
 describe('Governance', () => {
-  const testing = Testing.create(new MultiOperatorGovernanceMasterNodeRegTestContainer())
+  const testing = Testing.create(new MultiOperatorMasterNodeRegTestContainer())
 
   let masternodes: masternode.MasternodeResult<masternode.MasternodeInfo>
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
 
@@ -27,15 +27,18 @@ describe('Governance', () => {
      * Import the private keys of the masternode_operator in order to be able to mint blocks and vote on proposals.
      * This setup uses the default masternode + two additional masternodes for a total of 3 masternodes.
      */
-    await testing.rpc.wallet.importPrivKey(GenesisKeys[1].owner.privKey)
-    await testing.rpc.wallet.importPrivKey(GenesisKeys[1].operator.privKey)
-    await testing.rpc.wallet.importPrivKey(GenesisKeys[2].owner.privKey)
-    await testing.rpc.wallet.importPrivKey(GenesisKeys[2].operator.privKey)
+    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[1].owner.privKey)
+    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[1].operator.privKey)
+    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[2].owner.privKey)
+    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[2].operator.privKey)
+
+    await testing.rpc.wallet.sendToAddress(RegTestFoundationKeys[0].owner.address, 10)
+    await testing.generate(1)
 
     masternodes = await testing.rpc.masternode.listMasternodes()
   })
 
-  afterAll(async () => {
+  afterEach(async () => {
     await testing.container.stop()
   })
 

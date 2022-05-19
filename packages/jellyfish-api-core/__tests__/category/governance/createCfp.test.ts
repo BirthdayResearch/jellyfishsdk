@@ -2,15 +2,19 @@ import { ContainerAdapterClient } from '../../container_adapter_client'
 import BigNumber from 'bignumber.js'
 import { ProposalStatus, ProposalType } from '../../../src/category/governance'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
-import { GovernanceMasterNodeRegTestContainer } from './governance_container'
+import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 
 describe('Governance', () => {
-  const container = new GovernanceMasterNodeRegTestContainer()
+  const container = new MasterNodeRegTestContainer(RegTestFoundationKeys[0])
   const client = new ContainerAdapterClient(container)
 
   beforeAll(async () => {
     await container.start()
     await container.waitForWalletCoinbaseMaturity()
+
+    await client.wallet.sendToAddress(RegTestFoundationKeys[0].owner.address, 10)
+    await container.generate(1)
   })
 
   afterAll(async () => {
@@ -29,7 +33,7 @@ describe('Governance', () => {
 
     const proposal = await container.call('getproposal', [proposalTx])
     expect(proposal.title).toStrictEqual(data.title)
-    expect(proposal.type).toStrictEqual(ProposalType.COMMUNITY_FUND_REQUEST)
+    expect(proposal.type).toStrictEqual(ProposalType.COMMUNITY_FUND_PROPOSAL)
     expect(proposal.status).toStrictEqual(ProposalStatus.VOTING)
     expect(proposal.amount).toStrictEqual(data.amount.toNumber())
     expect(proposal.cyclesPaid).toStrictEqual(1)
@@ -79,7 +83,7 @@ describe('Governance', () => {
       payoutAddress: await container.call('getnewaddress'),
       cycles: 2
     }
-    const utxo = await container.fundAddress(await container.call('getnewaddress'), 10)
+    const utxo = await container.fundAddress(RegTestFoundationKeys[0].owner.address, 10)
     const proposalTx = await client.governance.createCfp(data, [utxo])
     await container.generate(1)
     expect(typeof proposalTx).toStrictEqual('string')
@@ -116,12 +120,11 @@ describe('Governance', () => {
 })
 
 describe('Governance while still in Initial Block Download', () => {
-  const container = new GovernanceMasterNodeRegTestContainer()
+  const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
   beforeAll(async () => {
     await container.start()
-    await container.waitForReady()
   })
 
   afterAll(async () => {
@@ -142,12 +145,11 @@ describe('Governance while still in Initial Block Download', () => {
 })
 
 describe('Governance with insufficient fund', () => {
-  const container = new GovernanceMasterNodeRegTestContainer()
+  const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
   beforeAll(async () => {
     await container.start()
-    await container.waitForReady()
     await container.generate(1)
   })
 

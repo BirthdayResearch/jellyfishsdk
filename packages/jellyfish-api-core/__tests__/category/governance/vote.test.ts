@@ -1,18 +1,22 @@
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { RpcApiError } from '../../../src'
 import { VoteDecision } from '../../../src/category/governance'
-import { GovernanceMasterNodeRegTestContainer } from './governance_container'
+import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 
 describe('Governance', () => {
-  const container = new GovernanceMasterNodeRegTestContainer()
+  const container = new MasterNodeRegTestContainer(RegTestFoundationKeys[0])
   const client = new ContainerAdapterClient(container)
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     await container.start()
     await container.waitForWalletCoinbaseMaturity()
+
+    await client.wallet.sendToAddress(RegTestFoundationKeys[0].owner.address, 10)
+    await container.generate(1)
   })
 
-  afterAll(async () => {
+  afterEach(async () => {
     await container.stop()
   })
 
