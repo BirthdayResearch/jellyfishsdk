@@ -24,6 +24,7 @@ interface governance {
 
 interface CFPData {
   title: string
+  context: string
   amount: BigNumber
   payoutAddress: string
   cycles?: number
@@ -75,7 +76,7 @@ Creates a Vote of Confidence.
 
 ```ts title="client.governance.createVoc()"
 interface governance {
-  createVoc (title: string, utxos: UTXO[] = []): Promise<string>
+  createVoc (title: string, context: string, utxos: UTXO[] = []): Promise<string>
 }
 
 interface UTXO {

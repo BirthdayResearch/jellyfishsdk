@@ -21,8 +21,9 @@ describe('Governance', () => {
   })
 
   it('should vote on a proposal', async () => {
-    const proposalId = await container.call('createcfp', [{
+    const proposalId = await container.call('creategovcfp', [{
       title: 'A community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
       amount: 100,
       payoutAddress: await container.call('getnewaddress')
     }])
@@ -44,8 +45,9 @@ describe('Governance', () => {
   })
 
   it('should not vote on a proposal with a masternode that does not exist', async () => {
-    const proposalId = await container.call('createcfp', [{
+    const proposalId = await container.call('creategovcfp', [{
       title: 'A community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
       amount: 100,
       payoutAddress: await container.call('getnewaddress')
     }])
@@ -59,8 +61,9 @@ describe('Governance', () => {
   })
 
   it('should not vote on a proposal with an inactive masternode', async () => {
-    const proposalId = await container.call('createcfp', [{
+    const proposalId = await container.call('creategovcfp', [{
       title: 'A community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
       amount: 100,
       payoutAddress: await container.call('getnewaddress')
     }])
@@ -77,8 +80,9 @@ masternode <${masternodeId}> is not active', code: -32600, method: vote`)
   })
 
   it('should not vote on a proposal with a masternode that did not mine at least one block', async () => {
-    const proposalId = await container.call('createcfp', [{
+    const proposalId = await container.call('creategovcfp', [{
       title: 'A community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
       amount: 100,
       payoutAddress: await container.call('getnewaddress')
     }])
@@ -94,8 +98,9 @@ masternode <${masternodeId}> does not mine at least one block', code: -32600, me
   })
 
   it('should not vote on a proposal not in voting period', async () => {
-    const proposalId: string = await container.call('createcfp', [{
+    const proposalId: string = await container.call('creategovcfp', [{
       title: 'A community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
       amount: 100,
       payoutAddress: await container.call('getnewaddress')
     }])
@@ -111,8 +116,9 @@ masternode <${masternodeId}> does not mine at least one block', code: -32600, me
   })
 
   it('should not vote on a proposal that does not exists', async () => {
-    const proposalId: string = await container.call('createcfp', [{
+    const proposalId: string = await container.call('creategovcfp', [{
       title: 'A community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
       amount: 100,
       payoutAddress: await container.call('getnewaddress')
     }])
@@ -132,8 +138,9 @@ masternode <${masternodeId}> does not mine at least one block', code: -32600, me
   })
 
   it('should vote with utxos', async () => {
-    const proposalId: string = await container.call('createcfp', [{
+    const proposalId: string = await container.call('creategovcfp', [{
       title: 'A community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
       amount: 100,
       payoutAddress: await container.call('getnewaddress')
     }])
@@ -162,8 +169,9 @@ masternode <${masternodeId}> does not mine at least one block', code: -32600, me
   })
 
   it('should not vote with utxos not from the owner', async () => {
-    const proposalId: string = await container.call('createcfp', [{
+    const proposalId: string = await container.call('creategovcfp', [{
       title: 'A community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
       amount: 100,
       payoutAddress: await container.call('getnewaddress')
     }])
@@ -186,8 +194,9 @@ tx must have at least one input from the owner', code: -32600, method: vote`)
   })
 
   it('should not vote with wrongly formatted utxos\' txid', async () => {
-    const proposalId: string = await container.call('createcfp', [{
+    const proposalId: string = await container.call('creategovcfp', [{
       title: 'A community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
       amount: 100,
       payoutAddress: await container.call('getnewaddress')
     }])
@@ -208,8 +217,9 @@ tx must have at least one input from the owner', code: -32600, method: vote`)
   })
 
   it('should not vote with invalid utxos\' txid', async () => {
-    const proposalId: string = await container.call('createcfp', [{
+    const proposalId: string = await container.call('creategovcfp', [{
       title: 'A community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
       amount: 100,
       payoutAddress: await container.call('getnewaddress')
     }])

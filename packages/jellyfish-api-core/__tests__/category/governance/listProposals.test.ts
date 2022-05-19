@@ -19,20 +19,33 @@ describe('Governance', () => {
   })
 
   async function setup (): Promise<void> {
-    await container.call('createcfp', [{
+    await container.call('creategovcfp', [{
       title: 'First community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
       amount: 100,
       payoutAddress: await container.call('getnewaddress')
     }])
-    await container.generate(200) // Expires proposal
+    await container.generate(198) // Expires proposal
 
-    await container.call('createcfp', [{
+    await client.wallet.sendToAddress(RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.address, 2)
+    await container.generate(1)
+
+    await container.call('creategovcfp', [{
       title: 'Second community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
       amount: 100,
       payoutAddress: await container.call('getnewaddress')
     }])
-    await client.governance.createVoc('first vote of confidence')
-    await client.governance.createVoc('second vote of confidence')
+
+    await client.wallet.sendToAddress(RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.address, 3)
+    await container.generate(1)
+
+    await client.governance.createVoc('first vote of confidence', 'https://github.com/DeFiCh/dfips')
+
+    await client.wallet.sendToAddress(RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.address, 3)
+    await container.generate(1)
+
+    await client.governance.createVoc('second vote of confidence', 'https://github.com/DeFiCh/dfips')
     await container.generate(1)
   }
 

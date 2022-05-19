@@ -24,11 +24,12 @@ describe('Governance', () => {
   it('should getProposal', async () => {
     const data = {
       title: 'Testing new community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
       amount: 100,
       payoutAddress: await container.call('getnewaddress'),
       cycles: 2
     }
-    const proposalId = await container.call('createcfp', [data])
+    const proposalId = await container.call('creategovcfp', [data])
     await container.generate(1)
 
     expect(typeof proposalId).toStrictEqual('string')
@@ -50,6 +51,6 @@ describe('Governance', () => {
     const promise = client.governance.getProposal(proposalId)
 
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow(`RpcApiError: 'Proposal <${proposalId}> does not exists', code: -8, method: getproposal`)
+    await expect(promise).rejects.toThrow(`RpcApiError: 'Proposal <${proposalId}> does not exists', code: -8, method: getgovproposal`)
   })
 })

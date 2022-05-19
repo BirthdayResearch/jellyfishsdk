@@ -53,6 +53,7 @@ export class Governance {
    *
    * @param {CFPData} data Community fund proposal data
    * @param {string} data.title Title of community fund request
+   * @param {string} data.context Context of community fund request
    * @param {BigNumber} data.amount Amount per period
    * @param {string} data.payoutAddress Any valid address to receive the funds
    * @param {number} [data.cycles=1] Number of cycles for periodic fund request. Defaults to one cycle.
@@ -65,7 +66,7 @@ export class Governance {
     const defaultData = {
       cycles: 1
     }
-    return await this.client.call('createcfp', [{ ...defaultData, ...data }, utxos], 'number')
+    return await this.client.call('creategovcfp', [{ ...defaultData, ...data }, utxos], 'number')
   }
 
   /**
@@ -75,20 +76,21 @@ export class Governance {
    * @return {Promise<ProposalInfo>} Information about the proposal
    */
   async getProposal (proposalId: string): Promise<ProposalInfo> {
-    return await this.client.call('getproposal', [proposalId], { amount: 'bignumber' })
+    return await this.client.call('getgovproposal', [proposalId], { amount: 'bignumber' })
   }
 
   /**
    * Creates a Vote of Confidence.
    *
    * @param {string} title Vote of confidence's title
+   * @param {string} context Vote of confidence's context
    * @param {UTXO[]} [utxos = []] Specific utxos to spend
    * @param {string} [utxos.txid] The transaction id
    * @param {number} [utxos.vout] The output number
    * @return {Promise<string>} txid
    */
-  async createVoc (title: string, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('createvoc', [title, utxos], 'number')
+  async createVoc (title: string, context: string, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('creategovvoc', [title, context, utxos], 'number')
   }
 
   /**
@@ -103,7 +105,7 @@ export class Governance {
     type = ListProposalsType.ALL,
     status = ListProposalsStatus.ALL
   } = {}): Promise<ProposalInfo[]> {
-    return await this.client.call('listproposals', [type, status], { amount: 'bignumber' })
+    return await this.client.call('listgovproposals', [type, status], { amount: 'bignumber' })
   }
 
   /**
@@ -119,7 +121,7 @@ export class Governance {
    * @return {Promise<string>} txid
    */
   async vote (data: VoteData, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('vote', [data.proposalId, data.masternodeId, data.decision, utxos], 'number')
+    return await this.client.call('votegov', [data.proposalId, data.masternodeId, data.decision, utxos], 'number')
   }
 
   /**
@@ -130,12 +132,13 @@ export class Governance {
    * @return {Promise<ListVotesResult[]>} Proposal vote information
    */
   async listVotes (proposalId: string, masternode: MasternodeType | string = MasternodeType.MINE): Promise<ListVotesResult[]> {
-    return await this.client.call('listvotes', [proposalId, masternode], 'number')
+    return await this.client.call('listgovvotes', [proposalId, masternode], 'number')
   }
 }
 
 export interface CFPData {
   title: string
+  context: string
   amount: BigNumber
   payoutAddress: string
   cycles?: number

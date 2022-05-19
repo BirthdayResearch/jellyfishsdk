@@ -21,13 +21,13 @@ describe('Governance', () => {
   })
 
   it('should createVoc', async () => {
-    const proposalTx = await client.governance.createVoc('new vote of confidence')
+    const proposalTx = await client.governance.createVoc('new vote of confidence', 'github issue url and in future IPFS tx')
     await container.generate(1)
 
     expect(typeof proposalTx).toStrictEqual('string')
     expect(proposalTx.length).toStrictEqual(64)
 
-    const proposal = await container.call('getproposal', [proposalTx])
+    const proposal = await container.call('getgovproposal', [proposalTx])
     expect(typeof proposal.amount).toStrictEqual('number')
     expect(typeof proposal.cyclesPaid).toStrictEqual('number')
     expect(typeof proposal.totalCycles).toStrictEqual('number')
@@ -40,7 +40,7 @@ describe('Governance', () => {
 
   it('should createVoc with utxos', async () => {
     const utxo = await container.fundAddress(RegTestFoundationKeys[0].owner.address, 10)
-    const proposalTx = await client.governance.createVoc('Testing new vote of confidence', [utxo])
+    const proposalTx = await client.governance.createVoc('Testing new vote of confidence', 'github issue url and in future IPFS tx', [utxo])
     await container.generate(1)
     expect(typeof proposalTx).toStrictEqual('string')
     expect(proposalTx.length).toStrictEqual(64)
@@ -50,17 +50,45 @@ describe('Governance', () => {
     expect(rawtx.vin[0].vout).toStrictEqual(utxo.vout)
   })
 
-  it('should not createVoc with wrongly formatted utxos\' txid', async () => {
-    const promise = client.governance.createVoc('New vote of confidence', [{ txid: 'XXXX', vout: 1 }])
+  it('should not createVoc with an empty title', async () => {
+    await client.wallet.sendToAddress(RegTestFoundationKeys[0].owner.address, 1)
+    await container.generate(1)
+    const promise = client.governance.createVoc('', 'https://github.com/DeFiCh/dfips')
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('RpcApiError: \'txid must be of length 64 (not 4, for \'XXXX\')\', code: -8, method: createvoc')
+    await expect(promise).rejects.toThrow("RpcApiError: 'Test CreateVocTx execution failed:\nproposal title must not be empty', code: -32600, method: creategovvoc")
+  })
+
+  it('should not createVoc with a long title', async () => {
+    const promise = client.governance.createVoc('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab', 'https://github.com/DeFiCh/dfips')
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow("RpcApiError: '<title> must be 128 characters or under', code: -8, method: creategovvoc")
+  })
+
+  it('should not createVoc with an empty contex', async () => {
+    await client.wallet.sendToAddress(RegTestFoundationKeys[0].owner.address, 1)
+    await container.generate(1)
+    const promise = client.governance.createVoc('Testing another vote of confidence', '')
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow("RpcApiError: 'Test CreateVocTx execution failed:\nproposal context must not be empty', code: -32600, method: creategovvoc")
+  })
+
+  it('should not createVoc with a long contex', async () => {
+    const promise = client.governance.createVoc('Testing another vote of confidence', 'https://github.com/DeFiCh/dfipsaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab')
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow("RpcApiError: '<context> must be 512 characters or under', code: -8, method: creategovvoc")
+  })
+
+  it('should not createVoc with wrongly formatted utxos\' txid', async () => {
+    const promise = client.governance.createVoc('New vote of confidence', 'github issue url and in future IPFS tx', [{ txid: 'XXXX', vout: 1 }])
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'txid must be of length 64 (not 4, for \'XXXX\')\', code: -8, method: creategovvoc')
   })
 
   it('should not createVoc with invalid utxos\' txid', async () => {
     const txid = '817f1d1aa80bd908e845f747912bbc1bd29fc87f6e2bb762ead7330e1801c3cd' // random hex string of 64 char
-    const promise = client.governance.createVoc('New vote of confidence', [{ txid, vout: 1 }])
+    const promise = client.governance.createVoc('New vote of confidence', 'github issue url and in future IPFS tx', [{ txid, vout: 1 }])
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('RpcApiError: \'Insufficient funds\', code: -4, method: createvoc')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Insufficient funds\', code: -4, method: creategovvoc')
   })
 })
 
@@ -77,9 +105,9 @@ describe('Governance while still in Initial Block Download', () => {
   })
 
   it('should not createVoc while still in Initial Block Download', async () => {
-    const promise = client.governance.createVoc('New vote of confidence')
+    const promise = client.governance.createVoc('New vote of confidence', 'github issue url and in future IPFS tx')
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('RpcApiError: \'Cannot create a voc while still in Initial Block Download\', code: -10, method: createvoc')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Cannot create a voc while still in Initial Block Download\', code: -10, method: creategovvoc')
   })
 })
 
@@ -97,8 +125,8 @@ describe('Governance with insufficient fund', () => {
   })
 
   it('should not createVoc with insufficient fund', async () => {
-    const promise = client.governance.createVoc('New vote of confidence')
+    const promise = client.governance.createVoc('New vote of confidence', 'github issue url and in future IPFS tx')
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('RpcApiError: \'Insufficient funds\', code: -4, method: createvoc')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Insufficient funds\', code: -4, method: creategovvoc')
   })
 })
