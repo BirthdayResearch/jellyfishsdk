@@ -715,7 +715,7 @@ describe('Masternode at or after greatworldheight', () => {
       })
 
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('UpdateMasternodeTx: Masternode with that operator address already exists')
+      await expect(promise).rejects.toThrow('Test UpdateMasternodeTx execution failed:\nMasternode with that operator address already exists')
     }
   })
 
