@@ -378,7 +378,7 @@ describe('Masternode at or after greatworldheight', () => {
     expect(txId2.length).toStrictEqual(64)
   })
 
-  it('should updateMasternode with rewardAddress if rewardAddress is pending to be updated in another masternode', async () => {
+  it('should updateMasternode with rewardAddress if rewardAddress is updated in another masternode', async () => {
     const rewardAddress = await testing.generateAddress()
 
     const masternodeId1 = await testing.container.call('createmasternode', [await testing.generateAddress()])
@@ -427,38 +427,36 @@ describe('Masternode at or after greatworldheight', () => {
   })
 
   it('should updateMasternode with rewardAddress if rewardAddress is set to empty string', async () => {
+    const masternodeId = await testing.container.call('createmasternode', [await testing.generateAddress()])
+    await testing.generate(1)
+
+    await waitUntilMasternodeEnabled(masternodeId)
+
     {
-      const masternodeId = await testing.container.call('createmasternode', [await testing.generateAddress()])
-      await testing.generate(1)
+      const data: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId])
+      expect(Object.values(data)[0].rewardAddress).toStrictEqual('') // By default, rewardAddress is an empty string
+    }
 
-      await waitUntilMasternodeEnabled(masternodeId)
+    const rewardAddress = await testing.generateAddress()
 
-      {
-        const data: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId])
-        expect(Object.values(data)[0].rewardAddress).toStrictEqual('') // By default, rewardAddress is an empty string
-      }
+    await testing.rpc.masternode.updateMasternode(masternodeId, {
+      rewardAddress
+    })
+    await testing.generate(1)
 
-      const rewardAddress = await testing.generateAddress()
+    {
+      const data: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId])
+      expect(Object.values(data)[0].rewardAddress).toStrictEqual(rewardAddress) // Change rewardAddress to a valid address
+    }
 
-      await testing.rpc.masternode.updateMasternode(masternodeId, {
-        rewardAddress
-      })
-      await testing.generate(1)
+    await testing.rpc.masternode.updateMasternode(masternodeId, {
+      rewardAddress: '' // Update reward address to empty string
+    })
+    await testing.generate(1)
 
-      {
-        const data: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId])
-        expect(Object.values(data)[0].rewardAddress).toStrictEqual(rewardAddress) // Change rewardAddress to a valid address
-      }
-
-      await testing.rpc.masternode.updateMasternode(masternodeId, {
-        rewardAddress: '' // Update reward address to empty string
-      })
-      await testing.generate(1)
-
-      {
-        const data: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId])
-        expect(Object.values(data)[0].rewardAddress).toStrictEqual('') // Reward address is set to empty string again
-      }
+    {
+      const data: MasternodeResult<MasternodeInfo> = await testing.container.call('getmasternode', [masternodeId])
+      expect(Object.values(data)[0].rewardAddress).toStrictEqual('') // Reward address is set to empty string again
     }
   })
 
@@ -536,32 +534,26 @@ describe('Masternode at or after greatworldheight', () => {
   })
 
   it('should not updateMasternode with ownerAddress, operatorAddress or rewardAddress if masternode id does not exists', async () => {
-    {
-      const promise = testing.rpc.masternode.updateMasternode('0'.repeat(64), {
-        ownerAddress: await testing.generateAddress()
-      })
+    const promise1 = testing.rpc.masternode.updateMasternode('0'.repeat(64), {
+      ownerAddress: await testing.generateAddress()
+    })
 
-      await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(`The masternode ${'0'.repeat(64)} does not exist`)
-    }
+    await expect(promise1).rejects.toThrow(RpcApiError)
+    await expect(promise1).rejects.toThrow(`The masternode ${'0'.repeat(64)} does not exist`)
 
-    {
-      const promise = testing.rpc.masternode.updateMasternode('0'.repeat(64), {
-        operatorAddress: await testing.generateAddress()
-      })
+    const promise2 = testing.rpc.masternode.updateMasternode('0'.repeat(64), {
+      operatorAddress: await testing.generateAddress()
+    })
 
-      await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(`The masternode ${'0'.repeat(64)} does not exist`)
-    }
+    await expect(promise2).rejects.toThrow(RpcApiError)
+    await expect(promise2).rejects.toThrow(`The masternode ${'0'.repeat(64)} does not exist`)
 
-    {
-      const promise = testing.rpc.masternode.updateMasternode('0'.repeat(64), {
-        rewardAddress: await testing.generateAddress()
-      })
+    const promise3 = testing.rpc.masternode.updateMasternode('0'.repeat(64), {
+      rewardAddress: await testing.generateAddress()
+    })
 
-      await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(`The masternode ${'0'.repeat(64)} does not exist`)
-    }
+    await expect(promise3).rejects.toThrow(RpcApiError)
+    await expect(promise3).rejects.toThrow(`The masternode ${'0'.repeat(64)} does not exist`)
   })
 
   it('should not updateMasternode with ownerAddress, operatorAddress or rewardAddress if masternode is not enabled', async () => {
@@ -677,7 +669,7 @@ describe('Masternode at or after greatworldheight', () => {
     await expect(promise).rejects.toThrow('Incorrect authorization for bcrt1qcnfukr6c78wlz2tqpv8vxe0zu339c06pmm3l30')
   })
 
-  it('should not updateMasternode with ownerAddress or operatorAddress if ownerAddress or operatorAddress is pending to be updated in another masternode', async () => {
+  it('should not updateMasternode with ownerAddress or operatorAddress if ownerAddress or operatorAddress is updated in another masternode', async () => {
     {
       const masternodeId1 = await testing.container.call('createmasternode', [await testing.generateAddress()])
       await testing.generate(1)
