@@ -151,6 +151,15 @@ async function setup (): Promise<void> {
 
   await container.call('setgov', [{ LP_SPLITS: { 14: 1.0 } }])
   await container.generate(1)
+
+  // dex fee set up
+  await container.call('setgov', [{
+    ATTRIBUTES: {
+      'v0/poolpairs/14/token_a_fee_pct': '0.05',
+      'v0/poolpairs/14/token_b_fee_pct': '0.08'
+    }
+  }])
+  await container.generate(1)
 }
 
 describe('list', () => {
@@ -173,14 +182,24 @@ describe('list', () => {
         symbol: 'B',
         reserve: '50',
         blockCommission: '0',
-        displaySymbol: 'dB'
+        displaySymbol: 'dB',
+        fee: {
+          pct: '0.05',
+          inPct: '0.05',
+          outPct: '0.05'
+        }
       },
       tokenB: {
         id: '0',
         symbol: 'DFI',
         reserve: '300',
         blockCommission: '0',
-        displaySymbol: 'DFI'
+        displaySymbol: 'DFI',
+        fee: {
+          pct: '0.08',
+          inPct: '0.08',
+          outPct: '0.08'
+        }
       },
       apr: {
         reward: 2229.42,
@@ -259,14 +278,16 @@ describe('get', () => {
         symbol: 'A',
         reserve: '100',
         blockCommission: '0',
-        displaySymbol: 'dA'
+        displaySymbol: 'dA',
+        fee: undefined
       },
       tokenB: {
         id: '0',
         symbol: 'DFI',
         reserve: '200',
         blockCommission: '0',
-        displaySymbol: 'DFI'
+        displaySymbol: 'DFI',
+        fee: undefined
       },
       apr: {
         reward: 0,
@@ -301,7 +322,7 @@ describe('get', () => {
     expect.assertions(2)
     try {
       await controller.get('999')
-    } catch (err) {
+    } catch (err: any) {
       expect(err).toBeInstanceOf(NotFoundException)
       expect(err.response).toStrictEqual({
         statusCode: 404,
