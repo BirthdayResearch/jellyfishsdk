@@ -11,6 +11,7 @@ import {
   OP_CODES,
   OP_DEFI_TX
 } from '@defichain/jellyfish-transaction'
+import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { DeFiDCache } from './cache/defid.cache'
 
 class RawTxDto {
@@ -55,15 +56,15 @@ export class RawtxController {
       return await this.client.rawtx.sendRawTransaction(tx.hex, maxFeeRate)
     } catch (err) {
       // TODO(fuxingloh): more meaningful error
-      if (err?.payload?.message === 'TX decode failed') {
+      if ((err as RpcApiError)?.payload?.message === 'TX decode failed') {
         throw new BadRequestApiException('Transaction decode failed')
       }
-      if (err?.payload?.message.indexOf('absurdly-high-fee') !== -1) {
+      if ((err as RpcApiError)?.payload?.message.includes('absurdly-high-fee')) {
         // message: 'absurdly-high-fee, 100000000 > 11100000 (code 256)'
         throw new BadRequestApiException('Absurdly high fee')
       }
 
-      throw new BadRequestApiException(err?.payload?.message)
+      throw new BadRequestApiException((err as RpcApiError)?.payload?.message)
     }
   }
 
@@ -82,14 +83,14 @@ export class RawtxController {
         throw new Error('Transaction is not allowed to be inserted')
       }
     } catch (err) {
-      if (err.message === 'Transaction is not allowed to be inserted') {
+      if ((err as RpcApiError).message === 'Transaction is not allowed to be inserted') {
         throw new BadRequestApiException('Transaction is not allowed to be inserted')
       }
-      if (err?.payload?.message === 'TX decode failed') {
+      if ((err as RpcApiError)?.payload?.message === 'TX decode failed') {
         throw new BadRequestApiException('Transaction decode failed')
       }
       /* istanbul ignore next */
-      throw new BadRequestApiException(err?.payload?.message)
+      throw new BadRequestApiException((err as RpcApiError)?.payload?.message)
     }
   }
 

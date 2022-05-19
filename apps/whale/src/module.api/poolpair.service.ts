@@ -22,14 +22,15 @@ import {
   CPoolSwap,
   OP_DEFI_TX,
   PoolSwap as PoolSwapDfTx,
-  toOPCodes
+  toOPCodes,
+  DfTx
 } from '@defichain/jellyfish-transaction'
 import { fromScript } from '@defichain/jellyfish-address'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { AccountHistory } from '@defichain/jellyfish-api-core/dist/category/account'
 import { DeFiDCache } from './cache/defid.cache'
 import { parseDisplaySymbol } from './token.controller'
-import { DfTx } from '@defichain/jellyfish-transaction/dist/script/dftx/dftx'
+import { RpcApiError } from '@defichain/jellyfish-api-core'
 
 @Injectable()
 export class PoolPairService {
@@ -55,7 +56,7 @@ export class PoolPairService {
         return Object.values(result)[0]
       }
     } catch (err) {
-      if (err?.payload?.message !== 'Pool not found') {
+      if ((err as RpcApiError)?.payload?.message !== 'Pool not found') {
         throw err
       }
     }
@@ -66,7 +67,7 @@ export class PoolPairService {
         return Object.values(result)[0]
       }
     } catch (err) {
-      if (err?.payload?.message !== 'Pool not found') {
+      if ((err as RpcApiError)?.payload?.message !== 'Pool not found') {
         throw err
       }
     }
