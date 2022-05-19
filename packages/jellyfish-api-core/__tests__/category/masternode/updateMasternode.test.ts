@@ -776,50 +776,48 @@ describe('Masternode before greatworldheight', () => {
     const rewardAddress = await testing.generateAddress()
 
     // Block count = 102
-    {
-      const blockCount = await testing.rpc.blockchain.getBlockCount()
-      expect(blockCount).toBeLessThan(110) // Less than greatworldheight
+    const blockCount = await testing.rpc.blockchain.getBlockCount()
+    expect(blockCount).toBeLessThan(110) // Less than greatworldheight
 
-      const promise1 = testing.rpc.masternode.updateMasternode(txId, { ownerAddress })
-      await expect(promise1).rejects.toThrow(RpcApiError)
-      await expect(promise1).rejects.toThrow('Test UpdateMasternodeTx execution failed:\ncalled before GreatWorld height')
+    const promise1 = testing.rpc.masternode.updateMasternode(txId, { ownerAddress })
+    await expect(promise1).rejects.toThrow(RpcApiError)
+    await expect(promise1).rejects.toThrow('Test UpdateMasternodeTx execution failed:\ncalled before GreatWorld height')
 
-      const promise2 = testing.rpc.masternode.updateMasternode(txId, { operatorAddress })
-      await expect(promise2).rejects.toThrow(RpcApiError)
-      await expect(promise2).rejects.toThrow('Test UpdateMasternodeTx execution failed:\ncalled before GreatWorld height')
+    const promise2 = testing.rpc.masternode.updateMasternode(txId, { operatorAddress })
+    await expect(promise2).rejects.toThrow(RpcApiError)
+    await expect(promise2).rejects.toThrow('Test UpdateMasternodeTx execution failed:\ncalled before GreatWorld height')
 
-      const promise3 = testing.rpc.masternode.updateMasternode(txId, { rewardAddress })
-      await expect(promise3).rejects.toThrow(RpcApiError)
-      await expect(promise3).rejects.toThrow('Test UpdateMasternodeTx execution failed:\ncalled before GreatWorld height')
+    const promise3 = testing.rpc.masternode.updateMasternode(txId, { rewardAddress })
+    await expect(promise3).rejects.toThrow(RpcApiError)
+    await expect(promise3).rejects.toThrow('Test UpdateMasternodeTx execution failed:\ncalled before GreatWorld height')
 
-      const promise4 = testing.rpc.masternode.updateMasternode(txId, {
-        ownerAddress,
-        operatorAddress
-      })
-      await expect(promise4).rejects.toThrow(RpcApiError)
-      await expect(promise4).rejects.toThrow('Test UpdateMasternodeTx execution failed:\ncalled before GreatWorld height')
+    const promise4 = testing.rpc.masternode.updateMasternode(txId, {
+      ownerAddress,
+      operatorAddress
+    })
+    await expect(promise4).rejects.toThrow(RpcApiError)
+    await expect(promise4).rejects.toThrow('Test UpdateMasternodeTx execution failed:\ncalled before GreatWorld height')
 
-      const promise5 = testing.rpc.masternode.updateMasternode(txId, {
-        operatorAddress,
-        rewardAddress
-      })
-      await expect(promise5).rejects.toThrow(RpcApiError)
-      await expect(promise5).rejects.toThrow('Test UpdateMasternodeTx execution failed:\ncalled before GreatWorld height')
+    const promise5 = testing.rpc.masternode.updateMasternode(txId, {
+      operatorAddress,
+      rewardAddress
+    })
+    await expect(promise5).rejects.toThrow(RpcApiError)
+    await expect(promise5).rejects.toThrow('Test UpdateMasternodeTx execution failed:\ncalled before GreatWorld height')
 
-      const promise6 = testing.rpc.masternode.updateMasternode(txId, {
-        ownerAddress,
-        rewardAddress
-      })
-      await expect(promise6).rejects.toThrow(RpcApiError)
-      await expect(promise6).rejects.toThrow('Test UpdateMasternodeTx execution failed:\ncalled before GreatWorld height')
+    const promise6 = testing.rpc.masternode.updateMasternode(txId, {
+      ownerAddress,
+      rewardAddress
+    })
+    await expect(promise6).rejects.toThrow(RpcApiError)
+    await expect(promise6).rejects.toThrow('Test UpdateMasternodeTx execution failed:\ncalled before GreatWorld height')
 
-      const promise7 = testing.rpc.masternode.updateMasternode(txId, {
-        ownerAddress,
-        operatorAddress,
-        rewardAddress
-      })
-      await expect(promise7).rejects.toThrow(RpcApiError)
-      await expect(promise7).rejects.toThrow('Test UpdateMasternodeTx execution failed:\ncalled before GreatWorld height')
-    }
+    const promise7 = testing.rpc.masternode.updateMasternode(txId, {
+      ownerAddress,
+      operatorAddress,
+      rewardAddress
+    })
+    await expect(promise7).rejects.toThrow(RpcApiError)
+    await expect(promise7).rejects.toThrow('Test UpdateMasternodeTx execution failed:\ncalled before GreatWorld height')
   })
 })
