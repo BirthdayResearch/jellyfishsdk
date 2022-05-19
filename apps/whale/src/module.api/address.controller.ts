@@ -3,8 +3,8 @@ import { ConflictException, Controller, ForbiddenException, Get, Inject, Param, 
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ApiPagedResponse } from '../module.api/_core/api.paged.response'
 import { DeFiDCache } from '../module.api/cache/defid.cache'
-import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
-import { AddressToken, AddressHistory } from '@defichain/whale-api-client/dist/api/Address'
+import { TokenInfo } from '@defichain/jellyfish-api-core/src/category/token'
+import { AddressToken, AddressHistory } from '@defichain/whale-api-client/src/api/Address'
 import { PaginationQuery } from '../module.api/_core/api.query'
 import { ScriptActivity, ScriptActivityMapper } from '../module.model/script.activity'
 import { ScriptAggregation, ScriptAggregationMapper } from '../module.model/script.aggregation'
@@ -12,11 +12,11 @@ import { ScriptUnspent, ScriptUnspentMapper } from '../module.model/script.unspe
 import { DeFiAddress } from '@defichain/jellyfish-address'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { HexEncoder } from '../module.model/_hex.encoder'
-import { toBuffer } from '@defichain/jellyfish-transaction/dist/script/_buffer'
-import { LoanVaultActive, LoanVaultLiquidated } from '@defichain/whale-api-client/dist/api/Loan'
+import { toBuffer } from '@defichain/jellyfish-transaction/src/script/_buffer'
+import { LoanVaultActive, LoanVaultLiquidated } from '@defichain/whale-api-client/src/api/Loan'
 import { LoanVaultService } from '../module.api/loan.vault.service'
 import { parseDisplaySymbol } from '../module.api/token.controller'
-import { AccountHistory } from '@defichain/jellyfish-api-core/dist/category/account'
+import { AccountHistory } from '@defichain/jellyfish-api-core/src/category/account'
 
 @Controller('/address/:address')
 export class AddressController {
@@ -204,7 +204,9 @@ function mapAddressHistory (list: AccountHistory[]): AddressHistory[] {
       type: each.type,
       amounts: each.amounts,
       block: {
-        height: each.blockHeight
+        height: each.blockHeight,
+        hash: each.blockHash,
+        time: each.blockTime
       }
     }
   })
