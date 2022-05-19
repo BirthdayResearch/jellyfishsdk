@@ -401,8 +401,8 @@ describe('Loan - getLoanInfo', () => {
         }
       })
       // loan value will include some interest
-      expect(data.totals.loanValue.gt(10)) // 2 * 5
-      expect(data.totals.loanValue.lt(10.0001))
+      expect(data.totals.loanValue).toBeGreaterThan(10) // 2 * 5
+      expect(data.totals.loanValue).toBeLessThan(10.0001)
     }
 
     await testing.rpc.loan.takeLoan({
