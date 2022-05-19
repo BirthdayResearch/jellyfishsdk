@@ -172,11 +172,11 @@ describe('Masternode', () => {
     {
       const depth = 4
       const MN1MinedBlocks = await masterNodeProvider1.rpc.masternode.getMasternodeBlocks(MN1Identifier, depth)
-      // const MN2MinedBlocks = await masterNodeProvider2.rpc.masternode.getMasternodeBlocks(MN2Identifier, depth)
+      const MN2MinedBlocks = await masterNodeProvider2.rpc.masternode.getMasternodeBlocks(MN2Identifier, depth)
 
       // should return last two blocks mined by each MN, within a depth of 4 from the tip.
       expect(Object.keys(MN1MinedBlocks).length).toEqual(depth)
-      // expect(Object.keys(MN2MinedBlocks).length).toEqual(depth * 2)
+      expect(Object.keys(MN2MinedBlocks).length).toEqual(depth / 2)
     }
   })
 })
