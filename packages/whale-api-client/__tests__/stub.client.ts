@@ -44,7 +44,7 @@ export class StubWhaleRpcClient extends WhaleRpcClient {
 
     const res = await this.service.app.inject({
       method: 'POST',
-      url: `/${version}/regtest/rpc`,
+      url: `/${version as string}/regtest/rpc`,
       payload: body,
       headers: { 'Content-Type': 'application/json' }
     })
