@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { defid, Indexer, RawBlock } from '../../module.indexer/model/_abstract'
+import { defid, Indexer, RawBlock } from './_abstract'
 import { Transaction, TransactionMapper } from '../../module.model/transaction'
 import BigNumber from 'bignumber.js'
 

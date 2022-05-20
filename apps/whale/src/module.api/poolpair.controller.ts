@@ -4,20 +4,22 @@ import { ApiPagedResponse } from './_core/api.paged.response'
 import { DeFiDCache } from './cache/defid.cache'
 import {
   AllSwappableTokensResult,
-  BestSwapPathResult,
+  BestSwapPathResult, DexPricesResult,
   PoolPairData,
   PoolSwapAggregatedData,
   PoolSwapData,
   SwapPathsResult
 } from '@defichain/whale-api-client/dist/api/PoolPairs'
 import { PaginationQuery } from './_core/api.query'
-import { PoolPairService, PoolSwapPathFindingService } from './poolpair.service'
+import { PoolPairService } from './poolpair.service'
+import { PoolSwapPathFindingService } from './poolswap.pathfinding.service'
 import BigNumber from 'bignumber.js'
 import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
 import { parseDATSymbol } from './token.controller'
 import { PoolSwapMapper } from '../module.model/pool.swap'
 import { PoolSwapAggregatedMapper } from '../module.model/pool.swap.aggregated'
 import { StringIsIntegerPipe } from './pipes/api.validation.pipe'
+import { PoolPairPricesService } from './poolpair.prices.service'
 
 @Controller('/poolpairs')
 export class PoolPairController {
@@ -26,6 +28,7 @@ export class PoolPairController {
     protected readonly deFiDCache: DeFiDCache,
     private readonly poolPairService: PoolPairService,
     private readonly poolSwapPathService: PoolSwapPathFindingService,
+    private readonly poolPairPricesService: PoolPairPricesService,
     private readonly poolSwapMapper: PoolSwapMapper,
     private readonly poolSwapAggregatedMapper: PoolSwapAggregatedMapper
   ) {
@@ -118,6 +121,7 @@ export class PoolPairController {
       const fromTo = await this.poolPairService.findSwapFromTo(swap.block.height, swap.txid, swap.txno)
       swap.from = fromTo?.from
       swap.to = fromTo?.to
+      swap.type = await this.poolPairService.checkSwapType(swap)
     }
 
     return ApiPagedResponse.of(items, query.size, item => {
@@ -182,6 +186,13 @@ export class PoolPairController {
   ): Promise<BestSwapPathResult> {
     return await this.poolSwapPathService.getBestPath(fromTokenId, toTokenId)
   }
+
+  @Get('/dexprices')
+  async listDexPrices (
+    @Query('denomination') denomination: string
+  ): Promise<DexPricesResult> {
+    return await this.poolPairPricesService.listDexPrices(denomination)
+  }
 }
 
 function mapPoolPair (id: string, info: PoolPairInfo, totalLiquidityUsd?: BigNumber, apr?: PoolPairData['apr'], volume?: PoolPairData['volume']): PoolPairData {
@@ -198,14 +209,28 @@ function mapPoolPair (id: string, info: PoolPairInfo, totalLiquidityUsd?: BigNum
       displaySymbol: parseDATSymbol(symbolA),
       id: info.idTokenA,
       reserve: info.reserveA.toFixed(),
-      blockCommission: info.blockCommissionA.toFixed()
+      blockCommission: info.blockCommissionA.toFixed(),
+      fee: info.dexFeePctTokenA !== undefined
+        ? {
+            pct: info.dexFeePctTokenA?.toFixed(),
+            inPct: info.dexFeeInPctTokenA?.toFixed(),
+            outPct: info.dexFeeOutPctTokenA?.toFixed()
+          }
+        : undefined
     },
     tokenB: {
       symbol: symbolB,
       displaySymbol: parseDATSymbol(symbolB),
       id: info.idTokenB,
       reserve: info.reserveB.toFixed(),
-      blockCommission: info.blockCommissionB.toFixed()
+      blockCommission: info.blockCommissionB.toFixed(),
+      fee: info.dexFeePctTokenB !== undefined
+        ? {
+            pct: info.dexFeePctTokenB?.toFixed(),
+            inPct: info.dexFeeInPctTokenB?.toFixed(),
+            outPct: info.dexFeeOutPctTokenB?.toFixed()
+          }
+        : undefined
     },
     priceRatio: {
       ab: info['reserveA/reserveB'] instanceof BigNumber ? info['reserveA/reserveB'].toFixed() : info['reserveA/reserveB'],

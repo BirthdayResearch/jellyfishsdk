@@ -55,13 +55,11 @@ describe('test', () => {
       await controller.test({ hex: '0400000100881133bb11aa00cc' })
     } catch (err) {
       expect(err).toBeInstanceOf(BadRequestApiException)
-      expect((err as BadRequestApiException).getResponse()).toStrictEqual({
-        error: {
-          code: 400,
-          type: 'BadRequest',
-          message: 'Transaction decode failed',
-          at: expect.any(Number)
-        }
+      expect(err.response.error).toStrictEqual({
+        code: 400,
+        type: 'BadRequest',
+        message: 'Transaction decode failed',
+        at: expect.any(Number)
       })
     }
   })
@@ -75,13 +73,11 @@ describe('test', () => {
       })
     } catch (err) {
       expect(err).toBeInstanceOf(BadRequestApiException)
-      expect((err as BadRequestApiException).getResponse()).toStrictEqual({
-        error: {
-          code: 400,
-          type: 'BadRequest',
-          at: expect.any(Number),
-          message: 'Transaction is not allowed to be inserted'
-        }
+      expect(err.response.error).toStrictEqual({
+        code: 400,
+        type: 'BadRequest',
+        at: expect.any(Number),
+        message: 'Transaction is not allowed to be inserted'
       })
     }
   })
@@ -123,13 +119,11 @@ describe('send', () => {
       })
     } catch (err) {
       expect(err).toBeInstanceOf(BadRequestApiException)
-      expect((err as BadRequestApiException).getResponse()).toStrictEqual({
-        error: {
-          code: 400,
-          type: 'BadRequest',
-          at: expect.any(Number),
-          message: 'Transaction decode failed'
-        }
+      expect(err.response.error).toStrictEqual({
+        code: 400,
+        type: 'BadRequest',
+        at: expect.any(Number),
+        message: 'Transaction decode failed'
       })
     }
   })
@@ -143,13 +137,11 @@ describe('send', () => {
       })
     } catch (err) {
       expect(err).toBeInstanceOf(BadRequestApiException)
-      expect((err as BadRequestApiException).getResponse()).toStrictEqual({
-        error: {
-          code: 400,
-          type: 'BadRequest',
-          at: expect.any(Number),
-          message: 'Absurdly high fee'
-        }
+      expect(err.response.error).toStrictEqual({
+        code: 400,
+        type: 'BadRequest',
+        at: expect.any(Number),
+        message: 'Absurdly high fee'
       })
     }
   })

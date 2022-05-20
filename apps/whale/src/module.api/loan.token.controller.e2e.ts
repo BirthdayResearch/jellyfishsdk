@@ -184,7 +184,7 @@ describe('get', () => {
       await controller.getLoanToken('999')
     } catch (err) {
       expect(err).toBeInstanceOf(NotFoundException)
-      expect((err as NotFoundException).getResponse()).toStrictEqual({
+      expect(err.response).toStrictEqual({
         statusCode: 404,
         message: 'Unable to find loan token',
         error: 'Not Found'

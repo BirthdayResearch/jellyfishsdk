@@ -1,4 +1,4 @@
-import { defid, Indexer, RawBlock } from '../../module.indexer/model/_abstract'
+import { defid, Indexer, RawBlock } from './_abstract'
 import { ScriptActivity, ScriptActivityMapper } from '../../module.model/script.activity'
 import { Injectable } from '@nestjs/common'
 import { HexEncoder } from '../../module.model/_hex.encoder'

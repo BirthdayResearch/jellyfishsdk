@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing'
 import { MemoryDatabaseModule } from './module'
-import * as spec from '../../module.database/database.spec/specifications'
+import * as spec from '../database.spec/specifications'
 import { Database } from '../database'
 import { LevelDatabase } from '../provider.level/level.database'
 
