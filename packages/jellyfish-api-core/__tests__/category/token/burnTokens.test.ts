@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable  @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/naming-convention */
 
 import { ContainerGroup, DeFiDRpcError, GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
@@ -55,21 +56,21 @@ describe('Token', () => {
     )
     await alice.generate(1)
 
-    // await alice.rpc.wallet.sendToAddress(account2, 10)
-    // await alice.generate(1)
+    await alice.rpc.wallet.sendToAddress(account2, 10)
+    await alice.generate(1)
 
     const btcInfo = await alice.rpc.token.getToken('BTC')
     const btcToken = Object.keys(btcInfo)[0]
 
-    {
-      const promise = alice.rpc.token.burnTokens({
-        amounts: '1@BTC',
-        from: account0
-      })
-
-      await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('Test BurnTokenTx execution failed:\ncalled before GreatWorld height')
-    }
+    // {
+    //   const promise = alice.rpc.token.burnTokens({
+    //     amounts: '1@BTC',
+    //     from: account0
+    //   })
+    //
+    //   await expect(promise).rejects.toThrow(RpcApiError)
+    //   await expect(promise).rejects.toThrow('Test BurnTokenTx execution failed:\ncalled before GreatWorld height')
+    // }
 
     // {
     //   const promise = peter.rpc.token.mintTokens('1@BTC')
@@ -79,13 +80,17 @@ describe('Token', () => {
 
     await alice.generate(10)
 
-    // {
-    //   const consortium_members_str_literals = `v0/token/${btcToken}/consortium_members`
-    //   const x = await alice.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/token/0/consortium_members': `{"01":{"name":"ab","ownerAddress":"${account2}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":10.00000000}}` } })
-    //   console.log(x)
-    //
-    //   await alice.generate(1)
-    // }
+    {
+      const consortium_members_str_literals = `v0/token/${btcToken}/consortium_members`
+      const x = await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortium_members_str_literals]: `{"01":{"name":"test","ownerAddress":"${account2}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":10.00000000}}` } })
+      console.log(x)
+
+      await alice.generate(1)
+    }
+
+    const consortiumMintLimitStrLiterals = `v0/token/${btcToken}/consortium_mint_limit`
+    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMintLimitStrLiterals]: '1000000000' } })
+    await alice.generate(1)
 
     // {
     //   const consortium_members_str_literals = `v0/token/${btcToken}/consortium_members`
@@ -134,8 +139,41 @@ describe('Token', () => {
     //   await expect(promise).rejects.toThrow('Need foundation or consortium member authorization!')
     // }
     //
-    // await tGroup.waitForSync()
-    // await peter.rpc.token.mintTokens('1@BTC')
-    // await peter.generate(1)
+    await tGroup.waitForSync()
+
+    await peter.rpc.token.mintTokens('1@BTC')
+    await peter.generate(1)
+
+    await peter.rpc.token.burnTokens({
+      amounts: '1@BTC',
+      from: account2
+    })
+
+    await peter.rpc.token.mintTokens('9@BTC')
+    await peter.generate(1)
+    await tGroup.waitForSync()
+
+    {
+      const consortiumMintLimitStrLiterals = `v0/token/${btcToken}/consortium_mint_limit`
+      await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMintLimitStrLiterals]: '13' } })
+      await alice.generate(1)
+    }
+
+    {
+      const consortium_members_str_literals = `v0/token/${btcToken}/consortium_members`
+      const x = await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortium_members_str_literals]: `{"01":{"name":"test","ownerAddress":"${account2}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":13.00000000}}` } })
+      console.log(x)
+
+      await alice.generate(1)
+    }
+
+    await tGroup.waitForSync()
+    await peter.rpc.token.mintTokens('1@BTC')
+    await peter.generate(1)
+
+    {
+      const attributes = await peter.rpc.masternode.getGov('ATTRIBUTES')
+      console.log(JSON.stringify(attributes))
+    }
   })
 })
