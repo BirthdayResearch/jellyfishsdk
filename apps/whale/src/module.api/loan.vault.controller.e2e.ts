@@ -1,7 +1,7 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, stopTestingApp } from '../e2e.module'
 import { LoanMasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { LoanController } from '../module.api/loan.controller'
+import { LoanController } from './loan.controller'
 import { NotFoundException } from '@nestjs/common'
 import { Testing } from '@defichain/jellyfish-testing'
 import BigNumber from 'bignumber.js'

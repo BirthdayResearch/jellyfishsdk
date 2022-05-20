@@ -1,7 +1,7 @@
 import { Controller, Get, NotFoundException, Param, ParseIntPipe, Query } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { ApiPagedResponse } from '../module.api/_core/api.paged.response'
-import { DeFiDCache } from '../module.api/cache/defid.cache'
+import { ApiPagedResponse } from './_core/api.paged.response'
+import { DeFiDCache } from './cache/defid.cache'
 import {
   AllSwappableTokensResult,
   BestSwapPathResult,
@@ -10,14 +10,14 @@ import {
   PoolSwapData,
   SwapPathsResult
 } from '@defichain/whale-api-client/dist/api/PoolPairs'
-import { PaginationQuery } from '../module.api/_core/api.query'
+import { PaginationQuery } from './_core/api.query'
 import { PoolPairService, PoolSwapPathFindingService } from './poolpair.service'
 import BigNumber from 'bignumber.js'
 import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
-import { parseDATSymbol } from '../module.api/token.controller'
+import { parseDATSymbol } from './token.controller'
 import { PoolSwapMapper } from '../module.model/pool.swap'
 import { PoolSwapAggregatedMapper } from '../module.model/pool.swap.aggregated'
-import { StringIsIntegerPipe } from '../module.api/pipes/api.validation.pipe'
+import { StringIsIntegerPipe } from './pipes/api.validation.pipe'
 
 @Controller('/poolpairs')
 export class PoolPairController {

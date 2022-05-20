@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common'
 import { HexEncoder } from '../../module.model/_hex.encoder'
 import { TransactionVout, TransactionVoutMapper } from '../../module.model/transaction.vout'
 import { Transaction, TransactionMapper } from '../../module.model/transaction'
-import { NotFoundIndexerError } from '../../module.indexer/error'
+import { NotFoundIndexerError } from '../error'
 
 @Injectable()
 export class ScriptUnspentIndexer extends Indexer {

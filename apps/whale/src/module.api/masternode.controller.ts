@@ -1,6 +1,6 @@
 import { Controller, Get, NotFoundException, Param, Query } from '@nestjs/common'
-import { ApiPagedResponse } from '../module.api/_core/api.paged.response'
-import { PaginationQuery } from '../module.api/_core/api.query'
+import { ApiPagedResponse } from './_core/api.paged.response'
+import { PaginationQuery } from './_core/api.query'
 import { MasternodeData } from '@defichain/whale-api-client/dist/api/MasterNodes'
 import { Masternode, MasternodeMapper } from '../module.model/masternode'
 import { BlockMapper } from '../module.model/block'

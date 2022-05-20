@@ -1,4 +1,4 @@
-import { PaginationQuery } from '../module.api/_core/api.query'
+import { PaginationQuery } from './_core/api.query'
 import {
   AuctionPagination,
   VaultActive,
@@ -6,7 +6,7 @@ import {
   VaultPagination,
   VaultState
 } from '@defichain/jellyfish-api-core/dist/category/loan'
-import { ApiPagedResponse } from '../module.api/_core/api.paged.response'
+import { ApiPagedResponse } from './_core/api.paged.response'
 import {
   LoanScheme,
   LoanVaultActive,
@@ -18,8 +18,8 @@ import {
 import { Inject, BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { DeFiDCache } from '../module.api/cache/defid.cache'
-import { parseDisplaySymbol } from '../module.api/token.controller'
+import { DeFiDCache } from './cache/defid.cache'
+import { parseDisplaySymbol } from './token.controller'
 import { ActivePrice } from '@defichain/whale-api-client/dist/api/Prices'
 import { OraclePriceActiveMapper } from '../module.model/oracle.price.active'
 import { RpcApiError } from '@defichain/jellyfish-api-core'

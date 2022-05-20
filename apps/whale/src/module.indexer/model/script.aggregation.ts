@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common'
-import { Indexer, RawBlock } from '../../module.indexer/model/_abstract'
+import { Indexer, RawBlock } from './_abstract'
 import { ScriptAggregation, ScriptAggregationMapper } from '../../module.model/script.aggregation'
-import { VoutFinder } from '../../module.indexer/model/_vout_finder'
+import { VoutFinder } from './_vout_finder'
 import { HexEncoder } from '../../module.model/_hex.encoder'
 import BigNumber from 'bignumber.js'
-import { NotFoundIndexerError } from '../../module.indexer/error'
+import { NotFoundIndexerError } from '../error'
 
 @Injectable()
 export class ScriptAggregationIndexer extends Indexer {

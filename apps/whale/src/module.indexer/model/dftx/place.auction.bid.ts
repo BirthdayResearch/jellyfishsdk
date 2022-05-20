@@ -1,6 +1,6 @@
-import { DfTxIndexer, DfTxTransaction } from '../../../module.indexer/model/dftx/_abstract'
+import { DfTxIndexer, DfTxTransaction } from './_abstract'
 import { PlaceAuctionBid, CPlaceAuctionBid } from '@defichain/jellyfish-transaction'
-import { RawBlock } from '../../../module.indexer/model/_abstract'
+import { RawBlock } from '../_abstract'
 import { Injectable, Logger } from '@nestjs/common'
 import { VaultAuctionHistoryMapper } from '../../../module.model/vault.auction.batch.history'
 import { toBuffer } from '@defichain/jellyfish-transaction/dist/script/_buffer'
