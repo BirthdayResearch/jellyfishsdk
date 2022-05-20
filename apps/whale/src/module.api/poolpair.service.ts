@@ -8,7 +8,7 @@ import {
   PoolSwapData,
   PoolSwapFromToData,
   SwapType
-} from '@defichain/whale-api-client/dist/api/poolpairs'
+} from '@defichain/whale-api-client/dist/api/PoolPairs'
 import { getBlockSubsidy } from './subsidy'
 import { BlockMapper } from '../module.model/block'
 import { TokenMapper } from '../module.model/token'

@@ -6,7 +6,7 @@ import {
   SwapPathPoolPair,
   SwapPathsResult,
   TokenIdentifier
-} from '@defichain/whale-api-client/dist/api/poolpairs'
+} from '@defichain/whale-api-client/dist/api/PoolPairs'
 import { PoolPairToken, PoolPairTokenMapper } from '../module.model/pool.pair.token'
 import { DeFiDCache } from './cache/defid.cache'
 import { Interval } from '@nestjs/schedule'

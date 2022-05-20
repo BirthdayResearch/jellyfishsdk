@@ -5,7 +5,7 @@ import { OraclePriceAggregatedIntervalMapper } from '../module.model/oracle.pric
 import { ApiPagedResponse } from './_core/api.paged.response'
 import { PaginationQuery } from './_core/api.query'
 import { PriceTicker, PriceTickerMapper } from '../module.model/price.ticker'
-import { PriceFeedInterval, PriceOracle } from '@defichain/whale-api-client/dist/api/prices'
+import { PriceFeedInterval, PriceOracle } from '@defichain/whale-api-client/dist/api/Prices'
 import { OraclePriceFeedMapper } from '../module.model/oracle.price.feed'
 import { OraclePriceActive, OraclePriceActiveMapper } from '../module.model/oracle.price.active'
 

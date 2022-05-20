@@ -3,7 +3,7 @@ import { PoolSwapPathFindingService } from './poolswap.pathfinding.service'
 import { TokenMapper } from '../module.model/token'
 import { DeFiDCache } from './cache/defid.cache'
 import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
-import { DexPricesResult, TokenIdentifier } from '@defichain/whale-api-client/dist/api/poolpairs'
+import { DexPricesResult, TokenIdentifier } from '@defichain/whale-api-client/dist/api/PoolPairs'
 import { parseDisplaySymbol } from './token.controller'
 import { SemaphoreCache } from './cache/semaphore.cache'
 
