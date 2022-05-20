@@ -11,8 +11,8 @@ import {
   OP_CODES,
   OP_DEFI_TX
 } from '@defichain/jellyfish-transaction'
-import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { DeFiDCache } from './cache/defid.cache'
+import { RpcApiError } from '@defichain/jellyfish-api-core'
 
 class RawTxDto {
   @IsNotEmpty()
