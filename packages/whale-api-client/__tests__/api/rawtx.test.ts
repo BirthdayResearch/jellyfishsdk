@@ -52,7 +52,7 @@ describe('test', () => {
       await client.rawtx.test({ hex: '0400000100881133bb11aa00cc' })
     } catch (err) {
       expect(err).toBeInstanceOf(WhaleApiException)
-      expect((err as WhaleApiException).error).toStrictEqual({
+      expect(err.error).toStrictEqual({
         code: 400,
         type: 'BadRequest',
         message: 'Transaction decode failed',
@@ -72,7 +72,7 @@ describe('test', () => {
       })
     } catch (err) {
       expect(err).toBeInstanceOf(WhaleApiException)
-      expect((err as WhaleApiException).error).toStrictEqual({
+      expect(err.error).toStrictEqual({
         code: 400,
         type: 'BadRequest',
         at: expect.any(Number),
@@ -129,7 +129,7 @@ describe('send', () => {
       })
     } catch (err) {
       expect(err).toBeInstanceOf(WhaleApiException)
-      expect((err as WhaleApiException).error).toStrictEqual({
+      expect(err.error).toStrictEqual({
         code: 400,
         type: 'BadRequest',
         at: expect.any(Number),
@@ -150,7 +150,7 @@ describe('send', () => {
       })
     } catch (err) {
       expect(err).toBeInstanceOf(WhaleApiException)
-      expect((err as WhaleApiException).error).toStrictEqual({
+      expect(err.error).toStrictEqual({
         code: 400,
         type: 'BadRequest',
         at: expect.any(Number),
@@ -167,7 +167,7 @@ describe('send', () => {
       await client.rawtx.send({ hex: hex })
     } catch (err) {
       expect(err).toBeInstanceOf(WhaleApiException)
-      expect((err as WhaleApiException).error).toStrictEqual({
+      expect(err.error).toStrictEqual({
         code: 400,
         type: 'BadRequest',
         at: expect.any(Number),
@@ -186,8 +186,8 @@ describe('send', () => {
       expect('must fail').toBeUndefined()
     } catch (err) {
       expect(err).toBeInstanceOf(WhaleApiValidationException)
-      expect((err as WhaleApiValidationException).message).toStrictEqual('422 - ValidationError (/v0.0/regtest/rawtx/send)')
-      expect((err as WhaleApiValidationException).properties).toStrictEqual([{
+      expect(err.message).toStrictEqual('422 - ValidationError (/v0.0/regtest/rawtx/send)')
+      expect(err.properties).toStrictEqual([{
         constraints: [
           'hex must be a hexadecimal number',
           'hex should not be empty'
@@ -207,8 +207,8 @@ describe('send', () => {
       expect('must fail').toBeUndefined()
     } catch (err) {
       expect(err).toBeInstanceOf(WhaleApiValidationException)
-      expect((err as WhaleApiValidationException).message).toStrictEqual('422 - ValidationError (/v0.0/regtest/rawtx/send)')
-      expect((err as WhaleApiValidationException).properties).toStrictEqual([{
+      expect(err.message).toStrictEqual('422 - ValidationError (/v0.0/regtest/rawtx/send)')
+      expect(err.properties).toStrictEqual([{
         constraints: [
           'hex must be a hexadecimal number'
         ],
@@ -228,8 +228,8 @@ describe('send', () => {
       expect('must fail').toBeUndefined()
     } catch (err) {
       expect(err).toBeInstanceOf(WhaleApiValidationException)
-      expect((err as WhaleApiValidationException).message).toStrictEqual('422 - ValidationError (/v0.0/regtest/rawtx/send)')
-      expect((err as WhaleApiValidationException).properties).toStrictEqual([{
+      expect(err.message).toStrictEqual('422 - ValidationError (/v0.0/regtest/rawtx/send)')
+      expect(err.properties).toStrictEqual([{
         constraints: [
           'maxFeeRate must not be less than 0'
         ],
@@ -250,8 +250,8 @@ describe('send', () => {
       expect('must fail').toBeUndefined()
     } catch (err) {
       expect(err).toBeInstanceOf(WhaleApiValidationException)
-      expect((err as WhaleApiValidationException).message).toStrictEqual('422 - ValidationError (/v0.0/regtest/rawtx/send)')
-      expect((err as WhaleApiValidationException).properties).toStrictEqual([{
+      expect(err.message).toStrictEqual('422 - ValidationError (/v0.0/regtest/rawtx/send)')
+      expect(err.properties).toStrictEqual([{
         constraints: [
           'maxFeeRate must not be less than 0',
           'maxFeeRate must be a number conforming to the specified constraints'

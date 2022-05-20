@@ -92,7 +92,7 @@ describe('get', () => {
       await client.masternodes.get(id)
     } catch (err) {
       expect(err).toBeInstanceOf(WhaleApiException)
-      expect((err as WhaleApiException).error).toStrictEqual({
+      expect(err.error).toStrictEqual({
         code: 404,
         type: 'NotFound',
         at: expect.any(Number),

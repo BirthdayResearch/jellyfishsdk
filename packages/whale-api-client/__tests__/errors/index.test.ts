@@ -1,6 +1,10 @@
-import { raiseIfError, WhaleApiError, WhaleApiErrorType } from '../../src'
-import { WhaleApiValidationException } from '../../src/errors/WhaleApiValidationException'
-import { WhaleApiException } from '../../src/errors/WhaleApiException'
+import {
+  raiseIfError,
+  WhaleApiError,
+  WhaleApiErrorType,
+  WhaleApiException,
+  WhaleApiValidationException
+} from '../../src'
 
 it('should raise if error', () => {
   const error: WhaleApiError = {

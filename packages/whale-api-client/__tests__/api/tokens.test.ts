@@ -122,7 +122,7 @@ describe('get', () => {
       await client.tokens.get('999')
     } catch (err) {
       expect(err).toBeInstanceOf(WhaleApiException)
-      expect((err as WhaleApiException).error).toStrictEqual({
+      expect(err.error).toStrictEqual({
         code: 404,
         type: 'NotFound',
         at: expect.any(Number),
@@ -138,7 +138,7 @@ describe('get', () => {
       await client.tokens.get('$*@')
     } catch (err) {
       expect(err).toBeInstanceOf(WhaleApiException)
-      expect((err as WhaleApiException).error).toStrictEqual({
+      expect(err.error).toStrictEqual({
         code: 400,
         type: 'BadRequest',
         at: expect.any(Number),

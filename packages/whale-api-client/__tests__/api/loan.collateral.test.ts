@@ -310,7 +310,7 @@ describe('get', () => {
       await client.loan.getCollateralToken('999')
     } catch (err) {
       expect(err).toBeInstanceOf(WhaleApiException)
-      expect((err as WhaleApiException).error).toStrictEqual({
+      expect(err.error).toStrictEqual({
         code: 404,
         type: 'NotFound',
         at: expect.any(Number),
@@ -323,7 +323,7 @@ describe('get', () => {
       await client.loan.getCollateralToken('$*@')
     } catch (err) {
       expect(err).toBeInstanceOf(WhaleApiException)
-      expect((err as WhaleApiException).error).toStrictEqual({
+      expect(err.error).toStrictEqual({
         code: 404,
         type: 'NotFound',
         at: expect.any(Number),

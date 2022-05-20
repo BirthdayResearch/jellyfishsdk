@@ -3,9 +3,11 @@ import { StubService } from '../stub.service'
 import { WhaleApiClient } from '../../src'
 import { StubWhaleApiClient } from '../stub.client'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { PriceFeedTimeInterval } from '../../src/api/Prices'
+import { PriceFeedTimeInterval } from '@defichain/whale-api-client/dist/api/Prices'
 import { Testing } from '@defichain/jellyfish-testing'
-import { OracleIntervalSeconds } from '../../../../apps/whale/src/module.model/oracle.price.aggregated.interval'
+import {
+  OracleIntervalSeconds
+} from '@defichain-apps/nest-apps/whale/src/module.model/oracle.price.aggregated.interval'
 
 describe('oracles', () => {
   let container: MasterNodeRegTestContainer
