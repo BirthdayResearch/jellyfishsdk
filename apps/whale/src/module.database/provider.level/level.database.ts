@@ -3,8 +3,8 @@ import level from 'level'
 import { LevelUp } from 'levelup'
 import lexicographic from 'lexicographic-integer-encoding'
 import { Inject } from '@nestjs/common'
-import { Database, QueryOptions, SortOrder } from '../../module.database/database'
-import { Model, ModelIndex, ModelKey, ModelMapping } from '../../module.database/model'
+import { Database, QueryOptions, SortOrder } from '../database'
+import { Model, ModelIndex, ModelKey, ModelMapping } from '../model'
 
 const lexint = lexicographic('hex')
 

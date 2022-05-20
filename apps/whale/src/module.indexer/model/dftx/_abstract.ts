@@ -1,4 +1,4 @@
-import { RawBlock } from '../../../module.indexer/model/_abstract'
+import { RawBlock } from '../_abstract'
 import { blockchain } from '@defichain/jellyfish-api-core'
 import { DfTx } from '@defichain/jellyfish-transaction'
 

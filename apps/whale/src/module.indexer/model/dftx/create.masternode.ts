@@ -1,6 +1,6 @@
-import { DfTxIndexer, DfTxTransaction } from '../../../module.indexer/model/dftx/_abstract'
+import { DfTxIndexer, DfTxTransaction } from './_abstract'
 import { CCreateMasternode, CreateMasternode } from '@defichain/jellyfish-transaction'
-import { RawBlock } from '../../../module.indexer/model/_abstract'
+import { RawBlock } from '../_abstract'
 import { Inject, Injectable, Logger } from '@nestjs/common'
 import { MasternodeMapper } from '../../../module.model/masternode'
 import { NetworkName } from '@defichain/jellyfish-network'

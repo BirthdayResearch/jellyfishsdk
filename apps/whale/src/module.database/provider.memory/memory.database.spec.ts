@@ -1,8 +1,8 @@
 import { Test } from '@nestjs/testing'
-import { MemoryDatabaseModule } from '../../module.database/provider.memory/module'
+import { MemoryDatabaseModule } from './module'
 import * as spec from '../../module.database/database.spec/specifications'
-import { Database } from '../../module.database/database'
-import { LevelDatabase } from '../../module.database/provider.level/level.database'
+import { Database } from '../database'
+import { LevelDatabase } from '../provider.level/level.database'
 
 let database: Database
 

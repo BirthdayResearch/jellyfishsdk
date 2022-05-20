@@ -1,7 +1,7 @@
 import { NetworkName } from '@defichain/jellyfish-network'
 import { CSetLoanToken, SetLoanToken } from '@defichain/jellyfish-transaction'
 import { Inject, Injectable, Logger } from '@nestjs/common'
-import { RawBlock } from '../../../module.indexer/model/_abstract'
+import { RawBlock } from '../_abstract'
 import { OraclePriceActive, OraclePriceActiveMapper } from '../../../module.model/oracle.price.active'
 import { OraclePriceAggregated, OraclePriceAggregatedMapper } from '../../../module.model/oracle.price.aggregated'
 import { PriceTickerMapper, PriceTicker } from '../../../module.model/price.ticker'

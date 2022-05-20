@@ -1,4 +1,4 @@
-import { PoolPairController } from '../module.api/poolpair.controller'
+import { PoolPairController } from './poolpair.controller'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../e2e.module'
