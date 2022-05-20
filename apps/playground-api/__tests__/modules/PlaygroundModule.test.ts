@@ -226,7 +226,7 @@ it('should have gov set', async () => {
 
   const current = await testing.container.getBlockCount()
   const next = await testing.container.call('getfutureswapblock')
-  expect(next - current).toBeLessThanOrEqual(10)
+  expect(next - current).toBeLessThanOrEqual(20)
   await testing.generate(next - current)
 
   {
