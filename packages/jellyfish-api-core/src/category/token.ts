@@ -98,6 +98,16 @@ export class Token {
   async mintTokens (amountToken: string, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('minttokens', [amountToken, utxos], 'number')
   }
+
+  async burnTokens (metadata: BurnTokensData, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('burntokens', [metadata, utxos], 'number')
+  }
+}
+
+export interface BurnTokensData {
+  amounts: string
+  from: string
+  context?: string
 }
 
 export interface TokenResult {

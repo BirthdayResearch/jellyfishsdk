@@ -35,7 +35,7 @@ export abstract class DeFiDContainer extends DockerContainer {
     if (process?.env?.DEFICHAIN_DOCKER_IMAGE !== undefined) {
       return process.env.DEFICHAIN_DOCKER_IMAGE
     }
-    return 'defi/defichain:master-8cf78575a'
+    return 'defi/defichain:v3-899f6b2c8'
   }
 
   public static readonly DefaultStartOptions = {
@@ -207,7 +207,7 @@ export abstract class DeFiDContainer extends DockerContainer {
    * Wait for rpc to be ready
    * @param {number} [timeout=20000] in millis
    */
-  private async waitForRpc (timeout = 40000): Promise<void> {
+  private async waitForRpc (timeout = 100000): Promise<void> {
     await waitForCondition(async () => {
       this.cachedRpcUrl = undefined
       await this.getMiningInfo()
