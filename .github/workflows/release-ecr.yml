@@ -1,8 +1,10 @@
 name: Release Apps for ECR
 
 on:
-  release:
-    types: [ published ]
+#  release:
+#    types: [ published ]
+  pull_request:
+    branches: [ main ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
@@ -45,9 +47,8 @@ jobs:
 
       - name: Build, tag, and push image to Amazon ECR
         env:
-          ECR_REGISTRY: public.ecr.aws/x0i4b0k2
+          ECR_REGISTRY: public.ecr.aws/birthdayresearch
           ECR_REPOSITORY: ${{ matrix.app }}
           IMAGE_TAG: ${{ steps.ecr-tags.outputs.result }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker buildx build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG --platform linux/amd64,linux/arm64 --push .
