@@ -12,7 +12,7 @@
     "build": "./prebuild && tsc"
   },
   "dependencies": {
-    "@defichain/jellyfish-api-jsonrpc": "^2.45.0",
+    "@defichain/jellyfish-api-jsonrpc": "^2.45.1",
     "abort-controller": "^3.0.0",
     "cross-fetch": "^3.1.5",
     "url-search-params-polyfill": "8.1.1"
