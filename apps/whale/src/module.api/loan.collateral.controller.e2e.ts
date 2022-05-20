@@ -2,7 +2,7 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, stopTestingApp } from '../e2e.module'
 import BigNumber from 'bignumber.js'
 import { LoanMasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { LoanController } from '../module.api/loan.controller'
+import { LoanController } from './loan.controller'
 import { NotFoundException } from '@nestjs/common'
 import { Testing } from '@defichain/jellyfish-testing'
 
@@ -215,7 +215,7 @@ describe('get', () => {
       await controller.getCollateral('999')
     } catch (err) {
       expect(err).toBeInstanceOf(NotFoundException)
-      expect((err as NotFoundException).getResponse()).toStrictEqual({
+      expect(err.response).toStrictEqual({
         statusCode: 404,
         message: 'Unable to find collateral token',
         error: 'Not Found'

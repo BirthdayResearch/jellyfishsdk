@@ -1,7 +1,7 @@
 import { Model, ModelMapping } from '../module.database/model'
 import { Injectable } from '@nestjs/common'
 import { Database, SortOrder } from '../module.database/database'
-import { OraclePriceAggregated } from '../module.model/oracle.price.aggregated'
+import { OraclePriceAggregated } from './oracle.price.aggregated'
 
 const PriceTickerMapping: ModelMapping<PriceTicker> = {
   type: 'price_ticker',

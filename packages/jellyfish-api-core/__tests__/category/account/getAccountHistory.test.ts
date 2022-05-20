@@ -1,6 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { Testing } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
+import { AccountOwner, AccountResult } from '@defichain/jellyfish-api-core/dist/category/account'
 
 describe('Account', () => {
   const testing = Testing.create(new MasterNodeRegTestContainer())
@@ -28,7 +29,7 @@ describe('Account', () => {
   })
 
   it('should getAccountHistory with owner CScript', async () => {
-    const accounts: any[] = await testing.rpc.account.listAccounts()
+    const accounts: Array<AccountResult<AccountOwner, string>> = await testing.rpc.account.listAccounts()
 
     const { owner } = accounts[0]
     const { hex, addresses } = owner

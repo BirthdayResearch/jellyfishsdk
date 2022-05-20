@@ -3,6 +3,7 @@ import { ContainerAdapterClient } from './container_adapter_client'
 import { RegTestContainer } from '@defichain/testcontainers'
 
 class TestClient extends ApiClient {
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   async call<T> (method: string, payload: any[]): Promise<T> {
     throw new ClientApiError('error from client')
   }

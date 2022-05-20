@@ -9,7 +9,8 @@ export enum CachePrefix {
   TOKEN_INFO = 0,
   POOL_PAIR_INFO = 1,
   TOKEN_INFO_SYMBOL = 2,
-  LOAN_SCHEME_INFO = 3
+  LOAN_SCHEME_INFO = 3,
+  POOL_PAIRS = 4,
 }
 
 export class GlobalCache {

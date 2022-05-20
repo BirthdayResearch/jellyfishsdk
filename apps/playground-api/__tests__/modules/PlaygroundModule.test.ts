@@ -85,7 +85,7 @@ it('should have gov set', async () => {
       'v0/token/16/loan_payback_fee_pct/14': '0.01',
       'v0/params/dfip2203/active': 'true',
       'v0/params/dfip2203/reward_pct': '0.05',
-      'v0/params/dfip2203/block_period': '10'
+      'v0/params/dfip2203/block_period': '20'
     })
   })
 
@@ -221,12 +221,12 @@ it('should have gov set', async () => {
 
   const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
   expect(attributes.ATTRIBUTES['v0/params/dfip2203/active']).toStrictEqual('true')
-  expect(attributes.ATTRIBUTES['v0/params/dfip2203/block_period']).toStrictEqual('10')
+  expect(attributes.ATTRIBUTES['v0/params/dfip2203/block_period']).toStrictEqual('20')
   expect(attributes.ATTRIBUTES['v0/params/dfip2203/reward_pct']).toStrictEqual('0.05')
 
   const current = await testing.container.getBlockCount()
   const next = await testing.container.call('getfutureswapblock')
-  expect(next - current).toBeLessThanOrEqual(10)
+  expect(next - current).toBeLessThanOrEqual(20)
   await testing.generate(next - current)
 
   {

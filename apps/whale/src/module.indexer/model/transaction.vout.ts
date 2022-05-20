@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Indexer, defid, RawBlock } from '../../module.indexer/model/_abstract'
+import { Indexer, defid, RawBlock } from './_abstract'
 import { TransactionVout, TransactionVoutMapper } from '../../module.model/transaction.vout'
 import { HexEncoder } from '../../module.model/_hex.encoder'
 

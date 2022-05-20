@@ -1,6 +1,6 @@
-import { DfTxIndexer, DfTxTransaction } from '../../../module.indexer/model/dftx/_abstract'
+import { DfTxIndexer, DfTxTransaction } from './_abstract'
 import { AppointOracle, CAppointOracle } from '@defichain/jellyfish-transaction'
-import { RawBlock } from '../../../module.indexer/model/_abstract'
+import { RawBlock } from '../_abstract'
 import { Inject, Injectable } from '@nestjs/common'
 import { OracleMapper } from '../../../module.model/oracle'
 import { OracleTokenCurrencyMapper } from '../../../module.model/oracle.token.currency'

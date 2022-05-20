@@ -35,6 +35,7 @@ Identical to getBalance to get untrusted pending balance.
 ```ts title="client.wallet.getUnconfirmedBalance()"
 interface wallet {
   getUnconfirmedBalance (): Promise<BigNumber>
+}
 ```
 
 ## getBalances
@@ -338,7 +339,7 @@ List groups of addresses which have had their common ownership made public by co
 
 ```ts title="client.wallet.listAddressGroupings()"
 interface wallet {
-  listAddressGroupings (): Promise<any[][][]>
+  listAddressGroupings (): Promise<string | BigNumber[][][]>
 }
 ```
 

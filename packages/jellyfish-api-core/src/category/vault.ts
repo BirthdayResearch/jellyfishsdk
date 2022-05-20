@@ -370,3 +370,10 @@ export interface VaultEstimation {
 export interface TokenPercentageSplit {
   [token: string]: number // Token: split
 }
+
+export interface Interest {
+  token: string
+  realizedInterestPerBlock: BigNumber
+  totalInterest: BigNumber
+  interestPerBlock: BigNumber
+}

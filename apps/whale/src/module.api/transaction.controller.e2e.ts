@@ -1,6 +1,6 @@
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { TransactionController } from '../module.api/transaction.controller'
+import { TransactionController } from './transaction.controller'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../e2e.module'
 import { NotFoundException } from '@nestjs/common'
@@ -85,7 +85,7 @@ describe('get', () => {
       await controller.get('invalidtransactionid')
     } catch (err) {
       expect(err).toBeInstanceOf(NotFoundException)
-      expect((err as NotFoundException).getResponse()).toStrictEqual({
+      expect(err.response).toStrictEqual({
         statusCode: 404,
         message: 'transaction not found',
         error: 'Not Found'
