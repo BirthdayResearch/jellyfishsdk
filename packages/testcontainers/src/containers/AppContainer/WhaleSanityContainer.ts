@@ -46,7 +46,7 @@ export class WhaleSanityContainer extends AppContainer {
     await waitForCondition(async () => {
       const res = await this.get('/_actuator/probes/liveness')
       return res.status === 200
-    }, 30_000) // 30s
+    }, 300_000) // 5m
   }
 
   public async call (rpcEndpoint: string, method: string, params?: any): Promise<Response> {
