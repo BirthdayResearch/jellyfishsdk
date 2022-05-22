@@ -3,7 +3,7 @@ import { StubWhaleApiClient } from '../stub.client'
 import { StubService } from '../stub.service'
 import { ApiPagedResponse, WhaleApiClient, WhaleApiException } from '../../src'
 import { addPoolLiquidity, createPoolPair, createToken, getNewAddress, mintTokens, poolSwap } from '@defichain/testing'
-import { PoolPairData, PoolSwapAggregatedData, PoolSwapAggregatedInterval, PoolSwapData } from '../../src/api/poolpairs'
+import { PoolPairData, PoolSwapAggregatedData, PoolSwapAggregatedInterval, PoolSwapData } from '../../src/api/PoolPairs'
 import { Testing } from '@defichain/jellyfish-testing'
 import waitForExpect from 'wait-for-expect'
 

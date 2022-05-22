@@ -3,7 +3,7 @@ import { StubService } from '../stub.service'
 import { StubWhaleApiClient } from '../stub.client'
 import { Testing } from '@defichain/jellyfish-testing'
 import { ApiPagedResponse, WhaleApiClient } from '../../src'
-import { PoolSwapData } from '../../src/api/poolpairs'
+import { PoolSwapData } from '../../src/api/PoolPairs'
 
 let container: MasterNodeRegTestContainer
 let service: StubService

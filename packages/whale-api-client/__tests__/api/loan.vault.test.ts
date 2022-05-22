@@ -4,7 +4,7 @@ import { WhaleApiException } from '../../src'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
 import { LoanMasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { LoanVaultState } from '../../src/api/loan'
+import { LoanVaultState } from '../../src/api/Loan'
 
 const container = new LoanMasterNodeRegTestContainer()
 const service = new StubService(container)

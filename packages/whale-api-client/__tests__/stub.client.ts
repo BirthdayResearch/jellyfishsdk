@@ -1,6 +1,6 @@
 import { Method, ResponseAsString, WhaleApiClient, WhaleRpcClient } from '../src'
 import { StubService } from './stub.service'
-import { version } from '../src/version'
+import { version } from '../src/Version'
 import AbortController from 'abort-controller'
 
 /**
