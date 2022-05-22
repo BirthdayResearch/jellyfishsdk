@@ -49,6 +49,20 @@ jobs:
         with:
           fail_ci_if_error: true
 
+  docker-sanity:
+    needs: [ build, lint ]
+    name: Docker Sanity Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - uses: actions/setup-node@17f8bd926464a1afa4c6a11669539e9c1ba77048
+        with:
+          node-version: '16'
+          cache: 'npm'
+
+      - run: npm ci
+      - run: npm run sanity
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
