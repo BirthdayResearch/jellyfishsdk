@@ -131,3 +131,7 @@ describe('Token', () => {
     await expect(promise).rejects.toThrow('Test MintTokenTx execution failed:\ntoken is DAT and tx not from foundation member')
   })
 })
+
+describe('Token with gov', () => {
+
+})
