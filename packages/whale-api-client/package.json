@@ -9,7 +9,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "./prebuild && tsc"
+    "build": "tsc"
   },
   "dependencies": {
     "@defichain/jellyfish-api-jsonrpc": "^2.45.1",

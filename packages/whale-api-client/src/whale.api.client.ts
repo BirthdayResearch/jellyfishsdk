@@ -1,7 +1,6 @@
 import 'url-search-params-polyfill'
 import AbortController from 'abort-controller'
 import fetch from 'cross-fetch'
-import version from './version'
 import { raiseIfError, WhaleClientException, WhaleClientTimeoutException } from './errors'
 import { ApiPagedResponse, WhaleApiResponse } from './whale.api.response'
 import { Address } from './api/address'
@@ -22,7 +21,7 @@ import { Loan } from './api/loan'
  * WhaleApiClient Options
  */
 export interface WhaleApiClientOptions {
-  url: string
+  url?: string
 
   /**
    * Millis before request is aborted.
@@ -48,7 +47,7 @@ export interface WhaleApiClientOptions {
 const DEFAULT_OPTIONS: WhaleApiClientOptions = {
   url: 'https://ocean.defichain.com',
   timeout: 60000,
-  version: version,
+  version: 'v0',
   network: 'mainnet'
 }
 
@@ -81,7 +80,7 @@ export class WhaleApiClient {
     protected readonly options: WhaleApiClientOptions
   ) {
     this.options = { ...DEFAULT_OPTIONS, ...options }
-    this.options.url = this.options.url.replace(/\/$/, '')
+    this.options.url = this.options.url?.replace(/\/$/, '')
   }
 
   /**
@@ -160,7 +159,7 @@ export class WhaleApiClient {
    */
   async requestAsString (method: Method, path: string, body?: string): Promise<ResponseAsString> {
     const { url: urlString, version, network, timeout } = this.options
-    const url = `${urlString}/${version as string}/${network as string}/${path}`
+    const url = `${urlString as string}/${version as string}/${network as string}/${path}`
 
     const controller = new AbortController()
     const id = setTimeout(() => controller.abort(), timeout)
