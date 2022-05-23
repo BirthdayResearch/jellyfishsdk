@@ -130,8 +130,8 @@ describe('Token', () => {
 describe('Token with gov attributes', () => {
   const tGroup = TestingGroup.create(4, i => new MasterNodeRegTestContainer(RegTestFoundationKeys[i]))
 
-  const CONSORTIUM_MEMBERS = 'v0/token/1/consortium_members'
-  const CONSORTIUM_MINT_LIMIT = 'v0/token/1/consortium_mint_limit'
+  const CONSORTIUM_MEMBERS = 'v0/consortium/1/members'
+  const CONSORTIUM_MINT_LIMIT = 'v0/consortium/1/mint_limit'
 
   let alice: Testing
   let bob: Testing
@@ -219,19 +219,19 @@ describe('Token with gov attributes', () => {
       await expect(promise).rejects.toThrow('Need foundation or consortium member authorization!')
     })
 
-    // it('should not mintTokens if alice does not own token', async () => {
-    //   await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MEMBERS]: `{"2":{"name":"test","ownerAddress":"${account2}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":1.10000000}}` } })
-    //   await alice.generate(1)
-    //
-    //   await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MINT_LIMIT]: '110000000' } }) // 1.1
-    //   await alice.generate(1)
-    //
-    //   await tGroup.waitForSync()
-    //
-    //   const promise = john.rpc.token.mintTokens('1.1@DETH')
-    //   await expect(promise).rejects.toThrow(RpcApiError)
-    //   await expect(promise).rejects.toThrow('Need foundation or consortium member authorization!')
-    // })
+    it('should not mintTokens if alice does not own token', async () => {
+      await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MEMBERS]: `{"2":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":1.10000000}}` } })
+      await alice.generate(1)
+
+      await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MINT_LIMIT]: '110000000' } }) // 1.1
+      await alice.generate(1)
+
+      await tGroup.waitForSync()
+
+      const promise = john.rpc.token.mintTokens('1.1@DETH')
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('Need foundation or consortium member authorization!')
+    })
   })
 
   it('should mintTokens if amount < member limit and amount < global limit', async () => {
@@ -332,7 +332,7 @@ describe('Token with gov attributes', () => {
     await expect(promise).rejects.toThrow('Test MintTokenTx execution failed:\nYou will exceed global maximum consortium mint limit for DBTC token by minting this amount!')
   })
 
-  it('should mintTokens if amount > member limit and amount < global limit', async () => {
+  it('should not mintTokens if amount > member limit and amount < global limit', async () => {
     await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MEMBERS]: `{"1":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":9.00000000}}` } })
     await alice.generate(1)
 
@@ -344,5 +344,27 @@ describe('Token with gov attributes', () => {
     const promise = john.rpc.token.mintTokens('9.1@DBTC')
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('You will exceed your maximum mint limit for DBTC token by minting this amount')
+  })
+
+  it('should not mintTokens if amount = member limit and global limit is not set', async () => {
+    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MEMBERS]: `{"1":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":10.10000000}}` } })
+    await alice.generate(1)
+
+    await tGroup.waitForSync()
+
+    const promise = john.rpc.token.mintTokens('10.1@DBTC')
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('You will exceed your maximum mint limit for DBTC token by minting this amount')
+  })
+
+  it('should not mintTokens if member limit is not set and amount = global limit', async () => {
+    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MINT_LIMIT]: '1110000000' } }) // 11.1
+    await alice.generate(1)
+
+    await tGroup.waitForSync()
+
+    const promise = john.rpc.token.mintTokens('11.1@DBTC')
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('Need foundation or consortium member authorization!')
   })
 })
