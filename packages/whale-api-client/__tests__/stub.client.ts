@@ -1,6 +1,5 @@
 import { Method, ResponseAsString, WhaleApiClient, WhaleRpcClient } from '../src'
 import { StubService } from './stub.service'
-import { version } from '../src/Version'
 import AbortController from 'abort-controller'
 
 /**
@@ -44,7 +43,7 @@ export class StubWhaleRpcClient extends WhaleRpcClient {
 
     const res = await this.service.app.inject({
       method: 'POST',
-      url: `/${version as string}/regtest/rpc`,
+      url: '/v0/regtest/rpc',
       payload: body,
       headers: { 'Content-Type': 'application/json' }
     })
