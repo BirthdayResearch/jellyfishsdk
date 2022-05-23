@@ -4,7 +4,7 @@ import { WhaleApiClient } from '../src/WhaleApiClient'
 const client = new WhaleApiClient({
   url: 'http://whale-api-test.internal',
   network: 'whale',
-  version: 'v0'
+  version: 'v0.0'
 })
 
 it('should requestData via GET', async () => {
