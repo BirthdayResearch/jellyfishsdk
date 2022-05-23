@@ -1,42 +1,43 @@
-import { DeFiDRpcError, GenesisKeys } from '@defichain/testcontainers'
+import { DeFiDRpcError, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { Testing } from '@defichain/jellyfish-testing'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { calculateTxid, fundEllipticPair, sendTransaction } from '../test.utils'
-import { CreateCfp, OP_CODES } from '@defichain/jellyfish-transaction'
+import { CreateGovCfp, OP_CODES } from '@defichain/jellyfish-transaction'
 import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
-import { GovernanceMasterNodeRegTestContainer } from '../../../jellyfish-api-core/__tests__/category/governance/governance_container'
 import { governance } from '@defichain/jellyfish-api-core'
-import { RegTest } from '@defichain/jellyfish-network'
+import { RegTest, RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
-describe('createCfp', () => {
+describe('createGovCfp', () => {
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
-  const testing = Testing.create(new GovernanceMasterNodeRegTestContainer())
+  const testing = Testing.create(new MasterNodeRegTestContainer())
 
   beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
 
     providers = await getProviders(testing.container)
-    providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[0].owner.privKey)) // set it to container default
+    providers.setEllipticPair(WIF.asEllipticPair(RegTestFoundationKeys[0].owner.privKey)) // set it to container default
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     await testing.container.waitForWalletBalanceGTE(11)
-    await fundEllipticPair(testing.container, providers.ellipticPair, 3) // Amount needed for two cfp creation + fees
-    await providers.setupMocks()
   })
 
   afterAll(async () => {
     await testing.container.stop()
   })
 
-  it('should createCfp', async () => {
+  it('should createGovCfp', async () => {
+    await fundEllipticPair(testing.container, providers.ellipticPair, 3) // Amount needed for cfp creation + fees
+    await providers.setupMocks()
+
     const script = await providers.elliptic.script()
-    const createCfp: CreateCfp = {
+    const createGovCfp: CreateGovCfp = {
       type: 0x01,
       title: 'Testing new community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
       amount: new BigNumber(100),
       address: {
         stack: [
@@ -47,37 +48,44 @@ describe('createCfp', () => {
       },
       cycles: 2
     }
-    const txn = await builder.governance.createCfp(createCfp, script)
+    const txn = await builder.governance.createGovCfp(createGovCfp, script)
 
-    const encoded: string = OP_CODES.OP_DEFI_TX_CREATE_CFP(createCfp).asBuffer().toString('hex')
+    const encoded: string = OP_CODES.OP_DEFI_TX_CREATE_CFP(createGovCfp).asBuffer().toString('hex')
     const expectedRedeemScript = `6a${encoded}`
+
+    await testing.rpc.wallet.sendToAddress(RegTestFoundationKeys[0].owner.address, 1)
+    await testing.container.generate(1)
 
     const outs = await sendTransaction(testing.container, txn)
     expect(outs[0].value).toStrictEqual(1)
     expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
 
-    const listProposals = await testing.rpc.governance.listProposals()
+    const listGovProposals = await testing.rpc.governance.listGovProposals()
     const txid = calculateTxid(txn)
 
-    const proposal = listProposals.find(el => el.proposalId === txid)
+    const proposal = listGovProposals.find(el => el.proposalId === txid)
     expect(proposal).toStrictEqual({
       proposalId: txid,
-      title: createCfp.title,
-      type: governance.ProposalType.COMMUNITY_FUND_REQUEST,
+      title: createGovCfp.title,
+      type: governance.ProposalType.COMMUNITY_FUND_PROPOSAL,
       status: governance.ProposalStatus.VOTING,
-      amount: createCfp.amount,
+      amount: createGovCfp.amount,
       cyclesPaid: 1,
-      totalCycles: createCfp.cycles,
+      totalCycles: createGovCfp.cycles,
       finalizeAfter: expect.any(Number),
       payoutAddress: '2N5wvYsWcAWQUed5vfPxopxZtjkqoT8dFM3'
     })
   })
 
   it('should reject with invalid title length', async () => {
+    await fundEllipticPair(testing.container, providers.ellipticPair, 3) // Amount needed for cfp creation + fees
+    await providers.setupMocks()
+
     const script = await providers.elliptic.script()
-    const txn = await builder.governance.createCfp({
+    const txn = await builder.governance.createGovCfp({
       type: 0x01,
       title: 'X'.repeat(150),
+      context: 'https://github.com/DeFiCh/dfips',
       amount: new BigNumber(100),
       address: {
         stack: [
@@ -88,6 +96,9 @@ describe('createCfp', () => {
       },
       cycles: 2
     }, script)
+
+    await testing.rpc.wallet.sendToAddress(RegTestFoundationKeys[0].owner.address, 3)
+    await testing.container.generate(1)
 
     const promise = sendTransaction(testing.container, txn)
 

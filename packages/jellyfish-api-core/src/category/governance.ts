@@ -62,7 +62,7 @@ export class Governance {
    * @param {number} [utxos.vout] The output number
    * @return {Promise<string>} txid
    */
-  async createCfp (data: CFPData, utxos: UTXO[] = []): Promise<string> {
+  async createGovCfp (data: CFPData, utxos: UTXO[] = []): Promise<string> {
     const defaultData = {
       cycles: 1
     }
@@ -75,7 +75,7 @@ export class Governance {
    * @param {string} proposalId Proposal id
    * @return {Promise<ProposalInfo>} Information about the proposal
    */
-  async getProposal (proposalId: string): Promise<ProposalInfo> {
+  async getGovProposal (proposalId: string): Promise<ProposalInfo> {
     return await this.client.call('getgovproposal', [proposalId], { amount: 'bignumber' })
   }
 
@@ -89,7 +89,7 @@ export class Governance {
    * @param {number} [utxos.vout] The output number
    * @return {Promise<string>} txid
    */
-  async createVoc (title: string, context: string, utxos: UTXO[] = []): Promise<string> {
+  async createGovVoc (title: string, context: string, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('creategovvoc', [title, context, utxos], 'number')
   }
 
@@ -101,7 +101,7 @@ export class Governance {
    * @param {ListProposalsStatus} [options.status=ListProposalsStatus.ALL] status of proposals
    * @return {Promise<ProposalInfo[]>}
    */
-  async listProposals ({
+  async listGovProposals ({
     type = ListProposalsType.ALL,
     status = ListProposalsStatus.ALL
   } = {}): Promise<ProposalInfo[]> {
@@ -120,7 +120,7 @@ export class Governance {
    * @param {string} [utxos.vout] The output number
    * @return {Promise<string>} txid
    */
-  async vote (data: VoteData, utxos: UTXO[] = []): Promise<string> {
+  async voteGov (data: VoteData, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('votegov', [data.proposalId, data.masternodeId, data.decision, utxos], 'number')
   }
 
@@ -131,7 +131,7 @@ export class Governance {
    * @param {MasternodeType | string} [masternode=MasternodeType.MINE] masternode id or reserved words 'mine' to list votes for all owned accounts or 'all' to list all votes
    * @return {Promise<ListVotesResult[]>} Proposal vote information
    */
-  async listVotes (proposalId: string, masternode: MasternodeType | string = MasternodeType.MINE): Promise<ListVotesResult[]> {
+  async listGovVotes (proposalId: string, masternode: MasternodeType | string = MasternodeType.MINE): Promise<ListVotesResult[]> {
     return await this.client.call('listgovvotes', [proposalId, masternode], 'number')
   }
 }

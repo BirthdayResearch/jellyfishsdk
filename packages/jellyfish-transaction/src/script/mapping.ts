@@ -100,10 +100,10 @@ import {
   SetGovernance,
   CSetGovernanceHeight,
   SetGovernanceHeight,
-  CCreateCfp,
-  CCreateVoc,
-  CreateCfp,
-  CreateVoc,
+  CCreateGovCfp,
+  CCreateGovVoc,
+  CreateGovCfp,
+  CreateGovVoc,
   CVote,
   Vote
 } from './dftx/dftx_governance'
@@ -437,20 +437,20 @@ export const OP_CODES = {
       data: closeOffer
     })
   },
-  OP_DEFI_TX_CREATE_CFP: (createCfp: CreateCfp) => {
+  OP_DEFI_TX_CREATE_CFP: (createGovCfp: CreateGovCfp) => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
-      type: CCreateCfp.OP_CODE,
-      name: CCreateCfp.OP_NAME,
-      data: createCfp
+      type: CCreateGovCfp.OP_CODE,
+      name: CCreateGovCfp.OP_NAME,
+      data: createGovCfp
     })
   },
-  OP_DEFI_TX_CREATE_VOC: (createVoc: CreateVoc) => {
+  OP_DEFI_TX_CREATE_VOC: (createGovVoc: CreateGovVoc) => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
-      type: CCreateVoc.OP_CODE,
-      name: CCreateVoc.OP_NAME,
-      data: createVoc
+      type: CCreateGovVoc.OP_CODE,
+      name: CCreateGovVoc.OP_NAME,
+      data: createGovVoc
     })
   },
   OP_DEFI_TX_VOTE: (vote: Vote) => {

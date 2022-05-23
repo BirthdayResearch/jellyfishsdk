@@ -38,7 +38,7 @@ describe('Governance', () => {
       }
     }
 
-    const txid = await client.governance.vote({ proposalId, masternodeId, decision: VoteDecision.YES })
+    const txid = await client.governance.voteGov({ proposalId, masternodeId, decision: VoteDecision.YES })
     await container.generate(1)
     expect(typeof txid).toStrictEqual('string')
     expect(txid.length).toStrictEqual(64)
@@ -55,7 +55,7 @@ describe('Governance', () => {
 
     const masternodeId = '2b830a4c5673402fca8066847344a189844f5446cf2b5dfb0a6a4bb537f4a4b1'
 
-    const promise = client.governance.vote({ proposalId, masternodeId, decision: VoteDecision.YES })
+    const promise = client.governance.voteGov({ proposalId, masternodeId, decision: VoteDecision.YES })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow(`RpcApiError: 'The masternode ${masternodeId} does not exist', code: -8, method: vote`)
   })
@@ -73,7 +73,7 @@ describe('Governance', () => {
     const masternodeId = await client.masternode.createMasternode(ownerAddress)
     await container.generate(1)
 
-    const promise = client.governance.vote({ proposalId, masternodeId, decision: VoteDecision.YES })
+    const promise = client.governance.voteGov({ proposalId, masternodeId, decision: VoteDecision.YES })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow(`RpcApiError: 'Test VoteTx execution failed:
 masternode <${masternodeId}> is not active', code: -32600, method: vote`)
@@ -91,7 +91,7 @@ masternode <${masternodeId}> is not active', code: -32600, method: vote`)
     const masternodeId = await client.masternode.createMasternode(ownerAddress)
     await container.generate(20) // Enables masternode
 
-    const promise = client.governance.vote({ proposalId, masternodeId, decision: VoteDecision.YES })
+    const promise = client.governance.voteGov({ proposalId, masternodeId, decision: VoteDecision.YES })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow(`RpcApiError: 'Test VoteTx execution failed:
 masternode <${masternodeId}> does not mine at least one block', code: -32600, method: vote`)
@@ -110,7 +110,7 @@ masternode <${masternodeId}> does not mine at least one block', code: -32600, me
     const masternodeId = await client.masternode.createMasternode(ownerAddress)
     await container.generate(20) // Enables masternode
 
-    const promise = client.governance.vote({ proposalId, masternodeId, decision: VoteDecision.YES })
+    const promise = client.governance.voteGov({ proposalId, masternodeId, decision: VoteDecision.YES })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow(`RpcApiError: 'Proposal <${proposalId}> is not in voting period', code: -8, method: vote`)
   })
@@ -132,7 +132,7 @@ masternode <${masternodeId}> does not mine at least one block', code: -32600, me
       }
     }
 
-    const promise = client.governance.vote({ proposalId, masternodeId, decision: VoteDecision.YES })
+    const promise = client.governance.voteGov({ proposalId, masternodeId, decision: VoteDecision.YES })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow(`RpcApiError: 'Proposal <${proposalId}> does not exists', code: -8, method: vote`)
   })
@@ -157,7 +157,7 @@ masternode <${masternodeId}> does not mine at least one block', code: -32600, me
 
     const utxos = await container.call('listunspent', [1, 9999999, [masternodes[masternodeId].ownerAuthAddress]])
     const utxo = utxos[0]
-    const voteTx = await client.governance.vote({ proposalId, masternodeId, decision: VoteDecision.YES }, [utxo])
+    const voteTx = await client.governance.voteGov({ proposalId, masternodeId, decision: VoteDecision.YES }, [utxo])
     await container.generate(1)
 
     expect(typeof voteTx).toStrictEqual('string')
@@ -187,7 +187,7 @@ masternode <${masternodeId}> does not mine at least one block', code: -32600, me
     }
 
     const utxo = await container.fundAddress(await container.call('getnewaddress'), 10)
-    const promise = client.governance.vote({ proposalId, masternodeId, decision: VoteDecision.YES }, [utxo])
+    const promise = client.governance.voteGov({ proposalId, masternodeId, decision: VoteDecision.YES }, [utxo])
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow(`RpcApiError: 'Test VoteTx execution failed:
 tx must have at least one input from the owner', code: -32600, method: vote`)
@@ -211,7 +211,7 @@ tx must have at least one input from the owner', code: -32600, method: vote`)
       }
     }
 
-    const promise = client.governance.vote({ proposalId, masternodeId, decision: VoteDecision.YES }, [{ txid: 'XXXX', vout: 1 }])
+    const promise = client.governance.voteGov({ proposalId, masternodeId, decision: VoteDecision.YES }, [{ txid: 'XXXX', vout: 1 }])
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('RpcApiError: \'txid must be of length 64 (not 4, for \'XXXX\')\', code: -8, method: vote')
   })
@@ -236,7 +236,7 @@ tx must have at least one input from the owner', code: -32600, method: vote`)
 
     const txid = '817f1d1aa80bd908e845f747912bbc1bd29fc87f6e2bb762ead7330e1801c3cd' // random hex string of 64 char
 
-    const promise = client.governance.vote({ proposalId, masternodeId, decision: VoteDecision.YES }, [{ txid, vout: 1 }])
+    const promise = client.governance.voteGov({ proposalId, masternodeId, decision: VoteDecision.YES }, [{ txid, vout: 1 }])
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('RpcApiError: \'Insufficient funds\', code: -4, method: vote')
   })

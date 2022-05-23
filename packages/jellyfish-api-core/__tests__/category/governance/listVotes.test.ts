@@ -42,19 +42,19 @@ describe('Governance', () => {
     await testing.container.stop()
   })
 
-  it('should listVotes', async () => {
-    const proposalId = await testing.rpc.governance.createVoc('A vote of confidence', 'github issue url and in future IPFS tx') // Creates a vote of confidence on which to vote
+  it('should listGovVotes', async () => {
+    const proposalId = await testing.rpc.governance.createGovVoc('A vote of confidence', 'github issue url and in future IPFS tx') // Creates a vote of confidence on which to vote
     await testing.container.generate(1)
 
     for (const [id, data] of Object.entries(masternodes)) {
       if (data.operatorIsMine) {
         await testing.container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
-        await testing.rpc.governance.vote({ proposalId, masternodeId: id, decision: VoteDecision.YES })
+        await testing.rpc.governance.voteGov({ proposalId, masternodeId: id, decision: VoteDecision.YES })
       }
     }
     await testing.container.generate(1)
 
-    const votes = await testing.rpc.governance.listVotes(proposalId)
+    const votes = await testing.rpc.governance.listGovVotes(proposalId)
     expect(votes.length).toStrictEqual(3) // The three masternodes should have voted on the proposal
     expect(typeof votes[0].masternodeId).toStrictEqual('string')
     expect(votes[0].masternodeId.length).toStrictEqual(64)
@@ -63,19 +63,19 @@ describe('Governance', () => {
     expect(votes[0].vote).toStrictEqual('YES')
   })
 
-  it('should listVotes with filter masternode=MasternodeType.ALL', async () => {
-    const proposalId = await testing.rpc.governance.createVoc('A vote of confidence', 'github issue url and in future IPFS tx') // Creates a vote of confidence on which to vote
+  it('should listGovVotes with filter masternode=MasternodeType.ALL', async () => {
+    const proposalId = await testing.rpc.governance.createGovVoc('A vote of confidence', 'github issue url and in future IPFS tx') // Creates a vote of confidence on which to vote
     await testing.container.generate(1)
 
     for (const [id, data] of Object.entries(masternodes)) {
       if (data.operatorIsMine) {
         await testing.container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
-        await testing.rpc.governance.vote({ proposalId, masternodeId: id, decision: VoteDecision.YES })
+        await testing.rpc.governance.voteGov({ proposalId, masternodeId: id, decision: VoteDecision.YES })
       }
     }
     await testing.container.generate(1)
 
-    const votes = await testing.rpc.governance.listVotes(proposalId, MasternodeType.ALL)
+    const votes = await testing.rpc.governance.listGovVotes(proposalId, MasternodeType.ALL)
     expect(votes.length).toStrictEqual(3) // The three masternodes should have voted on the proposal
     expect(typeof votes[0].masternodeId).toStrictEqual('string')
     expect(votes[0].masternodeId.length).toStrictEqual(64)
@@ -84,8 +84,8 @@ describe('Governance', () => {
     expect(votes[0].vote).toStrictEqual('YES')
   })
 
-  it('should listVotes with filter on a specific masternodeId', async () => {
-    const proposalId = await testing.rpc.governance.createVoc('A vote of confidence', 'github issue url and in future IPFS tx') // Creates a vote of confidence on which to vote
+  it('should listGovVotes with filter on a specific masternodeId', async () => {
+    const proposalId = await testing.rpc.governance.createGovVoc('A vote of confidence', 'github issue url and in future IPFS tx') // Creates a vote of confidence on which to vote
     let masternodeId = ''
 
     await testing.container.generate(1)
@@ -93,13 +93,13 @@ describe('Governance', () => {
     for (const [id, data] of Object.entries(masternodes)) {
       if (data.operatorIsMine) {
         await testing.container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
-        await testing.rpc.governance.vote({ proposalId, masternodeId: id, decision: VoteDecision.YES })
+        await testing.rpc.governance.voteGov({ proposalId, masternodeId: id, decision: VoteDecision.YES })
         masternodeId = id // Uses the last id as masternodeId
       }
     }
     await testing.container.generate(1)
 
-    const votes = await testing.rpc.governance.listVotes(proposalId, masternodeId)
+    const votes = await testing.rpc.governance.listGovVotes(proposalId, masternodeId)
     expect(votes.length).toStrictEqual(1)
     expect(votes[0].masternodeId).toStrictEqual(masternodeId)
     expect(votes[0].proposalId).toStrictEqual(proposalId)

@@ -13,13 +13,13 @@ const client = new JsonRpcClient('http://foo:bar@localhost:8554')
 const something = await client.governance.method()
 ```
 
-## createCfp
+## createGovCfp
 
 Creates a Community Fund Request.
 
-```ts title="client.governance.createCfp()"
+```ts title="client.governance.createGovCfp()"
 interface governance {
-  createCfp (data: CFPData, utxos: UTXO[] = []): Promise<string>
+  createGovCfp (data: CFPData, utxos: UTXO[] = []): Promise<string>
 }
 
 interface CFPData {
@@ -36,13 +36,13 @@ interface UTXO {
 }
 ```
 
-## getProposal
+## getGovProposal
 
 Returns information about the proposal.
 
-```ts title="client.governance.getProposal()"
+```ts title="client.governance.getGovProposal()"
 interface governance {
-  getProposal (proposalId: string): Promise<ProposalInfo>
+  getGovProposal (proposalId: string): Promise<ProposalInfo>
 }
 
 enum ProposalType {
@@ -70,13 +70,13 @@ interface ProposalInfo {
 }
  ```
 
-## createVoc
+## createGovVoc
 
 Creates a Vote of Confidence.
 
-```ts title="client.governance.createVoc()"
+```ts title="client.governance.createGovVoc()"
 interface governance {
-  createVoc (title: string, context: string, utxos: UTXO[] = []): Promise<string>
+  createGovVoc (title: string, context: string, utxos: UTXO[] = []): Promise<string>
 }
 
 interface UTXO {
@@ -85,13 +85,13 @@ interface UTXO {
 }
 ```
 
-## listProposals
+## listGovProposals
 
 Returns list of proposals.
 
-```ts title="client.governance.listProposals()"
+```ts title="client.governance.listGovProposals()"
 interface governance {
-  async listProposals ({
+  async listGovProposals ({
     type = ListProposalsType.ALL,
     status = ListProposalsStatus.ALL
   } = {}): Promise<ProposalInfo[]>
@@ -136,13 +136,13 @@ interface ProposalInfo {
 }
 ```
 
-## vote
+## voteGov
 
 Vote on a community proposal.
 
-```ts title="client.governance.vote()"
+```ts title="client.governance.voteGov()"
 interface governance {
-  async vote (data: VoteData, utxos: UTXO[] = []): Promise<string>
+  async voteGov (data: VoteData, utxos: UTXO[] = []): Promise<string>
 }
 
 enum VoteDecision {
@@ -163,13 +163,13 @@ interface UTXO {
 }
 ```
 
-## listVotes
+## listGovVotes
 
 Returns information about proposal votes.
 
-```ts title="client.governance.listVotes()"
+```ts title="client.governance.listGovVotes()"
 interface governance {
-  async listVotes (proposalId: string, masternode: MasternodeType | string = MasternodeType.MINE): Promise<ListVotesResult[]>
+  async listGovVotes (proposalId: string, masternode: MasternodeType | string = MasternodeType.MINE): Promise<ListVotesResult[]>
 }
 
 enum MasternodeType {

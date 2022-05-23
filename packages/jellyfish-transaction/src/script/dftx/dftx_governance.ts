@@ -164,12 +164,13 @@ export interface CreateProposal {
   amount: BigNumber // ----------| 8 bytes unsigned
   cycles: ProposalCycles // -----| 1 byte unsigned int
   title: string // --------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
+  context: string // ------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
 }
 
-export interface CreateCfp extends CreateProposal {
+export interface CreateGovCfp extends CreateProposal {
   type: 0x01
 }
-export interface CreateVoc extends CreateProposal {
+export interface CreateGovVoc extends CreateProposal {
   type: 0x03
   cycles: 0x02
 }
@@ -179,23 +180,24 @@ export interface CreateVoc extends CreateProposal {
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
 export class CCreateProposal extends ComposableBuffer<CreateProposal> {
-  composers (ccp: CreateCfp | CreateVoc): BufferComposer[] {
+  composers (ccp: CreateGovCfp | CreateGovVoc): BufferComposer[] {
     return [
       ComposableBuffer.uInt8(() => ccp.type, v => ccp.type = v as ProposalType),
       ComposableBuffer.single<Script>(() => ccp.address, v => ccp.address = v, v => new CScript(v)),
       ComposableBuffer.satoshiAsBigNumber(() => ccp.amount, v => ccp.amount = v),
       ComposableBuffer.uInt8(() => ccp.cycles, v => ccp.cycles = v as ProposalCycles),
-      ComposableBuffer.varUIntUtf8BE(() => ccp.title, v => ccp.title = v)
+      ComposableBuffer.varUIntUtf8BE(() => ccp.title, v => ccp.title = v),
+      ComposableBuffer.varUIntUtf8BE(() => ccp.context, v => ccp.context = v)
     ]
   }
 }
 
-export class CCreateCfp extends CCreateProposal {
+export class CCreateGovCfp extends CCreateProposal {
   static OP_CODE = 0x50 // 'P'
   static OP_NAME = 'OP_DEFI_TX_CREATE_CFP'
 }
 
-export class CCreateVoc extends CCreateProposal {
+export class CCreateGovVoc extends CCreateProposal {
   static OP_CODE = 0x45 // 'E'
   static OP_NAME = 'OP_DEFI_TX_CREATE_VOC'
 }

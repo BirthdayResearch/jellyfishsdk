@@ -70,8 +70,8 @@ import {
   SetGovernance,
   CSetGovernanceHeight,
   SetGovernanceHeight,
-  CCreateCfp,
-  CCreateVoc,
+  CCreateGovCfp,
+  CCreateGovVoc,
   CreateProposal,
   CVote,
   Vote
@@ -239,10 +239,10 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<ICXCloseOrder>(CICXCloseOrder.OP_NAME, d => new CICXCloseOrder(d))
       case CICXCloseOffer.OP_CODE:
         return compose<ICXCloseOffer>(CICXCloseOffer.OP_NAME, d => new CICXCloseOffer(d))
-      case CCreateCfp.OP_CODE:
-        return compose<CreateProposal>(CCreateCfp.OP_NAME, d => new CCreateCfp(d))
-      case CCreateVoc.OP_CODE:
-        return compose<CreateProposal>(CCreateVoc.OP_NAME, d => new CCreateVoc(d))
+      case CCreateGovCfp.OP_CODE:
+        return compose<CreateProposal>(CCreateGovCfp.OP_NAME, d => new CCreateGovCfp(d))
+      case CCreateGovVoc.OP_CODE:
+        return compose<CreateProposal>(CCreateGovVoc.OP_NAME, d => new CCreateGovVoc(d))
       case CVote.OP_CODE:
         return compose<Vote>(CVote.OP_NAME, d => new CVote(d))
       case CICXSubmitDFCHTLC.OP_CODE:

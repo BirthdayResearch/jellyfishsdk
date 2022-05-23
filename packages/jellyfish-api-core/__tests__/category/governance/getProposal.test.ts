@@ -21,7 +21,7 @@ describe('Governance', () => {
     await container.stop()
   })
 
-  it('should getProposal', async () => {
+  it('should getGovProposal', async () => {
     const data = {
       title: 'Testing new community fund proposal',
       context: 'https://github.com/DeFiCh/dfips',
@@ -34,7 +34,7 @@ describe('Governance', () => {
 
     expect(typeof proposalId).toStrictEqual('string')
 
-    const proposal = await client.governance.getProposal(proposalId)
+    const proposal = await client.governance.getGovProposal(proposalId)
     expect(typeof proposal.cyclesPaid).toStrictEqual('number')
     expect(typeof proposal.finalizeAfter).toStrictEqual('number')
     expect(proposal.proposalId).toStrictEqual(proposalId)
@@ -46,9 +46,9 @@ describe('Governance', () => {
     expect(proposal.payoutAddress).toStrictEqual(data.payoutAddress)
   })
 
-  it('should not getProposal if proposalId is invalid', async () => {
+  it('should not getGovProposal if proposalId is invalid', async () => {
     const proposalId = 'e4087598bb396cd3a94429843453e67e68b1c7625a99b0b4c505abcc4506697b'
-    const promise = client.governance.getProposal(proposalId)
+    const promise = client.governance.getGovProposal(proposalId)
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow(`RpcApiError: 'Proposal <${proposalId}> does not exists', code: -8, method: getgovproposal`)
