@@ -1,4 +1,4 @@
-import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { RpcApiError } from '../../../src'
 import { Testing, TestingGroup } from '@defichain/jellyfish-testing'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
@@ -13,6 +13,12 @@ describe('Token', () => {
     from = await container.getNewAddress()
 
     await createToken(from, 'DBTC')
+    await testing.generate(1)
+
+    await createToken(from, 'DETH')
+    await testing.generate(1)
+
+    await createToken(from, 'DBSC')
     await testing.generate(1)
   }
 
@@ -83,14 +89,14 @@ describe('Token', () => {
     expect(tokenBalances).toContain('6.00000000@3')
   })
 
-  it('should not mintTokens if quantity is 0', async () => {
+  it('should not mintTokens if quantity = 0', async () => {
     const promise = testing.rpc.token.mintTokens('0@DBTC')
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('Amount out of range')
   })
 
-  it('should not mintTokens if quantity is -1', async () => {
+  it('should not mintTokens if quantity = -1', async () => {
     const promise = testing.rpc.token.mintTokens('-1@DBTC')
 
     await expect(promise).rejects.toThrow(RpcApiError)
@@ -130,9 +136,6 @@ describe('Token', () => {
 describe('Token with gov attributes', () => {
   const tGroup = TestingGroup.create(4, i => new MasterNodeRegTestContainer(RegTestFoundationKeys[i]))
 
-  const CONSORTIUM_MEMBERS = 'v0/consortium/1/members'
-  const CONSORTIUM_MINT_LIMIT = 'v0/consortium/1/mint_limit'
-
   let alice: Testing
   let bob: Testing
   let john: Testing
@@ -152,14 +155,23 @@ describe('Token with gov attributes', () => {
     await tGroup.stop()
   })
 
-  let account0: string
-  // let account2: string
-  let account3: string
+  let account0: string // alice
+  let account2: string // bob
+  let account3: string // john
+
+  let tokenNo1: string // DBTC
+  let tokenNo2: string // DETH
+
+  let consortiumMembersDbtc: string
+  let consortiumMintLimitDbtc: string
+
+  let consortiumMembersDeth: string
+  let consortiumMintLimitDeth: string
 
   async function setup (): Promise<void> {
-    account0 = GenesisKeys[0].owner.address // Foundation address
-    // account2 = GenesisKeys[2].owner.address // Non foundation address
-    account3 = GenesisKeys[3].owner.address // Non foundation address
+    account0 = RegTestFoundationKeys[0].owner.address // Foundation address
+    account2 = RegTestFoundationKeys[2].owner.address // Non foundation address
+    account3 = RegTestFoundationKeys[3].owner.address // Non foundation address
 
     await alice.token.create(
       {
@@ -181,6 +193,14 @@ describe('Token with gov attributes', () => {
     )
     await alice.generate(1)
 
+    tokenNo1 = Object.keys(await alice.rpc.token.getToken('DBTC'))[0]
+    tokenNo2 = Object.keys(await alice.rpc.token.getToken('DETH'))[0]
+
+    consortiumMembersDbtc = `v0/consortium/${tokenNo1}/members`
+    consortiumMintLimitDbtc = `v0/consortium/${tokenNo1}/mint_limit`
+    consortiumMembersDeth = `v0/consortium/${tokenNo2}/members`
+    consortiumMintLimitDeth = `v0/consortium/${tokenNo2}/mint_limit`
+
     await alice.rpc.wallet.sendToAddress(account3, 10)
     await alice.generate(1)
 
@@ -192,10 +212,10 @@ describe('Token with gov attributes', () => {
 
   describe('should mintTokens if amount = member limit and amount = global limit', () => {
     it('should mintTokens', async () => {
-      await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MEMBERS]: `{"1":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":1.10000000}}` } })
+      await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMembersDbtc]: `{"${tokenNo1}":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":1.10000000}}` } })
       await alice.generate(1)
 
-      await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MINT_LIMIT]: '110000000' } }) // 1.1
+      await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMintLimitDbtc]: '110000000' } }) // 1.1
       await alice.generate(1)
 
       await tGroup.waitForSync()
@@ -205,40 +225,54 @@ describe('Token with gov attributes', () => {
       expect(txid.length).toStrictEqual(64)
     })
 
-    it('should not mintTokens if bob is neither the foundation member not an authorized consortium member', async () => {
-      await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MEMBERS]: `{"1":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":1.10000000}}` } })
+    it('should not mintTokens if address is not yet activated', async () => {
+      await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMembersDbtc]: `{"${tokenNo1}":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":1.10000000, "status":1}}` } })
       await alice.generate(1)
 
-      await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MINT_LIMIT]: '110000000' } }) // 1.1
+      await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMintLimitDbtc]: '110000000' } }) // 1.1
       await alice.generate(1)
 
       await tGroup.waitForSync()
 
-      const promise = bob.rpc.token.mintTokens('1.1@DBTC')
+      const promise = john.rpc.token.mintTokens('1.1@DBTC') // Will fail because it was set to John
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('Cannot mint token, not an active member of consortium for DBTC!')
+    })
+
+    it('should not mintTokens if bob is neither the foundation member nor an authorized consortium member', async () => {
+      await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMembersDeth]: `{"${tokenNo1}":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":1.10000000}}` } }) // Set to John
+      await alice.generate(1)
+
+      await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMintLimitDeth]: '110000000' } }) // 1.1
+      await alice.generate(1)
+
+      await tGroup.waitForSync()
+
+      const promise = bob.rpc.token.mintTokens('1.1@DBTC') // Will fail because it was set to John
       await expect(promise).rejects.toThrow(RpcApiError)
       await expect(promise).rejects.toThrow('Need foundation or consortium member authorization!')
     })
 
-    it('should not mintTokens if alice does not own token', async () => {
-      await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MEMBERS]: `{"2":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":1.10000000}}` } })
+    it('should not mintTokens if different token was set for the consortium member', async () => {
+      await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMembersDbtc]: `{"${tokenNo2}":{"name":"test","ownerAddress":"${account2}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":1.10000000}}` } }) // Set DETH to Bob
       await alice.generate(1)
 
-      await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MINT_LIMIT]: '110000000' } }) // 1.1
+      await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMintLimitDbtc]: '110000000' } }) // 1.1
       await alice.generate(1)
 
       await tGroup.waitForSync()
 
-      const promise = john.rpc.token.mintTokens('1.1@DETH')
+      const promise = john.rpc.token.mintTokens('1.1@DBTC') // Will fail because it was DETH set to Bob, not DBTC
       await expect(promise).rejects.toThrow(RpcApiError)
       await expect(promise).rejects.toThrow('Need foundation or consortium member authorization!')
     })
   })
 
   it('should mintTokens if amount < member limit and amount < global limit', async () => {
-    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MEMBERS]: `{"1":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":6.10000000}}` } })
+    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMembersDbtc]: `{"${tokenNo1}":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":6.10000000}}` } })
     await alice.generate(1)
 
-    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MINT_LIMIT]: '610000000' } }) // 6.1
+    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMintLimitDbtc]: '610000000' } }) // 6.1
     await alice.generate(1)
 
     await tGroup.waitForSync()
@@ -249,10 +283,10 @@ describe('Token with gov attributes', () => {
   })
 
   it('should mintTokens if amount = member limit and amount < global limit', async () => {
-    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MEMBERS]: `{"1":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":5.00000000}}` } })
+    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMembersDbtc]: `{"${tokenNo1}":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":5.00000000}}` } })
     await alice.generate(1)
 
-    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MINT_LIMIT]: '5000000000' } }) // 5.1
+    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMintLimitDbtc]: '5000000000' } }) // 5.1
     await alice.generate(1)
 
     await tGroup.waitForSync()
@@ -263,10 +297,10 @@ describe('Token with gov attributes', () => {
   })
 
   it('should not mintTokens if amount > member limit and amount > global limit', async () => {
-    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MEMBERS]: `{"1":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":7.10000000}}` } })
+    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMembersDbtc]: `{"${tokenNo1}":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":7.10000000}}` } })
     await alice.generate(1)
 
-    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MINT_LIMIT]: '710000000' } }) // 7.1
+    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMintLimitDbtc]: '710000000' } }) // 7.1
     await alice.generate(1)
 
     await tGroup.waitForSync()
@@ -277,10 +311,10 @@ describe('Token with gov attributes', () => {
   })
 
   it('should not mintTokens if amount > member limit and amount = global limit', async () => {
-    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MEMBERS]: `{"1":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":2.00000000}}` } })
+    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMembersDbtc]: `{"${tokenNo1}":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":2.00000000}}` } })
     await alice.generate(1)
 
-    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MINT_LIMIT]: '210000000' } }) // 2.1
+    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMintLimitDbtc]: '210000000' } }) // 2.1
     await alice.generate(1)
 
     await tGroup.waitForSync()
@@ -291,10 +325,10 @@ describe('Token with gov attributes', () => {
   })
 
   it('should not mintTokens if amount < member limit and amount = global limit', async () => {
-    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MEMBERS]: `{"1":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":3.10000000}}` } })
+    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMembersDbtc]: `{"${tokenNo1}":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":3.10000000}}` } })
     await alice.generate(1)
 
-    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MINT_LIMIT]: '300000000' } }) // 3
+    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMintLimitDbtc]: '300000000' } }) // 3
     await alice.generate(1)
 
     await tGroup.waitForSync()
@@ -305,10 +339,10 @@ describe('Token with gov attributes', () => {
   })
 
   it('should not mintTokens if amount = member limit and amount > global limit', async () => {
-    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MEMBERS]: `{"1":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":4.10000000}}` } })
+    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMembersDbtc]: `{"${tokenNo1}":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":4.10000000}}` } })
     await alice.generate(1)
 
-    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MINT_LIMIT]: '400000000' } }) // 4.1
+    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMintLimitDbtc]: '400000000' } }) // 4.1
     await alice.generate(1)
 
     await tGroup.waitForSync()
@@ -319,10 +353,10 @@ describe('Token with gov attributes', () => {
   })
 
   it('should not mintTokens if amount < member limit and amount > global limit', async () => {
-    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MEMBERS]: `{"1":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":8.20000000}}` } })
+    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMembersDbtc]: `{"${tokenNo1}":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":8.20000000}}` } })
     await alice.generate(1)
 
-    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MINT_LIMIT]: '800000000' } }) // 8.0
+    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMintLimitDbtc]: '800000000' } }) // 8.0
     await alice.generate(1)
 
     await tGroup.waitForSync()
@@ -333,10 +367,10 @@ describe('Token with gov attributes', () => {
   })
 
   it('should not mintTokens if amount > member limit and amount < global limit', async () => {
-    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MEMBERS]: `{"1":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":9.00000000}}` } })
+    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMembersDbtc]: `{"${tokenNo1}":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":9.00000000}}` } })
     await alice.generate(1)
 
-    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MINT_LIMIT]: '920000000' } }) // 9.2
+    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMintLimitDbtc]: '920000000' } }) // 9.2
     await alice.generate(1)
 
     await tGroup.waitForSync()
@@ -347,7 +381,7 @@ describe('Token with gov attributes', () => {
   })
 
   it('should not mintTokens if amount = member limit and global limit is not set', async () => {
-    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MEMBERS]: `{"1":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":10.10000000}}` } })
+    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMembersDbtc]: `{"${tokenNo1}":{"name":"test","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":10.10000000}}` } })
     await alice.generate(1)
 
     await tGroup.waitForSync()
@@ -358,7 +392,7 @@ describe('Token with gov attributes', () => {
   })
 
   it('should not mintTokens if member limit is not set and amount = global limit', async () => {
-    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [CONSORTIUM_MINT_LIMIT]: '1110000000' } }) // 11.1
+    await alice.rpc.masternode.setGov({ ATTRIBUTES: { [consortiumMintLimitDbtc]: '1110000000' } }) // 11.1
     await alice.generate(1)
 
     await tGroup.waitForSync()
