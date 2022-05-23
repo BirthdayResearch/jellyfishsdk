@@ -16,10 +16,9 @@ export class StubWhaleApiClient extends WhaleApiClient {
       throw new Error('StubService is not yet started.')
     }
 
-    const version = this.options.version as string
     const res = await this.service.app.inject({
       method: method,
-      url: `/${version}/regtest/${path}`,
+      url: `/v0.0/regtest/${path}`,
       payload: body,
       headers: method !== 'GET' ? { 'Content-Type': 'application/json' } : {}
     })
@@ -43,7 +42,7 @@ export class StubWhaleRpcClient extends WhaleRpcClient {
 
     const res = await this.service.app.inject({
       method: 'POST',
-      url: '/v0/regtest/rpc',
+      url: '/v0.0/regtest/rpc',
       payload: body,
       headers: { 'Content-Type': 'application/json' }
     })
