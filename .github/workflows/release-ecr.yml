@@ -3,13 +3,17 @@ name: Release Apps for ECR
 on:
   release:
     types: [ published ]
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
-  APPS: 'legacy-api,ocean-api,playground-api,status-api,whale-api'
+  APPS: 'status-api'
 
 jobs:
   build:
@@ -19,7 +23,7 @@ jobs:
     environment: ECR Release Publishing
     strategy:
       matrix:
-        app: [ legacy-api, ocean-api, playground-api, status-api, whale-api ]
+        app: [ status-api ]
     steps:
       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
@@ -43,11 +47,13 @@ jobs:
           script: return require('./.github/scripts/release-ecr-tags.js')({ context })
           result-encoding: string
 
-      - name: Build, tag, and push image to Amazon ECR
-        env:
-          ECR_REGISTRY: public.ecr.aws/x0i4b0k2
-          ECR_REPOSITORY: ${{ matrix.app }}
-          IMAGE_TAG: ${{ steps.ecr-tags.outputs.result }}
-        run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+      - name: Build & Publish
+        uses: docker/build-push-action@e551b19e49efd4e98792db7592c17c09b89db8d8
+        with:
+          push: true
+          build-args: APP=${{ matrix.app }}
+          platforms: |
+            linux/amd64
+            linux/arm64
+          tags: |
+            public.ecr.aws/birthdayresearch/${{ matrix.app }}:${{ steps.ecr-tags.outputs.result }}
