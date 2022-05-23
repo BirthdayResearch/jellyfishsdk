@@ -44,7 +44,6 @@ describe('Loan setCollateralToken', () => {
       token: 'AAPL',
       factor: 0.5,
       fixedIntervalPriceId: 'AAPL/USD',
-      activateAfterBlock: await testing.container.getBlockCount(),
       tokenId: collateralTokenId
     }])
   })
