@@ -3,13 +3,17 @@ name: Release Apps for ECR
 on:
   release:
     types: [ published ]
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
-  APPS: 'legacy-api,ocean-api,playground-api,status-api,whale-api'
+  APPS: 'status-api'
 
 jobs:
   build:
@@ -19,7 +23,7 @@ jobs:
     environment: ECR Release Publishing
     strategy:
       matrix:
-        app: [ legacy-api, ocean-api, playground-api, status-api, whale-api ]
+        app: [ status-api]
     steps:
       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 

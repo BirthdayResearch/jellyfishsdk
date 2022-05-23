@@ -6,6 +6,10 @@
  */
 
 module.exports = ({ context }) => {
+  if (context.eventName === 'pull_request'){
+    return '1.0.0'
+  }
+
   if (context.eventName === 'release') {
     return getReleaseTag(context)
   }
