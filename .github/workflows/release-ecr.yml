@@ -3,10 +3,6 @@ name: Release Apps for ECR
 on:
   release:
     types: [ published ]
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}

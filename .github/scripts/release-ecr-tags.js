@@ -6,10 +6,6 @@
  */
 
 module.exports = ({ context }) => {
-  if (context.eventName === 'pull_request'){
-    return Math.random() * 10
-  }
-
   if (context.eventName === 'release') {
     return getReleaseTag(context)
   }
