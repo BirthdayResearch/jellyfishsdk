@@ -2,7 +2,7 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import BigNumber from 'bignumber.js'
 import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
-import { SemaphoreCache } from './cache/semaphore.cache'
+import { SemaphoreCache } from '@defichain-apps/libs/caches'
 import {
   PoolPairData,
   PoolSwapData,
