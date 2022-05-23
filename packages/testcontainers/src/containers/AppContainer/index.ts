@@ -44,7 +44,7 @@ export abstract class AppContainer extends DockerContainer {
   }> {
     await this.blockchain.start()
 
-    const hostRegTestIp = 'host.docker.internal' // TODO(eli-lim): Works on linux?
+    const hostRegTestIp = '172.17.0.1' // host.docker.internal equivalent for MacOS and Linux
     const hostRegTestPort = await this.blockchain.getPort('19554/tcp')
 
     return { hostRegTestIp, hostRegTestPort }
