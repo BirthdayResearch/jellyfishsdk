@@ -12,7 +12,7 @@
     "start:playground-api": "nest start playground-api",
     "start:rich-list-api": "nest start rich-list-api",
     "start:status-api": "nest start status-api",
-    "start:whale": "nest start whale",
+    "start:whale-api": "nest start whale-api",
     "clean": "rm -rf dist"
   },
   "dependencies": {
@@ -33,7 +33,7 @@
     "@defichain/testing": "^0.0.0",
     "@defichain/whale-api-client": "^0.0.0",
     "@nestjs/common": "^8.4.4",
-    "@nestjs/config": "^2.0.0",
+    "@nestjs/config": "^2.0.1",
     "@nestjs/core": "^8.4.4",
     "@nestjs/platform-express": "^8.4.4",
     "@nestjs/platform-fastify": "^8.4.4",
