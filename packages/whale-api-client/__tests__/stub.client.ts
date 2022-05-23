@@ -8,7 +8,7 @@ import AbortController from 'abort-controller'
  */
 export class StubWhaleApiClient extends WhaleApiClient {
   constructor (readonly service: StubService) {
-    super({ url: 'not required for stub service' })
+    super({})
   }
 
   async requestAsString (method: Method, path: string, body?: string): Promise<ResponseAsString> {
