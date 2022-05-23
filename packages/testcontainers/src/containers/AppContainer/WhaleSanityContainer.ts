@@ -4,7 +4,7 @@ import { waitForCondition } from '../../utils'
 
 export class WhaleSanityContainer extends AppContainer {
   constructor (port?: number, blockchain?: MasterNodeRegTestContainer) {
-    super('whale', port, blockchain)
+    super('whale-api', port, blockchain)
   }
 
   /**

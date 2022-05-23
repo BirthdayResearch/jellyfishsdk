@@ -5,7 +5,7 @@ import { TestingGroup, Testing } from '@defichain/jellyfish-testing'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { VaultLiquidation } from '@defichain/jellyfish-api-core/dist/category/loan'
-import { HexEncoder } from '@defichain-apps/nest-apps/whale/src/module.model/_hex.encoder'
+import { HexEncoder } from '@defichain-apps/nest-apps/whale-api/src/module.model/_hex.encoder'
 
 const tGroup = TestingGroup.create(2, i => new MasterNodeRegTestContainer(RegTestFoundationKeys[i]))
 const alice = tGroup.get(0)

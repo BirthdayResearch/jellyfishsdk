@@ -36,11 +36,11 @@
       "entryFile": "apps/status-api/src/index",
       "sourceRoot": "status-api/src"
     },
-    "whale": {
+    "whale-api": {
       "type": "application",
-      "root": "whale",
-      "entryFile": "apps/whale/src/index",
-      "sourceRoot": "whale/src"
+      "root": "whale-api",
+      "entryFile": "apps/whale-api/src/index",
+      "sourceRoot": "whale-api/src"
     },
     "actuator": {
       "type": "library",

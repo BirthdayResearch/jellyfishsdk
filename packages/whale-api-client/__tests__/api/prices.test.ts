@@ -7,7 +7,7 @@ import { PriceFeedTimeInterval } from '@defichain/whale-api-client/dist/api/Pric
 import { Testing } from '@defichain/jellyfish-testing'
 import {
   OracleIntervalSeconds
-} from '@defichain-apps/nest-apps/whale/src/module.model/oracle.price.aggregated.interval'
+} from '@defichain-apps/nest-apps/whale-api/src/module.model/oracle.price.aggregated.interval'
 
 describe('oracles', () => {
   let container: MasterNodeRegTestContainer
