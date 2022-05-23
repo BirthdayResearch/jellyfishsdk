@@ -1,5 +1,4 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
 import { FutureSwap } from 'packages/jellyfish-api-core/src/category/account'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
@@ -14,6 +13,10 @@ async function setup (): Promise<void> {
   collateralAddress = await testing.generateAddress()
   await testing.token.dfi({ address: collateralAddress, amount: 300000 })
   await testing.token.create({ symbol: 'BTC', collateralAddress })
+  await testing.generate(1)
+  await testing.token.create({ symbol: 'TSLA', collateralAddress })
+  await testing.generate(1)
+  await testing.token.create({ symbol: 'DUSD', collateralAddress })
   await testing.generate(1)
   await testing.token.mint({ symbol: 'BTC', amount: 20000 })
   await testing.generate(1)
@@ -50,30 +53,40 @@ async function setup (): Promise<void> {
   await testing.generate(1)
 
   // collateral tokens
-  await testing.rpc.loan.setCollateralToken({
-    token: 'DFI',
-    factor: new BigNumber(1),
-    fixedIntervalPriceId: 'DFI/USD'
+  await testing.rpc.masternode.setGov({
+    ATTRIBUTES: {
+      'v0/token/0/fixed_interval_price_id': 'DFI/USD',
+      'v0/token/0/loan_collateral_enabled': 'true',
+      'v0/token/0/loan_collateral_factor': '1'
+    }
   })
   await testing.generate(1)
 
-  await testing.rpc.loan.setCollateralToken({
-    token: 'BTC',
-    factor: new BigNumber(0.5),
-    fixedIntervalPriceId: 'BTC/USD'
+  await testing.rpc.masternode.setGov({
+    ATTRIBUTES: {
+      'v0/token/1/fixed_interval_price_id': 'BTC/USD',
+      'v0/token/1/loan_collateral_enabled': 'true',
+      'v0/token/1/loan_collateral_factor': '0.5'
+    }
   })
   await testing.generate(1)
 
   // loan token
-  await testing.rpc.loan.setLoanToken({
-    symbol: 'TSLA',
-    fixedIntervalPriceId: 'TSLA/USD'
+  await testing.rpc.masternode.setGov({
+    ATTRIBUTES: {
+      'v0/token/2/fixed_interval_price_id': 'TSLA/USD',
+      'v0/token/2/loan_minting_enabled': 'true',
+      'v0/token/2/loan_minting_interest': '0'
+    }
   })
   await testing.generate(1)
 
-  await testing.rpc.loan.setLoanToken({
-    symbol: 'DUSD',
-    fixedIntervalPriceId: 'DUSD/USD'
+  await testing.rpc.masternode.setGov({
+    ATTRIBUTES: {
+      'v0/token/3/fixed_interval_price_id': 'DUSD/USD',
+      'v0/token/3/loan_minting_enabled': 'true',
+      'v0/token/3/loan_minting_interest': '0'
+    }
   })
   await testing.generate(1)
 
@@ -85,9 +98,12 @@ async function setup (): Promise<void> {
   })
   await testing.generate(1)
 
+  await testing.container.waitForPriceValid('DFI/USD')
+
   await testing.rpc.loan.depositToVault({
     vaultId: vaultId, from: collateralAddress, amount: '100000@DFI'
   })
+  await testing.generate(1)
 
   // wait till the price valid.
   await testing.container.waitForPriceValid('TSLA/USD')
