@@ -82,7 +82,7 @@ jobs:
     strategy:
       matrix:
         platform: [ linux/amd64 ]
-        app: [ legacy-api, ocean-api, playground-api, status-api ]
+        app: [ legacy-api, ocean-api, playground-api, status-api, whale-api ]
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@8b122486cedac8393e77aa9734c3528886e4a1a8
