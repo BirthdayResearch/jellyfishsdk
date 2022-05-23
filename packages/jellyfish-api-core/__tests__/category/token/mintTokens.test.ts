@@ -63,7 +63,6 @@ describe('Token', () => {
     const txid = await testing.rpc.token.mintTokens('0.00000001@DETH')
     expect(typeof txid).toStrictEqual('string')
     expect(txid.length).toStrictEqual(64)
-
     await container.generate(1)
 
     tokenBalances = await testing.rpc.account.getTokenBalances()
@@ -89,14 +88,14 @@ describe('Token', () => {
     expect(tokenBalances).toContain('6.00000000@3')
   })
 
-  it('should not mintTokens if quantity = 0', async () => {
+  it('should not mintTokens if quantity is 0', async () => {
     const promise = testing.rpc.token.mintTokens('0@DBTC')
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('Amount out of range')
   })
 
-  it('should not mintTokens if quantity = -1', async () => {
+  it('should not mintTokens if quantity is -1', async () => {
     const promise = testing.rpc.token.mintTokens('-1@DBTC')
 
     await expect(promise).rejects.toThrow(RpcApiError)
@@ -117,7 +116,7 @@ describe('Token', () => {
     await expect(promise).rejects.toThrow('Invalid Defi token: BTC\', code: 0, method: minttokens')
   })
 
-  it('should not mintTokens if parameter is any arbitrary string', async () => {
+  it('should not mintTokens if parameter is an arbitrary string', async () => {
     const promise = testing.rpc.token.mintTokens('abcde')
 
     await expect(promise).rejects.toThrow(RpcApiError)
