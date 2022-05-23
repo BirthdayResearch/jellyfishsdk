@@ -2,7 +2,7 @@ const Dockerode = require('dockerode')
 const path = require('path')
 const { pack } = require('tar-fs')
 
-const apps = ['whale']
+const apps = ['whale-api']
 
 module.exports = async function () {
   console.log('\nPreloading sanity images, this may take a while...')

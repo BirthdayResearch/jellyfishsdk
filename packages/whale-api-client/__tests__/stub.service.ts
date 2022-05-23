@@ -1,10 +1,10 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp } from '@defichain-apps/nest-apps/whale/src/e2e.module'
-import { addressToHid } from '@defichain-apps/nest-apps/whale/src/module.api/address.controller'
+import { createTestingApp } from '@defichain-apps/nest-apps/whale-api/src/e2e.module'
+import { addressToHid } from '@defichain-apps/nest-apps/whale-api/src/module.api/address.controller'
 import waitForExpect from 'wait-for-expect'
-import { ScriptAggregationMapper } from '@defichain-apps/nest-apps/whale/src/module.model/script.aggregation'
-import { BlockMapper } from '@defichain-apps/nest-apps/whale/src/module.model/block'
+import { ScriptAggregationMapper } from '@defichain-apps/nest-apps/whale-api/src/module.model/script.aggregation'
+import { BlockMapper } from '@defichain-apps/nest-apps/whale-api/src/module.model/block'
 
 /**
  * Service stubs are simulations of a real service, which are used for functional testing.
