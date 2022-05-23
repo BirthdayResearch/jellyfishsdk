@@ -53,6 +53,6 @@ jobs:
           ECR_REPOSITORY: ${{ matrix.app }}
           IMAGE_TAG: ${{ steps.ecr-tags.outputs.result }}
         run: |
-          docker buildx build --build-arg $ECR_REPOSITORY -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG --push .
-          docker buildx build --build-arg $ECR_REPOSITORY --platform "linux/amd64" -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG-amd --push  .
-          docker buildx build --build-arg $ECR_REPOSITORY --platform "linux/arm64" -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG-arm --push  .
+          docker buildx build --build-arg APP=$ECR_REPOSITORY -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG --push .
+          docker buildx build --build-arg APP=$ECR_REPOSITORY --platform "linux/amd64" -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG-amd --push  .
+          docker buildx build --build-arg APP=$ECR_REPOSITORY --platform "linux/arm64" -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG-arm --push  .
