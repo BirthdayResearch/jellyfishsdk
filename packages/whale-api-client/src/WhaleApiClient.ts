@@ -80,6 +80,7 @@ export class WhaleApiClient {
     protected readonly options: WhaleApiClientOptions
   ) {
     this.options = { ...DEFAULT_OPTIONS, ...options }
+    this.options.url = this.options.url?.replace(/\/$/, '')
   }
 
   /**
