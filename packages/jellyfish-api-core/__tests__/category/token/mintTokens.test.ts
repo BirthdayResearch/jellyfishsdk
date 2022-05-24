@@ -403,7 +403,7 @@ describe('Token with gov attributes', () => {
 
     const promise = john.rpc.token.mintTokens('10.1@DBTC')
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('You will exceed your maximum mint limit for DBTC token by minting this amount')
+    await expect(promise).rejects.toThrow('You will exceed global maximum consortium mint limit for DBTC token by minting this amount!')
   })
 
   it('should not mintTokens if member limit is not set and amount = global limit', async () => {
