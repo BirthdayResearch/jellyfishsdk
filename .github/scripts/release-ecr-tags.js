@@ -7,7 +7,7 @@
 
 module.exports = ({ context }) => {
   if (context.eventName === 'pull_request'){
-    return '2.0.0'
+    return '2.1.0'
   }
 
   if (context.eventName === 'release') {
