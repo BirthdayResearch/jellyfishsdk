@@ -194,7 +194,7 @@ describe('loan.setLoanToken()', () => {
     }, script)
     const promise = sendTransaction(testing.container, txn)
 
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'SetLoanTokenTx: no live oracles for specified request (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'SetLoanTokenTx: Price feed MFST/USD does not belong to any oracle (code 16)\', code: -26')
   })
 
   it('should setLoanToken with the given name', async () => {

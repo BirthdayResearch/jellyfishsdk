@@ -46,7 +46,6 @@ describe('Masternode', () => {
     expect(typeof mn.resignHeight).toStrictEqual('number')
     expect(typeof mn.resignTx).toStrictEqual('string')
     expect(typeof mn.rewardAddress).toStrictEqual('string')
-    expect(typeof mn.collateralTx).toStrictEqual('string')
     expect(mn.state).toStrictEqual(MasternodeState.PRE_ENABLED)
     expect(typeof mn.state).toStrictEqual('string')
     expect(typeof mn.mintedBlocks).toStrictEqual('number')
