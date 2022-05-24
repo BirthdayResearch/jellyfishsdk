@@ -45,16 +45,31 @@ describe('Token', () => {
   })
 
   it('should mintTokens', async () => {
-    let tokenBalances = await testing.rpc.account.getTokenBalances()
-    expect(tokenBalances).not.toContain('7.00000000@1')
+    {
+      let tokenBalances = await testing.rpc.account.getTokenBalances()
+      expect(tokenBalances).not.toContain('7.00000000@1')
 
-    const txid = await testing.rpc.token.mintTokens('7@DBTC')
-    expect(typeof txid).toStrictEqual('string')
-    expect(txid.length).toStrictEqual(64)
-    await container.generate(1)
+      const txid = await testing.rpc.token.mintTokens('7@DBTC')
+      expect(typeof txid).toStrictEqual('string')
+      expect(txid.length).toStrictEqual(64)
+      await container.generate(1)
 
-    tokenBalances = await testing.rpc.account.getTokenBalances()
-    expect(tokenBalances).toContain('7.00000000@1')
+      tokenBalances = await testing.rpc.account.getTokenBalances()
+      expect(tokenBalances).toContain('7.00000000@1')
+    }
+
+    // Multiple minTokens in the same block
+    {
+      let tokenBalances = await testing.rpc.account.getTokenBalances()
+      expect(tokenBalances).not.toContain('24.00000000@1')
+
+      await testing.rpc.token.mintTokens('8@DBTC')
+      await testing.rpc.token.mintTokens('9@DBTC')
+      await container.generate(1)
+
+      tokenBalances = await testing.rpc.account.getTokenBalances()
+      expect(tokenBalances).toContain('24.00000000@1')
+    }
   })
 
   it('should mintTokens with 1 satoshi', async () => {
