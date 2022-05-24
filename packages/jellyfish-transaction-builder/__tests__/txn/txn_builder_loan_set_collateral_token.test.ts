@@ -1,7 +1,7 @@
 import { GenesisKeys } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
-import { calculateTxid, fundEllipticPair, sendTransaction } from '../test.utils'
+import { fundEllipticPair, sendTransaction } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
@@ -71,13 +71,12 @@ describe('loan.setCollateralToken()', () => {
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
     expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
 
-    const collateralTokenId = calculateTxid(txn)
     const data = await testing.container.call('getcollateraltoken', ['AAPL'])
     expect(data).toStrictEqual({
       token: 'AAPL',
       factor: 0.5,
       fixedIntervalPriceId: 'AAPL/USD',
-      tokenId: collateralTokenId
+      tokenId: expect.stringMatching(/[0-f]{64}/)
     })
   })
 

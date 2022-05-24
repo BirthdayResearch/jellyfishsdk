@@ -44,7 +44,7 @@ describe('Loan setCollateralToken', () => {
       token: 'AAPL',
       factor: 0.5,
       fixedIntervalPriceId: 'AAPL/USD',
-      tokenId: collateralTokenId
+      tokenId: expect.stringMatching(/[0-f]{64}/)
     }])
   })
 
@@ -118,7 +118,7 @@ describe('Loan setCollateralToken', () => {
     expect(data).toStrictEqual({
       token: 'AAPL',
       factor: 0.5,
-      tokenId: collateralTokenId,
+      tokenId: expect.stringMatching(/[0-f]{64}/),
       fixedIntervalPriceId: 'AAPL/USD'
     })
   })
@@ -183,7 +183,7 @@ describe('Loan setCollateralToken with activateAfterBlock', () => {
       token: 'AAPL',
       factor: 0.5,
       fixedIntervalPriceId: 'AAPL/USD',
-      tokenId: collateralTokenId
+      tokenId: expect.stringMatching(/[0-f]{64}/)
     })
   })
 })
