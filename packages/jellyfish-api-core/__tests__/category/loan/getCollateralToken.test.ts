@@ -29,7 +29,7 @@ describe('Loan getCollateralToken', () => {
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@AAPL', currency: 'USD' }] })
     await testing.generate(1)
 
-    await testing.container.call('setcollateraltoken', [{
+    const collateralTokenId = await testing.container.call('setcollateraltoken', [{
       token: 'AAPL',
       factor: new BigNumber(0.5),
       fixedIntervalPriceId: 'AAPL/USD'
@@ -47,7 +47,7 @@ describe('Loan getCollateralToken', () => {
         token: 'AAPL',
         factor: new BigNumber(0.5),
         fixedIntervalPriceId: 'AAPL/USD',
-        tokenId: '0000000000000000000000000000000000000000000000000000000000000000'
+        tokenId: collateralTokenId
       })
     }
   })
