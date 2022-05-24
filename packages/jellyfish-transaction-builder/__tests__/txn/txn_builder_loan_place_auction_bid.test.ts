@@ -32,8 +32,10 @@ let tslaSwapAmount: number
 const netInterest = (3 + 0) / 100 // (scheme.rate + loanToken.interest) / 100
 const blocksPerDay = (60 * 60 * 24) / (10 * 60) // 144 in regtest
 
+const currentTime = Math.floor(new Date().getTime() / 1000)
+
 function now (): number {
-  return Math.floor(new Date().getTime() / 1000)
+  return currentTime
 }
 
 async function setup (): Promise<void> {

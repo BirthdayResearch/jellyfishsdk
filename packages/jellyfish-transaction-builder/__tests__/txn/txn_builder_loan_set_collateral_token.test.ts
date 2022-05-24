@@ -1,7 +1,7 @@
 import { GenesisKeys } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
-import { calculateTxid, fundEllipticPair, sendTransaction } from '../test.utils'
+import { fundEllipticPair, sendTransaction } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
@@ -71,14 +71,12 @@ describe('loan.setCollateralToken()', () => {
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
     expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
 
-    const collateralTokenId = calculateTxid(txn)
     const data = await testing.container.call('getcollateraltoken', ['AAPL'])
     expect(data).toStrictEqual({
       token: 'AAPL',
       factor: 0.5,
       fixedIntervalPriceId: 'AAPL/USD',
-      activateAfterBlock: await testing.container.getBlockCount(),
-      tokenId: collateralTokenId
+      tokenId: '0000000000000000000000000000000000000000000000000000000000000000'
     })
   })
 
@@ -103,7 +101,7 @@ describe('loan.setCollateralToken()', () => {
       activateAfterBlock: 0
     }, script)
     const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'SetLoanCollateralTokenTx: setCollateralToken factor must be lower or equal than 1.00000000! (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'SetLoanCollateralTokenTx: Percentage exceeds 100% (code 16)', code: -26")
   })
 
   it('should not setCollateralToken if currencyPair does not belong to any oracle', async () => {
@@ -166,65 +164,13 @@ describe('loan.setCollateralToken() with activateAfterBlock', () => {
       activateAfterBlock: 160
     }, script)
     await sendTransaction(testing.container, txn)
-    const collateralTokenId = calculateTxid(txn)
     const data = await testing.rpc.loan.listCollateralTokens()
     expect(data).toStrictEqual([{
       token: 'AAPL',
       factor: new BigNumber(0.5),
       fixedIntervalPriceId: 'AAPL/USD',
-      activateAfterBlock: new BigNumber(160),
-      tokenId: collateralTokenId
+      tokenId: '0000000000000000000000000000000000000000000000000000000000000000'
     }]
     )
-  })
-})
-
-describe('loan.setCollateralToken() with activateAfterBlock below current height', () => {
-  const container = new LoanMasterNodeRegTestContainer()
-  const testing = Testing.create(container)
-
-  let providers: MockProviders
-  let builder: P2WPKHTransactionBuilder
-
-  beforeAll(async () => {
-    await testing.container.start()
-    await testing.container.waitForWalletCoinbaseMaturity()
-
-    providers = await getProviders(testing.container)
-    providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
-    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
-  })
-
-  afterAll(async () => {
-    await testing.container.stop()
-  })
-
-  it('should not setCollateralToken', async () => {
-    await testing.token.create({ symbol: 'AAPL' })
-    await testing.generate(1)
-
-    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-      token: 'AAPL',
-      currency: 'USD'
-    }], 1])
-    await testing.generate(1)
-
-    // Fund 10 DFI UTXO
-    await fundEllipticPair(testing.container, providers.ellipticPair, 10)
-    await providers.setupMocks() // Required to move utxos
-
-    // Wait for block 150
-    await testing.container.waitForBlockHeight(150)
-
-    // To setCollateralToken at block 149
-    const script = await providers.elliptic.script()
-    const txn = await builder.loans.setCollateralToken({
-      token: 1,
-      factor: new BigNumber(0.5),
-      currencyPair: { token: 'AAPL', currency: 'USD' },
-      activateAfterBlock: 149
-    }, script)
-    const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'SetLoanCollateralTokenTx: activateAfterBlock cannot be less than current height! (code 16)\', code: -26')
   })
 })
