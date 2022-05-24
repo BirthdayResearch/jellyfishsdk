@@ -507,7 +507,6 @@ export interface CollateralTokenDetail {
   token: string
   factor: BigNumber
   fixedIntervalPriceId: string
-  activateAfterBlock: BigNumber
   tokenId: string
 }
 

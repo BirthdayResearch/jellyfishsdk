@@ -55,7 +55,7 @@ describe('test', () => {
       await controller.test({ hex: '0400000100881133bb11aa00cc' })
     } catch (err) {
       expect(err).toBeInstanceOf(BadRequestApiException)
-      expect(err.response.error).toStrictEqual({
+      expect((err).response.error).toStrictEqual({
         code: 400,
         type: 'BadRequest',
         message: 'Transaction decode failed',
@@ -73,7 +73,7 @@ describe('test', () => {
       })
     } catch (err) {
       expect(err).toBeInstanceOf(BadRequestApiException)
-      expect(err.response.error).toStrictEqual({
+      expect((err).response.error).toStrictEqual({
         code: 400,
         type: 'BadRequest',
         at: expect.any(Number),
@@ -119,7 +119,7 @@ describe('send', () => {
       })
     } catch (err) {
       expect(err).toBeInstanceOf(BadRequestApiException)
-      expect(err.response.error).toStrictEqual({
+      expect((err).response.error).toStrictEqual({
         code: 400,
         type: 'BadRequest',
         at: expect.any(Number),
@@ -137,7 +137,7 @@ describe('send', () => {
       })
     } catch (err) {
       expect(err).toBeInstanceOf(BadRequestApiException)
-      expect(err.response.error).toStrictEqual({
+      expect((err).response.error).toStrictEqual({
         code: 400,
         type: 'BadRequest',
         at: expect.any(Number),

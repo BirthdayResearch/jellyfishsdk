@@ -85,7 +85,7 @@ describe('get', () => {
       await controller.get('invalidtransactionid')
     } catch (err) {
       expect(err).toBeInstanceOf(NotFoundException)
-      expect(err.response).toStrictEqual({
+      expect((err).response).toStrictEqual({
         statusCode: 404,
         message: 'transaction not found',
         error: 'Not Found'

@@ -109,7 +109,6 @@ describe('list', () => {
       tokenId: expect.any(String),
       fixedIntervalPriceId: expect.any(String),
       factor: expect.any(String),
-      activateAfterBlock: expect.any(Number),
       token: {
         collateralAddress: expect.any(String),
         creation: {
@@ -178,7 +177,6 @@ describe('get', () => {
         tokenId: collateralTokenId1,
         fixedIntervalPriceId: 'AAPL/USD',
         factor: '0.1',
-        activateAfterBlock: 108,
         token: {
           collateralAddress: expect.any(String),
           creation: {
@@ -215,7 +213,7 @@ describe('get', () => {
       await controller.getCollateral('999')
     } catch (err) {
       expect(err).toBeInstanceOf(NotFoundException)
-      expect(err.response).toStrictEqual({
+      expect((err).response).toStrictEqual({
         statusCode: 404,
         message: 'Unable to find collateral token',
         error: 'Not Found'
