@@ -11,7 +11,7 @@ import { governance } from '@defichain/jellyfish-api-core'
 import { TxnBuilderError } from '../../src/txn/txn_builder_error'
 import { RegTest } from '@defichain/jellyfish-network'
 
-describe('createVoc', () => {
+describe.skip('createVoc', () => {
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
   const testing = Testing.create(new GovernanceMasterNodeRegTestContainer())
