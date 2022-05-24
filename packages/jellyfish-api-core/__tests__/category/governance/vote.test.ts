@@ -3,7 +3,7 @@ import { RpcApiError } from '../../../src'
 import { VoteDecision } from '../../../src/category/governance'
 import { GovernanceMasterNodeRegTestContainer } from './governance_container'
 
-describe('Governance', () => {
+describe.skip('Governance', () => {
   const container = new GovernanceMasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 

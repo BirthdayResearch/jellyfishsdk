@@ -3,7 +3,7 @@ import { ProposalStatus, ProposalType } from '../../../src/category/governance'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { GovernanceMasterNodeRegTestContainer } from './governance_container'
 
-describe('Governance', () => {
+describe.skip('Governance', () => {
   const container = new GovernanceMasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -60,7 +60,7 @@ describe('Governance', () => {
   })
 })
 
-describe('Governance while still in Initial Block Download', () => {
+describe.skip('Governance while still in Initial Block Download', () => {
   const container = new GovernanceMasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -80,7 +80,7 @@ describe('Governance while still in Initial Block Download', () => {
   })
 })
 
-describe('Governance with insufficient fund', () => {
+describe.skip('Governance with insufficient fund', () => {
   const container = new GovernanceMasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
