@@ -36,8 +36,9 @@ export class RegTestContainer extends DeFiDContainer {
       '-fortcanningmuseumheight=9',
       '-fortcanninghillheight=10',
       '-fortcanningroadheight=11',
-      '-greatworldheight=110',
-      '-fortcanningparkheight=50'
+      '-greatworldheight=120',
+      '-fortcanningparkheight=50',
+      '-subsidytest=1'
     ]
 
     if (opts.startFlags != null && opts.startFlags.length > 0) {
