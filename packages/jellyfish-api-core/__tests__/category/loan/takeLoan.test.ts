@@ -380,15 +380,14 @@ describe('takeLoan success', () => {
         vaultId: vaultId,
         loanSchemeId: 'scheme5',
         ownerAddress: expect.any(String),
-        state: 'mayLiquidate',
-        collateralAmounts: ['10000.00000000@DFI'],
-        loanAmounts: ['509.51293760@TSLA', '1019.02587520@GOOGL'],
-        interestAmounts: ['9.51293760@TSLA', '19.02587520@GOOGL'],
-        collateralValue: new BigNumber('10000'),
-        loanValue: new BigNumber('5095.12937600000000'),
-        interestValue: new BigNumber('95.12937600000000'),
-        informativeRatio: new BigNumber('196.26587005'),
-        collateralRatio: 196
+        state: 'inLiquidation',
+        liquidationHeight: expect.any(Number),
+        batchCount: 2,
+        liquidationPenalty: 5,
+        batches: [
+          { index: 0, collaterals: ['2000.00000000@DFI'], loan: '504.75646880@TSLA' },
+          { index: 1, collaterals: ['8000.00000000@DFI'], loan: '1009.51293760@GOOGL' }
+        ]
       })
     }
   })
