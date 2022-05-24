@@ -85,6 +85,6 @@
     "testcontainers": "^8.10.1",
     "ts-loader": "^9.3.0",
     "ts-node": "^10.7.0",
-    "tsconfig-paths": "^3.13.0"
+    "tsconfig-paths": "^4.0.0"
   }
 }
