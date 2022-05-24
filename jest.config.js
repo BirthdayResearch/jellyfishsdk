@@ -12,6 +12,9 @@ module.exports = {
   verbose: true,
   clearMocks: true,
   testTimeout: 180000,
+  testPathIgnorePatterns: [
+    '__sanity__'
+  ],
   coveragePathIgnorePatterns: [
     '/node_modules/',
     '/examples/',

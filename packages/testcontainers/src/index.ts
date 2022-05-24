@@ -24,3 +24,5 @@ export * from './containers/RegTestContainer/ContainerGroup'
 export * from './utils'
 
 export * from './containers/RegTestContainer/LoanContainer'
+
+export * from './containers/AppContainer/WhaleSanityContainer'

@@ -46,7 +46,7 @@ export class WhaleApiProbeIndicator extends ProbeIndicator {
       useFactory: (configService: ConfigService): WhaleApiClient => {
         return new WhaleApiClient({
           version: 'v0',
-          network: configService.get<string>('network'),
+          network: configService.get<string>('network') ?? 'mainnet',
           url: 'https://ocean.defichain.com'
         })
       },

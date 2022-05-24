@@ -1,7 +1,7 @@
 import { Controller, Get, Param } from '@nestjs/common'
 import { WhaleApiClient } from '@defichain/whale-api-client'
 import { Oracle } from '@defichain/whale-api-client/dist/api/Oracles'
-import { SemaphoreCache } from '../../../whale/src/module.api/cache/semaphore.cache'
+import { SemaphoreCache } from '../../../whale-api/src/module.api/cache/semaphore.cache'
 
 type OracleStatus = 'outage' | 'operational'
 

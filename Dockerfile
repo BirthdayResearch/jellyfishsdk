@@ -1,4 +1,5 @@
 FROM node:16-alpine3.13
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 # Add curl to use docker healthcheck capability
 RUN apk --no-cache add curl
