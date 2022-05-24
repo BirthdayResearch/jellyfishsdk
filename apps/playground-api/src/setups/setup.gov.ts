@@ -64,12 +64,7 @@ export class SetupGov extends PlaygroundSetup<Record<string, any>> {
   }
 
   async has (each: any): Promise<boolean> {
-    const key = Object.keys(each)[0]
-    const gov = await this.client.masternode.getGov(key)
-    if (Object.keys(gov[key]).length > 0) {
-      return true
-    }
-    return false
+    return false // for just overwrite
   }
 
   async after (): Promise<void> {
