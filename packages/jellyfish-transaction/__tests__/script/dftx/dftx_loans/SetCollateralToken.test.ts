@@ -15,7 +15,7 @@ it('should bi-directional buffer-object-buffer', () => {
      *    token: '1',
      *    factor: new BigNumber(0.1),
      *    currencyPair: {token: 'Token1', currency: 'USD'}
-     *    activateAfterBlock: 0
+     *    activateAfterBlock: 0 // always defaulted to 0 in C++ side
      * }
      */
     '6a1d446654786301809698000000000006546f6b656e310355534400000000',
@@ -24,19 +24,19 @@ it('should bi-directional buffer-object-buffer', () => {
      *    token: '1',
      *    factor: new BigNumber(0.1),
      *    currencyPair: {token: 'Token1', currency: 'USD'}
-     *    activateAfterBlock: 130
+     *    activateAfterBlock: 0 // always defaulted to 0 in C++ side
      * }
      */
-    '6a1d446654786301809698000000000006546f6b656e310355534482000000',
+    '6a1d446654786301809698000000000006546f6b656e310355534400000000',
     /**
      * loan : {
      *    token: '2',
      *    factor: new BigNumber(0.2),
      *    currencyPair: {token: 'Token2', currency: 'USD'}
-     *    activateAfterBlock: 140
+     *    activateAfterBlock: 0 // always defaulted to 0 in C++ side
      * }
      */
-    '6a1d446654786302002d31010000000006546f6b656e32035553448c000000'
+    '6a1d446654786302002d31010000000006546f6b656e320355534400000000'
   ]
 
   fixtures.forEach(hex => {
@@ -54,13 +54,13 @@ describe('SetCollateralToken', () => {
   // SetCollateralToken.token[LE](01)
   // SetCollateralToken.factor[LE](8096980000000000)
   // SetCollateralToken.currencyPair[BE] (06546f6b656e3103555344)
-  // SetCollateralToken.activateAfterBlock[LE] (82000000)
-  const data = '01809698000000000006546f6b656e310355534482000000'
+  // SetCollateralToken.activateAfterBlock[LE] (00000000)
+  const data = '01809698000000000006546f6b656e310355534400000000'
   const setCollateralToken: SetCollateralToken = {
     token: 1,
     factor: new BigNumber(0.1),
     currencyPair: { token: 'Token1', currency: 'USD' },
-    activateAfterBlock: 130
+    activateAfterBlock: 0
   }
 
   it('should craft dftx with OP_CODES._()', () => {
