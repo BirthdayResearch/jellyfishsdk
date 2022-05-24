@@ -42,7 +42,7 @@ describe('Loan listCollateralTokens', () => {
     await testing.rpc.oracle.setOracleData(oracleId2, timestamp2, { prices: [{ tokenAmount: '0.5@TSLA', currency: 'USD' }] })
     await testing.generate(1)
 
-    const collateralTokenId1 = await testing.container.call('setcollateraltoken', [{
+    await testing.container.call('setcollateraltoken', [{
       token: 'AAPL',
       factor: new BigNumber(0.5),
       fixedIntervalPriceId: 'AAPL/USD'
@@ -50,7 +50,7 @@ describe('Loan listCollateralTokens', () => {
     await testing.generate(1) // Activate at next block
     const blockCount = await testing.container.getBlockCount()
 
-    const collateralTokenId2 = await testing.container.call('setcollateraltoken', [{
+    await testing.container.call('setcollateraltoken', [{
       token: 'TSLA',
       factor: new BigNumber(1),
       fixedIntervalPriceId: 'TSLA/USD',
@@ -62,17 +62,15 @@ describe('Loan listCollateralTokens', () => {
       // List collateral tokens that are activated
       const data = await testing.rpc.loan.listCollateralTokens()
       expect(data).toStrictEqual([{
-        activateAfterBlock: new BigNumber(blockCount),
         factor: new BigNumber(0.5),
         fixedIntervalPriceId: 'AAPL/USD',
         token: 'AAPL',
-        tokenId: collateralTokenId1
+        tokenId: '0000000000000000000000000000000000000000000000000000000000000000'
       }, {
-        activateAfterBlock: new BigNumber(blockCount + 30),
         factor: new BigNumber(1.0),
         fixedIntervalPriceId: 'TSLA/USD',
         token: 'TSLA',
-        tokenId: collateralTokenId2
+        tokenId: '0000000000000000000000000000000000000000000000000000000000000000'
       }])
     }
   })

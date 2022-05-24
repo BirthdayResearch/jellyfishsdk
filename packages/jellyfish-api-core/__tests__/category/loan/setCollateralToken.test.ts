@@ -44,7 +44,7 @@ describe('Loan setCollateralToken', () => {
       token: 'AAPL',
       factor: 0.5,
       fixedIntervalPriceId: 'AAPL/USD',
-      tokenId: collateralTokenId
+      tokenId: '0000000000000000000000000000000000000000000000000000000000000000'
     }])
   })
 
@@ -118,9 +118,8 @@ describe('Loan setCollateralToken', () => {
     expect(data).toStrictEqual({
       token: 'AAPL',
       factor: 0.5,
-      tokenId: collateralTokenId,
-      fixedIntervalPriceId: 'AAPL/USD',
-      activateAfterBlock: await testing.container.getBlockCount()
+      tokenId: '0000000000000000000000000000000000000000000000000000000000000000',
+      fixedIntervalPriceId: 'AAPL/USD'
     })
   })
 
@@ -184,49 +183,7 @@ describe('Loan setCollateralToken with activateAfterBlock', () => {
       token: 'AAPL',
       factor: 0.5,
       fixedIntervalPriceId: 'AAPL/USD',
-      activateAfterBlock: 120,
-      tokenId: collateralTokenId
+      tokenId: '0000000000000000000000000000000000000000000000000000000000000000'
     })
-  })
-})
-
-describe('Loan setCollateralToken with activateAfterBlock less than the current block', () => {
-  const container = new LoanMasterNodeRegTestContainer()
-  const testing = Testing.create(container)
-
-  beforeAll(async () => {
-    await testing.container.start()
-    await testing.container.waitForWalletCoinbaseMaturity()
-  })
-
-  afterAll(async () => {
-    await testing.container.stop()
-  })
-
-  it('should not setCollateralToken', async () => {
-    await testing.token.create({ symbol: 'AAPL' })
-    await testing.generate(1)
-
-    const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-      token: 'AAPL',
-      currency: 'USD'
-    }], 1])
-    await testing.generate(1)
-
-    const timestamp = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@AAPL', currency: 'USD' }] })
-    await testing.generate(1)
-
-    // Wait for block 110
-    await testing.container.waitForBlockHeight(110)
-
-    // To setCollateralToken at block 109
-    const promise = testing.rpc.loan.setCollateralToken({
-      token: 'AAPL',
-      factor: new BigNumber(0.5),
-      fixedIntervalPriceId: 'AAPL/USD',
-      activateAfterBlock: 109
-    })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test SetLoanCollateralTokenTx execution failed:\nactivateAfterBlock cannot be less than current height!\', code: -32600, method: setcollateraltoken')
   })
 })

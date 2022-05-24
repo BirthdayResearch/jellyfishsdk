@@ -29,20 +29,12 @@ describe('Loan getCollateralToken', () => {
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@AAPL', currency: 'USD' }] })
     await testing.generate(1)
 
-    const collateralTokenId = await testing.container.call('setcollateraltoken', [{
+    await testing.container.call('setcollateraltoken', [{
       token: 'AAPL',
       factor: new BigNumber(0.5),
-      fixedIntervalPriceId: 'AAPL/USD',
-      activateAfterBlock: 120
+      fixedIntervalPriceId: 'AAPL/USD'
     }])
     await testing.generate(1)
-
-    {
-      const data1 = await testing.rpc.loan.getCollateralToken('AAPL')
-      const data2 = await testing.rpc.loan.getCollateralToken('1')
-      expect(data1).toStrictEqual(data2)
-      expect(data1).toStrictEqual({}) // Return empty string if the collateral tokens are not activated yet
-    }
 
     // Wait for block 120
     await testing.container.waitForBlockHeight(120)
@@ -55,8 +47,7 @@ describe('Loan getCollateralToken', () => {
         token: 'AAPL',
         factor: new BigNumber(0.5),
         fixedIntervalPriceId: 'AAPL/USD',
-        activateAfterBlock: new BigNumber(120),
-        tokenId: collateralTokenId
+        tokenId: '0000000000000000000000000000000000000000000000000000000000000000'
       })
     }
   })
