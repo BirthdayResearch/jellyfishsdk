@@ -1,4 +1,4 @@
-import { CreateGovCfp, CreateGovVoc, OP_CODES, Script, TransactionSegWit, Vote, SetGovernance, SetGovernanceHeight } from '@defichain/jellyfish-transaction'
+import { CreateGovCfp, CreateGovVoc, OP_CODES, Script, TransactionSegWit, VoteGov, SetGovernance, SetGovernanceHeight } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 import { TxnBuilderError, TxnBuilderErrorType } from './txn_builder_error'
 import BigNumber from 'bignumber.js'
@@ -49,13 +49,13 @@ export class TxnBuilderGovernance extends P2WPKHTxnBuilder {
   /**
    * Vote on a community proposal.
    *
-   * @param {Vote} vote txn to create
+   * @param {VoteGov} voteGov txn to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @returns {Promise<TransactionSegWit>}
    */
-  async voteGov (vote: Vote, changeScript: Script): Promise<TransactionSegWit> {
+  async voteGov (voteGov: VoteGov, changeScript: Script): Promise<TransactionSegWit> {
     return await this.createDeFiTx(
-      OP_CODES.OP_DEFI_TX_VOTE(vote),
+      OP_CODES.OP_DEFI_TX_VOTE(voteGov),
       changeScript
     )
   }

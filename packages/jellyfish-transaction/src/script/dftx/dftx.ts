@@ -73,8 +73,8 @@ import {
   CCreateGovCfp,
   CCreateGovVoc,
   CreateProposal,
-  CVote,
-  Vote
+  CVoteGov,
+  VoteGov
 } from './dftx_governance'
 import {
   CSetLoanScheme,
@@ -243,8 +243,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<CreateProposal>(CCreateGovCfp.OP_NAME, d => new CCreateGovCfp(d))
       case CCreateGovVoc.OP_CODE:
         return compose<CreateProposal>(CCreateGovVoc.OP_NAME, d => new CCreateGovVoc(d))
-      case CVote.OP_CODE:
-        return compose<Vote>(CVote.OP_NAME, d => new CVote(d))
+      case CVoteGov.OP_CODE:
+        return compose<VoteGov>(CVoteGov.OP_NAME, d => new CVoteGov(d))
       case CICXSubmitDFCHTLC.OP_CODE:
         return compose<ICXSubmitDFCHTLC>(CICXSubmitDFCHTLC.OP_NAME, d => new CICXSubmitDFCHTLC(d))
       case CICXSubmitEXTHTLC.OP_CODE:

@@ -12,14 +12,14 @@ import { RegTest, RegTestFoundationKeys } from '@defichain/jellyfish-network'
 describe('createGovCfp', () => {
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
-  const testing = Testing.create(new MasterNodeRegTestContainer())
+  const testing = Testing.create(new MasterNodeRegTestContainer(RegTestFoundationKeys[RegTestFoundationKeys.length - 1]))
 
   beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
 
     providers = await getProviders(testing.container)
-    providers.setEllipticPair(WIF.asEllipticPair(RegTestFoundationKeys[0].owner.privKey)) // set it to container default
+    providers.setEllipticPair(WIF.asEllipticPair(RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.privKey)) // set it to container default
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     await testing.container.waitForWalletBalanceGTE(11)
@@ -52,9 +52,6 @@ describe('createGovCfp', () => {
 
     const encoded: string = OP_CODES.OP_DEFI_TX_CREATE_CFP(createGovCfp).asBuffer().toString('hex')
     const expectedRedeemScript = `6a${encoded}`
-
-    await testing.rpc.wallet.sendToAddress(RegTestFoundationKeys[0].owner.address, 1)
-    await testing.container.generate(1)
 
     const outs = await sendTransaction(testing.container, txn)
     expect(outs[0].value).toStrictEqual(1)
@@ -96,9 +93,6 @@ describe('createGovCfp', () => {
       },
       cycles: 2
     }, script)
-
-    await testing.rpc.wallet.sendToAddress(RegTestFoundationKeys[0].owner.address, 3)
-    await testing.container.generate(1)
 
     const promise = sendTransaction(testing.container, txn)
 

@@ -5,7 +5,7 @@ import { P2WPKHTransactionBuilder } from '../../src'
 import { calculateTxid, fundEllipticPair, sendTransaction } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
-import { OP_CODES, Vote } from '@defichain/jellyfish-transaction'
+import { OP_CODES, VoteGov } from '@defichain/jellyfish-transaction'
 import { RegTest, RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
 class CustomOperatorMasterNodeRegTestContainer extends MasterNodeRegTestContainer {
@@ -69,7 +69,7 @@ describe('vote', () => {
 
     await testing.container.generate(1, masternodeOperatorAddress) // Mint one block to be able to vote on proposal
 
-    const vote: Vote = {
+    const vote: VoteGov = {
       voteDecision: 0x01,
       proposalId,
       masternodeId

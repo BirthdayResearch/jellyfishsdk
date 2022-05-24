@@ -104,8 +104,8 @@ import {
   CCreateGovVoc,
   CreateGovCfp,
   CreateGovVoc,
-  CVote,
-  Vote
+  CVoteGov,
+  VoteGov
 } from './dftx/dftx_governance'
 import {
   CICXCreateOrder,
@@ -453,12 +453,12 @@ export const OP_CODES = {
       data: createGovVoc
     })
   },
-  OP_DEFI_TX_VOTE: (vote: Vote) => {
+  OP_DEFI_TX_VOTE: (voteGov: VoteGov) => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
-      type: CVote.OP_CODE,
-      name: CVote.OP_NAME,
-      data: vote
+      type: CVoteGov.OP_CODE,
+      name: CVoteGov.OP_NAME,
+      data: voteGov
     })
   },
   OP_DEFI_TX_ICX_SUBMIT_DFC_HTLC: (icxSubmitDFCHTLC: ICXSubmitDFCHTLC): OP_DEFI_TX => {
