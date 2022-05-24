@@ -57,3 +57,5 @@ jobs:
             linux/arm64
           tags: |
             public.ecr.aws/birthdayresearch/${{ matrix.app }}:${{ steps.ecr-tags.outputs.result }}
+            public.ecr.aws/birthdayresearch/${{ matrix.app }}:${{ steps.ecr-tags.outputs.result }}-amd
+            public.ecr.aws/birthdayresearch/${{ matrix.app }}:${{ steps.ecr-tags.outputs.result }}-arm
