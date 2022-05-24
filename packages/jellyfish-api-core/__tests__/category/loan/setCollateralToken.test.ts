@@ -55,7 +55,7 @@ describe('Loan setCollateralToken', () => {
 
   it('should not setCollateralToken if factor is greater than 1', async () => {
     const promise = testing.rpc.loan.setCollateralToken({ token: 'AAPL', factor: new BigNumber(1.01), fixedIntervalPriceId: 'AAPL/USD' })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test SetLoanCollateralTokenTx execution failed:\nsetCollateralToken factor must be lower or equal than 1.00000000!\', code: -32600, method: setcollateraltoken')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test SetLoanCollateralTokenTx execution failed:\nPercentage exceeds 100%\', code: -32600, method: setcollateraltoken')
   })
 
   it('should not setCollateralToken if factor is less than 0', async () => {
