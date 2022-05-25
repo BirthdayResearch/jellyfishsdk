@@ -1,5 +1,5 @@
-import { ApiPagedResponse } from '@defichain/ocean-api-client'
 import { WhaleApiClient } from '../WhaleApiClient'
+import { ApiPagedResponse } from '../WhaleApiResponse'
 
 /**
  * DeFi whale endpoint for poolpair related services.
@@ -94,6 +94,14 @@ export class PoolPairs {
   async getAllPaths (fromTokenId: string, toTokenId: string): Promise<SwapPathsResult> {
     return await this.client.requestData('GET', `poolpairs/paths/from/${fromTokenId}/to/${toTokenId}`)
   }
+
+  /**
+   * Get all dex prices denominated in a given token
+   * @param {string} [denomination='dUSD'] denomination
+   */
+  async listDexPrices (denomination: string): Promise<DexPricesResult> {
+    return await this.client.requestData('GET', `poolpairs/dexprices?denomination=${denomination}`)
+  }
 }
 
 export interface PoolPairData {
@@ -107,7 +115,12 @@ export interface PoolPairData {
     symbol: string
     displaySymbol: string
     reserve: string // BigNumber
-    blockCommission: string // BigNumber
+    blockCommission: string // BigNumber,
+    fee?: {
+      pct?: string // BigNumber
+      inPct?: string // BigNumber
+      outPct?: string // BigNumber
+    }
   }
   tokenB: {
     id: string
@@ -115,6 +128,11 @@ export interface PoolPairData {
     displaySymbol: string
     reserve: string // BigNumber
     blockCommission: string // BigNumber
+    fee?: {
+      pct?: string // BigNumber
+      inPct?: string // BigNumber
+      outPct?: string // BigNumber
+    }
   }
   priceRatio: {
     ab: string // BigNumber
@@ -229,7 +247,7 @@ export interface BestSwapPathResult {
   fromToken: TokenIdentifier
   toToken: TokenIdentifier
   bestPath: SwapPathPoolPair[]
-  estimatedReturn: string
+  estimatedReturn: string // BigNumber
 }
 
 export interface SwapPathsResult {
@@ -253,4 +271,16 @@ export interface TokenIdentifier {
   id: string
   symbol: string
   displaySymbol: string
+}
+
+export interface DexPricesResult {
+  denomination: TokenIdentifier
+  dexPrices: {
+    [symbol: string]: DexPrice
+  }
+}
+
+export interface DexPrice {
+  token: TokenIdentifier
+  denominationPrice: string // BigNumber
 }

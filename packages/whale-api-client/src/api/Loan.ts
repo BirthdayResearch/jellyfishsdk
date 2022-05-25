@@ -1,7 +1,7 @@
 import { WhaleApiClient } from '../WhaleApiClient'
+import { ApiPagedResponse } from '../WhaleApiResponse'
 import { TokenData } from './Tokens'
 import { ActivePrice } from './Prices'
-import { ApiPagedResponse } from '@defichain/ocean-api-client'
 
 export class Loan {
   constructor (private readonly client: WhaleApiClient) {

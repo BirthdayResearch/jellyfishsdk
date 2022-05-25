@@ -1,6 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { BigNumber, RpcApiError } from '@defichain/jellyfish-api-core'
 import { ContainerAdapterClient } from '../../container_adapter_client'
+import { ReceivedByAddressInfo } from '@defichain/jellyfish-api-core/dist/category/spv'
 
 describe('Spv', () => {
   const container = new MasterNodeRegTestContainer()
@@ -32,10 +33,10 @@ describe('Spv', () => {
     /**
      * Assert that the destination address received the refund
      */
-    const listReceivingAddresses = await container.call('spv_listreceivedbyaddress')
-    const receivingAddress = listReceivingAddresses.find(({ address }: { address: string }) => address === destinationAddress)
-    expect(receivingAddress.address).toStrictEqual(destinationAddress)
-    expect(receivingAddress.txids.some((txid: string) => txid === result.txid)).toStrictEqual(true)
+    const listReceivingAddresses: ReceivedByAddressInfo[] = await container.call('spv_listreceivedbyaddress')
+    const receivingAddress = listReceivingAddresses.find(l => l.address === destinationAddress)
+    expect(receivingAddress?.address).toStrictEqual(destinationAddress)
+    expect(receivingAddress?.txids.some((txid: string) => txid === result.txid)).toStrictEqual(true)
   })
 
   it('should refundHtlc with custom feeRate', async () => {
@@ -55,10 +56,10 @@ describe('Spv', () => {
     /**
      * Assert that the destination address received the refund
      */
-    const listReceivingAddresses = await container.call('spv_listreceivedbyaddress')
-    const receivingAddress = listReceivingAddresses.find(({ address }: { address: string }) => address === destinationAddress)
-    expect(receivingAddress.address).toStrictEqual(destinationAddress)
-    expect(receivingAddress.txids.some((txid: string) => txid === result.txid)).toStrictEqual(true)
+    const listReceivingAddresses: ReceivedByAddressInfo[] = await container.call('spv_listreceivedbyaddress')
+    const receivingAddress = listReceivingAddresses.find(l => l.address === destinationAddress)
+    expect(receivingAddress?.address).toStrictEqual(destinationAddress)
+    expect(receivingAddress?.txids.some((txid: string) => txid === result.txid)).toStrictEqual(true)
   })
 
   it('should not refundHtlc when no unspent HTLC outputs found', async () => {

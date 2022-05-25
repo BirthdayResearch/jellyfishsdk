@@ -2,6 +2,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { Testing } from '@defichain/jellyfish-testing'
 import BigNumber from 'bignumber.js'
 import { VaultActive, VaultState } from '../../../src/category/vault'
+import { Interest } from '@defichain/jellyfish-api-core/dist/category/vault'
 
 describe('Vault getVault', () => {
   const container = new MasterNodeRegTestContainer()
@@ -134,7 +135,7 @@ describe('Vault getVault', () => {
     await testing.generate(1)
 
     // interest info.
-    const interestInfo: any = await testing.rpc.call('getinterest', ['default', 'TSLA'], 'bignumber')
+    const interestInfo: Interest[] = await testing.rpc.call('getinterest', ['default', 'TSLA'], 'bignumber')
 
     const data = await testing.rpc.vault.getVault(vaultId) as VaultActive
     const informativeRatio: BigNumber = data.collateralValue.dividedBy(data.loanValue).multipliedBy(100)
@@ -146,7 +147,7 @@ describe('Vault getVault', () => {
       state: VaultState.ACTIVE,
       collateralAmounts: ['10000.00000000@DFI', '1.00000000@BTC'],
       // 30 TSLA + total interest
-      loanAmounts: [new BigNumber(30).plus(interestInfo[0].totalInterest).toFixed(8) + '@TSLA'], // 30.00000571@TSLA
+      loanAmounts: [`${new BigNumber(30).plus(interestInfo[0].totalInterest).toFixed(8)}@TSLA`], // 30.00000571@TSLA
       interestAmounts: ['0.00000571@TSLA'],
       // (10000 DFI * DFIUSD Price * DFI collaterization factor 1) + (1BTC * BTCUSD Price * BTC collaterization factor 0.5)
       collateralValue: new BigNumber(10000 * 1 * 1).plus(new BigNumber(1 * 10000 * 0.5)),
@@ -246,7 +247,7 @@ describe('Vault getVault', () => {
     {
       // Pass non hex id
       const promise = testing.rpc.vault.getVault('x'.repeat(64))
-      await expect(promise).rejects.toThrow('RpcApiError: \'vaultId must be hexadecimal string (not \'' + 'x'.repeat(64) + '\')\', code: -8, method: getvault')
+      await expect(promise).rejects.toThrow(`RpcApiError: 'vaultId must be hexadecimal string (not '${'x'.repeat(64)}')', code: -8, method: getvault`)
     }
   })
 })

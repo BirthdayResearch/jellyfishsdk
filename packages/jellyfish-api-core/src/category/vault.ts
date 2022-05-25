@@ -193,6 +193,18 @@ export class Vault {
   }
 
   /**
+   * Returns amount of collateral tokens needed to take an amount of loan tokens for a target collateral ratio.
+   *
+   * @param {string[]} loanAmounts Amount as array. Example: [ "amount@token" ]
+   * @param {number} targetRatio Target collateral ratio.
+   * @param {TokenPercentageSplit} [tokenSplit] Object with loans token as key and their percent split as value
+   * @return {Promise<string[]>} Array of <amount@token> strings
+   */
+  async estimateCollateral (loanAmounts: string[], targetRatio: number, tokenSplit: TokenPercentageSplit = { DFI: 1 }): Promise<string[]> {
+    return await this.client.call('estimatecollateral', [loanAmounts, targetRatio, tokenSplit], 'number')
+  }
+
+  /**
    * Returns amount of loan tokens a vault can take depending on a target collateral ratio.
    *
    * @param {string} vaultId vault hex id
@@ -203,6 +215,22 @@ export class Vault {
   async estimateLoan (vaultId: string, tokenSplit: TokenPercentageSplit, targetRatio?: number): Promise<string[]> {
     const params = targetRatio === undefined ? [vaultId, tokenSplit] : [vaultId, tokenSplit, targetRatio]
     return await this.client.call('estimateloan', params, 'number')
+  }
+
+  /**
+   * Returns estimated vault for given collateral and loan amounts.
+   *
+   * @param {string[]} collateralAmounts Collateral amounts as string array. [ "amount@token" ]
+   * @param {string[]} loanAmounts Loan amounts as string array. [ "amount@token" ]
+   * @return {Promise<VaultEstimation>}
+   */
+  async estimateVault (collateralAmounts: string[], loanAmounts: string[]): Promise<VaultEstimation> {
+    return await this.client.call('estimatevault', [collateralAmounts, loanAmounts], {
+      collateralValue: 'bignumber',
+      loanValue: 'bignumber',
+      informativeRatio: 'bignumber',
+      collateralRatio: 'number'
+    })
   }
 }
 
@@ -332,6 +360,20 @@ export interface ListAuctionHistoryDetail {
   auctionWon: string[]
 }
 
+export interface VaultEstimation {
+  collateralValue: BigNumber // n.nnnnnnnn (amount) The total collateral value in USD
+  loanValue: BigNumber // n.nnnnnnnn (amount) The total loan value in USD
+  informativeRatio: BigNumber // n.nnnnnnnn (amount) Informative ratio with 8 digit precision
+  collateralRatio: number // n (uint) Ratio as unsigned int
+}
+
 export interface TokenPercentageSplit {
   [token: string]: number // Token: split
+}
+
+export interface Interest {
+  token: string
+  realizedInterestPerBlock: BigNumber
+  totalInterest: BigNumber
+  interestPerBlock: BigNumber
 }

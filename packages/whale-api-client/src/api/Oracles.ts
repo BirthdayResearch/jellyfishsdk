@@ -1,5 +1,5 @@
-import { ApiPagedResponse } from '@defichain/ocean-api-client'
 import { WhaleApiClient } from '../WhaleApiClient'
+import { ApiPagedResponse } from '../WhaleApiResponse'
 
 /**
  * DeFi whale endpoint for oracle related services.

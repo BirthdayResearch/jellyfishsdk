@@ -2,6 +2,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import BigNumber from 'bignumber.js'
+import { AccountOwner, AccountResult } from '@defichain/jellyfish-api-core/dist/category/account'
 
 describe('Account', () => {
   const container = new MasterNodeRegTestContainer()
@@ -53,7 +54,7 @@ describe('Account', () => {
   })
 
   it('should listAccounts with pagination start and including_start', async () => {
-    const accounts: any[] = await client.account.listAccounts()
+    const accounts: Array<AccountResult<AccountOwner, string>> = await client.account.listAccounts()
 
     const pagination = {
       start: accounts[accounts.length - 1].key,
