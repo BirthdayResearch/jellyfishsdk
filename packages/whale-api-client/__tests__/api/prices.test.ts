@@ -576,7 +576,7 @@ describe('active price', () => {
     }
   })
 
-  it('should get active price with 2 active oracles (exact values)', async () => {
+  it.skip('should get active price with 2 active oracles (exact values)', async () => {
     const address = await container.getNewAddress()
     const oracles = []
     for (let i = 0; i < 2; i++) {
