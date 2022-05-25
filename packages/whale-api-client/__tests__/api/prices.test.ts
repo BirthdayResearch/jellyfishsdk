@@ -598,8 +598,9 @@ describe('active price', () => {
     const beforeActivePrice = await apiClient.prices.getFeedActive('S1', 'USD', 1)
     expect(beforeActivePrice.length).toStrictEqual(0)
 
+    let currentTimestamp = now
     for (const oracle of oracles) {
-      await client.oracle.setOracleData(oracle, Math.floor(Date.now() / 1000), {
+      await client.oracle.setOracleData(oracle, currentTimestamp++, {
         prices: [
           { tokenAmount: '10.0@S1', currency: 'USD' }
         ]
