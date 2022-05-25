@@ -1,5 +1,5 @@
 import { Semaphore, SemaphoreInterface, withTimeout } from 'async-mutex'
-import { CacheOption, CachePrefix, GlobalCache } from './global.cache'
+import { CacheOption, CachePrefix, GlobalCache } from './GlobalCache'
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common'
 import { Cache } from 'cache-manager'
 

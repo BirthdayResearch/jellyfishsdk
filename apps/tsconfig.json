@@ -5,7 +5,6 @@
     "./libs/*/src"
   ],
   "exclude": [
-    "**/*spec.ts",
     "**/*e2e.ts"
   ],
   "compilerOptions": {
