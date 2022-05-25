@@ -598,9 +598,10 @@ describe('active price', () => {
     const beforeActivePrice = await apiClient.prices.getFeedActive('S1', 'USD', 1)
     expect(beforeActivePrice.length).toStrictEqual(0)
 
-    let currentTimestamp = now
-    for (const oracle of oracles) {
-      await client.oracle.setOracleData(oracle, currentTimestamp++, {
+    const oneMinute = 60
+    const timestamp = now
+    for (let i = 0; i < oracles.length; i++) {
+      await client.oracle.setOracleData(oracles[i], timestamp + i * oneMinute, {
         prices: [
           { tokenAmount: '10.0@S1', currency: 'USD' }
         ]
@@ -614,7 +615,6 @@ describe('active price', () => {
     })
     await testing.generate(1)
 
-    const oneMinute = 60
     for (let i = 0; i <= 6; i++) {
       const mockTime = now + i * oneMinute
       await client.misc.setMockTime(mockTime)
