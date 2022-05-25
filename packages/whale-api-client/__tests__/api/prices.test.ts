@@ -599,7 +599,7 @@ describe('active price', () => {
     expect(beforeActivePrice.length).toStrictEqual(0)
 
     for (const oracle of oracles) {
-      await client.oracle.setOracleData(oracle, now, {
+      await client.oracle.setOracleData(oracle, Math.floor(Date.now() / 1000), {
         prices: [
           { tokenAmount: '10.0@S1', currency: 'USD' }
         ]
