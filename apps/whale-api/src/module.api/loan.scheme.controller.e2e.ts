@@ -135,7 +135,7 @@ describe('get', () => {
       await controller.getScheme('999')
     } catch (err) {
       expect(err).toBeInstanceOf(NotFoundException)
-      expect((err).response).toStrictEqual({
+      expect(err.response).toStrictEqual({
         statusCode: 404,
         message: 'Unable to find scheme',
         error: 'Not Found'
