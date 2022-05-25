@@ -553,7 +553,7 @@ describe('pricefeed with interval', () => {
   })
 })
 
-describe('active price', () => {
+describe.skip('active price', () => {
   const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
   const service = new StubService(container)
@@ -576,7 +576,7 @@ describe('active price', () => {
     }
   })
 
-  it.skip('should get active price with 2 active oracles (exact values)', async () => {
+  it('should get active price with 2 active oracles (exact values)', async () => {
     const address = await container.getNewAddress()
     const oracles = []
     for (let i = 0; i < 2; i++) {
