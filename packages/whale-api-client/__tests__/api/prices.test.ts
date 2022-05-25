@@ -9,6 +9,8 @@ import {
   OracleIntervalSeconds
 } from '@defichain-apps/nest-apps/whale-api/src/module.model/oracle.price.aggregated.interval'
 
+const currentTimestamp = Math.floor(Date.now() / 1000)
+
 describe('oracles', () => {
   let container: MasterNodeRegTestContainer
   let service: StubService
@@ -125,8 +127,7 @@ describe('oracles', () => {
 
     for (const setup of Object.values(setups)) {
       for (const price of setup.prices) {
-        const timestamp = Math.floor(new Date().getTime() / 1000)
-        await rpcClient.oracle.setOracleData(setup.id, timestamp, {
+        await rpcClient.oracle.setOracleData(setup.id, currentTimestamp, {
           prices: price
         })
         await container.generate(1)
@@ -275,7 +276,7 @@ describe('pricefeed with interval', () => {
 
     const oneMinute = 60
     let price = 0
-    let mockTime = Math.floor(new Date().getTime() / 1000)
+    let mockTime = currentTimestamp
     for (let h = 0; h < 24; h++) { // loop for 24 hours to make a day
       for (let z = 0; z < 4; z++) { // loop for 4 x 15 mins interval to make an hour
         mockTime += (15 * oneMinute) + 1 // +1 sec to fall into the next 15 mins bucket
@@ -598,7 +599,7 @@ describe('active price', () => {
     expect(beforeActivePrice.length).toStrictEqual(0)
 
     for (const oracle of oracles) {
-      await client.oracle.setOracleData(oracle, Math.floor(Date.now() / 1000), {
+      await client.oracle.setOracleData(oracle, currentTimestamp, {
         prices: [
           { tokenAmount: '10.0@S1', currency: 'USD' }
         ]
@@ -613,9 +614,8 @@ describe('active price', () => {
     await testing.generate(1)
 
     const oneMinute = 60
-    const timeNow = Math.floor(Date.now() / 1000)
     for (let i = 0; i <= 6; i++) {
-      const mockTime = timeNow + i * oneMinute
+      const mockTime = currentTimestamp + i * oneMinute
       await client.misc.setMockTime(mockTime)
       const price = i > 3 ? '12.0' : '10.0'
       for (const oracle of oracles) {
@@ -712,7 +712,7 @@ describe('active price', () => {
     }
 
     for (const oracle of oracles) {
-      await client.oracle.setOracleData(oracle, Math.floor(Date.now() / 1000), {
+      await client.oracle.setOracleData(oracle, currentTimestamp, {
         prices: [
           { tokenAmount: '10.0@S1', currency: 'USD' }
         ]
@@ -727,7 +727,7 @@ describe('active price', () => {
     await testing.generate(1)
 
     const oneMinute = 60
-    const timeNow = Math.floor(Date.now() / 1000)
+    const timeNow = currentTimestamp
     for (let i = 0; i <= 6; i++) {
       const mockTime = timeNow + i * oneMinute
       await client.misc.setMockTime(mockTime)
@@ -797,7 +797,7 @@ describe('active price', () => {
     expect(beforeActivePrice.length).toStrictEqual(0)
 
     for (const oracle of oracles) {
-      await client.oracle.setOracleData(oracle, Math.floor(Date.now() / 1000), {
+      await client.oracle.setOracleData(oracle, currentTimestamp, {
         prices: [
           { tokenAmount: '10.0@S1', currency: 'USD' }
         ]
@@ -812,9 +812,8 @@ describe('active price', () => {
     await testing.generate(1)
 
     const oneMinute = 60
-    const timeNow = Math.floor(Date.now() / 1000)
     for (let i = 0; i <= 6; i++) {
-      const mockTime = timeNow + i * oneMinute
+      const mockTime = currentTimestamp + i * oneMinute
       await client.misc.setMockTime(mockTime)
       const price = i > 3 ? '12.0' : '10.0'
       for (const oracle of oracles) {
@@ -859,7 +858,7 @@ describe('active price', () => {
     }
 
     // Set mock time in the future
-    const mockTime = Math.floor(new Date().getTime() / 1000) + 70 * oneMinute
+    const mockTime = currentTimestamp + 70 * oneMinute
     await client.misc.setMockTime(mockTime)
 
     {
