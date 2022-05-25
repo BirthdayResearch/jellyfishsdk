@@ -32,11 +32,7 @@ let tslaSwapAmount: number
 const netInterest = (3 + 0) / 100 // (scheme.rate + loanToken.interest) / 100
 const blocksPerDay = (60 * 60 * 24) / (10 * 60) // 144 in regtest
 
-const currentTime = Math.floor(new Date().getTime() / 1000)
-
-function now (): number {
-  return currentTime
-}
+const now = Math.floor(new Date().getTime() / 1000)
 
 async function setup (): Promise<void> {
   // token setup
@@ -59,7 +55,7 @@ async function setup (): Promise<void> {
   await alice.generate(1)
   await alice.rpc.oracle.setOracleData(
     oracleId,
-    now(),
+    now,
     {
       prices: [
         { tokenAmount: '1@DFI', currency: 'USD' },
@@ -270,7 +266,7 @@ async function setup (): Promise<void> {
   await tGroup.waitForSync()
 
   // increase TSLA price
-  await alice.rpc.oracle.setOracleData(oracleId, now(), { prices: [{ tokenAmount: '15@TSLA', currency: 'USD' }] })
+  await alice.rpc.oracle.setOracleData(oracleId, now, { prices: [{ tokenAmount: '15@TSLA', currency: 'USD' }] })
   await alice.generate(1)
   await tGroup.waitForSync()
 
