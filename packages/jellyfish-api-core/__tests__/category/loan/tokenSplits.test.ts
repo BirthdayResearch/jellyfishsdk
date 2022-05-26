@@ -375,13 +375,13 @@ async function checkTokenSplit (tokenID: string, tokenSymbol: string, tokenSuffi
 }
 
 describe('Token splits', () => {
-  beforeAll(async () => {
+  beforeEach(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
     await setup()
   })
 
-  afterAll(async () => {
+  afterEach(async () => {
     await testing.container.stop()
   })
 
@@ -471,9 +471,6 @@ describe('Token splits', () => {
   })
 
   it('should create dtoken to dusd futureswap after split', async () => {
-    const tslaInfo = await testing.rpc.token.getToken('TSLA')
-    tslaID = Object.keys(tslaInfo)[0]
-
     const tokenTSLA = await testing.rpc.token.getToken(tslaID)
     const newMintedTSLA = tokenTSLA[tslaID].minted.multipliedBy(2)
 
@@ -485,7 +482,7 @@ describe('Token splits', () => {
       }
     })
     await testing.generate(2)
-    const newTslaID = await checkTokenSplit(tslaID, 'TSLA', '/v2', newMintedTSLA, true, false)
+    const newTslaID = await checkTokenSplit(tslaID, 'TSLA', '/v1', newMintedTSLA, true, false)
 
     await setupFutureSwap()
 
@@ -523,6 +520,131 @@ describe('Token splits', () => {
         // check contractAddress
         const balance = await testing.rpc.account.getAccount(contractAddress)
         expect(balance).toStrictEqual([`${swapAmount.toFixed(8)}@TSLA`])
+      }
+
+      {
+        // check tslaAddress
+        const balance = await testing.rpc.account.getAccount(tslaAddress)
+        expect(balance).toStrictEqual([])
+      }
+    }
+
+    // unlock the token and check
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${newTslaID}`]: 'false' } })
+    await testing.generate(1)
+    // check newTslaID is unlocked now
+    const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+    expect(attributes.ATTRIBUTES[`v0/locks/token/${newTslaID}`]).toStrictEqual('false')
+
+    // oracle new price kicks in
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleID, timestamp, {
+      prices: [{
+        tokenAmount: '2@TSLA',
+        currency: 'USD'
+      }]
+    })
+    await testing.generate(1)
+
+    // wait till the price valid.
+    await testing.container.waitForPriceValid('TSLA/USD')
+
+    // get minted DUSD
+    const dusdMintedBefore = (await testing.rpc.token.getToken(dusdID))[dusdID].minted
+
+    // move to next settle block
+    const nextSettleBlock = await testing.container.call('getfutureswapblock', [])
+    await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount())
+
+    let mintedDUSD: BigNumber
+    // check future settled
+    {
+      // calculate minted DUSD. dtoken goes for a discount.
+      mintedDUSD = new BigNumber((1 - futRewardPercentage) * 2 * swapAmount).dp(8, BigNumber.ROUND_FLOOR) // (1 - reward percentage) * TSLADUSD value * TSLA swap amount;
+      const dusdMintedAfter = (await testing.rpc.token.getToken(dusdID))[dusdID].minted
+      expect(dusdMintedAfter).toStrictEqual(dusdMintedBefore.plus(mintedDUSD))
+
+      const pendingFutures = await testing.container.call('listpendingfutureswaps')
+      expect(pendingFutures.length).toStrictEqual(0)
+
+      // check live/economy/dfip2203_*
+      const attributes = await testing.rpc.masternode.getGov(attributeKey)
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_current']).toStrictEqual([`${swapAmount.toFixed(8)}@TSLA`])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_burned']).toStrictEqual([`${swapAmount.toFixed(8)}@TSLA`])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_minted']).toStrictEqual([`${mintedDUSD.toFixed(8)}@DUSD`])
+
+      {
+        // check contractAddress
+        const balance = await testing.rpc.account.getAccount(contractAddress)
+        expect(balance).toStrictEqual([`${swapAmount.toFixed(8)}@TSLA`])
+      }
+
+      {
+        // check tslaAddress
+        const balance = await testing.rpc.account.getAccount(tslaAddress)
+        expect(balance).toStrictEqual([`${mintedDUSD.toFixed(8)}@DUSD`])
+      }
+    }
+
+    // check burn
+    const burnAfter = await testing.rpc.account.getBurnInfo()
+    expect(burnAfter.dfip2203).toStrictEqual([`${swapAmount.toFixed(8)}@TSLA`])
+
+    // check results can be retrieved via account history
+    const accountHistories = await testing.rpc.account.listAccountHistory('all', { txtype: DfTxType.FUTURE_SWAP_EXECUTION })
+    expect(accountHistories[0]).toStrictEqual(expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapExecution', amounts: [`${mintedDUSD.toFixed(8)}@DUSD`] }))
+  })
+
+  it.skip('should create dtoken to dusd futureswap before split', async () => {
+    await setupFutureSwap()
+
+    const swapAmount = 1
+    const tslaAddress = await testing.generateAddress()
+    await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount}@TSLA` })
+    await testing.generate(1)
+
+    const fswap: FutureSwap = {
+      address: tslaAddress,
+      amount: `${swapAmount}@TSLA`
+    }
+    await testing.rpc.account.futureSwap(fswap)
+    await testing.generate(1)
+
+    const tokenTSLA = await testing.rpc.token.getToken(tslaID)
+    const newMintedTSLA = tokenTSLA[tslaID].minted.multipliedBy(2)
+
+    // set a token split at current block + 2 for TSLA and FB
+    const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
+    await testing.rpc.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2`
+      }
+    })
+    await testing.generate(2)
+    const newTslaID = await checkTokenSplit(tslaID, 'TSLA', '/v1', newMintedTSLA, true, false)
+
+    // check the future is in effect
+    {
+      const pendingFutures = await testing.container.call('listpendingfutureswaps')
+      expect(pendingFutures.length).toStrictEqual(1)
+      expect(pendingFutures[0].owner).toStrictEqual(tslaAddress)
+      expect(pendingFutures[0].source).toStrictEqual(`${swapAmount.toFixed(8)}@TSLA/v1`)
+      expect(pendingFutures[0].destination).toStrictEqual('DUSD')
+
+      // check live/economy/dfip2203_*
+      const attributes = await testing.rpc.masternode.getGov(attributeKey)
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_current']).toStrictEqual([`${swapAmount.toFixed(8)}@TSLA/v1`])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_burned']).toBeUndefined()
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_minted']).toBeUndefined()
+
+      // dfip2203 burn should be empty
+      const burnBefore = await testing.rpc.account.getBurnInfo()
+      expect(burnBefore.dfip2203).toStrictEqual([])
+
+      {
+        // check contractAddress
+        const balance = await testing.rpc.account.getAccount(contractAddress)
+        expect(balance).toStrictEqual([`${(swapAmount * 2).toFixed(8)}@TSLA`])
       }
 
       {
