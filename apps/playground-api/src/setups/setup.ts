@@ -33,6 +33,10 @@ export abstract class PlaygroundSetup<Each> {
     await this.before(list)
 
     for (const each of list) {
+      if (await this.has(each)) {
+        continue
+      }
+
       await this.create(each)
     }
 
