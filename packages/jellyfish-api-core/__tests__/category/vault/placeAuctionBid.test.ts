@@ -30,10 +30,6 @@ async function setup (): Promise<void> {
   await alice.generate(1)
   await alice.token.create({ symbol: 'BTC', collateralAddress: aliceColAddr })
   await alice.generate(1)
-  await alice.token.create({ symbol: 'TSLA', collateralAddress: aliceColAddr })
-  await alice.generate(1)
-  await alice.token.create({ symbol: 'DUSD', collateralAddress: aliceColAddr })
-  await alice.generate(1)
   await alice.token.mint({ symbol: 'BTC', amount: 30000 })
   await alice.generate(1)
 
@@ -74,31 +70,24 @@ async function setup (): Promise<void> {
   await alice.generate(1)
 
   // collateral token
-  await alice.rpc.masternode.setGov({
-    ATTRIBUTES: {
-      'v0/token/0/fixed_interval_price_id': 'DFI/USD',
-      'v0/token/0/loan_collateral_enabled': 'true',
-      'v0/token/0/loan_collateral_factor': '1'
-    }
+  await alice.rpc.loan.setCollateralToken({
+    token: 'DFI',
+    factor: new BigNumber(1),
+    fixedIntervalPriceId: 'DFI/USD'
   })
   await alice.generate(1)
 
-  await alice.rpc.masternode.setGov({
-    ATTRIBUTES: {
-      'v0/token/1/fixed_interval_price_id': 'BTC/USD',
-      'v0/token/1/loan_collateral_enabled': 'true',
-      'v0/token/1/loan_collateral_factor': '1'
-    }
+  await alice.rpc.loan.setCollateralToken({
+    token: 'BTC',
+    factor: new BigNumber(1),
+    fixedIntervalPriceId: 'BTC/USD'
   })
   await alice.generate(1)
 
   // loan token
-  await alice.rpc.masternode.setGov({
-    ATTRIBUTES: {
-      'v0/token/2/fixed_interval_price_id': 'TSLA/USD',
-      'v0/token/2/loan_minting_enabled': 'true',
-      'v0/token/2/loan_minting_interest': '0'
-    }
+  await alice.rpc.loan.setLoanToken({
+    symbol: 'TSLA',
+    fixedIntervalPriceId: 'TSLA/USD'
   })
   await alice.generate(1)
 
@@ -109,6 +98,7 @@ async function setup (): Promise<void> {
     interestRate: new BigNumber(0.01),
     id: loanTokenSchemeId
   })
+
   await alice.generate(1)
 
   const loanTokenVaultAddr = await alice.generateAddress()
@@ -118,7 +108,6 @@ async function setup (): Promise<void> {
       loanSchemeId: loanTokenSchemeId
     }
   )
-  await alice.generate(1)
 
   await alice.container.waitForPriceValid('TSLA/USD')
 
@@ -130,6 +119,7 @@ async function setup (): Promise<void> {
       amount: '10000000@DFI'
     }
   )
+
   await alice.generate(1)
 
   // loan out TSLA by loanTokenMinter to distribute it to whoever needs it
@@ -144,12 +134,9 @@ async function setup (): Promise<void> {
   await alice.generate(1)
 
   // DUSD loan token set up
-  await alice.rpc.masternode.setGov({
-    ATTRIBUTES: {
-      'v0/token/3/fixed_interval_price_id': 'DUSD/USD',
-      'v0/token/3/loan_minting_enabled': 'true',
-      'v0/token/3/loan_minting_interest': '0'
-    }
+  await alice.rpc.loan.setLoanToken({
+    symbol: 'DUSD',
+    fixedIntervalPriceId: 'DUSD/USD'
   })
   await alice.generate(1)
 
@@ -163,7 +150,6 @@ async function setup (): Promise<void> {
   await alice.rpc.vault.depositToVault({
     vaultId: aliceDusdVaultId, from: aliceColAddr, amount: '5000@DFI'
   })
-  await alice.generate(1)
 
   await alice.container.waitForPriceValid('DUSD/USD')
 
@@ -478,13 +464,13 @@ describe('placeAuctionBid success', () => {
           batches: [
             {
               index: 0,
-              collaterals: ['5004.44449284@DFI', '0.49955555@BTC'],
-              loan: '499.55982202@TSLA'
+              collaterals: ['5004.44437154@DFI', '0.49955556@BTC'], // 5004.44437154 + 4995.5556 = 9999.99997154
+              loan: '499.56012216@TSLA' // 499.56012216 * 15 = 7493.4018324
             },
             {
               index: 1,
-              collaterals: ['4.45245858@DFI', '0.00044445@BTC'],
-              loan: '0.44445881@TSLA'
+              collaterals: ['4.45230808@DFI', '0.00044444@BTC'], // 4.45245858 + 4.4445 = 8.89695858
+              loan: '0.44444406@TSLA' // 0.44445881 * 15 = 6.66688215
             }
           ]
         }
@@ -503,13 +489,13 @@ describe('placeAuctionBid success', () => {
         batches: [
           {
             index: 0,
-            collaterals: ['5004.44449284@DFI', '0.49955555@BTC'],
-            loan: '499.55982202@TSLA'
+            collaterals: ['5004.44437154@DFI', '0.49955556@BTC'],
+            loan: '499.56012216@TSLA'
           },
           {
             index: 1,
-            collaterals: ['4.45245858@DFI', '0.00044445@BTC'],
-            loan: '0.44445881@TSLA'
+            collaterals: ['4.45230808@DFI', '0.00044444@BTC'],
+            loan: '0.44444406@TSLA'
           }
         ]
       })
@@ -541,18 +527,18 @@ describe('placeAuctionBid success', () => {
         loanSchemeId: 'scheme',
         ownerAddress: bobVaultAddr,
         state: 'active',
-        collateralAmounts: ['8.76515114@DFI', '0.00044445@BTC'],
-        loanAmounts: ['0.44446161@TSLA'],
+        collateralAmounts: ['8.76475400@DFI', '0.00044444@BTC'],
+        loanAmounts: ['0.44444686@TSLA'],
         interestAmounts: ['0.00000280@TSLA'],
-        collateralValue: 13.20965114,
-        loanValue: 6.66692415,
+        collateralValue: 13.209154,
+        loanValue: 6.6667029,
         interestValue: 0.000042,
-        informativeRatio: 198.13711454,
+        informativeRatio: 198.13623312,
         collateralRatio: 198
       })
 
       const aliceColAcc = await alice.rpc.account.getAccount(aliceColAddr)
-      expect(aliceColAcc).toStrictEqual(['39004.44449284@DFI', '29999.99955555@BTC', '8935.00000000@TSLA'])
+      expect(aliceColAcc).toStrictEqual(['39004.44437154@DFI', '29999.99955556@BTC', '8935.00000000@TSLA'])
     }
   })
 
@@ -697,10 +683,10 @@ describe('placeAuctionBid success', () => {
       loanSchemeId: 'scheme',
       ownerAddress: bobVaultAddr,
       state: 'active',
-      collateralAmounts: ['55.25753123@DFI'],
+      collateralAmounts: ['55.25701268@DFI'],
       loanAmounts: [],
       interestAmounts: [],
-      collateralValue: 55.25753123,
+      collateralValue: 55.25701268,
       loanValue: 0,
       interestValue: 0,
       informativeRatio: -1,
