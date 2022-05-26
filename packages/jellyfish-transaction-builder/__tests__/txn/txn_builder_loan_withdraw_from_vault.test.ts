@@ -658,7 +658,7 @@ describe('withdrawFromVault with 50% DUSD or DFI collaterals', () => {
     expect(vaultAfter.collateralValue).toStrictEqual(new BigNumber(10000))
   })
 
-  // TODO(jingyi2811): Temporarily comment out failed flaky test. See issue 1474
+  // TODO(jingyi2811): Temporarily skip failed flaky test. See issue 1474.
   it.skip('should withdrawFromVault with 50% DUSD of minimum required collateral', async () => {
     // add btc collateral, new total collateral = 20000 USD
     await alice.rpc.loan.depositToVault({
@@ -779,7 +779,7 @@ describe('withdrawFromVault with 50% DUSD or DFI collaterals', () => {
     await expect(outs).rejects.toThrow('At least 50% of the minimum required collateral must be in DFI')
   })
 
-  // TODO(jingyi2811): Temporarily comment out failed flaky test. See issue 1474
+  // TODO(jingyi2811): Temporarily skip failed flaky test. See issue 1474.
   it.skip('should not takeLoan with 33.33% DUSD collateral', async () => {
     // add btc collateral, new total collateral = 20000 USD
     await alice.rpc.loan.depositToVault({
