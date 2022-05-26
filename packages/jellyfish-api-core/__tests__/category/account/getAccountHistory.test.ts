@@ -32,20 +32,25 @@ describe('Account', () => {
     const accounts: Array<AccountResult<AccountOwner, string>> = await testing.rpc.account.listAccounts()
 
     const { owner } = accounts[0]
-    const { hex, addresses } = owner
+    const { hex } = owner
 
     const accountHistories = await testing.rpc.account.listAccountHistory(hex)
 
     const referenceHistory = accountHistories[0]
 
     const history = await testing.rpc.account.getAccountHistory(hex, referenceHistory.blockHeight, referenceHistory.txn)
-    expect(history.owner).toStrictEqual(referenceHistory.owner)
-    expect(history.blockHeight).toStrictEqual(referenceHistory.blockHeight)
-    expect(history.txn).toStrictEqual(referenceHistory.txn)
-    expect(history.txid).toStrictEqual(referenceHistory.txid)
-    expect(history.type).toStrictEqual(referenceHistory.type)
-    expect(history.amounts).toStrictEqual(referenceHistory.amounts)
-    expect(addresses.includes(history.owner)).toStrictEqual(true)
+    expect(history).toStrictEqual(
+      {
+        owner: referenceHistory.owner,
+        blockHeight: referenceHistory.blockHeight,
+        blockHash: expect.stringMatching(/[0-f]{64}/),
+        blockTime: expect.any(Number),
+        txn: referenceHistory.txn,
+        txid: referenceHistory.txid,
+        amounts: referenceHistory.amounts,
+        type: 'MintToken'
+      }
+    )
   })
 
   it('should getAccountHistory with owner address', async () => {
@@ -55,12 +60,18 @@ describe('Account', () => {
     const referenceHistory = accountHistories[0]
 
     const history = await testing.rpc.account.getAccountHistory(referenceHistory.owner, referenceHistory.blockHeight, referenceHistory.txn)
-    expect(history.owner).toStrictEqual(referenceHistory.owner)
-    expect(history.blockHeight).toStrictEqual(referenceHistory.blockHeight)
-    expect(history.txn).toStrictEqual(referenceHistory.txn)
-    expect(history.txid).toStrictEqual(referenceHistory.txid)
-    expect(history.type).toStrictEqual(referenceHistory.type)
-    expect(history.amounts).toStrictEqual(referenceHistory.amounts)
+    expect(history).toStrictEqual(
+      {
+        owner: referenceHistory.owner,
+        blockHeight: referenceHistory.blockHeight,
+        blockHash: expect.stringMatching(/[0-f]{64}/),
+        blockTime: expect.any(Number),
+        txn: referenceHistory.txn,
+        txid: referenceHistory.txid,
+        amounts: referenceHistory.amounts,
+        type: 'MintToken'
+      }
+    )
   })
 
   it('should not getAccountHistory when address is not valid', async () => {
