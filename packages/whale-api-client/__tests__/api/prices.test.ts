@@ -553,6 +553,7 @@ describe('pricefeed with interval', () => {
   })
 })
 
+// TODO(jingyi2811): Temporarily comment out failed flaky test. See issue 1474
 describe.skip('active price', () => {
   const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
