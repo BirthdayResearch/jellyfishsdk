@@ -523,13 +523,12 @@ describe('Token splits', () => {
       await testing.container.waitForPriceValid('FB/USD')
 
       const vaultFB = await testing.rpc.vault.getVault(vaultId4) as VaultActive
-      expect(vaultFB.state).toStrictEqual(VaultState.ACTIVE)
+      expect(vaultFB.state).toStrictEqual(VaultState.IN_LIQUIDATION)
 
       // try to update the vault
-      await testing.rpc.vault.depositToVault({ vaultId: vaultId4, from: collateralAddress, amount: '10@DFI' })
-      await testing.generate(1)
-      const vaultFBAfterDeposit = await testing.rpc.vault.getVault(vaultId4) as VaultActive
-      expect(vaultFBAfterDeposit.collateralValue).toStrictEqual(vaultFB.collateralValue.plus(10))
+      const promise = testing.rpc.vault.depositToVault({ vaultId: vaultId4, from: collateralAddress, amount: '10@DFI' })
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('RpcApiError: \'Test DepositToVaultTx execution failed:\nCannot deposit to vault under liquidation\', code: -32600, method: deposittovault')
     }
   })
 
@@ -886,14 +885,14 @@ describe('Token splits', () => {
 
       // try to bid to auction
       // NOTE(surangap): no address has TSLA/v1 and can not mint it further. so can not bid using TSLA/v1. Try bidding with TSLA
-      const txid = await testing.rpc.vault.placeAuctionBid({
+      const promise = testing.rpc.vault.placeAuctionBid({
         vaultId: vaultId2,
         index: 0,
         from: collateralAddress,
         amount: '5300@TSLA'
       })
-      expect(typeof txid).toStrictEqual('string')
-      await testing.container.generate(1)
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('RpcApiError: \'Test AuctionBidTx execution failed:\nBid token does not match auction one\', code: -32600, method: placeauctionbid')
     }
   })
 
