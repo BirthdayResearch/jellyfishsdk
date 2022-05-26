@@ -4,6 +4,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { VaultActive, VaultLiquidation, VaultState } from '../../../src/category/loan'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { DfTxType, FutureSwap } from '@defichain/jellyfish-api-core/dist/category/account'
+import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
 
 const container = new MasterNodeRegTestContainer()
 const testing = Testing.create(container)
@@ -372,6 +373,68 @@ async function checkTokenSplit (tokenID: string, tokenSymbol: string, tokenSuffi
   expect(newToken.destructionHeight).toStrictEqual(new BigNumber(-1))
 
   return tokenID // return new tokenID
+}
+
+async function checkPoolAfterSplit (ppTokenIDBefore: string, ppInfoBefore: PoolPairInfo, ppTokenSuffix: string, splitTokenSymbol: string): Promise<void> {
+  // check old poolpair disabled
+  const poolPairOld = await testing.poolpair.get(`${ppInfoBefore.symbol}${ppTokenSuffix}`)
+  expect(poolPairOld.symbol).toStrictEqual(`${ppInfoBefore.symbol}${ppTokenSuffix}`)
+  expect(poolPairOld.status).toStrictEqual(false)
+  expect(poolPairOld.idTokenA).toStrictEqual(ppInfoBefore.idTokenA)
+  expect(poolPairOld.idTokenB).toStrictEqual(ppInfoBefore.idTokenB)
+  expect(poolPairOld.reserveA).toStrictEqual(new BigNumber(0))
+  expect(poolPairOld.reserveB).toStrictEqual(new BigNumber(0))
+  expect(poolPairOld.tradeEnabled).toStrictEqual(false)
+
+  // old attributes removed
+  const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+  expect(attributes.ATTRIBUTES[`v0/poolpairs/${ppTokenIDBefore}/token_a_fee_pct`]).not.toBeDefined()
+  expect(attributes.ATTRIBUTES[`v0/poolpairs/${ppTokenIDBefore}/token_b_fee_pct`]).not.toBeDefined()
+
+  const ppTokenIDNew = Object.keys(await testing.rpc.token.getToken(ppInfoBefore.symbol))[0]
+  const splitTokenIDNew = Object.keys(await testing.rpc.token.getToken(splitTokenSymbol))[0]
+
+  expect(attributes.ATTRIBUTES[`v0/poolpairs/${ppTokenIDNew}/token_a_fee_pct`]).toBeDefined()
+  expect(attributes.ATTRIBUTES[`v0/poolpairs/${ppTokenIDNew}/token_b_fee_pct`]).toBeDefined()
+
+  const poolpairNew = await testing.poolpair.get(ppTokenIDNew)
+  expect(poolpairNew.symbol).toStrictEqual(ppInfoBefore.symbol)
+  expect(poolpairNew.status).toStrictEqual(true)
+  expect([ppInfoBefore.idTokenA, splitTokenIDNew]).toContain(poolpairNew.idTokenA)
+  expect([ppInfoBefore.idTokenB, splitTokenIDNew]).toContain(poolpairNew.idTokenB)
+  // expect([ppInfoBefore.reserveA, ppInfoBefore.reserveA.multipliedBy(2)]).toContain(poolpairNew.reserveA)
+  // expect([ppInfoBefore.reserveB, ppInfoBefore.reserveB.multipliedBy(2)]).toContain(poolpairNew.reserveB)
+  expect(poolpairNew.tradeEnabled).toStrictEqual(true)
+}
+
+async function setupPools (): Promise<void> {
+  // create TSLA-DFI
+  await testing.poolpair.create({
+    tokenA: 'TSLA',
+    tokenB: 'DFI'
+  })
+  await testing.generate(1)
+
+  // add TSLA-DFI
+  await testing.poolpair.add({
+    a: { symbol: 'TSLA', amount: 100 },
+    b: { symbol: 'DFI', amount: 200 }
+  })
+  await testing.generate(1)
+
+  const ppTokenID = Object.keys(await testing.rpc.token.getToken('TSLA-DFI'))[0]
+
+  // setup govvars
+  await testing.rpc.masternode.setGov({
+    ATTRIBUTES: {
+      [`v0/poolpairs/${ppTokenID}/token_a_fee_pct`]: '0.01',
+      [`v0/poolpairs/${ppTokenID}/token_b_fee_pct`]: '0.03'
+    }
+  })
+
+  await testing.rpc.masternode.setGov({ LP_SPLITS: { [Number(ppTokenID)]: 1 } })
+  await testing.rpc.masternode.setGov({ LP_LOAN_TOKEN_SPLITS: { [Number(ppTokenID)]: 1 } })
+  await testing.generate(1)
 }
 
 describe('Token splits', () => {
@@ -843,5 +906,25 @@ describe('Token splits', () => {
       expect(typeof txid).toStrictEqual('string')
       await testing.container.generate(1)
     }
+  })
+
+  it('should check poolswap after split', async () => {
+    const tokenTSLA = await testing.rpc.token.getToken(tslaID)
+    const newMintedTSLA = tokenTSLA[tslaID].minted.multipliedBy(2)
+
+    await setupPools()
+    const tokenTSLADFIBefore = await testing.rpc.token.getToken('TSLA-DFI')
+    const poolPairTSLADFIBefore = await testing.poolpair.get('TSLA-DFI')
+
+    // set a token split at current block + 2 for TSLA and FB
+    const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
+    await testing.rpc.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2`
+      }
+    })
+    await testing.generate(2)
+    await checkTokenSplit(tslaID, 'TSLA', '/v1', newMintedTSLA, true, false)
+    await checkPoolAfterSplit(Object.keys(tokenTSLADFIBefore)[0], poolPairTSLADFIBefore, '/v1', 'TSLA')
   })
 })
