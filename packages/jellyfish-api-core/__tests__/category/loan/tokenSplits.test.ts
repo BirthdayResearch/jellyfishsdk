@@ -488,9 +488,6 @@ describe('Token splits', () => {
     {
       // check vaults
       const vaultFBAfter = await testing.rpc.vault.getVault(vaultId4) as VaultActive
-      console.log(JSON.stringify(vaultFBBefore))
-      console.log(JSON.stringify(vaultFBAfter))
-
       expect(vaultFBAfter.vaultId).toStrictEqual(vaultFBBefore.vaultId)
       expect(vaultFBAfter.ownerAddress).toStrictEqual(vaultFBBefore.ownerAddress)
       expect(vaultFBAfter.state).toStrictEqual(VaultState.FROZEN)
@@ -508,6 +505,16 @@ describe('Token splits', () => {
       await expect(promise).rejects.toThrow('RpcApiError: \'Test DepositToVaultTx execution failed:\nFixed interval price currently disabled due to locked token\', code: -32600, method: deposittovault')
     }
 
+    // oracle new price kicks in
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleID, timestamp, {
+      prices: [{
+        tokenAmount: '1@FB',
+        currency: 'USD'
+      }]
+    })
+    await testing.generate(12) // getfixedintervalprice rpc is disabled due to locked token. generate blocks for the price to kick in
+
     {
       // unlock the token and check
       await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${newFBID}`]: 'false' } })
@@ -515,23 +522,6 @@ describe('Token splits', () => {
       // check newFBID is unlocked now
       const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
       expect(attributes.ATTRIBUTES[`v0/locks/token/${newFBID}`]).toStrictEqual('false')
-
-      // oracle new price kicks in
-      const timestamp = Math.floor(new Date().getTime() / 1000)
-      await testing.rpc.oracle.setOracleData(oracleID, timestamp, {
-        prices: [{
-          tokenAmount: '1@FB',
-          currency: 'USD'
-        }]
-      })
-      await testing.generate(1)
-
-      console.log(await testing.rpc.blockchain.getBlockCount())
-
-      // wait till the price valid.
-      await testing.container.waitForPriceValid('FB/USD')
-
-      console.log(await testing.rpc.blockchain.getBlockCount())
 
       const vaultFB = await testing.rpc.vault.getVault(vaultId4) as VaultActive
       expect(vaultFB.state).toStrictEqual(VaultState.ACTIVE)
@@ -619,13 +609,6 @@ describe('Token splits', () => {
         expect(auctionsTSLAAfter.batches[1].loan).toStrictEqual(`${(loanAmountBeforeBatch1 * 2).toFixed(8)}@TSLA`)
       }
 
-      // unlock the token and check
-      await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${newTSLAID}`]: 'false' } })
-      await testing.generate(1)
-      // check newFBID is unlocked now
-      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
-      expect(attributes.ATTRIBUTES[`v0/locks/token/${newTSLAID}`]).toStrictEqual('false')
-
       // oracle new price kicks in
       const timestamp = Math.floor(new Date().getTime() / 1000)
       await testing.rpc.oracle.setOracleData(oracleID, timestamp, {
@@ -634,10 +617,14 @@ describe('Token splits', () => {
           currency: 'USD'
         }]
       })
-      await testing.generate(1)
+      await testing.generate(12)
 
-      // wait till the price valid.
-      await testing.container.waitForPriceValid('TSLA/USD')
+      // unlock the token and check
+      await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${newTSLAID}`]: 'false' } })
+      await testing.generate(1)
+      // check newFBID is unlocked now
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributes.ATTRIBUTES[`v0/locks/token/${newTSLAID}`]).toStrictEqual('false')
 
       // check collateralAddress
       const ColAccAfter = await testing.rpc.account.getAccount(collateralAddress)
@@ -721,13 +708,6 @@ describe('Token splits', () => {
       }
     }
 
-    // unlock the token and check
-    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${newTslaID}`]: 'false' } })
-    await testing.generate(1)
-    // check newTslaID is unlocked now
-    const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
-    expect(attributes.ATTRIBUTES[`v0/locks/token/${newTslaID}`]).toStrictEqual('false')
-
     // oracle new price kicks in
     const timestamp = Math.floor(new Date().getTime() / 1000)
     await testing.rpc.oracle.setOracleData(oracleID, timestamp, {
@@ -736,10 +716,14 @@ describe('Token splits', () => {
         currency: 'USD'
       }]
     })
-    await testing.generate(1)
+    await testing.generate(12)
 
-    // wait till the price valid.
-    await testing.container.waitForPriceValid('TSLA/USD')
+    // unlock the token and check
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${newTslaID}`]: 'false' } })
+    await testing.generate(1)
+    // check newTslaID is unlocked now
+    const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+    expect(attributes.ATTRIBUTES[`v0/locks/token/${newTslaID}`]).toStrictEqual('false')
 
     await testing.rpc.account.futureSwap(fswap)
     await testing.generate(1)
@@ -755,8 +739,8 @@ describe('Token splits', () => {
       // check live/economy/dfip2203_*
       const attributes = await testing.rpc.masternode.getGov(attributeKey)
       expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_current']).toStrictEqual([`${swapAmount.toFixed(8)}@TSLA`])
-      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_burned']).toBeUndefined()
-      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_minted']).toBeUndefined()
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_burned']).toStrictEqual([])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_minted']).toStrictEqual([])
 
       // dfip2203 burn should be empty
       const burnBefore = await testing.rpc.account.getBurnInfo()
@@ -943,13 +927,6 @@ describe('Token splits', () => {
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('RpcApiError: \'Test PoolSwapTx execution failed:\nPool currently disabled due to locked token\', code: -32600, method: poolswap')
 
-    // unlock the token and check
-    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${newTSLAID}`]: 'false' } })
-    await testing.generate(1)
-    // check newFBID is unlocked now
-    const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
-    expect(attributes.ATTRIBUTES[`v0/locks/token/${newTSLAID}`]).toStrictEqual('false')
-
     // oracle new price kicks in
     const timestamp = Math.floor(new Date().getTime() / 1000)
     await testing.rpc.oracle.setOracleData(oracleID, timestamp, {
@@ -958,10 +935,14 @@ describe('Token splits', () => {
         currency: 'USD'
       }]
     })
-    await testing.generate(1)
+    await testing.generate(12)
 
-    // wait till the price valid.
-    await testing.container.waitForPriceValid('FB/USD')
+    // unlock the token and check
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${newTSLAID}`]: 'false' } })
+    await testing.generate(1)
+    // check newFBID is unlocked now
+    const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+    expect(attributes.ATTRIBUTES[`v0/locks/token/${newTSLAID}`]).toStrictEqual('false')
 
     // now try to use the pool
     const hex = await testing.rpc.poolpair.poolSwap(metadata)
