@@ -235,7 +235,7 @@ async function setup (): Promise<void> {
 
   await testing.container.call('takeloan', [{
     vaultId: vaultId4,
-    amounts: '30000@FB'
+    amounts: '20000@FB'
   }])
   await testing.generate(1)
 
@@ -488,6 +488,9 @@ describe('Token splits', () => {
     {
       // check vaults
       const vaultFBAfter = await testing.rpc.vault.getVault(vaultId4) as VaultActive
+      console.log(JSON.stringify(vaultFBBefore))
+      console.log(JSON.stringify(vaultFBAfter))
+
       expect(vaultFBAfter.vaultId).toStrictEqual(vaultFBBefore.vaultId)
       expect(vaultFBAfter.ownerAddress).toStrictEqual(vaultFBBefore.ownerAddress)
       expect(vaultFBAfter.state).toStrictEqual(VaultState.FROZEN)
@@ -523,16 +526,21 @@ describe('Token splits', () => {
       })
       await testing.generate(1)
 
+      console.log(await testing.rpc.blockchain.getBlockCount())
+
       // wait till the price valid.
       await testing.container.waitForPriceValid('FB/USD')
 
+      console.log(await testing.rpc.blockchain.getBlockCount())
+
       const vaultFB = await testing.rpc.vault.getVault(vaultId4) as VaultActive
-      expect(vaultFB.state).toStrictEqual(VaultState.IN_LIQUIDATION)
+      expect(vaultFB.state).toStrictEqual(VaultState.ACTIVE)
 
       // try to update the vault
-      const promise = testing.rpc.vault.depositToVault({ vaultId: vaultId4, from: collateralAddress, amount: '10@DFI' })
-      await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('RpcApiError: \'Test DepositToVaultTx execution failed:\nCannot deposit to vault under liquidation\', code: -32600, method: deposittovault')
+      await testing.rpc.vault.depositToVault({ vaultId: vaultId4, from: collateralAddress, amount: '10@DFI' })
+      await testing.generate(1)
+      const vaultFBAfterDeposit = await testing.rpc.vault.getVault(vaultId4) as VaultActive
+      expect(vaultFBAfterDeposit.collateralValue).toStrictEqual(vaultFB.collateralValue.plus(10))
     }
   })
 
