@@ -400,10 +400,16 @@ async function checkPoolAfterSplit (ppTokenIDBefore: string, ppInfoBefore: PoolP
   const poolpairNew = await testing.poolpair.get(ppTokenIDNew)
   expect(poolpairNew.symbol).toStrictEqual(ppInfoBefore.symbol)
   expect(poolpairNew.status).toStrictEqual(true)
-  expect([ppInfoBefore.idTokenA, splitTokenIDNew]).toContain(poolpairNew.idTokenA)
-  expect([ppInfoBefore.idTokenB, splitTokenIDNew]).toContain(poolpairNew.idTokenB)
-  // expect([ppInfoBefore.reserveA, ppInfoBefore.reserveA.multipliedBy(2)]).toContain(poolpairNew.reserveA)
-  // expect([ppInfoBefore.reserveB, ppInfoBefore.reserveB.multipliedBy(2)]).toContain(poolpairNew.reserveB)
+  expect(poolpairNew.idTokenA === ppInfoBefore.idTokenA || poolpairNew.idTokenA === splitTokenIDNew).toBeTruthy()
+  expect(poolpairNew.idTokenB === ppInfoBefore.idTokenB || poolpairNew.idTokenB === splitTokenIDNew).toBeTruthy()
+
+  if (!poolpairNew.reserveA.eq(ppInfoBefore.reserveA)) {
+    expect(poolpairNew.reserveA).toStrictEqual(ppInfoBefore.reserveA.multipliedBy(2))
+  }
+  if (!poolpairNew.reserveB.eq(ppInfoBefore.reserveB)) {
+    expect(poolpairNew.reserveB).toStrictEqual(ppInfoBefore.reserveB.multipliedBy(2))
+  }
+
   expect(poolpairNew.tradeEnabled).toStrictEqual(true)
 }
 
@@ -791,9 +797,6 @@ describe('Token splits', () => {
     {
       // check vaults
       const vaultTSLAAfter = await testing.rpc.vault.getVault(vaultId2) as VaultLiquidation
-      console.log(JSON.stringify(vaultTSLABefore))
-      console.log(JSON.stringify(vaultTSLAAfter))
-
       expect(vaultTSLAAfter.vaultId).toStrictEqual(vaultTSLABefore.vaultId)
       expect(vaultTSLAAfter.ownerAddress).toStrictEqual(vaultTSLABefore.ownerAddress)
       expect(vaultTSLAAfter.state).toStrictEqual(VaultState.IN_LIQUIDATION)
@@ -823,14 +826,10 @@ describe('Token splits', () => {
     })
     await testing.generate(2)
     const newTSLAID = await checkTokenSplit(tslaID, 'TSLA', '/v1', newMintedTSLA, true, false)
-    const tokenTSLAOld = (await testing.rpc.token.getToken(tslaID))[tslaID]
 
     {
       // check vaults
       const vaultTSLAAfter = await testing.rpc.vault.getVault(vaultId2) as VaultLiquidation
-      console.log(JSON.stringify(vaultTSLABefore))
-      console.log(JSON.stringify(vaultTSLAAfter))
-
       expect(vaultTSLAAfter.vaultId).toStrictEqual(vaultTSLABefore.vaultId)
       expect(vaultTSLAAfter.ownerAddress).toStrictEqual(vaultTSLABefore.ownerAddress)
       expect(vaultTSLAAfter.state).toStrictEqual(VaultState.IN_LIQUIDATION)
@@ -838,25 +837,20 @@ describe('Token splits', () => {
 
       {
         const loanAmountBeforeBatch0 = Number(vaultTSLABefore.batches[0].loan.replace('@TSLA', ''))
-        expect(vaultTSLAAfter.batches[0].loan).toStrictEqual(`${loanAmountBeforeBatch0.toFixed(8)}@${tokenTSLAOld.symbol}`)
+        expect(vaultTSLAAfter.batches[0].loan).toStrictEqual(`${(loanAmountBeforeBatch0 * 2).toFixed(8)}@TSLA`)
 
         const loanAmountBeforeBatch1 = Number(vaultTSLABefore.batches[1].loan.replace('@TSLA', ''))
-        expect(vaultTSLAAfter.batches[1].loan).toStrictEqual(`${loanAmountBeforeBatch1.toFixed(8)}@${tokenTSLAOld.symbol}`)
+        expect(vaultTSLAAfter.batches[1].loan).toStrictEqual(`${(loanAmountBeforeBatch1 * 2).toFixed(8)}@TSLA`)
       }
 
       // check auctions
       const [, auctionsTSLAAfter] = await testing.rpc.vault.listAuctions()
-      console.log(await testing.rpc.vault.listAuctions())
-
-      console.log(JSON.stringify(auctionsTSLABefore))
-      console.log(JSON.stringify(auctionsTSLAAfter))
-
       {
         const loanAmountBeforeBatch0 = Number(auctionsTSLABefore.batches[0].loan.replace('@TSLA', ''))
-        expect(auctionsTSLAAfter.batches[0].loan).toStrictEqual(`${loanAmountBeforeBatch0.toFixed(8)}@${tokenTSLAOld.symbol}`)
+        expect(auctionsTSLAAfter.batches[0].loan).toStrictEqual(`${(loanAmountBeforeBatch0 * 2).toFixed(8)}@TSLA`)
 
         const loanAmountBeforeBatch1 = Number(auctionsTSLABefore.batches[1].loan.replace('@TSLA', ''))
-        expect(auctionsTSLAAfter.batches[1].loan).toStrictEqual(`${loanAmountBeforeBatch1.toFixed(8)}@${tokenTSLAOld.symbol}`)
+        expect(auctionsTSLAAfter.batches[1].loan).toStrictEqual(`${(loanAmountBeforeBatch1 * 2).toFixed(8)}@TSLA`)
       }
 
       // unlock the token and check
@@ -884,15 +878,29 @@ describe('Token splits', () => {
       expect(ColAccAfter).toStrictEqual(['200000.00000000@DFI', '6.00000000@BTC', '2248.00000000@AAPL', '30000.00000000@TSLA']) // Has the new TSLA token
 
       // try to bid to auction
-      // NOTE(surangap): no address has TSLA/v1 and can not mint it further. so can not bid using TSLA/v1. Try bidding with TSLA
-      const promise = testing.rpc.vault.placeAuctionBid({
+      const txid = await testing.rpc.vault.placeAuctionBid({
         vaultId: vaultId2,
         index: 0,
         from: collateralAddress,
-        amount: '5300@TSLA'
+        amount: '10502@TSLA'
       })
-      await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('RpcApiError: \'Test AuctionBidTx execution failed:\nBid token does not match auction one\', code: -32600, method: placeauctionbid')
+      expect(typeof txid).toStrictEqual('string')
+      await testing.container.generate(1)
+
+      // check auction bid is in
+      const vaultTSLAAfterBid = await testing.rpc.vault.getVault(vaultId2) as VaultLiquidation
+      expect(vaultTSLAAfterBid.batchCount).toStrictEqual(4)
+      expect(vaultTSLAAfterBid.batches[0].highestBid?.amount).toStrictEqual('10502.00000000@TSLA')
+
+      const ColAccAfterBid = await testing.rpc.account.getAccount(collateralAddress)
+      expect(ColAccAfterBid).toStrictEqual(['200000.00000000@DFI', '6.00000000@BTC', '2248.00000000@AAPL', '19498.00000000@TSLA']) // 30000 - 10502 = 19498
+
+      // let it settle
+      await testing.generate(36)
+
+      // check the vault again
+      const vaultTSLAAfterAuctionEnd = await testing.rpc.vault.getVault(vaultId2) as VaultActive
+      expect(vaultTSLAAfterAuctionEnd.state).toStrictEqual(VaultState.ACTIVE)
     }
   })
 
