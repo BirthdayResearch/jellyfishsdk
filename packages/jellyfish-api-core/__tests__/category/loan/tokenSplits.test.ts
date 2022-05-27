@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { VaultActive, VaultLiquidation, VaultState } from '../../../src/category/loan'
-import { RpcApiError } from '@defichain/jellyfish-api-core'
+import { poolpair, RpcApiError } from '@defichain/jellyfish-api-core'
 import { DfTxType, FutureSwap } from '@defichain/jellyfish-api-core/dist/category/account'
 import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
 
@@ -479,7 +479,7 @@ describe('Token splits', () => {
     const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
     await testing.rpc.masternode.setGov({
       ATTRIBUTES: {
-        [`v0/oracles/splits/${splitBlock}`]: `${fbID}/2,`
+        [`v0/oracles/splits/${splitBlock}`]: `${fbID}/2`
       }
     })
     await testing.generate(2)
@@ -488,8 +488,6 @@ describe('Token splits', () => {
     {
       // check vaults
       const vaultFBAfter = await testing.rpc.vault.getVault(vaultId4) as VaultActive
-      console.log(JSON.stringify(vaultFBBefore))
-      console.log(JSON.stringify(vaultFBAfter))
       expect(vaultFBAfter.vaultId).toStrictEqual(vaultFBBefore.vaultId)
       expect(vaultFBAfter.ownerAddress).toStrictEqual(vaultFBBefore.ownerAddress)
       expect(vaultFBAfter.state).toStrictEqual(VaultState.FROZEN)
@@ -535,6 +533,132 @@ describe('Token splits', () => {
       const promise = testing.rpc.vault.depositToVault({ vaultId: vaultId4, from: collateralAddress, amount: '10@DFI' })
       await expect(promise).rejects.toThrow(RpcApiError)
       await expect(promise).rejects.toThrow('RpcApiError: \'Test DepositToVaultTx execution failed:\nCannot deposit to vault under liquidation\', code: -32600, method: deposittovault')
+    }
+  })
+
+  it('should check liquidated vault after split', async () => {
+    const tokenTSLA = await testing.rpc.token.getToken(tslaID)
+    const newMintedTSLA = tokenTSLA[tslaID].minted.multipliedBy(2)
+
+    const vaultTSLABefore = await testing.rpc.vault.getVault(vaultId2) as VaultLiquidation
+
+    // set a token split at current block + 2 for TSLA
+    const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
+    await testing.rpc.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2`
+      }
+    })
+    await testing.generate(2)
+    await checkTokenSplit(tslaID, 'TSLA', '/v1', newMintedTSLA, true, false)
+
+    {
+      // check vaults
+      const vaultTSLAAfter = await testing.rpc.vault.getVault(vaultId2) as VaultLiquidation
+      expect(vaultTSLAAfter.vaultId).toStrictEqual(vaultTSLABefore.vaultId)
+      expect(vaultTSLAAfter.ownerAddress).toStrictEqual(vaultTSLABefore.ownerAddress)
+      expect(vaultTSLAAfter.state).toStrictEqual(VaultState.IN_LIQUIDATION)
+      expect(vaultTSLAAfter.batchCount).toStrictEqual(vaultTSLABefore.batchCount)
+
+      const loanAmountBeforeBatch0 = Number(vaultTSLABefore.batches[0].loan.replace('@TSLA', ''))
+      expect(vaultTSLAAfter.batches[0].loan).toStrictEqual(`${(loanAmountBeforeBatch0 * 2).toFixed(8)}@TSLA`)
+
+      const loanAmountBeforeBatch1 = Number(vaultTSLABefore.batches[1].loan.replace('@TSLA', ''))
+      expect(vaultTSLAAfter.batches[1].loan).toStrictEqual(`${(loanAmountBeforeBatch1 * 2).toFixed(8)}@TSLA`)
+    }
+  })
+
+  it('should check auctions after split', async () => {
+    const tokenTSLA = await testing.rpc.token.getToken(tslaID)
+    const newMintedTSLA = tokenTSLA[tslaID].minted.multipliedBy(2)
+
+    const vaultTSLABefore = await testing.rpc.vault.getVault(vaultId2) as VaultLiquidation
+    const [, auctionsTSLABefore] = await testing.rpc.vault.listAuctions()
+
+    // set a token split at current block + 2 for TSLA
+    const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
+    await testing.rpc.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2`
+      }
+    })
+    await testing.generate(2)
+    const newTSLAID = await checkTokenSplit(tslaID, 'TSLA', '/v1', newMintedTSLA, true, false)
+
+    {
+      // check vaults
+      const vaultTSLAAfter = await testing.rpc.vault.getVault(vaultId2) as VaultLiquidation
+      expect(vaultTSLAAfter.vaultId).toStrictEqual(vaultTSLABefore.vaultId)
+      expect(vaultTSLAAfter.ownerAddress).toStrictEqual(vaultTSLABefore.ownerAddress)
+      expect(vaultTSLAAfter.state).toStrictEqual(VaultState.IN_LIQUIDATION)
+      expect(vaultTSLAAfter.batchCount).toStrictEqual(vaultTSLABefore.batchCount)
+
+      {
+        const loanAmountBeforeBatch0 = Number(vaultTSLABefore.batches[0].loan.replace('@TSLA', ''))
+        expect(vaultTSLAAfter.batches[0].loan).toStrictEqual(`${(loanAmountBeforeBatch0 * 2).toFixed(8)}@TSLA`)
+
+        const loanAmountBeforeBatch1 = Number(vaultTSLABefore.batches[1].loan.replace('@TSLA', ''))
+        expect(vaultTSLAAfter.batches[1].loan).toStrictEqual(`${(loanAmountBeforeBatch1 * 2).toFixed(8)}@TSLA`)
+      }
+
+      // check auctions
+      const [, auctionsTSLAAfter] = await testing.rpc.vault.listAuctions()
+      {
+        const loanAmountBeforeBatch0 = Number(auctionsTSLABefore.batches[0].loan.replace('@TSLA', ''))
+        expect(auctionsTSLAAfter.batches[0].loan).toStrictEqual(`${(loanAmountBeforeBatch0 * 2).toFixed(8)}@TSLA`)
+
+        const loanAmountBeforeBatch1 = Number(auctionsTSLABefore.batches[1].loan.replace('@TSLA', ''))
+        expect(auctionsTSLAAfter.batches[1].loan).toStrictEqual(`${(loanAmountBeforeBatch1 * 2).toFixed(8)}@TSLA`)
+      }
+
+      // unlock the token and check
+      await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${newTSLAID}`]: 'false' } })
+      await testing.generate(1)
+      // check newFBID is unlocked now
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributes.ATTRIBUTES[`v0/locks/token/${newTSLAID}`]).toStrictEqual('false')
+
+      // oracle new price kicks in
+      const timestamp = Math.floor(new Date().getTime() / 1000)
+      await testing.rpc.oracle.setOracleData(oracleID, timestamp, {
+        prices: [{
+          tokenAmount: '1@TSLA',
+          currency: 'USD'
+        }]
+      })
+      await testing.generate(1)
+
+      // wait till the price valid.
+      await testing.container.waitForPriceValid('TSLA/USD')
+
+      // check collateralAddress
+      const ColAccAfter = await testing.rpc.account.getAccount(collateralAddress)
+      expect(ColAccAfter).toStrictEqual(['200000.00000000@DFI', '6.00000000@BTC', '2248.00000000@AAPL', '30000.00000000@TSLA']) // Has the new TSLA token
+
+      // try to bid to auction
+      const txid = await testing.rpc.vault.placeAuctionBid({
+        vaultId: vaultId2,
+        index: 0,
+        from: collateralAddress,
+        amount: '10502@TSLA'
+      })
+      expect(typeof txid).toStrictEqual('string')
+      await testing.container.generate(1)
+
+      // check auction bid is in
+      const vaultTSLAAfterBid = await testing.rpc.vault.getVault(vaultId2) as VaultLiquidation
+      expect(vaultTSLAAfterBid.batchCount).toStrictEqual(4)
+      expect(vaultTSLAAfterBid.batches[0].highestBid?.amount).toStrictEqual('10502.00000000@TSLA')
+
+      const ColAccAfterBid = await testing.rpc.account.getAccount(collateralAddress)
+      expect(ColAccAfterBid).toStrictEqual(['200000.00000000@DFI', '6.00000000@BTC', '2248.00000000@AAPL', '19498.00000000@TSLA']) // 30000 - 10502 = 19498
+
+      // let it settle
+      await testing.generate(36)
+
+      // check the vault again
+      const vaultTSLAAfterAuctionEnd = await testing.rpc.vault.getVault(vaultId2) as VaultActive
+      expect(vaultTSLAAfterAuctionEnd.state).toStrictEqual(VaultState.ACTIVE)
     }
   })
 
@@ -777,133 +901,6 @@ describe('Token splits', () => {
     }
   })
 
-  it('should check liquidated vault after split', async () => {
-    const tokenTSLA = await testing.rpc.token.getToken(tslaID)
-    const newMintedTSLA = tokenTSLA[tslaID].minted.multipliedBy(2)
-
-    const vaultTSLABefore = await testing.rpc.vault.getVault(vaultId2) as VaultLiquidation
-
-    // set a token split at current block + 2 for TSLA
-    const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
-    await testing.rpc.masternode.setGov({
-      ATTRIBUTES: {
-        [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2`
-      }
-    })
-    await testing.generate(2)
-    await checkTokenSplit(tslaID, 'TSLA', '/v1', newMintedTSLA, true, false)
-    const tokenTSLAOld = (await testing.rpc.token.getToken(tslaID))[tslaID]
-
-    {
-      // check vaults
-      const vaultTSLAAfter = await testing.rpc.vault.getVault(vaultId2) as VaultLiquidation
-      expect(vaultTSLAAfter.vaultId).toStrictEqual(vaultTSLABefore.vaultId)
-      expect(vaultTSLAAfter.ownerAddress).toStrictEqual(vaultTSLABefore.ownerAddress)
-      expect(vaultTSLAAfter.state).toStrictEqual(VaultState.IN_LIQUIDATION)
-      expect(vaultTSLAAfter.batchCount).toStrictEqual(vaultTSLABefore.batchCount)
-
-      const loanAmountBeforeBatch0 = Number(vaultTSLABefore.batches[0].loan.replace('@TSLA', ''))
-      expect(vaultTSLAAfter.batches[0].loan).toStrictEqual(`${loanAmountBeforeBatch0.toFixed(8)}@${tokenTSLAOld.symbol}`)
-
-      const loanAmountBeforeBatch1 = Number(vaultTSLABefore.batches[1].loan.replace('@TSLA', ''))
-      expect(vaultTSLAAfter.batches[1].loan).toStrictEqual(`${loanAmountBeforeBatch1.toFixed(8)}@${tokenTSLAOld.symbol}`)
-    }
-  })
-
-  it('should check auctions after split', async () => {
-    const tokenTSLA = await testing.rpc.token.getToken(tslaID)
-    const newMintedTSLA = tokenTSLA[tslaID].minted.multipliedBy(2)
-
-    const vaultTSLABefore = await testing.rpc.vault.getVault(vaultId2) as VaultLiquidation
-    const [, auctionsTSLABefore] = await testing.rpc.vault.listAuctions()
-
-    // set a token split at current block + 2 for TSLA
-    const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
-    await testing.rpc.masternode.setGov({
-      ATTRIBUTES: {
-        [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2`
-      }
-    })
-    await testing.generate(2)
-    const newTSLAID = await checkTokenSplit(tslaID, 'TSLA', '/v1', newMintedTSLA, true, false)
-
-    {
-      // check vaults
-      const vaultTSLAAfter = await testing.rpc.vault.getVault(vaultId2) as VaultLiquidation
-      expect(vaultTSLAAfter.vaultId).toStrictEqual(vaultTSLABefore.vaultId)
-      expect(vaultTSLAAfter.ownerAddress).toStrictEqual(vaultTSLABefore.ownerAddress)
-      expect(vaultTSLAAfter.state).toStrictEqual(VaultState.IN_LIQUIDATION)
-      expect(vaultTSLAAfter.batchCount).toStrictEqual(vaultTSLABefore.batchCount)
-
-      {
-        const loanAmountBeforeBatch0 = Number(vaultTSLABefore.batches[0].loan.replace('@TSLA', ''))
-        expect(vaultTSLAAfter.batches[0].loan).toStrictEqual(`${(loanAmountBeforeBatch0 * 2).toFixed(8)}@TSLA`)
-
-        const loanAmountBeforeBatch1 = Number(vaultTSLABefore.batches[1].loan.replace('@TSLA', ''))
-        expect(vaultTSLAAfter.batches[1].loan).toStrictEqual(`${(loanAmountBeforeBatch1 * 2).toFixed(8)}@TSLA`)
-      }
-
-      // check auctions
-      const [, auctionsTSLAAfter] = await testing.rpc.vault.listAuctions()
-      {
-        const loanAmountBeforeBatch0 = Number(auctionsTSLABefore.batches[0].loan.replace('@TSLA', ''))
-        expect(auctionsTSLAAfter.batches[0].loan).toStrictEqual(`${(loanAmountBeforeBatch0 * 2).toFixed(8)}@TSLA`)
-
-        const loanAmountBeforeBatch1 = Number(auctionsTSLABefore.batches[1].loan.replace('@TSLA', ''))
-        expect(auctionsTSLAAfter.batches[1].loan).toStrictEqual(`${(loanAmountBeforeBatch1 * 2).toFixed(8)}@TSLA`)
-      }
-
-      // unlock the token and check
-      await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${newTSLAID}`]: 'false' } })
-      await testing.generate(1)
-      // check newFBID is unlocked now
-      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
-      expect(attributes.ATTRIBUTES[`v0/locks/token/${newTSLAID}`]).toStrictEqual('false')
-
-      // oracle new price kicks in
-      const timestamp = Math.floor(new Date().getTime() / 1000)
-      await testing.rpc.oracle.setOracleData(oracleID, timestamp, {
-        prices: [{
-          tokenAmount: '1@TSLA',
-          currency: 'USD'
-        }]
-      })
-      await testing.generate(1)
-
-      // wait till the price valid.
-      await testing.container.waitForPriceValid('TSLA/USD')
-
-      // check collateralAddress
-      const ColAccAfter = await testing.rpc.account.getAccount(collateralAddress)
-      expect(ColAccAfter).toStrictEqual(['200000.00000000@DFI', '6.00000000@BTC', '2248.00000000@AAPL', '30000.00000000@TSLA']) // Has the new TSLA token
-
-      // try to bid to auction
-      const txid = await testing.rpc.vault.placeAuctionBid({
-        vaultId: vaultId2,
-        index: 0,
-        from: collateralAddress,
-        amount: '10502@TSLA'
-      })
-      expect(typeof txid).toStrictEqual('string')
-      await testing.container.generate(1)
-
-      // check auction bid is in
-      const vaultTSLAAfterBid = await testing.rpc.vault.getVault(vaultId2) as VaultLiquidation
-      expect(vaultTSLAAfterBid.batchCount).toStrictEqual(4)
-      expect(vaultTSLAAfterBid.batches[0].highestBid?.amount).toStrictEqual('10502.00000000@TSLA')
-
-      const ColAccAfterBid = await testing.rpc.account.getAccount(collateralAddress)
-      expect(ColAccAfterBid).toStrictEqual(['200000.00000000@DFI', '6.00000000@BTC', '2248.00000000@AAPL', '19498.00000000@TSLA']) // 30000 - 10502 = 19498
-
-      // let it settle
-      await testing.generate(36)
-
-      // check the vault again
-      const vaultTSLAAfterAuctionEnd = await testing.rpc.vault.getVault(vaultId2) as VaultActive
-      expect(vaultTSLAAfterAuctionEnd.state).toStrictEqual(VaultState.ACTIVE)
-    }
-  })
-
   it('should check poolswap after split', async () => {
     const tokenTSLA = await testing.rpc.token.getToken(tslaID)
     const newMintedTSLA = tokenTSLA[tslaID].minted.multipliedBy(2)
@@ -920,7 +917,50 @@ describe('Token splits', () => {
       }
     })
     await testing.generate(2)
-    await checkTokenSplit(tslaID, 'TSLA', '/v1', newMintedTSLA, true, false)
+    const newTSLAID = await checkTokenSplit(tslaID, 'TSLA', '/v1', newMintedTSLA, true, false)
     await checkPoolAfterSplit(Object.keys(tokenTSLADFIBefore)[0], poolPairTSLADFIBefore, '/v1', 'TSLA')
+
+    // try to use the pool
+    const swapReceiveAddress = await testing.generateAddress()
+    const metadata: poolpair.PoolSwapMetadata = {
+      from: collateralAddress,
+      tokenFrom: 'DFI',
+      amountFrom: 10,
+      to: swapReceiveAddress,
+      tokenTo: 'TSLA'
+    }
+
+    const promise = testing.rpc.poolpair.poolSwap(metadata)
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test PoolSwapTx execution failed:\nPool currently disabled due to locked token\', code: -32600, method: poolswap')
+
+    // unlock the token and check
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${newTSLAID}`]: 'false' } })
+    await testing.generate(1)
+    // check newFBID is unlocked now
+    const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+    expect(attributes.ATTRIBUTES[`v0/locks/token/${newTSLAID}`]).toStrictEqual('false')
+
+    // oracle new price kicks in
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleID, timestamp, {
+      prices: [{
+        tokenAmount: '1@FB',
+        currency: 'USD'
+      }]
+    })
+    await testing.generate(1)
+
+    // wait till the price valid.
+    await testing.container.waitForPriceValid('FB/USD')
+
+    // now try to use the pool
+    const hex = await testing.rpc.poolpair.poolSwap(metadata)
+    await testing.generate(1)
+    expect(typeof hex).toStrictEqual('string')
+    expect(hex.length).toStrictEqual(64)
+
+    expect(await testing.rpc.account.getAccount(swapReceiveAddress)).toStrictEqual(['9.15879828@TSLA'])
   })
 })
