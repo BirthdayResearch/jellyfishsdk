@@ -613,46 +613,6 @@ describe('Masternode at or after greatworldheight', () => {
     await expect(promise2).rejects.toThrow('Test UpdateMasternodeTx execution failed:\nMasternode with that operator address already exists')
   })
 
-  it('should not updateMasternode with ownerAddress, operatorAddress or rewardAddress if ownerAddress, operatorAddress or rewardAddress do not refer to a P2PKH or P2WPKH address', async () => {
-    const ownerAddress = await testing.container.getNewAddress('p2sh-segwit')
-    const operatorAddress = await testing.container.getNewAddress('p2sh-segwit')
-    const rewardAddress = await testing.container.getNewAddress('p2sh-segwit')
-
-    const masternodeId1 = await testing.container.call('createmasternode', [await testing.generateAddress()])
-    await testing.generate(1)
-
-    const masternodeId2 = await testing.container.call('createmasternode', [await testing.generateAddress()])
-    await testing.generate(1)
-
-    const masternodeId3 = await testing.container.call('createmasternode', [await testing.generateAddress()])
-    await testing.generate(1)
-
-    await waitUntilMasternodeEnabled(masternodeId1)
-    await waitUntilMasternodeEnabled(masternodeId2)
-    await waitUntilMasternodeEnabled(masternodeId3)
-
-    const promise1 = testing.rpc.masternode.updateMasternode(masternodeId1, {
-      ownerAddress
-    })
-
-    await expect(promise1).rejects.toThrow(RpcApiError)
-    await expect(promise1).rejects.toThrow(`ownerAddress (${ownerAddress}) does not refer to a P2PKH or P2WPKH address`)
-
-    const promise2 = testing.rpc.masternode.updateMasternode(masternodeId2, {
-      operatorAddress
-    })
-
-    await expect(promise2).rejects.toThrow(RpcApiError)
-    await expect(promise2).rejects.toThrow(`operatorAddress (${operatorAddress}) does not refer to a P2PKH or P2WPKH address`)
-
-    const promise3 = testing.rpc.masternode.updateMasternode(masternodeId3, {
-      rewardAddress
-    })
-
-    await expect(promise3).rejects.toThrow(RpcApiError)
-    await expect(promise3).rejects.toThrow(`rewardAddress (${rewardAddress}) does not refer to a P2PKH or P2WPKH address`)
-  })
-
   it('should not updateMasternode with ownerAddress if ownerAddress does not belong to the owner', async () => {
     const ownerAddress = await testing.generateAddress()
 
