@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  APPS: 'legacy-api,ocean-api,playground-api,status-api'
+  APPS: 'legacy-api,ocean-api,playground-api,status-api,whale-api'
 
 jobs:
   build:
@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        app: [ legacy-api, ocean-api, playground-api, status-api ]
+        app: [ legacy-api, ocean-api, playground-api, status-api, whale-api ]
     steps:
       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
