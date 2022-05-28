@@ -51,23 +51,15 @@ interface masternode {
   updateMasternode (masternodeId: string, options: UpdateMasternodeOptions, utxos: UTXO[] = []): Promise<string>
 }
 
-type UpdateMasternodeOptions = UpdateMasternodeOptions1 | UpdateMasternodeOptions2 | UpdateMasternodeOptions3
+type UpdateMasternodeOptions = AtLeastOne<Options>
 
-interface UpdateMasternodeOptions1 {
+type AtLeastOne<T> = {
+  [K in keyof T]: Pick<T, K> & Partial<Omit<T, K>>;
+}[keyof T]
+
+interface Options {
   ownerAddress: string
-  operatorAddress?: string
-  rewardAddress?: string
-}
-
-interface UpdateMasternodeOptions2 {
-  ownerAddress?: string
   operatorAddress: string
-  rewardAddress?: string
-}
-
-interface UpdateMasternodeOptions3 {
-  ownerAddress?: string
-  operatorAddress?: string
   rewardAddress: string
 }
 ```
