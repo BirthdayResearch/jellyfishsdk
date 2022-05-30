@@ -28,12 +28,15 @@
       <w>canonbrother</w>
       <w>chainparams</w>
       <w>chainwork</w>
+      <w>chanakasameera</w>
       <w>checklocktimeverify</w>
       <w>checkmultisig</w>
       <w>checkmultisigverify</w>
       <w>checksequenceverify</w>
       <w>checksig</w>
       <w>checksigverify</w>
+      <w>chee</w>
+      <w>chyuan</w>
       <w>clarkequayheight</w>
       <w>closevault</w>
       <w>codeclimate</w>
@@ -64,6 +67,7 @@
       <w>devnet</w>
       <w>dfip</w>
       <w>dftx</w>
+      <w>dockerignore</w>
       <w>dockerode</w>
       <w>dogfooding</w>
       <w>dummypos</w>
