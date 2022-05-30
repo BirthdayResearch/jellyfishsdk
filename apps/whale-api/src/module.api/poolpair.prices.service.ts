@@ -5,7 +5,7 @@ import { DeFiDCache } from './cache/defid.cache'
 import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
 import { DexPricesResult, TokenIdentifier } from '@defichain/whale-api-client/dist/api/PoolPairs'
 import { parseDisplaySymbol } from './token.controller'
-import { SemaphoreCache } from './cache/semaphore.cache'
+import { SemaphoreCache } from '@defichain-apps/libs/caches'
 
 @Injectable()
 export class PoolPairPricesService {
