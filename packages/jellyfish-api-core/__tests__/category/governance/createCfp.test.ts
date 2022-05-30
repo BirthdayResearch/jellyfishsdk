@@ -6,7 +6,7 @@ import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 
 describe('Governance', () => {
-  const container = new MasterNodeRegTestContainer(RegTestFoundationKeys[0])
+  const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
   beforeAll(async () => {
@@ -22,24 +22,71 @@ describe('Governance', () => {
   })
 
   it('should createGovCfp', async () => {
-    const data = {
-      title: 'Testing new community fund proposal',
-      context: 'https://github.com/DeFiCh/dfips',
-      amount: new BigNumber(100),
-      payoutAddress: await container.call('getnewaddress'),
-      cycles: 2
-    }
-    const proposalTx = await client.governance.createGovCfp(data)
-    await container.generate(1)
+    // Creare cfp with p2sh-segwit address
+    {
+      const data = {
+        title: 'Testing new community fund proposal',
+        context: 'https://github.com/DeFiCh/dfips',
+        amount: new BigNumber(100),
+        payoutAddress: await container.call('getnewaddress', ['', 'p2sh-segwit']),
+        cycles: 2
+      }
+      const proposalTx = await client.governance.createGovCfp(data)
+      await container.generate(1)
 
-    const proposal = await container.call('getgovproposal', [proposalTx])
-    expect(proposal.title).toStrictEqual(data.title)
-    expect(proposal.type).toStrictEqual(ProposalType.COMMUNITY_FUND_PROPOSAL)
-    expect(proposal.status).toStrictEqual(ProposalStatus.VOTING)
-    expect(proposal.amount).toStrictEqual(data.amount.toNumber())
-    expect(proposal.cyclesPaid).toStrictEqual(1)
-    expect(proposal.totalCycles).toStrictEqual(data.cycles)
-    expect(proposal.payoutAddress).toStrictEqual(data.payoutAddress)
+      const proposal = await container.call('getgovproposal', [proposalTx])
+      expect(proposal.title).toStrictEqual(data.title)
+      expect(proposal.type).toStrictEqual(ProposalType.COMMUNITY_FUND_PROPOSAL)
+      expect(proposal.status).toStrictEqual(ProposalStatus.VOTING)
+      expect(proposal.amount).toStrictEqual(data.amount.toNumber())
+      expect(proposal.cyclesPaid).toStrictEqual(1)
+      expect(proposal.totalCycles).toStrictEqual(data.cycles)
+      expect(proposal.payoutAddress).toStrictEqual(data.payoutAddress)
+    }
+
+    // Creare cfp with legacy address
+    {
+      const data = {
+        title: 'Testing new community fund proposal with legacy address',
+        context: 'https://github.com/DeFiCh/dfips',
+        amount: new BigNumber(100),
+        payoutAddress: await container.call('getnewaddress', ['', 'legacy']),
+        cycles: 2
+      }
+      const proposalTx = await client.governance.createGovCfp(data)
+      await container.generate(1)
+
+      const proposal = await container.call('getgovproposal', [proposalTx])
+      expect(proposal.title).toStrictEqual(data.title)
+      expect(proposal.type).toStrictEqual(ProposalType.COMMUNITY_FUND_PROPOSAL)
+      expect(proposal.status).toStrictEqual(ProposalStatus.VOTING)
+      expect(proposal.amount).toStrictEqual(data.amount.toNumber())
+      expect(proposal.cyclesPaid).toStrictEqual(1)
+      expect(proposal.totalCycles).toStrictEqual(data.cycles)
+      expect(proposal.payoutAddress).toStrictEqual(data.payoutAddress)
+    }
+
+    // Creare cfp with bech32 address
+    {
+      const data = {
+        title: 'Testing new community fund proposal with bech32 address',
+        context: 'https://github.com/DeFiCh/dfips',
+        amount: new BigNumber(100),
+        payoutAddress: await container.call('getnewaddress', ['', 'bech32']),
+        cycles: 2
+      }
+      const proposalTx = await client.governance.createGovCfp(data)
+      await container.generate(1)
+
+      const proposal = await container.call('getgovproposal', [proposalTx])
+      expect(proposal.title).toStrictEqual(data.title)
+      expect(proposal.type).toStrictEqual(ProposalType.COMMUNITY_FUND_PROPOSAL)
+      expect(proposal.status).toStrictEqual(ProposalStatus.VOTING)
+      expect(proposal.amount).toStrictEqual(data.amount.toNumber())
+      expect(proposal.cyclesPaid).toStrictEqual(1)
+      expect(proposal.totalCycles).toStrictEqual(data.cycles)
+      expect(proposal.payoutAddress).toStrictEqual(data.payoutAddress)
+    }
   })
 
   it('should not createGovCfp with an empty title', async () => {
@@ -167,7 +214,7 @@ describe('Governance', () => {
     expect(rawtx.vin[0].vout).toStrictEqual(utxo.vout)
   })
 
-  it('should not createGovCfp with wrongly formatted utxos\' txid', async () => {
+  it('should not createGovCfp with wrongly formatted utxos txid', async () => {
     const data = {
       title: 'Testing new community fund proposal',
       context: 'https://github.com/DeFiCh/dfips',
@@ -180,7 +227,7 @@ describe('Governance', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'txid must be of length 64 (not 4, for \'XXXX\')\', code: -8, method: creategovcfp')
   })
 
-  it('should not createGovCfp with invalid utxos\' txid', async () => {
+  it('should not createGovCfp with invalid utxos txid', async () => {
     const data = {
       title: 'Testing new community fund proposal',
       context: 'https://github.com/DeFiCh/dfips',
