@@ -127,6 +127,10 @@ export interface CollateralToken {
   tokenId: string
   token: TokenData
   factor: string
+  /**
+   * @deprecated since 2.8.0, moved to GOV attributes via setGov
+   */
+  activateAfterBlock: number
   fixedIntervalPriceId: string
   activePrice?: ActivePrice
 }
