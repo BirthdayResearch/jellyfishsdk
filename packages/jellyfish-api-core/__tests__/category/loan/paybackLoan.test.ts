@@ -1,5 +1,5 @@
 import { LoanMasterNodeRegTestContainer } from './loan_container'
-import { GenesisKeys, StartFlags, MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { GenesisKeys, MasterNodeRegTestContainer, StartFlags } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
 import { Testing, TestingGroup } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
@@ -1059,7 +1059,8 @@ describe('paybackLoan before FortCanningHeight', () => {
     await tGroupFCH.stop()
   })
 
-  it('should fail partial payback when interest becomes zero for pre FCH, and should success the same post FCH', async () => {
+  // Only relevant after FortCanningHill
+  it.skip('should fail partial payback when interest becomes zero for pre FCH, and should success the same post FCH', async () => {
     const fchBlockHeight = 150
     await setupFCHContainer(fchBlockHeight)
     await setupVault()
@@ -1118,7 +1119,8 @@ describe('paybackLoan before FortCanningHeight', () => {
     await expect(successfulPaybackPromise).resolves.not.toThrow()
   })
 
-  it('should fail partial payback when interest becomes zero for pre FCH, and should success the same post FCH - use PaybackLoanMetadataV2', async () => {
+  // Only relevant after FortCanningHill
+  it.skip('should fail partial payback when interest becomes zero for pre FCH, and should success the same post FCH - use PaybackLoanMetadataV2', async () => {
     const fchBlockHeight = 150
     await setupFCHContainer(fchBlockHeight)
     await setupVault()

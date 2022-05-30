@@ -36,15 +36,21 @@ interface PoolPairsResult {
 interface PoolPairInfo {
   symbol: string
   name: string
-  status: string
+  status: boolean
   idTokenA: string
   idTokenB: string
+  dexFeePctTokenA?: BigNumber
+  dexFeeInPctTokenA?: BigNumber
+  dexFeeOutPctTokenA?: BigNumber
+  dexFeePctTokenB?: BigNumber
+  dexFeeInPctTokenB?: BigNumber
+  dexFeeOutPctTokenB?: BigNumber
   reserveA: BigNumber
   reserveB: BigNumber
   commission: BigNumber
   totalLiquidity: BigNumber
-  'reserveA/reserveB': BigNumber
-  'reserveB/reserveA': BigNumber
+  'reserveA/reserveB': BigNumber | string
+  'reserveB/reserveA': BigNumber | string
   tradeEnabled: boolean
   ownerAddress: string
   blockCommissionA: BigNumber
@@ -52,7 +58,7 @@ interface PoolPairInfo {
   rewardPct: BigNumber
   customRewards?: string[]
   creationTx: string
-  creationHeight: number
+  creationHeight: BigNumber
 }
 
 interface PoolPairPagination {
@@ -81,12 +87,18 @@ interface PoolPairInfo {
   status: boolean
   idTokenA: string
   idTokenB: string
+  dexFeePctTokenA?: BigNumber
+  dexFeeInPctTokenA?: BigNumber
+  dexFeeOutPctTokenA?: BigNumber
+  dexFeePctTokenB?: BigNumber
+  dexFeeInPctTokenB?: BigNumber
+  dexFeeOutPctTokenB?: BigNumber
   reserveA: BigNumber
   reserveB: BigNumber
   commission: BigNumber
   totalLiquidity: BigNumber
-  'reserveA/reserveB': BigNumber
-  'reserveB/reserveA': BigNumber
+  'reserveA/reserveB': BigNumber | string
+  'reserveB/reserveA': BigNumber | string
   tradeEnabled: boolean
   ownerAddress: string
   blockCommissionA: BigNumber
@@ -94,7 +106,7 @@ interface PoolPairInfo {
   rewardPct: BigNumber
   customRewards?: string[]
   creationTx: string
-  creationHeight: number
+  creationHeight: BigNumber
 }
 ```
 

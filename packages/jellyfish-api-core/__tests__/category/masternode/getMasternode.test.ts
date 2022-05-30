@@ -32,7 +32,7 @@ describe('Masternode', () => {
       expect(typeof data.creationHeight).toStrictEqual('number')
       expect(typeof data.resignHeight).toStrictEqual('number')
       expect(typeof data.resignTx).toStrictEqual('string')
-      expect(typeof data.banTx).toStrictEqual('string')
+      expect(typeof data.rewardAddress).toStrictEqual('string')
       expect(data.state).toStrictEqual(MasternodeState.PRE_ENABLED)
       expect(typeof data.state).toStrictEqual('string')
       expect(typeof data.mintedBlocks).toStrictEqual('number')
