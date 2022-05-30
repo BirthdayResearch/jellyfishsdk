@@ -127,6 +127,7 @@ export interface CollateralToken {
   tokenId: string
   token: TokenData
   factor: string
+  activateAfterBlock: number
   fixedIntervalPriceId: string
   activePrice?: ActivePrice
 }
