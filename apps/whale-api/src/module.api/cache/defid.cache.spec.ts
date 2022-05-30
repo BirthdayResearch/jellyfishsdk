@@ -7,7 +7,7 @@ import { createPoolPair, createToken } from '@defichain/testing'
 import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
 import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
 import { Cache } from 'cache-manager'
-import { CachePrefix } from './global.cache'
+import { CachePrefix } from '@defichain-apps/libs/caches'
 
 const container = new MasterNodeRegTestContainer()
 let client: JsonRpcClient

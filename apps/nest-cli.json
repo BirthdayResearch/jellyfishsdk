@@ -68,6 +68,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/filters/tsconfig.lib.json"
       }
+    },
+    "caches": {
+      "type": "library",
+      "root": "libs/caches",
+      "entryFile": "index",
+      "sourceRoot": "libs/caches/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/caches/tsconfig.lib.json"
+      }
     }
   }
 }
