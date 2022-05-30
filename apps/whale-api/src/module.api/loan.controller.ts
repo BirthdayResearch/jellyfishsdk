@@ -233,7 +233,7 @@ export class LoanController {
       tokenId: detail.tokenId,
       token: mapTokenData(id, tokenInfo),
       factor: detail.factor.toFixed(),
-      activateAfterBlock: (detail as any)?.activateAfterBlock?.toNumber() ?? 0,
+      activateAfterBlock: 0,
       fixedIntervalPriceId: detail.fixedIntervalPriceId,
       activePrice: await this.getActivePrice(detail.fixedIntervalPriceId)
     }
