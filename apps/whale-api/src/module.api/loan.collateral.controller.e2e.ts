@@ -10,8 +10,6 @@ const container = new LoanMasterNodeRegTestContainer()
 let app: NestFastifyApplication
 let controller: LoanController
 
-let collateralTokenId1: string
-
 beforeAll(async () => {
   await container.start()
   await container.waitForWalletCoinbaseMaturity()
@@ -68,7 +66,7 @@ beforeAll(async () => {
   })
   await testing.generate(1)
 
-  collateralTokenId1 = await testing.rpc.loan.setCollateralToken({
+  await testing.rpc.loan.setCollateralToken({
     token: 'AAPL',
     factor: new BigNumber(0.1),
     fixedIntervalPriceId: 'AAPL/USD'
@@ -175,10 +173,10 @@ describe('get', () => {
     const data = await controller.getCollateral('AAPL')
     expect(data).toStrictEqual(
       {
-        tokenId: collateralTokenId1,
+        tokenId: expect.any(String),
         fixedIntervalPriceId: 'AAPL/USD',
         factor: '0.1',
-        activateAfterBlock: 108,
+        activateAfterBlock: 0,
         token: {
           collateralAddress: expect.any(String),
           creation: {
