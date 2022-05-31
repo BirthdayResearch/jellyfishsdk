@@ -8,7 +8,7 @@ describe('Governance', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     await container.start()
     await container.waitForWalletCoinbaseMaturity()
 
@@ -16,7 +16,7 @@ describe('Governance', () => {
     await container.generate(1)
   })
 
-  afterEach(async () => {
+  afterAll(async () => {
     await container.stop()
   })
 

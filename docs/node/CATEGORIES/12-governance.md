@@ -120,7 +120,8 @@ enum ProposalType {
 enum ProposalStatus {
   VOTING = 'Voting',
   REJECTED = 'Rejected',
-  COMPLETED = 'Completed'
+  COMPLETED = 'Completed',
+  APPROVED = 'Approved'
 }
 
 interface ProposalInfo {
@@ -133,6 +134,9 @@ interface ProposalInfo {
   totalCycles: number
   finalizeAfter: number
   payoutAddress: string
+  approval: string
+  validity: string
+  ends: string
 }
 ```
 

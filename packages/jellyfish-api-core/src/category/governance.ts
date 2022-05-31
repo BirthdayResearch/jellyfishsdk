@@ -10,7 +10,8 @@ export enum ProposalType {
 export enum ProposalStatus {
   VOTING = 'Voting',
   REJECTED = 'Rejected',
-  COMPLETED = 'Completed'
+  COMPLETED = 'Completed',
+  APPROVED = 'Approved'
 }
 
 export enum ListProposalsType {
@@ -162,6 +163,9 @@ export interface ProposalInfo {
   totalCycles: number
   finalizeAfter: number
   payoutAddress: string
+  approval: string
+  validity: string
+  ends: string
 }
 
 export interface VoteData {

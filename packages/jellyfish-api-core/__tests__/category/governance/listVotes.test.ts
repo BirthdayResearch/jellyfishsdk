@@ -19,7 +19,7 @@ describe('Governance', () => {
 
   let masternodes: masternode.MasternodeResult<masternode.MasternodeInfo>
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
 
@@ -38,7 +38,7 @@ describe('Governance', () => {
     masternodes = await testing.rpc.masternode.listMasternodes()
   })
 
-  afterEach(async () => {
+  afterAll(async () => {
     await testing.container.stop()
   })
 

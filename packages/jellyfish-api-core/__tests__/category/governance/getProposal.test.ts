@@ -1,6 +1,6 @@
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { RpcApiError } from '../../../src'
-import { ProposalStatus, ProposalType } from '../../../src/category/governance'
+import { masternode, RpcApiError } from '../../../src'
+import { ProposalStatus, ProposalType, VoteDecision } from '../../../src/category/governance'
 import BigNumber from 'bignumber.js'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
@@ -9,12 +9,16 @@ describe('Governance', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
+  let masternodes: masternode.MasternodeResult<masternode.MasternodeInfo>
+
   beforeAll(async () => {
     await container.start()
     await container.waitForWalletCoinbaseMaturity()
 
     await client.wallet.sendToAddress(RegTestFoundationKeys[0].owner.address, 10)
     await container.generate(1)
+
+    masternodes = await client.masternode.listMasternodes()
   })
 
   afterAll(async () => {
@@ -44,6 +48,58 @@ describe('Governance', () => {
     expect(proposal.amount).toStrictEqual(new BigNumber(data.amount))
     expect(proposal.totalCycles).toStrictEqual(data.cycles)
     expect(proposal.payoutAddress).toStrictEqual(data.payoutAddress)
+
+    // Proposal status should be rejected
+    {
+      for (const [id, data] of Object.entries(masternodes)) {
+        if (data.operatorIsMine) {
+          await client.governance.voteGov({ proposalId, masternodeId: id, decision: VoteDecision.NEUTRAL })
+        }
+      }
+      await container.generate(1)
+
+      const proposal = await client.governance.getGovProposal(proposalId)
+      expect(proposal.proposalId).toStrictEqual(proposalId)
+      expect(proposal.title).toStrictEqual(data.title)
+      expect(proposal.type).toStrictEqual(ProposalType.COMMUNITY_FUND_PROPOSAL)
+      expect(proposal.status).toStrictEqual(ProposalStatus.REJECTED)
+    }
+
+    // Proposal status should be approved
+    {
+      for (const [id, data] of Object.entries(masternodes)) {
+        if (data.operatorIsMine) {
+          await client.governance.voteGov({ proposalId, masternodeId: id, decision: VoteDecision.YES })
+        }
+      }
+      await container.generate(1)
+
+      const proposal = await client.governance.getGovProposal(proposalId)
+      expect(proposal.proposalId).toStrictEqual(proposalId)
+      expect(proposal.title).toStrictEqual(data.title)
+      expect(proposal.type).toStrictEqual(ProposalType.COMMUNITY_FUND_PROPOSAL)
+      expect(proposal.status).toStrictEqual(ProposalStatus.APPROVED)
+      expect(proposal.approval).toStrictEqual('100.00 of 50.00%')
+      expect(proposal.ends).toStrictEqual('1 days')
+    }
+
+    // Proposal status should be rejected
+    {
+      for (const [id, data] of Object.entries(masternodes)) {
+        if (data.operatorIsMine) {
+          await client.governance.voteGov({ proposalId, masternodeId: id, decision: VoteDecision.NO })
+        }
+      }
+      await container.generate(1)
+
+      const proposal = await client.governance.getGovProposal(proposalId)
+      expect(proposal.proposalId).toStrictEqual(proposalId)
+      expect(proposal.title).toStrictEqual(data.title)
+      expect(proposal.type).toStrictEqual(ProposalType.COMMUNITY_FUND_PROPOSAL)
+      expect(proposal.status).toStrictEqual(ProposalStatus.REJECTED)
+      expect(proposal.approval).toStrictEqual('0.00 of 50.00%')
+      expect(proposal.ends).toStrictEqual('1 days')
+    }
   })
 
   it('should not getGovProposal if proposalId is invalid', async () => {
