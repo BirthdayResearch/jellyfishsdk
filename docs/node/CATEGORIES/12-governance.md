@@ -127,6 +127,7 @@ enum ProposalStatus {
 interface ProposalInfo {
   proposalId: string
   title: string
+  context: string
   type: ProposalType
   status: ProposalStatus
   amount: BigNumber

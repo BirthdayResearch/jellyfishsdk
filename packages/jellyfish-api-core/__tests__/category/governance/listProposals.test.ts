@@ -60,6 +60,7 @@ describe('Governance', () => {
     for (const proposal of proposals) {
       expect(typeof proposal.proposalId).toStrictEqual('string')
       expect(typeof proposal.title).toStrictEqual('string')
+      expect(typeof proposal.context).toStrictEqual('string')
       expect(typeof proposal.type).toStrictEqual('string')
       expect(typeof proposal.status).toStrictEqual('string')
       expect(proposal.amount instanceof BigNumber).toStrictEqual(true)

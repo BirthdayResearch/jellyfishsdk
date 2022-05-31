@@ -36,6 +36,7 @@ describe('Governance', () => {
 
       const proposal = await container.call('getgovproposal', [proposalTx])
       expect(proposal.title).toStrictEqual(data.title)
+      expect(proposal.context).toStrictEqual(data.context)
       expect(proposal.type).toStrictEqual(ProposalType.COMMUNITY_FUND_PROPOSAL)
       expect(proposal.status).toStrictEqual(ProposalStatus.VOTING)
       expect(proposal.amount).toStrictEqual(data.amount.toNumber())
@@ -58,6 +59,7 @@ describe('Governance', () => {
 
       const proposal = await container.call('getgovproposal', [proposalTx])
       expect(proposal.title).toStrictEqual(data.title)
+      expect(proposal.context).toStrictEqual(data.context)
       expect(proposal.type).toStrictEqual(ProposalType.COMMUNITY_FUND_PROPOSAL)
       expect(proposal.status).toStrictEqual(ProposalStatus.VOTING)
       expect(proposal.amount).toStrictEqual(data.amount.toNumber())
@@ -80,6 +82,7 @@ describe('Governance', () => {
 
       const proposal = await container.call('getgovproposal', [proposalTx])
       expect(proposal.title).toStrictEqual(data.title)
+      expect(proposal.context).toStrictEqual(data.context)
       expect(proposal.type).toStrictEqual(ProposalType.COMMUNITY_FUND_PROPOSAL)
       expect(proposal.status).toStrictEqual(ProposalStatus.VOTING)
       expect(proposal.amount).toStrictEqual(data.amount.toNumber())

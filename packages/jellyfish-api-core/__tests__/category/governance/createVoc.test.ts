@@ -33,6 +33,7 @@ describe('Governance', () => {
     expect(typeof proposal.totalCycles).toStrictEqual('number')
     expect(typeof proposal.finalizeAfter).toStrictEqual('number')
     expect(proposal.title).toStrictEqual('new vote of confidence')
+    expect(proposal.context).toStrictEqual('github issue url and in future IPFS tx')
     expect(proposal.type).toStrictEqual(ProposalType.VOTE_OF_CONFIDENCE)
     expect(proposal.status).toStrictEqual(ProposalStatus.VOTING)
     expect(proposal.payoutAddress).toStrictEqual('')

@@ -156,6 +156,7 @@ export interface UTXO {
 export interface ProposalInfo {
   proposalId: string
   title: string
+  context: string
   type: ProposalType
   status: ProposalStatus
   amount: BigNumber
