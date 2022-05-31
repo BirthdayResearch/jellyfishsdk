@@ -156,7 +156,7 @@ describe('Vault createVault', () => {
         loanSchemeId: ''
       })
 
-      await expect(promise).rejects.toThrow('RpcApiError: \'Test VaultTx execution failed:\nThere is not default loan scheme\', code: -32600, method: createvault')
+      await expect(promise).rejects.toThrow('RpcApiError: \'Test VaultTx execution failed:\nThere is no default loan scheme\', code: -32600, method: createvault')
     })
   })
 })

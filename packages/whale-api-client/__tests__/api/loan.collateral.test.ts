@@ -8,7 +8,6 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 const container = new MasterNodeRegTestContainer()
 const service = new StubService(container)
 const client = new StubWhaleApiClient(service)
-let collateralTokenId1: string
 
 /* eslint-disable no-lone-blocks */
 
@@ -107,7 +106,7 @@ beforeAll(async () => {
   }
 
   {
-    collateralTokenId1 = await testing.rpc.loan.setCollateralToken({
+    await testing.rpc.loan.setCollateralToken({
       token: 'AAPL',
       factor: new BigNumber(0.1),
       fixedIntervalPriceId: 'AAPL/USD'
@@ -160,6 +159,7 @@ describe('list', () => {
     // Not deterministic ordering due to use of id
     expect(result[0]).toStrictEqual({
       tokenId: expect.any(String),
+      activateAfterBlock: 0,
       token: {
         collateralAddress: expect.any(String),
         creation: {
@@ -186,7 +186,6 @@ describe('list', () => {
         tradeable: true
       },
       factor: expect.any(String),
-      activateAfterBlock: expect.any(Number),
       fixedIntervalPriceId: expect.any(String),
       activePrice: {
         active: {
@@ -244,8 +243,9 @@ describe('get', () => {
   it('should get collateral token by symbol', async () => {
     const data = await client.loan.getCollateralToken('AAPL')
     expect(data).toStrictEqual({
-      tokenId: collateralTokenId1,
+      tokenId: expect.stringMatching(/[0-f]{64}/),
       factor: '0.1',
+      activateAfterBlock: 0,
       token: {
         collateralAddress: expect.any(String),
         creation: {
@@ -271,7 +271,6 @@ describe('get', () => {
         symbolKey: expect.any(String),
         tradeable: true
       },
-      activateAfterBlock: 110,
       fixedIntervalPriceId: 'AAPL/USD',
       activePrice: {
         active: {

@@ -4,7 +4,7 @@ import { ProposalStatus, ProposalType } from '../../../src/category/governance'
 import { GovernanceMasterNodeRegTestContainer } from './governance_container'
 import BigNumber from 'bignumber.js'
 
-describe('Governance', () => {
+describe.skip('Governance', () => {
   const container = new GovernanceMasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 

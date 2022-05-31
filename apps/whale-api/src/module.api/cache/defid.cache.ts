@@ -2,7 +2,7 @@ import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common'
 import { Cache } from 'cache-manager'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { TokenInfo, TokenResult } from '@defichain/jellyfish-api-core/dist/category/token'
-import { CachePrefix, GlobalCache } from './global.cache'
+import { CachePrefix, GlobalCache } from '@defichain-apps/libs/caches'
 import { PoolPairInfo, PoolPairsResult } from '@defichain/jellyfish-api-core/dist/category/poolpair'
 import { GetLoanSchemeResult } from '@defichain/jellyfish-api-core/dist/category/loan'
 

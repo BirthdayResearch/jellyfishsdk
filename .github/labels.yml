@@ -73,6 +73,22 @@
 - color: fbca04
   name: area/packages
 
+# Apps
+- color: 0581fa
+  name: apps/legacy-api
+- color: 0581fa
+  name: apps/ocean-api
+- color: 0581fa
+  name: apps/playground-api
+- color: 0581fa
+  name: apps/rich-list-api
+- color: 0581fa
+  name: apps/stats-api
+- color: 0581fa
+  name: apps/whale-api
+- color: 0581fa
+  name: apps/website
+
 # Priority
 - color: d93f0b
   name: priority/urgent-now

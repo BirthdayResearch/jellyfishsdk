@@ -61,6 +61,7 @@ describe('Loan setLoanToken', () => {
         }
       },
       fixedIntervalPriceId: 'Token1/USD',
+      mintable: true,
       interest: 0
     }])
   })
@@ -135,7 +136,7 @@ describe('Loan setLoanToken', () => {
       symbol: 'Token4',
       fixedIntervalPriceId: 'Token4/USD'
     })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test SetLoanTokenTx execution failed:\nno live oracles for specified request\', code: -32600, method: setloantoken')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test SetLoanTokenTx execution failed:\nPrice feed Token4/USD does not belong to any oracle\', code: -32600, method: setloantoken')
   })
 
   it('should not setLoanToken if fixedIntervalPriceId is not in correct format', async () => {

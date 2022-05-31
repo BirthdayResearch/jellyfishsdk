@@ -219,8 +219,8 @@ enum DfTxType {
 interface AccountHistory {
   owner: string
   blockHeight: number
-  blockHash: string
-  blockTime: number
+  blockHash?: string
+  blockTime?: number
   type: string
   txn: number
   txid: string
@@ -254,8 +254,8 @@ interface account {
 interface AccountHistory {
   owner: string
   blockHeight: number
-  blockHash: string
-  blockTime: number
+  blockHash?: string
+  blockTime?: number
   type: string
   txn: number
   txid: string

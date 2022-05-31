@@ -267,10 +267,11 @@ export interface MasternodeBlock {
 export interface MasternodeInfo {
   ownerAuthAddress: string
   operatorAuthAddress: string
+  rewardAddress: string
   creationHeight: number
   resignHeight: number
   resignTx: string
-  banTx: string
+  collateralTx: string
   state: MasternodeState
   mintedBlocks: number
   ownerIsMine: boolean

@@ -53,6 +53,22 @@ issue:
         member: true
         owner: true
 
+    - prefix: apps
+      list:
+        - legacy-api
+        - ocean-api
+        - playground-api
+        - rich-list-api
+        - stats-api
+        - whale-api
+        - website
+      multiple: true
+      author_association:
+        author: true
+        collaborator: true
+        member: true
+        owner: true
+
     - prefix: sig
       list:
         - blockchain

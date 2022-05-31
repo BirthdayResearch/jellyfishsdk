@@ -132,13 +132,10 @@ export class Loan {
   /**
    * List collateral tokens.
    *
-   * @param {ListCollateralTokens} [collateralToken = {}]
-   * @param {number} [collateralToken.height = CurrentBlockheight] Valid at specified height
-   * @param {boolean} [collateralToken.all] True = All transactions, false =  Activated transactions
    * @return {Promise<CollateralTokenDetail[]>} Get all collateral tokens
    */
-  async listCollateralTokens (collateralToken: ListCollateralTokens = {}): Promise<CollateralTokenDetail[]> {
-    return await this.client.call('listcollateraltokens', [collateralToken], 'bignumber')
+  async listCollateralTokens (): Promise<CollateralTokenDetail[]> {
+    return await this.client.call('listcollateraltokens', [], 'bignumber')
   }
 
   /**
@@ -316,6 +313,9 @@ export class Loan {
       'getvault',
       [vaultId],
       {
+        collateralAmounts: 'bignumber',
+        loanAmounts: 'bignumber',
+        interestAmounts: 'bignumber',
         collateralValue: 'bignumber',
         loanValue: 'bignumber',
         interestValue: 'bignumber',
@@ -503,16 +503,10 @@ export interface GetLoanSchemeResult {
   default: boolean
 }
 
-export interface ListCollateralTokens {
-  height?: number
-  all?: boolean
-}
-
 export interface CollateralTokenDetail {
   token: string
   factor: BigNumber
   fixedIntervalPriceId: string
-  activateAfterBlock: BigNumber
   tokenId: string
 }
 

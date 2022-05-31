@@ -1266,7 +1266,7 @@ describe('takeLoan with 50% DUSD or DFI collaterals', () => {
     // Ensure the created txn is correct
     const outs = sendTransaction(bob.container, txn)
     await expect(outs).rejects.toThrow(DeFiDRpcError)
-    await expect(outs).rejects.toThrow('At least 50% of the minimum required collateral must be in DFI or DUSD when taking a loan.')
+    await expect(outs).rejects.toThrow('At least 50% of the minimum required collateral must be in DFI or DUSD when taking a loan')
   })
 
   it('should not takeLoan with 24.9975% DFI + 24.9975% DUSD of minimum required collateral', async () => {

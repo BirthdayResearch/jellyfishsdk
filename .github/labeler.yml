@@ -56,6 +56,43 @@ labels:
     matcher:
       files: "packages/**"
 
+  - label: apps/legacy-api
+    sync: true
+    matcher:
+      files: "apps/legacy-api/**"
+
+  - label: apps/ocean-api
+    sync: true
+    matcher:
+      files: "apps/ocean-api/**"
+
+  - label: apps/playground-api
+    sync: true
+    matcher:
+      files: "apps/playground-api/**"
+
+  - label: apps/rich-list-api
+    sync: true
+    matcher:
+      files: "apps/rich-list-api/**"
+
+  - label: apps/stats-api
+    sync: true
+    matcher:
+      files: "apps/stats-api/**"
+
+  - label: apps/whale-api
+    sync: true
+    matcher:
+      files: "apps/whale-api/**"
+
+  - label: apps/website
+    sync: true
+    matcher:
+      files:
+      - "website/**"
+      - "docs/**"
+
 checks:
   - context: "Semantic Pull Request"
     description:

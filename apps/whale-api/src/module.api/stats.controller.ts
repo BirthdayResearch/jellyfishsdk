@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common'
 import { StatsData, SupplyData } from '@defichain/whale-api-client/dist/api/Stats'
-import { SemaphoreCache } from './cache/semaphore.cache'
+import { SemaphoreCache } from '@defichain-apps/libs/caches'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { BlockMapper } from '../module.model/block'
 import { PoolPairService } from './poolpair.service'
