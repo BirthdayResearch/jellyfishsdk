@@ -111,15 +111,6 @@ describe('sign transaction', () => {
         .rejects.toThrow('vin.length and inputOptions.length must match')
     })
 
-    it('should fail if version is different from DeFiTransactionConstants.Version', async () => {
-      const txn = {
-        ...transaction,
-        version: 1
-      }
-      return await expect(TransactionSigner.sign(txn, [inputOption]))
-        .rejects.toThrow('option.validate.version = true - trying to sign a txn 1 different from 4 is not supported')
-    })
-
     it('should succeed if version is different from DeFiTransactionConstants.Version', async () => {
       const txn = {
         ...transaction,
