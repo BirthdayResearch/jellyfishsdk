@@ -5,7 +5,7 @@ import { Cache } from 'cache-manager'
 
 @Injectable()
 export class SemaphoreCache {
-  static MAX_CONCURRENCY = 2
+  static MAX_CONCURRENCY = 1
   static TIMEOUT = 45000
 
   protected readonly cache: GlobalCache
