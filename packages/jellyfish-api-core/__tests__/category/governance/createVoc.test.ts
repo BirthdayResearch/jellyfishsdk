@@ -21,6 +21,9 @@ describe('Governance', () => {
   })
 
   it('should createGovVoc', async () => {
+    const burnInfoBefore = await container.call('getburninfo')
+    expect(burnInfoBefore.feeburn).toStrictEqual(0)
+
     const proposalTx = await client.governance.createGovVoc('new vote of confidence', 'github issue url and in future IPFS tx')
     await container.generate(1)
 
@@ -37,6 +40,9 @@ describe('Governance', () => {
     expect(proposal.type).toStrictEqual(ProposalType.VOTE_OF_CONFIDENCE)
     expect(proposal.status).toStrictEqual(ProposalStatus.VOTING)
     expect(proposal.payoutAddress).toStrictEqual('')
+
+    const burnInfoAfter = await container.call('getburninfo')
+    expect(burnInfoAfter.feeburn).toStrictEqual(5)
   })
 
   it('should createGovVoc with utxos', async () => {

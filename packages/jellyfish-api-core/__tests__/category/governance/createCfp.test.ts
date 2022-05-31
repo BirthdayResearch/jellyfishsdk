@@ -22,6 +22,9 @@ describe('Governance', () => {
   })
 
   it('should createGovCfp', async () => {
+    const burnInfo = await container.call('getburninfo')
+    expect(burnInfo.feeburn).toStrictEqual(0)
+
     // Creare cfp with p2sh-segwit address
     {
       const data = {
@@ -43,6 +46,9 @@ describe('Governance', () => {
       expect(proposal.cyclesPaid).toStrictEqual(1)
       expect(proposal.totalCycles).toStrictEqual(data.cycles)
       expect(proposal.payoutAddress).toStrictEqual(data.payoutAddress)
+
+      const burnInfo = await container.call('getburninfo')
+      expect(burnInfo.feeburn).toStrictEqual(1)
     }
 
     // Creare cfp with legacy address
@@ -66,6 +72,9 @@ describe('Governance', () => {
       expect(proposal.cyclesPaid).toStrictEqual(1)
       expect(proposal.totalCycles).toStrictEqual(data.cycles)
       expect(proposal.payoutAddress).toStrictEqual(data.payoutAddress)
+
+      const burnInfo = await container.call('getburninfo')
+      expect(burnInfo.feeburn).toStrictEqual(2)
     }
 
     // Creare cfp with bech32 address
@@ -89,6 +98,9 @@ describe('Governance', () => {
       expect(proposal.cyclesPaid).toStrictEqual(1)
       expect(proposal.totalCycles).toStrictEqual(data.cycles)
       expect(proposal.payoutAddress).toStrictEqual(data.payoutAddress)
+
+      const burnInfo = await container.call('getburninfo')
+      expect(burnInfo.feeburn).toStrictEqual(3)
     }
   })
 
