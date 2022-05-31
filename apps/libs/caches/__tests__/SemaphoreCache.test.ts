@@ -14,7 +14,7 @@ beforeAll(async () => {
   cache = testing.get(SemaphoreCache)
 })
 
-it('should run one with they same key, due to concurrency of 1', async () => {
+it('should run once with they same key, due to concurrency of 1', async () => {
   let counter = 0
 
   async function fetch (): Promise<string> {
