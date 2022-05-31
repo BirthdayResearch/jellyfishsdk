@@ -5,7 +5,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
 describe('Governance', () => {
-  const container = new MasterNodeRegTestContainer(RegTestFoundationKeys[0])
+  const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
   beforeAll(async () => {
@@ -78,13 +78,13 @@ describe('Governance', () => {
     await expect(promise).rejects.toThrow("RpcApiError: '<context> must be 512 characters or under', code: -8, method: creategovvoc")
   })
 
-  it('should not createGovVoc with wrongly formatted utxos\' txid', async () => {
+  it('should not createGovVoc with wrongly formatted utxos txid', async () => {
     const promise = client.governance.createGovVoc('New vote of confidence', 'github issue url and in future IPFS tx', [{ txid: 'XXXX', vout: 1 }])
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('RpcApiError: \'txid must be of length 64 (not 4, for \'XXXX\')\', code: -8, method: creategovvoc')
   })
 
-  it('should not createGovVoc with invalid utxos\' txid', async () => {
+  it('should not createGovVoc with invalid utxos txid', async () => {
     const txid = '817f1d1aa80bd908e845f747912bbc1bd29fc87f6e2bb762ead7330e1801c3cd' // random hex string of 64 char
     const promise = client.governance.createGovVoc('New vote of confidence', 'github issue url and in future IPFS tx', [{ txid, vout: 1 }])
     await expect(promise).rejects.toThrow(RpcApiError)

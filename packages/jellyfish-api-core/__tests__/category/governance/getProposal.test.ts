@@ -6,7 +6,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
 describe('Governance', () => {
-  const container = new MasterNodeRegTestContainer(RegTestFoundationKeys[0])
+  const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
   beforeAll(async () => {
