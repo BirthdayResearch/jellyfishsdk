@@ -115,7 +115,12 @@ export interface PoolPairData {
     symbol: string
     displaySymbol: string
     reserve: string // BigNumber
-    blockCommission: string // BigNumber
+    blockCommission: string // BigNumber,
+    fee?: {
+      pct?: string // BigNumber
+      inPct?: string // BigNumber
+      outPct?: string // BigNumber
+    }
   }
   tokenB: {
     id: string
@@ -123,6 +128,11 @@ export interface PoolPairData {
     displaySymbol: string
     reserve: string // BigNumber
     blockCommission: string // BigNumber
+    fee?: {
+      pct?: string // BigNumber
+      inPct?: string // BigNumber
+      outPct?: string // BigNumber
+    }
   }
   priceRatio: {
     ab: string // BigNumber

@@ -8,7 +8,6 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 const container = new MasterNodeRegTestContainer()
 const service = new StubService(container)
 const client = new StubWhaleApiClient(service)
-let collateralTokenId1: string
 
 /* eslint-disable no-lone-blocks */
 
@@ -107,7 +106,7 @@ beforeAll(async () => {
   }
 
   {
-    collateralTokenId1 = await testing.rpc.loan.setCollateralToken({
+    await testing.rpc.loan.setCollateralToken({
       token: 'AAPL',
       factor: new BigNumber(0.1),
       fixedIntervalPriceId: 'AAPL/USD'
@@ -244,7 +243,7 @@ describe('get', () => {
   it('should get collateral token by symbol', async () => {
     const data = await client.loan.getCollateralToken('AAPL')
     expect(data).toStrictEqual({
-      tokenId: collateralTokenId1,
+      tokenId: expect.any(String),
       factor: '0.1',
       token: {
         collateralAddress: expect.any(String),
@@ -271,7 +270,7 @@ describe('get', () => {
         symbolKey: expect.any(String),
         tradeable: true
       },
-      activateAfterBlock: 110,
+      activateAfterBlock: 0,
       fixedIntervalPriceId: 'AAPL/USD',
       activePrice: {
         active: {
