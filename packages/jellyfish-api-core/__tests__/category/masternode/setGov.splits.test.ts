@@ -499,10 +499,26 @@ describe('Token splits', () => {
       const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
       expect(attributes.ATTRIBUTES[`v0/locks/token/${newFBID}`]).toStrictEqual('true')
 
-      // try to update the vault
-      const promise = testing.rpc.vault.depositToVault({ vaultId: vaultId4, from: collateralAddress, amount: '10@DFI' })
-      await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('RpcApiError: \'Test DepositToVaultTx execution failed:\nFixed interval price currently disabled due to locked token\', code: -32600, method: deposittovault')
+      {
+        // try to deposit to the vault
+        const promise = testing.rpc.vault.depositToVault({ vaultId: vaultId4, from: collateralAddress, amount: '10@DFI' })
+        await expect(promise).rejects.toThrow(RpcApiError)
+        await expect(promise).rejects.toThrow('RpcApiError: \'Test DepositToVaultTx execution failed:\nFixed interval price currently disabled due to locked token\', code: -32600, method: deposittovault')
+      }
+
+      {
+        // try to withdraw from the vault
+        const promise = testing.rpc.vault.withdrawFromVault({ vaultId: vaultId4, to: collateralAddress, amount: '10@DFI' })
+        await expect(promise).rejects.toThrow(RpcApiError)
+        await expect(promise).rejects.toThrow('RpcApiError: \'Test WithdrawFromVaultTx execution failed:\nCannot withdraw from vault while any of the asset\'s price is invalid\', code: -32600, method: withdrawfromvault')
+      }
+
+      {
+        // try to take a loan
+        const promise = testing.rpc.loan.takeLoan({ vaultId: vaultId4, amounts: '10000@FB' })
+        await expect(promise).rejects.toThrow(RpcApiError)
+        await expect(promise).rejects.toThrow('RpcApiError: \'Test TakeLoanTx execution failed:\nCannot take loan while any of the asset\'s price in the vault is not live\', code: -32600, method: takeloan')
+      }
     }
 
     // oracle new price kicks in
@@ -526,11 +542,34 @@ describe('Token splits', () => {
       const vaultFB = await testing.rpc.vault.getVault(vaultId4) as VaultActive
       expect(vaultFB.state).toStrictEqual(VaultState.ACTIVE)
 
-      // try to update the vault
-      await testing.rpc.vault.depositToVault({ vaultId: vaultId4, from: collateralAddress, amount: '10@DFI' })
-      await testing.generate(1)
-      const vaultFBAfterDeposit = await testing.rpc.vault.getVault(vaultId4) as VaultActive
-      expect(vaultFBAfterDeposit.collateralValue).toStrictEqual(vaultFB.collateralValue.plus(10))
+      {
+        // try to deposit to the vault
+        await testing.rpc.vault.depositToVault({ vaultId: vaultId4, from: collateralAddress, amount: '10@DFI' })
+        await testing.generate(1)
+        const vaultFBAfterDeposit = await testing.rpc.vault.getVault(vaultId4) as VaultActive
+        expect(vaultFBAfterDeposit.collateralValue).toStrictEqual(vaultFB.collateralValue.plus(10))
+      }
+
+      {
+        // try to withdraw from the vault
+        await testing.rpc.vault.withdrawFromVault({ vaultId: vaultId4, to: collateralAddress, amount: '10@DFI' })
+        await testing.generate(1)
+        const vaultFBAfterDeposit = await testing.rpc.vault.getVault(vaultId4) as VaultActive
+        expect(vaultFBAfterDeposit.collateralValue).toStrictEqual(vaultFB.collateralValue.plus(0))
+      }
+
+      {
+        // try to take a loan
+        const vaultFBBefore = await testing.rpc.vault.getVault(vaultId4) as VaultActive
+
+        await testing.rpc.loan.takeLoan({ vaultId: vaultId4, amounts: '10000@FB' })
+        await testing.generate(1)
+
+        const vaultFBAfter = await testing.rpc.vault.getVault(vaultId4) as VaultActive
+        const loanAmountBefore = Number(vaultFBBefore.loanAmounts[0].replace('@FB', ''))
+        const loanAmountAfter = Number(vaultFBAfter.loanAmounts[0].replace('@FB', ''))
+        expect(loanAmountAfter).toBeGreaterThan(loanAmountBefore + 10000) // interest accumilated to loan
+      }
     }
   })
 
