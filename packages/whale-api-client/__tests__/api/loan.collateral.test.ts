@@ -159,6 +159,7 @@ describe('list', () => {
     // Not deterministic ordering due to use of id
     expect(result[0]).toStrictEqual({
       tokenId: expect.any(String),
+      activateAfterBlock: 0,
       token: {
         collateralAddress: expect.any(String),
         creation: {
@@ -244,6 +245,7 @@ describe('get', () => {
     expect(data).toStrictEqual({
       tokenId: expect.stringMatching(/[0-f]{64}/),
       factor: '0.1',
+      activateAfterBlock: 0,
       token: {
         collateralAddress: expect.any(String),
         creation: {

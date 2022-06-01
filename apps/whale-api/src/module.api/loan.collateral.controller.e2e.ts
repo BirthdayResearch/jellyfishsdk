@@ -107,6 +107,7 @@ describe('list', () => {
       tokenId: expect.any(String),
       fixedIntervalPriceId: expect.any(String),
       factor: expect.any(String),
+      activateAfterBlock: 0,
       token: {
         collateralAddress: expect.any(String),
         creation: {
@@ -175,6 +176,7 @@ describe('get', () => {
         tokenId: expect.stringMatching(/[0-f]{64}/),
         fixedIntervalPriceId: 'AAPL/USD',
         factor: '0.1',
+        activateAfterBlock: 0,
         token: {
           collateralAddress: expect.any(String),
           creation: {
