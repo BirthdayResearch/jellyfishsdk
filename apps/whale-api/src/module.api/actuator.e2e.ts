@@ -200,4 +200,46 @@ describe('with peers', () => {
       status: 'ok'
     })
   })
+
+  it('/_actuator/probes/readiness stale', async () => {
+    // Time travel 100 mins
+    const mockTime = jest.spyOn(Date, 'now').mockImplementation(() => new Date().getTime() + 6_000_000)
+
+    const res = await app.inject({
+      method: 'GET',
+      url: '/_actuator/probes/readiness'
+    })
+    expect(res.statusCode).toStrictEqual(503)
+    expect(res.json()).toStrictEqual({
+      details: {
+        defid: {
+          blocks: expect.any(Number),
+          headers: expect.any(Number),
+          initialBlockDownload: false,
+          peers: 1,
+          status: 'up'
+        },
+        model: {
+          status: 'down'
+        }
+      },
+      error: {
+        model: {
+          status: 'down'
+        }
+      },
+      info: {
+        defid: {
+          blocks: expect.any(Number),
+          headers: expect.any(Number),
+          initialBlockDownload: false,
+          peers: 1,
+          status: 'up'
+        }
+      },
+      status: 'error'
+    })
+
+    mockTime.mockRestore()
+  })
 })

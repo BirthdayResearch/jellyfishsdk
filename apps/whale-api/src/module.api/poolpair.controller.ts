@@ -209,14 +209,28 @@ function mapPoolPair (id: string, info: PoolPairInfo, totalLiquidityUsd?: BigNum
       displaySymbol: parseDATSymbol(symbolA),
       id: info.idTokenA,
       reserve: info.reserveA.toFixed(),
-      blockCommission: info.blockCommissionA.toFixed()
+      blockCommission: info.blockCommissionA.toFixed(),
+      fee: info.dexFeePctTokenA !== undefined
+        ? {
+            pct: info.dexFeePctTokenA?.toFixed(),
+            inPct: info.dexFeeInPctTokenA?.toFixed(),
+            outPct: info.dexFeeOutPctTokenA?.toFixed()
+          }
+        : undefined
     },
     tokenB: {
       symbol: symbolB,
       displaySymbol: parseDATSymbol(symbolB),
       id: info.idTokenB,
       reserve: info.reserveB.toFixed(),
-      blockCommission: info.blockCommissionB.toFixed()
+      blockCommission: info.blockCommissionB.toFixed(),
+      fee: info.dexFeePctTokenB !== undefined
+        ? {
+            pct: info.dexFeePctTokenB?.toFixed(),
+            inPct: info.dexFeeInPctTokenB?.toFixed(),
+            outPct: info.dexFeeOutPctTokenB?.toFixed()
+          }
+        : undefined
     },
     priceRatio: {
       ab: info['reserveA/reserveB'] instanceof BigNumber ? info['reserveA/reserveB'].toFixed() : info['reserveA/reserveB'],

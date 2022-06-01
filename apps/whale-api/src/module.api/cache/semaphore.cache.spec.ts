@@ -14,7 +14,7 @@ beforeAll(async () => {
   cache = testing.get(SemaphoreCache)
 })
 
-it('should run twice with they same key, due to concurrency of 2', async () => {
+it('should run one with they same key, due to concurrency of 1', async () => {
   let counter = 0
 
   async function fetch (): Promise<string> {
@@ -31,7 +31,7 @@ it('should run twice with they same key, due to concurrency of 2', async () => {
     cache.get('collide-1', fetch)
   ])
 
-  expect(counter).toStrictEqual(2)
+  expect(counter).toStrictEqual(1)
 })
 
 it('key should not collide', async () => {
