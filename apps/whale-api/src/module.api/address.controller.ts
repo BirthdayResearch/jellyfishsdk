@@ -19,6 +19,8 @@ import { LoanVaultService } from './loan.vault.service'
 import { parseDisplaySymbol } from './token.controller'
 import { AccountHistory } from '@defichain/jellyfish-api-core/dist/category/account'
 
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+
 @Controller('/address/:address')
 export class AddressController {
   constructor (

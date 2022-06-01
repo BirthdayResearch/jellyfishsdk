@@ -11,6 +11,8 @@ import BigNumber from 'bignumber.js'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { FutureSwap } from '@defichain/jellyfish-api-core/src/category/account'
 
+/* eslint-disable no-lone-blocks */
+
 const container = new MasterNodeRegTestContainer()
 let app: NestFastifyApplication
 let controller: AddressController
