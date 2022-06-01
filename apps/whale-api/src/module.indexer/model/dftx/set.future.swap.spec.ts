@@ -1,12 +1,15 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '@src/e2e.module'
+import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../../../e2e.module'
 import { FutureSwap } from '@defichain/jellyfish-api-core/dist/category/account'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
-import { FutureSwapMapper } from '@src/module.model/future.swap'
+import { FutureSwapMapper } from '../../../module.model/future.swap'
 import { fromAddress } from '@defichain/jellyfish-address'
 import { toBuffer } from '@defichain/jellyfish-transaction/dist/script/_buffer'
+
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable no-lone-blocks */
 
 const testing = Testing.create(new MasterNodeRegTestContainer())
 let app: NestFastifyApplication

@@ -1,9 +1,9 @@
-import { DfTxIndexer, DfTxTransaction } from '@src/module.indexer/model/dftx/_abstract'
+import { DfTxIndexer, DfTxTransaction } from './_abstract'
 import { CSetFutureSwap, SetFutureSwap } from '@defichain/jellyfish-transaction'
-import { RawBlock } from '@src/module.indexer/model/_abstract'
+import { RawBlock } from '../_abstract'
 import { Inject, Injectable, Logger } from '@nestjs/common'
-import { HexEncoder } from '@src/module.model/_hex.encoder'
-import { FutureSwapMapper } from '@src/module.model/future.swap'
+import { HexEncoder } from '../../../module.model/_hex.encoder'
+import { FutureSwapMapper } from '../../../module.model/future.swap'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { toBuffer } from '@defichain/jellyfish-transaction/dist/script/_buffer'
 
