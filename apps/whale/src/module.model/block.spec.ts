@@ -1,7 +1,5 @@
-import { Database } from '@defichain/jellyfish-database/src/module.database/database'
+import { Database, MemoryDatabaseModule, LevelDatabase } from '@defichain/jellyfish-database'
 import { Test } from '@nestjs/testing'
-import { MemoryDatabaseModule } from '@defichain/jellyfish-database/src/module.database/provider.memory/module'
-import { LevelDatabase } from '@defichain/jellyfish-database/src/module.database/provider.level/level.database'
 import { BlockMapper } from '../module.model/block'
 import assert from 'assert'
 

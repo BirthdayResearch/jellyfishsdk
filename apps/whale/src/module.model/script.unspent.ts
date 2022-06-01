@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Database, SortOrder } from '@defichain/jellyfish-database/src/module.database/database'
-import { Model, ModelMapping } from '@defichain/jellyfish-database/src/module.database/model'
+import { Model, ModelMapping, Database, SortOrder } from '@defichain/jellyfish-database'
 
 const ScriptUnspentMapping: ModelMapping<ScriptUnspent> = {
   type: 'script_unspent',

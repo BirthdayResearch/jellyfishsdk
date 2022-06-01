@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Model, ModelMapping } from '@defichain/jellyfish-database/src/module.database/model'
-import { Database, SortOrder } from '@defichain/jellyfish-database/src/module.database/database'
+import { Model, ModelMapping, Database, SortOrder } from '@defichain/jellyfish-database'
 
 const TransactionMapping: ModelMapping<Transaction> = {
   type: 'transaction',

@@ -1,7 +1,5 @@
-import { Database } from '@defichain/jellyfish-database/src/module.database/database'
 import { Test } from '@nestjs/testing'
-import { MemoryDatabaseModule } from '@defichain/jellyfish-database/src/module.database/provider.memory/module'
-import { LevelDatabase } from '@defichain/jellyfish-database/src/module.database/provider.level/level.database'
+import { MemoryDatabaseModule, LevelDatabase, Database } from '@defichain/jellyfish-database'
 import { ScriptActivityMapper, ScriptActivityType } from '../module.model/script.activity'
 import { HexEncoder } from '../module.model/_hex.encoder'
 

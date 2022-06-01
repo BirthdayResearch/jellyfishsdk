@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { SortOrder } from '@defichain/jellyfish-database/src/module.database/database'
-import { Model, ModelMapping } from '@defichain/jellyfish-database/src/module.database/model'
+import { SortOrder, Model, ModelMapping } from '@defichain/jellyfish-database'
 import { OraclePriceAggregatedMapper } from './oracle.price.aggregated'
 
 export enum OracleIntervalSeconds {

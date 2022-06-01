@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Database } from '@defichain/jellyfish-database/src/module.database/database'
-import { Model, ModelMapping } from '@defichain/jellyfish-database/src/module.database/model'
+import { Database, Model, ModelMapping } from '@defichain/jellyfish-database'
 
 const IndexStatusMapping: ModelMapping<IndexStatus> = {
   type: 'index_status',

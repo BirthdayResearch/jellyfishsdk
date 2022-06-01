@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Model, ModelMapping } from '@defichain/jellyfish-database/src/module.database/model'
-import { Database } from '@defichain/jellyfish-database/src/module.database/database'
+import { Model, ModelMapping, Database } from '@defichain/jellyfish-database'
 import { blockchain as defid } from '@defichain/jellyfish-api-core'
 import { JellyfishJSON } from '@defichain/jellyfish-json'
 

@@ -1,6 +1,5 @@
-import { Model, ModelMapping } from '@defichain/jellyfish-database/src/module.database/model'
+import { Model, ModelMapping, Database, SortOrder } from '@defichain/jellyfish-database'
 import { Injectable } from '@nestjs/common'
-import { Database, SortOrder } from '@defichain/jellyfish-database/src/module.database/database'
 import { HexEncoder } from './_hex.encoder'
 import BigNumber from 'bignumber.js'
 
