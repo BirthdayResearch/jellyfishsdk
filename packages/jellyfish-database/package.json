@@ -1,0 +1,31 @@
+{
+  "private": false,
+  "name": "@defichain/jellyfish-database",
+  "version": "0.0.0",
+  "description": "A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized finance for Bitcoin",
+  "keywords": [
+    "DeFiChain",
+    "DeFi",
+    "Blockchain",
+    "API",
+    "Bitcoin"
+  ],
+  "repository": "JellyfishSDK/jellyfish",
+  "bugs": "https://github.com/JellyfishSDK/jellyfish/issues",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b ./tsconfig.build.json"
+  },
+  "dependencies": {
+    "@types/sqlite3": "^3.1.8",
+    "typeorm": "0.2.22"
+  },
+  "peerDependencies": {
+    "defichain": "^0.0.0"
+  }
+}
