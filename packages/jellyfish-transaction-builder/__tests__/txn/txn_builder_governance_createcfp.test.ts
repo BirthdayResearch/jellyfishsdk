@@ -64,6 +64,7 @@ describe('createGovCfp', () => {
     expect(proposal).toStrictEqual({
       proposalId: txid,
       title: createGovCfp.title,
+      context: createGovCfp.context,
       type: governance.ProposalType.COMMUNITY_FUND_PROPOSAL,
       status: governance.ProposalStatus.VOTING,
       amount: createGovCfp.amount,

@@ -1,7 +1,7 @@
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { ProposalStatus, ProposalType } from '../../../src/category/governance'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { MasterNodeRegTestContainer, StartFlags } from '@defichain/testcontainers'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
 describe('Governance', () => {
@@ -135,5 +135,27 @@ describe('Governance with insufficient fund', () => {
     const promise = client.governance.createGovVoc('New vote of confidence', 'github issue url and in future IPFS tx')
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('RpcApiError: \'Insufficient funds\', code: -4, method: creategovvoc')
+  })
+})
+
+describe('Governance before greatworldheight', () => {
+  const container = new MasterNodeRegTestContainer()
+  const client = new ContainerAdapterClient(container)
+  const greatWorldHeight = 110
+
+  beforeAll(async () => {
+    const startFlags: StartFlags[] = [{ name: 'greatworldheight', value: greatWorldHeight }]
+    await container.start({ startFlags: startFlags })
+    await container.waitForWalletCoinbaseMaturity()
+  })
+
+  afterAll(async () => {
+    await container.stop()
+  })
+
+  it('should not createGovVoc before GreatWorld height', async () => {
+    const promise = client.governance.createGovVoc('new vote of confidence', 'github issue url and in future IPFS tx')
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test CreateVocTx execution failed:\ncalled before GreatWorld height\', code: -32600, method: creategovvoc')
   })
 })

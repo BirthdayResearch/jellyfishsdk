@@ -60,6 +60,7 @@ describe('createGovVoc', () => {
     expect(proposal).toStrictEqual({
       proposalId: txid,
       title: createGovVoc.title,
+      context: createGovVoc.context,
       type: governance.ProposalType.VOTE_OF_CONFIDENCE,
       status: governance.ProposalStatus.VOTING,
       amount: createGovVoc.amount,

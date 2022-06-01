@@ -131,9 +131,6 @@ describe('vote with masternode operator with legacy address', () => {
     }, script)
     const proposalId = calculateTxid(createGovVocTxn)
 
-    await testing.rpc.wallet.sendToAddress(RegTestFoundationKeys[0].owner.address, 50)
-    await testing.container.generate(1)
-
     await sendTransaction(testing.container, createGovVocTxn)
 
     await testing.container.generate(1, masternodeOperatorAddress) // Mint one block to be able to vote on proposal

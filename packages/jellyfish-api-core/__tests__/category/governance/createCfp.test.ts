@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js'
 import { ProposalStatus, ProposalType } from '../../../src/category/governance'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { MasterNodeRegTestContainer, StartFlags } from '@defichain/testcontainers'
 
 describe('Governance', () => {
   const container = new MasterNodeRegTestContainer()
@@ -307,5 +307,34 @@ describe('Governance with insufficient fund', () => {
     const promise = client.governance.createGovCfp(data)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('RpcApiError: \'Insufficient funds\', code: -4, method: creategovcfp')
+  })
+})
+
+describe('Governance before greatworldheight', () => {
+  const container = new MasterNodeRegTestContainer()
+  const client = new ContainerAdapterClient(container)
+  const greatWorldHeight = 110
+
+  beforeAll(async () => {
+    const startFlags: StartFlags[] = [{ name: 'greatworldheight', value: greatWorldHeight }]
+    await container.start({ startFlags: startFlags })
+    await container.waitForWalletCoinbaseMaturity()
+  })
+
+  afterAll(async () => {
+    await container.stop()
+  })
+
+  it('should not createGovCfp before GreatWorld height', async () => {
+    const data = {
+      title: 'Testing new community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
+      amount: new BigNumber(100),
+      payoutAddress: await container.call('getnewaddress'),
+      cycles: 2
+    }
+    const promise = client.governance.createGovCfp(data)
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test CreateCfpTx execution failed:\ncalled before GreatWorld height\', code: -32600, method: creategovcfp')
   })
 })
