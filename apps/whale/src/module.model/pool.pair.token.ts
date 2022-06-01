@@ -1,6 +1,6 @@
-import { Model, ModelMapping } from '../module.database/model'
+import { Model, ModelMapping } from '../../../../packages/jellyfish-database/src/module.database/model'
 import { Injectable } from '@nestjs/common'
-import { Database, SortOrder } from '../module.database/database'
+import { Database, SortOrder } from '../../../../packages/jellyfish-database/src/module.database/database'
 
 const PoolPairTokenMapping: ModelMapping<PoolPairToken> = {
   type: 'pool_pair_token',

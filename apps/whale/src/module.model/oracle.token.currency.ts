@@ -1,6 +1,6 @@
-import { Model, ModelMapping } from '../module.database/model'
+import { Model, ModelMapping } from '@defichain/jellyfish-database/src/module.database/model'
 import { Injectable } from '@nestjs/common'
-import { Database, SortOrder } from '../module.database/database'
+import { Database, SortOrder } from '@defichain/jellyfish-database/src/module.database/database'
 
 const OracleTokenCurrencyMapping: ModelMapping<OracleTokenCurrency> = {
   type: 'oracle_token_currency',

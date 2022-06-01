@@ -1,3 +1,3 @@
 # @defichain/jellyfish-database
 
-An SQLite database for jellyfish packages usage.
+An RDMS database for usage in jellyfish packages.

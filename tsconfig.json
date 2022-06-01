@@ -18,6 +18,9 @@
       "@defichain/testcontainers/dist/*": [
         "packages/testcontainers/src/*"
       ],
+      "@defichain/jellyfish-database/dist/*": [
+        "packages/jellyfish-database/src/*"
+      ],
       "@defichain/*": [
         "packages/*/src"
       ]

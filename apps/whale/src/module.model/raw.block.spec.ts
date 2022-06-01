@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { Test } from '@nestjs/testing'
-import { MemoryDatabaseModule } from '../module.database/provider.memory/module'
+import { MemoryDatabaseModule } from '../../../../packages/jellyfish-database/src/module.database/provider.memory/module'
 import { RawBlockMapper } from '../module.model/raw.block'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
