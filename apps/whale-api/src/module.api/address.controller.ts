@@ -4,12 +4,13 @@ import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ApiPagedResponse } from './_core/api.paged.response'
 import { DeFiDCache } from './cache/defid.cache'
 import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
-import { AddressToken, AddressHistory } from '@defichain/whale-api-client/dist/api/Address'
+import { AddressToken, AddressHistory, FutureSwap } from '@defichain/whale-api-client/dist/api/Address'
 import { PaginationQuery } from './_core/api.query'
 import { ScriptActivity, ScriptActivityMapper } from '../module.model/script.activity'
 import { ScriptAggregation, ScriptAggregationMapper } from '../module.model/script.aggregation'
 import { ScriptUnspent, ScriptUnspentMapper } from '../module.model/script.unspent'
-import { DeFiAddress } from '@defichain/jellyfish-address'
+import { FutureSwapMapper } from '../module.model/future.swap'
+import { DeFiAddress, fromAddress } from '@defichain/jellyfish-address'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { HexEncoder } from '../module.model/_hex.encoder'
 import { toBuffer } from '@defichain/jellyfish-transaction/dist/script/_buffer'
@@ -26,6 +27,7 @@ export class AddressController {
     protected readonly aggregationMapper: ScriptAggregationMapper,
     protected readonly activityMapper: ScriptActivityMapper,
     protected readonly unspentMapper: ScriptUnspentMapper,
+    protected readonly futureSwapMapper: FutureSwapMapper,
     protected readonly vaultService: LoanVaultService,
     @Inject('NETWORK') protected readonly network: NetworkName
   ) {
@@ -183,6 +185,30 @@ export class AddressController {
     const items = await this.unspentMapper.query(hid, query.size, query.next)
 
     return ApiPagedResponse.of(items, query.size, item => {
+      return item.sort
+    })
+  }
+
+  @Get('/future/swaps')
+  async listFutureSwap (
+    @Param('address') address: string,
+      @Query() query: PaginationQuery
+  ): Promise<ApiPagedResponse<FutureSwap>> {
+    const size = query.size > 30 ? 30 : query.size
+    const end = await this.rpcClient.oracle.getFutureSwapBlock() // next settle block height
+    // mapper is sorted DESC
+    const lt = query.next ?? `${HexEncoder.encodeHeight(end)}-${'f'.repeat(64)}`
+    const attributes = await this.rpcClient.masternode.getGov('ATTRIBUTES')
+    const interval = attributes.ATTRIBUTES['v0/params/dfip2203/block_period']
+    const start = end - interval
+    const gt = `${HexEncoder.encodeHeight(start)}-${'0'.repeat(64)}`
+
+    const script = fromAddress(address, this.network)!.script
+    const haddr = toBuffer(script.stack).toString('hex')
+
+    const list = await this.futureSwapMapper.query(haddr, size, lt, gt)
+
+    return ApiPagedResponse.of(list, size, item => {
       return item.sort
     })
   }
