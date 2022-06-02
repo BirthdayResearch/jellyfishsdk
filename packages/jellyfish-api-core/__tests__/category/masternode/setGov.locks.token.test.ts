@@ -89,15 +89,30 @@ describe('Setgov.locks.token', () => {
 
     // Unlock token will always give you positive test scenarios
     // what happened when unlock token
+    // - Can update token?
+    // - Other scenarios
     // what happened when unlock oracle
+    // - Can getfixedintervalprice?
     // what happened when unlock pool
+    // - Can do poolSwap?
     // what happened when unlock vault
+    // - Can depositToVault?
+    // - Can takeLoan?
+    // - Can withdrawFromVault?
+    // - Can paybackloan?
+
   })
 
   it('should not update token if token is locked', async () => {
     // @TODO chanakasameera
     // Add more scenarios other than the one written in the setup function
     // Throw exception => Cannot update token during lock
+  })
+
+  it('should not getfixedintervalprice if token is locked', async () => {
+    // @TODO chanakasameera
+    // Add more scenarios other than the one written in the setup function
+    // Throw exception => Fixed interval price currently disabled due to locked token
   })
 
   it('should not pool swap if token is locked', async () => {
