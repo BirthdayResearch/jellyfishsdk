@@ -966,6 +966,16 @@ describe('Token splits', () => {
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('RpcApiError: \'Test PoolSwapTx execution failed:\nPool currently disabled due to locked token\', code: -32600, method: poolswap')
 
+    // Try to add pool liquidity
+    // {
+    //   const promise = testing.poolpair.add({
+    //     a: { symbol: 'TSLA', amount: 10 },
+    //     b: { symbol: 'DFI', amount: 20 }
+    //   })
+    //   await expect(promise).rejects.toThrow(RpcApiError)
+    //   await expect(promise).rejects.toThrow('RpcApiError: \'Fail reason\', code: -32600, method: addpoolliquidity ')
+    // }
+
     // oracle new price kicks in
     const timestamp = Math.floor(new Date().getTime() / 1000)
     await testing.rpc.oracle.setOracleData(oracleID, timestamp, {
