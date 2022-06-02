@@ -18,6 +18,7 @@ describe('Setgov.locks.token', () => {
 
   async function setup (): Promise<void> {
     // @TODO chanakasameera
+    // This function should share the common code that is used by all test items
     // You may change this function if needed
     await testing.generate(9) // Generate 9 blocks to move to block 110
 
@@ -82,88 +83,173 @@ describe('Setgov.locks.token', () => {
     await setup()
   })
 
-  it('should unlock token, oracle, pool or vault', async () => {
+  async function tokenSetup (): Promise<void> {
     // @TODO chanakasameera
-    // Write some scenarios that involves locks and unlock
-    // You may seperate this 4 into 4 test items (4 it)
+    // Add this function that is used by token
+  }
 
-    // Unlock token will always give you positive test scenarios
-    // what happened when unlock token
-    // - Can update token?
-    // - Other scenarios
-    // what happened when unlock oracle
-    // - Can getfixedintervalprice?
-    // what happened when unlock pool
-    // - Can do poolSwap?
-    // what happened when unlock vault
-    // - Can depositToVault?
-    // - Can takeLoan?
-    // - Can withdrawFromVault?
-    // - Can paybackloan?
+  async function oracleSetup (): Promise<void> {
+    // @TODO chanakasameera
+    // Add this function that is used by oracle
+  }
 
+  async function poolSwapSetup (): Promise<void> {
+    // @TODO chanakasameera
+    // Add this function that is used by poolSwap
+  }
+
+  async function futureSwapSetup (): Promise<void> {
+    // @TODO chanakasameera
+    // Add this function that is used by futureSwap
+  }
+
+  async function depositToVaultSetup (): Promise<void> {
+    // @TODO chanakasameera
+    // Add this function that is used by depositToVault
+  }
+
+  async function takeLoanSetup (): Promise<void> {
+    // @TODO chanakasameera
+    // Add this function that is used by takeloan
+  }
+
+  async function withdrawFromVaultSetup (): Promise<void> {
+    // @TODO chanakasameera
+    // Add this function that is used by withdrawFromVault
+  }
+
+  async function paybackLoanSetup (): Promise<void> {
+    // @TODO chanakasameera
+    // Add this function that is used by paybackLoan
+  }
+
+  it('should update token if token is unlocked', async () => {
+    await tokenSetup()
+    // @TODO chanakasameera
+    // Unlock token
+    // update token
+  })
+
+  it('should getfixedintervalprice if token is unlocked', async () => {
+    await oracleSetup()
+    // @TODO chanakasameera
+    // Unlock token
+    // getfixedintervalprice
+  })
+
+  it('should poolSwap if token is unlocked', async () => {
+    await poolSwapSetup()
+    // @TODO chanakasameera
+    // Unlock token
+    // poolswap
+  })
+
+  it('should futureSwap if token is unlocked', async () => {
+    await futureSwapSetup()
+    // @TODO chanakasameera
+    // Unlock token
+    // futureswap
+  })
+
+  it('should depositToVault if token is unlocked', async () => {
+    await depositToVaultSetup()
+    // @TODO chanakasameera
+    // Unlock token
+    // depositToVault
+  })
+
+  it('should takeLoan if token is unlocked', async () => {
+    await takeLoanSetup()
+    // @TODO chanakasameera
+    // Unlock token
+    // takeLoan
+  })
+
+  it('should withdrawFromVault if token is unlocked', async () => {
+    await withdrawFromVaultSetup()
+    // @TODO chanakasameera
+    // Unlock token
+    // withdrawFromVault
+  })
+
+  it('should paybackLoan if token is unlocked', async () => {
+    await paybackLoanSetup()
+    // @TODO chanakasameera
+    // Unlock token
+    // paybackLoan
   })
 
   it('should not update token if token is locked', async () => {
+    await tokenSetup()
     // @TODO chanakasameera
-    // Add more scenarios other than the one written in the setup function
-    // Throw exception => Cannot update token during lock
+    // Lock token
+    // Try update token
+    // Should throw exception => Cannot update token during lock
   })
 
   it('should not getfixedintervalprice if token is locked', async () => {
+    await oracleSetup()
     // @TODO chanakasameera
-    // Add more scenarios other than the one written in the setup function
-    // Throw exception => Fixed interval price currently disabled due to locked token
+    // Lock token
+    // Try getfixedintervalprice
+    // Should Throw exception => Fixed interval price currently disabled due to locked token
   })
 
-  it('should not pool swap if token is locked', async () => {
+  it('should not poolSwap if token is locked', async () => {
+    await poolSwapSetup()
     // @TODO chanakasameera
-    // Add more scenarios other than the one written in the setup function
-
+    // Lock token
+    // Try poolswap
     // Should throw the following error (Maybe wrong)
     // await expect(promise).rejects.toThrow(RpcApiError)
     // await expect(promise).rejects.toThrow('RpcApiError: \'Test PoolSwapTx execution failed:\nPool currently disabled due to locked token\', code: -32600, method: poolswap')
   })
 
-  it('should not future swap if token is locked', async () => {
+  it('should not futureSwap if token is locked', async () => {
+    await futureSwapSetup()
     // @TODO chanakasameera
-    // Add more scenarios other than the one written in the setup function
-
+    // Lock token
+    // Try futureswap
     // Should throw the following error (Maybe wrong)
     // await expect(promise).rejects.toThrow(RpcApiError)
     // await expect(promise).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nCannot create future swap for locked token\', code: -32600, method: futureswap')
   })
 
   it('should not depositToVault if token is locked', async () => {
+    await depositToVaultSetup()
     // @TODO chanakasameera
-    // Add more scenarios other than the one written in the setup function
-
+    // Lock token
+    // Try depositToVault
     // Should throw the following error (Maybe wrong)
     // await expect(promise).rejects.toThrow(RpcApiError)
     // await expect(promise).rejects.toThrow('RpcApiError: \'Test DepositToVaultTx execution failed:\nFixed interval price currently disabled due to locked token\', code: -32600, method: deposittovault')
   })
 
   it('should not takeLoan if token is locked', async () => {
+    await takeLoanSetup()
     // @TODO chanakasameera
-    // Add more scenarios other than the one written in the setup function
-
+    // Lock token
+    // Try takeLoan
     // Should throw the following error (Maybe wrong)
     // await expect(promise).rejects.toThrow(RpcApiError)
     // await expect(promise).rejects.toThrow('RpcApiError: \'Test TakeLoanTx execution failed:\nCannot take loan while any of the asset\'s price in the vault is not live\', code: -32600, method: takeloan')
   })
 
   it('should not withdrawFromVault if token is locked', async () => {
+    await withdrawFromVaultSetup()
     // @TODO chanakasameera
-    // Add more scenarios other than the one written in the setup function
-
+    // Lock token
+    // Try withdrawFromVault
     // Should throw the following error (Maybe wrong)
     // await expect(promise).rejects.toThrow(RpcApiError)
     // await expect(promise).rejects.toThrow('RpcApiError: \'Test WithdrawFromVaultTx execution failed:\nCannot withdraw from vault while any of the asset\'s price is invalid\', code: -32600, method: withdrawfromvault')
   })
 
   it('should not paybackloan if token is locked', async () => {
+    await paybackLoanSetup()
     // @TODO chanakasameera
-    // Add more scenarios other than the one written in the setup function
-
+    // Lock token
+    // Try paybackloan
     // Should throw the following error (Maybe wrong)
     // Throw exception => Pool currently disabled due to locked token
   })
