@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
 import { PrevoutProvider, Prevout } from '@defichain/jellyfish-transaction-builder'
 import { toOPCodes } from '@defichain/jellyfish-transaction'
-import { WhaleWalletAccount } from './Wallet'
+import { WhaleWalletAccount } from './wallet'
 
 export class WhalePrevoutProvider implements PrevoutProvider {
   /**

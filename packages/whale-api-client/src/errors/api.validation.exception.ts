@@ -1,4 +1,4 @@
-import { WhaleApiException } from './WhaleApiException'
+import { WhaleApiException } from './api.error'
 
 /**
  * Each property that failed constraint

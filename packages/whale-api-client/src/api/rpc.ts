@@ -1,7 +1,7 @@
 import { JellyfishJSON, Precision, PrecisionPath } from '@defichain/jellyfish-api-core'
 import { raiseIfError } from '../errors'
-import { WhaleApiClient } from '../WhaleApiClient'
-import { WhaleApiResponse } from '../WhaleApiResponse'
+import { WhaleApiClient } from '../whale.api.client'
+import { WhaleApiResponse } from '../whale.api.response'
 
 /**
  * @deprecated since 0.22.x, please use WhaleRpcClient directly

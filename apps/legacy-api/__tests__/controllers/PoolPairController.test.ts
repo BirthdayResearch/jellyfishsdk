@@ -1,5 +1,5 @@
 import { LegacyApiTesting } from '../../testing/LegacyApiTesting'
-import { PoolPairData } from '@defichain/whale-api-client/src/api/PoolPairs'
+import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { SupportedNetwork } from 'apps/legacy-api/src/pipes/NetworkValidationPipe'
 import {
   BlockTxn,

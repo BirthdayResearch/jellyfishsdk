@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { WhaleApiClient } from '../src/WhaleApiClient'
+import { WhaleApiClient } from '@defichain/whale-api-client/dist/whale.api.client'
 
 const client = new WhaleApiClient({
   url: 'http://whale-api-test.internal',
