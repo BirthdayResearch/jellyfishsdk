@@ -1,25 +1,18 @@
+import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { Testing } from '@defichain/jellyfish-testing'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
 
 describe('Setgov.locks.token', () => {
-  // @TODO chanakasameera
-  // Holistic view: This file describes the test for
-  // SetGov v0/locks/token/[any integer] = true / false
-  // True will raise exception
-  // False will give you positive scenario
-
   const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
   let collateralAddress: string
-  // let tslaID: string
+  let tslaID: string
   // let vaultId: string
+  let oracleID: string
 
   async function setup (): Promise<void> {
-    // @TODO chanakasameera
-    // This function should share the common code that is used by all test items
-    // You may change this function if needed
     await testing.generate(9) // Generate 9 blocks to move to block 110
 
     const blockCount = await testing.rpc.blockchain.getBlockCount()
@@ -35,7 +28,7 @@ describe('Setgov.locks.token', () => {
     await testing.container.call('createloanscheme', [100, 1, 'default'])
     await testing.generate(1)
 
-    const oracleID = await testing.rpc.oracle.appointOracle(await testing.generateAddress(),
+    oracleID = await testing.rpc.oracle.appointOracle(await testing.generateAddress(),
       [
         {
           token: 'DFI',
@@ -73,14 +66,18 @@ describe('Setgov.locks.token', () => {
     })
     await testing.generate(1)
 
-    // const tslaInfo = await testing.rpc.token.getToken('TSLA')
-    // tslaID = Object.keys(tslaInfo)[0]
+    const tslaInfo = await testing.rpc.token.getToken('TSLA')
+    tslaID = Object.keys(tslaInfo)[0]
   }
 
   beforeEach(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
     await setup()
+  })
+
+  afterEach(async () => {
+    await testing.container.stop()
   })
 
   async function tokenSetup (): Promise<void> {
@@ -125,16 +122,30 @@ describe('Setgov.locks.token', () => {
 
   it('should update token if token is unlocked', async () => {
     await tokenSetup()
-    // @TODO chanakasameera
+
     // Unlock token
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaID}`]: 'false' } })
+    await testing.generate(1)
+
     // update token
+    await testing.rpc.token.updateToken(tslaID, { name: 'Tesla' })
+    await testing.generate(1)
+
+    const tslaInfo = await testing.rpc.token.getToken(tslaID)
+    expect(tslaInfo[tslaID].name).toStrictEqual('Tesla')
   })
 
   it('should getfixedintervalprice if token is unlocked', async () => {
     await oracleSetup()
-    // @TODO chanakasameera
+
     // Unlock token
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaID}`]: 'false' } })
+    await testing.generate(1)
+
     // getfixedintervalprice
+    const price = await testing.rpc.oracle.getFixedIntervalPrice('TSLA/USD')
+    expect(price.fixedIntervalPriceId).toStrictEqual('TSLA/USD')
+    expect(price.isLive).toStrictEqual(true)
   })
 
   it('should poolSwap if token is unlocked', async () => {
@@ -181,18 +192,28 @@ describe('Setgov.locks.token', () => {
 
   it('should not update token if token is locked', async () => {
     await tokenSetup()
-    // @TODO chanakasameera
+
     // Lock token
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaID}`]: 'true' } })
+    await testing.generate(1)
+
     // Try update token
-    // Should throw exception => Cannot update token during lock
+    const promise = testing.rpc.token.updateToken(tslaID, { name: 'Tesla' })
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateTokenAnyTx execution failed:\nCannot update token during lock\', code: -32600, method: updatetoken')
   })
 
   it('should not getfixedintervalprice if token is locked', async () => {
     await oracleSetup()
-    // @TODO chanakasameera
+
     // Lock token
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaID}`]: 'true' } })
+    await testing.generate(1)
+
     // Try getfixedintervalprice
-    // Should Throw exception => Fixed interval price currently disabled due to locked token
+    const promise = testing.rpc.oracle.getFixedIntervalPrice('TSLA/USD')
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'Fixed interval price currently disabled due to locked token\', code: -5, method: getfixedintervalprice')
   })
 
   it('should not poolSwap if token is locked', async () => {
