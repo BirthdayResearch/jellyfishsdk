@@ -511,46 +511,64 @@ describe('SetGov v0/oracles/splits', () => {
       ])
     }
   })
-  //
-  // it('should set GOV variable correctly', async () => {
-  //   const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
-  //
-  //   await testing.rpc.masternode.setGov({
-  //     ATTRIBUTES: {
-  //       [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2`
-  //     }
-  //   })
-  //   await testing.rpc.masternode.setGov({
-  //     ATTRIBUTES: {
-  //       [`v0/oracles/splits/${500000}`]: `${tslaID}/2`
-  //     }
-  //   })
-  //   await testing.rpc.masternode.setGov({
-  //     ATTRIBUTES: {
-  //       [`v0/oracles/splits/${1000000}`]: `${tslaID}/2`
-  //     }
-  //   })
-  //   await testing.rpc.masternode.setGov({
-  //     ATTRIBUTES: {
-  //       [`v0/oracles/splits/${1500000}`]: `${tslaID}/2`
-  //     }
-  //   })
-  //   await testing.generate(1)
-  //
-  //   {
-  //     const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
-  //     expect(attributes.ATTRIBUTES['v0/oracles/splits/500000']).toBeDefined()
-  //     expect(attributes.ATTRIBUTES['v0/oracles/splits/1000000']).toBeDefined()
-  //     expect(attributes.ATTRIBUTES['v0/oracles/splits/1500000']).toBeDefined()
-  //   }
-  //
-  //   await testing.generate(1)
-  //
-  //   {
-  //     const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
-  //     expect(attributes.ATTRIBUTES['v0/oracles/splits/500000']).toBeUndefined()
-  //     expect(attributes.ATTRIBUTES['v0/oracles/splits/1000000']).toBeUndefined()
-  //     expect(attributes.ATTRIBUTES['v0/oracles/splits/1500000']).toBeUndefined()
-  //   }
-  // })
+
+  it('should set GOV variables correctly', async () => {
+    const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
+
+    // Split the oracles
+    await testing.rpc.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2` // Should be able to split TSLA
+      }
+    })
+    await testing.rpc.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/oracles/splits/${500000}`]: `${tslaID}/2` // Should not be able to execute as the block number is ridiculously high
+      }
+    })
+    await testing.rpc.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/oracles/splits/${1000000}`]: `${tslaID}/2` // Should not be able to execute as the block number is ridiculously high
+      }
+    })
+    await testing.rpc.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/oracles/splits/${1500000}`]: `${tslaID}/2` // Should not be able to execute as the block number is ridiculously high
+      }
+    })
+    await testing.generate(1)
+
+    {
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributes.ATTRIBUTES[`v0/oracles/splits/${splitBlock}`]).toBeDefined() // All the value remain as only 1 block generated after split block
+      expect(attributes.ATTRIBUTES['v0/oracles/splits/500000']).toBeDefined()
+      expect(attributes.ATTRIBUTES['v0/oracles/splits/1000000']).toBeDefined()
+      expect(attributes.ATTRIBUTES['v0/oracles/splits/1500000']).toBeDefined()
+    }
+
+    await testing.generate(1)
+
+    // Get new TSLA Id
+    const newTSLAInfo = await testing.rpc.token.getToken('TSLA')
+    const newTSLAId = Object.keys(newTSLAInfo)[0]
+    expect(newTSLAId).not.toStrictEqual(tslaID) // After splitting, new tsla id is not same with the old one
+
+    // Get new TSLA/v1 info
+    const tslaV1Info = await testing.rpc.token.getToken('TSLA/v1')
+    const tslaV1Id = Object.keys(tslaV1Info)[0]
+
+    {
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES') // All the value gone after SetGov. SetGov always need 2 blocks to execute
+      expect(attributes.ATTRIBUTES[`v0/oracles/splits/${splitBlock}`]).toBeUndefined()
+      expect(attributes.ATTRIBUTES['v0/oracles/splits/500000']).toBeUndefined()
+      expect(attributes.ATTRIBUTES['v0/oracles/splits/1000000']).toBeUndefined()
+      expect(attributes.ATTRIBUTES['v0/oracles/splits/1500000']).toBeUndefined()
+
+      expect(attributes.ATTRIBUTES[`v0/token/${tslaID}/fixed_interval_price_id`]).toBeUndefined() // All existing info for old tsla id is removed
+
+      expect(attributes.ATTRIBUTES[`v0/token/${tslaV1Id}/descendant`]).toStrictEqual(`${newTSLAId}/${splitBlock}`) // The original TSLA token has 2 descendant created at splitBlock
+      expect(attributes.ATTRIBUTES[`v0/locks/token/${newTSLAId}`]).toStrictEqual('true') // By default every split will lock the ascendant token
+      expect(attributes.ATTRIBUTES[`v0/token/${newTSLAId}/ascendant`]).toStrictEqual(`${tslaV1Id}/split`) // TSLA is the ascendant of TSLA/v1
+    }
+  })
 })
