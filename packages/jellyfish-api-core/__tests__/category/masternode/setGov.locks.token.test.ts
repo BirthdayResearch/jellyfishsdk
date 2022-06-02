@@ -3,6 +3,12 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
 
 describe('Setgov.locks.token', () => {
+  // @TODO chanakasameera
+  // Holistic view: This file describes the test for
+  // SetGov v0/locks/token/[any integer] = true / false
+  // True will raise exception
+  // False will give you positive scenario
+
   const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
@@ -76,15 +82,16 @@ describe('Setgov.locks.token', () => {
     await setup()
   })
 
-  it('should lock token', async () => {
+  it('should unlock token, oracle, pool or vault', async () => {
     // @TODO chanakasameera
     // Write some scenarios that involves locks and unlock
     // You may seperate this 4 into 4 test items (4 it)
 
-    // lock / unlock token
-    // lock / unlock oracle
-    // lock / unlock pool
-    // lock / unlock vault
+    // Unlock token will always give you positive test scenarios
+    // what happened when unlock token
+    // what happened when unlock oracle
+    // what happened when unlock pool
+    // what happened when unlock vault
   })
 
   it('should not update token if token is locked', async () => {
