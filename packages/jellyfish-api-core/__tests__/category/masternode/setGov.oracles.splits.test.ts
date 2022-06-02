@@ -12,6 +12,8 @@ describe('SetGov v0/oracles/splits', () => {
 
   let collateralAddress: string
 
+  let oracleId: string
+
   let vaultId1: string // Setup for liquidity pool test
   let vaultId2: string // Setup for vault test
   // let vaultId3: string // Setup for auction test
@@ -36,7 +38,7 @@ describe('SetGov v0/oracles/splits', () => {
       id: 'default'
     })
 
-    const oracleID = await testing.rpc.oracle.appointOracle(await testing.generateAddress(),
+    oracleId = await testing.rpc.oracle.appointOracle(await testing.generateAddress(),
       [
         {
           token: 'DFI',
@@ -51,7 +53,7 @@ describe('SetGov v0/oracles/splits', () => {
     await testing.generate(1)
 
     const timestamp = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleID, timestamp, {
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, {
       prices: [{
         tokenAmount: '1@DFI',
         currency: 'USD'
@@ -111,6 +113,8 @@ describe('SetGov v0/oracles/splits', () => {
       tokenB: 'DFI'
     })
     await testing.generate(1)
+
+    await container.call('minttokens', ['2000@TSLA'])
 
     await testing.poolpair.add({
       a: { symbol: 'TSLA', amount: 1 },
@@ -189,6 +193,38 @@ describe('SetGov v0/oracles/splits', () => {
     await testing.generate(1)
   }
 
+  async function setupAuction (): Promise<void> {
+    await setupVault()
+
+    // Going to liquidate the vaults by price increase of the loan tokens
+    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
+      prices: [{
+        tokenAmount: '1.5@TSLA',
+        currency: 'USD'
+      }]
+    })
+    await testing.generate(1)
+
+    await testing.container.waitForActivePrice('TSLA/USD', '1.5')
+
+    const auction = await testing.rpc.vault.listAuctions()
+    expect(auction.length).toStrictEqual(1)
+    expect(auction[0].state).toStrictEqual('inLiquidation')
+
+    await testing.token.mint({ amount: 0.1, symbol: 'TSLA' })
+    await testing.generate(1)
+
+    await testing.rpc.account.sendTokensToAddress({}, { [collateralAddress]: ['1.1@TSLA'] })
+    await testing.generate(1)
+
+    await testing.rpc.vault.placeAuctionBid({
+      vaultId: vaultId2,
+      index: 0,
+      from: collateralAddress,
+      amount: '1.1@TSLA'
+    })
+    await testing.generate(1)
+  }
   it('should split token', async () => {
     // Get attributes and token before splitting
     {
@@ -453,7 +489,62 @@ describe('SetGov v0/oracles/splits', () => {
     }
   })
 
-  // it('should split auction', async () => {})
+  it('should split auction', async () => {
+    await setupAuction()
+
+    {
+      // Get attributes and token before splitting
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributes.ATTRIBUTES[`v0/token/${tslaID}/fixed_interval_price_id`]).toStrictEqual('TSLA/USD')
+    }
+
+    {
+      const auction = await testing.rpc.vault.listAuctions()
+      expect(auction.length).toStrictEqual(1)
+      expect(auction[0].batches.length).toStrictEqual(1)
+      expect(auction[0].batches[0].collaterals).toStrictEqual(['1.00000000@DFI'])
+      expect(auction[0].batches[0].loan).toStrictEqual('1.00000419@TSLA')
+      expect(auction[0].batches[0].highestBid?.amount).toStrictEqual('1.10000000@TSLA')
+    }
+
+    const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
+    await testing.rpc.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2`
+      }
+    })
+    await testing.generate(2) // SetGov always need 2 blocks to execute
+
+    {
+      // Get attributes and token after splitting
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributes.ATTRIBUTES[`v0/token/${tslaID}/fixed_interval_price_id`]).toBeUndefined() // All existing info for old tsla id is removed
+
+      // Get new TSLA Id
+      const newTSLAInfo = await testing.rpc.token.getToken('TSLA')
+      const newTSLAId = Object.keys(newTSLAInfo)[0]
+      expect(newTSLAId).not.toStrictEqual(tslaID) // After splitting, new tsla id is not same with the old one
+
+      // Get new TSLA/v1 info
+      const tslaV1Info = await testing.rpc.token.getToken('TSLA/v1')
+      const tslaV1Id = Object.keys(tslaV1Info)[0]
+
+      expect(attributes.ATTRIBUTES[`v0/locks/token/${newTSLAId}`]).toStrictEqual('true') // By default every split will lock the ascendant token
+
+      expect(attributes.ATTRIBUTES[`v0/token/${tslaV1Id}/descendant`]).toStrictEqual(`${newTSLAId}/${splitBlock}`) // The original TSLA token has 2 descendant created at splitBlock
+      expect(attributes.ATTRIBUTES[`v0/token/${newTSLAId}/fixed_interval_price_id`]).toStrictEqual('TSLA/USD')
+      expect(attributes.ATTRIBUTES[`v0/token/${newTSLAId}/ascendant`]).toStrictEqual(`${tslaV1Id}/split`) // TSLA is the ascendant of TSLA/v1
+    }
+
+    {
+      const auction = await testing.rpc.vault.listAuctions()
+      expect(auction.length).toStrictEqual(1)
+      expect(auction[0].batches.length).toStrictEqual(1)
+      expect(auction[0].batches[0].collaterals).toStrictEqual(['1.00000000@DFI'])
+      expect(auction[0].batches[0].loan).toStrictEqual('2.00000838@TSLA')
+      expect(auction[0].batches[0].highestBid?.amount).toStrictEqual('2.20000000@TSLA')
+    }
+  })
 
   it('should refund futureSwap', async () => {
     await setupFutureSwap()
