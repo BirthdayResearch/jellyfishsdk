@@ -1,4 +1,4 @@
-import { RpcApiError } from '@defichain/jellyfish-api-core'
+import { poolpair, RpcApiError } from '@defichain/jellyfish-api-core'
 import { Testing } from '@defichain/jellyfish-testing'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
@@ -81,23 +81,85 @@ describe('Setgov.locks.token', () => {
   })
 
   async function tokenSetup (): Promise<void> {
-    // @TODO chanakasameera
-    // Add this function that is used by token
   }
 
   async function oracleSetup (): Promise<void> {
-    // @TODO chanakasameera
-    // Add this function that is used by oracle
   }
 
   async function poolSwapSetup (): Promise<void> {
-    // @TODO chanakasameera
-    // Add this function that is used by poolSwap
+    const vaultId = await testing.rpc.vault.createVault({
+      ownerAddress: collateralAddress,
+      loanSchemeId: 'default'
+    })
+    await testing.generate(12)
+
+    await testing.rpc.vault.depositToVault({
+      vaultId: vaultId, from: collateralAddress, amount: '1@DFI'
+    })
+    await testing.generate(1)
+
+    await testing.rpc.loan.takeLoan({
+      vaultId: vaultId,
+      amounts: '1@TSLA'
+    })
+    await testing.generate(1)
+
+    await testing.poolpair.create({
+      tokenA: 'TSLA',
+      tokenB: 'DFI'
+    })
+    await testing.generate(1)
+
+    await testing.poolpair.add({
+      a: { symbol: 'TSLA', amount: 1 },
+      b: { symbol: 'DFI', amount: 1 }
+    })
+    await testing.generate(1)
+
+    const ppTokenID = Object.keys(await testing.rpc.token.getToken('TSLA-DFI'))[0]
+
+    await testing.rpc.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/poolpairs/${ppTokenID}/token_a_fee_pct`]: '0.01',
+        [`v0/poolpairs/${ppTokenID}/token_b_fee_pct`]: '0.03'
+      }
+    })
+    await testing.generate(1)
+
+    await testing.rpc.masternode.setGov({ LP_SPLITS: { [Number(ppTokenID)]: 1 } })
+    await testing.generate(1)
+
+    await testing.rpc.masternode.setGov({ LP_LOAN_TOKEN_SPLITS: { [Number(ppTokenID)]: 1 } })
+    await testing.generate(1)
   }
 
   async function futureSwapSetup (): Promise<void> {
-    // @TODO chanakasameera
-    // Add this function that is used by futureSwap
+    const vaultId = await testing.rpc.vault.createVault({
+      ownerAddress: collateralAddress,
+      loanSchemeId: 'default'
+    })
+    await testing.generate(12)
+
+    await testing.container.call('deposittovault', [vaultId, collateralAddress, '1@DFI'])
+    await testing.generate(1)
+
+    await testing.container.call('takeloan', [{
+      vaultId: vaultId,
+      amounts: '1@TSLA'
+    }])
+    await testing.generate(1)
+
+    await testing.rpc.account.sendTokensToAddress({}, { [collateralAddress]: ['1@TSLA'] })
+    await testing.generate(1)
+
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2203/active': 'false' } })
+    await testing.generate(1)
+
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2203/reward_pct': '0.05', 'v0/params/dfip2203/block_period': '25' } })
+    await testing.generate(1)
+
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2203/active': 'true' } })
+    await testing.generate(1)
   }
 
   async function depositToVaultSetup (): Promise<void> {
@@ -150,16 +212,63 @@ describe('Setgov.locks.token', () => {
 
   it('should poolSwap if token is unlocked', async () => {
     await poolSwapSetup()
-    // @TODO chanakasameera
+
     // Unlock token
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaID}`]: 'false' } })
+    await testing.generate(1)
+
     // poolswap
+    const swapReceiveAddress = await testing.generateAddress()
+    const metadata: poolpair.PoolSwapMetadata = {
+      from: collateralAddress,
+      tokenFrom: 'DFI',
+      amountFrom: 0.5,
+      to: swapReceiveAddress,
+      tokenTo: 'TSLA'
+    }
+    const hex = await testing.rpc.poolpair.poolSwap(metadata)
+    await testing.generate(1)
+    expect(typeof hex).toStrictEqual('string')
+    expect(hex.length).toStrictEqual(64)
+
+    expect(await testing.rpc.account.getAccount(swapReceiveAddress)).toStrictEqual(['0.32333333@TSLA'])
   })
 
   it('should futureSwap if token is unlocked', async () => {
     await futureSwapSetup()
-    // @TODO chanakasameera
+
     // Unlock token
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaID}`]: 'false' } })
+    await testing.generate(1)
+
+    const burnAddress = 'bcrt1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpsqgljc'
+    {
+      const balance = await testing.rpc.account.getAccount(burnAddress)
+      expect(balance).toStrictEqual([])
+    }
+    {
+      const balance = await testing.rpc.account.getAccount(collateralAddress)
+      expect(balance).toStrictEqual([
+        '299999.00000000@DFI',
+        '1.00000000@TSLA'
+      ])
+    }
+
     // futureswap
+    await testing.rpc.account.futureSwap({
+      address: collateralAddress,
+      amount: '1@TSLA'
+    })
+    await testing.generate(1)
+
+    {
+      const balance = await testing.rpc.account.getAccount(burnAddress)
+      expect(balance).toStrictEqual(['1.00000000@TSLA'])
+    }
+    {
+      const balance = await testing.rpc.account.getAccount(collateralAddress)
+      expect(balance).toStrictEqual(['299999.00000000@DFI'])
+    }
   })
 
   it('should depositToVault if token is unlocked', async () => {
@@ -218,22 +327,39 @@ describe('Setgov.locks.token', () => {
 
   it('should not poolSwap if token is locked', async () => {
     await poolSwapSetup()
-    // @TODO chanakasameera
+
     // Lock token
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaID}`]: 'true' } })
+    await testing.generate(1)
+
     // Try poolswap
-    // Should throw the following error (Maybe wrong)
-    // await expect(promise).rejects.toThrow(RpcApiError)
-    // await expect(promise).rejects.toThrow('RpcApiError: \'Test PoolSwapTx execution failed:\nPool currently disabled due to locked token\', code: -32600, method: poolswap')
+    const swapReceiveAddress = await testing.generateAddress()
+    const metadata: poolpair.PoolSwapMetadata = {
+      from: collateralAddress,
+      tokenFrom: 'DFI',
+      amountFrom: 0.5,
+      to: swapReceiveAddress,
+      tokenTo: 'TSLA'
+    }
+    const promise = testing.rpc.poolpair.poolSwap(metadata)
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test PoolSwapTx execution failed:\nPool currently disabled due to locked token\', code: -32600, method: poolswap')
   })
 
   it('should not futureSwap if token is locked', async () => {
     await futureSwapSetup()
-    // @TODO chanakasameera
+
     // Lock token
-    // Try futureswap
-    // Should throw the following error (Maybe wrong)
-    // await expect(promise).rejects.toThrow(RpcApiError)
-    // await expect(promise).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nCannot create future swap for locked token\', code: -32600, method: futureswap')
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaID}`]: 'true' } })
+    await testing.generate(1)
+
+    // futureswap
+    const promise = testing.rpc.account.futureSwap({
+      address: collateralAddress,
+      amount: '1@TSLA'
+    })
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nCannot create future swap for locked token\', code: -32600, method: futureswap')
   })
 
   it('should not depositToVault if token is locked', async () => {
