@@ -14,13 +14,13 @@ import {
   LoanVaultLiquidationBatch,
   LoanVaultState,
   LoanVaultTokenAmount
-} from '@defichain/whale-api-client/dist/api/Loan'
+} from '@defichain/whale-api-client/dist/api/loan'
 import { Inject, BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { DeFiDCache } from './cache/defid.cache'
 import { parseDisplaySymbol } from './token.controller'
-import { ActivePrice } from '@defichain/whale-api-client/dist/api/Prices'
+import { ActivePrice } from '@defichain/whale-api-client/dist/api/prices'
 import { OraclePriceActiveMapper } from '../module.model/oracle.price.active'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { fromScriptHex } from '@defichain/jellyfish-address'

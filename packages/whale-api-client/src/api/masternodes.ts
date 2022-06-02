@@ -1,5 +1,5 @@
-import { WhaleApiClient } from '../WhaleApiClient'
-import { ApiPagedResponse } from '../WhaleApiResponse'
+import { WhaleApiClient } from '../whale.api.client'
+import { ApiPagedResponse } from '../whale.api.response'
 
 /**
  * DeFi whale endpoint for masternode related services.

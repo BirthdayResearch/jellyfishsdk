@@ -1,5 +1,5 @@
 import { LegacyApiTesting } from '../../testing/LegacyApiTesting'
-import { TokenData } from '@defichain/whale-api-client/src/api/Tokens'
+import { TokenData } from '@defichain/whale-api-client/dist/api/tokens'
 
 const apiTesting = LegacyApiTesting.create()
 
