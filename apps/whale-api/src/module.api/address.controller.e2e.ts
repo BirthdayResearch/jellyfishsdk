@@ -1166,7 +1166,7 @@ describe('listFutureSwap', () => {
         size: 3
       })
       expect(first.data.length).toStrictEqual(3)
-      expect(first.page?.next).not.toBeUndefined()
+      expect(first.page?.next).toBeDefined()
       expect(first.data[0].id).toStrictEqual(list.data[0].id)
       expect(first.data[1].id).toStrictEqual(list.data[1].id)
       expect(first.data[2].id).toStrictEqual(list.data[2].id)
@@ -1176,7 +1176,7 @@ describe('listFutureSwap', () => {
         next: first.page?.next
       })
       expect(next.data.length).toStrictEqual(3)
-      expect(next.page?.next).not.toBeUndefined()
+      expect(next.page?.next).toBeDefined()
       expect(next.data[0].id).toStrictEqual(list.data[3].id)
       expect(next.data[1].id).toStrictEqual(list.data[4].id)
       expect(next.data[2].id).toStrictEqual(list.data[5].id)

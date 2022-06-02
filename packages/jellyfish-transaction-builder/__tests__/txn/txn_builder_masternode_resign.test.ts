@@ -86,7 +86,7 @@ it('should be failed as tx must have at least one input from owner', async () =>
 
   const masternodes = await jsonRpc.masternode.listMasternodes()
   const createdMasternode = Object.values(masternodes).find(mn => mn.ownerAuthAddress === collateralAddress)
-  expect(createdMasternode).not.toBeUndefined()
+  expect(createdMasternode).toBeDefined()
 
   await fundEllipticPair(container, providers.ellipticPair, 10)
 
@@ -111,7 +111,7 @@ it('should be failed as trying to resign a NOT ENABLED masternode', async () => 
 
   const masternodes = await jsonRpc.masternode.listMasternodes()
   const createdMasternode = Object.values(masternodes).find(mn => mn.ownerAuthAddress === collateralAddress)
-  expect(createdMasternode).not.toBeUndefined()
+  expect(createdMasternode).toBeDefined()
 
   await fundEllipticPair(container, providers.ellipticPair, 10)
 
@@ -136,7 +136,7 @@ it('should be failed as trying to resign masternode before timelock expiration',
 
   const masternodes = await jsonRpc.masternode.listMasternodes()
   const createdMasternode = Object.values(masternodes).find(mn => mn.ownerAuthAddress === collateralAddress)
-  expect(createdMasternode).not.toBeUndefined()
+  expect(createdMasternode).toBeDefined()
 
   await fundEllipticPair(container, providers.ellipticPair, 10)
 
