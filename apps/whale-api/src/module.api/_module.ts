@@ -31,6 +31,8 @@ import { LoanController } from './loan.controller'
 import { LoanVaultService } from './loan.vault.service'
 import { PoolSwapPathFindingService } from './poolswap.pathfinding.service'
 import { PoolPairPricesService } from './poolpair.prices.service'
+import { LegacyController } from './legacy.controller'
+import { SimpleCache } from '../../../legacy-api/src/cache/SimpleCache'
 
 /**
  * Exposed ApiModule for public interfacing
@@ -51,7 +53,8 @@ import { PoolPairPricesService } from './poolpair.prices.service'
     StatsController,
     FeeController,
     RawtxController,
-    LoanController
+    LoanController,
+    LegacyController
   ],
   providers: [
     { provide: APP_PIPE, useClass: ApiValidationPipe },
@@ -67,6 +70,7 @@ import { PoolPairPricesService } from './poolpair.prices.service'
     },
     DeFiDCache,
     SemaphoreCache,
+    SimpleCache,
     PoolPairService,
     PoolSwapPathFindingService,
     PoolPairPricesService,

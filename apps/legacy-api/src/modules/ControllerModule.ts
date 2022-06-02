@@ -35,6 +35,17 @@ import { ConfigService } from '@nestjs/config'
     PoolPairController,
     SimpleCache,
     {
+      provide: 'OCEAN_ENDPOINT',
+      useFactory: (cfg: ConfigService): string => {
+        const oceanEndpoint = cfg.get<string>('OCEAN_ENDPOINT')
+        if (oceanEndpoint === undefined) {
+          throw new Error('cfg:OCEAN_ENDPOINT was not provided')
+        }
+        return oceanEndpoint
+      },
+      inject: [ConfigService]
+    },
+    {
       provide: 'SWAP_CACHE_COUNT',
       useFactory: (cfg: ConfigService): number => {
         const swapCacheCount = cfg.get<string>('SWAP_CACHE_COUNT')
