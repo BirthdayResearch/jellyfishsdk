@@ -1,4 +1,5 @@
 import { poolpair, RpcApiError } from '@defichain/jellyfish-api-core'
+import { VaultActive } from '@defichain/jellyfish-api-core/dist/category/vault'
 import { Testing } from '@defichain/jellyfish-testing'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
@@ -9,14 +10,14 @@ describe('Setgov.locks.token', () => {
 
   let collateralAddress: string
   let tslaID: string
-  // let vaultId: string
+  let vaultId: string
   let oracleID: string
 
   async function setup (): Promise<void> {
     await testing.generate(9) // Generate 9 blocks to move to block 110
 
     const blockCount = await testing.rpc.blockchain.getBlockCount()
-    expect(blockCount).toStrictEqual(110) // At greatworldheight
+    expect(blockCount).toStrictEqual(110)
 
     collateralAddress = await testing.generateAddress()
 
@@ -79,12 +80,6 @@ describe('Setgov.locks.token', () => {
   afterEach(async () => {
     await testing.container.stop()
   })
-
-  async function tokenSetup (): Promise<void> {
-  }
-
-  async function oracleSetup (): Promise<void> {
-  }
 
   async function poolSwapSetup (): Promise<void> {
     const vaultId = await testing.rpc.vault.createVault({
@@ -163,28 +158,76 @@ describe('Setgov.locks.token', () => {
   }
 
   async function depositToVaultSetup (): Promise<void> {
-    // @TODO chanakasameera
-    // Add this function that is used by depositToVault
+    const loanVaultId = await testing.rpc.vault.createVault({
+      ownerAddress: collateralAddress,
+      loanSchemeId: 'default'
+    })
+    await testing.generate(12)
+
+    await testing.container.call('deposittovault', [loanVaultId, collateralAddress, '1@DFI'])
+    await testing.generate(1)
+
+    await testing.container.call('takeloan', [{
+      vaultId: loanVaultId,
+      amounts: '1@TSLA',
+      to: collateralAddress
+    }])
+    await testing.generate(1)
+
+    await testing.rpc.loan.setCollateralToken({
+      token: 'TSLA',
+      factor: new BigNumber(1),
+      fixedIntervalPriceId: 'TSLA/USD'
+    })
+    await testing.generate(1)
+
+    vaultId = await testing.rpc.vault.createVault({
+      ownerAddress: await testing.generateAddress(),
+      loanSchemeId: 'default'
+    })
+    await testing.generate(1)
   }
 
   async function takeLoanSetup (): Promise<void> {
-    // @TODO chanakasameera
-    // Add this function that is used by takeloan
+    vaultId = await testing.rpc.vault.createVault({
+      ownerAddress: collateralAddress,
+      loanSchemeId: 'default'
+    })
+    await testing.generate(12)
+
+    await testing.container.call('deposittovault', [vaultId, collateralAddress, '1@DFI'])
+    await testing.generate(1)
   }
 
   async function withdrawFromVaultSetup (): Promise<void> {
-    // @TODO chanakasameera
-    // Add this function that is used by withdrawFromVault
+    await depositToVaultSetup()
+
+    // depositToVault
+    await testing.rpc.vault.depositToVault({
+      vaultId: vaultId, from: collateralAddress, amount: '1@TSLA'
+    })
+    await testing.generate(1)
   }
 
   async function paybackLoanSetup (): Promise<void> {
-    // @TODO chanakasameera
-    // Add this function that is used by paybackLoan
+    const attributeKey = 'ATTRIBUTES'
+    const paybackKey = `v0/token/${tslaID}/payback_dfi`
+    const penaltyRateKey = `v0/token/${tslaID}/payback_dfi_fee_pct`
+    const penaltyRate = 0.02
+
+    await testing.rpc.masternode.setGov({ [attributeKey]: { [paybackKey]: 'true', [penaltyRateKey]: penaltyRate.toString() } })
+    await testing.generate(1)
+
+    await takeLoanSetup()
+
+    await testing.rpc.loan.takeLoan({
+      vaultId: vaultId,
+      amounts: '1@TSLA',
+      to: collateralAddress
+    })
   }
 
   it('should update token if token is unlocked', async () => {
-    await tokenSetup()
-
     // Unlock token
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaID}`]: 'false' } })
     await testing.generate(1)
@@ -198,8 +241,6 @@ describe('Setgov.locks.token', () => {
   })
 
   it('should getfixedintervalprice if token is unlocked', async () => {
-    await oracleSetup()
-
     // Unlock token
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaID}`]: 'false' } })
     await testing.generate(1)
@@ -273,35 +314,113 @@ describe('Setgov.locks.token', () => {
 
   it('should depositToVault if token is unlocked', async () => {
     await depositToVaultSetup()
-    // @TODO chanakasameera
+
     // Unlock token
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaID}`]: 'false' } })
+    await testing.generate(1)
+
+    {
+      const vault = await testing.container.call('getvault', [vaultId])
+      expect(vault.collateralAmounts).toStrictEqual([])
+
+      const balance = await testing.rpc.account.getAccount(collateralAddress)
+      expect(balance).toStrictEqual([
+        '299999.00000000@DFI',
+        '1.00000000@TSLA'
+      ])
+    }
+
     // depositToVault
+    await testing.rpc.vault.depositToVault({
+      vaultId: vaultId, from: collateralAddress, amount: '1@TSLA'
+    })
+    await testing.generate(1)
+
+    {
+      const vault = await testing.container.call('getvault', [vaultId])
+      expect(vault.collateralAmounts).toStrictEqual(['1.00000000@TSLA'])
+
+      const balance = await testing.rpc.account.getAccount(collateralAddress)
+      expect(balance).toStrictEqual(['299999.00000000@DFI'])
+    }
   })
 
   it('should takeLoan if token is unlocked', async () => {
     await takeLoanSetup()
-    // @TODO chanakasameera
+
     // Unlock token
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaID}`]: 'false' } })
+    await testing.generate(1)
+
     // takeLoan
+    const txid = await testing.rpc.loan.takeLoan({
+      vaultId: vaultId,
+      amounts: '1@TSLA'
+    })
+    expect(typeof txid).toStrictEqual('string')
   })
 
   it('should withdrawFromVault if token is unlocked', async () => {
     await withdrawFromVaultSetup()
-    // @TODO chanakasameera
+
     // Unlock token
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaID}`]: 'false' } })
+    await testing.generate(1)
+
+    {
+      const vault = await testing.container.call('getvault', [vaultId])
+      expect(vault.collateralAmounts).toStrictEqual(['1.00000000@TSLA'])
+
+      const balance = await testing.rpc.account.getAccount(collateralAddress)
+      expect(balance).toStrictEqual([
+        '299999.00000000@DFI'
+      ])
+    }
+
     // withdrawFromVault
+    await testing.rpc.vault.withdrawFromVault({
+      vaultId: vaultId, to: collateralAddress, amount: '1@TSLA'
+    })
+    await testing.generate(1)
+
+    {
+      const vault = await testing.container.call('getvault', [vaultId])
+      expect(vault.collateralAmounts).toStrictEqual([])
+
+      const balance = await testing.rpc.account.getAccount(collateralAddress)
+      expect(balance).toStrictEqual([
+        '299999.00000000@DFI',
+        '1.00000000@TSLA'
+      ])
+    }
   })
 
   it('should paybackLoan if token is unlocked', async () => {
     await paybackLoanSetup()
-    // @TODO chanakasameera
+
     // Unlock token
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaID}`]: 'false' } })
+    await testing.generate(1)
+
+    const vaultBefore = await testing.rpc.vault.getVault(vaultId) as VaultActive
+    expect(vaultBefore.loanAmounts).toStrictEqual(['1.00000020@TSLA'])
+
     // paybackLoan
+    await testing.rpc.loan.paybackLoan({
+      vaultId: vaultId,
+      from: collateralAddress,
+      loans: [{
+        dToken: tslaID,
+        amounts: '0.5@DFI'
+      }]
+    })
+    await testing.generate(1)
+
+    const vaultAfter = await testing.rpc.vault.getVault(vaultId) as VaultActive
+    expect(vaultAfter.loanAmounts).toStrictEqual(['0.51000030@TSLA'])
   })
 
   it('should not update token if token is locked', async () => {
-    await tokenSetup()
-
     // Lock token
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaID}`]: 'true' } })
     await testing.generate(1)
@@ -313,8 +432,6 @@ describe('Setgov.locks.token', () => {
   })
 
   it('should not getfixedintervalprice if token is locked', async () => {
-    await oracleSetup()
-
     // Lock token
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaID}`]: 'true' } })
     await testing.generate(1)
@@ -364,40 +481,67 @@ describe('Setgov.locks.token', () => {
 
   it('should not depositToVault if token is locked', async () => {
     await depositToVaultSetup()
-    // @TODO chanakasameera
+
     // Lock token
-    // Try depositToVault
-    // Should throw the following error (Maybe wrong)
-    // await expect(promise).rejects.toThrow(RpcApiError)
-    // await expect(promise).rejects.toThrow('RpcApiError: \'Test DepositToVaultTx execution failed:\nFixed interval price currently disabled due to locked token\', code: -32600, method: deposittovault')
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaID}`]: 'true' } })
+    await testing.generate(1)
+
+    // Try to depositToVault
+    const promise = testing.rpc.vault.depositToVault({
+      vaultId: vaultId, from: collateralAddress, amount: '1@TSLA'
+    })
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test DepositToVaultTx execution failed:\nFixed interval price currently disabled due to locked token\', code: -32600, method: deposittovault')
   })
 
   it('should not takeLoan if token is locked', async () => {
     await takeLoanSetup()
-    // @TODO chanakasameera
+
     // Lock token
-    // Try takeLoan
-    // Should throw the following error (Maybe wrong)
-    // await expect(promise).rejects.toThrow(RpcApiError)
-    // await expect(promise).rejects.toThrow('RpcApiError: \'Test TakeLoanTx execution failed:\nCannot take loan while any of the asset\'s price in the vault is not live\', code: -32600, method: takeloan')
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaID}`]: 'true' } })
+    await testing.generate(1)
+
+    // Try to takeLoan
+    const promise = testing.rpc.loan.takeLoan({
+      vaultId: vaultId,
+      amounts: '1@TSLA'
+    })
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test TakeLoanTx execution failed:\nFixed interval price currently disabled due to locked token\', code: -32600, method: takeloan')
   })
 
   it('should not withdrawFromVault if token is locked', async () => {
     await withdrawFromVaultSetup()
-    // @TODO chanakasameera
-    // Lock token
-    // Try withdrawFromVault
-    // Should throw the following error (Maybe wrong)
-    // await expect(promise).rejects.toThrow(RpcApiError)
-    // await expect(promise).rejects.toThrow('RpcApiError: \'Test WithdrawFromVaultTx execution failed:\nCannot withdraw from vault while any of the asset\'s price is invalid\', code: -32600, method: withdrawfromvault')
+
+    // Unlock token
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaID}`]: 'true' } })
+    await testing.generate(1)
+
+    // Try to withdrawFromVault
+    const promise = testing.rpc.vault.withdrawFromVault({
+      vaultId: vaultId, to: collateralAddress, amount: '1@TSLA'
+    })
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test WithdrawFromVaultTx execution failed:\nCannot withdraw from vault while any of the asset\'s price is invalid\', code: -32600, method: withdrawfromvault')
   })
 
   it('should not paybackloan if token is locked', async () => {
     await paybackLoanSetup()
-    // @TODO chanakasameera
+
     // Lock token
-    // Try paybackloan
-    // Should throw the following error (Maybe wrong)
-    // Throw exception => Pool currently disabled due to locked token
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaID}`]: 'true' } })
+    await testing.generate(1)
+
+    // Try to paybackLoan
+    const promise = testing.rpc.loan.paybackLoan({
+      vaultId: vaultId,
+      from: collateralAddress,
+      loans: [{
+        dToken: tslaID,
+        amounts: '0.5@DFI'
+      }]
+    })
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test PaybackLoanTx execution failed:\nFixed interval price currently disabled due to locked token\', code: -32600, method: paybackloan')
   })
 })
