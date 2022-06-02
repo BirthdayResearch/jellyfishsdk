@@ -7,9 +7,11 @@ describe('Setgov v0/oracles/splits', () => {
   const testing = Testing.create(container)
 
   let tslaID: string
+  let tslaDfiPairID: string
+
   let collateralAddress: string
 
-  let vaultId1: string // Setup for pool pair test
+  let vaultId1: string // Setup for liquidity pool test
   let vaultId2: string // Setup for vault test
   // let vaultId3: string // Setup for auction test
   let vaultId4: string // Setup for future swap test
@@ -27,8 +29,11 @@ describe('Setgov v0/oracles/splits', () => {
       amount: 300000
     })
 
-    await testing.container.call('createloanscheme', [100, 1, 'default'])
-    await testing.generate(1)
+    await testing.rpc.loan.createLoanScheme({
+      minColRatio: 100,
+      interestRate: new BigNumber(1),
+      id: 'default'
+    })
 
     const oracleID = await testing.rpc.oracle.appointOracle(await testing.generateAddress(),
       [
@@ -68,9 +73,12 @@ describe('Setgov v0/oracles/splits', () => {
       interest: new BigNumber(1)
     })
     await testing.generate(1)
-
-    const tslaInfo = await testing.rpc.token.getToken('TSLA')
-    tslaID = Object.keys(tslaInfo)[0]
+    //
+    // const dfiInfo = await testing.rpc.token.getToken('DFI')
+    // dfiID = Object.keys(dfiInfo)[0]
+    //
+    // const tslaInfo = await testing.rpc.token.getToken('TSLA')
+    // tslaID = Object.keys(tslaInfo)[0]
   }
 
   beforeEach(async () => {
@@ -79,20 +87,22 @@ describe('Setgov v0/oracles/splits', () => {
     await setup()
   })
 
-  async function setupPoolPair (): Promise<void> {
+  async function setupPool (): Promise<void> {
     vaultId1 = await testing.rpc.vault.createVault({
       ownerAddress: collateralAddress,
       loanSchemeId: 'default'
     })
     await testing.generate(12)
 
-    await testing.container.call('deposittovault', [vaultId1, collateralAddress, '1@DFI'])
+    await testing.rpc.vault.depositToVault({
+      vaultId: vaultId1, from: collateralAddress, amount: '1@DFI'
+    })
     await testing.generate(1)
 
-    await testing.container.call('takeloan', [{
-      poolPairVaultId: vaultId1,
+    await testing.rpc.loan.takeLoan({
+      vaultId: vaultId1,
       amounts: '1@TSLA'
-    }])
+    })
     await testing.generate(1)
 
     await testing.poolpair.create({
@@ -122,6 +132,9 @@ describe('Setgov v0/oracles/splits', () => {
 
     await testing.rpc.masternode.setGov({ LP_LOAN_TOKEN_SPLITS: { [Number(ppTokenID)]: 1 } })
     await testing.generate(1)
+
+    const tslaDfiInfo = await testing.rpc.token.getToken('TSLA-DFI')
+    tslaDfiPairID = Object.keys(tslaDfiInfo)[0]
   }
 
   async function setupVault (): Promise<void> {
@@ -210,7 +223,7 @@ describe('Setgov v0/oracles/splits', () => {
     // Get new TSLA Id
     const newTSLAInfo = await testing.rpc.token.getToken('TSLA')
     const newTSLAId = Object.keys(newTSLAInfo)[0]
-    expect(newTSLAId).toStrictEqual((Number(tslaID) + 1).toString()) // TSLA id was 1. After splitting, TSLA/v1 id becomes 1 and TSLA id becomes 2
+    expect(newTSLAId).not.toStrictEqual(tslaID) // After splitting, new tsla id is not same with the old one
 
     // Get new TSLA/v1 info
     const tslaV1Info = await testing.rpc.token.getToken('TSLA/v1')
@@ -219,7 +232,13 @@ describe('Setgov v0/oracles/splits', () => {
     {
       // Get attributes and token after splitting
       const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+
+      expect(attributes.ATTRIBUTES[`v0/token/${tslaID}/fixed_interval_price_id`]).toBeUndefined() // All existing info for old tsla id is removed
+      expect(attributes.ATTRIBUTES[`v0/token/${tslaID}/loan_minting_enabled`]).toBeUndefined()
+      expect(attributes.ATTRIBUTES[`v0/token/${tslaID}/loan_minting_interest`]).toBeUndefined()
+
       expect(attributes.ATTRIBUTES[`v0/token/${tslaV1Id}/descendant`]).toStrictEqual(`${newTSLAId}/${splitBlock}`) // The original TSLA token has 2 descendant created at splitBlock
+      expect(attributes.ATTRIBUTES[`v0/locks/token/${newTSLAId}`]).toStrictEqual('true') // By default every split will lock the parent token
       expect(attributes.ATTRIBUTES[`v0/token/${newTSLAId}/fixed_interval_price_id`]).toStrictEqual('TSLA/USD')
       expect(attributes.ATTRIBUTES[`v0/token/${newTSLAId}/loan_minting_enabled`]).toStrictEqual('true')
       expect(attributes.ATTRIBUTES[`v0/token/${newTSLAId}/loan_minting_interest`]).toStrictEqual('1')
@@ -254,22 +273,12 @@ describe('Setgov v0/oracles/splits', () => {
   })
 
   it('should split pool', async () => {
-    await setupPoolPair()
+    await setupPool()
 
+    // Get attributes and token before splitting
     const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
-    expect(attributes).toStrictEqual({
-      ATTRIBUTES: {
-        'v0/poolpairs/2/token_a_fee_pct': '0.01',
-        'v0/poolpairs/2/token_b_fee_pct': '0.03',
-        'v0/token/0/fixed_interval_price_id': 'DFI/USD',
-        'v0/token/0/loan_collateral_enabled': 'true',
-        'v0/token/0/loan_collateral_factor': '1',
-        'v0/token/1/fixed_interval_price_id': 'TSLA/USD',
-        'v0/token/1/loan_minting_enabled': 'true',
-        'v0/token/1/loan_minting_interest': '0'
-      }
-    }
-    )
+    expect(attributes.ATTRIBUTES[`v0/poolpairs/${tslaDfiPairID}/token_a_fee_pct`]).toStrictEqual('0.01')
+    expect(attributes.ATTRIBUTES[`v0/poolpairs/${tslaDfiPairID}/token_b_fee_pct`]).toStrictEqual('0.03')
 
     const poolPair = await testing.poolpair.get('TSLA-DFI')
     expect(poolPair).toStrictEqual(
@@ -302,31 +311,31 @@ describe('Setgov v0/oracles/splits', () => {
       }
     )
 
+    // Split the oracles
     const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
     await testing.rpc.masternode.setGov({
       ATTRIBUTES: {
         [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2`
       }
     })
-    await testing.generate(2)
+    await testing.generate(2) // SetGov always need 2 blocks to execute
 
     {
+      // Get new TSLA-DFI info
+      const newTSLADFIPairInfo = await testing.rpc.token.getToken('TSLA-DFI')
+      const newTSLADFIPairId = Object.keys(newTSLADFIPairInfo)[0]
+      expect(newTSLADFIPairId).not.toStrictEqual(tslaDfiPairID) // After splitting, new tsla-dfi pair id is not same with the old one
+
+      // Get new SLA-DFI/v1 info
+      // const tslaDfiV1Info = await testing.rpc.token.getToken('TSLA-DFI/v1')
+      // const tslaDfiV1Id = Object.keys(tslaDfiV1Info)[0]
+
       const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
-      expect(attributes).toStrictEqual({
-        ATTRIBUTES: {
-          'v0/locks/token/3': 'true',
-          'v0/poolpairs/4/token_a_fee_pct': '0.01',
-          'v0/poolpairs/4/token_b_fee_pct': '0.03',
-          'v0/token/0/fixed_interval_price_id': 'DFI/USD',
-          'v0/token/0/loan_collateral_enabled': 'true',
-          'v0/token/0/loan_collateral_factor': '1',
-          'v0/token/1/descendant': '3/135',
-          'v0/token/3/ascendant': '1/split',
-          'v0/token/3/fixed_interval_price_id': 'TSLA/USD',
-          'v0/token/3/loan_minting_enabled': 'true',
-          'v0/token/3/loan_minting_interest': '0'
-        }
-      })
+
+      expect(attributes.ATTRIBUTES[`v0/poolpairs/${tslaDfiPairID}/token_a_fee_pct`]).toBeUndefined()
+      expect(attributes.ATTRIBUTES[`v0/poolpairs/${tslaDfiPairID}/token_b_fee_pct`]).toBeUndefined()
+      expect(attributes.ATTRIBUTES[`v0/poolpairs/${newTSLADFIPairId}/token_a_fee_pct`]).toStrictEqual('0.01')
+      expect(attributes.ATTRIBUTES[`v0/poolpairs/${newTSLADFIPairId}/token_b_fee_pct`]).toStrictEqual('0.03')
 
       const poolPairOriginal = await testing.poolpair.get('TSLA-DFI')
       expect(poolPairOriginal).toBeDefined()
