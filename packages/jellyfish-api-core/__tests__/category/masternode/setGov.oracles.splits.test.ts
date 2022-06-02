@@ -2,152 +2,17 @@ import { Testing } from '@defichain/jellyfish-testing'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
 
-describe('Setgov.oracle.splits', () => {
-  const container = new MasterNodeRegTestContainer()
-  const testing = Testing.create(container)
-
-  let tslaID: string
-  // let collateralAddress: string
-
-  async function setup (): Promise<void> {
-    await testing.generate(9) // Generate 9 blocks to move to block 110
-
-    const blockCount = await testing.rpc.blockchain.getBlockCount()
-    expect(blockCount).toStrictEqual(110) // At greatworldheight
-
-    // collateralAddress = await testing.generateAddress()
-
-    await testing.container.call('createloanscheme', [100, 1, 'default'])
-    await testing.generate(1)
-
-    const priceFeeds = [
-      {
-        token: 'TSLA',
-        currency: 'USD'
-      }
-    ]
-
-    const oracleID = await testing.rpc.oracle.appointOracle(await testing.generateAddress(), priceFeeds, { weightage: 1 })
-    await testing.generate(1)
-
-    const timestamp = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleID, timestamp, {
-      prices: [{
-        tokenAmount: '2@TSLA',
-        currency: 'USD'
-      }]
-    })
-    await testing.generate(1)
-
-    await testing.rpc.loan.setLoanToken({
-      symbol: 'TSLA',
-      fixedIntervalPriceId: 'TSLA/USD'
-    })
-    await testing.generate(1)
-
-    const tslaInfo = await testing.rpc.token.getToken('TSLA')
-    tslaID = Object.keys(tslaInfo)[0]
-  }
-
-  beforeAll(async () => {
-    await testing.container.start()
-    await testing.container.waitForWalletCoinbaseMaturity()
-    await setup()
-  })
-
-  it('should split token', async () => {
-    {
-      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
-      expect(attributes).toStrictEqual({
-        ATTRIBUTES: {
-          'v0/token/1/fixed_interval_price_id': 'TSLA/USD',
-          'v0/token/1/loan_minting_enabled': 'true',
-          'v0/token/1/loan_minting_interest': '0'
-        }
-      }
-      )
-
-      const token = await testing.rpc.token.getToken('TSLA')
-      const tokenInfo = Object.values(token)[0]
-      expect(tokenInfo).toStrictEqual({
-        symbol: 'TSLA',
-        symbolKey: 'TSLA',
-        name: '',
-        decimal: new BigNumber(8),
-        limit: new BigNumber(0),
-        mintable: true,
-        tradeable: true,
-        isDAT: true,
-        isLPS: false,
-        finalized: false,
-        isLoanToken: true,
-        minted: new BigNumber(0),
-        creationTx: expect.stringMatching(/[a-zA-Z0-9]{64}/),
-        creationHeight: expect.any(BigNumber),
-        destructionTx: '0000000000000000000000000000000000000000000000000000000000000000',
-        destructionHeight: new BigNumber(-1),
-        collateralAddress: ''
-      })
-    }
-
-    const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
-
-    await testing.rpc.masternode.setGov({
-      ATTRIBUTES: {
-        [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2`
-      }
-    })
-    await testing.generate(2)
-
-    {
-      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
-      expect(attributes).toStrictEqual({
-        ATTRIBUTES: {
-          'v0/locks/token/2': 'true',
-          'v0/token/1/descendant': '2/116',
-          'v0/token/2/fixed_interval_price_id': 'TSLA/USD',
-          'v0/token/2/loan_minting_enabled': 'true',
-          'v0/token/2/loan_minting_interest': '0',
-          'v0/token/2/ascendant': '1/split'
-        }
-      }
-      )
-
-      const tokenOriginal = await testing.rpc.token.getToken('TSLA')
-      expect(tokenOriginal).toBeDefined()
-
-      const token = await testing.rpc.token.getToken('TSLA/v1')
-      const tokenInfo = Object.values(token)[0]
-      expect(tokenInfo).toStrictEqual({
-        symbol: 'TSLA/v1',
-        symbolKey: 'TSLA/v1',
-        name: '',
-        decimal: new BigNumber(8),
-        limit: new BigNumber(0),
-        mintable: false,
-        tradeable: false,
-        isDAT: true,
-        isLPS: false,
-        finalized: true,
-        isLoanToken: false,
-        minted: new BigNumber(0),
-        creationTx: expect.stringMatching(/[a-zA-Z0-9]{64}/),
-        creationHeight: expect.any(BigNumber),
-        destructionTx: expect.stringMatching(/[a-zA-Z0-9]{64}/),
-        destructionHeight: expect.any(BigNumber),
-        collateralAddress: expect.stringMatching(/[a-zA-Z0-9]{34}/)
-      }
-      )
-    }
-  })
-})
-
-describe('Setgov.oracle.splits - split pool', () => {
+describe('Setgov v0/oracles/splits', () => {
   const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
   let tslaID: string
   let collateralAddress: string
+
+  let vaultId1: string // Setup for pool pair test
+  let vaultId2: string // Setup for vault test
+  // let vaultId3: string // Setup for auction test
+  let vaultId4: string // Setup for future swap test
 
   async function setup (): Promise<void> {
     await testing.generate(9) // Generate 9 blocks to move to block 110
@@ -199,21 +64,33 @@ describe('Setgov.oracle.splits - split pool', () => {
 
     await testing.rpc.loan.setLoanToken({
       symbol: 'TSLA',
-      fixedIntervalPriceId: 'TSLA/USD'
+      fixedIntervalPriceId: 'TSLA/USD',
+      interest: new BigNumber(1)
     })
     await testing.generate(1)
 
-    const vaultId = await testing.rpc.vault.createVault({
+    const tslaInfo = await testing.rpc.token.getToken('TSLA')
+    tslaID = Object.keys(tslaInfo)[0]
+  }
+
+  beforeEach(async () => {
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
+    await setup()
+  })
+
+  async function setupPoolPair (): Promise<void> {
+    vaultId1 = await testing.rpc.vault.createVault({
       ownerAddress: collateralAddress,
       loanSchemeId: 'default'
     })
     await testing.generate(12)
 
-    await testing.container.call('deposittovault', [vaultId, collateralAddress, '1@DFI'])
+    await testing.container.call('deposittovault', [vaultId1, collateralAddress, '1@DFI'])
     await testing.generate(1)
 
     await testing.container.call('takeloan', [{
-      vaultId,
+      poolPairVaultId: vaultId1,
       amounts: '1@TSLA'
     }])
     await testing.generate(1)
@@ -231,7 +108,6 @@ describe('Setgov.oracle.splits - split pool', () => {
     await testing.generate(1)
 
     const ppTokenID = Object.keys(await testing.rpc.token.getToken('TSLA-DFI'))[0]
-    console.log(ppTokenID)
 
     await testing.rpc.masternode.setGov({
       ATTRIBUTES: {
@@ -246,65 +122,185 @@ describe('Setgov.oracle.splits - split pool', () => {
 
     await testing.rpc.masternode.setGov({ LP_LOAN_TOKEN_SPLITS: { [Number(ppTokenID)]: 1 } })
     await testing.generate(1)
+  }
+
+  async function setupVault (): Promise<void> {
+    vaultId2 = await testing.rpc.vault.createVault({
+      ownerAddress: collateralAddress,
+      loanSchemeId: 'default'
+    })
+    await testing.generate(12)
+
+    await testing.container.call('deposittovault', [vaultId2, collateralAddress, '1@DFI'])
+    await testing.generate(1)
+
+    await testing.container.call('takeloan', [{
+      oracleVaultId: vaultId2,
+      amounts: '1@TSLA'
+    }])
+    await testing.generate(1)
 
     const tslaInfo = await testing.rpc.token.getToken('TSLA')
     tslaID = Object.keys(tslaInfo)[0]
   }
 
-  beforeAll(async () => {
-    await testing.container.start()
-    await testing.container.waitForWalletCoinbaseMaturity()
-    await setup()
+  async function setupFutureSwap (): Promise<void> {
+    vaultId4 = await testing.rpc.vault.createVault({
+      ownerAddress: collateralAddress,
+      loanSchemeId: 'default'
+    })
+    await testing.generate(12)
+
+    await testing.container.call('deposittovault', [vaultId4, collateralAddress, '1@DFI'])
+    await testing.generate(1)
+
+    const tslaInfo = await testing.rpc.token.getToken('TSLA')
+    tslaID = Object.keys(tslaInfo)[0]
+
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2203/active': 'false' } })
+    await testing.generate(1)
+
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2203/reward_pct': '0.05', 'v0/params/dfip2203/block_period': '25' } })
+    await testing.generate(1)
+
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2203/active': 'true' } })
+    await testing.generate(1)
+  }
+
+  it('should split token', async () => {
+    // Get attributes and token before splitting
+    {
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributes.ATTRIBUTES[`v0/token/${tslaID}/fixed_interval_price_id`]).toStrictEqual('TSLA/USD')
+      expect(attributes.ATTRIBUTES[`v0/token/${tslaID}/loan_minting_enabled`]).toStrictEqual('true') // Loan token is always mintable
+      expect(attributes.ATTRIBUTES[`v0/token/${tslaID}/loan_minting_interest`]).toStrictEqual('1')
+    }
+
+    const tslaToken = await testing.rpc.token.getToken('TSLA')
+    const tslaTokenInfo = Object.values(tslaToken)[0]
+    expect(tslaTokenInfo).toStrictEqual({
+      symbol: 'TSLA',
+      symbolKey: 'TSLA',
+      name: '',
+      decimal: new BigNumber(8),
+      limit: new BigNumber(0),
+      mintable: true,
+      tradeable: true,
+      isDAT: true,
+      isLPS: false,
+      finalized: false,
+      isLoanToken: true,
+      minted: new BigNumber(0),
+      creationTx: expect.stringMatching(/[a-zA-Z0-9]{64}/),
+      creationHeight: expect.any(BigNumber),
+      destructionTx: '0000000000000000000000000000000000000000000000000000000000000000',
+      destructionHeight: new BigNumber(-1),
+      collateralAddress: expect.stringMatching(/[a-zA-Z0-9]{34}/)
+    })
+
+    // Split the oracles
+    const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
+    await testing.rpc.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2`
+      }
+    })
+    await testing.generate(2) // SetGov always need 2 blocks to execute
+
+    // Get new TSLA Id
+    const newTSLAInfo = await testing.rpc.token.getToken('TSLA')
+    const newTSLAId = Object.keys(newTSLAInfo)[0]
+    expect(newTSLAId).toStrictEqual((Number(tslaID) + 1).toString()) // TSLA id was 1. After splitting, TSLA/v1 id becomes 1 and TSLA id becomes 2
+
+    // Get new TSLA/v1 info
+    const tslaV1Info = await testing.rpc.token.getToken('TSLA/v1')
+    const tslaV1Id = Object.keys(tslaV1Info)[0]
+
+    {
+      // Get attributes and token after splitting
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributes.ATTRIBUTES[`v0/token/${tslaV1Id}/descendant`]).toStrictEqual(`${newTSLAId}/${splitBlock}`) // The original TSLA token has 2 descendant created at splitBlock
+      expect(attributes.ATTRIBUTES[`v0/token/${newTSLAId}/fixed_interval_price_id`]).toStrictEqual('TSLA/USD')
+      expect(attributes.ATTRIBUTES[`v0/token/${newTSLAId}/loan_minting_enabled`]).toStrictEqual('true')
+      expect(attributes.ATTRIBUTES[`v0/token/${newTSLAId}/loan_minting_interest`]).toStrictEqual('1')
+      expect(attributes.ATTRIBUTES[`v0/token/${newTSLAId}/ascendant`]).toStrictEqual(`${tslaV1Id}/split`) // TSLA is the ascendant of TSLA/v1
+    }
+
+    const newTslaToken = await testing.rpc.token.getToken('TSLA')
+    const newTslaTokenInfo = Object.values(newTslaToken)[0]
+    expect(newTslaTokenInfo).toStrictEqual(newTslaTokenInfo) // Unlike id, there is no changes for any other TSLA content after splitting
+
+    const token = await testing.rpc.token.getToken('TSLA/v1')
+    const tokenInfo = Object.values(token)[0]
+    expect(tokenInfo).toStrictEqual({
+      symbol: 'TSLA/v1',
+      symbolKey: 'TSLA/v1',
+      name: '',
+      decimal: new BigNumber(8),
+      limit: new BigNumber(0),
+      mintable: false,
+      tradeable: false,
+      isDAT: true,
+      isLPS: false,
+      finalized: true,
+      isLoanToken: false,
+      minted: new BigNumber(0),
+      creationTx: expect.stringMatching(/[a-zA-Z0-9]{64}/),
+      creationHeight: expect.any(BigNumber),
+      destructionTx: expect.stringMatching(/[a-zA-Z0-9]{64}/),
+      destructionHeight: expect.any(BigNumber),
+      collateralAddress: expect.stringMatching(/[a-zA-Z0-9]{34}/)
+    })
   })
 
   it('should split pool', async () => {
-    {
-      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
-      expect(attributes).toStrictEqual({
-        ATTRIBUTES: {
-          'v0/poolpairs/2/token_a_fee_pct': '0.01',
-          'v0/poolpairs/2/token_b_fee_pct': '0.03',
-          'v0/token/0/fixed_interval_price_id': 'DFI/USD',
-          'v0/token/0/loan_collateral_enabled': 'true',
-          'v0/token/0/loan_collateral_factor': '1',
-          'v0/token/1/fixed_interval_price_id': 'TSLA/USD',
-          'v0/token/1/loan_minting_enabled': 'true',
-          'v0/token/1/loan_minting_interest': '0'
-        }
-      }
-      )
+    await setupPoolPair()
 
-      const poolPair = await testing.poolpair.get('TSLA-DFI')
-      expect(poolPair).toStrictEqual(
-        {
-          symbol: 'TSLA-DFI',
-          name: '-Default Defi token',
-          status: true,
-          idTokenA: '1',
-          idTokenB: '0',
-          dexFeePctTokenA: new BigNumber(0.01),
-          dexFeePctTokenB: new BigNumber(0.03),
-          dexFeeOutPctTokenB: new BigNumber(0.03),
-          dexFeeInPctTokenA: new BigNumber(0.01),
-          dexFeeInPctTokenB: new BigNumber(0.03),
-          dexFeeOutPctTokenA: new BigNumber(0.01),
-          reserveA: new BigNumber(1),
-          reserveB: new BigNumber(1),
-          commission: new BigNumber(0),
-          totalLiquidity: new BigNumber(1),
-          'reserveA/reserveB': new BigNumber(1),
-          'reserveB/reserveA': new BigNumber(1),
-          tradeEnabled: true,
-          ownerAddress: expect.any(String),
-          blockCommissionA: new BigNumber(0),
-          blockCommissionB: new BigNumber(0),
-          rewardPct: new BigNumber(1),
-          rewardLoanPct: new BigNumber(1),
-          creationTx: expect.stringMatching(/[a-zA-Z0-9]{64}/),
-          creationHeight: expect.any(BigNumber)
-        }
-      )
+    const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+    expect(attributes).toStrictEqual({
+      ATTRIBUTES: {
+        'v0/poolpairs/2/token_a_fee_pct': '0.01',
+        'v0/poolpairs/2/token_b_fee_pct': '0.03',
+        'v0/token/0/fixed_interval_price_id': 'DFI/USD',
+        'v0/token/0/loan_collateral_enabled': 'true',
+        'v0/token/0/loan_collateral_factor': '1',
+        'v0/token/1/fixed_interval_price_id': 'TSLA/USD',
+        'v0/token/1/loan_minting_enabled': 'true',
+        'v0/token/1/loan_minting_interest': '0'
+      }
     }
+    )
+
+    const poolPair = await testing.poolpair.get('TSLA-DFI')
+    expect(poolPair).toStrictEqual(
+      {
+        symbol: 'TSLA-DFI',
+        name: '-Default Defi token',
+        status: true,
+        idTokenA: '1',
+        idTokenB: '0',
+        dexFeePctTokenA: new BigNumber(0.01),
+        dexFeePctTokenB: new BigNumber(0.03),
+        dexFeeOutPctTokenB: new BigNumber(0.03),
+        dexFeeInPctTokenA: new BigNumber(0.01),
+        dexFeeInPctTokenB: new BigNumber(0.03),
+        dexFeeOutPctTokenA: new BigNumber(0.01),
+        reserveA: new BigNumber(1),
+        reserveB: new BigNumber(1),
+        commission: new BigNumber(0),
+        totalLiquidity: new BigNumber(1),
+        'reserveA/reserveB': new BigNumber(1),
+        'reserveB/reserveA': new BigNumber(1),
+        tradeEnabled: true,
+        ownerAddress: expect.any(String),
+        blockCommissionA: new BigNumber(0),
+        blockCommissionB: new BigNumber(0),
+        rewardPct: new BigNumber(1),
+        rewardLoanPct: new BigNumber(1),
+        creationTx: expect.stringMatching(/[a-zA-Z0-9]{64}/),
+        creationHeight: expect.any(BigNumber)
+      }
+    )
 
     const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
     await testing.rpc.masternode.setGov({
@@ -361,96 +357,10 @@ describe('Setgov.oracle.splits - split pool', () => {
       )
     }
   })
-})
-
-describe('Setgov.oracle.splits - vault splits', () => {
-  const container = new MasterNodeRegTestContainer()
-  const testing = Testing.create(container)
-
-  let collateralAddress: string
-  let tslaID: string
-  let vaultId: string
-
-  async function setup (): Promise<void> {
-    await testing.generate(9) // Generate 9 blocks to move to block 110
-
-    const blockCount = await testing.rpc.blockchain.getBlockCount()
-    expect(blockCount).toStrictEqual(110) // At greatworldheight
-
-    collateralAddress = await testing.generateAddress()
-
-    await testing.token.dfi({
-      address: collateralAddress,
-      amount: 300000
-    })
-
-    await testing.container.call('createloanscheme', [100, 1, 'default'])
-    await testing.generate(1)
-
-    const oracleID = await testing.rpc.oracle.appointOracle(await testing.generateAddress(),
-      [
-        {
-          token: 'DFI',
-          currency: 'USD'
-        },
-        {
-          token: 'TSLA',
-          currency: 'USD'
-        }
-      ],
-      { weightage: 1 })
-    await testing.generate(1)
-
-    const timestamp = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleID, timestamp, {
-      prices: [{
-        tokenAmount: '1@DFI',
-        currency: 'USD'
-      }, {
-        tokenAmount: '1@TSLA',
-        currency: 'USD'
-      }]
-    })
-
-    await testing.rpc.loan.setCollateralToken({
-      token: 'DFI',
-      factor: new BigNumber(1),
-      fixedIntervalPriceId: 'DFI/USD'
-    })
-    await testing.generate(1)
-
-    await testing.rpc.loan.setLoanToken({
-      symbol: 'TSLA',
-      fixedIntervalPriceId: 'TSLA/USD'
-    })
-    await testing.generate(1)
-
-    vaultId = await testing.rpc.vault.createVault({
-      ownerAddress: collateralAddress,
-      loanSchemeId: 'default'
-    })
-    await testing.generate(12)
-
-    await testing.container.call('deposittovault', [vaultId, collateralAddress, '1@DFI'])
-    await testing.generate(1)
-
-    await testing.container.call('takeloan', [{
-      vaultId,
-      amounts: '1@TSLA'
-    }])
-    await testing.generate(1)
-
-    const tslaInfo = await testing.rpc.token.getToken('TSLA')
-    tslaID = Object.keys(tslaInfo)[0]
-  }
-
-  beforeAll(async () => {
-    await testing.container.start()
-    await testing.container.waitForWalletCoinbaseMaturity()
-    await setup()
-  })
 
   it('should split vault', async () => {
+    await setupVault()
+
     const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
     expect(attributes).toStrictEqual({
       ATTRIBUTES: {
@@ -464,10 +374,10 @@ describe('Setgov.oracle.splits - vault splits', () => {
     })
 
     {
-      const vault = await testing.rpc.vault.getVault(vaultId)
+      const vault = await testing.rpc.vault.getVault(vaultId2)
       expect(vault).toStrictEqual(
         {
-          vaultId,
+          vaultId: vaultId2,
           loanSchemeId: 'default',
           ownerAddress: collateralAddress,
           state: 'active',
@@ -492,10 +402,10 @@ describe('Setgov.oracle.splits - vault splits', () => {
     await testing.generate(2)
 
     {
-      const vault = await testing.rpc.vault.getVault(vaultId)
+      const vault = await testing.rpc.vault.getVault(vaultId2)
       expect(vault).toStrictEqual(
         {
-          vaultId,
+          vaultId: vaultId2,
           loanSchemeId: 'default',
           ownerAddress: collateralAddress,
           state: 'frozen',
@@ -511,195 +421,16 @@ describe('Setgov.oracle.splits - vault splits', () => {
       )
     }
   })
-})
 
-describe('Setgov.oracle.splits - auction splits', () => {
-  const container = new MasterNodeRegTestContainer()
-  const testing = Testing.create(container)
+  it('should split auction', async () => {})
 
-  let collateralAddress: string
-  // let tslaID: string
-  let vaultId: string
+  it('should refund futureSwap', async () => {
+    await setupFutureSwap()
 
-  async function setup (): Promise<void> {
-    await testing.generate(9) // Generate 9 blocks to move to block 110
-
-    const blockCount = await testing.rpc.blockchain.getBlockCount()
-    expect(blockCount).toStrictEqual(110) // At greatworldheight
-
-    collateralAddress = await testing.generateAddress()
-
-    await testing.token.dfi({
-      address: collateralAddress,
-      amount: 300000
-    })
-
-    await testing.container.call('createloanscheme', [100, 1, 'default'])
-    await testing.generate(1)
-
-    const oracleID = await testing.rpc.oracle.appointOracle(await testing.generateAddress(),
-      [
-        {
-          token: 'DFI',
-          currency: 'USD'
-        },
-        {
-          token: 'TSLA',
-          currency: 'USD'
-        }
-      ],
-      { weightage: 1 })
-    await testing.generate(1)
-
-    const timestamp = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleID, timestamp, {
-      prices: [{
-        tokenAmount: '1@DFI',
-        currency: 'USD'
-      }, {
-        tokenAmount: '1@TSLA',
-        currency: 'USD'
-      }]
-    })
-
-    await testing.rpc.loan.setCollateralToken({
-      token: 'DFI',
-      factor: new BigNumber(1),
-      fixedIntervalPriceId: 'DFI/USD'
-    })
-    await testing.generate(1)
-
-    await testing.rpc.loan.setLoanToken({
-      symbol: 'TSLA',
-      fixedIntervalPriceId: 'TSLA/USD'
-    })
-    await testing.generate(1)
-
-    vaultId = await testing.rpc.vault.createVault({
-      ownerAddress: collateralAddress,
-      loanSchemeId: 'default'
-    })
-    await testing.generate(12)
-
-    await testing.container.call('deposittovault', [vaultId, collateralAddress, '1@DFI'])
-    await testing.generate(1)
-
-    await testing.container.call('takeloan', [{
-      vaultId,
-      amounts: '1@TSLA'
-    }])
-    await testing.generate(1)
-
-    // const tslaInfo = await testing.rpc.token.getToken('TSLA')
-    // tslaID = Object.keys(tslaInfo)[0]
-  }
-
-  beforeAll(async () => {
-    await testing.container.start()
-    await testing.container.waitForWalletCoinbaseMaturity()
-    await setup()
-  })
-
-  it('should return futureswap', async () => {
-
-  })
-})
-
-describe('Setgov.oracle.splits - refund futureswap', () => {
-  const container = new MasterNodeRegTestContainer()
-  const testing = Testing.create(container)
-
-  let collateralAddress: string
-  let tslaID: string
-  let vaultId: string
-
-  async function setup (): Promise<void> {
-    await testing.generate(9) // Generate 9 blocks to move to block 110
-
-    const blockCount = await testing.rpc.blockchain.getBlockCount()
-    expect(blockCount).toStrictEqual(110) // At greatworldheight
-
-    collateralAddress = await testing.generateAddress()
-
-    await testing.token.dfi({
-      address: collateralAddress,
-      amount: 300000
-    })
-
-    await testing.container.call('createloanscheme', [100, 1, 'default'])
-    await testing.generate(1)
-
-    const oracleID = await testing.rpc.oracle.appointOracle(await testing.generateAddress(),
-      [
-        {
-          token: 'DFI',
-          currency: 'USD'
-        },
-        {
-          token: 'TSLA',
-          currency: 'USD'
-        }
-      ],
-      { weightage: 1 })
-    await testing.generate(1)
-
-    const timestamp = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleID, timestamp, {
-      prices: [{
-        tokenAmount: '1@DFI',
-        currency: 'USD'
-      }, {
-        tokenAmount: '1@TSLA',
-        currency: 'USD'
-      }]
-    })
-
-    await testing.rpc.loan.setCollateralToken({
-      token: 'DFI',
-      factor: new BigNumber(1),
-      fixedIntervalPriceId: 'DFI/USD'
-    })
-    await testing.generate(1)
-
-    await testing.rpc.loan.setLoanToken({
-      symbol: 'TSLA',
-      fixedIntervalPriceId: 'TSLA/USD'
-    })
-    await testing.generate(1)
-
-    vaultId = await testing.rpc.vault.createVault({
-      ownerAddress: collateralAddress,
-      loanSchemeId: 'default'
-    })
-    await testing.generate(12)
-
-    await testing.container.call('deposittovault', [vaultId, collateralAddress, '1@DFI'])
-    await testing.generate(1)
-
-    const tslaInfo = await testing.rpc.token.getToken('TSLA')
-    tslaID = Object.keys(tslaInfo)[0]
-
-    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2203/active': 'false' } })
-    await testing.generate(1)
-
-    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2203/reward_pct': '0.05', 'v0/params/dfip2203/block_period': '25' } })
-    await testing.generate(1)
-
-    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2203/active': 'true' } })
-    await testing.generate(1)
-  }
-
-  beforeAll(async () => {
-    await testing.container.start()
-    await testing.container.waitForWalletCoinbaseMaturity()
-    await setup()
-  })
-
-  it('should return futureswap', async () => {
     const burnAddress = 'bcrt1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpsqgljc'
 
     await testing.container.call('takeloan', [{
-      vaultId,
+      vaultId: vaultId4,
       amounts: '1@TSLA'
     }])
     await testing.generate(1)
@@ -756,65 +487,12 @@ describe('Setgov.oracle.splits - refund futureswap', () => {
       const balance = await testing.rpc.account.getAccount(collateralAddress)
       expect(balance).toStrictEqual([
         '299999.00000000@DFI',
-        '2.00000000@TSLA' // 2x1
+        '2.00000000@TSLA' // 2 x 1
       ])
     }
   })
-})
 
-describe('Setgov.oracle.splits - delete gov vars', () => {
-  const container = new MasterNodeRegTestContainer()
-  const testing = Testing.create(container)
-
-  let tslaID: string
-
-  async function setup (): Promise<void> {
-    await testing.generate(9) // Generate 9 blocks to move to block 110
-
-    const blockCount = await testing.rpc.blockchain.getBlockCount()
-    expect(blockCount).toStrictEqual(110) // At greatworldheight
-
-    // collateralAddress = await testing.generateAddress()
-
-    await testing.container.call('createloanscheme', [100, 1, 'default'])
-    await testing.generate(1)
-
-    const priceFeeds = [
-      {
-        token: 'TSLA',
-        currency: 'USD'
-      }
-    ]
-
-    const oracleID = await testing.rpc.oracle.appointOracle(await testing.generateAddress(), priceFeeds, { weightage: 1 })
-    await testing.generate(1)
-
-    const timestamp = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleID, timestamp, {
-      prices: [{
-        tokenAmount: '2@TSLA',
-        currency: 'USD'
-      }]
-    })
-    await testing.generate(1)
-
-    await testing.rpc.loan.setLoanToken({
-      symbol: 'TSLA',
-      fixedIntervalPriceId: 'TSLA/USD'
-    })
-    await testing.generate(1)
-
-    const tslaInfo = await testing.rpc.token.getToken('TSLA')
-    tslaID = Object.keys(tslaInfo)[0]
-  }
-
-  beforeAll(async () => {
-    await testing.container.start()
-    await testing.container.waitForWalletCoinbaseMaturity()
-    await setup()
-  })
-
-  it('should be able to delete invalid split', async () => {
+  it('should set GOV variable correctly', async () => {
     const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
 
     await testing.rpc.masternode.setGov({
