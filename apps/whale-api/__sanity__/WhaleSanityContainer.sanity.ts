@@ -17,7 +17,10 @@ beforeAll(async () => {
     await whale.blockchain.waitForWalletCoinbaseMaturity()
     await whale.blockchain.waitForWalletBalanceGTE(100)
 
-    // TODO(kodemon/eli-lim): Create tokens, pool pairs, etc. to sanity test the endpoints
+    // Mock the time for so readiness healthcheck doesn't indicate tip is stale
+    const nowInSeconds = Math.floor(Date.now() / 1000)
+    await whale.blockchain.call('setmocktime', [nowInSeconds])
+    await whale.blockchain.generate(1)
   }
 
   await mockRealisticState()
@@ -102,11 +105,11 @@ describe('/_actuator', () => {
 describe('/rpc/getblockchaininfo', () => {
   const expected = {
     bestblockhash: expect.stringMatching(/[0-f]{64}/),
-    blocks: 101,
+    blocks: 102,
     chain: 'regtest',
-    chainwork: '00000000000000000000000000000000000000000000000000000000000000cc',
+    chainwork: '00000000000000000000000000000000000000000000000000000000000000ce',
     difficulty: expect.any(Number),
-    headers: 101,
+    headers: 102,
     initialblockdownload: false,
     mediantime: expect.any(Number),
     pruned: false,
@@ -157,7 +160,7 @@ describe('/rpc/getblock', () => {
   const expected = {
     bits: '207fffff',
     chainwork: '0000000000000000000000000000000000000000000000000000000000000002',
-    confirmations: 102,
+    confirmations: 103,
     difficulty: 4.656542373906925e-10,
     hash: 'd744db74fb70ed42767ae028a129365fb4d7de54ba1b6575fb047490554f8a7b',
     height: 0,

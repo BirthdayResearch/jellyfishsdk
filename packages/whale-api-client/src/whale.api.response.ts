@@ -1,5 +1,5 @@
 import { WhaleApiError } from './errors'
-import { Method } from './WhaleApiClient'
+import { Method } from './whale.api.client'
 
 export interface WhaleApiResponse<T> {
   data: T

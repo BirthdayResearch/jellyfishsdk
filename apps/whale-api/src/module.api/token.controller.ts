@@ -3,7 +3,7 @@ import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ApiPagedResponse } from './_core/api.paged.response'
 import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
 import { PaginationQuery } from './_core/api.query'
-import { TokenData } from '@defichain/whale-api-client/dist/api/Tokens'
+import { TokenData } from '@defichain/whale-api-client/dist/api/tokens'
 import { DeFiDCache } from './cache/defid.cache'
 
 @Controller('/tokens')

@@ -1,5 +1,5 @@
-import { WhaleApiClient } from '../WhaleApiClient'
-import { ApiPagedResponse } from '../WhaleApiResponse'
+import { WhaleApiClient } from '../whale.api.client'
+import { ApiPagedResponse } from '../whale.api.response'
 
 export class Tokens {
   constructor (private readonly client: WhaleApiClient) {
