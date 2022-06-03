@@ -1,4 +1,4 @@
-import { WhaleApiClient } from '../WhaleApiClient'
+import { WhaleApiClient } from '../whale.api.client'
 
 /**
  * DeFi whale endpoint for fee related services.
