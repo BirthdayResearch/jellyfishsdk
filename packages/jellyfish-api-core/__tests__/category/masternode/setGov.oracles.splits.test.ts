@@ -484,11 +484,11 @@ describe('SetGov v0/oracles/splits', () => {
           collateralAmounts: ['1.00000000@DFI'],
           loanAmounts: ['2.00000229@TSLA'],
           interestAmounts: ['0.00000229@TSLA'],
-          collateralValue: new BigNumber(0),
-          loanValue: new BigNumber(0),
-          interestValue: new BigNumber(0),
-          informativeRatio: new BigNumber(0),
-          collateralRatio: 0
+          collateralValue: new BigNumber(-1),
+          loanValue: new BigNumber(-1),
+          interestValue: new BigNumber(-1),
+          informativeRatio: new BigNumber(-1),
+          collateralRatio: -1
         }
       )
     }
