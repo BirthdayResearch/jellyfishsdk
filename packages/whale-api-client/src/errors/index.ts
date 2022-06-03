@@ -1,10 +1,10 @@
-import { WhaleApiErrorType, WhaleApiException } from './WhaleApiException'
-import { WhaleApiValidationException } from './WhaleApiValidationException'
-import { WhaleApiResponse } from '../WhaleApiResponse'
+import { WhaleApiErrorType, WhaleApiException } from './api.error'
+import { WhaleApiValidationException } from './api.validation.exception'
+import { WhaleApiResponse } from '../whale.api.response'
 
-export * from './WhaleApiException'
-export * from './WhaleApiValidationException'
-export * from './WhaleClientTimeoutException'
+export * from './api.error'
+export * from './api.validation.exception'
+export * from './client.timeout.exception'
 
 /**
  * @param {WhaleApiResponse} response to check and raise error if any

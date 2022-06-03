@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common'
-import { Block } from '@defichain/whale-api-client/src/api/Blocks'
+import { Block } from '@defichain/whale-api-client/dist/api/blocks'
 import { WhaleApiClient } from '@defichain/whale-api-client'
 
 @Controller('blockchain')

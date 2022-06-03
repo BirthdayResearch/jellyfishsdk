@@ -1,9 +1,9 @@
 import { Controller, Get, Inject, Injectable, Logger, Query } from '@nestjs/common'
-import { PoolPairData } from '@defichain/whale-api-client/src/api/PoolPairs'
+import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
 import { NetworkValidationPipe, SupportedNetwork } from '../pipes/NetworkValidationPipe'
 import BigNumber from 'bignumber.js'
-import { Transaction, TransactionVout } from '@defichain/whale-api-client/src/api/Transactions'
+import { Transaction, TransactionVout } from '@defichain/whale-api-client/dist/api/transactions'
 import {
   CCompositeSwap,
   CompositeSwap,
@@ -17,7 +17,7 @@ import { AccountHistory } from '@defichain/jellyfish-api-core/src/category/accou
 import { fromScript } from '@defichain/jellyfish-address'
 import { Interval } from '@nestjs/schedule'
 import { SimpleCache } from '../cache/SimpleCache'
-import { Block } from '@defichain/whale-api-client/dist/api/Blocks'
+import { Block } from '@defichain/whale-api-client/dist/api/blocks'
 import { WhaleApiClient } from '@defichain/whale-api-client'
 
 @Controller('v1')

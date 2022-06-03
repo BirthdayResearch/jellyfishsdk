@@ -1,7 +1,7 @@
-import { WhaleApiClient } from '../WhaleApiClient'
-import { ApiPagedResponse } from '../WhaleApiResponse'
-import { TokenData } from './Tokens'
-import { ActivePrice } from './Prices'
+import { WhaleApiClient } from '../whale.api.client'
+import { ApiPagedResponse } from '../whale.api.response'
+import { TokenData } from './tokens'
+import { ActivePrice } from './prices'
 
 export class Loan {
   constructor (private readonly client: WhaleApiClient) {

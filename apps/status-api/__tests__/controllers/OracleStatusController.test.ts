@@ -1,6 +1,6 @@
 import { StatusApiTesting } from '../../testing/StatusApiTesting'
 import { ApiPagedResponse, WhaleApiClient } from '@defichain/whale-api-client'
-import { Oracle, OraclePriceFeed } from '@defichain/whale-api-client/dist/api/Oracles'
+import { Oracle, OraclePriceFeed } from '@defichain/whale-api-client/dist/api/oracles'
 
 const apiTesting = StatusApiTesting.create()
 

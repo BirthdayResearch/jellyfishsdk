@@ -1,5 +1,5 @@
 import { account } from '@defichain/jellyfish-api-core'
-import { WhaleApiClient } from '../WhaleApiClient'
+import { WhaleApiClient } from '../whale.api.client'
 
 export type BurnData = account.BurnInfo
 
