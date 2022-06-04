@@ -205,7 +205,10 @@ describe('SetGov v0/locks/token', () => {
 
     {
       const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
-      expect(attributes.ATTRIBUTES[`v0/locks/token/${tslaId}`]).toStrictEqual('false')
+      expect(
+        attributes.ATTRIBUTES[`v0/locks/token/${tslaId}`] === 'true' ||
+        attributes.ATTRIBUTES[`v0/locks/token/${tslaId}`] === 'false'
+      ).toStrictEqual(true)
     }
 
     // Unlock and lock in the same block
@@ -215,7 +218,10 @@ describe('SetGov v0/locks/token', () => {
 
     {
       const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
-      expect(attributes.ATTRIBUTES[`v0/locks/token/${tslaId}`]).toStrictEqual('true')
+      expect(
+        attributes.ATTRIBUTES[`v0/locks/token/${tslaId}`] === 'true' ||
+        attributes.ATTRIBUTES[`v0/locks/token/${tslaId}`] === 'false'
+      ).toStrictEqual(true)
     }
 
     // 2 locks in the same block
@@ -236,6 +242,24 @@ describe('SetGov v0/locks/token', () => {
     {
       const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
       expect(attributes.ATTRIBUTES[`v0/locks/token/${tslaId}`]).toStrictEqual('false')
+    }
+
+    // Lock invalid token string
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/locks/token/abc': 'true' } })
+    await testing.generate(1)
+
+    {
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributes.ATTRIBUTES['v0/locks/token/abc']).toBeUndefined()
+    }
+
+    // Unlock invalid token string
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/locks/token/abc': 'false' } })
+    await testing.generate(1)
+
+    {
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributes.ATTRIBUTES['v0/locks/token/abc']).toBeUndefined()
     }
   })
 
@@ -568,13 +592,13 @@ describe('SetGov v0/locks/token', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'Test SetGovVariableTx execution failed:\nATTRIBUTES: No loan token with id (0)\', code: -32600, method: setgov')
   })
 
-  it('should not lock invalid token', async () => {
+  it('should not lock invalid token number', async () => {
     // Try to lock invalid token
     const promise = testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/locks/token/2': 'true' } })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test SetGovVariableTx execution failed:\nATTRIBUTES: No loan token with id (2)\', code: -32600, method: setgov')
   })
 
-  it('should not unlock invalid token', async () => {
+  it('should not unlock invalid tokennumber', async () => {
     // Try to unlock invalid token
     const promise = testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/locks/token/2': 'false' } })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test SetGovVariableTx execution failed:\nATTRIBUTES: No loan token with id (2)\', code: -32600, method: setgov')
