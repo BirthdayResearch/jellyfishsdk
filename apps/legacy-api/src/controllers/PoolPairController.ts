@@ -1,4 +1,4 @@
-import { Controller, Get, Inject, Injectable, Logger, Query } from '@nestjs/common'
+import { Controller, Get, Logger, Query } from '@nestjs/common'
 import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
 import { NetworkValidationPipe, SupportedNetwork } from '../pipes/NetworkValidationPipe'
@@ -15,7 +15,6 @@ import {
 import { SmartBuffer } from 'smart-buffer'
 import { AccountHistory } from '@defichain/jellyfish-api-core/src/category/account'
 import { fromScript } from '@defichain/jellyfish-address'
-import { Interval } from '@nestjs/schedule'
 import { SimpleCache } from '../cache/SimpleCache'
 import { Block } from '@defichain/whale-api-client/dist/api/blocks'
 import { WhaleApiClient } from '@defichain/whale-api-client'
@@ -23,6 +22,7 @@ import { WhaleApiClient } from '@defichain/whale-api-client'
 @Controller('v1')
 export class PoolPairController {
   private readonly logger = new Logger(PoolPairController.name)
+
   constructor (
     private readonly whaleApiClientProvider: WhaleApiClientProvider,
     private readonly cache: SimpleCache
@@ -377,58 +377,6 @@ export class PoolPairControllerV2 {
       }
     }
     return result
-  }
-}
-
-/**
- * Hits PoolPairController with requests to enable pre-fetching behaviour,
- * improving performance on queries
- */
-@Injectable()
-export class SwapCacheFiller {
-  private readonly logger = new Logger(SwapCacheFiller.name)
-  isRunning = false
-  isReady = false
-  isFillingCache = false
-
-  constructor (
-    private readonly poolPairController: PoolPairController,
-    @Inject('SWAP_CACHE_COUNT') readonly cacheCountToBeReady: number
-  ) {
-  }
-
-  onApplicationBootstrap (): void {
-    this.isRunning = true
-    void this.fillCache()
-  }
-
-  @Interval(30_000) // 30s
-  private async fillCache (): Promise<void> {
-    if (this.isRunning && !this.isFillingCache) {
-      this.isFillingCache = true
-      await this.followPagination('mainnet')
-      this.isFillingCache = false
-    }
-  }
-
-  private async followPagination (network: SupportedNetwork): Promise<void> {
-    let swapsCount = 0
-    let next: string | undefined
-    while (swapsCount < this.cacheCountToBeReady) {
-      try {
-        const result: LegacySubgraphSwapsResponse = await this.poolPairController.getSubgraphSwaps(network, 30, next)
-        next = result.page?.next
-        swapsCount += result.data.swaps.length
-      } catch (err) {
-        this.logger.error(
-          `${`[${network}] ` +
-          'last page: '}${next !== undefined ? JSON.stringify(decodeNextToken(next)) : 'none'}`,
-          err
-        )
-      }
-    }
-    this.isReady = true
-    this.logger.log(`[${network}] cache is ready`)
   }
 }
 
