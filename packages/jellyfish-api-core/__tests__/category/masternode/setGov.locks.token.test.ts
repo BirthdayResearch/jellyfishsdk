@@ -174,6 +174,71 @@ describe('SetGov v0/locks/token', () => {
     await testing.generate(1)
   }
 
+  it('should lock and unlock token', async () => {
+    {
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributes.ATTRIBUTES[`v0/locks/token/${tslaId}`]).toBeUndefined()
+    }
+
+    // Lock token
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'true' } })
+    await testing.generate(1)
+
+    {
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributes.ATTRIBUTES[`v0/locks/token/${tslaId}`]).toStrictEqual('true')
+    }
+
+    // Unlock token
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'false' } })
+    await testing.generate(1)
+
+    {
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributes.ATTRIBUTES[`v0/locks/token/${tslaId}`]).toStrictEqual('false')
+    }
+
+    // Lock and unlock in the same block
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'true' } })
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'false' } })
+    await testing.generate(1)
+
+    {
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributes.ATTRIBUTES[`v0/locks/token/${tslaId}`]).toStrictEqual('false')
+    }
+
+    // Unlock and lock in the same block
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'false' } })
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'true' } })
+    await testing.generate(1)
+
+    {
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributes.ATTRIBUTES[`v0/locks/token/${tslaId}`]).toStrictEqual('true')
+    }
+
+    // 2 locks in the same block
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'true' } })
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'true' } })
+    await testing.generate(1)
+
+    {
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributes.ATTRIBUTES[`v0/locks/token/${tslaId}`]).toStrictEqual('true')
+    }
+
+    // 2 unlocks in the same block
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'false' } })
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'false' } })
+    await testing.generate(1)
+
+    {
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributes.ATTRIBUTES[`v0/locks/token/${tslaId}`]).toStrictEqual('false')
+    }
+  })
+
   it('should update token if token is unlocked', async () => {
     // Unlock token
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'false' } })
