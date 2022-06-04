@@ -84,7 +84,7 @@
     "supertest": "^6.2.3",
     "testcontainers": "^8.10.1",
     "ts-loader": "^9.3.0",
-    "ts-node": "^10.8.0",
+    "ts-node": "^10.8.1",
     "tsconfig-paths": "^3.13.0"
   }
 }
