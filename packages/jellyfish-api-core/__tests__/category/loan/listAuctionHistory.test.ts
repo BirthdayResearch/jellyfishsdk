@@ -615,7 +615,9 @@ describe('Loan listAuctionHistory', () => {
           { index: 1 }
         )
 
-        expect(page.length).toStrictEqual(4)
+        expect(page.length).toStrictEqual(2)
+        expect(page[0].vaultId).toStrictEqual(bobAuctionHistoryArr[0].vaultId)
+        expect(page[1].vaultId).toStrictEqual(aliceAuctionHistoryArr[1].vaultId)
       }
 
       {
@@ -623,8 +625,7 @@ describe('Loan listAuctionHistory', () => {
         const page = await alice.rpc.loan.listAuctionHistory('mine',
           { index: 5 }
         )
-
-        expect(page.length).toStrictEqual(2)
+        expect(page.length).toStrictEqual(0)
       }
 
       {
@@ -632,8 +633,7 @@ describe('Loan listAuctionHistory', () => {
         const page = await bob.rpc.loan.listAuctionHistory(bobColAddr,
           { index: 3 }
         )
-
-        expect(page.length).toStrictEqual(2)
+        expect(page.length).toStrictEqual(0)
       }
     })
 
@@ -729,8 +729,7 @@ describe('Loan listAuctionHistory', () => {
         const page = await bob.rpc.loan.listAuctionHistory(bobColAddr,
           { maxBlockHeight: bobAuctionHistoryArr[1].blockHeight, vaultId: bobAuctionHistoryArr[1].vaultId }
         )
-        expect(page.length).toStrictEqual(1)
-        expect(page[0].vaultId).toStrictEqual(bobAuctionHistoryArr[1].vaultId)
+        expect(page.length).toStrictEqual(0)
       }
     })
 
@@ -741,10 +740,9 @@ describe('Loan listAuctionHistory', () => {
         const page = await alice.rpc.loan.listAuctionHistory('all',
           { maxBlockHeight: auctionHistoryArr[1].blockHeight, index: auctionHistoryArr[1].batchIndex }
         )
-        expect(page.length).toStrictEqual(3)
-        expect(page[0].vaultId).toStrictEqual(auctionHistoryArr[1].vaultId)
-        expect(page[1].vaultId).toStrictEqual(auctionHistoryArr[2].vaultId)
-        expect(page[2].vaultId).toStrictEqual(auctionHistoryArr[3].vaultId)
+        expect(page.length).toStrictEqual(2)
+        expect(page[0].vaultId).toStrictEqual(bobAuctionHistoryArr[0].vaultId)
+        expect(page[1].vaultId).toStrictEqual(aliceAuctionHistoryArr[1].vaultId)
       }
 
       // Mine for Alice
@@ -776,8 +774,8 @@ describe('Loan listAuctionHistory', () => {
           { maxBlockHeight: auctionHistoryArr[1].blockHeight, vaultId: auctionHistoryArr[1].vaultId, index: auctionHistoryArr[1].batchIndex, limit: 2 }
         )
         expect(page.length).toStrictEqual(2)
-        expect(page[0].vaultId).toStrictEqual(auctionHistoryArr[1].vaultId)
-        expect(page[1].vaultId).toStrictEqual(auctionHistoryArr[2].vaultId)
+        expect(page[0].vaultId).toStrictEqual(bobAuctionHistoryArr[0].vaultId)
+        expect(page[1].vaultId).toStrictEqual(aliceAuctionHistoryArr[1].vaultId)
       }
 
       // Mine
