@@ -42,10 +42,10 @@ describe('SetGov v0/oracles/splits', () => {
 
     await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
       prices: [{
-        tokenAmount: '1@DFI',
+        tokenAmount: '0.99999999@DFI',
         currency: 'USD'
       }, {
-        tokenAmount: '1@TSLA',
+        tokenAmount: '0.99999999@TSLA',
         currency: 'USD'
       }]
     })
@@ -158,11 +158,11 @@ describe('SetGov v0/oracles/splits', () => {
     // Going to liquidate the vaults by price increase of the loan tokens
     await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
       prices: [{
-        tokenAmount: '1.5@TSLA',
+        tokenAmount: '1.49999999@TSLA',
         currency: 'USD'
       }]
     })
-    await testing.container.waitForActivePrice('TSLA/USD', '1.5')
+    await testing.container.waitForActivePrice('TSLA/USD', '1.49999999')
 
     const auction = await testing.rpc.vault.listAuctions()
     expect(auction.length).toStrictEqual(1)
@@ -592,10 +592,10 @@ describe('SetGov v0/oracles/splits', () => {
           collateralAmounts: ['1.00000000@DFI'],
           loanAmounts: ['1.00000039@TSLA'],
           interestAmounts: ['0.00000039@TSLA'],
-          collateralValue: new BigNumber(1),
-          loanValue: new BigNumber(1.00000039),
-          interestValue: new BigNumber(0.00000039),
-          informativeRatio: new BigNumber(99.999961),
+          collateralValue: new BigNumber(0.99999999),
+          loanValue: new BigNumber(1.00000037),
+          interestValue: new BigNumber(0.00000038),
+          informativeRatio: new BigNumber(99.999962),
           collateralRatio: 100
         }
       )
