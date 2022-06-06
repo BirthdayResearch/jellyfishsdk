@@ -98,7 +98,7 @@ export class CreatePoolPairIndexer extends DfTxIndexer<PoolCreatePair> {
       })
 
       await this.poolPairTokenMapper.put({
-        id: 'AMZN-DUSD',
+        id: '89-15',
         sort: HexEncoder.encodeHeight(90),
         poolPairId: 90,
         block: {
