@@ -16,6 +16,54 @@ export class CreateTokenIndexer extends DfTxIndexer<TokenCreate> {
     super()
   }
 
+  async indexBlockEnd (block: RawBlock): Promise<void> {
+    // https://defiscan.live/tokens/dAMZN
+
+    // {
+    //   "89": {
+    //     "symbol": "AMZN",
+    //     "symbolKey": "AMZN",
+    //     "name": "dAMZN",
+    //     "decimal": 8,
+    //     "limit": 0,
+    //     "mintable": true,
+    //     "tradeable": true,
+    //     "isDAT": true,
+    //     "isLPS": false,
+    //     "finalized": false,
+    //     "isLoanToken": true,
+    //     "minted": 25607.56425640,
+    //     "creationTx": "aca8e1ec71d832c151fad94d221c45d5a81acb22723f71a82e14dfa17aaed29e",
+    //     "creationHeight": 1948150,
+    //     "destructionTx": "0000000000000000000000000000000000000000000000000000000000000000",
+    //     "destructionHeight": -1,
+    //     "collateralAddress": ""
+    //   }
+    // }
+
+    if (block.height === 1948150) {
+      await this.tokenMapper.put({
+        id: 'aca8e1ec71d832c151fad94d221c45d5a81acb22723f71a82e14dfa17aaed29e',
+        tokenId: 89,
+        sort: HexEncoder.encodeHeight(89),
+        symbol: 'AMZN',
+        name: 'AMZN',
+        isDAT: true,
+        isLPS: false,
+        limit: (0).toFixed(8),
+        mintable: true,
+        decimal: 8,
+        tradeable: true,
+        block: {
+          hash: block.hash,
+          height: block.height,
+          medianTime: block.mediantime,
+          time: block.time
+        }
+      })
+    }
+  }
+
   async indexTransaction (block: RawBlock, transaction: DfTxTransaction<TokenCreate>): Promise<void> {
     const txid = transaction.txn.txid
     const data = transaction.dftx.data
