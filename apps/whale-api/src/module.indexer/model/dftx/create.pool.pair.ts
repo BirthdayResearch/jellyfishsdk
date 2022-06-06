@@ -40,6 +40,122 @@ export class CreatePoolPairIndexer extends DfTxIndexer<PoolCreatePair> {
     super()
   }
 
+  async indexBlockEnd (block: RawBlock): Promise<void> {
+    // {
+    //   "90": {
+    //     "symbol": "AMZN-DUSD",
+    //     "name": "dAMZN-Decentralized USD",
+    //     "status": true,
+    //     "idTokenA": "89",
+    //     "idTokenB": "15",
+    //     "dexFeePctTokenA": 0.00100000,
+    //     "dexFeeInPctTokenA": 0.00100000,
+    //     "dexFeePctTokenB": 0.00100000,
+    //     "dexFeeOutPctTokenB": 0.00100000,
+    //     "dexFeeInPctTokenB": 0.00100000,
+    //     "dexFeeOutPctTokenA": 0.00100000,
+    //     "reserveA": 23610.96677637,
+    //     "reserveB": 2970783.28265054,
+    //     "commission": 0.00200000,
+    //     "totalLiquidity": 264845.36091854,
+    //     "reserveA/reserveB": 0.00794772,
+    //     "reserveB/reserveA": 125.82217876,
+    //     "tradeEnabled": true,
+    //     "ownerAddress": "8UAhRuUFCyFUHEPD7qvtj8Zy2HxF5HH5nb",
+    //     "blockCommissionA": 0.00000000,
+    //     "blockCommissionB": 0.00000000,
+    //     "rewardPct": 0.00000000,
+    //     "rewardLoanPct": 0.02230000,
+    //     "creationTx": "b929750896550d830ce9a44485a256741d3fae9abf5db289e87934b920767807",
+    //     "creationHeight": 1948150
+    //   }
+    // }
+
+    if (block.height === 1948150) {
+      // https://defiscan.live/tokens/dAMZN-DUSD
+      await this.poolPairHistoryMapper.put({
+        id: 'b929750896550d830ce9a44485a256741d3fae9abf5db289e87934b920767807',
+        sort: HexEncoder.encodeHeight(block.height) + HexEncoder.encodeHeight(0),
+        poolPairId: '90',
+        pairSymbol: 'AMZN-DUSD',
+        name: 'AMZN-DUSD',
+        tokenA: {
+          id: 89,
+          symbol: 'AMZN'
+        },
+        tokenB: {
+          id: 15,
+          symbol: 'DUSD'
+        },
+        block: {
+          hash: block.hash,
+          height: block.height,
+          medianTime: block.mediantime,
+          time: block.time
+        },
+        status: true,
+        commission: (0.00200000).toFixed(8)
+      })
+
+      await this.poolPairTokenMapper.put({
+        id: 'AMZN-DUSD',
+        sort: HexEncoder.encodeHeight(90),
+        poolPairId: 90,
+        block: {
+          hash: block.hash,
+          height: block.height,
+          medianTime: block.mediantime,
+          time: block.time
+        }
+      })
+
+      // {
+      //   "id": "90",
+      //   "symbol": "AMZN-DUSD",
+      //   "symbolKey": "AMZN-DUSD",
+      //   "name": "dAMZN-Decentralized USD",
+      //   "decimal": 8,
+      //   "limit": "0",
+      //   "mintable": false,
+      //   "tradeable": true,
+      //   "isDAT": true,
+      //   "isLPS": true,
+      //   "isLoanToken": false,
+      //   "finalized": true,
+      //   "minted": "0",
+      //   "creation": {
+      //     "tx": "b929750896550d830ce9a44485a256741d3fae9abf5db289e87934b920767807",
+      //     "height": 1948150
+      //   },
+      //   "destruction": {
+      //     "tx": "0000000000000000000000000000000000000000000000000000000000000000",
+      //     "height": -1
+      //   },
+      //   "collateralAddress": "undefined",
+      //   "displaySymbol": "dAMZN-DUSD"
+      // }
+      await this.tokenMapper.put({
+        id: 'b929750896550d830ce9a44485a256741d3fae9abf5db289e87934b920767807',
+        tokenId: 90,
+        sort: HexEncoder.encodeHeight(90),
+        symbol: 'AMZN-DUSD',
+        name: 'AMZN-DUSD LP Token',
+        isDAT: true,
+        isLPS: true,
+        limit: '0.00000000',
+        mintable: false,
+        decimal: 8,
+        tradeable: true,
+        block: {
+          hash: block.hash,
+          height: block.height,
+          medianTime: block.mediantime,
+          time: block.time
+        }
+      })
+    }
+  }
+
   async indexTransaction (block: RawBlock, transaction: DfTxTransaction<PoolCreatePair>): Promise<void> {
     const txid = transaction.txn.txid
     const data = transaction.dftx.data
