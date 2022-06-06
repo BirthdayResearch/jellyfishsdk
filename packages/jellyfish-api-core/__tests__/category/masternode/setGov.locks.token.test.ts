@@ -187,7 +187,7 @@ describe('SetGov v0/locks/token', () => {
       expect(attributes.ATTRIBUTES[`v0/locks/token/${tslaId}`]).toBeUndefined()
     }
 
-    // Lock token
+    // Lock loan token
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'true' } })
     await testing.generate(1)
 
@@ -196,7 +196,7 @@ describe('SetGov v0/locks/token', () => {
       expect(attributes.ATTRIBUTES[`v0/locks/token/${tslaId}`]).toStrictEqual('true')
     }
 
-    // Unlock token
+    // Unlock loan token
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'false' } })
     await testing.generate(1)
 
@@ -205,7 +205,7 @@ describe('SetGov v0/locks/token', () => {
       expect(attributes.ATTRIBUTES[`v0/locks/token/${tslaId}`]).toStrictEqual('false')
     }
 
-    // Lock and unlock in the same block
+    // Lock and unlock loan tokens in the same block
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'true' } })
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'false' } })
     await testing.generate(1)
@@ -218,7 +218,7 @@ describe('SetGov v0/locks/token', () => {
       ).toStrictEqual(true)
     }
 
-    // Unlock and lock in the same block
+    // Unlock and lock loan tokens in the same block
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'false' } })
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'true' } })
     await testing.generate(1)
@@ -231,7 +231,7 @@ describe('SetGov v0/locks/token', () => {
       ).toStrictEqual(true)
     }
 
-    // 2 locks in the same block
+    // 2 lock loan tokens in the same block
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'true' } })
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'true' } })
     await testing.generate(1)
@@ -241,7 +241,7 @@ describe('SetGov v0/locks/token', () => {
       expect(attributes.ATTRIBUTES[`v0/locks/token/${tslaId}`]).toStrictEqual('true')
     }
 
-    // 2 unlocks in the same block
+    // 2 unlock loan tokens in the same block
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'false' } })
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'false' } })
     await testing.generate(1)
@@ -251,7 +251,7 @@ describe('SetGov v0/locks/token', () => {
       expect(attributes.ATTRIBUTES[`v0/locks/token/${tslaId}`]).toStrictEqual('false')
     }
 
-    // Lock invalid token string
+    // Lock invalid loan token string
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/locks/token/abc': 'true' } })
     await testing.generate(1)
 
@@ -260,7 +260,7 @@ describe('SetGov v0/locks/token', () => {
       expect(attributes.ATTRIBUTES['v0/locks/token/abc']).toBeUndefined()
     }
 
-    // Unlock invalid token string
+    // Unlock invalid loan token string
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/locks/token/abc': 'false' } })
     await testing.generate(1)
 
@@ -271,11 +271,11 @@ describe('SetGov v0/locks/token', () => {
   })
 
   it('should update loan token if loan token is unlocked', async () => {
-    // Unlock token
+    // Unlock loan token
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'false' } })
     await testing.generate(1)
 
-    // update token
+    // update loan token
     await testing.rpc.token.updateToken(tslaId, { name: 'Tesla' })
     await testing.generate(1)
 
@@ -284,7 +284,7 @@ describe('SetGov v0/locks/token', () => {
   })
 
   it('should getFixedIntervalPrice if loan token is unlocked', async () => {
-    // Unlock token
+    // Unlock loan token
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'false' } })
     await testing.generate(1)
 
@@ -296,7 +296,7 @@ describe('SetGov v0/locks/token', () => {
   it('should poolSwap if loan token is unlocked', async () => {
     await poolSwapSetup()
 
-    // Unlock token
+    // Unlock loan token
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'false' } })
     await testing.generate(1)
 
@@ -319,7 +319,7 @@ describe('SetGov v0/locks/token', () => {
   it('should futureSwap if loan token is unlocked', async () => {
     await futureSwapSetup()
 
-    // Unlock token
+    // Unlock loan token
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'false' } })
     await testing.generate(1)
 
@@ -336,7 +336,8 @@ describe('SetGov v0/locks/token', () => {
 
   it('should depositToVault if loan token is unlocked', async () => {
     await loan1Setup()
-    // Unlock token
+
+    // Unlock loan token
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'false' } })
     await testing.generate(1)
 
@@ -353,7 +354,7 @@ describe('SetGov v0/locks/token', () => {
   it('should takeLoan if loan token is unlocked', async () => {
     await depositToVault()
 
-    // Unlock token
+    // Unlock loan token
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'false' } })
     await testing.generate(1)
 
@@ -362,6 +363,8 @@ describe('SetGov v0/locks/token', () => {
       vaultId,
       amounts: '1@TSLA'
     })
+    await testing.generate(1)
+
     expect(typeof txId).toStrictEqual('string')
     expect(txId.length).toStrictEqual(64)
   })
@@ -369,7 +372,7 @@ describe('SetGov v0/locks/token', () => {
   it('should withdrawFromVault if loan token is unlocked', async () => {
     await loan2Setup()
 
-    // Unlock token
+    // Unlock loan token
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'false' } })
     await testing.generate(1)
 
@@ -386,7 +389,7 @@ describe('SetGov v0/locks/token', () => {
   it('should paybackLoan if loan token is unlocked', async () => {
     await loan3Setup()
 
-    // Unlock token
+    // Unlock loan token
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'false' } })
     await testing.generate(1)
 
@@ -430,21 +433,21 @@ describe('SetGov v0/locks/token', () => {
   })
 
   it('should not update token if loan token is locked', async () => {
-    // Lock token
+    // Lock loan token
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'true' } })
     await testing.generate(1)
 
-    // Try update token
+    // Try to update token
     const promise = testing.rpc.token.updateToken(tslaId, { name: 'Tesla' })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateTokenAnyTx execution failed:\nCannot update token during lock\', code: -32600, method: updatetoken')
   })
 
   it('should not getFixedIntervalPrice if loan token is locked', async () => {
-    // Lock token
+    // Lock loan token
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'true' } })
     await testing.generate(1)
 
-    // Try getfixedintervalprice
+    // Try to getfixedintervalprice
     const promise = testing.rpc.oracle.getFixedIntervalPrice('TSLA/USD')
     await expect(promise).rejects.toThrow('RpcApiError: \'Fixed interval price currently disabled due to locked token\', code: -5, method: getfixedintervalprice')
   })
@@ -452,11 +455,11 @@ describe('SetGov v0/locks/token', () => {
   it('should not poolSwap if loan token is locked', async () => {
     await poolSwapSetup()
 
-    // Lock token
+    // Lock loan token
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'true' } })
     await testing.generate(1)
 
-    // Try poolswap
+    // Try to poolswap
     const metadata: poolpair.PoolSwapMetadata = {
       from: collateralAddress,
       tokenFrom: 'DFI',
@@ -471,11 +474,11 @@ describe('SetGov v0/locks/token', () => {
   it('should not futureSwap if loan token is locked', async () => {
     await futureSwapSetup()
 
-    // Lock token
+    // Lock loan token
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'true' } })
     await testing.generate(1)
 
-    // futureswap
+    // Try to futureswap
     const promise = testing.rpc.account.futureSwap({
       address: collateralAddress,
       amount: '1@TSLA'
@@ -485,7 +488,8 @@ describe('SetGov v0/locks/token', () => {
 
   it('should not depositToVault if loan token is locked', async () => {
     await loan1Setup()
-    // Lock token
+
+    // Lock loan token
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'true' } })
     await testing.generate(1)
 
@@ -515,7 +519,7 @@ describe('SetGov v0/locks/token', () => {
   it('should not takeLoan if loan token is locked', async () => {
     await depositToVault()
 
-    // Lock token
+    // Lock loan token
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'true' } })
     await testing.generate(1)
 
@@ -530,7 +534,7 @@ describe('SetGov v0/locks/token', () => {
   it('should not withdrawFromVault if loan token is locked', async () => {
     await loan2Setup()
 
-    // Unlock token
+    // Unlock loan token
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'true' } })
     await testing.generate(1)
 
@@ -542,11 +546,11 @@ describe('SetGov v0/locks/token', () => {
   })
 
   // @TODO jingyi2811
-  // temporarily skip as the exception message thrown is different every time
+  // Temporarily skip this as the exception messages thrown are different every time
   it.skip('should not paybackloan if loan token is locked', async () => {
     await loan3Setup()
 
-    // Lock token
+    // Lock loan token
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${tslaId}`]: 'true' } })
     await testing.generate(1)
 
