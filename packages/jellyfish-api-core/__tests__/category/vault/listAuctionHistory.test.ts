@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { ListAuctionHistoryDetail, VaultLiquidation } from '../../../src/category/loan'
+import { ListAuctionHistoryDetail, VaultLiquidation } from '../../../src/category/vault'
 
 describe('Vault listAuctionHistory', () => {
   const tGroup = TestingGroup.create(2, i => new MasterNodeRegTestContainer(GenesisKeys[i]))
