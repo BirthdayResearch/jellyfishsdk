@@ -42,6 +42,7 @@ export class CreateTokenIndexer extends DfTxIndexer<TokenCreate> {
     // }
 
     if (block.height === 1948150) {
+      console.log('Creating AMZN')
       await this.tokenMapper.put({
         id: 'aca8e1ec71d832c151fad94d221c45d5a81acb22723f71a82e14dfa17aaed29e',
         tokenId: 89,

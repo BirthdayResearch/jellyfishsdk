@@ -72,6 +72,7 @@ export class CreatePoolPairIndexer extends DfTxIndexer<PoolCreatePair> {
     // }
 
     if (block.height === 1948150) {
+      console.log('Creating dAMZN-DUSD')
       // https://defiscan.live/tokens/dAMZN-DUSD
       await this.poolPairHistoryMapper.put({
         id: 'b929750896550d830ce9a44485a256741d3fae9abf5db289e87934b920767807',
