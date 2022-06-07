@@ -187,7 +187,7 @@ describe('SetGov v0/oracles/splits', () => {
     const splitBlock1 = await testing.rpc.blockchain.getBlockCount() + 2 // Must be at least 2
 
     {
-      // Split the oracles
+      // set the token split
       const txId = await testing.rpc.masternode.setGov({
         ATTRIBUTES: {
           [`v0/oracles/splits/${splitBlock1}`]: `${tslaID}/2`
@@ -201,10 +201,10 @@ describe('SetGov v0/oracles/splits', () => {
 
     {
       const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
-      expect(attributes.ATTRIBUTES[`v0/locks/token/${tslaID}`]).toStrictEqual('true') // Always lock token after splitting
+      expect(attributes.ATTRIBUTES[`v0/locks/token/${tslaID}`]).toStrictEqual('true') // current token is locked after setting the split
       expect(attributes.ATTRIBUTES[`v0/oracles/splits/${splitBlock1}`]).toStrictEqual('1/2')
     }
-    await testing.generate(1) // Oracle splitting always needs 2 blocks to be executed
+    await testing.generate(1)
 
     // Get new TSLA Id
     const newTSLAInfo = await testing.rpc.token.getToken('TSLA')
@@ -216,7 +216,7 @@ describe('SetGov v0/oracles/splits', () => {
     const tslaV1Id = Object.keys(tslaV1Info)[0]
 
     {
-      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES') // All the value gone after SetGov. SetGov always need 2 blocks to execute
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES') // All old values are gone after split happens.
       expect(attributes.ATTRIBUTES[`v0/oracles/splits/${splitBlock1}`]).toBeUndefined()
       expect(attributes.ATTRIBUTES[`v0/token/${tslaID}/fixed_interval_price_id`]).toBeUndefined() // All existing info for old tslaid is removed
       expect(attributes.ATTRIBUTES[`v0/token/${tslaV1Id}/descendant`]).toStrictEqual(`${newTSLAId}/${splitBlock1}`) // The original TSLA token has 2 descendant created at splitBlock
@@ -227,7 +227,7 @@ describe('SetGov v0/oracles/splits', () => {
     const splitBlock2 = await testing.rpc.blockchain.getBlockCount() + 3 // Try 3 which is more than 2 too
 
     {
-      // Split the oracles
+      // set the token split
       const txId = await testing.rpc.masternode.setGov({
         ATTRIBUTES: {
           [`v0/oracles/splits/${splitBlock2}`]: `${newTSLAId}/2`
@@ -243,7 +243,7 @@ describe('SetGov v0/oracles/splits', () => {
   it('should split correctly for multiple setGOVs with valid block numbers in the same block', async () => {
     const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
 
-    // Split the oracles
+    // set the token split
     await testing.rpc.masternode.setGov({
       ATTRIBUTES: {
         [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2`
@@ -258,10 +258,10 @@ describe('SetGov v0/oracles/splits', () => {
 
     {
       const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
-      expect(attributes.ATTRIBUTES[`v0/locks/token/${tslaID}`]).toStrictEqual('true') // Always lock token after splitting
+      expect(attributes.ATTRIBUTES[`v0/locks/token/${tslaID}`]).toStrictEqual('true') // current token is locked after setting the split
       expect(attributes.ATTRIBUTES[`v0/oracles/splits/${splitBlock}`]).toStrictEqual('1/2')
     }
-    await testing.generate(1) // Oracle splitting always needs 2 blocks to be executed
+    await testing.generate(1)
 
     // Get new TSLA Id
     const newTSLAInfo = await testing.rpc.token.getToken('TSLA')
@@ -273,7 +273,7 @@ describe('SetGov v0/oracles/splits', () => {
     const tslaV1Id = Object.keys(tslaV1Info)[0]
 
     {
-      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES') // All the value gone after SetGov. SetGov always need 2 blocks to execute
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES') // All old values are gone after split happens.
       expect(attributes.ATTRIBUTES[`v0/oracles/splits/${splitBlock}`]).toBeUndefined()
       expect(attributes.ATTRIBUTES[`v0/token/${tslaID}/fixed_interval_price_id`]).toBeUndefined() // All existing info for old tslaid is removed
       expect(attributes.ATTRIBUTES[`v0/token/${tslaV1Id}/descendant`]).toStrictEqual(`${newTSLAId}/${splitBlock}`) // The original TSLA token has 2 descendant created at splitBlock
@@ -285,7 +285,7 @@ describe('SetGov v0/oracles/splits', () => {
   it('should split correctly for multiple setGOVs with both valid and invalid block numbers in the same block', async () => {
     const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
 
-    // Split the oracles
+    // set the token split
     await testing.rpc.masternode.setGov({
       ATTRIBUTES: {
         [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2`
@@ -310,13 +310,13 @@ describe('SetGov v0/oracles/splits', () => {
 
     {
       const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
-      expect(attributes.ATTRIBUTES[`v0/locks/token/${tslaID}`]).toStrictEqual('true') // Always lock token after splitting
+      expect(attributes.ATTRIBUTES[`v0/locks/token/${tslaID}`]).toStrictEqual('true') // current token is locked after setting the split
       expect(attributes.ATTRIBUTES[`v0/oracles/splits/${splitBlock}`]).toStrictEqual('1/2')
       expect(attributes.ATTRIBUTES['v0/oracles/splits/500000']).toStrictEqual('1/2')
       expect(attributes.ATTRIBUTES['v0/oracles/splits/1000000']).toStrictEqual('1/2')
       expect(attributes.ATTRIBUTES['v0/oracles/splits/1500000']).toStrictEqual('1/2')
     }
-    await testing.generate(1) // Oracle splitting always needs 2 blocks to be executed
+    await testing.generate(1)
 
     // Get new TSLA Id
     const newTSLAInfo = await testing.rpc.token.getToken('TSLA')
@@ -328,7 +328,7 @@ describe('SetGov v0/oracles/splits', () => {
     const tslaV1Id = Object.keys(tslaV1Info)[0]
 
     {
-      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES') // All the value gone after SetGov. SetGov always need 2 blocks to execute
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES') // All old values are gone after split happens.
       expect(attributes.ATTRIBUTES[`v0/oracles/splits/${splitBlock}`]).toBeUndefined()
       expect(attributes.ATTRIBUTES['v0/oracles/splits/500000']).toBeUndefined()
       expect(attributes.ATTRIBUTES['v0/oracles/splits/1000000']).toBeUndefined()
@@ -377,14 +377,14 @@ describe('SetGov v0/oracles/splits', () => {
       expect(balance).toStrictEqual(['299999.00000000@DFI']) // 1 TSLA is burned and hence, the original 1 TSLA is removed from the collateralAddress
     }
 
-    // Split the oracles
+    // set the token split
     const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
     await testing.rpc.masternode.setGov({
       ATTRIBUTES: {
         [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2`
       }
     })
-    await testing.generate(2) // Oracle splitting always needs 2 blocks to be executed
+    await testing.generate(2)
 
     {
       const balance = await testing.rpc.account.getAccount(burnAddress) // After splitting, there is nothing in burn address
@@ -428,14 +428,14 @@ describe('SetGov v0/oracles/splits', () => {
       collateralAddress: expect.stringMatching(/[a-zA-Z0-9]{34}/)
     })
 
-    // Split the oracles
+    // set the token split
     const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
     await testing.rpc.masternode.setGov({
       ATTRIBUTES: {
         [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2`
       }
     })
-    await testing.generate(2) // Oracle splitting always needs 2 blocks to be executed
+    await testing.generate(2)
 
     // Get new TSLA Id
     const newTSLAInfo = await testing.rpc.token.getToken('TSLA')
@@ -520,14 +520,14 @@ describe('SetGov v0/oracles/splits', () => {
       )
     }
 
-    // Split the oracles
+    // set the token split
     const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
     await testing.rpc.masternode.setGov({
       ATTRIBUTES: {
         [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2`
       }
     })
-    await testing.generate(2) // Oracle splitting always needs 2 blocks to be executed
+    await testing.generate(2)
 
     {
       // Get new TSLA-DFI info
@@ -601,7 +601,7 @@ describe('SetGov v0/oracles/splits', () => {
       )
     }
 
-    // Split the oracles
+    // set the token split
     const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
 
     await testing.rpc.masternode.setGov({
@@ -609,7 +609,7 @@ describe('SetGov v0/oracles/splits', () => {
         [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2`
       }
     })
-    await testing.generate(2) // Oracle splitting always needs 2 blocks to be executed
+    await testing.generate(2)
 
     {
       // Get new TSLA Id
@@ -686,7 +686,7 @@ describe('SetGov v0/oracles/splits', () => {
       )
     }
 
-    // Split the oracles
+    // set the token split
     const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
 
     await testing.rpc.masternode.setGov({
@@ -694,7 +694,7 @@ describe('SetGov v0/oracles/splits', () => {
         [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2`
       }
     })
-    await testing.generate(2) // Oracle splitting always needs 2 blocks to be executed
+    await testing.generate(2)
 
     {
       // Get new TSLA Id
@@ -764,7 +764,7 @@ describe('SetGov v0/oracles/splits', () => {
         [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2`
       }
     })
-    await testing.generate(2) // Oracle splitting always needs 2 blocks to be executed
+    await testing.generate(2)
 
     {
       // Get new TSLA Id
@@ -797,7 +797,7 @@ describe('SetGov v0/oracles/splits', () => {
   it('should not split correctly for single setGOV with invalid block number', async () => {
     const splitBlock = await testing.rpc.blockchain.getBlockCount() + 1 // 1 is an invalid number, should be at least 2
 
-    // Split the oracles
+    // set the token split
     const promise = testing.rpc.masternode.setGov({
       ATTRIBUTES: {
         [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2`
