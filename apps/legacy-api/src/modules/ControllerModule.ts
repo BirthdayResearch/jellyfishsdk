@@ -1,6 +1,6 @@
 import { CacheModule, Module } from '@nestjs/common'
 import { TokenController } from '../controllers/TokenController'
-import { SwapCacheFiller, PoolPairController, PoolPairControllerV2 } from '../controllers/PoolPairController'
+import { PoolPairController, PoolPairControllerV2 } from '../controllers/PoolPairController'
 import { MiscController } from '../controllers/MiscController'
 import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
 import { StatsController } from '../controllers/stats/StatsController'
@@ -34,8 +34,6 @@ import { ConfigService } from '@nestjs/config'
     TestnetLegacyStatsProvider,
     PoolPairController,
     SimpleCache,
-    SwapCacheFiller,
-
     {
       provide: 'SWAP_CACHE_COUNT',
       useFactory: (cfg: ConfigService): number => {
