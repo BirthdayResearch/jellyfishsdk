@@ -38,8 +38,8 @@ export class PoolPairPricesService {
 
     // Get denomination token info
     const denominationToken = await this.getTokenBySymbol(denominationSymbol)
-    if (denominationToken === undefined || this.shouldIgnoreToken(denominationToken)) {
-      throw new Error(`Unexpected error: could not find token with symbol '${denominationSymbol}'`)
+    if (this.isUntradeableToken(denominationToken)) {
+      throw new UntradeableTokenError(denominationSymbol)
     }
 
     // Get all tokens and their info
@@ -70,7 +70,7 @@ export class PoolPairPricesService {
    */
   private async getAllTokens (): Promise<TokenInfoWithId[]> {
     const tokens = await this.defidCache.getAllTokenInfo() ?? []
-    return tokens.filter(token => !this.shouldIgnoreToken(token))
+    return tokens.filter(token => !this.isUntradeableToken(token))
   }
 
   private async getTokenBySymbol (symbol: string): Promise<TokenInfoWithId> {
@@ -81,14 +81,16 @@ export class PoolPairPricesService {
     } catch (e) {
       throw new TokenSymbolNotFoundError(symbol)
     }
+
     if (tokenResult === undefined || Object.keys(tokenResult).length === 0) {
       throw new TokenSymbolNotFoundError(symbol)
     }
+
     const [id, tokenInfo] = Object.entries(tokenResult)[0]
     return { ...tokenInfo, id }
   }
 
-  private shouldIgnoreToken (token: TokenInfoWithId): boolean {
+  private isUntradeableToken (token: TokenInfoWithId): boolean {
     return token.isLPS || !token.isDAT || token.symbol === 'BURN'
   }
 }
@@ -98,6 +100,12 @@ function mapToTokenIdentifier (token: TokenInfoWithId): TokenIdentifier {
     id: token.id,
     symbol: token.symbol,
     displaySymbol: parseDisplaySymbol(token)
+  }
+}
+
+class UntradeableTokenError extends Error {
+  constructor (symbol: string) {
+    super(`Token '${symbol}' is invalid as it is not tradeable`)
   }
 }
 
