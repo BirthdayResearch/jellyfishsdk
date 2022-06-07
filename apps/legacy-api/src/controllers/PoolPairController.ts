@@ -454,7 +454,7 @@ function reformatPoolPairData (data: PoolPairData): LegacyPoolPairData {
     reserveA: data.tokenA.reserve,
     reserveB: data.tokenB.reserve,
     commission: Number(data.commission),
-    totalLiquidity: data.totalLiquidity.usd !== undefined ? Number(data.totalLiquidity.usd) : 0,
+    totalLiquidity: Number(data.totalLiquidity.usd ?? 0),
     'reserveA/reserveB': Number(data.priceRatio.ab),
     'reserveB/reserveA': Number(data.priceRatio.ba),
     tradeEnabled: data.tradeEnabled,

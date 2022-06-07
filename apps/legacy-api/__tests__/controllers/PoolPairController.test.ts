@@ -99,7 +99,7 @@ it('/v1/listswaps', async () => {
   const v1JsonResponse = res.json()
   for (const [key, poolpair] of Object.entries(v1JsonResponse)) {
     // Verify all keys follow snake case
-    expect(key).toMatch(/^\w+(?:\.\w+)?_\w/)
+    expect(key).toMatch(/^\w+(?:\.\w+)?_\w+(\/v1)?$/) // '/v1' suffix from AMZN token split
 
     // Verify each swap object's fields
     expect(poolpair).toStrictEqual({
@@ -147,7 +147,7 @@ it('/v2/listswaps', async () => {
   const v2JsonResponse = res.json()
   for (const [key, poolpair] of Object.entries(v2JsonResponse)) {
     // Verify all keys follow snake case
-    expect(key).toMatch(/^\w+(?:\.\w+)?_\w/)
+    expect(key).toMatch(/^\w+(?:\.\w+)?_\w+(\/v1)?$/) // '/v1' suffix from AMZN token split
     // Verify each swap object's fields
     expect(poolpair).toStrictEqual({
       base_id: expect.any(String),
