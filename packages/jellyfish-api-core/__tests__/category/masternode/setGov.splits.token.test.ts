@@ -1,7 +1,8 @@
 import { Testing } from '@defichain/jellyfish-testing'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
-import { VaultLiquidation } from '@defichain/jellyfish-api-core/dist/category/vault'
+import { VaultActive, VaultLiquidation } from '@defichain/jellyfish-api-core/dist/category/vault'
+import { poolpair, RpcApiError } from '@defichain/jellyfish-api-core'
 
 describe('SetGov v0/oracles/splits', () => {
   const container = new MasterNodeRegTestContainer()
@@ -79,7 +80,7 @@ describe('SetGov v0/oracles/splits', () => {
     await testing.container.stop()
   })
 
-  async function activeVaultSetup (): Promise<void> {
+  async function createVaultAndDeposit (): Promise<void> {
     vaultId = await testing.rpc.vault.createVault({
       ownerAddress: collateralAddress,
       loanSchemeId: 'default'
@@ -90,6 +91,10 @@ describe('SetGov v0/oracles/splits', () => {
       vaultId, from: collateralAddress, amount: '1@DFI'
     })
     await testing.generate(1)
+  }
+
+  async function activeVaultSetup (): Promise<void> {
+    await createVaultAndDeposit()
 
     await testing.rpc.loan.takeLoan({
       vaultId,
@@ -829,6 +834,296 @@ describe('SetGov v0/oracles/splits', () => {
       expect(auction[0].batches.length).toStrictEqual(1)
       expect(auction[0].batches[0].loan).toStrictEqual('2.00000762@TSLA') // 1.00000381 * 2
       expect(auction[0].batches[0].highestBid?.amount).toStrictEqual('2.20000000@TSLA') // 1.10000000 * 2
+    }
+  })
+
+  it('should deposit to vault after split unlock', async () => {
+    await activeVaultSetup()
+
+    // set the token split
+    const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
+
+    await testing.rpc.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2`
+      }
+    })
+    await testing.generate(2)
+
+    {
+      // try to deposit to the vault
+      const promise = testing.rpc.vault.depositToVault({ vaultId: vaultId, from: collateralAddress, amount: '10@DFI' })
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('RpcApiError: \'Test DepositToVaultTx execution failed:\nFixed interval price currently disabled due to locked token\', code: -32600, method: deposittovault')
+    }
+
+    // oracle new price kicks in
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, {
+      prices: [{
+        tokenAmount: '0.5@TSLA',
+        currency: 'USD'
+      }]
+    })
+    await testing.generate(12)
+
+    // Get new TSLA Id
+    const newTSLAInfo = await testing.rpc.token.getToken('TSLA')
+    const newTSLAId = Object.keys(newTSLAInfo)[0]
+
+    // unlock the token and check
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${newTSLAId}`]: 'false' } })
+    await testing.generate(1)
+    // check newTslaID is unlocked now
+    const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+    expect(attributes.ATTRIBUTES[`v0/locks/token/${newTSLAId}`]).toStrictEqual('false')
+
+    {
+      // deposit to the vault
+      const txId = await testing.rpc.vault.depositToVault({ vaultId: vaultId, from: collateralAddress, amount: '10@DFI' })
+      await testing.generate(1)
+
+      expect(typeof txId).toStrictEqual('string')
+      expect(txId.length).toStrictEqual(64)
+
+      const vault = await testing.rpc.vault.getVault(vaultId) as VaultActive
+      expect(vault.collateralValue).toStrictEqual(new BigNumber(10.99999989)) // 11 x 0.99999999
+    }
+  })
+
+  it('should withdraw from vault after split unlock', async () => {
+    await activeVaultSetup()
+
+    await testing.rpc.vault.depositToVault({
+      vaultId, from: collateralAddress, amount: '10@DFI'
+    })
+    await testing.generate(1)
+
+    // set the token split
+    const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
+
+    await testing.rpc.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2`
+      }
+    })
+    await testing.generate(2)
+
+    {
+      // Try to withdrawFromVault
+      const promise = testing.rpc.vault.withdrawFromVault({
+        vaultId, to: collateralAddress, amount: '10@DFI'
+      })
+      await expect(promise).rejects.toThrow('RpcApiError: \'Test WithdrawFromVaultTx execution failed:\nCannot withdraw from vault while any of the asset\'s price is invalid\', code: -32600, method: withdrawfromvault')
+    }
+
+    // oracle new price kicks in
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, {
+      prices: [{
+        tokenAmount: '0.5@TSLA',
+        currency: 'USD'
+      }]
+    })
+    await testing.generate(12)
+
+    // Get new TSLA Id
+    const newTSLAInfo = await testing.rpc.token.getToken('TSLA')
+    const newTSLAId = Object.keys(newTSLAInfo)[0]
+
+    // unlock the token and check
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${newTSLAId}`]: 'false' } })
+    await testing.generate(1)
+    // check newTslaID is unlocked now
+    const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+    expect(attributes.ATTRIBUTES[`v0/locks/token/${newTSLAId}`]).toStrictEqual('false')
+
+    {
+      // withdrawFromVault
+      const txId = await testing.rpc.vault.withdrawFromVault({
+        vaultId, to: collateralAddress, amount: '10@DFI'
+      })
+      await testing.generate(1)
+
+      expect(typeof txId).toStrictEqual('string')
+      expect(txId.length).toStrictEqual(64)
+    }
+  })
+
+  it('should take loan after split unlock', async () => {
+    await createVaultAndDeposit()
+
+    // set the token split
+    const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
+
+    await testing.rpc.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2`
+      }
+    })
+    await testing.generate(2)
+
+    {
+      // Try to takeLoan
+      const promise = testing.rpc.loan.takeLoan({
+        vaultId,
+        amounts: '1@TSLA'
+      })
+      await expect(promise).rejects.toThrow('RpcApiError: \'Test TakeLoanTx execution failed:\nFixed interval price currently disabled due to locked token\', code: -32600, method: takeloan')
+    }
+
+    // oracle new price kicks in
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, {
+      prices: [{
+        tokenAmount: '0.5@TSLA',
+        currency: 'USD'
+      }]
+    })
+    await testing.generate(12)
+
+    // Get new TSLA Id
+    const newTSLAInfo = await testing.rpc.token.getToken('TSLA')
+    const newTSLAId = Object.keys(newTSLAInfo)[0]
+
+    // unlock the token and check
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${newTSLAId}`]: 'false' } })
+    await testing.generate(1)
+    // check newTslaID is unlocked now
+    const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+    expect(attributes.ATTRIBUTES[`v0/locks/token/${newTSLAId}`]).toStrictEqual('false')
+
+    {
+      // takeLoan
+      const txId = await testing.rpc.loan.takeLoan({
+        vaultId,
+        amounts: '1@TSLA'
+      })
+      await testing.generate(1)
+
+      expect(typeof txId).toStrictEqual('string')
+      expect(txId.length).toStrictEqual(64)
+    }
+  })
+
+  it('should create future swap after split unlock', async () => {
+    await futureSwapSetup()
+
+    // set the token split
+    const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
+
+    await testing.rpc.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2`
+      }
+    })
+    await testing.generate(2)
+
+    {
+      // Try to futureswap
+      const promise = testing.rpc.account.futureSwap({
+        address: collateralAddress,
+        amount: '1@TSLA'
+      })
+      await expect(promise).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nCannot create future swap for locked token\', code: -32600, method: futureswap')
+    }
+
+    // oracle new price kicks in
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, {
+      prices: [{
+        tokenAmount: '0.5@TSLA',
+        currency: 'USD'
+      }]
+    })
+    await testing.generate(12)
+
+    // Get new TSLA Id
+    const newTSLAInfo = await testing.rpc.token.getToken('TSLA')
+    const newTSLAId = Object.keys(newTSLAInfo)[0]
+
+    // unlock the token and check
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${newTSLAId}`]: 'false' } })
+    await testing.generate(1)
+    // check newTslaID is unlocked now
+    const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+    expect(attributes.ATTRIBUTES[`v0/locks/token/${newTSLAId}`]).toStrictEqual('false')
+
+    {
+      // futureswap
+      const txId = await testing.rpc.account.futureSwap({
+        address: collateralAddress,
+        amount: '1@TSLA'
+      })
+      await testing.generate(1)
+
+      expect(typeof txId).toStrictEqual('string')
+      expect(txId.length).toStrictEqual(64)
+    }
+  })
+
+  it('should pool swap after split unlock', async () => {
+    await poolSetup()
+
+    // set the token split
+    const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
+
+    await testing.rpc.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2`
+      }
+    })
+    await testing.generate(2)
+
+    {
+      // Try to poolswap
+      const metadata: poolpair.PoolSwapMetadata = {
+        from: collateralAddress,
+        tokenFrom: 'DFI',
+        amountFrom: 0.5,
+        to: await testing.generateAddress(),
+        tokenTo: 'TSLA'
+      }
+      const promise = testing.rpc.poolpair.poolSwap(metadata)
+      await expect(promise).rejects.toThrow('RpcApiError: \'Test PoolSwapTx execution failed:\nPool currently disabled due to locked token\', code: -32600, method: poolswap')
+    }
+
+    // oracle new price kicks in
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, {
+      prices: [{
+        tokenAmount: '0.5@TSLA',
+        currency: 'USD'
+      }]
+    })
+    await testing.generate(12)
+
+    // Get new TSLA Id
+    const newTSLAInfo = await testing.rpc.token.getToken('TSLA')
+    const newTSLAId = Object.keys(newTSLAInfo)[0]
+
+    // unlock the token and check
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/locks/token/${newTSLAId}`]: 'false' } })
+    await testing.generate(1)
+    // check newTslaID is unlocked now
+    const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+    expect(attributes.ATTRIBUTES[`v0/locks/token/${newTSLAId}`]).toStrictEqual('false')
+
+    {
+      // poolswap
+      const metadata: poolpair.PoolSwapMetadata = {
+        from: collateralAddress,
+        tokenFrom: 'DFI',
+        amountFrom: 0.5,
+        to: await testing.generateAddress(),
+        tokenTo: 'TSLA'
+      }
+
+      const txId = await testing.rpc.poolpair.poolSwap(metadata)
+      await testing.generate(1)
+
+      expect(typeof txId).toStrictEqual('string')
+      expect(txId.length).toStrictEqual(64)
     }
   })
 
