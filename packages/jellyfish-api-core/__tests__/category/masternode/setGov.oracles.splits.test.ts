@@ -282,7 +282,7 @@ describe('SetGov v0/oracles/splits', () => {
     }
   })
 
-  it('should split correctly for multiple setGOVs with both valid and invalid block numbers in the same block', async () => {
+  it('should set splits for multiple block heights for the same token in the same block and clear other entries when the first split happens', async () => {
     const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
 
     // set the token split
@@ -293,17 +293,17 @@ describe('SetGov v0/oracles/splits', () => {
     })
     await testing.rpc.masternode.setGov({
       ATTRIBUTES: {
-        [`v0/oracles/splits/${500000}`]: `${tslaID}/2` // Should not be able to be executed as the block number is ridiculously high
+        [`v0/oracles/splits/${500000}`]: `${tslaID}/2`
       }
     })
     await testing.rpc.masternode.setGov({
       ATTRIBUTES: {
-        [`v0/oracles/splits/${1000000}`]: `${tslaID}/2` // Should not be able to be executed as the block number is ridiculously high
+        [`v0/oracles/splits/${1000000}`]: `${tslaID}/2`
       }
     })
     await testing.rpc.masternode.setGov({
       ATTRIBUTES: {
-        [`v0/oracles/splits/${1500000}`]: `${tslaID}/2` // Should not be able to be executed as the block number is ridiculously high
+        [`v0/oracles/splits/${1500000}`]: `${tslaID}/2`
       }
     })
     await testing.generate(1)
@@ -343,10 +343,10 @@ describe('SetGov v0/oracles/splits', () => {
   it('should split correctly and refund futureSwap', async () => {
     await futureSwapSetup()
 
-    const burnAddress = 'bcrt1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpsqgljc'
+    const fsContractAddress = 'bcrt1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpsqgljc'
 
     {
-      const balance = await testing.rpc.account.getAccount(burnAddress) // There is nothing in burn address
+      const balance = await testing.rpc.account.getAccount(fsContractAddress) // There is nothing in future swap contractAddress
       expect(balance).toStrictEqual([])
     }
 
@@ -368,14 +368,21 @@ describe('SetGov v0/oracles/splits', () => {
     expect(txId.length).toStrictEqual(64)
 
     {
-      const balance = await testing.rpc.account.getAccount(burnAddress)
-      expect(balance).toStrictEqual(['1.00000000@TSLA']) // 1 TSLA is burned and hence, there is 1 TSLA sent to the burn address
+      const balance = await testing.rpc.account.getAccount(fsContractAddress)
+      expect(balance).toStrictEqual(['1.00000000@TSLA']) // 1 TSLA is in the fs contractAddress
     }
 
     {
       const balance = await testing.rpc.account.getAccount(collateralAddress)
       expect(balance).toStrictEqual(['299999.00000000@DFI']) // 1 TSLA is burned and hence, the original 1 TSLA is removed from the collateralAddress
     }
+
+    // check future swap is in effect
+    const pendingFutures = await testing.container.call('listpendingfutureswaps')
+    expect(pendingFutures.length).toStrictEqual(1)
+    expect(pendingFutures[0].owner).toStrictEqual(collateralAddress)
+    expect(pendingFutures[0].source).toStrictEqual('1.00000000@TSLA')
+    expect(pendingFutures[0].destination).toStrictEqual('DUSD')
 
     // set the token split
     const splitBlock = await testing.rpc.blockchain.getBlockCount() + 2
@@ -387,7 +394,7 @@ describe('SetGov v0/oracles/splits', () => {
     await testing.generate(2)
 
     {
-      const balance = await testing.rpc.account.getAccount(burnAddress) // After splitting, there is nothing in burn address
+      const balance = await testing.rpc.account.getAccount(fsContractAddress) // After splitting, there is nothing in future swap contractAddress
       expect(balance).toStrictEqual([])
     }
 
@@ -529,6 +536,9 @@ describe('SetGov v0/oracles/splits', () => {
     })
     await testing.generate(2)
 
+    const newTSLAInfo = await testing.rpc.token.getToken('TSLA')
+    const newTSLAId = Object.keys(newTSLAInfo)[0]
+
     {
       // Get new TSLA-DFI info
       const newTSLADFIPairInfo = await testing.rpc.token.getToken('TSLA-DFI')
@@ -541,11 +551,39 @@ describe('SetGov v0/oracles/splits', () => {
       expect(attributes.ATTRIBUTES[`v0/poolpairs/${newTSLADFIPairId}/token_a_fee_pct`]).toStrictEqual('0.01')
       expect(attributes.ATTRIBUTES[`v0/poolpairs/${newTSLADFIPairId}/token_b_fee_pct`]).toStrictEqual('0.03')
 
-      const poolPairOriginal = await testing.poolpair.get('TSLA-DFI')
-      expect(poolPairOriginal).toBeDefined()
+      const poolPairNew = await testing.poolpair.get('TSLA-DFI')
+      expect(poolPairNew).toStrictEqual(
+        {
+          symbol: 'TSLA-DFI',
+          name: '-Default Defi token',
+          status: true,
+          idTokenA: `${newTSLAId}`,
+          idTokenB: '0',
+          dexFeePctTokenA: new BigNumber(0.01),
+          dexFeePctTokenB: new BigNumber(0.03),
+          dexFeeOutPctTokenB: new BigNumber(0.03),
+          dexFeeInPctTokenA: new BigNumber(0.01),
+          dexFeeInPctTokenB: new BigNumber(0.03),
+          dexFeeOutPctTokenA: new BigNumber(0.01),
+          reserveA: new BigNumber(1 * 2),
+          reserveB: new BigNumber(1),
+          commission: new BigNumber(0),
+          totalLiquidity: new BigNumber(1.41421356),
+          'reserveA/reserveB': new BigNumber(2),
+          'reserveB/reserveA': new BigNumber(0.5),
+          tradeEnabled: true,
+          ownerAddress: expect.any(String),
+          blockCommissionA: new BigNumber(0),
+          blockCommissionB: new BigNumber(0),
+          rewardPct: new BigNumber(1),
+          rewardLoanPct: new BigNumber(1),
+          creationTx: expect.stringMatching(/[a-zA-Z0-9]{64}/),
+          creationHeight: new BigNumber(splitBlock)
+        }
+      )
 
-      const poolPair = await testing.poolpair.get('TSLA-DFI/v1')
-      expect(poolPair).toStrictEqual(
+      const poolPairOld = await testing.poolpair.get('TSLA-DFI/v1')
+      expect(poolPairOld).toStrictEqual(
         {
           symbol: 'TSLA-DFI/v1',
           name: '-Default Defi token',
@@ -624,7 +662,7 @@ describe('SetGov v0/oracles/splits', () => {
       // Get attributes and token after splitting
       const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
       expect(attributes.ATTRIBUTES[`v0/token/${tslaID}/fixed_interval_price_id`]).toBeUndefined() // All existing info for old tslaId is removed
-      expect(attributes.ATTRIBUTES[`v0/locks/token/${newTSLAId}`]).toStrictEqual('true') // By default every split will lock the ascendant token
+      expect(attributes.ATTRIBUTES[`v0/locks/token/${newTSLAId}`]).toStrictEqual('true') // new TSLA token is locked after split
       expect(attributes.ATTRIBUTES[`v0/token/${tslaV1Id}/descendant`]).toStrictEqual(`${newTSLAId}/${splitBlock}`) // The original TSLA token has 2 descendant created at splitBlock
       expect(attributes.ATTRIBUTES[`v0/token/${newTSLAId}/fixed_interval_price_id`]).toStrictEqual('TSLA/USD')
       expect(attributes.ATTRIBUTES[`v0/token/${newTSLAId}/ascendant`]).toStrictEqual(`${tslaV1Id}/split`) // TSLA is the ascendant of TSLA/v1
@@ -709,7 +747,7 @@ describe('SetGov v0/oracles/splits', () => {
       // Get attributes and token after splitting
       const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
       expect(attributes.ATTRIBUTES[`v0/token/${tslaID}/fixed_interval_price_id`]).toBeUndefined() // All existing info for old tslaId is removed
-      expect(attributes.ATTRIBUTES[`v0/locks/token/${newTSLAId}`]).toStrictEqual('true') // By default every split will lock the ascendant token
+      expect(attributes.ATTRIBUTES[`v0/locks/token/${newTSLAId}`]).toStrictEqual('true') // new TSLA token is locked after split
       expect(attributes.ATTRIBUTES[`v0/token/${tslaV1Id}/descendant`]).toStrictEqual(`${newTSLAId}/${splitBlock}`) // The original TSLA token has 2 descendant created at splitBlock
       expect(attributes.ATTRIBUTES[`v0/token/${newTSLAId}/fixed_interval_price_id`]).toStrictEqual('TSLA/USD')
       expect(attributes.ATTRIBUTES[`v0/token/${newTSLAId}/ascendant`]).toStrictEqual(`${tslaV1Id}/split`) // TSLA is the ascendant of TSLA/v1
@@ -779,7 +817,7 @@ describe('SetGov v0/oracles/splits', () => {
       // Get attributes and token after splitting
       const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
       expect(attributes.ATTRIBUTES[`v0/token/${tslaID}/fixed_interval_price_id`]).toBeUndefined() // All existing info for old tslaId is removed
-      expect(attributes.ATTRIBUTES[`v0/locks/token/${newTSLAId}`]).toStrictEqual('true') // By default every split will lock the ascendant token
+      expect(attributes.ATTRIBUTES[`v0/locks/token/${newTSLAId}`]).toStrictEqual('true') // new TSLA token is locked after split
       expect(attributes.ATTRIBUTES[`v0/token/${tslaV1Id}/descendant`]).toStrictEqual(`${newTSLAId}/${splitBlock}`) // The original TSLA token has 2 descendant created at splitBlock
       expect(attributes.ATTRIBUTES[`v0/token/${newTSLAId}/fixed_interval_price_id`]).toStrictEqual('TSLA/USD')
       expect(attributes.ATTRIBUTES[`v0/token/${newTSLAId}/ascendant`]).toStrictEqual(`${tslaV1Id}/split`) // TSLA is the ascendant of TSLA/v1
