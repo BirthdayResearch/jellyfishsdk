@@ -5,6 +5,7 @@ import { DeFiDCache, TokenInfoWithId } from './cache/defid.cache'
 import { DexPricesResult, TokenIdentifier } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { parseDisplaySymbol } from './token.controller'
 import { SemaphoreCache } from '@defichain-apps/libs/caches'
+import { TokenResult } from '@defichain/jellyfish-api-core/dist/category/token'
 
 @Injectable()
 export class PoolPairPricesService {
@@ -37,7 +38,7 @@ export class PoolPairPricesService {
 
     // Get denomination token info
     const denominationToken = await this.getTokenBySymbol(denominationSymbol)
-    if (denominationToken === undefined) {
+    if (denominationToken === undefined || this.shouldIgnoreToken(denominationToken)) {
       throw new Error(`Unexpected error: could not find token with symbol '${denominationSymbol}'`)
     }
 
@@ -63,25 +64,32 @@ export class PoolPairPricesService {
   }
 
   /**
-   * Helper to get all tokens in a map indexed by their symbol for quick look-ups
+   * Helper to get all tokens from defid and filters them
    * @private
    * @return {Promise<TokenInfoWithId[]>}
    */
   private async getAllTokens (): Promise<TokenInfoWithId[]> {
     const tokens = await this.defidCache.getAllTokenInfo() ?? []
-    return tokens.filter(token =>
-      // Skip LP tokens, non-DAT and BURN tokens
-      !token.isLPS && token.isDAT && token.symbol !== 'BURN'
-    )
+    return tokens.filter(token => !this.shouldIgnoreToken(token))
   }
 
-  private async getTokenBySymbol (denominationSymbol: string): Promise<TokenInfoWithId> {
-    const tokenResult = await this.defidCache.getTokenInfoBySymbol(denominationSymbol)
+  private async getTokenBySymbol (symbol: string): Promise<TokenInfoWithId> {
+    let tokenResult: TokenResult | undefined
+
+    try {
+      tokenResult = await this.defidCache.getTokenInfoBySymbol(symbol)
+    } catch (e) {
+      throw new TokenSymbolNotFoundError(symbol)
+    }
     if (tokenResult === undefined || Object.keys(tokenResult).length === 0) {
-      throw new Error(`No such token with symbol '${denominationSymbol}'`)
+      throw new TokenSymbolNotFoundError(symbol)
     }
     const [id, tokenInfo] = Object.entries(tokenResult)[0]
     return { ...tokenInfo, id }
+  }
+
+  private shouldIgnoreToken (token: TokenInfoWithId): boolean {
+    return token.isLPS || !token.isDAT || token.symbol === 'BURN'
   }
 }
 
@@ -90,5 +98,11 @@ function mapToTokenIdentifier (token: TokenInfoWithId): TokenIdentifier {
     id: token.id,
     symbol: token.symbol,
     displaySymbol: parseDisplaySymbol(token)
+  }
+}
+
+class TokenSymbolNotFoundError extends Error {
+  constructor (symbol: string) {
+    super(`Could not find token with symbol '${symbol}'`)
   }
 }
