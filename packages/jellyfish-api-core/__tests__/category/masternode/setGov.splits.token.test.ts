@@ -832,7 +832,7 @@ describe('SetGov v0/oracles/splits', () => {
     }
   })
 
-  it('should not split correctly for single setGOV with invalid block number', async () => {
+  it('should not set the split on the same block height as the next block', async () => {
     const splitBlock = await testing.rpc.blockchain.getBlockCount() + 1 // 1 is an invalid number, should be at least 2
 
     // set the token split
@@ -842,5 +842,42 @@ describe('SetGov v0/oracles/splits', () => {
       }
     })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test SetGovVariableTx execution failed:\nATTRIBUTES: Cannot be set at or below current height\', code: -32600, method: setgov')
+  })
+
+  it('should try to set a split height again', async () => {
+    const splitBlock = await testing.rpc.blockchain.getBlockCount() + 5
+
+    // set the token split
+    await testing.rpc.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/oracles/splits/${splitBlock}`]: `${tslaID}/2`
+      }
+    })
+    await testing.generate(1)
+
+    // check split is set
+    {
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributes.ATTRIBUTES[`v0/locks/token/${tslaID}`]).toStrictEqual('true') // current token is locked after setting the split
+      expect(attributes.ATTRIBUTES[`v0/oracles/splits/${splitBlock}`]).toStrictEqual(`${tslaID}/2`)
+    }
+
+    // try to update the split height to splitBlock + 5 to again
+    await testing.rpc.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/oracles/splits/${splitBlock + 5}`]: `${tslaID}/2`
+      }
+    })
+    await testing.generate(1)
+
+    // check split is set
+    {
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributes.ATTRIBUTES[`v0/locks/token/${tslaID}`]).toStrictEqual('true') // current token is locked after setting the split
+      expect(attributes.ATTRIBUTES[`v0/oracles/splits/${splitBlock}`]).toStrictEqual(`${tslaID}/2`)
+      // NOTE(surangap): new split entry is added, but old entry is still there. means the split will still happen at splitBlock height. What if we want to remove or postpone incorrectly
+      // configured split? is there a way?
+      expect(attributes.ATTRIBUTES[`v0/oracles/splits/${splitBlock + 5}`]).toStrictEqual(`${tslaID}/2`)
+    }
   })
 })
