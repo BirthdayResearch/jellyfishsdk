@@ -63,6 +63,29 @@ export class CreateTokenIndexer extends DfTxIndexer<TokenCreate> {
         }
       })
     }
+
+    if (block.height === 1574692) {
+      // Update old amzn (AMZN/v1)
+      await this.tokenMapper.put({
+        id: '4e237d915545db778ba3d8b078242e58d0ea6f1fa321b8f78bae1cbd1d0a1246',
+        tokenId: 49,
+        sort: HexEncoder.encodeHeight(49),
+        symbol: 'AMZN/v1',
+        name: 'AMZN/v1',
+        isDAT: true,
+        isLPS: false,
+        limit: (0).toFixed(8),
+        mintable: false,
+        decimal: 8,
+        tradeable: false,
+        block: {
+          hash: block.hash,
+          height: block.height,
+          medianTime: block.mediantime,
+          time: block.time
+        }
+      })
+    }
   }
 
   async indexTransaction (block: RawBlock, transaction: DfTxTransaction<TokenCreate>): Promise<void> {
