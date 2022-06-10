@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { PoolSwapPathFindingService } from './poolswap.pathfinding.service'
-import { TokenMapper } from '../module.model/token'
 import { DeFiDCache, TokenInfoWithId } from './cache/defid.cache'
 import { DexPricesResult, TokenIdentifier } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { parseDisplaySymbol } from './token.controller'
@@ -13,7 +12,6 @@ export class PoolPairPricesService {
 
   constructor (
     private readonly poolSwapPathfindingService: PoolSwapPathFindingService,
-    private readonly tokenMapper: TokenMapper,
     private readonly defidCache: DeFiDCache,
     protected readonly cache: SemaphoreCache
   ) {
