@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { PoolSwapPathFindingService } from './poolswap.pathfinding.service'
 import { TokenMapper } from '../module.model/token'
-import { DeFiDCache } from './cache/defid.cache'
-import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
+import { DeFiDCache, TokenInfoWithId } from './cache/defid.cache'
 import { DexPricesResult, TokenIdentifier } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { parseDisplaySymbol } from './token.controller'
 import { SemaphoreCache } from '@defichain-apps/libs/caches'
+import { TokenResult } from '@defichain/jellyfish-api-core/dist/category/token'
 
 @Injectable()
 export class PoolPairPricesService {
@@ -36,23 +36,14 @@ export class PoolPairPricesService {
   private async _listDexPrices (denominationSymbol: string): Promise<DexPricesResult> {
     const dexPrices: DexPricesResult['dexPrices'] = {}
 
-    // Do a check first to ensure the symbol provided is valid, to save on calling getAllTokens
-    // for non-existent tokens
-    try {
-      await this.defidCache.getTokenInfoBySymbol(denominationSymbol)
-    } catch (err) {
-      throw new Error(`Could not find token with symbol '${denominationSymbol}'`)
+    // Get denomination token info
+    const denominationToken = await this.getTokenBySymbol(denominationSymbol)
+    if (this.isUntradeableToken(denominationToken)) {
+      throw new UntradeableTokenError(denominationSymbol)
     }
 
     // Get all tokens and their info
-    const allTokensBySymbol: TokensBySymbol = await this.getAllTokens()
-    const allTokens: TokenInfoWithId[] = Object.values(allTokensBySymbol)
-
-    // Get denomination token info
-    const denominationToken = allTokensBySymbol[denominationSymbol]
-    if (denominationToken === undefined) {
-      throw new Error(`Unexpected error: could not find token with symbol '${denominationSymbol}'`)
-    }
+    const allTokens: TokenInfoWithId[] = await this.getAllTokens()
 
     // For every token available, compute estimated return in denomination token
     for (const token of allTokens) {
@@ -73,32 +64,34 @@ export class PoolPairPricesService {
   }
 
   /**
-   * Helper to get all tokens in a map indexed by their symbol for quick look-ups
+   * Helper to get all tokens from defid and filters them
    * @private
-   * @return {Promise<TokensBySymbol>}
+   * @return {Promise<TokenInfoWithId[]>}
    */
-  private async getAllTokens (): Promise<TokensBySymbol> {
-    const tokens = await this.tokenMapper.query(Number.MAX_SAFE_INTEGER)
-    const allTokenInfo: TokensBySymbol = {}
+  private async getAllTokens (): Promise<TokenInfoWithId[]> {
+    const tokens = await this.defidCache.getAllTokenInfo() ?? []
+    return tokens.filter(token => !this.isUntradeableToken(token))
+  }
 
-    for (const token of tokens) {
-      // Skip LP tokens and non-DAT tokens
-      if (token.isLPS || !token.isDAT || token.symbol === 'BURN') {
-        continue
-      }
+  private async getTokenBySymbol (symbol: string): Promise<TokenInfoWithId> {
+    let tokenResult: TokenResult | undefined
 
-      const tokenInfo = await this.defidCache.getTokenInfo(token.tokenId.toString())
-      if (tokenInfo === undefined) {
-        this.logger.error(`Could not find token info for id: ${token.tokenId}`)
-        continue
-      }
-
-      allTokenInfo[token.symbol] = {
-        id: token.tokenId.toString(),
-        ...tokenInfo
-      }
+    try {
+      tokenResult = await this.defidCache.getTokenInfoBySymbol(symbol)
+    } catch (e) {
+      throw new TokenSymbolNotFoundError(symbol)
     }
-    return allTokenInfo
+
+    if (tokenResult === undefined || Object.keys(tokenResult).length === 0) {
+      throw new TokenSymbolNotFoundError(symbol)
+    }
+
+    const [id, tokenInfo] = Object.entries(tokenResult)[0]
+    return { ...tokenInfo, id }
+  }
+
+  private isUntradeableToken (token: TokenInfoWithId): boolean {
+    return token.isLPS || !token.isDAT || token.symbol === 'BURN' || !token.tradeable
   }
 }
 
@@ -110,9 +103,14 @@ function mapToTokenIdentifier (token: TokenInfoWithId): TokenIdentifier {
   }
 }
 
-// To remove if/when jellyfish-api-core supports IDs on tokenInfo, since it's commonly required
-interface TokenInfoWithId extends TokenInfo {
-  id: string
+class UntradeableTokenError extends Error {
+  constructor (symbol: string) {
+    super(`Token '${symbol}' is invalid as it is not tradeable`)
+  }
 }
 
-type TokensBySymbol = Record<TokenInfoWithId['symbol'], TokenInfoWithId>
+class TokenSymbolNotFoundError extends Error {
+  constructor (symbol: string) {
+    super(`Could not find token with symbol '${symbol}'`)
+  }
+}

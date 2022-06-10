@@ -966,7 +966,7 @@ describe('latest dex prices', () => {
     // BURN is not a valid 'denomination' token
     await expect(controller.listDexPrices('BURN'))
       .rejects
-      .toThrowError('Unexpected error: could not find token with symbol \'BURN\'')
+      .toThrowError('Token \'BURN\' is invalid as it is not tradeable')
   })
 
   describe('param validation - denomination', () => {

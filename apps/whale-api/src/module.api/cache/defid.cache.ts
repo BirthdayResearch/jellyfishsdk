@@ -49,6 +49,28 @@ export class DeFiDCache extends GlobalCache {
     return await this.rpcClient.token.getToken(symbol)
   }
 
+  async getAllTokenInfo (): Promise<TokenInfoWithId[] | undefined> {
+    return await this.get<TokenInfoWithId[]>(CachePrefix.ALL_TOKEN_INFO, '*', async () => {
+      const allTokenInfo: TokenInfoWithId[] = []
+
+      // Enrich the returned tokens with their `id`
+      const tokensById = await this.fetchAllTokenInfo()
+      for (const [id, token] of Object.entries(tokensById)) {
+        allTokenInfo.push({ ...token, id })
+      }
+
+      return allTokenInfo
+    })
+  }
+
+  private async fetchAllTokenInfo (): Promise<TokenResult> {
+    return await this.rpcClient.token.listTokens({
+      start: 0,
+      including_start: true,
+      limit: Number.MAX_SAFE_INTEGER
+    })
+  }
+
   async getLoanScheme (id: string): Promise<GetLoanSchemeResult | undefined> {
     return await this.get<GetLoanSchemeResult>(CachePrefix.LOAN_SCHEME_INFO, id, this.fetchLoanSchemeInfo.bind(this))
   }
@@ -126,4 +148,9 @@ export class DeFiDCache extends GlobalCache {
 
     return result
   }
+}
+
+// To remove if/when jellyfish-api-core supports IDs on tokenInfo, since it's commonly required
+export interface TokenInfoWithId extends TokenInfo {
+  id: string
 }
