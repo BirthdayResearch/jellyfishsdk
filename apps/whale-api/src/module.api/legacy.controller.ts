@@ -1,6 +1,6 @@
-import { Controller, Get, Logger, Query } from '@nestjs/common'
+import { Controller, Get, Inject, Logger, Query } from '@nestjs/common'
 import { BlockMapper } from '../module.model/block'
-import { NetworkValidationPipe, SupportedNetwork } from '../../../legacy-api/src/pipes/NetworkValidationPipe'
+import { SupportedNetwork } from '../../../legacy-api/src/pipes/NetworkValidationPipe'
 import { parseHeight } from './block.controller'
 import { BlockTxn, encodeBase64 } from '../../../legacy-api/src/controllers/PoolPairController'
 import { Block } from '@defichain/whale-api-client/dist/api/blocks'
@@ -18,10 +18,11 @@ import { fromScript } from '@defichain/jellyfish-address'
 import { AccountHistory } from '@defichain/jellyfish-api-core/dist/category/account'
 import { SmartBuffer } from 'smart-buffer'
 import { BigNumber } from 'bignumber.js'
-import { SimpleCache } from '../../../legacy-api/src/cache/SimpleCache'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { TransactionVoutMapper } from '../module.model/transaction.vout'
 import { TransactionMapper } from '../module.model/transaction'
+import { SemaphoreCache } from '@defichain-apps/libs/caches'
+import { NetworkName } from '@defichain/jellyfish-network'
 
 @Controller('/legacy')
 export class LegacyController {
@@ -31,13 +32,14 @@ export class LegacyController {
     protected readonly blockMapper: BlockMapper,
     protected readonly transactionMapper: TransactionMapper,
     protected readonly transactionVoutMapper: TransactionVoutMapper,
-    private readonly cache: SimpleCache
+    private readonly cache: SemaphoreCache,
+    @Inject('NETWORK')
+    private readonly network: NetworkName
   ) {
   }
 
   @Get('getsubgraphswaps')
   async getSubgraphSwaps (
-    @Query('network', NetworkValidationPipe) network: SupportedNetwork = 'mainnet',
     @Query('limit') limit: number = 30,
     @Query('next') nextString?: string
   ): Promise<LegacySubgraphSwapsResponse> {
@@ -49,7 +51,7 @@ export class LegacyController {
     const {
       swaps,
       next
-    } = await this.getSwapsHistory(network, limit, nextToken)
+    } = await this.getSwapsHistory(this.network, limit, nextToken)
 
     return {
       data: {
@@ -61,16 +63,19 @@ export class LegacyController {
     }
   }
 
-  async getSwapsHistory (
+  private async getSwapsHistory (
     network: SupportedNetwork,
     limit: number,
     nextToken: NextToken
   ): Promise<{ swaps: LegacySubgraphSwap[], next: NextToken }> {
     const allSwaps: LegacySubgraphSwap[] = []
+
     while (allSwaps.length <= limit) {
       const height = parseHeight(nextToken?.height)
+
       for (const block of await this.blockMapper.queryByHeight(200, height)) {
-        let blockTxns = []
+        let blockTxns: BlockTxn[] = []
+
         if (await this.isRecentBlock(block)) {
           blockTxns = await this.getBlockTransactionsWithNonSwapsAsNull(block, network, nextToken)
         } else {
@@ -84,14 +89,13 @@ export class LegacyController {
                   0
                 )
                 this.logger.log(`[${network}] Block ${block.height} - cached ${swapCount} swaps`)
-                console.log(`[${network}] Block ${block.height} - cached ${swapCount} swaps`)
               }
               return cached
             },
             {
               ttl: 24 * 60 * 60
             }
-          )
+          ) ?? []
         }
 
         for (let i = Number(nextToken.order ?? '0'); i < blockTxns.length; i++) {
@@ -145,7 +149,7 @@ export class LegacyController {
     }
   }
 
-  async getBlockTransactionsWithNonSwapsAsNull (
+  private async getBlockTransactionsWithNonSwapsAsNull (
     block: Block,
     network: SupportedNetwork,
     next: NextToken
@@ -166,7 +170,7 @@ export class LegacyController {
   /**
    * Caches at the transaction level, so that we can avoid calling expensive rpc calls for newer blocks
    */
-  async getSwapFromTransaction (transaction: Transaction, network: SupportedNetwork): Promise<LegacySubgraphSwap | null> {
+  private async getSwapFromTransaction (transaction: Transaction, network: SupportedNetwork): Promise<LegacySubgraphSwap | null> {
     return await this.cache.get<LegacySubgraphSwap | null>(transaction.txid, async () => {
       if (transaction.voutCount !== 2) {
         return null
@@ -189,10 +193,10 @@ export class LegacyController {
       return swap
     }, {
       ttl: 24 * 60 * 60
-    })
+    }) ?? null
   }
 
-  async findSwap (network: SupportedNetwork, poolSwap: PoolSwap, transaction: Transaction): Promise<LegacySubgraphSwap | undefined> {
+  private async findSwap (network: SupportedNetwork, poolSwap: PoolSwap, transaction: Transaction): Promise<LegacySubgraphSwap | undefined> {
     const fromAddress = fromScript(poolSwap.fromScript, network)?.address
     const toAddress = fromScript(poolSwap.toScript, network)?.address
 
@@ -226,13 +230,13 @@ export class LegacyController {
     }
   }
 
-  async isRecentBlock (block: Block): Promise<boolean> {
+  private async isRecentBlock (block: Block): Promise<boolean> {
     // TODO(): Can consider using MasternodeStatsMapper.getLatest()
     const chainHeight = requireValue(await this.blockMapper.getHighest(), 'block').height
     return chainHeight - block.height <= 2
   }
 
-  findPoolSwapDfTx (vouts: TransactionVout[]): PoolSwap | undefined {
+  private findPoolSwapDfTx (vouts: TransactionVout[]): PoolSwap | undefined {
     if (vouts.length === 0) {
       return undefined // reject because not yet indexed, cannot be found
     }
@@ -261,7 +265,7 @@ export class LegacyController {
     }
   }
 
-  findAmountSymbol (history: AccountHistory, outgoing: boolean): LegacySubgraphSwapFromTo | undefined {
+  private findAmountSymbol (history: AccountHistory, outgoing: boolean): LegacySubgraphSwapFromTo | undefined {
     for (const amount of history.amounts) {
       const [value, symbol] = amount.split('@')
       const isNegative = value.startsWith('-')
@@ -284,7 +288,7 @@ export class LegacyController {
     return undefined
   }
 
-  decodeNextToken (nextString: string): NextToken {
+  private decodeNextToken (nextString: string): NextToken {
     return JSON.parse(Buffer.from(nextString, 'base64url').toString())
   }
 }

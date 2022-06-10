@@ -102,11 +102,7 @@ export class PoolPairController {
     }
 
     return await fetch(url.toString())
-      .then(
-        async res => await res.json()
-      ).then(
-        resJson => resJson as LegacySubgraphSwapsResponse
-      )
+      .then(async res => await res.json() as LegacySubgraphSwapsResponse)
   }
 
   @Get('listyieldfarming')
