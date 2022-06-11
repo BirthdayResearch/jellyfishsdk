@@ -3,18 +3,6 @@ import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
 import { NetworkValidationPipe, SupportedNetwork } from '../pipes/NetworkValidationPipe'
 import BigNumber from 'bignumber.js'
-import { Transaction, TransactionVout } from '@defichain/whale-api-client/dist/api/transactions'
-import {
-  CCompositeSwap,
-  CompositeSwap,
-  CPoolSwap,
-  OP_DEFI_TX,
-  PoolSwap,
-  toOPCodes
-} from '@defichain/jellyfish-transaction'
-import { SmartBuffer } from 'smart-buffer'
-import { AccountHistory } from '@defichain/jellyfish-api-core/src/category/account'
-import { fromScript } from '@defichain/jellyfish-address'
 import { SimpleCache } from '../cache/SimpleCache'
 import { Block } from '@defichain/whale-api-client/dist/api/blocks'
 import { WhaleApiClient } from '@defichain/whale-api-client'
@@ -386,10 +374,6 @@ interface LegacySubgraphSwapFromTo {
 
 export function encodeBase64 (next: NextToken): string {
   return Buffer.from(JSON.stringify(next), 'utf8').toString('base64url')
-}
-
-function decodeNextToken (nextString: string): NextToken {
-  return JSON.parse(Buffer.from(nextString, 'base64url').toString())
 }
 
 export interface BlockTxn {
