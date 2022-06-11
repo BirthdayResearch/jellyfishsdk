@@ -127,7 +127,6 @@ export class LegacyController {
 
           if (allSwaps.length === limit) {
             this.logger.debug(`[${network}] Block ${block.height} - pagination ${JSON.stringify(nextToken)}`)
-            console.log(`[${network}] Block ${block.height} - pagination ${JSON.stringify(nextToken)}`)
             return {
               swaps: allSwaps,
               next: nextToken
