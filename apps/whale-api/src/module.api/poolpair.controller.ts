@@ -195,7 +195,12 @@ export class PoolPairController {
   }
 }
 
-export function mapPoolPair (id: string, info: PoolPairInfo, totalLiquidityUsd?: BigNumber, apr?: PoolPairData['apr'], volume?: PoolPairData['volume']): PoolPairData {
+export function mapPoolPair (
+  id: string, info: PoolPairInfo,
+  totalLiquidityUsd?: BigNumber,
+  apr?: PoolPairData['apr'],
+  volume?: PoolPairData['volume']
+): PoolPairData {
   const [symbolA, symbolB] = info.symbol.split('-')
 
   return {

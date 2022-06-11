@@ -3,7 +3,8 @@ import { PoolSwap } from '@defichain/jellyfish-transaction'
 import { RawBlock } from '../_abstract'
 import { Injectable } from '@nestjs/common'
 import { PoolSwapAggregated, PoolSwapAggregatedMapper } from '../../../module.model/pool.swap.aggregated'
-import { PoolPairTokenMapper } from '../../../module.model/pool.pair.token'
+import { DeFiDCache } from 'whale-api/src/module.api/cache/defid.cache'
+import { PoolPairsResult } from '@defichain/jellyfish-api-core/dist/category/poolpair'
 
 export enum PoolSwapAggregatedInterval {
   ONE_HOUR = 60 * 60,
@@ -21,17 +22,18 @@ export class PoolSwapAggregatedIndexer extends DfTxIndexer<PoolSwap> {
 
   constructor (
     private readonly aggregatedMapper: PoolSwapAggregatedMapper,
-    private readonly poolPairTokenMapper: PoolPairTokenMapper
+    private readonly deFiDCache: DeFiDCache
   ) {
     super()
   }
 
   async indexBlockStart (block: RawBlock): Promise<void> {
-    const poolPairs = await this.poolPairTokenMapper.listAllDesc()
+    const poolPairs = await this.deFiDCache.listPoolPairs(60) as PoolPairsResult
+    const poolIds = Object.keys(poolPairs)
 
     for (const interval of AggregatedIntervals) {
-      for (const poolPair of poolPairs) {
-        const previous = await this.aggregatedMapper.query(`${poolPair.poolPairId}-${interval as number}`, 1)
+      for (const poolId of poolIds) {
+        const previous = await this.aggregatedMapper.query(`${poolId}-${interval as number}`, 1)
         const bucket = getBucket(block, interval)
 
         if (previous.length === 1 && previous[0].bucket >= bucket) {
@@ -39,7 +41,7 @@ export class PoolSwapAggregatedIndexer extends DfTxIndexer<PoolSwap> {
           break
         }
 
-        await this.createNewBucket(block, poolPair.poolPairId, interval)
+        await this.createNewBucket(block, Number(poolId), interval)
       }
     }
   }
@@ -63,12 +65,13 @@ export class PoolSwapAggregatedIndexer extends DfTxIndexer<PoolSwap> {
   }
 
   async invalidateBlockStart (block: RawBlock): Promise<void> {
-    const poolPairs = await this.poolPairTokenMapper.listAllDesc()
+    const poolPairs = await this.deFiDCache.listPoolPairs(60) as PoolPairsResult
+    const poolIds = Object.keys(poolPairs)
 
-    for (const poolPair of poolPairs) {
+    for (const poolId of poolIds) {
       for (const interval of AggregatedIntervals) {
         // Delete internally checks for key existence, so we can always call it here
-        await this.aggregatedMapper.delete(getAggregatedId(block, poolPair.poolPairId, interval))
+        await this.aggregatedMapper.delete(getAggregatedId(block, Number(poolId), interval))
       }
     }
   }
