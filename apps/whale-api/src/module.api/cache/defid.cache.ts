@@ -117,12 +117,11 @@ export class DeFiDCache extends GlobalCache {
   private async fetchPoolPairInfo (idOrSymbol: string): Promise<PoolPairInfoWithId | undefined> {
     try {
       const result = await this.rpcClient.poolpair.getPoolPair(idOrSymbol)
-      Object.entries(result).map(([id, poolPair]) => {
-        return {
-          ...poolPair,
-          id
-        }
-      })
+      const [id, poolPairInfo] = Object.entries(result)[0]
+      return {
+        ...poolPairInfo,
+        id
+      }
     } catch (err: any) {
       /* istanbul ignore else */
       if (err?.payload?.message === 'Pool not found') {
