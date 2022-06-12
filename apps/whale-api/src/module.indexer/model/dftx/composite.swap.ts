@@ -3,20 +3,18 @@ import { CCompositeSwap, CompositeSwap, PoolId } from '@defichain/jellyfish-tran
 import { RawBlock } from '../_abstract'
 import { Inject, Injectable } from '@nestjs/common'
 import { PoolSwapIndexer } from './pool.swap'
-import { PoolPairHistory, PoolPairHistoryMapper } from '../../../module.model/pool.pair.history'
-import { PoolPairTokenMapper } from '../../../module.model/pool.pair.token'
 import { NetworkName } from '@defichain/jellyfish-network'
-import { IndexerError } from '../../error'
 import BigNumber from 'bignumber.js'
+import { DeFiDCache } from 'whale-api/src/module.api/cache/defid.cache'
+import { NotFoundApiException } from 'whale-api/src/module.api/_core/api.error'
 
 @Injectable()
 export class CompositeSwapIndexer extends DfTxIndexer<CompositeSwap> {
   OP_CODE: number = CCompositeSwap.OP_CODE
 
   constructor (
-    private readonly poolPairHistoryMapper: PoolPairHistoryMapper,
-    private readonly poolPairTokenMapper: PoolPairTokenMapper,
     private readonly poolSwapIndexer: PoolSwapIndexer,
+    private readonly deFiDCache: DeFiDCache,
     @Inject('NETWORK') protected readonly network: NetworkName
   ) {
     super()
@@ -30,9 +28,7 @@ export class CompositeSwapIndexer extends DfTxIndexer<CompositeSwap> {
     const fromAmount: BigNumber = poolSwap.fromAmount
 
     for (const pool of poolIds) {
-      const poolPair = await this.getPoolPair(pool.id)
-      await this.poolSwapIndexer.indexSwap(block, transaction, poolPair.poolPairId, poolSwap.fromTokenId, fromAmount)
-      // fromAmount = ONE.minus(poolPair.commission).times(fromAmount)
+      await this.poolSwapIndexer.indexSwap(block, transaction, `${pool.id}`, poolSwap.fromTokenId, fromAmount)
     }
   }
 
@@ -44,20 +40,8 @@ export class CompositeSwapIndexer extends DfTxIndexer<CompositeSwap> {
     const fromAmount: BigNumber = poolSwap.fromAmount
 
     for (const pool of poolIds) {
-      const poolPair = await this.getPoolPair(pool.id)
-      await this.poolSwapIndexer.invalidateSwap(transaction, poolPair.poolPairId, poolSwap.fromTokenId, fromAmount)
-      // fromAmount = ONE.minus(poolPair.commission).times(fromAmount)
+      await this.poolSwapIndexer.invalidateSwap(transaction, `${pool.id}`, poolSwap.fromTokenId, fromAmount)
     }
-  }
-
-  async getPoolPair (poolId: number): Promise<PoolPairHistory> {
-    // TODO(fuxingloh): we need to cache this too
-    const poolPair = await this.poolPairHistoryMapper.getLatest(`${poolId}`)
-    if (poolPair === undefined) {
-      throw new IndexerError(`Pool with id ${poolId} not found`)
-    }
-
-    return poolPair
   }
 
   async getPoolIdsForTokens (compositeSwap: CompositeSwap): Promise<PoolId[]> {
@@ -66,11 +50,23 @@ export class CompositeSwapIndexer extends DfTxIndexer<CompositeSwap> {
     }
 
     const poolSwap = compositeSwap.poolSwap
-    const poolPairToken = await this.poolPairTokenMapper.getPair(poolSwap.fromTokenId, poolSwap.toTokenId)
-    if (poolPairToken === undefined) {
-      throw new IndexerError(`Pool for pair ${poolSwap.fromTokenId}, ${poolSwap.toTokenId} not found`)
+    const fromToken = await this.deFiDCache.getTokenInfo(`${poolSwap.fromTokenId}`)
+    if (fromToken === undefined) {
+      throw new NotFoundApiException('Unable to find fromToken')
+    }
+    const toToken = await this.deFiDCache.getTokenInfo(`${poolSwap.toTokenId}`)
+    if (toToken === undefined) {
+      throw new NotFoundApiException('Unable to find toToken')
     }
 
-    return [{ id: poolPairToken.poolPairId }]
+    let poolPair = await this.deFiDCache.getPoolPairInfo(`${fromToken.symbol as string}-${toToken.symbol as string}`)
+    if (poolPair === undefined) {
+      poolPair = await this.deFiDCache.getPoolPairInfo(`${toToken.symbol as string}-${fromToken.symbol as string}`)
+    }
+    if (poolPair === undefined) {
+      throw new NotFoundApiException(`Pool for pair ${poolSwap.fromTokenId}, ${poolSwap.toTokenId} not found`)
+    }
+
+    return [{ id: Number(poolPair.id) }]
   }
 }
