@@ -5,8 +5,8 @@ import { Inject, Injectable } from '@nestjs/common'
 import { PoolSwapIndexer } from './pool.swap'
 import { NetworkName } from '@defichain/jellyfish-network'
 import BigNumber from 'bignumber.js'
-import { DeFiDCache } from 'whale-api/src/module.api/cache/defid.cache'
-import { NotFoundApiException } from 'whale-api/src/module.api/_core/api.error'
+import { DeFiDCache } from '../../../module.api/cache/defid.cache'
+import { NotFoundApiException } from '../../../module.api/_core/api.error'
 
 @Injectable()
 export class CompositeSwapIndexer extends DfTxIndexer<CompositeSwap> {
@@ -54,14 +54,15 @@ export class CompositeSwapIndexer extends DfTxIndexer<CompositeSwap> {
     if (fromToken === undefined) {
       throw new NotFoundApiException('Unable to find fromToken')
     }
+
     const toToken = await this.deFiDCache.getTokenInfo(`${poolSwap.toTokenId}`)
     if (toToken === undefined) {
       throw new NotFoundApiException('Unable to find toToken')
     }
 
-    let poolPair = await this.deFiDCache.getPoolPairInfo(`${fromToken.symbol as string}-${toToken.symbol as string}`)
+    let poolPair = await this.deFiDCache.getPoolPairInfo(`${fromToken.symbol}-${toToken.symbol}`)
     if (poolPair === undefined) {
-      poolPair = await this.deFiDCache.getPoolPairInfo(`${toToken.symbol as string}-${fromToken.symbol as string}`)
+      poolPair = await this.deFiDCache.getPoolPairInfo(`${toToken.symbol}-${fromToken.symbol}`)
     }
     if (poolPair === undefined) {
       throw new NotFoundApiException(`Pool for pair ${poolSwap.fromTokenId}, ${poolSwap.toTokenId} not found`)

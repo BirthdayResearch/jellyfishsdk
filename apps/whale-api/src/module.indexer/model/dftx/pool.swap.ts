@@ -9,8 +9,8 @@ import { PoolSwapMapper } from '../../../module.model/pool.swap'
 import { HexEncoder } from '../../../module.model/_hex.encoder'
 import { PoolSwapAggregatedMapper } from '../../../module.model/pool.swap.aggregated'
 import { AggregatedIntervals } from './pool.swap.aggregated'
-import { DeFiDCache, PoolPairInfoWithId } from 'whale-api/src/module.api/cache/defid.cache'
-import { NotFoundApiException } from 'whale-api/src/module.api/_core/api.error'
+import { DeFiDCache, PoolPairInfoWithId } from '../../../module.api/cache/defid.cache'
+import { NotFoundApiException } from '../../../module.api/_core/api.error'
 
 @Injectable()
 export class PoolSwapIndexer extends DfTxIndexer<PoolSwap> {
@@ -88,9 +88,9 @@ export class PoolSwapIndexer extends DfTxIndexer<PoolSwap> {
       throw new NotFoundApiException('Unable to find toToken')
     }
 
-    let poolPair = await this.deFiDCache.getPoolPairInfo(`${a.symbol as string}-${b.symbol as string}`)
+    let poolPair = await this.deFiDCache.getPoolPairInfo(`${a.symbol}-${b.symbol}`)
     if (poolPair === undefined) {
-      poolPair = await this.deFiDCache.getPoolPairInfo(`${b.symbol as string}-${a.symbol as string}`)
+      poolPair = await this.deFiDCache.getPoolPairInfo(`${b.symbol}-${a.symbol}`)
     }
     if (poolPair === undefined) {
       throw new IndexerError(`Pool for pair ${tokenA}, ${tokenB} not found`)

@@ -1,5 +1,5 @@
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
-import { CacheModule, Module } from '@nestjs/common'
+import { CacheModule, Global, Module } from '@nestjs/common'
 import { RpcController } from './rpc.controller'
 import { ActuatorController } from './actuator.controller'
 import { TransactionController } from './transaction.controller'
@@ -35,6 +35,7 @@ import { PoolPairPricesService } from './poolpair.prices.service'
 /**
  * Exposed ApiModule for public interfacing
  */
+@Global()
 @Module({
   imports: [CacheModule.register()],
   controllers: [
@@ -84,7 +85,8 @@ import { PoolPairPricesService } from './poolpair.prices.service'
       },
       inject: [ConfigService]
     }
-  ]
+  ],
+  exports: [DeFiDCache]
 })
 export class ApiModule {
 }

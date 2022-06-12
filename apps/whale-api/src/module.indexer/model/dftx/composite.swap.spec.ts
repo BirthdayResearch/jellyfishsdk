@@ -1,9 +1,8 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp, invalidateFromHeight, stopTestingApp, waitForIndexedHeight, waitForIndexedHeightLatest } from '../../../e2e.module'
+import { createTestingApp, stopTestingApp, waitForIndexedHeightLatest } from '../../../e2e.module'
 import { Testing } from '@defichain/jellyfish-testing'
-import { PoolPairHistoryMapper } from '../../../module.model/pool.pair.history'
-import { PoolPairTokenMapper } from '../../../module.model/pool.pair.token'
+import { PoolSwapMapper } from '../../../module.model/pool.swap'
 
 const container = new MasterNodeRegTestContainer()
 let testing: Testing
@@ -40,40 +39,19 @@ afterEach(async () => {
 
 describe('composite swap', () => {
   it('should index composite swap', async () => {
+    const poolSwapMapper = app.get(PoolSwapMapper)
+
     await waitForIndexedHeightLatest(app, container)
 
-    const poolPairTokenMapper = app.get(PoolPairTokenMapper)
-    const poolPairMapper = app.get(PoolPairHistoryMapper)
-    const result = await poolPairTokenMapper.list(30)
-    expect(result.length).toStrictEqual(3)
+    const result = await testing.rpc.poolpair.listPoolPairs()
+    const poolPairs = Object.entries(result)
+      .map(([id, poolPair]) => {
+        return { ...poolPair, id }
+      })
+    expect(poolPairs.length).toStrictEqual(3)
 
-    const poolPairs = await Promise.all(result.map(async x => {
-      return await poolPairMapper.getLatest(`${x.poolPairId}`)
-    }))
-
-    expect(poolPairs[0]).toStrictEqual({
-      id: expect.stringMatching(/[0-f]{64}/),
-      sort: expect.any(String),
-      pairSymbol: 'B-DFI',
-      name: 'B-Default Defi token',
-      poolPairId: '2',
-      tokenA: {
-        id: 1,
-        symbol: 'B'
-      },
-      tokenB: {
-        id: 0,
-        symbol: 'DFI'
-      },
-      block: {
-        hash: expect.any(String),
-        height: 103,
-        medianTime: expect.any(Number),
-        time: expect.any(Number)
-      },
-      status: true,
-      commission: '0.00000000'
-    })
+    const records = await poolSwapMapper.query(poolPairs[0].id, 30)
+    expect(records.length).toStrictEqual(0)
 
     await testing.rpc.poolpair.compositeSwap({
       from: await testing.address('my'),
@@ -82,149 +60,21 @@ describe('composite swap', () => {
       amountFrom: 10,
       to: await testing.address('my')
     })
+    await container.generate(1)
 
     await waitForIndexedHeightLatest(app, container)
 
-    const poolPairsAfterSwap = await Promise.all(result.map(async x => {
-      return await poolPairMapper.getLatest(`${x.poolPairId}`)
-    }))
-
-    expect(poolPairsAfterSwap[0]).toStrictEqual({
-      id: expect.stringMatching(/[0-f]{64}/),
+    const recordsAfter = await poolSwapMapper.query(poolPairs[0].id, 30)
+    expect(recordsAfter.length).toStrictEqual(1)
+    expect(recordsAfter[0]).toStrictEqual({
+      id: expect.any(String),
+      txid: expect.any(String),
+      txno: expect.any(Number),
+      poolPairId: expect.any(String),
       sort: expect.any(String),
-      pairSymbol: 'B-DFI',
-      name: 'B-Default Defi token',
-      poolPairId: '2',
-      tokenA: {
-        id: 1,
-        symbol: 'B'
-      },
-      tokenB: {
-        id: 0,
-        symbol: 'DFI'
-      },
-      block: {
-        hash: expect.any(String),
-        height: 103,
-        medianTime: expect.any(Number),
-        time: expect.any(Number)
-      },
-      status: true,
-      commission: '0.00000000'
+      fromAmount: expect.any(String),
+      fromTokenId: expect.any(Number),
+      block: expect.any(Object)
     })
-
-    expect(poolPairsAfterSwap[1]).toStrictEqual({
-      id: expect.stringMatching(/[0-f]{64}/),
-      sort: expect.any(String),
-      pairSymbol: 'C-DFI',
-      name: 'C-Default Defi token',
-      poolPairId: '4',
-      tokenA: {
-        id: 3,
-        symbol: 'C'
-      },
-      tokenB: {
-        id: 0,
-        symbol: 'DFI'
-      },
-      block: {
-        hash: expect.any(String),
-        height: 105,
-        medianTime: expect.any(Number),
-        time: expect.any(Number)
-      },
-      status: true,
-      commission: '0.00000000'
-    })
-  })
-})
-
-describe('invalidate', () => {
-  it('should composite swap and invalidate', async () => {
-    await waitForIndexedHeightLatest(app, container)
-
-    const poolPairTokenMapper = app.get(PoolPairTokenMapper)
-    const poolPairMapper = app.get(PoolPairHistoryMapper)
-    const result = await poolPairTokenMapper.list(30)
-    expect(result.length).toStrictEqual(3)
-
-    const poolPairs = await Promise.all(result.map(async x => {
-      return await poolPairMapper.getLatest(`${x.poolPairId}`)
-    }))
-
-    const preSwapPool = {
-      id: expect.stringMatching(/[0-f]{64}/),
-      sort: expect.any(String),
-      pairSymbol: 'B-DFI',
-      name: 'B-Default Defi token',
-      poolPairId: '2',
-      tokenA: {
-        id: 1,
-        symbol: 'B'
-      },
-      tokenB: {
-        id: 0,
-        symbol: 'DFI'
-      },
-      block: {
-        hash: expect.any(String),
-        height: 103,
-        medianTime: expect.any(Number),
-        time: expect.any(Number)
-      },
-      status: true,
-      commission: '0.00000000'
-    }
-
-    expect(poolPairs[0]).toStrictEqual(preSwapPool)
-
-    const height = await container.call('getblockcount')
-    await testing.rpc.poolpair.compositeSwap({
-      from: await testing.address('my'),
-      tokenFrom: 'B',
-      tokenTo: 'C',
-      amountFrom: 10,
-      to: await testing.address('my')
-    })
-
-    await waitForIndexedHeightLatest(app, container)
-
-    const poolPairsAfterSwap = await Promise.all(result.map(async x => {
-      return await poolPairMapper.getLatest(`${x.poolPairId}`)
-    }))
-
-    expect(poolPairsAfterSwap[0]).toStrictEqual({
-      id: expect.stringMatching(/[0-f]{64}/),
-      sort: expect.any(String),
-      pairSymbol: 'B-DFI',
-      name: 'B-Default Defi token',
-      poolPairId: '2',
-      tokenA: {
-        id: 1,
-        symbol: 'B'
-      },
-      tokenB: {
-        id: 0,
-        symbol: 'DFI'
-      },
-      block: {
-        hash: expect.any(String),
-        height: 103,
-        medianTime: expect.any(Number),
-        time: expect.any(Number)
-      },
-      status: true,
-      commission: '0.00000000'
-    })
-
-    await invalidateFromHeight(app, container, height - 1)
-    await container.generate(2)
-    await waitForIndexedHeight(app, height)
-
-    const poolPairsAfterInvalidate = await Promise.all(result.map(async x => {
-      return await poolPairMapper.getLatest(`${x.poolPairId}`)
-    }))
-
-    expect(poolPairsAfterInvalidate[0]).toStrictEqual(preSwapPool)
   })
 })

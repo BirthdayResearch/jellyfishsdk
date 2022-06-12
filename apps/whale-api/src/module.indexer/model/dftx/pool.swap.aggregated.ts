@@ -3,7 +3,7 @@ import { PoolSwap } from '@defichain/jellyfish-transaction'
 import { RawBlock } from '../_abstract'
 import { Injectable } from '@nestjs/common'
 import { PoolSwapAggregated, PoolSwapAggregatedMapper } from '../../../module.model/pool.swap.aggregated'
-import { DeFiDCache } from 'whale-api/src/module.api/cache/defid.cache'
+import { DeFiDCache } from '../../../module.api/cache/defid.cache'
 import { PoolPairsResult } from '@defichain/jellyfish-api-core/dist/category/poolpair'
 
 export enum PoolSwapAggregatedInterval {
@@ -28,7 +28,7 @@ export class PoolSwapAggregatedIndexer extends DfTxIndexer<PoolSwap> {
   }
 
   async indexBlockStart (block: RawBlock): Promise<void> {
-    const poolPairs = await this.deFiDCache.listPoolPairs(60) as PoolPairsResult
+    const poolPairs = await this.deFiDCache.listPoolPairs(0) as PoolPairsResult
     const poolIds = Object.keys(poolPairs)
 
     for (const interval of AggregatedIntervals) {
