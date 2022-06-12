@@ -5,17 +5,18 @@ import {
   BestSwapPathResult,
   SwapPathPoolPair,
   SwapPathsResult,
+  PoolPairData,
   TokenIdentifier
 } from '@defichain/whale-api-client/dist/api/poolpairs'
-import { PoolPairToken, PoolPairTokenMapper } from '../module.model/pool.pair.token'
 import { DeFiDCache } from './cache/defid.cache'
 import { Interval } from '@nestjs/schedule'
 import BigNumber from 'bignumber.js'
 import { allSimplePaths } from 'graphology-simple-path'
 import { parseDisplaySymbol } from './token.controller'
-import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
+import { PoolPairInfo, PoolPairsResult } from '@defichain/jellyfish-api-core/dist/category/poolpair'
 import { connectedComponents } from 'graphology-components'
 import { NetworkName } from '@defichain/jellyfish-network'
+import { mapPoolPair } from './poolpair.controller'
 
 @Injectable()
 export class PoolSwapPathFindingService {
@@ -23,7 +24,6 @@ export class PoolSwapPathFindingService {
   tokensToSwappableTokens = new Map<TokenIdentifier['id'], TokenIdentifier[]>()
 
   constructor (
-    protected readonly poolPairTokenMapper: PoolPairTokenMapper,
     protected readonly deFiDCache: DeFiDCache,
     @Inject('NETWORK') protected readonly network: NetworkName
   ) {
@@ -31,7 +31,11 @@ export class PoolSwapPathFindingService {
 
   @Interval(120_000) // 120s
   async syncTokenGraph (): Promise<void> {
-    const poolPairTokens = await this.poolPairTokenMapper.list(200)
+    const poolPairsResult = await this.deFiDCache.listPoolPairs(60) as PoolPairsResult
+    const poolPairTokens = Object.entries(poolPairsResult)
+      .map(([id, poolPair]) => {
+        return mapPoolPair(id, poolPair)
+      })
     await this.addTokensAndConnectionsToGraph(poolPairTokens)
     await this.updateTokensToSwappableTokens()
   }
@@ -170,16 +174,16 @@ export class PoolSwapPathFindingService {
    * Each node represents a token, each edge represents a poolPair that bridges a pair of tokens.
    * For example, [[A-DFI], [B-DFI]] creates an undirected graph with 3 nodes and 2 edges:
    * ( A )--- A-DFI ---( DFI )--- B-DFI ---( B )
-   * @param {PoolPairToken[]} poolPairTokens - poolPairTokens to derive tokens and poolPairs added to the graph
+   * @param {PoolPairData[]} poolPairTokens - poolPairTokens to derive tokens and poolPairs added to the graph
    * @private
    */
-  private async addTokensAndConnectionsToGraph (poolPairTokens: PoolPairToken[]): Promise<void> {
+  private async addTokensAndConnectionsToGraph (poolPairTokens: PoolPairData[]): Promise<void> {
     for (const poolPairToken of poolPairTokens) {
       if (await this.isPoolPairIgnored(poolPairToken)) {
         continue
       }
 
-      const [a, b] = poolPairToken.id.split('-')
+      const [a, b] = poolPairToken.symbol.split('-')
 
       if (!this.tokenGraph.hasNode(a)) {
         this.tokenGraph.addNode(a)
@@ -188,19 +192,19 @@ export class PoolSwapPathFindingService {
         this.tokenGraph.addNode(b)
       }
       if (!this.tokenGraph.hasEdge(a, b)) {
-        this.tokenGraph.addUndirectedEdgeWithKey(poolPairToken.poolPairId, a, b)
+        this.tokenGraph.addUndirectedEdgeWithKey(poolPairToken.id, a, b)
       }
     }
   }
 
-  private async isPoolPairIgnored (pair: PoolPairToken): Promise<boolean> {
+  private async isPoolPairIgnored (pair: PoolPairData): Promise<boolean> {
     // Hot Fix for MainNet due to cost of running getPoolPairInfo during boot up.
     if (this.network === 'mainnet') {
-      if (pair.poolPairId === 48) {
+      if (Number(pair.id) === 48) {
         return true
       }
     } else {
-      const poolPair = await this.getPoolPairInfo(`${pair.poolPairId}`)
+      const poolPair = await this.getPoolPairInfo(pair.id)
       if (!poolPair.status) {
         return true
       }

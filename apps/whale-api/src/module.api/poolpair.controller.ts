@@ -196,7 +196,8 @@ export class PoolPairController {
 }
 
 export function mapPoolPair (
-  id: string, info: PoolPairInfo,
+  id: string,
+  info: PoolPairInfo,
   totalLiquidityUsd?: BigNumber,
   apr?: PoolPairData['apr'],
   volume?: PoolPairData['volume']
