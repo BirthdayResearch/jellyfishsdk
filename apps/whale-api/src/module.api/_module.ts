@@ -37,7 +37,7 @@ import { PoolPairPricesService } from './poolpair.prices.service'
  */
 @Global()
 @Module({
-  imports: [CacheModule.register()],
+  imports: [CacheModule.register({ max: 10000 })],
   controllers: [
     RpcController,
     AddressController,

@@ -79,7 +79,7 @@ export class StatsController {
   private async getLoanInfo (): Promise<GetLoanInfoResult> {
     return await this.cachedGet('Controller.stats.getLoanInfo', async () => {
       return await this.rpcClient.loan.getLoanInfo()
-    }, 299)
+    }, 777)
   }
 
   private async getCachedBurnTotal (): Promise<BigNumber> {
