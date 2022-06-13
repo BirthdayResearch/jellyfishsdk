@@ -23,6 +23,21 @@ import { TransactionVoutMapper } from '../module.model/transaction.vout'
 import { TransactionMapper } from '../module.model/transaction'
 import { SimpleCache } from '../../../legacy-api/src/cache/SimpleCache'
 import { NetworkName } from '@defichain/jellyfish-network'
+import { ApiRawResponse } from './_core/api.response'
+
+/**
+ * Specifically for bypassing response interceptor
+ */
+class LegacyApiRawResponse extends ApiRawResponse {
+  readonly data: LegacySubgraphSwapsResponse['data']
+  readonly page: LegacySubgraphSwapsResponse['page']
+
+  constructor (swaps: LegacySubgraphSwapsResponse) {
+    super()
+    this.data = swaps.data
+    this.page = swaps.page
+  }
+}
 
 @Controller('/legacy')
 export class LegacyController {
@@ -53,14 +68,14 @@ export class LegacyController {
       next
     } = await this.getSwapsHistory(this.network, limit, nextToken)
 
-    return {
+    return new LegacyApiRawResponse({
       data: {
         swaps: swaps
       },
       page: {
         next: encodeBase64(next)
       }
-    }
+    })
   }
 
   private async getSwapsHistory (

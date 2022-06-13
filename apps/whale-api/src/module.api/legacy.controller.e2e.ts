@@ -137,7 +137,7 @@ describe('getsubgraphswaps', () => {
       // TODO(eli-lim): verify pagination logic -> order should start at txn limit, then -= 1
       //    because the search starts from chain tip and progresses downwards
       const swap1To3 = await controller.getSubgraphSwaps(3, encodeBase64({ height: '169', order: '0' }))
-      expect(swap1To3).toStrictEqual({
+      expect(toJson(swap1To3)).toStrictEqual({
         data: {
           swaps: [
             {
@@ -165,19 +165,19 @@ describe('getsubgraphswaps', () => {
         }
       })
 
-      expect(await controller.getSubgraphSwaps(1, encodeBase64({ height: '169', order: '0' })))
+      expect(toJson(await controller.getSubgraphSwaps(1, encodeBase64({ height: '169', order: '0' }))))
         .toStrictEqual({
           data: { swaps: [swap1To3.data.swaps[0]] },
           page: { next: encodeBase64({ height: '168', order: '0' }) }
         })
 
-      expect(await controller.getSubgraphSwaps(1, encodeBase64({ height: '168', order: '0' })))
+      expect(toJson(await controller.getSubgraphSwaps(1, encodeBase64({ height: '168', order: '0' }))))
         .toStrictEqual({
           data: { swaps: [swap1To3.data.swaps[1]] },
           page: { next: encodeBase64({ height: '167', order: '0' }) }
         })
 
-      expect(await controller.getSubgraphSwaps(1, encodeBase64({ height: '167', order: '0' })))
+      expect(toJson(await controller.getSubgraphSwaps(1, encodeBase64({ height: '167', order: '0' }))))
         .toStrictEqual({
           data: { swaps: [swap1To3.data.swaps[2]] },
           page: { next: encodeBase64({ height: '166', order: '0' }) }
@@ -248,4 +248,8 @@ export function verifySwapsOrdering (
       expect(Number(swap1.timestamp)).toBeGreaterThanOrEqual(Number(swap2.timestamp))
     }
   }
+}
+
+function toJson (object: any): any {
+  return JSON.parse(JSON.stringify(object))
 }
