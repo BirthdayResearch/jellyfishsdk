@@ -32,6 +32,7 @@ import { LoanVaultService } from './loan.vault.service'
 import { PoolSwapPathFindingService } from './poolswap.pathfinding.service'
 import { PoolPairPricesService } from './poolpair.prices.service'
 import { LegacyController } from './legacy.controller'
+import { SimpleCache } from '../../../legacy-api/src/cache/SimpleCache'
 
 /**
  * Exposed ApiModule for public interfacing
@@ -69,6 +70,7 @@ import { LegacyController } from './legacy.controller'
     },
     DeFiDCache,
     SemaphoreCache,
+    SimpleCache,
     PoolPairService,
     PoolSwapPathFindingService,
     PoolPairPricesService,

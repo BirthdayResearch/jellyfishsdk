@@ -21,7 +21,7 @@ import { BigNumber } from 'bignumber.js'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { TransactionVoutMapper } from '../module.model/transaction.vout'
 import { TransactionMapper } from '../module.model/transaction'
-import { SemaphoreCache } from '@defichain-apps/libs/caches'
+import { SimpleCache } from '../../../legacy-api/src/cache/SimpleCache'
 import { NetworkName } from '@defichain/jellyfish-network'
 
 @Controller('/legacy')
@@ -32,7 +32,7 @@ export class LegacyController {
     protected readonly blockMapper: BlockMapper,
     protected readonly transactionMapper: TransactionMapper,
     protected readonly transactionVoutMapper: TransactionVoutMapper,
-    private readonly cache: SemaphoreCache,
+    private readonly cache: SimpleCache,
     @Inject('NETWORK')
     private readonly network: NetworkName
   ) {
