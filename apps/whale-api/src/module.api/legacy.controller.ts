@@ -43,7 +43,7 @@ export class LegacyController {
     @Query('limit') limit: number = 30,
     @Query('next') nextString?: string
   ): Promise<LegacySubgraphSwapsResponse> {
-    limit = Math.min(100, limit)
+    limit = Math.min(100, limit ?? 30)
     const nextToken: NextToken = (nextString !== undefined)
       ? this.decodeNextToken(nextString)
       : {}
@@ -265,7 +265,7 @@ export class LegacyController {
   }
 
   private findAmountSymbol (history: AccountHistory, outgoing: boolean): LegacySubgraphSwapFromTo | undefined {
-    for (const amount of history.amounts) {
+    for (const amount of history.amounts ?? []) {
       const [value, symbol] = amount.split('@')
       const isNegative = value.startsWith('-')
 

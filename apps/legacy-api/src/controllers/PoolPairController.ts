@@ -1,4 +1,4 @@
-import { Controller, Get, Inject, Logger, Query } from '@nestjs/common'
+import { Controller, DefaultValuePipe, Get, Inject, Logger, ParseIntPipe, Query } from '@nestjs/common'
 import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
 import { NetworkValidationPipe, SupportedNetwork } from '../pipes/NetworkValidationPipe'
@@ -80,7 +80,7 @@ export class PoolPairController {
   @Get('getsubgraphswaps')
   async getSubgraphSwaps (
     @Query('network', NetworkValidationPipe) network: SupportedNetwork = 'mainnet',
-    @Query('limit') limit: number = 30,
+    @Query('limit', new DefaultValuePipe(30), new ParseIntPipe()) limit: number = 30,
     @Query('next') nextString?: string
   ): Promise<LegacySubgraphSwapsResponse> {
     const url = new URL(`${this.oceanEndpoint}/${network}/legacy/getsubgraphswaps`)
