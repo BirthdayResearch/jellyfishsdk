@@ -23,10 +23,7 @@ export class DeFiDCache extends GlobalCache {
    * @param {string} id numeric id of token
    */
   async getTokenInfo (id: string): Promise<TokenInfo | undefined> {
-    // WIP(canonbrother): Broken test as getting old cache
     return await this.get<TokenInfo>(CachePrefix.TOKEN_INFO, id, this.fetchTokenInfo.bind(this))
-    // const res = await this.rpcClient.token.getToken(id)
-    // return res[id]
   }
 
   private async fetchTokenInfo (id: string): Promise<TokenInfo | undefined> {
@@ -97,15 +94,11 @@ export class DeFiDCache extends GlobalCache {
    * @param {string} id - id of the poolPair
    */
   async getPoolPairInfoFromPoolPairs (id: string): Promise<PoolPairInfo | undefined> {
-    // WIP(canonbrother): Broken test as getting old cache
     const poolPairsById = await this.listPoolPairs(60)
     if (poolPairsById === undefined) {
       return undefined
     }
     return poolPairsById[id]
-
-    // const poolPairsById = await this.rpcClient.poolpair.listPoolPairs()
-    // return poolPairsById[id]
   }
 
   async listPoolPairs (ttlSeconds: number): Promise<PoolPairsResult | undefined> {
@@ -114,14 +107,6 @@ export class DeFiDCache extends GlobalCache {
         ttl: ttlSeconds
       }
     )
-    // if (res !== undefined) {
-    //   console.log('res: ', Object.keys(res))
-    // }
-
-    // const res2 = await this.rpcClient.poolpair.listPoolPairs()
-    // console.log('res2: ', Object.keys(res2))
-
-    // return res2
   }
 
   /**
