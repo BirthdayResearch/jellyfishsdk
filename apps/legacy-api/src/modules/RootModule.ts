@@ -8,7 +8,7 @@ import { LoggingModule } from './LoggingModule'
 function AppConfiguration (): Record<string, any> {
   return {
     SWAP_CACHE_COUNT: process.env.SWAP_CACHE_COUNT ?? 1_000,
-    OCEAN_ENDPOINT: process.env.OCEAN_ENDPOINT ?? 'https://ocean.defichain.com/v0/'
+    OCEAN_ENDPOINT: process.env.OCEAN_ENDPOINT ?? 'https://ocean.defichain.com/v0'
   }
 }
 
