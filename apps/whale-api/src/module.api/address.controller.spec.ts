@@ -1,4 +1,3 @@
-// import { Test, TestingModule } from '@nestjs/testing'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { AddressController } from './address.controller'
 import { createToken, mintTokens, sendTokensToAddress } from '@defichain/testing'
@@ -101,7 +100,6 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-  // await container.stop()
   await stopTestingApp(container, app)
 })
 
