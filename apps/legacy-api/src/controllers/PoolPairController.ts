@@ -83,7 +83,7 @@ export class PoolPairController {
     @Query('limit') limit: number = 30,
     @Query('next') nextString?: string
   ): Promise<LegacySubgraphSwapsResponse> {
-    const url = new URL(`${this.oceanEndpoint}/legacy/getsubgraphswaps`)
+    const url = new URL(`${this.oceanEndpoint}/${network}/legacy/getsubgraphswaps`)
     url.searchParams.set('limit', limit.toString())
     if (nextString !== undefined) {
       url.searchParams.set('next', nextString)
