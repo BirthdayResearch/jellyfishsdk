@@ -86,7 +86,9 @@ import { PoolPairPricesService } from './poolpair.prices.service'
       inject: [ConfigService]
     }
   ],
-  exports: [DeFiDCache]
+  exports: [
+    DeFiDCache
+  ]
 })
 export class ApiModule {
 }
