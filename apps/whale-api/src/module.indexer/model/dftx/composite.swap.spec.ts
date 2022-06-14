@@ -3,8 +3,6 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, stopTestingApp, waitForIndexedHeightLatest } from '../../../e2e.module'
 import { Testing } from '@defichain/jellyfish-testing'
 import { PoolSwapMapper } from '../../../module.model/pool.swap'
-import { DeFiDCache } from '../../../module.api/cache/defid.cache'
-import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
 
 const container = new MasterNodeRegTestContainer()
 let testing: Testing
@@ -34,13 +32,6 @@ beforeEach(async () => {
   await container.generate(1)
 
   app = await createTestingApp(container)
-  const defiCache = app.get(DeFiDCache)
-
-  const tokenResult = await container.call('listtokens')
-  // precache
-  for (const k in tokenResult) {
-    await defiCache.getTokenInfo(k) as TokenInfo
-  }
 })
 
 afterEach(async () => {
