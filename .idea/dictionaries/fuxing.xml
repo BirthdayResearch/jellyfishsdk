@@ -24,15 +24,19 @@
       <w>blocktime</w>
       <w>booland</w>
       <w>boolor</w>
+      <w>buildcache</w>
       <w>canonbrother</w>
       <w>chainparams</w>
       <w>chainwork</w>
+      <w>chanakasameera</w>
       <w>checklocktimeverify</w>
       <w>checkmultisig</w>
       <w>checkmultisigverify</w>
       <w>checksequenceverify</w>
       <w>checksig</w>
       <w>checksigverify</w>
+      <w>chee</w>
+      <w>chyuan</w>
       <w>clarkequayheight</w>
       <w>closevault</w>
       <w>codeclimate</w>
@@ -63,6 +67,7 @@
       <w>devnet</w>
       <w>dfip</w>
       <w>dftx</w>
+      <w>dockerignore</w>
       <w>dockerode</w>
       <w>dogfooding</w>
       <w>dummypos</w>
@@ -139,6 +144,7 @@
       <w>lastblockcreationattempt</w>
       <w>lessthan</w>
       <w>lessthanorequal</w>
+      <w>leveldown</w>
       <w>libevent</w>
       <w>listaccounts</w>
       <w>listaddressgroupings</w>
@@ -150,6 +156,7 @@
       <w>listmasternodes</w>
       <w>listpoolpairs</w>
       <w>listpoolshares</w>
+      <w>listswaps</w>
       <w>listunspent</w>
       <w>listvaults</w>
       <w>liveness</w>

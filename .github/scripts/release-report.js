@@ -5,18 +5,28 @@
  * along with some quality of life links.
  */
 module.exports = ({ context }) => {
-  const links = getContainerLinks(context)
+  const prLinks = getContainerPRLinks(context)
+  const hashLinks = getContainerHashLinks(context)
   return `
 
 Docker build preview for jellyfish/apps is ready!
           
 Built with commit ${context.sha}
 
- - ${links.join('\n - ')}
+ - ${prLinks.join('\n - ')}
+
+You can also get an immutable image with the commit hash
+
+ - ${hashLinks.join('\n - ')}
 `
 }
 
-function getContainerLinks ({ payload: { number } }) {
+function getContainerPRLinks({ payload: { number } }) {
   const apps = process.env.APPS.split(',')
-  return apps.map(app => `ghcr.io/defich/${app}:pr-${number}`)
+  return apps.map(app => `ghcr.io/jellyfishsdk/${app}:pr-${number}`)
+}
+
+function getContainerHashLinks({ sha }) {
+  const apps = process.env.APPS.split(',')
+  return apps.map(app => `ghcr.io/jellyfishsdk/${app}:${sha}`)
 }

@@ -74,7 +74,7 @@ describe('Raw transaction', () => {
     })
 
     expect(unsigned.substr(0, 84)).toStrictEqual(
-      '0400000001' + Buffer.from(txid, 'hex').reverse().toString('hex') + '0000000000'
+      `0400000001${Buffer.from(txid, 'hex').reverse().toString('hex')}0000000000`
     )
     expect(unsigned.substr(84, 8)).toStrictEqual('feffffff')
     expect(unsigned.substr(92, 66)).toStrictEqual('010065cd1d000000001600144ab4391ce5a732e36139e72d79a28e01b7b0803400')
@@ -94,7 +94,7 @@ describe('Raw transaction', () => {
     })
 
     expect(unsigned.substr(0, 84)).toStrictEqual(
-      '0400000001' + Buffer.from(txid, 'hex').reverse().toString('hex') + '0000000000'
+      `0400000001${Buffer.from(txid, 'hex').reverse().toString('hex')}0000000000`
     )
     expect(unsigned.substr(84, 8)).toStrictEqual('fdffffff')
     expect(unsigned.substr(92, 74)).toStrictEqual('010065cd1d000000001600144ab4391ce5a732e36139e72d79a28e01b7b080340000000000')

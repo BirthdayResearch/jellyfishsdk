@@ -23,16 +23,18 @@
 /docs/legacy/                                   @fuxingloh @eli-lim
 /apps/legacy-api/                               @fuxingloh @joeldavidw @eli-lim
 
+/apps/status-api/                               @fuxingloh @joeldavidw @nichellekoh
+
 /docs/ocean/                                    @fuxingloh @canonbrother @ivan-zynesis
 /apps/ocean-api/                                @fuxingloh @canonbrother @kodemon
 /packages/ocean-api-client/                     @fuxingloh @canonbrother @kodemon
 
-/apps/playground-api/                           @fuxingloh @canonbrother
-/packages/playground-api-client/                @fuxingloh @canonbrother
+/apps/playground-api/                           @fuxingloh @canonbrother @surangap
+/packages/playground-api-client/                @fuxingloh @canonbrother @surangap
 
-/apps/whale-api/                                @fuxingloh @canonbrother @ivan-zynesis @jingyi2811 @kodemon
-/packages/whale-api-client/                     @fuxingloh @canonbrother @ivan-zynesis @jingyi2811 @kodemon
-/packages/whale-api-wallet/                     @fuxingloh @canonbrother @ivan-zynesis @jingyi2811 @kodemon
+/apps/whale-api/                                @fuxingloh @canonbrother @ivan-zynesis @jingyi2811 @kodemon @eli-lim
+/packages/whale-api-client/                     @fuxingloh @canonbrother @ivan-zynesis @jingyi2811 @kodemon @eli-lim
+/packages/whale-api-wallet/                     @fuxingloh @canonbrother @ivan-zynesis @jingyi2811 @kodemon @eli-lim
 
 /packages/jellyfish-testing/                    @fuxingloh @canonbrother @jingyi2811 @surangap
 /packages/playground/                           @fuxingloh @canonbrother
@@ -44,8 +46,8 @@
 /packages/jellyfish-crypto/                     @fuxingloh @ivan-zynesis @surangap
 /packages/jellyfish-transaction-signature/      @fuxingloh @ivan-zynesis @surangap
 
-/packages/jellyfish-wallet/                     @fuxingloh @ivan-zynesis @monstrobishi
-/packages/jellyfish-wallet-classic/             @fuxingloh @ivan-zynesis @monstrobishi
+/packages/jellyfish-wallet/                     @fuxingloh @ivan-zynesis
+/packages/jellyfish-wallet-classic/             @fuxingloh @ivan-zynesis
 /packages/jellyfish-wallet-encrypted/           @fuxingloh @ivan-zynesis
 /packages/jellyfish-wallet-mnemonic/            @fuxingloh @ivan-zynesis
 

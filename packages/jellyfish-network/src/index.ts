@@ -1,3 +1,4 @@
+export * from './BitcoinJsLib'
 export * from './BlockRewardDistribution'
 export * from './BlockSubsidy'
 export * from './Network'

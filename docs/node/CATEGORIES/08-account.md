@@ -6,8 +6,9 @@ slug: /jellyfish/api/account
 ---
 
 ```js
-import {Client} from '@defichain/jellyfish'
-const client = new Client()
+import {JsonRpcClient} from '@defichain/jellyfish-api-jsonrpc'
+const client = new JsonRpcClient('http://foo:bar@localhost:8554')
+
 // Using client.account.
 const something = await client.account.method()
 ```
@@ -30,7 +31,7 @@ interface account {
 }
 
 interface AccountPagination {
-  start?: number
+  start?: number | string
   including_start?: boolean
   limit?: number
 }
@@ -97,7 +98,7 @@ interface AccountAmount {
 }
 
 interface AccountPagination {
-  start?: string | number
+  start?: number | string
   including_start?: boolean
   limit?: number
 }
@@ -218,8 +219,8 @@ enum DfTxType {
 interface AccountHistory {
   owner: string
   blockHeight: number
-  blockHash: string
-  blockTime: number
+  blockHash?: string
+  blockTime?: number
   type: string
   txn: number
   txid: string
@@ -233,6 +234,7 @@ interface AccountHistoryOptions {
   token?: string
   txtype?: DfTxType
   limit?: number
+  txn?: number
 }
 ```
 
@@ -252,8 +254,8 @@ interface account {
 interface AccountHistory {
   owner: string
   blockHeight: number
-  blockHash: string
-  blockTime: number
+  blockHash?: string
+  blockTime?: number
   type: string
   txn: number
   txid: string
@@ -455,5 +457,95 @@ interface BurnInfo {
    * Amount of tokens that are paid back; formatted as AMOUNT@SYMBOL
    */
   dfipaybacktokens: string[]
+  /**
+   * Amount of paybacks
+   */
+  paybackfees: string[]
+  /**
+   * Amount of tokens that are paid back
+   */
+  paybacktokens: string[]
+  /**
+   * Amount of tokens burned due to futureswap
+   */
+  dfip2203: string[]
+}
+```
+
+## futureSwap
+
+Creates and submits to the network a futures contract.
+
+```ts title="client.account.futureSwap()"
+interface account {
+  futureSwap (future: FutureSwap, utxos: UTXO[] = []): Promise<string>
+}
+
+interface FutureSwap {
+  address: string
+  amount: string
+  destination?: string
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## withdrawFutureSwap
+
+Creates and submits to the network a withdrawal from futures contract transaction.
+
+```ts title="client.account.withdrawFutureSwap()"
+interface account {
+  withdrawFutureSwap (future: FutureSwap, utxos: UTXO[] = []): Promise<string>
+}
+
+interface FutureSwap {
+  address: string
+  amount: string
+  destination?: string
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## getPendingFutureSwaps
+
+Get specific pending futures.
+
+```ts title="client.account.getPendingFutureSwaps()"
+interface account {
+  getPendingFutureSwaps (address: string): Promise<GetFutureInfo>
+}
+
+interface GetFutureInfo {
+  owner: string
+  values: FutureData[]
+}
+
+interface FutureData {
+  source: string // eg: '1.234@DUSD'
+  destination: string
+}
+```
+
+## listPendingFutureSwaps
+
+List all pending futures.
+
+```ts title="client.account.listPendingFutureSwaps()"
+interface account {
+  listPendingFutureSwaps (): Promise<ListFutureInfo[]>
+}
+
+interface ListFutureInfo {
+  owner: string
+  source: string // eg: '1.234@DUSD'
+  destination: string
 }
 ```

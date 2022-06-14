@@ -6,9 +6,9 @@ slug: /jellyfish/api/masternode
 ---
 
 ```js
-import {Client} from '@defichain/jellyfish'
+import {JsonRpcClient} from '@defichain/jellyfish-api-jsonrpc'
+const client = new JsonRpcClient('http://foo:bar@localhost:8554')
 
-const client = new Client()
 // Using client.masternode.
 const something = await client.masternode.method()
 ```
@@ -79,16 +79,19 @@ interface MasternodePagination {
 interface MasternodeInfo {
   ownerAuthAddress: string
   operatorAuthAddress: string
+  rewardAddress: string
   creationHeight: number
   resignHeight: number
   resignTx: string
-  banHeight: number
-  banTx: string
+  collateralTx: string
   state: MasternodeState
   mintedBlocks: number
   ownerIsMine: boolean
   operatorIsMine: boolean
   localMasternode: boolean
+  targetMultiplier?: number
+  targetMultipliers?: number[]
+  timelock?: number
 }
 
 interface MasternodeResult<T> {
@@ -118,16 +121,19 @@ enum MasternodeState {
 interface MasternodeInfo {
   ownerAuthAddress: string
   operatorAuthAddress: string
+  rewardAddress: string
   creationHeight: number
   resignHeight: number
   resignTx: string
-  banHeight: number
-  banTx: string
+  collateralTx: string
   state: MasternodeState
   mintedBlocks: number
   ownerIsMine: boolean
   operatorIsMine: boolean
   localMasternode: boolean
+  targetMultiplier?: number
+  targetMultipliers?: number[]
+  timelock?: number
 }
 
 interface MasternodeResult<T> {

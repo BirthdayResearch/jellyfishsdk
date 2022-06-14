@@ -132,6 +132,7 @@ describe('loan.updateLoanToken()', () => {
         }
       },
       fixedIntervalPriceId: 'Token2/USD',
+      mintable: true,
       interest: 0.01
     }])
   })

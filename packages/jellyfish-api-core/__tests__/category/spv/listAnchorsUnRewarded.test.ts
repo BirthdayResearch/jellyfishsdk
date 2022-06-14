@@ -1,6 +1,7 @@
 import { spv } from '@defichain/jellyfish-api-core'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { GenesisKeys } from '@defichain/testcontainers'
+import { ListAnchorsResult } from '@defichain/jellyfish-api-core/dist/category/spv'
 
 describe('Spv', () => {
   const tGroup = TestingGroup.create(3)
@@ -102,19 +103,19 @@ describe('Spv', () => {
     await tGroup.get(0).container.call('spv_setlastheight', [6])
     await tGroup.get(1).container.call('spv_setlastheight', [6])
 
-    const anchors = await tGroup.get(0).container.call('spv_listanchors')
+    const anchors: ListAnchorsResult[] = await tGroup.get(0).container.call('spv_listanchors')
     expect(anchors.length).toBeGreaterThan(0)
-    const activeAnchor = anchors.find((anchor: any) => anchor.active)
+    const activeAnchor = anchors.find(anchor => anchor.active)
 
     const rewardConfs = await tGroup.get(0).container.call('spv_listanchorrewardconfirms')
     expect(rewardConfs.length).toBeGreaterThan(0)
     const rewardConf = rewardConfs[0]
     expect(typeof rewardConf.btcTxHeight).toStrictEqual('number')
-    expect(rewardConf.btcTxHash).toStrictEqual(activeAnchor.btcTxHash)
-    expect(rewardConf.anchorHeight).toStrictEqual(activeAnchor.defiBlockHeight)
-    expect(rewardConf.dfiBlockHash).toStrictEqual(activeAnchor.defiBlockHash)
+    expect(rewardConf.btcTxHash).toStrictEqual(activeAnchor?.btcTxHash)
+    expect(rewardConf.anchorHeight).toStrictEqual(activeAnchor?.defiBlockHeight)
+    expect(rewardConf.dfiBlockHash).toStrictEqual(activeAnchor?.defiBlockHash)
     expect(typeof rewardConf.prevAnchorHeight).toStrictEqual('number')
-    expect(rewardConf.rewardAddress).toStrictEqual(activeAnchor.rewardAddress)
+    expect(rewardConf.rewardAddress).toStrictEqual(activeAnchor?.rewardAddress)
     expect(typeof rewardConf.confirmSignHash).toStrictEqual('string')
     expect(typeof rewardConf.signers).toStrictEqual('number')
 

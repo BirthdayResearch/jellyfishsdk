@@ -88,6 +88,7 @@ describe('Loan listLoanTokens', () => {
           }
         },
         fixedIntervalPriceId: 'AAPL/USD',
+        mintable: true,
         interest: new BigNumber(0.01)
       },
       {
@@ -113,6 +114,7 @@ describe('Loan listLoanTokens', () => {
           }
         },
         fixedIntervalPriceId: 'TSLA/USD',
+        mintable: false,
         interest: new BigNumber(0.02)
       }
     ])

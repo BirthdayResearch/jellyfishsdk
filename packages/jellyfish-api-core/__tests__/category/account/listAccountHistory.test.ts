@@ -1,7 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
-import { DfTxType, BalanceTransferPayload } from '../../../src/category/account'
+import { DfTxType, BalanceTransferPayload, AccountResult, AccountOwner } from '../../../src/category/account'
 
 function createTokenForContainer (container: MasterNodeRegTestContainer) {
   return async (address: string, symbol: string, amount: number) => {
@@ -83,7 +83,7 @@ describe('Account', () => {
   })
 
   it('should listAccountHistory with owner CScript', async () => {
-    const accounts: any[] = await client.account.listAccounts()
+    const accounts: Array<AccountResult<AccountOwner, string>> = await client.account.listAccounts()
 
     const { owner } = accounts[0]
     const { hex, addresses } = owner
@@ -197,6 +197,110 @@ describe('Account', () => {
       }
       const accountHistories = await client.account.listAccountHistory('mine', options)
       expect(accountHistories.length).toStrictEqual(1)
+    })
+  })
+
+  it('should listAccountHistory with options owner mine block height and txn', async () => {
+    const options = {
+      maxBlockHeight: 102,
+      txn: 2
+    }
+    const accountHistories = await client.account.listAccountHistory('mine', options)
+    expect(accountHistories.length).toBeGreaterThan(0)
+    accountHistories.forEach(accountHistory => {
+      expect(accountHistory.blockHeight).toBeLessThanOrEqual(options.maxBlockHeight)
+      if (accountHistory.blockHeight === options.maxBlockHeight) {
+        expect(accountHistory.txn).toBeLessThanOrEqual(options.txn)
+      }
+    })
+  })
+
+  // If you don't set maxBlockHeight, it will consider the last block height
+  it('should listAccountHistory with owner mine options txn', async () => {
+    const options = {
+      txn: 2
+    }
+    const accountHistories = await client.account.listAccountHistory('mine', options)
+    expect(accountHistories.length).toBeGreaterThan(0)
+    accountHistories.forEach(accountHistory => {
+      expect(accountHistory.blockHeight).toBeLessThanOrEqual(103)
+      if (accountHistory.blockHeight === 103) {
+        expect(accountHistory.txn).toBeLessThanOrEqual(options.txn)
+      }
+    })
+  })
+
+  it('should listAccountHistory with owner all options block height and txn', async () => {
+    const options = {
+      maxBlockHeight: 102,
+      txn: 1
+    }
+    const accountHistories = await client.account.listAccountHistory('all', options)
+    expect(accountHistories.length).toBeGreaterThan(0)
+    accountHistories.forEach(accountHistory => {
+      expect(accountHistory.blockHeight).toBeLessThanOrEqual(options.maxBlockHeight)
+      if (accountHistory.blockHeight === options.maxBlockHeight) {
+        expect(accountHistory.txn).toBeLessThanOrEqual(options.txn)
+      }
+    })
+  })
+
+  it('should listAccountHistory with owner all options block height, type and txn', async () => {
+    const options = {
+      maxBlockHeight: 103,
+      txn: 2,
+      txtype: DfTxType.MINT_TOKEN
+    }
+    const accountHistories = await client.account.listAccountHistory('all', options)
+    expect(accountHistories.length).toBeGreaterThan(0)
+    accountHistories.forEach(accountHistory => {
+      expect(accountHistory.blockHeight).toBeLessThanOrEqual(options.maxBlockHeight)
+      if (accountHistory.blockHeight === options.maxBlockHeight) {
+        expect(accountHistory.txn).toBeLessThanOrEqual(options.txn)
+      }
+      expect(accountHistory.type).toStrictEqual('MintToken')
+    })
+  })
+
+  it('should listAccountHistory with owner CScript options block height and txn 1', async () => {
+    const accounts: Array<AccountResult<AccountOwner, string>> = await client.account.listAccounts()
+
+    const { owner } = accounts[0]
+    const { hex, addresses } = owner
+
+    const options = {
+      maxBlockHeight: 103,
+      txn: 1
+    }
+    const accountHistories = await client.account.listAccountHistory(hex, options)
+    expect(accountHistories.length).toBeGreaterThan(0)
+    accountHistories.forEach(accountHistory => {
+      expect(addresses.includes(accountHistory.owner)).toStrictEqual(true)
+      expect(accountHistory.blockHeight).toBeLessThanOrEqual(options.maxBlockHeight)
+      if (accountHistory.blockHeight === options.maxBlockHeight) {
+        expect(accountHistory.txn).toBeLessThanOrEqual(options.txn)
+      }
+    })
+  })
+
+  it('should listAccountHistory with owner CScript options block height and txn 0', async () => {
+    const accounts: Array<AccountResult<AccountOwner, string>> = await client.account.listAccounts()
+
+    const { owner } = accounts[0]
+    const { hex, addresses } = owner
+
+    const options = {
+      maxBlockHeight: 103,
+      txn: 0
+    }
+    const accountHistories = await client.account.listAccountHistory(hex, options)
+    expect(accountHistories.length).toBeGreaterThan(0)
+    accountHistories.forEach(accountHistory => {
+      expect(addresses.includes(accountHistory.owner)).toStrictEqual(true)
+      expect(accountHistory.blockHeight).toBeLessThanOrEqual(options.maxBlockHeight)
+      if (accountHistory.blockHeight === options.maxBlockHeight) {
+        expect(accountHistory.txn).toBeLessThanOrEqual(options.txn)
+      }
     })
   })
 })

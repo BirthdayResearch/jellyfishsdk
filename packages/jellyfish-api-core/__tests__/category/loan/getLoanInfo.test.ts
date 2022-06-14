@@ -401,8 +401,8 @@ describe('Loan - getLoanInfo', () => {
         }
       })
       // loan value will include some interest
-      expect(data.totals.loanValue.gt(10)).toBeTruthy() // 2 * 5
-      expect(data.totals.loanValue.lt(10.0001)).toBeTruthy()
+      expect(data.totals.loanValue.gt(10)).toStrictEqual(true) // 2 * 5
+      expect(data.totals.loanValue.lt(10.0001)).toStrictEqual(true)
     }
 
     await testing.rpc.loan.takeLoan({
@@ -554,6 +554,129 @@ describe('Loan - getLoanInfo', () => {
           openVaults: new BigNumber(1),
           collateralValue: new BigNumber(0),
           openAuctions: new BigNumber(1)
+        }
+      })
+    }
+  })
+
+  it('should check openAuctions to reflect auction batch count', async () => {
+    // extra preps
+    await testing.rpc.oracle.setOracleData(collateralOracleId, now(), {
+      prices: [
+        { tokenAmount: '1@DFI', currency: 'USD' },
+        { tokenAmount: '10000@BTC', currency: 'USD' },
+        { tokenAmount: '101@ETH', currency: 'USD' },
+        { tokenAmount: '10@TSLA', currency: 'USD' },
+        { tokenAmount: '4@AMZN', currency: 'USD' }
+      ]
+    })
+    await testing.generate(11)
+
+    await testing.rpc.loan.setCollateralToken({
+      token: 'DFI',
+      factor: new BigNumber(1),
+      fixedIntervalPriceId: 'DFI/USD',
+      activateAfterBlock: await testing.rpc.blockchain.getBlockCount() + 1
+    })
+    await testing.generate(2) // ensure collateral token activated
+
+    await testing.rpc.loan.setCollateralToken({
+      token: 'BTC',
+      factor: new BigNumber(1),
+      fixedIntervalPriceId: 'BTC/USD',
+      activateAfterBlock: await testing.rpc.blockchain.getBlockCount() + 1
+    })
+    await testing.generate(2) // ensure collateral token activated
+
+    await testing.rpc.loan.setLoanToken({
+      symbol: 'TSLA',
+      fixedIntervalPriceId: 'TSLA/USD'
+    })
+    await testing.container.generate(1)
+
+    await testing.rpc.loan.createLoanScheme({
+      minColRatio: 150,
+      interestRate: new BigNumber(2),
+      id: 'scheme1'
+    })
+    await testing.container.generate(1)
+
+    await testing.rpc.loan.createLoanScheme({
+      minColRatio: 150,
+      interestRate: new BigNumber(1.5),
+      id: 'scheme2'
+    })
+    await testing.container.generate(1)
+
+    const vaultOwnerAddress = await testing.generateAddress()
+    const vault1Id = await testing.rpc.loan.createVault({
+      ownerAddress: vaultOwnerAddress
+    })
+    await testing.container.generate(1)
+
+    await testing.token.dfi({ amount: 100000, address: vaultOwnerAddress })
+    await testing.container.generate(1)
+    await testing.rpc.loan.depositToVault({
+      vaultId: vault1Id,
+      from: vaultOwnerAddress,
+      amount: '100000@DFI'
+    })
+    await testing.container.generate(1)
+
+    await testing.rpc.loan.takeLoan({
+      vaultId: vault1Id,
+      amounts: '1000@TSLA'
+    })
+    await testing.container.generate(12)
+
+    const extendedStartingData: GetLoanInfoResult = {
+      ...startingData,
+      currentPriceBlock: new BigNumber(132),
+      nextPriceBlock: new BigNumber(138),
+      defaults: {
+        ...startingData.defaults,
+        scheme: 'scheme1'
+      },
+      totals: {
+        ...startingData.totals,
+        schemes: new BigNumber(2),
+        collateralTokens: new BigNumber(2),
+        collateralValue: new BigNumber(100000),
+        openVaults: new BigNumber(1),
+        loanTokens: new BigNumber(1),
+        loanValue: expect.any(BigNumber)
+      }
+    }
+
+    { // before
+      const data = await testing.rpc.loan.getLoanInfo()
+      expect(data).toStrictEqual(extendedStartingData)
+    }
+
+    await testing.rpc.oracle.setOracleData(collateralOracleId, now(), {
+      prices: [
+        { tokenAmount: '85@TSLA', currency: 'USD' }
+      ]
+    })
+    await testing.container.generate(12)
+
+    { // After
+      const auctions = await testing.container.call('listauctions')
+      expect(auctions.length).toStrictEqual(1)
+      expect(auctions[0].batchCount).toStrictEqual(10)
+
+      const data = await testing.rpc.loan.getLoanInfo()
+      expect(data).toStrictEqual({
+        ...extendedStartingData,
+        currentPriceBlock: expect.any(BigNumber),
+        nextPriceBlock: expect.any(BigNumber),
+        totals: {
+          ...extendedStartingData.totals,
+          // vault liquidated
+          openVaults: new BigNumber(1),
+          collateralValue: new BigNumber(0),
+          schemes: new BigNumber(2),
+          openAuctions: new BigNumber(10)
         }
       })
     }

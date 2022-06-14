@@ -1,4 +1,4 @@
-name: Governance
+name: OSS Governance
 
 on:
   pull_request_target:
@@ -8,12 +8,17 @@ on:
   issue_comment:
     types: [ created ]
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+  statuses: write
+  checks: write
+
 jobs:
-  main:
-    name: OSS
+  Bot:
     runs-on: ubuntu-latest
     steps:
-      - uses: DeFiCh/oss-governance-bot@99f1d488fe91acc397cdac556f3c6bd309f28460
+      - uses: BirthdayResearch/oss-governance-bot@52367df5cdbc6ede6126a1db7a663f22cffe739c
         with:
-          github-token: ${{ secrets.DEFICHAIN_BOT_GITHUB_TOKEN }}
-
+          github-token: ${{ secrets.JELLYFISHSDK_BOT_GITHUB_TOKEN }}

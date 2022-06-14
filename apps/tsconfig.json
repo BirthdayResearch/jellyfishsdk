@@ -4,12 +4,27 @@
     "./*/src",
     "./libs/*/src"
   ],
+  "exclude": [
+    "**/*e2e.ts"
+  ],
   "compilerOptions": {
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
       "@defichain-apps/libs/*": [
         "libs/*/src"
+      ],
+      "@defichain/jellyfish-api-core/dist/*": [
+        "../packages/jellyfish-api-core/src/*"
+      ],
+      "@defichain/whale-api-client/dist/*": [
+        "../packages/whale-api-client/src/*"
+      ],
+      "@defichain/jellyfish-transaction/dist/*": [
+        "../packages/jellyfish-transaction/src/*"
+      ],
+      "@defichain/testcontainers/dist/*": [
+        "../packages/testcontainers/src/*"
       ],
       "@defichain/*": [
         "../packages/*/src"

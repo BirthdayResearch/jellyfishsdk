@@ -14,7 +14,7 @@ class MultiOperatorGovernanceMasterNodeRegTestContainer extends GovernanceMaster
   }
 }
 
-describe('Governance', () => {
+describe.skip('Governance', () => {
   const testing = Testing.create(new MultiOperatorGovernanceMasterNodeRegTestContainer())
 
   let masternodes: masternode.MasternodeResult<masternode.MasternodeInfo>

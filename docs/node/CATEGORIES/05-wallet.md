@@ -6,9 +6,8 @@ slug: /jellyfish/api/wallet
 ---
 
 ```js
-import {Client} from '@defichain/jellyfish'
-
-const client = new Client()
+import {JsonRpcClient} from '@defichain/jellyfish-api-jsonrpc'
+const client = new JsonRpcClient('http://foo:bar@localhost:8554')
 
 // Using client.wallet.
 const something = await client.wallet.method()
@@ -36,6 +35,7 @@ Identical to getBalance to get untrusted pending balance.
 ```ts title="client.wallet.getUnconfirmedBalance()"
 interface wallet {
   getUnconfirmedBalance (): Promise<BigNumber>
+}
 ```
 
 ## getBalances
@@ -339,7 +339,7 @@ List groups of addresses which have had their common ownership made public by co
 
 ```ts title="client.wallet.listAddressGroupings()"
 interface wallet {
-  listAddressGroupings (): Promise<any[][][]>
+  listAddressGroupings (): Promise<string | BigNumber[][][]>
 }
 ```
 
