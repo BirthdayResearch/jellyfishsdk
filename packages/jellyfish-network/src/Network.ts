@@ -8,7 +8,7 @@ export type NetworkName = Network['name']
  * They can be found in DeFiCh/ain project in file chainparams.cpp, under base58Prefixes
  */
 export interface Network {
-  name: 'mainnet' | 'testnet' | 'regtest'
+  name: 'mainnet' | 'testnet' | 'regtest' | 'devnet'
   bech32: {
     /** bech32 human readable part */
     hrp: 'df' | 'tf' | 'bcrt'
