@@ -19,9 +19,9 @@ import { TransactionVoutMapper } from '../module.model/transaction.vout'
 import { BigNumber } from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
 import { Injectable, Logger } from '@nestjs/common'
-import { SimpleCache } from '../../../legacy-api/src/cache/SimpleCache'
 import { requireValue } from './stats.controller'
 import { NetworkName } from '@defichain/jellyfish-network'
+import { LegacyCache } from '@defichain-apps/libs/caches'
 
 @Injectable()
 export class LegacySubgraphService {
@@ -32,7 +32,7 @@ export class LegacySubgraphService {
     protected readonly blockMapper: BlockMapper,
     protected readonly transactionMapper: TransactionMapper,
     protected readonly transactionVoutMapper: TransactionVoutMapper,
-    private readonly cache: SimpleCache
+    private readonly cache: LegacyCache
   ) {
   }
 

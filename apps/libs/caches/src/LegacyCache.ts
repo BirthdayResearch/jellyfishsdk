@@ -1,16 +1,24 @@
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common'
-import { Cache } from 'cache-manager'
+import { Injectable } from '@nestjs/common'
+import { Cache, caching } from 'cache-manager'
 
-export interface CacheOption {
+interface CacheOption {
   ttl?: number
 }
 
+/**
+ * A cache intentionally separated from the global singleton cache manager
+ * shared among services in whale; to eliminate cache "competition" as the legacy
+ * services generally require caching more objects.
+ */
 @Injectable()
-export class SimpleCache {
-  constructor (
-    @Inject(CACHE_MANAGER) protected readonly cacheManager: Cache
-  ) {
-  }
+export class LegacyCache {
+  // An encapsulated cache that is not dependent on global CacheModule
+  // which the other services depend on
+  private readonly cacheManager: Cache = caching({
+    store: 'memory',
+    ttl: 600, // 10m
+    max: 10_000
+  })
 
   /**
    * Get from cache, providing a fetch interface if cache miss.

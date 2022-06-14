@@ -9,7 +9,7 @@ import { PoolPairController } from './poolpair.controller'
 import { PoolPairService } from './poolpair.service'
 import { MasternodeService } from './masternode.service'
 import { DeFiDCache } from './cache/defid.cache'
-import { SemaphoreCache } from '@defichain-apps/libs/caches'
+import { SemaphoreCache, LegacyCache } from '@defichain-apps/libs/caches'
 import { ExceptionInterceptor } from './interceptors/exception.interceptor'
 import { ResponseInterceptor } from './interceptors/response.interceptor'
 import { TokenController } from './token.controller'
@@ -32,7 +32,6 @@ import { LoanVaultService } from './loan.vault.service'
 import { PoolSwapPathFindingService } from './poolswap.pathfinding.service'
 import { PoolPairPricesService } from './poolpair.prices.service'
 import { LegacyController } from './legacy.controller'
-import { SimpleCache } from '../../../legacy-api/src/cache/SimpleCache'
 import { LegacySubgraphService } from './legacy.subgraph.service'
 
 /**
@@ -71,7 +70,7 @@ import { LegacySubgraphService } from './legacy.subgraph.service'
     },
     DeFiDCache,
     SemaphoreCache,
-    SimpleCache,
+    LegacyCache,
     PoolPairService,
     PoolSwapPathFindingService,
     PoolPairPricesService,
