@@ -1,4 +1,3 @@
-import { SupportedNetwork } from '../../../legacy-api/src/pipes/NetworkValidationPipe'
 import { parseHeight } from './block.controller'
 import { BlockTxn, encodeBase64 } from '../../../legacy-api/src/controllers/PoolPairController'
 import { Block } from '@defichain/whale-api-client/dist/api/blocks'
@@ -20,6 +19,9 @@ import { TransactionVoutMapper } from '../module.model/transaction.vout'
 import { BigNumber } from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
 import { Injectable, Logger } from '@nestjs/common'
+import { SimpleCache } from '../../../legacy-api/src/cache/SimpleCache'
+import { requireValue } from './stats.controller'
+import { NetworkName } from '@defichain/jellyfish-network'
 
 @Injectable()
 export class LegacySubgraphService {
@@ -29,7 +31,8 @@ export class LegacySubgraphService {
     protected readonly rpcClient: JsonRpcClient,
     protected readonly blockMapper: BlockMapper,
     protected readonly transactionMapper: TransactionMapper,
-    protected readonly transactionVoutMapper: TransactionVoutMapper
+    protected readonly transactionVoutMapper: TransactionVoutMapper,
+    private readonly cache: SimpleCache
   ) {
   }
 
@@ -42,7 +45,7 @@ export class LegacySubgraphService {
   }
 
   async getSwapsHistory (
-    network: SupportedNetwork,
+    network: NetworkName,
     limit: number,
     nextToken: NextToken
   ): Promise<{ swaps: LegacySubgraphSwap[], next: NextToken }> {
@@ -52,7 +55,29 @@ export class LegacySubgraphService {
       const height = parseHeight(nextToken?.height)
 
       for (const block of await this.blockMapper.queryByHeight(200, height)) {
-        const blockTxns: BlockTxn[] = await this.getBlockTransactionsWithNonSwapsAsNull(block, network, nextToken)
+        let blockTxns: BlockTxn[]
+
+        if (await this.isRecentBlock(block)) {
+          blockTxns = await this.getBlockTransactionsWithNonSwapsAsNull(block, network, nextToken)
+        } else {
+          blockTxns = await this.cache.get<BlockTxn[]>(
+            block.hash,
+            async () => {
+              const cached = await this.getBlockTransactionsWithNonSwapsAsNull(block, network, nextToken)
+              if (cached.length > 0) {
+                const swapCount = cached.reduce(
+                  (count, txn) => txn.swap === null ? count : count + 1,
+                  0
+                )
+                this.logger.log(`[${network}] Block ${block.height} - cached ${swapCount} swaps`)
+              }
+              return cached
+            },
+            {
+              ttl: 24 * 60 * 60
+            }
+          ) ?? []
+        }
 
         for (let i = Number(nextToken.order ?? '0'); i < blockTxns.length; i++) {
           const blockTxn = blockTxns[i]
@@ -106,7 +131,7 @@ export class LegacySubgraphService {
 
   private async getBlockTransactionsWithNonSwapsAsNull (
     block: Block,
-    network: SupportedNetwork,
+    network: NetworkName,
     next: NextToken
   ): Promise<BlockTxn[]> {
     const swaps: BlockTxn[] = []
@@ -122,29 +147,33 @@ export class LegacySubgraphService {
     return swaps
   }
 
-  private async getSwapFromTransaction (transaction: Transaction, network: SupportedNetwork): Promise<LegacySubgraphSwap | null> {
-    if (transaction.voutCount !== 2) {
-      return null
-    }
-    if (transaction.weight === 605) {
-      return null
-    }
+  private async getSwapFromTransaction (transaction: Transaction, network: NetworkName): Promise<LegacySubgraphSwap | null> {
+    return await this.cache.get<LegacySubgraphSwap | null>(transaction.txid, async () => {
+      if (transaction.voutCount !== 2) {
+        return null
+      }
+      if (transaction.weight === 605) {
+        return null
+      }
 
-    const vouts = await this.transactionVoutMapper.query(transaction.txid, 1)
-    const dftx = this.findPoolSwapDfTx(vouts)
-    if (dftx === undefined) {
-      return null
-    }
+      const vouts = await this.transactionVoutMapper.query(transaction.txid, 1)
+      const dftx = this.findPoolSwapDfTx(vouts)
+      if (dftx === undefined) {
+        return null
+      }
 
-    const swap = await this.findSwap(network, dftx, transaction)
-    if (swap === undefined) {
-      return null
-    }
+      const swap = await this.findSwap(network, dftx, transaction)
+      if (swap === undefined) {
+        return null
+      }
 
-    return swap
+      return swap
+    }, {
+      ttl: 24 * 60 * 60
+    }) ?? null
   }
 
-  private async findSwap (network: SupportedNetwork, poolSwap: PoolSwap, transaction: Transaction): Promise<LegacySubgraphSwap | undefined> {
+  private async findSwap (network: NetworkName, poolSwap: PoolSwap, transaction: Transaction): Promise<LegacySubgraphSwap | undefined> {
     const fromAddress = fromScript(poolSwap.fromScript, network)?.address
     const toAddress = fromScript(poolSwap.toScript, network)?.address
 
@@ -176,6 +205,12 @@ export class LegacySubgraphService {
       from: from,
       to: to
     }
+  }
+
+  private async isRecentBlock (block: Block): Promise<boolean> {
+    // TODO(): Can consider using MasternodeStatsMapper.getLatest()
+    const chainHeight = requireValue(await this.blockMapper.getHighest(), 'block').height
+    return chainHeight - block.height <= 2
   }
 
   private findPoolSwapDfTx (vouts: TransactionVout[]): PoolSwap | undefined {
