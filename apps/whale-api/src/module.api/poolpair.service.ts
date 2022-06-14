@@ -147,9 +147,9 @@ export class PoolPairService {
     })
   }
 
-  private async getTokenUSDValue (id: number): Promise<BigNumber | undefined> {
+  private async getTokenUSDValue (id: string): Promise<BigNumber | undefined> {
     return await this.cache.get<BigNumber>(`PRICE_FOR_TOKEN_${id}`, async () => {
-      const tokenInfo = await this.deFiDCache.getTokenInfo(`${id}`)
+      const tokenInfo = await this.deFiDCache.getTokenInfo(id)
       const token = tokenInfo?.symbol
 
       if (token === undefined) {
@@ -199,7 +199,7 @@ export class PoolPairService {
 
         let volume = 0
         for (const tokenId in aggregated) {
-          const tokenPrice = await this.getTokenUSDValue(parseInt(tokenId)) ?? new BigNumber(0)
+          const tokenPrice = await this.getTokenUSDValue(tokenId) ?? new BigNumber(0)
           volume += tokenPrice.toNumber() * aggregated[tokenId]
         }
 
@@ -219,7 +219,7 @@ export class PoolPairService {
     let value = 0
 
     for (const tokenId in amounts) {
-      const tokenPrice = await this.getTokenUSDValue(parseInt(tokenId)) ?? new BigNumber(0)
+      const tokenPrice = await this.getTokenUSDValue(tokenId) ?? new BigNumber(0)
       value += tokenPrice.toNumber() * Number.parseFloat(amounts[tokenId])
     }
     return value
