@@ -86,21 +86,10 @@ afterAll(async () => {
   await stopTestingApp(container, app)
 })
 
-it('should list 30 subgraph swaps', async () => {
-  const subgraphSwaps = await controller.getSubgraphSwaps()
-  expect(subgraphSwaps.data.swaps.length).toStrictEqual(30)
-})
-
-it('should list 5 subgraph swaps', async () => {
-  const subgraphSwaps = await controller.getSubgraphSwaps(5)
-
-  expect(subgraphSwaps.data.swaps.length).toStrictEqual(5)
-})
-
 describe('getsubgraphswaps', () => {
-  it('/getsubgraphswaps', async () => {
+  it('/getsubgraphswaps - default 20', async () => {
     const response = await controller.getSubgraphSwaps()
-    expect(response.data.swaps.length).toStrictEqual(30)
+    expect(response.data.swaps.length).toStrictEqual(20)
     for (const swap of response.data.swaps) {
       expect(swap).toStrictEqual({
         id: expect.stringMatching(/[a-zA-Z0-9]{64}/),
@@ -127,9 +116,9 @@ describe('getsubgraphswaps', () => {
     expect(response.data.swaps.length).toStrictEqual(0)
   })
 
-  it('/getsubgraphswaps?limit=101 - limited to 100', async () => {
+  it('/getsubgraphswaps?limit=101 - limited to 20', async () => {
     const response = await controller.getSubgraphSwaps(101)
-    expect(response.data.swaps.length).toStrictEqual(100)
+    expect(response.data.swaps.length).toStrictEqual(20)
   })
 
   describe('pagination', () => {
@@ -186,7 +175,8 @@ describe('getsubgraphswaps', () => {
   })
 })
 
-describe('getsubgraphswaps - rely on caching', () => {
+// Skipped as caching has been removed
+describe.skip('getsubgraphswaps - rely on caching', () => {
   it('/getsubgraphswaps - should return 100 relatively quickly', async () => {
     // When getsubgraphswaps query is made
     const msStart = Date.now()

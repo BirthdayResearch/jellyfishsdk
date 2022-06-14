@@ -21,7 +21,6 @@ import { BigNumber } from 'bignumber.js'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { TransactionVoutMapper } from '../module.model/transaction.vout'
 import { TransactionMapper } from '../module.model/transaction'
-import { SimpleCache } from '../../../legacy-api/src/cache/SimpleCache'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { ApiRawResponse } from './_core/api.response'
 
@@ -47,7 +46,6 @@ export class LegacyController {
     protected readonly blockMapper: BlockMapper,
     protected readonly transactionMapper: TransactionMapper,
     protected readonly transactionVoutMapper: TransactionVoutMapper,
-    private readonly cache: SimpleCache,
     @Inject('NETWORK')
     private readonly network: NetworkName
   ) {
@@ -55,10 +53,10 @@ export class LegacyController {
 
   @Get('getsubgraphswaps')
   async getSubgraphSwaps (
-    @Query('limit') limit: number = 30,
+    @Query('limit') limit: number = 20,
     @Query('next') nextString?: string
   ): Promise<LegacySubgraphSwapsResponse> {
-    limit = Math.min(100, limit ?? 30)
+    limit = Math.min(20, limit ?? 20)
     const nextToken: NextToken = (nextString !== undefined)
       ? this.decodeNextToken(nextString)
       : {}
@@ -89,29 +87,7 @@ export class LegacyController {
       const height = parseHeight(nextToken?.height)
 
       for (const block of await this.blockMapper.queryByHeight(200, height)) {
-        let blockTxns: BlockTxn[] = []
-
-        if (await this.isRecentBlock(block)) {
-          blockTxns = await this.getBlockTransactionsWithNonSwapsAsNull(block, network, nextToken)
-        } else {
-          blockTxns = await this.cache.get<BlockTxn[]>(
-            block.hash,
-            async () => {
-              const cached = await this.getBlockTransactionsWithNonSwapsAsNull(block, network, nextToken)
-              if (cached.length > 0) {
-                const swapCount = cached.reduce(
-                  (count, txn) => txn.swap === null ? count : count + 1,
-                  0
-                )
-                this.logger.log(`[${network}] Block ${block.height} - cached ${swapCount} swaps`)
-              }
-              return cached
-            },
-            {
-              ttl: 24 * 60 * 60
-            }
-          ) ?? []
-        }
+        const blockTxns: BlockTxn[] = await this.getBlockTransactionsWithNonSwapsAsNull(block, network, nextToken)
 
         for (let i = Number(nextToken.order ?? '0'); i < blockTxns.length; i++) {
           const blockTxn = blockTxns[i]
@@ -185,29 +161,25 @@ export class LegacyController {
    * Caches at the transaction level, so that we can avoid calling expensive rpc calls for newer blocks
    */
   private async getSwapFromTransaction (transaction: Transaction, network: SupportedNetwork): Promise<LegacySubgraphSwap | null> {
-    return await this.cache.get<LegacySubgraphSwap | null>(transaction.txid, async () => {
-      if (transaction.voutCount !== 2) {
-        return null
-      }
-      if (transaction.weight === 605) {
-        return null
-      }
+    if (transaction.voutCount !== 2) {
+      return null
+    }
+    if (transaction.weight === 605) {
+      return null
+    }
 
-      const vouts = await this.transactionVoutMapper.query(transaction.txid, 1)
-      const dftx = this.findPoolSwapDfTx(vouts)
-      if (dftx === undefined) {
-        return null
-      }
+    const vouts = await this.transactionVoutMapper.query(transaction.txid, 1)
+    const dftx = this.findPoolSwapDfTx(vouts)
+    if (dftx === undefined) {
+      return null
+    }
 
-      const swap = await this.findSwap(network, dftx, transaction)
-      if (swap === undefined) {
-        return null
-      }
+    const swap = await this.findSwap(network, dftx, transaction)
+    if (swap === undefined) {
+      return null
+    }
 
-      return swap
-    }, {
-      ttl: 24 * 60 * 60
-    }) ?? null
+    return swap
   }
 
   private async findSwap (network: SupportedNetwork, poolSwap: PoolSwap, transaction: Transaction): Promise<LegacySubgraphSwap | undefined> {
