@@ -3,7 +3,6 @@ import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
 import { NetworkValidationPipe, SupportedNetwork } from '../pipes/NetworkValidationPipe'
 import BigNumber from 'bignumber.js'
-import { SimpleCache } from '../cache/SimpleCache'
 import { Block } from '@defichain/whale-api-client/dist/api/blocks'
 import { WhaleApiClient } from '@defichain/whale-api-client'
 import { fetch } from 'cross-fetch'
@@ -14,7 +13,6 @@ export class PoolPairController {
 
   constructor (
     private readonly whaleApiClientProvider: WhaleApiClientProvider,
-    private readonly cache: SimpleCache,
     @Inject('OCEAN_ENDPOINT') private readonly oceanEndpoint: string
   ) {
   }
