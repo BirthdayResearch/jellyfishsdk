@@ -16,6 +16,7 @@ import { Fee } from './api/fee'
 import { Loan } from './api/loan'
 import { ApiPagedResponse, WhaleApiResponse } from './whale.api.response'
 import { raiseIfError, WhaleApiException, WhaleClientException, WhaleClientTimeoutException } from './errors'
+import { NetworkName } from '@defichain/jellyfish-network'
 
 /**
  * WhaleApiClient Options
@@ -38,7 +39,7 @@ export interface WhaleApiClientOptions {
   /**
    * Network that whale client is configured to
    */
-  network?: 'mainnet' | 'testnet' | 'regtest' | string
+  network?: NetworkName
 }
 
 /**
