@@ -16,6 +16,9 @@ const ConsensusParams = {
   testnet: {
     FortCanningHeight: 686200
   },
+  devnet: {
+    FortCanningHeight: Number.MAX_SAFE_INTEGER
+  },
   regtest: {
     FortCanningHeight: 10000000
   }
