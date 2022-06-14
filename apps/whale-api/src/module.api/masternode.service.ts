@@ -18,6 +18,12 @@ const MasternodeConsensusParams = {
     resignDelay: 60,
     newResignDelay: 2 * 1008
   },
+  devnet: {
+    activationDelay: 10,
+    newActivationDelay: 1008,
+    resignDelay: 60,
+    newResignDelay: 2 * 1008
+  },
   regtest: {
     activationDelay: 10,
     newActivationDelay: 1008,
