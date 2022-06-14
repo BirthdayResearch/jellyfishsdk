@@ -3,7 +3,6 @@ import { CPoolSwap, PoolSwap } from '@defichain/jellyfish-transaction'
 import { RawBlock } from '../_abstract'
 import { Inject, Injectable } from '@nestjs/common'
 import { NetworkName } from '@defichain/jellyfish-network'
-import { IndexerError } from '../../error'
 import BigNumber from 'bignumber.js'
 import { PoolSwapMapper } from '../../../module.model/pool.swap'
 import { HexEncoder } from '../../../module.model/_hex.encoder'
@@ -80,12 +79,12 @@ export class PoolSwapIndexer extends DfTxIndexer<PoolSwap> {
   async getPair (tokenA: number, tokenB: number): Promise<PoolPairInfoWithId> {
     const a = await this.deFiDCache.getTokenInfo(`${tokenA}`)
     if (a === undefined) {
-      throw new NotFoundApiException('Unable to find fromToken')
+      throw new NotFoundApiException(`Unable to find fromToken ${tokenA}`)
     }
 
     const b = await this.deFiDCache.getTokenInfo(`${tokenB}`)
     if (b === undefined) {
-      throw new NotFoundApiException('Unable to find toToken')
+      throw new NotFoundApiException(`Unable to find toToken ${tokenB}`)
     }
 
     let poolPair = await this.deFiDCache.getPoolPairInfo(`${a.symbol}-${b.symbol}`)
@@ -93,7 +92,7 @@ export class PoolSwapIndexer extends DfTxIndexer<PoolSwap> {
       poolPair = await this.deFiDCache.getPoolPairInfo(`${b.symbol}-${a.symbol}`)
     }
     if (poolPair === undefined) {
-      throw new IndexerError(`Pool for pair ${tokenA}, ${tokenB} not found`)
+      throw new NotFoundApiException(`Unable to find pool ${a.symbol}-${b.symbol} or ${b.symbol}-${a.symbol}`)
     }
 
     return poolPair
