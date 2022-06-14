@@ -33,6 +33,7 @@ import { PoolSwapPathFindingService } from './poolswap.pathfinding.service'
 import { PoolPairPricesService } from './poolpair.prices.service'
 import { LegacyController } from './legacy.controller'
 import { SimpleCache } from '../../../legacy-api/src/cache/SimpleCache'
+import { LegacySubgraphService } from './legacy.subgraph.service'
 
 /**
  * Exposed ApiModule for public interfacing
@@ -87,7 +88,8 @@ import { SimpleCache } from '../../../legacy-api/src/cache/SimpleCache'
         }
       },
       inject: [ConfigService]
-    }
+    },
+    LegacySubgraphService
   ]
 })
 export class ApiModule {

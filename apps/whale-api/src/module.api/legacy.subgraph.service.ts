@@ -13,15 +13,15 @@ import {
 } from '@defichain/jellyfish-transaction'
 import { fromScript } from '@defichain/jellyfish-address'
 import { AccountHistory } from '@defichain/jellyfish-api-core/dist/category/account'
-import { requireValue } from './stats.controller'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { BlockMapper } from '../module.model/block'
 import { TransactionMapper } from '../module.model/transaction'
 import { TransactionVoutMapper } from '../module.model/transaction.vout'
 import { BigNumber } from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
-import { Logger } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 
+@Injectable()
 export class LegacySubgraphService {
   private readonly logger = new Logger(LegacySubgraphService.name)
 
@@ -31,6 +31,14 @@ export class LegacySubgraphService {
     protected readonly transactionMapper: TransactionMapper,
     protected readonly transactionVoutMapper: TransactionVoutMapper
   ) {
+  }
+
+  decodeNextToken (nextString: string): NextToken {
+    return JSON.parse(Buffer.from(nextString, 'base64url').toString())
+  }
+
+  encodeNextToken (next: NextToken): string {
+    return encodeBase64(next)
   }
 
   async getSwapsHistory (
@@ -114,9 +122,6 @@ export class LegacySubgraphService {
     return swaps
   }
 
-  /**
-   * Caches at the transaction level, so that we can avoid calling expensive rpc calls for newer blocks
-   */
   private async getSwapFromTransaction (transaction: Transaction, network: SupportedNetwork): Promise<LegacySubgraphSwap | null> {
     if (transaction.voutCount !== 2) {
       return null
@@ -173,12 +178,6 @@ export class LegacySubgraphService {
     }
   }
 
-  private async isRecentBlock (block: Block): Promise<boolean> {
-    // TODO(): Can consider using MasternodeStatsMapper.getLatest()
-    const chainHeight = requireValue(await this.blockMapper.getHighest(), 'block').height
-    return chainHeight - block.height <= 2
-  }
-
   private findPoolSwapDfTx (vouts: TransactionVout[]): PoolSwap | undefined {
     if (vouts.length === 0) {
       return undefined // reject because not yet indexed, cannot be found
@@ -229,14 +228,6 @@ export class LegacySubgraphService {
     }
 
     return undefined
-  }
-
-  decodeNextToken (nextString: string): NextToken {
-    return JSON.parse(Buffer.from(nextString, 'base64url').toString())
-  }
-
-  encodeNextToken (next: NextToken): string {
-    return encodeBase64(next)
   }
 }
 
