@@ -12,7 +12,7 @@ import { Interval } from '@nestjs/schedule'
 import BigNumber from 'bignumber.js'
 import { allSimplePaths } from 'graphology-simple-path'
 import { parseDisplaySymbol } from './token.controller'
-import { PoolPairInfo, PoolPairsResult } from '@defichain/jellyfish-api-core/dist/category/poolpair'
+import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
 import { connectedComponents } from 'graphology-components'
 import { NetworkName } from '@defichain/jellyfish-network'
 
@@ -29,7 +29,12 @@ export class PoolSwapPathFindingService {
 
   @Interval(120_000) // 120s
   async syncTokenGraph (): Promise<void> {
-    const poolPairsResult = await this.deFiDCache.listPoolPairs(60) as PoolPairsResult
+    const poolPairsResult = await this.deFiDCache.listPoolPairs(60)
+    if (poolPairsResult === undefined) {
+      // @see https://github.com/JellyfishSDK/jellyfish/blob/58c826a5116bcb0dee05bd574e4b68a83cf9c7d9/apps/libs/caches/src/GlobalCache.ts#L60
+      console.log('syncTokenGraph: poolPairsResult is undefined')
+      return
+    }
     const poolPairTokens: PoolPairToken[] = Object.entries(poolPairsResult)
       .map(([id, poolPairInfo]) => {
         return {
