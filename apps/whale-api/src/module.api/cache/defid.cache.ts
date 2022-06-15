@@ -89,14 +89,27 @@ export class DeFiDCache extends GlobalCache {
    * @param {string} id - id of the poolPair
    */
   async getPoolPairInfoFromPoolPairs (id: string): Promise<PoolPairInfo | undefined> {
-    const poolPairsById = await this.listPoolPairs(60)
+    const poolPairsById = await this.getCachedPoolPairsResult(60)
     if (poolPairsById === undefined) {
       return undefined
     }
     return poolPairsById[id]
   }
 
-  async listPoolPairs (ttlSeconds: number): Promise<PoolPairsResult | undefined> {
+  async getPoolPairs (): Promise<PoolPairInfoWithId[]> {
+    const results = await this.getCachedPoolPairsResult(60)
+    if (results === undefined) {
+      return []
+    }
+
+    const poolPairInfoWithIds: PoolPairInfoWithId[] = []
+    for (const [id, token] of Object.entries(results)) {
+      poolPairInfoWithIds.push({ ...token, id })
+    }
+    return poolPairInfoWithIds
+  }
+
+  private async getCachedPoolPairsResult (ttlSeconds: number): Promise<PoolPairsResult | undefined> {
     return await this.get<PoolPairsResult>(CachePrefix.POOL_PAIRS, '*', this.fetchPoolPairs.bind(this),
       {
         ttl: ttlSeconds
@@ -152,5 +165,9 @@ export class DeFiDCache extends GlobalCache {
 
 // To remove if/when jellyfish-api-core supports IDs on tokenInfo, since it's commonly required
 export interface TokenInfoWithId extends TokenInfo {
+  id: string
+}
+
+export interface PoolPairInfoWithId extends PoolPairInfo {
   id: string
 }

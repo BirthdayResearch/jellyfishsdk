@@ -42,7 +42,6 @@ describe('getPoolPairInfo', () => {
     await createPoolPair(container, 'A', 'C') // 5
     await createPoolPair(container, 'B', 'C') // 6
 
-    // TODO(canonbrother): add listpoolpairs in @defi/testing
     const poolPairResult = await container.call('listpoolpairs')
     for (const k in poolPairResult) {
       await defiCache.getPoolPairInfo(k)

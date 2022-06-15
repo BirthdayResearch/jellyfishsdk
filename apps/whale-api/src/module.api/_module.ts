@@ -36,7 +36,7 @@ import { PoolPairPricesService } from './poolpair.prices.service'
  * Exposed ApiModule for public interfacing
  */
 @Module({
-  imports: [CacheModule.register({ max: 10000 })],
+  imports: [CacheModule.register({ max: 10_000 })],
   controllers: [
     RpcController,
     AddressController,
@@ -54,10 +54,19 @@ import { PoolPairPricesService } from './poolpair.prices.service'
     LoanController
   ],
   providers: [
-    { provide: APP_PIPE, useClass: ApiValidationPipe },
+    {
+      provide: APP_PIPE,
+      useClass: ApiValidationPipe
+    },
     // APP_INTERCEPTOR are only activated for /v* paths
-    { provide: APP_INTERCEPTOR, useClass: ResponseInterceptor },
-    { provide: APP_INTERCEPTOR, useClass: ExceptionInterceptor },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ExceptionInterceptor
+    },
     {
       provide: 'NETWORK',
       useFactory: (configService: ConfigService): NetworkName => {
