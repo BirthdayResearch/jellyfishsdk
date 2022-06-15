@@ -97,11 +97,11 @@ import { LegacySubgraphService } from './legacy.subgraph.service'
         }
       },
       inject: [ConfigService]
-    }
+    },
+    LegacySubgraphService
   ],
   exports: [
-    DeFiDCache,
-    LegacySubgraphService
+    DeFiDCache
   ]
 })
 export class ApiModule {
