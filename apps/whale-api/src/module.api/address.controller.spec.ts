@@ -1,7 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { AddressController } from './address.controller'
 import { createToken, mintTokens, sendTokensToAddress } from '@defichain/testing'
-import { DeFiDCache } from './cache/defid.cache'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { Testing } from '@defichain/jellyfish-testing'
 import BigNumber from 'bignumber.js'
@@ -90,12 +89,6 @@ beforeAll(async () => {
   await container.waitForWalletCoinbaseMaturity()
 
   app = await createTestingApp(container)
-  const defiCache = app.get(DeFiDCache)
-  const tokenResult = await container.call('listtokens')
-  // precache
-  for (const k in tokenResult) {
-    await defiCache.getTokenInfo(k)
-  }
   controller = app.get(AddressController)
 })
 

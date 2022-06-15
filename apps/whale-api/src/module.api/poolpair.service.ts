@@ -10,7 +10,6 @@ import {
   SwapType
 } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { getBlockSubsidy } from './subsidy'
-import { BlockMapper } from '../module.model/block'
 import { PoolSwapAggregated, PoolSwapAggregatedMapper } from '../module.model/pool.swap.aggregated'
 import { PoolSwapAggregatedInterval } from '../module.indexer/model/dftx/pool.swap.aggregated'
 import { TransactionVoutMapper } from '../module.model/transaction.vout'
@@ -39,8 +38,7 @@ export class PoolPairService {
     protected readonly deFiDCache: DeFiDCache,
     protected readonly cache: SemaphoreCache,
     protected readonly poolSwapAggregatedMapper: PoolSwapAggregatedMapper,
-    protected readonly voutMapper: TransactionVoutMapper,
-    protected readonly blockMapper: BlockMapper
+    protected readonly voutMapper: TransactionVoutMapper
   ) {
   }
 
