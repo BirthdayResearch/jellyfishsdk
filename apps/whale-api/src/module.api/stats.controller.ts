@@ -277,7 +277,7 @@ function findTokenBalance (tokens: string[], symbol: string): BigNumber {
   return new BigNumber(0)
 }
 
-function requireValue<T> (value: T | undefined, name: string): T {
+export function requireValue<T> (value: T | undefined, name: string): T {
   if (value === undefined) {
     throw new Error(`failed to compute: ${name}`)
   }

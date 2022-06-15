@@ -9,7 +9,7 @@ import { PoolPairController } from './poolpair.controller'
 import { PoolPairService } from './poolpair.service'
 import { MasternodeService } from './masternode.service'
 import { DeFiDCache } from './cache/defid.cache'
-import { SemaphoreCache } from '@defichain-apps/libs/caches'
+import { SemaphoreCache, LegacyCache } from '@defichain-apps/libs/caches'
 import { ExceptionInterceptor } from './interceptors/exception.interceptor'
 import { ResponseInterceptor } from './interceptors/response.interceptor'
 import { TokenController } from './token.controller'
@@ -31,6 +31,8 @@ import { LoanController } from './loan.controller'
 import { LoanVaultService } from './loan.vault.service'
 import { PoolSwapPathFindingService } from './poolswap.pathfinding.service'
 import { PoolPairPricesService } from './poolpair.prices.service'
+import { LegacyController } from './legacy.controller'
+import { LegacySubgraphService } from './legacy.subgraph.service'
 
 /**
  * Exposed ApiModule for public interfacing
@@ -52,7 +54,8 @@ import { PoolPairPricesService } from './poolpair.prices.service'
     StatsController,
     FeeController,
     RawtxController,
-    LoanController
+    LoanController,
+    LegacyController
   ],
   providers: [
     {
@@ -77,6 +80,7 @@ import { PoolPairPricesService } from './poolpair.prices.service'
     },
     DeFiDCache,
     SemaphoreCache,
+    LegacyCache,
     PoolPairService,
     PoolSwapPathFindingService,
     PoolPairPricesService,
@@ -93,10 +97,8 @@ import { PoolPairPricesService } from './poolpair.prices.service'
         }
       },
       inject: [ConfigService]
-    }
-  ],
-  exports: [
-    DeFiDCache
+    },
+    LegacySubgraphService
   ]
 })
 export class ApiModule {
