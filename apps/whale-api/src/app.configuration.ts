@@ -29,11 +29,11 @@ export function AppConfiguration (): any {
 
 export function ENV_VALIDATION_SCHEMA (): any {
   return Joi.object({
-    NODE_ENV: Joi.string().valid('production'),
+    NODE_ENV: Joi.string().optional(),
     // Allows you to override whale endpoint version.
     WHALE_VERSION: Joi.string().default('v0.0'),
     WHALE_NETWORK: Joi.string().valid('mainnet', 'testnet', 'regtest', 'devnet').default('regtest'),
-    WHALE_DEFID_URL: Joi.string().required(),
+    WHALE_DEFID_URL: Joi.string().optional(),
     WHALE_DATABASE_PROVIDER: Joi.string().optional(),
     WHALE_DATABASE_LEVEL_LOCATION: Joi.string().optional()
   })
