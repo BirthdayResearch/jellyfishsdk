@@ -1,0 +1,74 @@
+name: Bump Dependencies
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 1 * * *'
+
+jobs:
+  nestjs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - uses: actions/setup-node@eeb10cff27034e7acf239c5d29f62154018672fd
+        with:
+          node-version: '16'
+          cache: 'npm'
+
+      - run: npx npm-check-updates --deep -l m -u -f "/^@nestjs\/.+/"
+
+      - name: Upgrade dependencies
+        run: |
+          if ! git diff-index --quiet HEAD; then
+            npm i
+          else
+            echo "no file has been changed"
+          fi
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@f094b77505fb89581e68a1163fbd2fffece39da1
+        with:
+          token: ${{ secrets.JELLYFISHSDK_BOT_GITHUB_TOKEN }}
+          labels: kind/dependencies
+          commit-message: "bump(deps): bump @nestjs/*"
+          committer: JellyfishSDK Bot <bots+github-jellyfish@birthday.dev>
+          author: JellyfishSDK Bot <bots+github-jellyfish@birthday.dev>
+          title: "bump(deps): bump @nestjs/*"
+          body: |
+            #### What this PR does / why we need it:
+            Bump `@nestjs/*` dependencies to the newest release.
+          branch: jellyfishsdk-bot/bump-nestjs-deps
+
+
+  docusaurus:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - uses: actions/setup-node@eeb10cff27034e7acf239c5d29f62154018672fd
+        with:
+          node-version: '16'
+          cache: 'npm'
+
+      - run: npx npm-check-updates --deep -l m -u -f "/^@docusaurus\/.+/"
+
+      - name: Upgrade dependencies
+        run: |
+          if ! git diff-index --quiet HEAD; then
+            npm i
+          else
+            echo "no file has been changed"
+          fi
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@f094b77505fb89581e68a1163fbd2fffece39da1
+        with:
+          token: ${{ secrets.JELLYFISHSDK_BOT_GITHUB_TOKEN }}
+          labels: kind/dependencies
+          commit-message: "bump(deps): bump @docusaurus/*"
+          committer: JellyfishSDK Bot <bots+github-jellyfish@birthday.dev>
+          author: JellyfishSDK Bot <bots+github-jellyfish@birthday.dev>
+          title: "bump(deps): bump @docusaurus/*"
+          body: |
+            #### What this PR does / why we need it:
+            Bump `@docusaurus/*` dependencies to the newest release.
+          branch: jellyfishsdk-bot/bump-docusaurus-deps
