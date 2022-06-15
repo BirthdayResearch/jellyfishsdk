@@ -1,3 +1,5 @@
+import Joi from 'joi'
+
 /**
  * AppConfiguration declares a dictionary for a deeply configurable DeFi whale setup.
  * `process.env` resolves env variable at service initialization and allows setting of default.
@@ -23,4 +25,15 @@ export function AppConfiguration (): any {
       }
     }
   }
+}
+
+export function ENV_VALIDATION_SCHEMA (): any {
+  return Joi.object({
+    NODE_ENV: Joi.string().optional(),
+    WHALE_VERSION: Joi.string().optional(),
+    WHALE_NETWORK: Joi.string().valid('mainnet', 'testnet', 'regtest', 'devnet').default('regtest'),
+    WHALE_DEFID_URL: Joi.string().optional(),
+    WHALE_DATABASE_PROVIDER: Joi.string().optional(),
+    WHALE_DATABASE_LEVEL_LOCATION: Joi.string().optional()
+  })
 }
