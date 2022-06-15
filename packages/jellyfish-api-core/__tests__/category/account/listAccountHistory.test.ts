@@ -1,7 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
-import { DfTxType, BalanceTransferPayload, AccountResult, AccountOwner } from '../../../src/category/account'
+import { DfTxType, BalanceTransferPayload, AccountResult, AccountOwner, AmountFormat } from '../../../src/category/account'
 
 function createTokenForContainer (container: MasterNodeRegTestContainer) {
   return async (address: string, symbol: string, amount: number) => {
@@ -302,6 +302,50 @@ describe('Account', () => {
         expect(accountHistory.txn).toBeLessThanOrEqual(options.txn)
       }
     })
+  })
+
+  it('should listAccountHistory with options amountFormat', async () => {
+    const options = {
+      token: 'DBTC'
+    }
+    await waitForExpect(async () => {
+      const accountHistories = await client.account.listAccountHistory('mine', options)
+      expect(accountHistories.length).toBeGreaterThan(0)
+    })
+
+    { // amountFormat should be id
+      const options = {
+        token: 'DBTC',
+        amountFormat: AmountFormat.ID
+      }
+      const accountHistories = await client.account.listAccountHistory('mine', options)
+      for (let i = 0; i < accountHistories.length; i += 1) {
+        const accountHistory = accountHistories[i]
+        expect(accountHistory.amounts.length).toBeGreaterThan(0)
+        for (let j = 0; j < accountHistory.amounts.length; j += 1) {
+          const amount = accountHistory.amounts[j]
+          const id = amount.split('@')[1]
+          expect(id).toStrictEqual('1')
+        }
+      }
+    }
+
+    { // amountFormat should be symbol
+      const options = {
+        token: 'DBTC',
+        amountFormat: AmountFormat.SYMBOL
+      }
+      const accountHistories = await client.account.listAccountHistory('mine', options)
+      for (let i = 0; i < accountHistories.length; i += 1) {
+        const accountHistory = accountHistories[i]
+        expect(accountHistory.amounts.length).toBeGreaterThan(0)
+        for (let j = 0; j < accountHistory.amounts.length; j += 1) {
+          const amount = accountHistory.amounts[j]
+          const symbol = amount.split('@')[1]
+          expect(symbol).toStrictEqual('DBTC')
+        }
+      }
+    }
   })
 })
 
