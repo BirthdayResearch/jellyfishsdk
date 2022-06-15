@@ -1,4 +1,4 @@
-import { Controller, Get, Inject, Query } from '@nestjs/common'
+import { Controller, DefaultValuePipe, Get, Inject, ParseIntPipe, Query } from '@nestjs/common'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { ApiRawResponse } from './_core/api.response'
 import { LegacySubgraphService, LegacySubgraphSwapsResponse, NextToken } from './legacy.subgraph.service'
@@ -28,7 +28,7 @@ export class LegacyController {
 
   @Get('getsubgraphswaps')
   async getSubgraphSwaps (
-    @Query('limit') limit: number = 20,
+    @Query('limit', new DefaultValuePipe(20), new ParseIntPipe()) limit: number = 20,
     @Query('next') nextString?: string
   ): Promise<LegacySubgraphSwapsResponse> {
     limit = Math.min(20, limit ?? 20)

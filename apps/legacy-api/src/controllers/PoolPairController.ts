@@ -78,7 +78,7 @@ export class PoolPairController {
   @Get('getsubgraphswaps')
   async getSubgraphSwaps (
     @Query('network', NetworkValidationPipe) network: SupportedNetwork = 'mainnet',
-    @Query('limit', new DefaultValuePipe(30), new ParseIntPipe()) limit: number = 30,
+    @Query('limit', new DefaultValuePipe(20), new ParseIntPipe()) limit: number = 20,
     @Query('next') nextString?: string
   ): Promise<LegacySubgraphSwapsResponse> {
     const url = new URL(`${this.oceanEndpoint}/${network}/legacy/getsubgraphswaps`)
