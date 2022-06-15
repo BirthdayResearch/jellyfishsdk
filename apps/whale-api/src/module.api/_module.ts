@@ -97,7 +97,10 @@ import { LegacySubgraphService } from './legacy.subgraph.service'
         }
       },
       inject: [ConfigService]
-    },
+    }
+  ],
+  exports: [
+    DeFiDCache,
     LegacySubgraphService
   ]
 })
