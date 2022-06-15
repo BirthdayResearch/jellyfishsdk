@@ -20,9 +20,9 @@ beforeEach(async () => {
 
   await container.start()
   await container.waitForWalletCoinbaseMaturity()
-  await service.start()
-
   await setup()
+
+  await service.start()
 })
 
 afterEach(async () => {
