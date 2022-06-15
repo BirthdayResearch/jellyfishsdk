@@ -3,7 +3,7 @@ import { DynamicModule, Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { ScheduleModule } from '@nestjs/schedule'
 
-import { AppConfiguration } from './app.configuration'
+import { AppConfiguration, ENV_VALIDATION_SCHEMA } from './app.configuration'
 
 import { ApiModule } from './module.api/_module'
 import { DatabaseModule } from './module.database/_module'
@@ -15,7 +15,6 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { NestFactory } from '@nestjs/core'
 import { newFastifyAdapter } from './fastify'
 import { AbstractHttpAdapter } from '@nestjs/core/adapters/http-adapter'
-import * as Joi from 'joi'
 
 @Module({})
 export class AppModule {
@@ -81,10 +80,4 @@ export class AppModule {
     const defaultVersion = `v${major}.${minor}`
     return app.get(ConfigService).get<string>('version', defaultVersion)
   }
-}
-
-function ENV_VALIDATION_SCHEMA (): any {
-  return Joi.object({
-    network: Joi.string().valid('mainnet', 'testnet', 'regtest', 'devnet').default('regtest')
-  })
 }
