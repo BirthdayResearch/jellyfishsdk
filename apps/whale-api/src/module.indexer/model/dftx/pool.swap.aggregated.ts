@@ -28,11 +28,10 @@ export class PoolSwapAggregatedIndexer extends DfTxIndexer<PoolSwap> {
 
   async indexBlockStart (block: RawBlock): Promise<void> {
     const poolPairs = await this.deFiDCache.getPoolPairs()
-    const poolIds = Object.keys(poolPairs)
 
     for (const interval of AggregatedIntervals) {
-      for (const poolId of poolIds) {
-        const previous = await this.aggregatedMapper.query(`${poolId}-${interval as number}`, 1)
+      for (const poolPair of poolPairs) {
+        const previous = await this.aggregatedMapper.query(`${poolPair.id}-${interval as number}`, 1)
         const bucket = getBucket(block, interval)
 
         if (previous.length === 1 && previous[0].bucket >= bucket) {
@@ -40,7 +39,7 @@ export class PoolSwapAggregatedIndexer extends DfTxIndexer<PoolSwap> {
           break
         }
 
-        await this.createNewBucket(block, Number(poolId), interval)
+        await this.createNewBucket(block, Number(poolPair.id), interval)
       }
     }
   }
