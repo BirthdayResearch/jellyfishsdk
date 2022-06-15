@@ -97,13 +97,12 @@ export class DeFiDCache extends GlobalCache {
   }
 
   async getPoolPairs (): Promise<PoolPairInfoWithId[]> {
-    const poolPairInfoWithIds: PoolPairInfoWithId[] = []
-
     const results = await this.getCachedPoolPairsResult(60)
     if (results === undefined) {
       return []
     }
 
+    const poolPairInfoWithIds: PoolPairInfoWithId[] = []
     for (const [id, token] of Object.entries(results)) {
       poolPairInfoWithIds.push({ ...token, id })
     }
