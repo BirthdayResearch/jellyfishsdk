@@ -27,10 +27,14 @@ export class PoolSwapAggregatedIndexer extends DfTxIndexer<PoolSwap> {
   }
 
   async indexBlockStart (block: RawBlock): Promise<void> {
-    const poolPairs = await this.deFiDCache.getPoolPairs()
+    const poolPairs = await this.deFiDCache.getPoolPairs(true)
 
     for (const interval of AggregatedIntervals) {
       for (const poolPair of poolPairs) {
+        if (poolPair.creationHeight.gt(block.height)) {
+          continue
+        }
+
         const previous = await this.aggregatedMapper.query(`${poolPair.id}-${interval as number}`, 1)
         const bucket = getBucket(block, interval)
 
