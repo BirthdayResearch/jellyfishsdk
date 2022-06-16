@@ -3,7 +3,7 @@ import { DynamicModule, Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { ScheduleModule } from '@nestjs/schedule'
 
-import { AppConfiguration } from './app.configuration'
+import { AppConfiguration, ENV_VALIDATION_SCHEMA } from './app.configuration'
 
 import { ApiModule } from './module.api/_module'
 import { DatabaseModule } from './module.database/_module'
@@ -34,7 +34,8 @@ export class AppModule {
       imports: [
         ConfigModule.forRoot({
           isGlobal: true,
-          load: [AppConfiguration]
+          load: [AppConfiguration],
+          validationSchema: ENV_VALIDATION_SCHEMA()
         }),
         ScheduleModule.forRoot(),
         ApiModule,

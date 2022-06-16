@@ -1,5 +1,5 @@
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
-import { CacheModule, Module } from '@nestjs/common'
+import { CacheModule, Global, Module } from '@nestjs/common'
 import { RpcController } from './rpc.controller'
 import { ActuatorController } from './actuator.controller'
 import { TransactionController } from './transaction.controller'
@@ -9,7 +9,7 @@ import { PoolPairController } from './poolpair.controller'
 import { PoolPairService } from './poolpair.service'
 import { MasternodeService } from './masternode.service'
 import { DeFiDCache } from './cache/defid.cache'
-import { SemaphoreCache } from '@defichain-apps/libs/caches'
+import { SemaphoreCache, LegacyCache } from '@defichain-apps/libs/caches'
 import { ExceptionInterceptor } from './interceptors/exception.interceptor'
 import { ResponseInterceptor } from './interceptors/response.interceptor'
 import { TokenController } from './token.controller'
@@ -31,12 +31,15 @@ import { LoanController } from './loan.controller'
 import { LoanVaultService } from './loan.vault.service'
 import { PoolSwapPathFindingService } from './poolswap.pathfinding.service'
 import { PoolPairPricesService } from './poolpair.prices.service'
+import { LegacyController } from './legacy.controller'
+import { LegacySubgraphService } from './legacy.subgraph.service'
 
 /**
  * Exposed ApiModule for public interfacing
  */
+@Global()
 @Module({
-  imports: [CacheModule.register({ max: 10000 })],
+  imports: [CacheModule.register({ max: 10_000 })],
   controllers: [
     RpcController,
     AddressController,
@@ -51,13 +54,23 @@ import { PoolPairPricesService } from './poolpair.prices.service'
     StatsController,
     FeeController,
     RawtxController,
-    LoanController
+    LoanController,
+    LegacyController
   ],
   providers: [
-    { provide: APP_PIPE, useClass: ApiValidationPipe },
+    {
+      provide: APP_PIPE,
+      useClass: ApiValidationPipe
+    },
     // APP_INTERCEPTOR are only activated for /v* paths
-    { provide: APP_INTERCEPTOR, useClass: ResponseInterceptor },
-    { provide: APP_INTERCEPTOR, useClass: ExceptionInterceptor },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ExceptionInterceptor
+    },
     {
       provide: 'NETWORK',
       useFactory: (configService: ConfigService): NetworkName => {
@@ -67,6 +80,7 @@ import { PoolPairPricesService } from './poolpair.prices.service'
     },
     DeFiDCache,
     SemaphoreCache,
+    LegacyCache,
     PoolPairService,
     PoolSwapPathFindingService,
     PoolPairPricesService,
@@ -83,7 +97,11 @@ import { PoolPairPricesService } from './poolpair.prices.service'
         }
       },
       inject: [ConfigService]
-    }
+    },
+    LegacySubgraphService
+  ],
+  exports: [
+    DeFiDCache
   ]
 })
 export class ApiModule {

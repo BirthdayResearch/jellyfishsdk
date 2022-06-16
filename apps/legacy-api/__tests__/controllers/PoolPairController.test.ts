@@ -242,9 +242,8 @@ it('/v1/listyieldfarming', async () => {
   })
 })
 
-// TODO(eli-lim): unskip tests when
-//   https://github.com/JellyfishSDK/whale/issues/981 is resolved
-describe('getsubgraphswaps', () => {
+// TODO(eli-lim): unskip tests after prod ocean release
+describe.skip('getsubgraphswaps', () => {
   it('/v1/getsubgraphswaps', async () => {
     const res = await apiTesting.app.inject({
       method: 'GET',

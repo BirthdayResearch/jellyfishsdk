@@ -51,7 +51,8 @@ export class LegacyStubServer extends LegacyApiServer {
 class TestConfigService extends ConfigService {
   constructor () {
     super({
-      SWAP_CACHE_COUNT: 50
+      SWAP_CACHE_COUNT: 50,
+      OCEAN_ENDPOINT: 'https://ocean.defichain.com/v0/'
     })
   }
 }

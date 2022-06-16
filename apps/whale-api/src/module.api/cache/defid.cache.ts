@@ -79,8 +79,13 @@ export class DeFiDCache extends GlobalCache {
     return await this.rpcClient.loan.getLoanScheme(id)
   }
 
-  async getPoolPairInfo (id: string): Promise<PoolPairInfo | undefined> {
-    return await this.get<PoolPairInfo>(CachePrefix.POOL_PAIR_INFO, id, this.fetchPoolPairInfo.bind(this))
+  /**
+   * Retrieve poolPair info via rpc cached
+   * @param {string} idOrSymbol poolPair id or symbol
+   * @return {Promise<PoolPairInfoWithId | undefined>}
+   */
+  async getPoolPairInfo (idOrSymbol: string): Promise<PoolPairInfoWithId | undefined> {
+    return await this.get<PoolPairInfoWithId>(CachePrefix.POOL_PAIR_INFO, idOrSymbol, this.fetchPoolPairInfo.bind(this))
   }
 
   /**
@@ -89,14 +94,31 @@ export class DeFiDCache extends GlobalCache {
    * @param {string} id - id of the poolPair
    */
   async getPoolPairInfoFromPoolPairs (id: string): Promise<PoolPairInfo | undefined> {
-    const poolPairsById = await this.listPoolPairs(60)
+    const poolPairsById = await this.getCachedPoolPairsResult(60)
     if (poolPairsById === undefined) {
       return undefined
     }
     return poolPairsById[id]
   }
 
-  async listPoolPairs (ttlSeconds: number): Promise<PoolPairsResult | undefined> {
+  async getPoolPairs (invalidate: boolean = false): Promise<PoolPairInfoWithId[]> {
+    if (invalidate) {
+      await this.cacheManager.del(`${CachePrefix.POOL_PAIRS} *`)
+    }
+
+    const results = await this.getCachedPoolPairsResult(60)
+    if (results === undefined) {
+      return []
+    }
+
+    const poolPairInfoWithIds: PoolPairInfoWithId[] = []
+    for (const [id, token] of Object.entries(results)) {
+      poolPairInfoWithIds.push({ ...token, id })
+    }
+    return poolPairInfoWithIds
+  }
+
+  private async getCachedPoolPairsResult (ttlSeconds: number): Promise<PoolPairsResult | undefined> {
     return await this.get<PoolPairsResult>(CachePrefix.POOL_PAIRS, '*', this.fetchPoolPairs.bind(this),
       {
         ttl: ttlSeconds
@@ -104,13 +126,19 @@ export class DeFiDCache extends GlobalCache {
     )
   }
 
-  private async fetchPoolPairInfo (id: string): Promise<PoolPairInfo | undefined> {
+  /**
+   * Retrieve poolPair info via rpc client
+   * @param {string} idOrSymbol - id or symbol
+   * @return {PoolPairInfoWithId | undefined}
+   */
+  private async fetchPoolPairInfo (idOrSymbol: string): Promise<PoolPairInfoWithId | undefined> {
     try {
-      const result = await this.rpcClient.poolpair.getPoolPair(id)
-      if (result[id] === undefined) {
-        return undefined
+      const result = await this.rpcClient.poolpair.getPoolPair(idOrSymbol)
+      const [id, poolPairInfo] = Object.entries(result)[0]
+      return {
+        ...poolPairInfo,
+        id
       }
-      return result[id]
     } catch (err: any) {
       /* istanbul ignore else */
       if (err?.payload?.message === 'Pool not found') {
@@ -152,5 +180,9 @@ export class DeFiDCache extends GlobalCache {
 
 // To remove if/when jellyfish-api-core supports IDs on tokenInfo, since it's commonly required
 export interface TokenInfoWithId extends TokenInfo {
+  id: string
+}
+
+export interface PoolPairInfoWithId extends PoolPairInfo {
   id: string
 }
