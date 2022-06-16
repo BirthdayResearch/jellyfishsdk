@@ -84,7 +84,7 @@ export class PoolSwapAggregatedIndexer extends DfTxIndexer<PoolSwap> {
   async getPoolPairs (block: RawBlock): Promise<PoolPairInfoWithId[]> {
     const poolPairs = await this.rpcClient.poolpair.listPoolPairs({
       start: 0,
-      limit: 1000000,
+      limit: 0,
       including_start: true
     })
     return Object.entries(poolPairs)
