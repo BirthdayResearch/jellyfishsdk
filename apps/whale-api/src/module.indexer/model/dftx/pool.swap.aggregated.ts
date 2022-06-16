@@ -31,6 +31,11 @@ export class PoolSwapAggregatedIndexer extends DfTxIndexer<PoolSwap> {
 
     for (const interval of AggregatedIntervals) {
       for (const poolPair of poolPairs) {
+        if (poolPair.creationHeight.gte(block.height)) {
+          // Don't create bucket for PoolPair if block.height is greater
+          continue
+        }
+
         const previous = await this.aggregatedMapper.query(`${poolPair.id}-${interval as number}`, 1)
         const bucket = getBucket(block, interval)
 
