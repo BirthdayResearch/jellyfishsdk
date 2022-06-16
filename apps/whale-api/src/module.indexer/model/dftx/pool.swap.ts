@@ -9,7 +9,7 @@ import { HexEncoder } from '../../../module.model/_hex.encoder'
 import { PoolSwapAggregatedMapper } from '../../../module.model/pool.swap.aggregated'
 import { AggregatedIntervals } from './pool.swap.aggregated'
 import { DeFiDCache, PoolPairInfoWithId } from '../../../module.api/cache/defid.cache'
-import { NotFoundApiException } from '../../../module.api/_core/api.error'
+import { IndexerError } from '../../error'
 
 @Injectable()
 export class PoolSwapIndexer extends DfTxIndexer<PoolSwap> {
@@ -18,7 +18,7 @@ export class PoolSwapIndexer extends DfTxIndexer<PoolSwap> {
   constructor (
     private readonly poolSwapMapper: PoolSwapMapper,
     private readonly aggregatedMapper: PoolSwapAggregatedMapper,
-    private readonly deFiDCache: DeFiDCache,
+    private readonly poolPairPathMapping: PoolPairPathMapping,
     @Inject('NETWORK') protected readonly network: NetworkName
   ) {
     super()
@@ -77,24 +77,39 @@ export class PoolSwapIndexer extends DfTxIndexer<PoolSwap> {
   }
 
   async getPair (tokenA: number, tokenB: number): Promise<PoolPairInfoWithId> {
-    const a = await this.deFiDCache.getTokenInfo(`${tokenA}`)
-    if (a === undefined) {
-      throw new NotFoundApiException(`Unable to find fromToken ${tokenA}`)
+    const pair = await this.poolPairPathMapping.findPair(tokenA, tokenB)
+    if (pair !== undefined) {
+      return pair
     }
 
-    const b = await this.deFiDCache.getTokenInfo(`${tokenB}`)
-    if (b === undefined) {
-      throw new NotFoundApiException(`Unable to find toToken ${tokenB}`)
+    throw new IndexerError(`Pool for pair ${tokenA}, ${tokenB} not found in PoolPairPathMapping`)
+  }
+}
+
+@Injectable()
+export class PoolPairPathMapping {
+  constructor (
+    protected readonly deFiDCache: DeFiDCache,
+    private readonly paths: Record<string, PoolPairInfoWithId>
+  ) {
+  }
+
+  async findPair (tokenA: number, tokenB: number): Promise<PoolPairInfoWithId | undefined> {
+    const pair = this.paths[`${tokenA}-${tokenB}`]
+    if (pair !== undefined) {
+      return pair
     }
 
-    let poolPair = await this.deFiDCache.getPoolPairInfo(`${a.symbol}-${b.symbol}`)
-    if (poolPair === undefined) {
-      poolPair = await this.deFiDCache.getPoolPairInfo(`${b.symbol}-${a.symbol}`)
-    }
-    if (poolPair === undefined) {
-      throw new NotFoundApiException(`Unable to find pool ${a.symbol}-${b.symbol} or ${b.symbol}-${a.symbol}`)
-    }
+    await this.updateMapping()
+    return this.paths[`${tokenA}-${tokenB}`]
+  }
 
-    return poolPair
+  private async updateMapping (): Promise<void> {
+    const pairs = await this.deFiDCache.getPoolPairs(true)
+
+    for (const pair of pairs) {
+      this.paths[`${pair.idTokenA}-${pair.idTokenB}`] = pair
+      this.paths[`${pair.idTokenB}-${pair.idTokenA}`] = pair
+    }
   }
 }
