@@ -95,6 +95,7 @@ export class PoolSwapAggregatedIndexer extends DfTxIndexer<PoolSwap> {
         return pair.creationHeight.lte(block.height)
       })
       .sort((a, b) => {
+        // Need to be sort by descending order otherwise aggregate indexer bucket will exit without creating a bucket
         return b.creationHeight.comparedTo(a.creationHeight)
       })
   }
