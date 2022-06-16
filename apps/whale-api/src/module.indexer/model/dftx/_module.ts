@@ -13,6 +13,7 @@ import { CompositeSwapIndexer } from './composite.swap'
 import { ActivePriceIndexer } from './active.price'
 import { PlaceAuctionBidIndexer } from './place.auction.bid'
 import { PoolSwapAggregatedIndexer } from './pool.swap.aggregated'
+import { PoolPairPathMapping } from './pool.pair.path.mapping'
 
 const indexers = [
   AppointOracleIndexer,
@@ -22,6 +23,7 @@ const indexers = [
   UpdateOracleIndexer,
   CreateMasternodeIndexer,
   ResignMasternodeIndexer,
+  PoolPairPathMapping,
   PoolSwapIndexer,
   PoolSwapAggregatedIndexer,
   CompositeSwapIndexer,
