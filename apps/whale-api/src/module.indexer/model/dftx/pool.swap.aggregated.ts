@@ -3,7 +3,8 @@ import { PoolSwap } from '@defichain/jellyfish-transaction'
 import { RawBlock } from '../_abstract'
 import { Injectable } from '@nestjs/common'
 import { PoolSwapAggregated, PoolSwapAggregatedMapper } from '../../../module.model/pool.swap.aggregated'
-import { DeFiDCache } from '../../../module.api/cache/defid.cache'
+import { PoolPairInfoWithId } from '../../../module.api/cache/defid.cache'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 export enum PoolSwapAggregatedInterval {
   ONE_HOUR = 60 * 60,
@@ -21,13 +22,13 @@ export class PoolSwapAggregatedIndexer extends DfTxIndexer<PoolSwap> {
 
   constructor (
     private readonly aggregatedMapper: PoolSwapAggregatedMapper,
-    private readonly deFiDCache: DeFiDCache
+    protected readonly rpcClient: JsonRpcClient
   ) {
     super()
   }
 
   async indexBlockStart (block: RawBlock): Promise<void> {
-    const poolPairs = await this.deFiDCache.getPoolPairs()
+    const poolPairs = await this.getPoolPairs(block)
 
     for (const interval of AggregatedIntervals) {
       for (const poolPair of poolPairs) {
@@ -63,7 +64,7 @@ export class PoolSwapAggregatedIndexer extends DfTxIndexer<PoolSwap> {
   }
 
   async invalidateBlockStart (block: RawBlock): Promise<void> {
-    const poolPairs = await this.deFiDCache.getPoolPairs()
+    const poolPairs = await this.getPoolPairs(block)
     const poolIds = Object.keys(poolPairs)
 
     for (const poolId of poolIds) {
@@ -78,6 +79,21 @@ export class PoolSwapAggregatedIndexer extends DfTxIndexer<PoolSwap> {
   }
 
   async invalidateTransaction (_: RawBlock, __: DfTxTransaction<PoolSwap>): Promise<void> {
+  }
+
+  async getPoolPairs (block: RawBlock): Promise<PoolPairInfoWithId[]> {
+    const poolPairs = await this.rpcClient.poolpair.listPoolPairs({
+      start: 0,
+      limit: 1000000,
+      including_start: true
+    })
+    return Object.entries(poolPairs)
+      .map(([id, pair]): PoolPairInfoWithId => {
+        return { id, ...pair }
+      })
+      .filter(pair => {
+        return pair.creationHeight.lte(block.height)
+      })
   }
 }
 
