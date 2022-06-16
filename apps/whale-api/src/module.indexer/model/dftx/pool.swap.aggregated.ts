@@ -88,7 +88,7 @@ export class PoolSwapAggregatedIndexer extends DfTxIndexer<PoolSwap> {
       including_start: true
     })
     return Object.entries(poolPairs)
-      .filter(pair => {
+      .filter(([id, pair]) => {
         return pair.creationHeight.lte(block.height)
       })
       .map(([id, pair]): PoolPairInfoWithId => {
