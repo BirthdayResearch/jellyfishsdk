@@ -8,8 +8,9 @@ import { PoolSwapMapper } from '../../../module.model/pool.swap'
 import { HexEncoder } from '../../../module.model/_hex.encoder'
 import { PoolSwapAggregatedMapper } from '../../../module.model/pool.swap.aggregated'
 import { AggregatedIntervals } from './pool.swap.aggregated'
-import { DeFiDCache, PoolPairInfoWithId } from '../../../module.api/cache/defid.cache'
-import { NotFoundApiException } from '../../../module.api/_core/api.error'
+import { PoolPairInfoWithId } from '../../../module.api/cache/defid.cache'
+import { IndexerError } from '../../error'
+import { PoolPairPathMapping } from './pool.pair.path.mapping'
 
 @Injectable()
 export class PoolSwapIndexer extends DfTxIndexer<PoolSwap> {
@@ -18,7 +19,7 @@ export class PoolSwapIndexer extends DfTxIndexer<PoolSwap> {
   constructor (
     private readonly poolSwapMapper: PoolSwapMapper,
     private readonly aggregatedMapper: PoolSwapAggregatedMapper,
-    private readonly deFiDCache: DeFiDCache,
+    private readonly poolPairPathMapping: PoolPairPathMapping,
     @Inject('NETWORK') protected readonly network: NetworkName
   ) {
     super()
@@ -77,24 +78,11 @@ export class PoolSwapIndexer extends DfTxIndexer<PoolSwap> {
   }
 
   async getPair (tokenA: number, tokenB: number): Promise<PoolPairInfoWithId> {
-    const a = await this.deFiDCache.getTokenInfo(`${tokenA}`)
-    if (a === undefined) {
-      throw new NotFoundApiException(`Unable to find fromToken ${tokenA}`)
+    const pair = await this.poolPairPathMapping.findPair(tokenA, tokenB)
+    if (pair !== undefined) {
+      return pair
     }
 
-    const b = await this.deFiDCache.getTokenInfo(`${tokenB}`)
-    if (b === undefined) {
-      throw new NotFoundApiException(`Unable to find toToken ${tokenB}`)
-    }
-
-    let poolPair = await this.deFiDCache.getPoolPairInfo(`${a.symbol}-${b.symbol}`)
-    if (poolPair === undefined) {
-      poolPair = await this.deFiDCache.getPoolPairInfo(`${b.symbol}-${a.symbol}`)
-    }
-    if (poolPair === undefined) {
-      throw new NotFoundApiException(`Unable to find pool ${a.symbol}-${b.symbol} or ${b.symbol}-${a.symbol}`)
-    }
-
-    return poolPair
+    throw new IndexerError(`Pool for pair ${tokenA}, ${tokenB} not found in PoolPairPathMapping`)
   }
 }

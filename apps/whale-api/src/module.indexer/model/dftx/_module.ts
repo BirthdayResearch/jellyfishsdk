@@ -13,6 +13,7 @@ import { CompositeSwapIndexer } from './composite.swap'
 import { ActivePriceIndexer } from './active.price'
 import { PlaceAuctionBidIndexer } from './place.auction.bid'
 import { PoolSwapAggregatedIndexer } from './pool.swap.aggregated'
+import { PoolPairPathMapping } from './pool.pair.path.mapping'
 
 const indexers = [
   AppointOracleIndexer,
@@ -32,13 +33,15 @@ const indexers = [
 @Module({
   providers: [
     ...indexers,
+    PoolPairPathMapping,
     {
       provide: 'NETWORK',
       useFactory: (configService: ConfigService): NetworkName => {
         return configService.get<string>('network') as NetworkName
       },
       inject: [ConfigService]
-    }],
+    }
+  ],
   exports: indexers
 })
 export class DfTxIndexerModule {

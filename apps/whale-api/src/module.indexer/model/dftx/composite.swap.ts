@@ -2,11 +2,11 @@ import { DfTxIndexer, DfTxTransaction } from './_abstract'
 import { CCompositeSwap, CompositeSwap, PoolId } from '@defichain/jellyfish-transaction'
 import { RawBlock } from '../_abstract'
 import { Inject, Injectable } from '@nestjs/common'
-import { PoolSwapIndexer } from './pool.swap'
 import { NetworkName } from '@defichain/jellyfish-network'
 import BigNumber from 'bignumber.js'
-import { DeFiDCache } from '../../../module.api/cache/defid.cache'
-import { NotFoundApiException } from '../../../module.api/_core/api.error'
+import { IndexerError } from '../../error'
+import { PoolPairPathMapping } from './pool.pair.path.mapping'
+import { PoolSwapIndexer } from './pool.swap'
 
 @Injectable()
 export class CompositeSwapIndexer extends DfTxIndexer<CompositeSwap> {
@@ -14,7 +14,7 @@ export class CompositeSwapIndexer extends DfTxIndexer<CompositeSwap> {
 
   constructor (
     private readonly poolSwapIndexer: PoolSwapIndexer,
-    private readonly deFiDCache: DeFiDCache,
+    private readonly poolPairPathMapping: PoolPairPathMapping,
     @Inject('NETWORK') protected readonly network: NetworkName
   ) {
     super()
@@ -50,24 +50,11 @@ export class CompositeSwapIndexer extends DfTxIndexer<CompositeSwap> {
     }
 
     const poolSwap = compositeSwap.poolSwap
-    const fromToken = await this.deFiDCache.getTokenInfo(`${poolSwap.fromTokenId}`)
-    if (fromToken === undefined) {
-      throw new NotFoundApiException('Unable to find fromToken')
+    const pair = await this.poolPairPathMapping.findPair(poolSwap.fromTokenId, poolSwap.toTokenId)
+    if (pair !== undefined) {
+      return [{ id: Number(pair.id) }]
     }
 
-    const toToken = await this.deFiDCache.getTokenInfo(`${poolSwap.toTokenId}`)
-    if (toToken === undefined) {
-      throw new NotFoundApiException('Unable to find toToken')
-    }
-
-    let poolPair = await this.deFiDCache.getPoolPairInfo(`${fromToken.symbol}-${toToken.symbol}`)
-    if (poolPair === undefined) {
-      poolPair = await this.deFiDCache.getPoolPairInfo(`${toToken.symbol}-${fromToken.symbol}`)
-    }
-    if (poolPair === undefined) {
-      throw new NotFoundApiException(`Pool for pair ${poolSwap.fromTokenId}, ${poolSwap.toTokenId} not found`)
-    }
-
-    return [{ id: Number(poolPair.id) }]
+    throw new IndexerError(`Pool for pair ${poolSwap.fromTokenId}, ${poolSwap.toTokenId} not found in PoolPairPathMapping`)
   }
 }
