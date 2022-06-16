@@ -346,6 +346,26 @@ describe('Account', () => {
         }
       }
     }
+
+    { // amountFormat default should be symbol
+      const options = {
+        token: 'DFI'
+      }
+      await waitForExpect(async () => {
+        const accountHistories = await client.account.listAccountHistory('mine', options)
+        expect(accountHistories.length).toBeGreaterThan(0)
+      })
+      const accountHistories = await client.account.listAccountHistory('mine', options)
+      for (let i = 0; i < accountHistories.length; i += 1) {
+        const accountHistory = accountHistories[i]
+        expect(accountHistory.amounts.length).toBeGreaterThan(0)
+        for (let j = 0; j < accountHistory.amounts.length; j += 1) {
+          const amount = accountHistory.amounts[j]
+          const symbol = amount.split('@')[1]
+          expect(symbol).toStrictEqual('DFI')
+        }
+      }
+    }
   })
 })
 
