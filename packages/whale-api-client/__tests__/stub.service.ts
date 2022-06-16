@@ -36,7 +36,7 @@ export class StubService {
     }, timeout)
   }
 
-  async waitForIndexedHeight (height: number, timeout: number = 60000): Promise<void> {
+  async waitForIndexedHeight (height: number, timeout: number = 30000): Promise<void> {
     const blockMapper = this.app?.get(BlockMapper)
     if (blockMapper === undefined) {
       throw new Error('StubService not initialized yet')

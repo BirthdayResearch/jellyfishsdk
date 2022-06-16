@@ -22,7 +22,7 @@ export class PoolSwapAggregatedIndexer extends DfTxIndexer<PoolSwap> {
 
   constructor (
     private readonly aggregatedMapper: PoolSwapAggregatedMapper,
-    protected readonly rpcClient: JsonRpcClient
+    private readonly rpcClient: JsonRpcClient
   ) {
     super()
   }
