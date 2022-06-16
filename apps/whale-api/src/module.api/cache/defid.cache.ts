@@ -79,8 +79,13 @@ export class DeFiDCache extends GlobalCache {
     return await this.rpcClient.loan.getLoanScheme(id)
   }
 
-  async getPoolPairInfo (id: string): Promise<PoolPairInfo | undefined> {
-    return await this.get<PoolPairInfo>(CachePrefix.POOL_PAIR_INFO, id, this.fetchPoolPairInfo.bind(this))
+  /**
+   * Retrieve poolPair info via rpc cached
+   * @param {string} idOrSymbol poolPair id or symbol
+   * @return {Promise<PoolPairInfoWithId | undefined>}
+   */
+  async getPoolPairInfo (idOrSymbol: string): Promise<PoolPairInfoWithId | undefined> {
+    return await this.get<PoolPairInfoWithId>(CachePrefix.POOL_PAIR_INFO, idOrSymbol, this.fetchPoolPairInfo.bind(this))
   }
 
   /**
@@ -96,7 +101,11 @@ export class DeFiDCache extends GlobalCache {
     return poolPairsById[id]
   }
 
-  async getPoolPairs (): Promise<PoolPairInfoWithId[]> {
+  async getPoolPairs (invalidate: boolean = false): Promise<PoolPairInfoWithId[]> {
+    if (invalidate) {
+      await this.cacheManager.del(`${CachePrefix.POOL_PAIRS} *`)
+    }
+
     const results = await this.getCachedPoolPairsResult(60)
     if (results === undefined) {
       return []
@@ -117,13 +126,19 @@ export class DeFiDCache extends GlobalCache {
     )
   }
 
-  private async fetchPoolPairInfo (id: string): Promise<PoolPairInfo | undefined> {
+  /**
+   * Retrieve poolPair info via rpc client
+   * @param {string} idOrSymbol - id or symbol
+   * @return {PoolPairInfoWithId | undefined}
+   */
+  private async fetchPoolPairInfo (idOrSymbol: string): Promise<PoolPairInfoWithId | undefined> {
     try {
-      const result = await this.rpcClient.poolpair.getPoolPair(id)
-      if (result[id] === undefined) {
-        return undefined
+      const result = await this.rpcClient.poolpair.getPoolPair(idOrSymbol)
+      const [id, poolPairInfo] = Object.entries(result)[0]
+      return {
+        ...poolPairInfo,
+        id
       }
-      return result[id]
     } catch (err: any) {
       /* istanbul ignore else */
       if (err?.payload?.message === 'Pool not found') {

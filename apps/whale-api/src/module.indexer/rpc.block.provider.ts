@@ -4,8 +4,6 @@ import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MainIndexer } from './model/_main'
 import { Block, BlockMapper } from '../module.model/block'
 import { IndexStatusMapper, Status } from './status'
-import { TokenMapper } from '../module.model/token'
-import { HexEncoder } from '../module.model/_hex.encoder'
 import { waitForCondition } from '@defichain/testcontainers/dist/utils'
 import { blockchain as defid, RpcApiError } from '@defichain/jellyfish-api-core'
 
@@ -19,8 +17,7 @@ export class RPCBlockProvider {
     private readonly client: JsonRpcClient,
     private readonly blockMapper: BlockMapper,
     private readonly indexer: MainIndexer,
-    private readonly statusMapper: IndexStatusMapper,
-    private readonly tokenMapper: TokenMapper
+    private readonly statusMapper: IndexStatusMapper
   ) {
   }
 
@@ -110,30 +107,6 @@ export class RPCBlockProvider {
     const hash = await this.client.blockchain.getBlockHash(0)
     const block = await this.client.blockchain.getBlock(hash, 2)
     await this.indexer.index(block)
-
-    // TODO(fuxingloh): to validate genesis hash across network
-
-    // Seed DFI token
-    await this.tokenMapper.put({
-      id: '0000000000000000000000000000000000000000000000000000000000000000',
-      tokenId: 0,
-      sort: HexEncoder.encodeHeight(0),
-      symbol: 'DFI',
-      name: 'Default Defi token',
-      decimal: 8,
-      limit: '0.00000000',
-      isDAT: true,
-      isLPS: false,
-      tradeable: true,
-      mintable: false,
-      block: {
-        hash: block.hash,
-        height: 0,
-        time: block.time,
-        medianTime: block.mediantime
-      }
-    })
-
     return true
   }
 

@@ -1,5 +1,5 @@
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
-import { CacheModule, Module } from '@nestjs/common'
+import { CacheModule, Global, Module } from '@nestjs/common'
 import { RpcController } from './rpc.controller'
 import { ActuatorController } from './actuator.controller'
 import { TransactionController } from './transaction.controller'
@@ -37,6 +37,7 @@ import { LegacySubgraphService } from './legacy.subgraph.service'
 /**
  * Exposed ApiModule for public interfacing
  */
+@Global()
 @Module({
   imports: [CacheModule.register({ max: 10_000 })],
   controllers: [
@@ -98,6 +99,9 @@ import { LegacySubgraphService } from './legacy.subgraph.service'
       inject: [ConfigService]
     },
     LegacySubgraphService
+  ],
+  exports: [
+    DeFiDCache
   ]
 })
 export class ApiModule {

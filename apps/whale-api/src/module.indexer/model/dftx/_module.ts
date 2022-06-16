@@ -6,17 +6,14 @@ import { SetOracleDataIndexer } from './set.oracle.data'
 import { SetOracleDataIntervalIndexer } from './set.oracle.data.interval'
 import { CreateMasternodeIndexer } from './create.masternode'
 import { ResignMasternodeIndexer } from './resign.masternode'
-import { CreateTokenIndexer } from './create.token'
-import { CreatePoolPairIndexer } from './create.pool.pair'
-import { UpdatePoolPairIndexer } from './update.pool.pair'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { ConfigService } from '@nestjs/config'
 import { PoolSwapIndexer } from './pool.swap'
 import { CompositeSwapIndexer } from './composite.swap'
-import { SetLoanTokenIndexer } from './set.loan.token'
 import { ActivePriceIndexer } from './active.price'
 import { PlaceAuctionBidIndexer } from './place.auction.bid'
 import { PoolSwapAggregatedIndexer } from './pool.swap.aggregated'
+import { PoolPairPathMapping } from './pool.pair.path.mapping'
 
 const indexers = [
   AppointOracleIndexer,
@@ -26,26 +23,25 @@ const indexers = [
   UpdateOracleIndexer,
   CreateMasternodeIndexer,
   ResignMasternodeIndexer,
-  CreateTokenIndexer,
-  CreatePoolPairIndexer,
-  UpdatePoolPairIndexer,
   PoolSwapIndexer,
   PoolSwapAggregatedIndexer,
   CompositeSwapIndexer,
-  SetLoanTokenIndexer,
   ActivePriceIndexer,
   PlaceAuctionBidIndexer
 ]
 
 @Module({
-  providers: [...indexers,
+  providers: [
+    ...indexers,
+    PoolPairPathMapping,
     {
       provide: 'NETWORK',
       useFactory: (configService: ConfigService): NetworkName => {
         return configService.get<string>('network') as NetworkName
       },
       inject: [ConfigService]
-    }],
+    }
+  ],
   exports: indexers
 })
 export class DfTxIndexerModule {
