@@ -779,16 +779,6 @@ describe('poolswap aggregated', () => {
         bucket: expect.any(Number),
         id: expect.any(String),
         key: '10-86400'
-      },
-      {
-        aggregated: {
-          amounts: {},
-          usd: 0
-        },
-        block: expect.any(Object),
-        bucket: expect.any(Number),
-        id: expect.any(String),
-        key: '10-86400'
       }
     ])
 
