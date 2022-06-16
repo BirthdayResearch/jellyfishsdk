@@ -10,8 +10,6 @@ import waitForExpect from 'wait-for-expect'
 import { addressToHid } from './module.api/address.controller'
 import { ScriptAggregationMapper } from './module.model/script.aggregation'
 import { TestingGroup } from '@defichain/jellyfish-testing'
-import { DeFiDCache } from './module.api/cache/defid.cache'
-import { CacheModule } from '@nestjs/common'
 
 /**
  * Configures an end-to-end testing app integrated with all modules.
@@ -61,13 +59,7 @@ export async function stopTestingApp (container: MasterNodeRegTestContainer | Te
 
 async function createTestingModule (url: string): Promise<TestingModule> {
   return await Test.createTestingModule({
-    imports: [
-      CacheModule.register(),
-      AppModule.forRoot('memory')
-    ],
-    providers: [
-      DeFiDCache
-    ]
+    imports: [AppModule.forRoot('memory')]
   })
     .overrideProvider(ConfigService).useValue(new TestConfigService(url))
     .compile()
