@@ -23,7 +23,6 @@ const indexers = [
   UpdateOracleIndexer,
   CreateMasternodeIndexer,
   ResignMasternodeIndexer,
-  PoolPairPathMapping,
   PoolSwapIndexer,
   PoolSwapAggregatedIndexer,
   CompositeSwapIndexer,
@@ -34,13 +33,15 @@ const indexers = [
 @Module({
   providers: [
     ...indexers,
+    PoolPairPathMapping,
     {
       provide: 'NETWORK',
       useFactory: (configService: ConfigService): NetworkName => {
         return configService.get<string>('network') as NetworkName
       },
       inject: [ConfigService]
-    }],
+    }
+  ],
   exports: indexers
 })
 export class DfTxIndexerModule {

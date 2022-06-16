@@ -3,9 +3,10 @@ import { DeFiDCache, PoolPairInfoWithId } from '../../../module.api/cache/defid.
 
 @Injectable()
 export class PoolPairPathMapping {
+  private readonly paths: Record<string, PoolPairInfoWithId> = {}
+
   constructor (
-    protected readonly deFiDCache: DeFiDCache,
-    private readonly paths: Record<string, PoolPairInfoWithId>
+    protected readonly deFiDCache: DeFiDCache
   ) {
   }
 
