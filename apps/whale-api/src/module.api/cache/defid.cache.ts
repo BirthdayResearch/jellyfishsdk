@@ -101,7 +101,7 @@ export class DeFiDCache extends GlobalCache {
     return poolPairsById[id]
   }
 
-  async getPoolPairs (invalidate: boolean): Promise<PoolPairInfoWithId[]> {
+  async getPoolPairs (invalidate: boolean = false): Promise<PoolPairInfoWithId[]> {
     if (invalidate) {
       await this.cacheManager.del(`${CachePrefix.POOL_PAIRS} *`)
     }
