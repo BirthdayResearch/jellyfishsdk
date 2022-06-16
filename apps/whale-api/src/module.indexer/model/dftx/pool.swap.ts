@@ -53,7 +53,7 @@ export class PoolSwapIndexer extends DfTxIndexer<PoolSwap> {
       const previous = await this.aggregatedMapper.query(`${poolPairId}-${interval}`, 1)
       if (previous.length === 0) {
         // Logger Error instead of panic exiting to prevent cascade failure
-        this.logger.error(`Unable to find ${poolPairId}-${interval} for Aggregate Indexing`)
+        this.logger.error(`indexSwap ${transaction.txn.txid}: Unable to find ${poolPairId}-${interval} for Aggregate Indexing`)
         continue
       }
       const aggregate = previous[0]
@@ -77,7 +77,7 @@ export class PoolSwapIndexer extends DfTxIndexer<PoolSwap> {
       const previous = await this.aggregatedMapper.query(`${poolPairId}-${interval as number}`, 1)
       if (previous.length === 0) {
         // Logger Error instead of panic exiting to prevent cascade failure
-        this.logger.error(`Unable to find ${poolPairId}-${interval} for Aggregate Indexing`)
+        this.logger.error(`invalidateSwap ${transaction.txn.txid}: Unable to find ${poolPairId}-${interval} for Aggregate Indexing`)
         continue
       }
       const aggregate = previous[0]
