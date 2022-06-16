@@ -1,7 +1,7 @@
 import { DfTxIndexer, DfTxTransaction } from './_abstract'
 import { CPoolSwap, PoolSwap } from '@defichain/jellyfish-transaction'
 import { RawBlock } from '../_abstract'
-import { Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable, Logger } from '@nestjs/common'
 import { NetworkName } from '@defichain/jellyfish-network'
 import BigNumber from 'bignumber.js'
 import { PoolSwapMapper } from '../../../module.model/pool.swap'
@@ -15,6 +15,7 @@ import { PoolPairPathMapping } from './pool.pair.path.mapping'
 @Injectable()
 export class PoolSwapIndexer extends DfTxIndexer<PoolSwap> {
   OP_CODE: number = CPoolSwap.OP_CODE
+  private readonly logger = new Logger(PoolSwapIndexer.name)
 
   constructor (
     private readonly poolSwapMapper: PoolSwapMapper,
@@ -50,6 +51,11 @@ export class PoolSwapIndexer extends DfTxIndexer<PoolSwap> {
 
     for (const interval of AggregatedIntervals) {
       const previous = await this.aggregatedMapper.query(`${poolPairId}-${interval}`, 1)
+      if (previous.length === 0) {
+        // Logger Error instead of panic exiting to prevent cascade failure
+        this.logger.error(`Unable to find ${poolPairId}-${interval} for Aggregate Indexing`)
+        continue
+      }
       const aggregate = previous[0]
       const amount = new BigNumber(aggregate.aggregated.amounts[`${fromTokenId}`] ?? '0')
 
@@ -69,6 +75,11 @@ export class PoolSwapIndexer extends DfTxIndexer<PoolSwap> {
 
     for (const interval of AggregatedIntervals) {
       const previous = await this.aggregatedMapper.query(`${poolPairId}-${interval as number}`, 1)
+      if (previous.length === 0) {
+        // Logger Error instead of panic exiting to prevent cascade failure
+        this.logger.error(`Unable to find ${poolPairId}-${interval} for Aggregate Indexing`)
+        continue
+      }
       const aggregate = previous[0]
       const amount = new BigNumber(aggregate.aggregated.amounts[`${fromTokenId}`])
 

@@ -82,7 +82,7 @@ export async function waitForIndexedHeightLatest (app: NestFastifyApplication, c
  * @param {number} height to wait for
  * @param {number} [timeout=30000]
  */
-export async function waitForIndexedHeight (app: NestFastifyApplication, height: number, timeout: number = 30000): Promise<void> {
+export async function waitForIndexedHeight (app: NestFastifyApplication, height: number, timeout: number = 60000): Promise<void> {
   const blockMapper = app.get(BlockMapper)
   await waitForExpect(async () => {
     const block = await blockMapper.getHighest()

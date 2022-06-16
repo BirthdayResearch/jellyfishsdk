@@ -94,6 +94,9 @@ export class PoolSwapAggregatedIndexer extends DfTxIndexer<PoolSwap> {
       .filter(pair => {
         return pair.creationHeight.lte(block.height)
       })
+      .sort((a, b) => {
+        return b.creationHeight.comparedTo(a.creationHeight)
+      })
   }
 }
 
