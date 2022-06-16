@@ -1,10 +1,14 @@
 import { PoolPairController } from './poolpair.controller'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../e2e.module'
+import { createTestingApp, stopTestingApp } from '../e2e.module'
 import { addPoolLiquidity, createPoolPair, createToken, getNewAddress, mintTokens } from '@defichain/testing'
-import { NotFoundException } from '@nestjs/common'
+import { CACHE_MANAGER, NotFoundException } from '@nestjs/common'
 import { BigNumber } from 'bignumber.js'
+import { DeFiDCache } from './cache/defid.cache'
+import { CachePrefix } from '@defichain-apps/libs/caches'
+import { Cache } from 'cache-manager'
+import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
 
 const container = new MasterNodeRegTestContainer()
 let app: NestFastifyApplication
@@ -14,13 +18,23 @@ beforeAll(async () => {
   await container.start()
   await container.waitForWalletCoinbaseMaturity()
   await container.waitForWalletBalanceGTE(100)
+  await setup()
 
   app = await createTestingApp(container)
   controller = app.get(PoolPairController)
+  const cache = app.get<Cache>(CACHE_MANAGER)
+  const defiCache = app.get(DeFiDCache)
 
-  await waitForIndexedHeight(app, 100)
+  const tokenResult = await container.call('listtokens')
+  // precache
+  for (const k in tokenResult) {
+    await defiCache.getTokenInfo(k) as TokenInfo
+  }
 
-  await setup()
+  // ensure precache is working
+  const tkey = `${CachePrefix.TOKEN_INFO} 27`
+  const token = await cache.get<TokenInfo>(tkey)
+  expect(token?.symbolKey).toStrictEqual('USDT-DFI')
 })
 
 afterAll(async () => {
