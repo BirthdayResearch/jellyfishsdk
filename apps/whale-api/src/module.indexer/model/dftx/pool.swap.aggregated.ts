@@ -88,11 +88,11 @@ export class PoolSwapAggregatedIndexer extends DfTxIndexer<PoolSwap> {
       including_start: true
     })
     return Object.entries(poolPairs)
-      .map(([id, pair]): PoolPairInfoWithId => {
-        return { id, ...pair }
-      })
       .filter(pair => {
         return pair.creationHeight.lte(block.height)
+      })
+      .map(([id, pair]): PoolPairInfoWithId => {
+        return { id, ...pair }
       })
       .sort((a, b) => {
         // Need to be sort by descending order otherwise aggregate indexer bucket will exit without creating a bucket
