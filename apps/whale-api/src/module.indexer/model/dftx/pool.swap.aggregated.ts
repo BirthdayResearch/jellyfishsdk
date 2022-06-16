@@ -31,7 +31,7 @@ export class PoolSwapAggregatedIndexer extends DfTxIndexer<PoolSwap> {
 
     for (const interval of AggregatedIntervals) {
       for (const poolPair of poolPairs) {
-        if (poolPair.creationHeight.gte(block.height)) {
+        if (poolPair.creationHeight.gt(block.height)) {
           // Don't create bucket for PoolPair if block.height is greater
           continue
         }
