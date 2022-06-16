@@ -615,7 +615,7 @@ describe('Vault listAuctionHistory', () => {
           { index: 1 }
         )
 
-        expect(page.length).toStrictEqual(4)
+        expect(page.length).toStrictEqual(2)
       }
 
       {
@@ -624,7 +624,7 @@ describe('Vault listAuctionHistory', () => {
           { index: 5 }
         )
 
-        expect(page.length).toStrictEqual(2)
+        expect(page.length).toStrictEqual(0)
       }
 
       {
@@ -633,7 +633,7 @@ describe('Vault listAuctionHistory', () => {
           { index: 3 }
         )
 
-        expect(page.length).toStrictEqual(2)
+        expect(page.length).toStrictEqual(0)
       }
     })
 
@@ -741,10 +741,9 @@ describe('Vault listAuctionHistory', () => {
         const page = await alice.rpc.vault.listAuctionHistory('all',
           { maxBlockHeight: auctionHistoryArr[1].blockHeight, index: auctionHistoryArr[1].batchIndex }
         )
-        expect(page.length).toStrictEqual(3)
+        expect(page.length).toStrictEqual(2)
         expect(page[0].vaultId).toStrictEqual(auctionHistoryArr[1].vaultId)
-        expect(page[1].vaultId).toStrictEqual(auctionHistoryArr[2].vaultId)
-        expect(page[2].vaultId).toStrictEqual(auctionHistoryArr[3].vaultId)
+        expect(page[1].vaultId).toStrictEqual(auctionHistoryArr[3].vaultId)
       }
 
       // Mine for Alice
@@ -777,7 +776,7 @@ describe('Vault listAuctionHistory', () => {
         )
         expect(page.length).toStrictEqual(2)
         expect(page[0].vaultId).toStrictEqual(auctionHistoryArr[1].vaultId)
-        expect(page[1].vaultId).toStrictEqual(auctionHistoryArr[2].vaultId)
+        expect(page[1].vaultId).toStrictEqual(auctionHistoryArr[3].vaultId)
       }
 
       // Mine
