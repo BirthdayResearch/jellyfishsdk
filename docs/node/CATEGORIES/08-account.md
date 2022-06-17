@@ -216,7 +216,7 @@ enum DfTxType {
   NONE = '0'
 }
 
-export enum AmountFormat {
+enum AmountFormat {
   ID = 'id',
   SYMBOL = 'symbol'
 }

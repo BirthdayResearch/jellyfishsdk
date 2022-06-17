@@ -305,20 +305,13 @@ describe('Account', () => {
   })
 
   it('should listAccountHistory with options amountFormat', async () => {
-    const options = {
-      token: 'DBTC'
-    }
-    await waitForExpect(async () => {
-      const accountHistories = await client.account.listAccountHistory('mine', options)
-      expect(accountHistories.length).toBeGreaterThan(0)
-    })
-
     { // amountFormat should be id
       const options = {
         token: 'DBTC',
         amountFormat: AmountFormat.ID
       }
       const accountHistories = await client.account.listAccountHistory('mine', options)
+      expect(accountHistories.length).toBeGreaterThan(0)
       for (let i = 0; i < accountHistories.length; i += 1) {
         const accountHistory = accountHistories[i]
         expect(accountHistory.amounts.length).toBeGreaterThan(0)
@@ -336,6 +329,7 @@ describe('Account', () => {
         amountFormat: AmountFormat.SYMBOL
       }
       const accountHistories = await client.account.listAccountHistory('mine', options)
+      expect(accountHistories.length).toBeGreaterThan(0)
       for (let i = 0; i < accountHistories.length; i += 1) {
         const accountHistory = accountHistories[i]
         expect(accountHistory.amounts.length).toBeGreaterThan(0)
@@ -351,11 +345,8 @@ describe('Account', () => {
       const options = {
         token: 'DFI'
       }
-      await waitForExpect(async () => {
-        const accountHistories = await client.account.listAccountHistory('mine', options)
-        expect(accountHistories.length).toBeGreaterThan(0)
-      })
       const accountHistories = await client.account.listAccountHistory('mine', options)
+      expect(accountHistories.length).toBeGreaterThan(0)
       for (let i = 0; i < accountHistories.length; i += 1) {
         const accountHistory = accountHistories[i]
         expect(accountHistory.amounts.length).toBeGreaterThan(0)
