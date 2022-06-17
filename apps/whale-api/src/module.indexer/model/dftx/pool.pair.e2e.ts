@@ -437,15 +437,6 @@ describe('poolswap invalidate', () => {
           }
         },
         block: expect.any(Object)
-      },
-      {
-        id: expect.any(String),
-        key: '2-3600',
-        bucket: expect.any(Number),
-        aggregated: {
-          amounts: {}
-        },
-        block: expect.any(Object)
       }
     ])
 
@@ -492,15 +483,6 @@ describe('poolswap invalidate', () => {
             }
           },
           block: expect.any(Object)
-        },
-        {
-          id: expect.any(String),
-          key: '2-3600',
-          bucket: expect.any(Number),
-          aggregated: {
-            amounts: {}
-          },
-          block: expect.any(Object)
         }
       ])
 
@@ -543,15 +525,6 @@ describe('poolswap invalidate', () => {
               amounts: {
                 1: '0.20000000'
               }
-            },
-            block: expect.any(Object)
-          },
-          {
-            id: expect.any(String),
-            key: '2-3600',
-            bucket: expect.any(Number),
-            aggregated: {
-              amounts: {}
             },
             block: expect.any(Object)
           }
