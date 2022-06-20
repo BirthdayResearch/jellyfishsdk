@@ -92,6 +92,31 @@ describe('Vault getVault', () => {
     })
   })
 
+  it('should getVault verbose info', async () => {
+    const ownerAddress = await testing.generateAddress()
+    const vaultId = await testing.rpc.container.call('createvault', [ownerAddress, 'default'])
+    await testing.container.generate(1)
+
+    const data = await testing.rpc.vault.getVault(vaultId, true)
+    expect(data).toStrictEqual({
+      vaultId: vaultId,
+      loanSchemeId: 'default', // Get default loan scheme
+      ownerAddress: ownerAddress,
+      state: VaultState.ACTIVE,
+      collateralAmounts: [],
+      loanAmounts: [],
+      interestAmounts: [],
+      collateralValue: expect.any(BigNumber),
+      loanValue: expect.any(BigNumber),
+      interestValue: expect.any(BigNumber),
+      collateralRatio: expect.any(Number),
+      informativeRatio: expect.any(BigNumber),
+      nextCollateralRatio: expect.any(BigNumber),
+      interestPerBlockValue: expect.any(BigNumber),
+      interestsPerBlock: []
+    })
+  })
+
   it('should getVault with deposited collateral details', async () => {
     const ownerAddress = await testing.generateAddress()
     const vaultId = await testing.rpc.container.call('createvault', [ownerAddress, 'default'])
@@ -210,7 +235,7 @@ describe('Vault getVault', () => {
             '0.66666666@BTC'
           ],
           index: 0,
-          loan: '20.00004546@TSLA',
+          loan: '20.00004165@TSLA',
           highestBid: {
             amount: '40.00000000@TSLA',
             owner: collateralAddress
@@ -222,7 +247,7 @@ describe('Vault getVault', () => {
             '0.33333334@BTC'
           ],
           index: 1,
-          loan: '10.00002304@TSLA'
+          loan: '10.00002114@TSLA'
         }
       ]
     })
