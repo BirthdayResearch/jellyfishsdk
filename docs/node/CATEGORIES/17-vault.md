@@ -59,7 +59,7 @@ Returns information about vault.
 
 ```ts title="client.vault.getVault()"
 interface vault {
-  getVault (vaultId: string, verbose?: boolean): Promise<VaultActive | VaultLiquidation>
+  getVault (vaultId: string, verbose: boolean = false): Promise<VaultActive | VaultLiquidation>
 }
 
 enum VaultState {
