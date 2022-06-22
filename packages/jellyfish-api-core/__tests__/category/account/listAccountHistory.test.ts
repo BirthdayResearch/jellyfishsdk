@@ -509,3 +509,107 @@ describe('listAccountHistory for poolpair', () => {
     ]))
   })
 })
+
+describe.only('listAccountHistory for poolpair', () => {
+  const container = new MasterNodeRegTestContainer()
+  const client = new ContainerAdapterClient(container)
+  const createToken = createTokenForContainer(container)
+
+  beforeAll(async () => {
+    await container.start()
+    await container.waitForReady()
+    await container.waitForWalletCoinbaseMaturity()
+    await container.waitForWalletBalanceGTE(200)
+    const address = await container.call('getnewaddress')
+    await container.call('utxostoaccount', [{ [address]: '100@0' }])
+    await createToken(address, 'DDAI', 2000)
+
+    await client.poolpair.createPoolPair({
+      tokenA: 'DFI',
+      tokenB: 'DDAI',
+      commission: 0.5,
+      status: true,
+      ownerAddress: await container.call('getnewaddress')
+    })
+    await container.generate(1)
+  })
+
+  afterAll(async () => {
+    await container.stop()
+  })
+
+  it('should show AddPoolLiquidity', async () => {
+    await client.poolpair.addPoolLiquidity({
+      '*': ['10@DFI', '200@DDAI']
+    }, await container.call('getnewaddress'))
+    await container.generate(1)
+
+    const histories = await client.account.listAccountHistory('mine', { limit: 100, no_rewards: true })
+
+    const records = histories.filter((h) => h.type === 'AddPoolLiquidity')
+
+    expect(records.length).toStrictEqual(2)
+
+    expect(records).toStrictEqual(expect.arrayContaining([
+      expect.objectContaining({
+        amounts: expect.arrayContaining([
+          expect.stringContaining('DFI-DDAI')
+        ])
+      }),
+      expect.objectContaining({
+        amounts: expect.arrayContaining([
+          '-10.00000000@DFI',
+          '-200.00000000@DDAI'
+        ])
+      })
+    ]))
+  })
+
+  it('should show RemovePoolLiquidity', async () => {
+    const poolAddress = await container.call('getnewaddress')
+    await client.poolpair.addPoolLiquidity({
+      '*': ['10@DFI', '200@DDAI']
+    }, poolAddress)
+    await container.generate(1)
+    await container.call('removepoolliquidity', [poolAddress, '20@DFI-DDAI'])
+    await container.generate(1)
+
+    const histories = await client.account.listAccountHistory('mine', { limit: 100, no_rewards: true })
+
+    expect(histories).toStrictEqual(expect.arrayContaining([
+      expect.objectContaining({
+        type: 'RemovePoolLiquidity',
+        amounts: expect.arrayContaining(['-20.00000000@DFI-DDAI'])
+      })
+    ]))
+  })
+
+  it('should show PoolSwap', async () => {
+    const address = await container.call('getnewaddress')
+    await container.call('utxostoaccount', [{ [address]: '100@0' }])
+
+    await client.poolpair.addPoolLiquidity({
+      '*': ['10@DFI', '200@DDAI']
+    }, await container.call('getnewaddress'))
+    await container.generate(1)
+    const metadata = {
+      from: address,
+      tokenFrom: 'DFI',
+      amountFrom: '5',
+      to: await container.call('getnewaddress'),
+      tokenTo: 'DDAI'
+    }
+
+    await container.call('poolswap', [metadata])
+    await container.generate(1)
+
+    const histories = await client.account.listAccountHistory('mine', { limit: 100, no_rewards: true })
+
+    expect(histories).toStrictEqual(expect.arrayContaining([
+      expect.objectContaining({
+        type: 'PoolSwap',
+        amounts: expect.arrayContaining(['-5.00000000@DFI'])
+      })
+    ]))
+  })
+})
