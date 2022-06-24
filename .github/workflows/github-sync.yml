@@ -17,3 +17,4 @@ jobs:
         source_branch: "main"
         destination_branch: "main"
         github_token: ${{ secrets.PAT }}
+        sync_tags: "true"
