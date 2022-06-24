@@ -580,9 +580,9 @@ export interface BurnInfo {
    */
   auctionburn: BigNumber
   /**
-   * Value of burn after payback
+   * Burns after payback
    */
-  paybackburn: BigNumber
+  paybackburn: string[]
   /**
    * Formatted as AMOUNT@SYMBOL
    */

@@ -383,7 +383,7 @@ describe('paybackLoan success', () => {
 
   it('should paybackLoan partially', async () => {
     const burnInfoBefore = await bob.container.call('getburninfo')
-    expect(burnInfoBefore.paybackburn).toStrictEqual(0)
+    expect(burnInfoBefore.paybackburn).toStrictEqual([])
 
     const loanAccBefore = await bob.container.call('getaccount', [bobloanAddr])
     expect(loanAccBefore).toStrictEqual(['40.00000000@TSLA'])
@@ -440,7 +440,7 @@ describe('paybackLoan success', () => {
     expect(vaultAfter.informativeRatio).toStrictEqual(27777.73841569)
 
     const burnInfoAfter = await bob.container.call('getburninfo')
-    expect(burnInfoAfter.paybackburn).toStrictEqual(0.00000456)
+    expect(burnInfoAfter.paybackburn).toStrictEqual(['0.00000456@DFI'])
   })
 
   it('should paybackLoan by anyone', async () => {
@@ -483,7 +483,7 @@ describe('paybackLoan success', () => {
 
   it('should paybackLoan more than one amount', async () => {
     const burnInfoBefore = await bob.container.call('getburninfo')
-    expect(burnInfoBefore.paybackburn).toStrictEqual(0)
+    expect(burnInfoBefore.paybackburn).toStrictEqual([])
 
     await bob.rpc.loan.takeLoan({
       vaultId: bobVaultId,
@@ -584,7 +584,7 @@ describe('paybackLoan success', () => {
       expect(loanTokenAccAfter).toStrictEqual(['27.00000000@TSLA', '9.00000000@AMZN'])
 
       const burnInfoAfter = await bob.container.call('getburninfo')
-      expect(burnInfoAfter.paybackburn).toStrictEqual(0.00000998)
+      expect(burnInfoAfter.paybackburn).toStrictEqual(['0.00000998@DFI'])
     }
 
     // second paybackLoan
@@ -638,7 +638,7 @@ describe('paybackLoan success', () => {
       expect(loanTokenAccAfter).toStrictEqual(['14.00000000@TSLA', '3.00000000@AMZN']) // (27 - 13), (9 - 6)
 
       const burnInfoAfter = await bob.container.call('getburninfo')
-      expect(burnInfoAfter.paybackburn).toStrictEqual(0.00001356)
+      expect(burnInfoAfter.paybackburn).toStrictEqual(['0.00001356@DFI'])
     }
   })
 
@@ -1404,7 +1404,7 @@ describe('paybackloan for any token', () => {
 
     const dfiPaybackAmount = 100
     const burnInfoBefore = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoBefore.paybackburn).toStrictEqual(new BigNumber(0))
+    expect(burnInfoBefore.paybackburn).toStrictEqual([])
     expect(burnInfoBefore.dfipaybackfee).toStrictEqual(new BigNumber(0))
     expect(burnInfoBefore.dfipaybacktokens).toStrictEqual([])
 
@@ -1434,7 +1434,7 @@ describe('paybackloan for any token', () => {
     const tslaLoanAmountAfter = new BigNumber(tslaLoanAmount).plus(tslaInterestPerBlock.multipliedBy(currentBlockHeight - tslaTakeLoanBlockHeight + 1).decimalPlaces(8, BigNumber.ROUND_CEIL))
 
     const burnInfoAfterFirstPayback = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoAfterFirstPayback.paybackburn).toStrictEqual(totalDusdPaybackAmount.plus(totalDfiPenalty))
+    expect(burnInfoAfterFirstPayback.paybackburn).toStrictEqual([`${totalDusdPaybackAmount.plus(totalDfiPenalty).toFixed(8)}@DFI`])
     expect(burnInfoAfterFirstPayback.dfipaybackfee).toStrictEqual(totalDfiPenalty)
     expect(burnInfoAfterFirstPayback.dfipaybacktokens).toStrictEqual([`${totalDusdPaybackAmount.toFixed(8)}@DUSD`])
 
@@ -1470,7 +1470,7 @@ describe('paybackloan for any token', () => {
     totalDusdPaybackAmount = totalDusdPaybackAmount.plus(dusdPaybackAmountAfter)
 
     const burnInfoAfterSecondPayback = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoAfterSecondPayback.paybackburn).toStrictEqual(totalDusdPaybackAmount.plus(totalDfiPenalty))
+    expect(burnInfoAfterSecondPayback.paybackburn).toStrictEqual([`${totalDusdPaybackAmount.plus(totalDfiPenalty).toFixed(8)}@DFI`])
     expect(burnInfoAfterSecondPayback.dfipaybackfee).toStrictEqual(totalDfiPenalty)
     expect(burnInfoAfterSecondPayback.dfipaybacktokens).toStrictEqual([`${totalDusdPaybackAmount.toFixed(8)}@DUSD`])
 
@@ -1490,7 +1490,7 @@ describe('paybackloan for any token', () => {
     await testing.generate(1)
 
     const burnInfoBefore = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoBefore.paybackburn).toStrictEqual(new BigNumber(0))
+    expect(burnInfoBefore.paybackburn).toStrictEqual([])
     expect(burnInfoBefore.dfipaybackfee).toStrictEqual(new BigNumber(0))
 
     await testing.rpc.loan.depositToVault({
@@ -1524,7 +1524,7 @@ describe('paybackloan for any token', () => {
     expect(accAfterFirstPayback).toContain('799999.99999999@DFI')
 
     const burnInfoFirstPayback = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoFirstPayback.paybackburn).toStrictEqual(new BigNumber(oneSat))
+    expect(burnInfoFirstPayback.paybackburn).toStrictEqual([`${oneSat.toFixed(8)}@DFI`])
     expect(burnInfoFirstPayback.dfipaybackfee).toStrictEqual(new BigNumber(0))
 
     const vaultAfterFirstPayback = await testing.rpc.loan.getVault(vaultIdOneSat) as VaultActive
@@ -1541,7 +1541,7 @@ describe('paybackloan for any token', () => {
     expect(accAfterSecondPayback).toContain('799999.99999996@DFI')
 
     const burnInfoAfterSecondPayback = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoAfterSecondPayback.paybackburn).toStrictEqual(new BigNumber(oneSat * 4))
+    expect(burnInfoAfterSecondPayback.paybackburn).toStrictEqual([`${(oneSat * 4).toFixed(8)}@DFI`])
     expect(burnInfoAfterSecondPayback.dfipaybacktokens).toStrictEqual(['0.00000002@DUSD'])
 
     const vaultAfterSecondPayback = await testing.rpc.loan.getVault(vaultIdOneSat) as VaultActive
@@ -1553,7 +1553,7 @@ describe('paybackloan for any token', () => {
     await testing.generate(1)
 
     const burnInfoBefore = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoBefore.paybackburn).toStrictEqual(new BigNumber(0))
+    expect(burnInfoBefore.paybackburn).toStrictEqual([])
     expect(burnInfoBefore.dfipaybackfee).toStrictEqual(new BigNumber(0))
     expect(burnInfoBefore.dfipaybacktokens).toStrictEqual([])
 
@@ -1588,7 +1588,7 @@ describe('paybackloan for any token', () => {
     const totalDfiPenalty = dfiNeededToPayOffDusd.multipliedBy(defaultPenaltyRate)
     const totalDusdPaybackAmount = dusdLoanAmountBefore
     const burnInfoAfter = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoAfter.paybackburn.toFixed(8)).toStrictEqual(dfiNeededToPayOffDusd.toFixed(8))
+    expect(burnInfoAfter.paybackburn).toStrictEqual([`${dfiNeededToPayOffDusd.toFixed(8)}@DFI`])
     expect(burnInfoAfter.dfipaybackfee.toFixed(8)).toStrictEqual(totalDfiPenalty.toFixed(8, BigNumber.ROUND_FLOOR))
     expect(burnInfoAfter.dfipaybacktokens).toStrictEqual([`${totalDusdPaybackAmount.toFixed(8)}@DUSD`])
 
