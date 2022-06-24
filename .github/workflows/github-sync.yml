@@ -1,0 +1,19 @@
+on:
+  schedule:
+  - cron:  "*/15 * * * *"
+  workflow_dispatch:
+
+jobs:
+  repo-sync:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      with:
+        persist-credentials: false
+    - name: repo-sync
+      uses: repo-sync/github-sync@3832fe8e2be32372e1b3970bbae8e7079edeec88
+      with:
+        source_repo: "JellyfishSDK/jellyfish"
+        source_branch: "main"
+        destination_branch: "main"
+        github_token: ${{ secrets.PAT }}
