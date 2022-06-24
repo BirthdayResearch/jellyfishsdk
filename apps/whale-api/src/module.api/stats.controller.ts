@@ -152,7 +152,7 @@ export class StatsController {
       address: address.toNumber(),
       fee: burnInfo.feeburn.toNumber(),
       auction: burnInfo.auctionburn.toNumber(),
-      payback: payback,
+      payback: burnInfo.paybackburn,
       emission: burnInfo.emissionburn.toNumber(),
       total: address
         .plus(burnInfo.feeburn)

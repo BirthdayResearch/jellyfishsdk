@@ -56,7 +56,7 @@ export interface StatsData {
     address: number
     fee: number
     auction: number
-    payback: number
+    payback: string[]
     emission: number
   }
   price: {
