@@ -144,17 +144,20 @@ export class StatsController {
     const utxo = burnInfo.amount
     const account = findTokenBalance(burnInfo.tokens, 'DFI')
     const address = utxo.plus(account)
+    const payback = burnInfo.paybackburn.length !== 0
+      ? burnInfo.paybackburn.map(i => Number(i)).reduce((a, b) => a + b)
+      : 0
 
     return {
       address: address.toNumber(),
       fee: burnInfo.feeburn.toNumber(),
       auction: burnInfo.auctionburn.toNumber(),
-      payback: burnInfo.paybackburn,
+      payback: payback,
       emission: burnInfo.emissionburn.toNumber(),
       total: address
         .plus(burnInfo.feeburn)
         .plus(burnInfo.auctionburn)
-        .plus(burnInfo.paybackburn.map(i => Number(i)).reduce((a, b) => a + b))
+        .plus(payback)
         .plus(burnInfo.emissionburn)
         .toNumber()
     }
