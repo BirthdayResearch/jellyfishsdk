@@ -66,7 +66,7 @@
     "typeorm": "^0.2.45"
   },
   "devDependencies": {
-    "@nestjs/cli": "^8.2.5",
+    "@nestjs/cli": "^8.2.7",
     "@nestjs/schematics": "^8.0.11",
     "@nestjs/testing": "^8.4.4",
     "@types/cache-manager": "^4.0.0",
@@ -84,7 +84,7 @@
     "source-map-support": "^0.5.21",
     "supertest": "^6.2.3",
     "testcontainers": "^8.10.1",
-    "ts-loader": "^9.3.0",
+    "ts-loader": "^9.3.1",
     "ts-node": "^10.8.1",
     "tsconfig-paths": "^3.13.0"
   }
