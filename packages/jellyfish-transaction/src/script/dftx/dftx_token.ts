@@ -19,7 +19,7 @@ export class CTokenMint extends ComposableBuffer<TokenMint> {
 
   composers (tm: TokenMint): BufferComposer[] {
     return [
-      ComposableBuffer.varUIntArray(() => tm.balances, v => tm.balances = v, v => new CTokenBalance(v))
+      ComposableBuffer.compactSizeArray(() => tm.balances, v => tm.balances = v, v => new CTokenBalance(v))
     ]
   }
 }
@@ -47,8 +47,8 @@ export class CTokenCreate extends ComposableBuffer<TokenCreate> {
 
   composers (tc: TokenCreate): BufferComposer[] {
     return [
-      ComposableBuffer.varUIntUtf8BE(() => tc.symbol, v => tc.symbol = v),
-      ComposableBuffer.varUIntUtf8BE(() => tc.name, v => tc.name = v),
+      ComposableBuffer.compactSizeUtf8BE(() => tc.symbol, v => tc.symbol = v),
+      ComposableBuffer.compactSizeUtf8BE(() => tc.name, v => tc.name = v),
       ComposableBuffer.uInt8(() => tc.decimal, v => tc.decimal = v),
       ComposableBuffer.bigNumberUInt64(() => tc.limit, v => tc.limit = v),
       ComposableBuffer.bitmask1Byte(3, () => [tc.isDAT, tc.tradeable, tc.mintable], v => {
@@ -105,8 +105,8 @@ export class CTokenUpdateAny extends ComposableBuffer<TokenUpdateAny> {
   composers (tua: TokenUpdateAny): BufferComposer[] {
     return [
       ComposableBuffer.hexBEBufferLE(32, () => tua.creationTx, v => tua.creationTx = v),
-      ComposableBuffer.varUIntUtf8BE(() => tua.symbol, v => tua.symbol = v),
-      ComposableBuffer.varUIntUtf8BE(() => tua.name, v => tua.name = v),
+      ComposableBuffer.compactSizeUtf8BE(() => tua.symbol, v => tua.symbol = v),
+      ComposableBuffer.compactSizeUtf8BE(() => tua.name, v => tua.name = v),
       ComposableBuffer.uInt8(() => tua.decimal, v => tua.decimal = v),
       ComposableBuffer.bigNumberUInt64(() => tua.limit, v => tua.limit = v),
       ComposableBuffer.bitmask1Byte(3, () => [tua.isDAT, tua.tradeable, tua.mintable], v => {

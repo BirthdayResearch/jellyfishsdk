@@ -35,9 +35,9 @@ export class CICXCreateOrder extends ComposableBuffer<ICXCreateOrder> {
   composers (cco: ICXCreateOrder): BufferComposer[] {
     return [
       ComposableBuffer.uInt8(() => cco.orderType, v => cco.orderType = v),
-      ComposableBuffer.varUInt(() => cco.tokenId, v => cco.tokenId = v),
+      ComposableBuffer.compactSize(() => cco.tokenId, v => cco.tokenId = v),
       ComposableBuffer.single<Script>(() => cco.ownerAddress, v => cco.ownerAddress = v, v => new CScript(v)),
-      ComposableBuffer.varUIntOptionalHex(() => cco.receivePubkey, v => cco.receivePubkey = v),
+      ComposableBuffer.compactSizeOptionalHex(() => cco.receivePubkey, v => cco.receivePubkey = v),
       ComposableBuffer.satoshiAsBigNumber(() => cco.amountFrom, v => cco.amountFrom = v),
       ComposableBuffer.satoshiAsBigNumber(() => cco.amountToFill, v => cco.amountToFill = v),
       ComposableBuffer.satoshiAsBigNumber(() => cco.orderPrice, v => cco.orderPrice = v),
@@ -71,7 +71,7 @@ export class CICXMakeOffer extends ComposableBuffer<ICXMakeOffer> {
       ComposableBuffer.hexBEBufferLE(32, () => cmo.orderTx, v => cmo.orderTx = v),
       ComposableBuffer.satoshiAsBigNumber(() => cmo.amount, v => cmo.amount = v),
       ComposableBuffer.single<Script>(() => cmo.ownerAddress, v => cmo.ownerAddress = v, v => new CScript(v)),
-      ComposableBuffer.varUIntOptionalHex(() => cmo.receivePubkey, v => cmo.receivePubkey = v),
+      ComposableBuffer.compactSizeOptionalHex(() => cmo.receivePubkey, v => cmo.receivePubkey = v),
       ComposableBuffer.uInt32(() => cmo.expiry, v => cmo.expiry = v),
       ComposableBuffer.satoshiAsBigNumber(() => cmo.takerFee, v => cmo.takerFee = v)
     ]
@@ -131,8 +131,8 @@ export class CICXSubmitEXTHTLC extends ComposableBuffer<ICXSubmitEXTHTLC> {
       ComposableBuffer.hexBEBufferLE(32, () => msg.offerTx, v => msg.offerTx = v),
       ComposableBuffer.satoshiAsBigNumber(() => msg.amount, v => msg.amount = v),
       ComposableBuffer.hexBEBufferLE(32, () => msg.hash, v => msg.hash = v),
-      ComposableBuffer.varUIntUtf8BE(() => msg.htlcScriptAddress, v => msg.htlcScriptAddress = v),
-      ComposableBuffer.varUIntHex(() => msg.ownerPubkey, v => msg.ownerPubkey = v),
+      ComposableBuffer.compactSizeUtf8BE(() => msg.htlcScriptAddress, v => msg.htlcScriptAddress = v),
+      ComposableBuffer.compactSizeHex(() => msg.ownerPubkey, v => msg.ownerPubkey = v),
       ComposableBuffer.uInt32(() => msg.timeout, v => msg.timeout = v)
     ]
   }
@@ -157,7 +157,7 @@ export class CICXClaimDFCHTLC extends ComposableBuffer<ICXClaimDFCHTLC> {
   composers (msg: ICXClaimDFCHTLC): BufferComposer[] {
     return [
       ComposableBuffer.hexBEBufferLE(32, () => msg.dfcHTLCTx, v => msg.dfcHTLCTx = v),
-      ComposableBuffer.varUIntHex(() => msg.seed, v => msg.seed = v)
+      ComposableBuffer.compactSizeHex(() => msg.seed, v => msg.seed = v)
     ]
   }
 }

@@ -1,6 +1,6 @@
 import { SmartBuffer } from 'smart-buffer'
-import { CBlock, Block } from '../../src/block'
-import { BlockHeader } from '../../src/blockHeader'
+import { CBlock, Block } from '../../src/Block'
+import { BlockHeader } from '../../src/BlockHeader'
 import BigNumber from 'bignumber.js'
 import { OP_CODES, OP_PUSHDATA, Transaction, TransactionSegWit } from '@defichain/jellyfish-transaction'
 
