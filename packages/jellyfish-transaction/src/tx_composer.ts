@@ -146,7 +146,7 @@ export class CVoutV4 extends ComposableBuffer<Vout> implements Vout {
     return [
       ComposableBuffer.satoshiAsBigNumber(() => vout.value, v => vout.value = v),
       ComposableBuffer.single<Script>(() => vout.script, v => vout.script = v, v => new CScript(v)),
-      ComposableBuffer.compactSize(() => vout.tokenId, v => vout.tokenId = v)
+      ComposableBuffer.varInt(() => vout.tokenId, v => vout.tokenId = v)
     ]
   }
 }
