@@ -34,7 +34,7 @@ export class CScriptBalances extends ComposableBuffer<ScriptBalances> {
   composers (sb: ScriptBalances): BufferComposer[] {
     return [
       ComposableBuffer.single<Script>(() => sb.script, v => sb.script = v, v => new CScript(v)),
-      ComposableBuffer.varUIntArray(() => sb.balances, v => sb.balances = v, v => new CTokenBalance(v))
+      ComposableBuffer.compactSizeArray(() => sb.balances, v => sb.balances = v, v => new CTokenBalance(v))
     ]
   }
 }
@@ -54,7 +54,7 @@ export interface TokenBalanceVarInt {
 export class CTokenBalanceVarInt extends ComposableBuffer<TokenBalanceVarInt> {
   composers (tb: TokenBalanceVarInt): BufferComposer[] {
     return [
-      ComposableBuffer.varUInt(() => tb.token, v => tb.token = v),
+      ComposableBuffer.compactSize(() => tb.token, v => tb.token = v),
       ComposableBuffer.satoshiAsBigNumber(() => tb.amount, v => tb.amount = v)
     ]
   }

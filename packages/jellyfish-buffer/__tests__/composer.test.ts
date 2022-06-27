@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
-import { BufferComposer, ComposableBuffer } from '../src/composer'
-import { readVarUInt, writeVarUInt } from '../src/varuint'
+import { BufferComposer, ComposableBuffer } from '../src/Composer'
+import { readCompactSize, writeCompactSize } from '../src/CompactSize'
 
 function hexAsBuffer (hex: string | string[]): SmartBuffer {
   if (typeof hex === 'string') {
@@ -58,19 +58,19 @@ describe('ComposableBuffer deep implementation', () => {
     composers (root: Root): BufferComposer[] {
       return [
         ComposableBuffer.uInt8(() => root.ver, v => root.ver = v),
-        ComposableBuffer.varUIntArray(() => root.items, v => root.items = v, item => {
+        ComposableBuffer.compactSizeArray(() => root.items, v => root.items = v, item => {
           return new CItem(item)
         }),
         {
           fromBuffer (buffer: SmartBuffer) {
-            const length = readVarUInt(buffer)
+            const length = readCompactSize(buffer)
             const buff = Buffer.from(buffer.readBuffer(length))
             root.text = buff.reverse().toString('utf-8')
           },
           toBuffer (buffer: SmartBuffer) {
             const text = root.text
             const buff = Buffer.from(text, 'utf-8').reverse()
-            writeVarUInt(buff.length, buffer)
+            writeCompactSize(buff.length, buffer)
             buffer.writeBuffer(buff)
           }
         }
@@ -191,7 +191,7 @@ describe('ComposableBuffer.varUIntArray', () => {
     }
   }
 
-  const composer = ComposableBuffer.varUIntArray(() => items, (v) => items = v, (v) => {
+  const composer = ComposableBuffer.compactSizeArray(() => items, (v) => items = v, (v) => {
     return new CVarItem(v)
   })
 
@@ -521,7 +521,7 @@ describe('ComposableBuffer.optionalHex', () => {
 
 describe('ComposableBuffer.varUIntOptionalHex', () => {
   describe('has value', () => {
-    const composer = ComposableBuffer.varUIntOptionalHex(() => value, v => value = v)
+    const composer = ComposableBuffer.compactSizeOptionalHex(() => value, v => value = v)
     const expectedBuffer = Buffer.from('21037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941', 'hex')
     let value: string | undefined = ''
 
@@ -551,7 +551,7 @@ describe('ComposableBuffer.varUIntOptionalHex', () => {
   })
 
   describe('has NO value', () => {
-    const composer = ComposableBuffer.varUIntOptionalHex(() => value, v => value = v)
+    const composer = ComposableBuffer.compactSizeOptionalHex(() => value, v => value = v)
     const expectedBuffer = Buffer.from('00', 'hex')
     let value: string | undefined
 
@@ -695,7 +695,7 @@ describe('ComposableBuffer.utf8BE', () => {
 })
 
 describe('ComposableBuffer.varUIntUtf8LE', () => {
-  const composer = ComposableBuffer.varUIntUtf8LE(() => value, (v: string) => value = v)
+  const composer = ComposableBuffer.compactSizeUtf8LE(() => value, (v: string) => value = v)
   const expectedBuffer = Buffer.concat([
     Buffer.from([19]),
     Buffer.from('CTB-IFD-IFD-IFD-IFD', 'utf-8')
@@ -728,7 +728,7 @@ describe('ComposableBuffer.varUIntUtf8LE', () => {
 })
 
 describe('ComposableBuffer.varUIntUtf8BE', () => {
-  const composer = ComposableBuffer.varUIntUtf8BE(() => value, (v: string) => value = v)
+  const composer = ComposableBuffer.compactSizeUtf8BE(() => value, (v: string) => value = v)
   const expectedBuffer = Buffer.concat([
     Buffer.from([15]),
     Buffer.from('DFI-ETH-BTC-DFI', 'utf-8')
@@ -761,7 +761,7 @@ describe('ComposableBuffer.varUIntUtf8BE', () => {
 })
 
 describe('ComposableBuffer.varUIntHex', () => {
-  const composer = ComposableBuffer.varUIntHex(() => value, (v: string) => value = v)
+  const composer = ComposableBuffer.compactSizeHex(() => value, (v: string) => value = v)
   const expectedBuffer = Buffer.concat([
     Buffer.from([16]),
     Buffer.from('9ea83a5c6579d282d189cc04b8e151ef', 'hex')
@@ -1085,7 +1085,7 @@ describe('ComposableBuffer.satoshiAsBigNumber', () => {
 
 describe('ComposableBuffer.varUInt', () => {
   let value: number = 0
-  const composer = ComposableBuffer.varUInt(() => value, (v: number) => value = v)
+  const composer = ComposableBuffer.compactSize(() => value, (v: number) => value = v)
 
   describe('1 byte = 0', () => {
     it('should fromBuffer', () => {
