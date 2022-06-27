@@ -28,7 +28,7 @@ export class CBlockHeader extends ComposableBuffer<BlockHeader> {
       ComposableBuffer.hexBEBufferLE(32, () => bh.stakeModifier, v => bh.stakeModifier = v),
       ComposableBuffer.bigNumberUInt64(() => bh.height, v => bh.height = v),
       ComposableBuffer.bigNumberUInt64(() => bh.mintedBlocks, v => bh.mintedBlocks = v),
-      ComposableBuffer.varUIntHex(() => bh.signature, v => bh.signature = v)
+      ComposableBuffer.compactSizeHex(() => bh.signature, v => bh.signature = v)
     ]
   }
 }

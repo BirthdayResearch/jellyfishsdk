@@ -1,8 +1,8 @@
 import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
-import { readVarUInt, writeVarUInt } from './varuint'
-import { getBitsFrom } from './bitmask'
-import { MAX_INT64, ONE_HUNDRED_MILLION, readBigNumberUInt64, writeBigNumberUInt64 } from './bignumber'
+import { readCompactSize, writeCompactSize } from './CompactSize'
+import { getBitsFrom } from './BitMask'
+import { MAX_INT64, ONE_HUNDRED_MILLION, readBigNumberUInt64, writeBigNumberUInt64 } from './BigNumber'
 
 export interface BufferComposer {
   fromBuffer: (buffer: SmartBuffer) => void
@@ -100,7 +100,7 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
   }
 
   /**
-   * The length of the array is set with VarUInt in the first sequence of 1 - 9 bytes.
+   * The length of the array is set with CompactSize in the first sequence of 1 - 9 bytes.
    *
    * @param getter to read array of ComposableBuffer Object from to buffer
    * @param setter to set array of ComposableBuffer Object from buffer
@@ -108,14 +108,14 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
    *
    * @see array if length is not given but known
    */
-  static varUIntArray<T> (
+  static compactSizeArray<T> (
     getter: () => T[],
     setter: (data: T[]) => void,
     asC: (data: SmartBuffer | T) => ComposableBuffer<T>
   ): BufferComposer {
     return {
       fromBuffer: (buffer: SmartBuffer): void => {
-        const length = readVarUInt(buffer)
+        const length = readCompactSize(buffer)
         const array: T[] = []
         for (let i = 0; i < length; i++) {
           array.push(asC(buffer).data)
@@ -124,21 +124,21 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
       },
       toBuffer: (buffer: SmartBuffer): void => {
         const array = getter()
-        writeVarUInt(array.length, buffer)
+        writeCompactSize(array.length, buffer)
         array.forEach(data => asC(data).toBuffer(buffer))
       }
     }
   }
 
   /**
-   * The length of the array must be known and given to the composer, use varUIntArray if length is set as VarUInt.
+   * The length of the array must be known and given to the composer, use compactSizeArray if length is set as CompactSize.
    *
    * @param getter to read array of ComposableBuffer Object from to buffer
    * @param setter to set array of ComposableBuffer Object from buffer
    * @param asC map single object into ComposableBuffer Object
    * @param getLength of the array
    *
-   * @see use varUIntArray if length is set as VarUInt
+   * @see use compactSizeArray if length is set as CompactSize
    */
   static array<T> (
     getter: () => T[],
@@ -218,10 +218,10 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
    * @param getter to read HEX String. Writes its length then write the HEX string. Defaults to empty string.
    * @param setter to read ordered Buffer and set as the same ordered HEX String
    */
-  static varUIntOptionalHex (getter: () => string | undefined, setter: (data: string | undefined) => void): BufferComposer {
+  static compactSizeOptionalHex (getter: () => string | undefined, setter: (data: string | undefined) => void): BufferComposer {
     return {
       fromBuffer: (buffer: SmartBuffer): void => {
-        const length = readVarUInt(buffer)
+        const length = readCompactSize(buffer)
         if (length > 0) {
           const buff = Buffer.from(buffer.readBuffer(length))
           setter(buff.toString('hex'))
@@ -231,13 +231,13 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
         const hex = getter()
         if (hex !== undefined) {
           if (hex === '') {
-            throw new Error('ComposableBuffer.varUIntOptionalHex.toBuffer attempting to write empty buffer')
+            throw new Error('ComposableBuffer.CompactSizeOptionalHex.toBuffer attempting to write empty buffer')
           }
           const buff: Buffer = Buffer.from(hex, 'hex')
-          writeVarUInt(buff.length, buffer)
+          writeCompactSize(buff.length, buffer)
           buffer.writeBuffer(buff)
         } else {
-          writeVarUInt(0x00, buffer)
+          writeCompactSize(0x00, buffer)
         }
       }
     }
@@ -350,66 +350,66 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
   }
 
   /**
-   * VarUInt sized UTF-8 string, encoded in LE order buffer.
+   * CompactSize sized UTF-8 string, encoded in LE order buffer.
    * String is always BE, as Javascript is uses BE by default.
    *
    * @param getter to read BE ordered String and write as LE ordered Buffer
    * @param setter to read LE ordered Buffer and set as BE ordered String
    */
-  static varUIntUtf8LE (getter: () => string, setter: (data: string) => void): BufferComposer {
+  static compactSizeUtf8LE (getter: () => string, setter: (data: string) => void): BufferComposer {
     return {
       fromBuffer: (buffer: SmartBuffer): void => {
-        const length = readVarUInt(buffer)
+        const length = readCompactSize(buffer)
         const buff = Buffer.from(buffer.readBuffer(length)).reverse()
         setter(buff.toString('utf-8'))
       },
       toBuffer: (buffer: SmartBuffer): void => {
         const buff: Buffer = Buffer.from(getter(), 'utf-8').reverse()
-        writeVarUInt(buff.length, buffer)
+        writeCompactSize(buff.length, buffer)
         buffer.writeBuffer(buff)
       }
     }
   }
 
   /**
-   * VarUInt sized UTF-8 string, encoded in BE order buffer.
+   * CompactSize sized UTF-8 string, encoded in BE order buffer.
    * String is always BE, as Javascript is uses BE by default.
    *
    * @param getter to read BE ordered String and write as BE ordered Buffer
    * @param setter to read BE ordered Buffer and set as BE ordered String
    */
-  static varUIntUtf8BE (getter: () => string, setter: (data: string) => void): BufferComposer {
+  static compactSizeUtf8BE (getter: () => string, setter: (data: string) => void): BufferComposer {
     return {
       fromBuffer: (buffer: SmartBuffer): void => {
-        const length = readVarUInt(buffer)
+        const length = readCompactSize(buffer)
         const buff = Buffer.from(buffer.readBuffer(length))
         setter(buff.toString('utf-8'))
       },
       toBuffer: (buffer: SmartBuffer): void => {
         const buff: Buffer = Buffer.from(getter(), 'utf-8')
-        writeVarUInt(buff.length, buffer)
+        writeCompactSize(buff.length, buffer)
         buffer.writeBuffer(buff)
       }
     }
   }
 
   /**
-   * VarUInt sized hex string, encoded into Buffer as the same order of the hex String.
-   * In short this read a VarUInt sized hex and push it into the Buffer. It will not re-order the endian.
+   * CompactSize sized hex string, encoded into Buffer as the same order of the hex String.
+   * In short this read a CompactSize sized hex and push it into the Buffer. It will not re-order the endian.
    *
    * @param getter to read hex String and write as the same ordered Buffer
    * @param setter to read ordered Buffer and set as the same ordered hex String
    */
-  static varUIntHex (getter: () => string, setter: (data: string) => void): BufferComposer {
+  static compactSizeHex (getter: () => string, setter: (data: string) => void): BufferComposer {
     return {
       fromBuffer: (buffer: SmartBuffer): void => {
-        const length = readVarUInt(buffer)
+        const length = readCompactSize(buffer)
         const buff = Buffer.from(buffer.readBuffer(length))
         setter(buff.toString('hex'))
       },
       toBuffer: (buffer: SmartBuffer): void => {
         const buff: Buffer = Buffer.from(getter(), 'hex')
-        writeVarUInt(buff.length, buffer)
+        writeCompactSize(buff.length, buffer)
         buffer.writeBuffer(buff)
       }
     }
@@ -516,18 +516,18 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
   }
 
   /**
-   * VarUInt helper method, 1 - 9 bytes
+   * CompactSize helper method, 1 - 9 bytes
    *
    * @param getter to read from to buffer
    * @param setter to set to from buffer
    */
-  static varUInt (getter: () => number, setter: (data: number) => void): BufferComposer {
+  static compactSize (getter: () => number, setter: (data: number) => void): BufferComposer {
     return {
       fromBuffer: (buffer: SmartBuffer): void => {
-        setter(readVarUInt(buffer))
+        setter(readCompactSize(buffer))
       },
       toBuffer: (buffer: SmartBuffer): void => {
-        writeVarUInt(getter(), buffer)
+        writeCompactSize(getter(), buffer)
       }
     }
   }
