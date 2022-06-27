@@ -174,7 +174,7 @@ describe('ComposableBuffer.empty', () => {
   })
 })
 
-describe('ComposableBuffer.varUIntArray', () => {
+describe('ComposableBuffer.compactSizeArray', () => {
   interface VarItem {
     val: number // 2 bytes
     hex: string // 12 bytes
@@ -519,7 +519,7 @@ describe('ComposableBuffer.optionalHex', () => {
   })
 })
 
-describe('ComposableBuffer.varUIntOptionalHex', () => {
+describe('ComposableBuffer.compactSizeOptionalHex', () => {
   describe('has value', () => {
     const composer = ComposableBuffer.compactSizeOptionalHex(() => value, v => value = v)
     const expectedBuffer = Buffer.from('21037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941', 'hex')
@@ -694,7 +694,7 @@ describe('ComposableBuffer.utf8BE', () => {
   })
 })
 
-describe('ComposableBuffer.varUIntUtf8LE', () => {
+describe('ComposableBuffer.compactSizeUtf8LE', () => {
   const composer = ComposableBuffer.compactSizeUtf8LE(() => value, (v: string) => value = v)
   const expectedBuffer = Buffer.concat([
     Buffer.from([19]),
@@ -727,7 +727,7 @@ describe('ComposableBuffer.varUIntUtf8LE', () => {
   })
 })
 
-describe('ComposableBuffer.varUIntUtf8BE', () => {
+describe('ComposableBuffer.compactSizeUtf8BE', () => {
   const composer = ComposableBuffer.compactSizeUtf8BE(() => value, (v: string) => value = v)
   const expectedBuffer = Buffer.concat([
     Buffer.from([15]),
@@ -760,7 +760,7 @@ describe('ComposableBuffer.varUIntUtf8BE', () => {
   })
 })
 
-describe('ComposableBuffer.varUIntHex', () => {
+describe('ComposableBuffer.compactSizeHex', () => {
   const composer = ComposableBuffer.compactSizeHex(() => value, (v: string) => value = v)
   const expectedBuffer = Buffer.concat([
     Buffer.from([16]),
@@ -1083,7 +1083,7 @@ describe('ComposableBuffer.satoshiAsBigNumber', () => {
   })
 })
 
-describe('ComposableBuffer.varUInt', () => {
+describe('ComposableBuffer.compactSize', () => {
   let value: number = 0
   const composer = ComposableBuffer.compactSize(() => value, (v: number) => value = v)
 
@@ -1179,6 +1179,82 @@ describe('ComposableBuffer.varUInt', () => {
     expect(() => {
       composer.fromBuffer(buffer)
     }).toThrow('out of Number.MAX_SAFE_INTEGER range')
+  })
+})
+
+describe('ComposableBuffer.varInt', () => {
+  let value: number = 0
+  const composer = ComposableBuffer.varInt(() => value, (v: number) => value = v)
+
+  describe('1 byte = 0', () => {
+    it('should fromBuffer', () => {
+      shouldFromBuffer(composer, '00', 0x00, () => value)
+    })
+
+    it('should toBuffer', () => {
+      shouldToBuffer(composer, '00', 0x00, v => value = v)
+    })
+  })
+
+  describe('1 byte = 127', () => {
+    it('should fromBuffer', () => {
+      shouldFromBuffer(composer, '7f', 127, () => value)
+    })
+
+    it('should toBuffer', () => {
+      shouldToBuffer(composer, '7f', 127, v => value = v)
+    })
+  })
+
+  describe('2 byte = 128', () => {
+    it('should fromBuffer', () => {
+      shouldFromBuffer(composer, '8000', 128, () => value)
+    })
+
+    it('should toBuffer', () => {
+      shouldToBuffer(composer, '8000', 128, v => value = v)
+    })
+  })
+
+  describe('2 bytes = 256', () => {
+    it('should fromBuffer', () => {
+      const buffer = new SmartBuffer()
+      buffer.writeUInt8(0x81)
+      buffer.writeUInt8(0x00)
+
+      composer.fromBuffer(buffer)
+      expect(value).toStrictEqual(256)
+    })
+
+    it('should toBuffer', () => {
+      value = 256
+
+      const buffer = new SmartBuffer()
+      composer.toBuffer(buffer)
+
+      const expected = Buffer.from('8100', 'hex')
+      expect(buffer.toString()).toStrictEqual(expected.toString())
+    })
+  })
+
+  describe('2 byte = 16511', () => {
+    it('should fromBuffer', () => {
+      shouldFromBuffer(composer, 'ff7f', 16511, () => value)
+    })
+
+    it('should toBuffer', () => {
+      shouldToBuffer(composer, 'ff7f', 16511, v => value = v)
+    })
+  })
+
+  describe('2 byte = 65535', () => {
+    it('should fromBuffer', () => {
+      shouldFromBuffer(composer, '82fe7f', 65535, () => value)
+    })
+
+    it('should toBuffer', () => {
+      shouldToBuffer(composer, '82fe7f', 65535, v => value = v)
+    })
   })
 })
 

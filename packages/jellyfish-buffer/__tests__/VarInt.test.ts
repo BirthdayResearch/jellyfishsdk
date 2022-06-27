@@ -24,7 +24,7 @@ describe('TEST VECTOR from CPP: variable-length integers: comments examples', ()
   })
 
   it('should writeVarInt as [0x80 0x00] when n is 128', function () {
-    expectVarInt(127, '7f')
+    expectVarInt(128, '8000')
   })
 
   it('should writeVarInt as [0x80 0x7F] when n is 255', function () {
