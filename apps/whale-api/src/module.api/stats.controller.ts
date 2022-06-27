@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common'
-import { StatsData, SupplyData } from '@defichain/whale-api-client/dist/api/stats'
+import { BurnData, StatsData, SupplyData } from '@defichain/whale-api-client/dist/api/stats'
 import { SemaphoreCache } from '@defichain-apps/libs/caches'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { BlockMapper } from '../module.model/block'
@@ -66,6 +66,29 @@ export class StatsController {
       total: total.gt(max) ? max : total.toNumber(), // as emission burn is taken into the 1.2b calculation post eunos
       burned: burnedTotal.toNumber(),
       circulating: circulating.toNumber()
+    }
+  }
+
+  /**
+   * Remapped from BurnInfo into BurnData due to upstream standards drift.
+   */
+  @Get('/burn')
+  async getBurn (): Promise<BurnData> {
+    const burnInfo = await this.getBurnInfo()
+    return {
+      address: burnInfo.address,
+      amount: burnInfo.amount.toNumber(),
+      tokens: burnInfo.tokens,
+      feeburn: burnInfo.feeburn.toNumber(),
+      emissionburn: burnInfo.emissionburn.toNumber(),
+      auctionburn: burnInfo.auctionburn.toNumber(),
+      paybackburn: burnInfo.paybackburn.toNumber(),
+      dexfeetokens: burnInfo.dexfeetokens,
+      dfipaybackfee: burnInfo.dfipaybackfee.toNumber(),
+      dfipaybacktokens: burnInfo.dfipaybacktokens,
+      paybackfees: burnInfo.paybackfees,
+      paybacktokens: burnInfo.paybacktokens,
+      dfip2203: burnInfo.dfip2203
     }
   }
 
