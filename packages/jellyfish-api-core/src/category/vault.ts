@@ -46,7 +46,7 @@ export class Vault {
    * Returns information about vault.
    *
    * @param {string} vaultId vault hex id
-   * @param {boolean} [verbose] request verbose info
+   * @param {boolean} [verbose] request verbose info (nextCollateralRatio, interestPerBlockValue, interestsPerBlock)
    * @return {Promise<VaultActive | VaultLiquidation>}
    */
   async getVault (vaultId: string, verbose: boolean = false): Promise<VaultActive | VaultLiquidation> {
