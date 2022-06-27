@@ -4,7 +4,7 @@ import { SmartBuffer } from 'smart-buffer'
  * @param {number} num to write as VarUInt (1-9 bytes)
  * @param {SmartBuffer} buffer to write to
  */
-export function writeVarUInt (num: number, buffer: SmartBuffer): void {
+export function writeCompactSize (num: number, buffer: SmartBuffer): void {
   validateUInt53(num)
 
   // 8 bit (1 byte)
@@ -38,7 +38,7 @@ export function writeVarUInt (num: number, buffer: SmartBuffer): void {
  * @param {SmartBuffer} buffer to read VarUInt from (1-9 bytes)
  * @throws RangeError 'out of Number.MAX_SAFE_INTEGER range' when it's out of MAX_SAFE_INTEGER
  */
-export function readVarUInt (buffer: SmartBuffer): number {
+export function readCompactSize (buffer: SmartBuffer): number {
   const first = buffer.readUInt8()
   switch (first) {
     case 0xfd: // 16 bit (1 + 2 bytes)
