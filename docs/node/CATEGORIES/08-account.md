@@ -216,7 +216,7 @@ enum DfTxType {
   NONE = '0'
 }
 
-enum AmountFormat {
+enum Format {
   ID = 'id',
   SYMBOL = 'symbol'
 }
@@ -240,7 +240,7 @@ interface AccountHistoryOptions {
   txtype?: DfTxType
   limit?: number
   txn?: number
-  amountFormat?: AmountFormat
+  format?: Format
 }
 ```
 

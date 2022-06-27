@@ -1,7 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
-import { DfTxType, BalanceTransferPayload, AccountResult, AccountOwner, AmountFormat } from '../../../src/category/account'
+import { DfTxType, BalanceTransferPayload, AccountResult, AccountOwner, Format } from '../../../src/category/account'
 
 function createTokenForContainer (container: MasterNodeRegTestContainer) {
   return async (address: string, symbol: string, amount: number) => {
@@ -304,11 +304,11 @@ describe('Account', () => {
     })
   })
 
-  it('should listAccountHistory with options amountFormat', async () => {
-    { // amountFormat should be id
+  it('should listAccountHistory with options format', async () => {
+    { // amount format should be id
       const options = {
         token: 'DBTC',
-        amountFormat: AmountFormat.ID
+        format: Format.ID
       }
       const accountHistories = await client.account.listAccountHistory('mine', options)
       expect(accountHistories.length).toBeGreaterThan(0)
@@ -323,10 +323,10 @@ describe('Account', () => {
       }
     }
 
-    { // amountFormat should be symbol
+    { // amount format should be symbol
       const options = {
         token: 'DBTC',
-        amountFormat: AmountFormat.SYMBOL
+        format: Format.SYMBOL
       }
       const accountHistories = await client.account.listAccountHistory('mine', options)
       expect(accountHistories.length).toBeGreaterThan(0)
@@ -341,7 +341,7 @@ describe('Account', () => {
       }
     }
 
-    { // amountFormat default should be symbol
+    { // amount format default should be symbol
       const options = {
         token: 'DFI'
       }
