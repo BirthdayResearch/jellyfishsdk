@@ -440,6 +440,25 @@ export class Account {
   async listPendingFutureSwaps (): Promise<ListFutureInfo[]> {
     return await this.client.call('listpendingfutureswaps', [], 'number')
   }
+
+  /**
+   * List pending DUSD swaps futures.
+   *
+   * @return {Promise<DusdSwapsInfo[]>}
+   */
+  async listPendingDusdSwaps (): Promise<DusdSwapsInfo[]> {
+    return await this.client.call('listpendingdusdswaps', [], 'bignumber')
+  }
+
+  /**
+   * Get pending DUSD swaps future.
+   *
+   # @param {string} address to get pending future swaps
+   * @return {Promise<DusdSwapsInfo>}
+   */
+  async getPendingDusdSwaps (address: string): Promise<DusdSwapsInfo> {
+    return await this.client.call('getpendingdusdswaps', [address], 'bignumber')
+  }
 }
 
 export interface AccountPagination {
@@ -607,6 +626,10 @@ export interface BurnInfo {
    * Amount of tokens burned due to futureswap
    */
   dfip2203: string[]
+  /**
+   * Amount of tokens burned for DFI to DUSD
+   */
+  dfip2206f: string[]
 }
 
 export interface FutureSwap {
@@ -629,4 +652,9 @@ export interface ListFutureInfo {
   owner: string
   source: string // eg: '1.234@DUSD'
   destination: string
+}
+
+export interface DusdSwapsInfo {
+  owner: string
+  amount: BigNumber
 }
