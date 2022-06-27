@@ -9,7 +9,6 @@ import { HexEncoder } from '../../../module.model/_hex.encoder'
 import { PoolSwapAggregatedMapper } from '../../../module.model/pool.swap.aggregated'
 import { AggregatedIntervals } from './pool.swap.aggregated'
 import { PoolPairInfoWithId } from '../../../module.api/cache/defid.cache'
-import { IndexerError } from '../../error'
 import { PoolPairPathMapping } from './pool.pair.path.mapping'
 
 @Injectable()
@@ -29,6 +28,10 @@ export class PoolSwapIndexer extends DfTxIndexer<PoolSwap> {
   async indexTransaction (block: RawBlock, transaction: DfTxTransaction<PoolSwap>): Promise<void> {
     const data = transaction.dftx.data
     const poolPair = await this.getPair(data.fromTokenId, data.toTokenId)
+    if (poolPair === undefined) {
+      this.logger.error(`index - pool for pair ${data.fromTokenId}, ${data.toTokenId} not found in PoolPairPathMapping`)
+      return undefined
+    }
     await this.indexSwap(block, transaction, poolPair.id, data.fromTokenId, data.fromAmount)
   }
 
@@ -67,6 +70,10 @@ export class PoolSwapIndexer extends DfTxIndexer<PoolSwap> {
   async invalidateTransaction (_: RawBlock, transaction: DfTxTransaction<PoolSwap>): Promise<void> {
     const data = transaction.dftx.data
     const poolPair = await this.getPair(data.fromTokenId, data.toTokenId)
+    if (poolPair === undefined) {
+      this.logger.error(`invalidate - pool for pair ${data.fromTokenId}, ${data.toTokenId} not found in PoolPairPathMapping`)
+      return undefined
+    }
     await this.invalidateSwap(transaction, poolPair.id, data.fromTokenId, data.fromAmount)
   }
 
@@ -88,12 +95,10 @@ export class PoolSwapIndexer extends DfTxIndexer<PoolSwap> {
     }
   }
 
-  async getPair (tokenA: number, tokenB: number): Promise<PoolPairInfoWithId> {
+  async getPair (tokenA: number, tokenB: number): Promise<PoolPairInfoWithId | undefined> {
     const pair = await this.poolPairPathMapping.findPair(tokenA, tokenB)
     if (pair !== undefined) {
       return pair
     }
-
-    throw new IndexerError(`Pool for pair ${tokenA}, ${tokenB} not found in PoolPairPathMapping`)
   }
 }

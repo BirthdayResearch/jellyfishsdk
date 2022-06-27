@@ -1,16 +1,16 @@
 import { DfTxIndexer, DfTxTransaction } from './_abstract'
 import { CCompositeSwap, CompositeSwap, PoolId } from '@defichain/jellyfish-transaction'
 import { RawBlock } from '../_abstract'
-import { Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable, Logger } from '@nestjs/common'
 import { NetworkName } from '@defichain/jellyfish-network'
 import BigNumber from 'bignumber.js'
-import { IndexerError } from '../../error'
 import { PoolPairPathMapping } from './pool.pair.path.mapping'
 import { PoolSwapIndexer } from './pool.swap'
 
 @Injectable()
 export class CompositeSwapIndexer extends DfTxIndexer<CompositeSwap> {
   OP_CODE: number = CCompositeSwap.OP_CODE
+  private readonly logger = new Logger(CompositeSwapIndexer.name)
 
   constructor (
     private readonly poolSwapIndexer: PoolSwapIndexer,
@@ -55,6 +55,7 @@ export class CompositeSwapIndexer extends DfTxIndexer<CompositeSwap> {
       return [{ id: Number(pair.id) }]
     }
 
-    throw new IndexerError(`Pool for pair ${poolSwap.fromTokenId}, ${poolSwap.toTokenId} not found in PoolPairPathMapping`)
+    this.logger.error(`Pool for pair ${poolSwap.fromTokenId}, ${poolSwap.toTokenId} not found in PoolPairPathMapping`)
+    return []
   }
 }
