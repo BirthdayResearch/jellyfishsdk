@@ -453,7 +453,7 @@ export class Account {
   /**
    * Get pending DUSD swaps future.
    *
-   # @param {string} address to get pending future swaps
+   * @param {string} address to get pending future swaps
    * @return {Promise<DusdSwapsInfo>}
    */
   async getPendingDusdSwaps (address: string): Promise<DusdSwapsInfo> {
