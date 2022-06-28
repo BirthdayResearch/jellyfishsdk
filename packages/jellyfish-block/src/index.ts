@@ -1,2 +1,2 @@
-export * from './block'
-export * from './blockHeader'
+export * from './Block'
+export * from './BlockHeader'

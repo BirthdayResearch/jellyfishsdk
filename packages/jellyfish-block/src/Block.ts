@@ -1,4 +1,4 @@
-import { BlockHeader, CBlockHeader } from './blockHeader'
+import { BlockHeader, CBlockHeader } from './BlockHeader'
 import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
 import {
   TransactionSegWit,
@@ -21,7 +21,7 @@ export class CBlock extends ComposableBuffer<Block> {
   composers (block: Block): BufferComposer[] {
     return [
       ComposableBuffer.single<BlockHeader>(() => block.blockHeader, v => block.blockHeader = v, v => new CBlockHeader(v)),
-      ComposableBuffer.varUIntArray<TransactionSegWit | Transaction>(() => block.transactions, v => block.transactions = v, v => {
+      ComposableBuffer.compactSizeArray<TransactionSegWit | Transaction>(() => block.transactions, v => block.transactions = v, v => {
         /**
          * Has to read the marker from buffer in order to determine wether it is a Transaction or TransactionSegWit.
          */
