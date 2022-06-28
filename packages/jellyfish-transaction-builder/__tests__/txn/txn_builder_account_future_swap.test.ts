@@ -965,7 +965,7 @@ describe('create futureswap', () => {
 
       const promise = sendTransaction(testing.container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Destination should not be set when source amount is a dToken (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Destination should not be set when source amount is dToken or DFI (code 16)\', code: -26')
     }
     {
       // INVALID destination 100 is given when futureswap dusd to dtoken
@@ -1632,7 +1632,7 @@ describe('withdraw futureswap', () => {
       await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: amount 1.00000000 is less than 1.00000001 (code 16)\', code: -26')
     }
 
-    // Withdraw fail - Destination should not be set when source amount is a dToken
+    // Withdraw fail - Destination should not be set when source amount is dToken or DFI
     {
       const withdrawAmount = 0.5
       const txn = await builder.account.futureSwap({
@@ -1644,7 +1644,7 @@ describe('withdraw futureswap', () => {
 
       const promise = sendTransaction(testing.container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Destination should not be set when source amount is a dToken (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Destination should not be set when source amount is dToken or DFI (code 16)\', code: -26')
     }
 
     // Withdraw fail - try to withdraw from unavailable futureswap
