@@ -627,7 +627,7 @@ export interface BurnInfo {
    */
   dfip2203: string[]
   /**
-   * Amount of tokens burned for DFI to DUSD
+   * Amount of tokens burned due to futureswap
    */
   dfip2206f: string[]
 }

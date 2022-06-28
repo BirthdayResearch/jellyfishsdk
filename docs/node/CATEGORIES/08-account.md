@@ -469,6 +469,10 @@ interface BurnInfo {
    * Amount of tokens burned due to futureswap
    */
   dfip2203: string[]
+  /**
+   * Amount of tokens burned due to DFI-to-DUSD swap
+   */
+  dfip2206f: string[]
 }
 ```
 
