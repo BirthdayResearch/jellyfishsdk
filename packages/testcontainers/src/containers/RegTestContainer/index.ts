@@ -37,7 +37,7 @@ export class RegTestContainer extends DeFiDContainer {
       '-fortcanninghillheight=10',
       '-fortcanningroadheight=11',
       '-fortcanningcrunchheight=12',
-      '-fortcanninggardensheight=13'
+      '-fortcanningspringheight=13'
     ]
 
     if (opts.startFlags != null && opts.startFlags.length > 0) {
