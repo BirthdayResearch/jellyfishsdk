@@ -92,7 +92,6 @@ export class StatsController {
     }
   }
 
-  @Get('/burn')
   async getBurnInfo (): Promise<BurnInfo> {
     return await this.cachedGet('Controller.stats.getBurnInfo', async () => {
       return await this.rpcClient.account.getBurnInfo()
