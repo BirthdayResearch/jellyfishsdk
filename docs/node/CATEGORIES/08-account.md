@@ -549,3 +549,33 @@ interface ListFutureInfo {
   destination: string
 }
 ```
+
+## listPendingFutureSwaps
+
+List pending DUSD swaps futures.
+
+```ts title="client.account.listPendingDusdSwaps()"
+interface account {
+  listPendingDusdSwaps (): Promise<DusdSwapsInfo[]>
+}
+
+interface DusdSwapsInfo {
+  owner: string
+  amount: BigNumber
+}
+```
+
+## getPendingDusdSwaps
+
+Get pending DUSD swaps future.
+
+```ts title="client.account.getPendingDusdSwaps()"
+interface account {
+  getPendingDusdSwaps (address: string): Promise<DusdSwapsInfo>
+}
+
+interface DusdSwapsInfo {
+  owner: string
+  amount: BigNumber
+}
+```
