@@ -1,7 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { Testing } from '@defichain/jellyfish-testing'
 import { SmartBuffer } from 'smart-buffer'
-import { CBlockHeader } from '../../src/blockHeader'
+import { CBlockHeader } from '../../src/BlockHeader'
 import BigNumber from 'bignumber.js'
 
 describe('BlockHeader', () => {

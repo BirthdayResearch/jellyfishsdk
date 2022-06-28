@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { BufferComposer, ComposableBuffer, readVarUInt, writeVarUInt } from '@defichain/jellyfish-buffer'
+import { BufferComposer, ComposableBuffer, readCompactSize, writeCompactSize } from '@defichain/jellyfish-buffer'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
 import { SmartBuffer } from 'smart-buffer'
@@ -29,10 +29,10 @@ export class CPoolSwap extends ComposableBuffer<PoolSwap> {
   composers (ps: PoolSwap): BufferComposer[] {
     return [
       ComposableBuffer.single<Script>(() => ps.fromScript, v => ps.fromScript = v, v => new CScript(v)),
-      ComposableBuffer.varUInt(() => ps.fromTokenId, v => ps.fromTokenId = v),
+      ComposableBuffer.compactSize(() => ps.fromTokenId, v => ps.fromTokenId = v),
       ComposableBuffer.satoshiAsBigNumber(() => ps.fromAmount, v => ps.fromAmount = v),
       ComposableBuffer.single<Script>(() => ps.toScript, v => ps.toScript = v, v => new CScript(v)),
-      ComposableBuffer.varUInt(() => ps.toTokenId, v => ps.toTokenId = v),
+      ComposableBuffer.compactSize(() => ps.toTokenId, v => ps.toTokenId = v),
       ComposableBuffer.maxPriceAsBigNumber(() => ps.maxPrice, v => ps.maxPrice = v)
     ]
   }
@@ -49,7 +49,7 @@ export interface PoolId {
 export class CPoolId extends ComposableBuffer<PoolId> {
   composers (pi: PoolId): BufferComposer[] {
     return [
-      ComposableBuffer.varUInt(() => pi.id, v => pi.id = v)
+      ComposableBuffer.compactSize(() => pi.id, v => pi.id = v)
     ]
   }
 }
@@ -75,7 +75,7 @@ export class CCompositeSwap extends ComposableBuffer<CompositeSwap> {
   composers (cs: CompositeSwap): BufferComposer[] {
     return [
       ComposableBuffer.single<PoolSwap>(() => cs.poolSwap, v => cs.poolSwap = v, v => new CPoolSwap(v)),
-      ComposableBuffer.varUIntArray<PoolId>(() => cs.pools, v => cs.pools = v, v => new CPoolId(v))
+      ComposableBuffer.compactSizeArray<PoolId>(() => cs.pools, v => cs.pools = v, v => new CPoolId(v))
     ]
   }
 }
@@ -98,7 +98,7 @@ export class CPoolAddLiquidity extends ComposableBuffer<PoolAddLiquidity> {
 
   composers (p: PoolAddLiquidity): BufferComposer[] {
     return [
-      ComposableBuffer.varUIntArray(() => p.from, v => p.from = v, v => new CScriptBalances(v)),
+      ComposableBuffer.compactSizeArray(() => p.from, v => p.from = v, v => new CScriptBalances(v)),
       ComposableBuffer.single<Script>(() => p.shareAddress, v => p.shareAddress = v, v => new CScript(v))
     ]
   }
@@ -124,7 +124,7 @@ export class CPoolRemoveLiquidity extends ComposableBuffer<PoolRemoveLiquidity> 
   composers (p: PoolRemoveLiquidity): BufferComposer[] {
     return [
       ComposableBuffer.single<Script>(() => p.script, v => p.script = v, v => new CScript(v)),
-      ComposableBuffer.varUInt(() => p.tokenId, v => p.tokenId = v),
+      ComposableBuffer.compactSize(() => p.tokenId, v => p.tokenId = v),
       ComposableBuffer.satoshiAsBigNumber(() => p.amount, v => p.amount = v)
     ]
   }
@@ -153,18 +153,18 @@ export class CPoolCreatePair extends ComposableBuffer<PoolCreatePair> {
 
   composers (p: PoolCreatePair): BufferComposer[] {
     return [
-      ComposableBuffer.varUInt(() => p.tokenA, v => p.tokenA = v),
-      ComposableBuffer.varUInt(() => p.tokenB, v => p.tokenB = v),
+      ComposableBuffer.compactSize(() => p.tokenA, v => p.tokenA = v),
+      ComposableBuffer.compactSize(() => p.tokenB, v => p.tokenB = v),
       ComposableBuffer.satoshiAsBigNumber(() => p.commission, v => p.commission = v),
       ComposableBuffer.single<Script>(() => p.ownerAddress, v => p.ownerAddress = v, v => new CScript(v)),
       ComposableBuffer.uBool8(() => p.status, v => p.status = v),
-      ComposableBuffer.varUIntUtf8BE(() => p.pairSymbol, v => p.pairSymbol = v),
+      ComposableBuffer.compactSizeUtf8BE(() => p.pairSymbol, v => p.pairSymbol = v),
       // Note(canonbrother): special fix for inconsistent bytes in "block height >= ClarkeQuayHeight" condition
       // https://github.com/DeFiCh/ain/blob/4b70ecd8ee32d00c75be04a786dc75ec4a3c91dd/src/masternodes/rpc_poolpair.cpp#L571-L573
       {
         fromBuffer: (buffer: SmartBuffer): void => {
           if (buffer.remaining() > 0) {
-            const length = readVarUInt(buffer)
+            const length = readCompactSize(buffer)
             p.customRewards = []
             for (let i = 0; i < length; i++) {
               p.customRewards.push(new CTokenBalance(buffer).toObject())
@@ -173,7 +173,7 @@ export class CPoolCreatePair extends ComposableBuffer<PoolCreatePair> {
         },
         toBuffer: (buffer: SmartBuffer): void => {
           if (p.customRewards !== undefined) {
-            writeVarUInt(p.customRewards.length, buffer)
+            writeCompactSize(p.customRewards.length, buffer)
             p.customRewards.forEach(data => new CTokenBalance(data).toBuffer(buffer))
           }
         }
@@ -203,7 +203,7 @@ export class CPoolUpdatePair extends ComposableBuffer<PoolUpdatePair> {
 
   composers (p: PoolUpdatePair): BufferComposer[] {
     return [
-      ComposableBuffer.varUInt(() => p.poolId, v => p.poolId = v),
+      ComposableBuffer.compactSize(() => p.poolId, v => p.poolId = v),
       ComposableBuffer.uBool32(() => p.status, v => p.status = v),
       ComposableBuffer.satoshiAsBigNumber(() => p.commission, v => p.commission = v),
       ComposableBuffer.single<Script>(() => p.ownerAddress, v => p.ownerAddress = v, v => new CScript(v)),
@@ -212,7 +212,7 @@ export class CPoolUpdatePair extends ComposableBuffer<PoolUpdatePair> {
       {
         fromBuffer: (buffer: SmartBuffer): void => {
           if (buffer.remaining() > 0) {
-            const length = readVarUInt(buffer)
+            const length = readCompactSize(buffer)
             p.customRewards = []
             for (let i = 0; i < length; i++) {
               p.customRewards.push(new CTokenBalance(buffer).toObject())
@@ -221,7 +221,7 @@ export class CPoolUpdatePair extends ComposableBuffer<PoolUpdatePair> {
         },
         toBuffer: (buffer: SmartBuffer): void => {
           if (p.customRewards !== undefined) {
-            writeVarUInt(p.customRewards.length, buffer)
+            writeCompactSize(p.customRewards.length, buffer)
             p.customRewards.forEach(data => new CTokenBalance(data).toBuffer(buffer))
           }
         }

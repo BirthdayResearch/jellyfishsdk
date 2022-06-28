@@ -1,5 +1,5 @@
 import { SmartBuffer } from 'smart-buffer'
-import { byteLength, readVarUInt, writeVarUInt } from '../src/varuint'
+import { byteLength, readCompactSize, writeCompactSize } from '../src/CompactSize'
 
 it('readBigInt64LE should be equal (readUInt32LE + readUInt32LE * 0x100000000)', () => {
   const buffer = Buffer.allocUnsafe(8)
@@ -18,7 +18,7 @@ it('readBigInt64LE should be equal (readUInt32LE + readUInt32LE * 0x100000000)',
 describe('writeVarUInt', () => {
   function shouldWrite (num: number): SmartBuffer {
     const buffer = new SmartBuffer()
-    writeVarUInt(num, buffer)
+    writeCompactSize(num, buffer)
     return buffer
   }
 
@@ -107,7 +107,7 @@ describe('readVarUInt', () => {
   function shouldRead (num: number, writer: (buffer: SmartBuffer) => void): void {
     const buffer = new SmartBuffer()
     writer(buffer)
-    return expect(readVarUInt(buffer)).toStrictEqual(num)
+    return expect(readCompactSize(buffer)).toStrictEqual(num)
   }
 
   describe('1 byte', () => {
