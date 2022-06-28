@@ -161,6 +161,7 @@ describe('stats', () => {
       auctionburn: 0,
       dexfeetokens: [],
       dfip2203: [],
+      dfip2206f: [],
       dfipaybackfee: 0,
       dfipaybacktokens: [],
       emissionburn: expect.any(Number),

@@ -607,6 +607,10 @@ export interface BurnInfo {
    * Amount of tokens burned due to futureswap
    */
   dfip2203: string[]
+  /**
+   * Amount of tokens burned due to futureswap
+   */
+  dfip2206f: string[]
 }
 
 export interface FutureSwap {
