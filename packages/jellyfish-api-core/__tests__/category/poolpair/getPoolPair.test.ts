@@ -81,6 +81,251 @@ describe('Poolpair', () => {
     }
   })
 
+  it('should getPoolPair test token fee direction', async () => {
+    const ppTokenID = Object.keys(await client.token.getToken('DFI-DBCH'))[0]
+
+    // without any fee percentage and direction
+    {
+      const poolpair = await client.poolpair.getPoolPair('DFI-DBCH')
+
+      for (const k in poolpair) {
+        const data = poolpair[k]
+        expect(data.dexFeePctTokenA).toBeUndefined()
+        expect(data.dexFeeInPctTokenA).toBeUndefined()
+        expect(data.dexFeeOutPctTokenA).toBeUndefined()
+        expect(data.dexFeePctTokenB).toBeUndefined()
+        expect(data.dexFeeInPctTokenB).toBeUndefined()
+        expect(data.dexFeeOutPctTokenB).toBeUndefined()
+      }
+    }
+
+    // default token_a_fee_direction should be both
+    {
+      await client.masternode.setGov({
+        ATTRIBUTES: {
+          [`v0/poolpairs/${ppTokenID}/token_a_fee_pct`]: '0.05'
+        }
+      })
+      await container.generate(1)
+
+      const poolpair = await client.poolpair.getPoolPair('DFI-DBCH')
+
+      for (const k in poolpair) {
+        const data = poolpair[k]
+        expect(data.dexFeePctTokenA).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeeInPctTokenA).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeeOutPctTokenA).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeePctTokenB).toBeUndefined()
+        expect(data.dexFeeInPctTokenB).toBeUndefined()
+        expect(data.dexFeeOutPctTokenB).toBeUndefined()
+      }
+    }
+
+    // token_a_fee_direction should be in
+    {
+      await client.masternode.setGov({
+        ATTRIBUTES: {
+          [`v0/poolpairs/${ppTokenID}/token_a_fee_pct`]: '0.05',
+          [`v0/poolpairs/${ppTokenID}/token_a_fee_direction`]: 'in'
+        }
+      })
+      await container.generate(1)
+
+      const poolpair = await client.poolpair.getPoolPair('DFI-DBCH')
+
+      for (const k in poolpair) {
+        const data = poolpair[k]
+        expect(data.dexFeePctTokenA).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeeInPctTokenA).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeeOutPctTokenA).toBeUndefined()
+        expect(data.dexFeePctTokenB).toBeUndefined()
+        expect(data.dexFeeInPctTokenB).toBeUndefined()
+        expect(data.dexFeeOutPctTokenB).toBeUndefined()
+      }
+    }
+
+    // token_a_fee_direction should be out
+    {
+      await client.masternode.setGov({
+        ATTRIBUTES: {
+          [`v0/poolpairs/${ppTokenID}/token_a_fee_pct`]: '0.05',
+          [`v0/poolpairs/${ppTokenID}/token_a_fee_direction`]: 'out'
+        }
+      })
+      await container.generate(1)
+
+      const poolpair = await client.poolpair.getPoolPair('DFI-DBCH')
+
+      for (const k in poolpair) {
+        const data = poolpair[k]
+        expect(data.dexFeePctTokenA).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeeInPctTokenA).toBeUndefined()
+        expect(data.dexFeeOutPctTokenA).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeePctTokenB).toBeUndefined()
+        expect(data.dexFeeInPctTokenB).toBeUndefined()
+        expect(data.dexFeeOutPctTokenB).toBeUndefined()
+      }
+    }
+
+    // token_a_fee_direction should be both
+    {
+      await client.masternode.setGov({
+        ATTRIBUTES: {
+          [`v0/poolpairs/${ppTokenID}/token_a_fee_pct`]: '0.05',
+          [`v0/poolpairs/${ppTokenID}/token_a_fee_direction`]: 'both'
+        }
+      })
+      await container.generate(1)
+
+      const poolpair = await client.poolpair.getPoolPair('DFI-DBCH')
+
+      for (const k in poolpair) {
+        const data = poolpair[k]
+        expect(data.dexFeePctTokenA).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeeInPctTokenA).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeeOutPctTokenA).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeePctTokenB).toBeUndefined()
+        expect(data.dexFeeInPctTokenB).toBeUndefined()
+        expect(data.dexFeeOutPctTokenB).toBeUndefined()
+      }
+    }
+
+    // default token_b_fee_direction should be both
+    {
+      await client.masternode.setGov({
+        ATTRIBUTES: {
+          [`v0/poolpairs/${ppTokenID}/token_b_fee_pct`]: '0.05'
+        }
+      })
+      await container.generate(1)
+
+      const poolpair = await client.poolpair.getPoolPair('DFI-DBCH')
+
+      for (const k in poolpair) {
+        const data = poolpair[k]
+        expect(data.dexFeePctTokenA).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeeInPctTokenA).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeeOutPctTokenA).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeePctTokenB).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeeInPctTokenB).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeeOutPctTokenB).toStrictEqual(new BigNumber(0.05))
+      }
+    }
+
+    // token_b_fee_direction should be in
+    {
+      await client.masternode.setGov({
+        ATTRIBUTES: {
+          [`v0/poolpairs/${ppTokenID}/token_b_fee_pct`]: '0.05',
+          [`v0/poolpairs/${ppTokenID}/token_b_fee_direction`]: 'in'
+        }
+      })
+      await container.generate(1)
+
+      const poolpair = await client.poolpair.getPoolPair('DFI-DBCH')
+
+      for (const k in poolpair) {
+        const data = poolpair[k]
+        expect(data.dexFeePctTokenA).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeeInPctTokenA).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeeOutPctTokenA).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeePctTokenB).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeeInPctTokenB).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeeOutPctTokenB).toBeUndefined()
+      }
+    }
+
+    // token_b_fee_direction should be out
+    {
+      await client.masternode.setGov({
+        ATTRIBUTES: {
+          [`v0/poolpairs/${ppTokenID}/token_b_fee_pct`]: '0.05',
+          [`v0/poolpairs/${ppTokenID}/token_b_fee_direction`]: 'out'
+        }
+      })
+      await container.generate(1)
+
+      const poolpair = await client.poolpair.getPoolPair('DFI-DBCH')
+
+      for (const k in poolpair) {
+        const data = poolpair[k]
+        expect(data.dexFeePctTokenA).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeeInPctTokenA).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeeOutPctTokenA).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeePctTokenB).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeeInPctTokenB).toBeUndefined()
+        expect(data.dexFeeOutPctTokenB).toStrictEqual(new BigNumber(0.05))
+      }
+    }
+
+    // token_b_fee_direction should be both
+    {
+      await client.masternode.setGov({
+        ATTRIBUTES: {
+          [`v0/poolpairs/${ppTokenID}/token_b_fee_pct`]: '0.05',
+          [`v0/poolpairs/${ppTokenID}/token_b_fee_direction`]: 'both'
+        }
+      })
+      await container.generate(1)
+
+      const poolpair = await client.poolpair.getPoolPair('DFI-DBCH')
+
+      for (const k in poolpair) {
+        const data = poolpair[k]
+        expect(data.dexFeePctTokenA).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeeInPctTokenA).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeeOutPctTokenA).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeePctTokenB).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeeInPctTokenB).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeeOutPctTokenB).toStrictEqual(new BigNumber(0.05))
+      }
+    }
+
+    // token_a_fee_direction should be undefined
+    {
+      await client.masternode.setGov({
+        ATTRIBUTES: {
+          [`v0/poolpairs/${ppTokenID}/token_a_fee_pct`]: '0'
+        }
+      })
+      await container.generate(1)
+
+      const poolpair = await client.poolpair.getPoolPair('DFI-DBCH')
+
+      for (const k in poolpair) {
+        const data = poolpair[k]
+        expect(data.dexFeePctTokenA).toBeUndefined()
+        expect(data.dexFeeInPctTokenA).toBeUndefined()
+        expect(data.dexFeeOutPctTokenA).toBeUndefined()
+        expect(data.dexFeePctTokenB).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeeInPctTokenB).toStrictEqual(new BigNumber(0.05))
+        expect(data.dexFeeOutPctTokenB).toStrictEqual(new BigNumber(0.05))
+      }
+    }
+
+    // token_b_fee_direction should be undefined
+    {
+      await client.masternode.setGov({
+        ATTRIBUTES: {
+          [`v0/poolpairs/${ppTokenID}/token_b_fee_pct`]: '0'
+        }
+      })
+      await container.generate(1)
+
+      const poolpair = await client.poolpair.getPoolPair('DFI-DBCH')
+
+      for (const k in poolpair) {
+        const data = poolpair[k]
+        expect(data.dexFeePctTokenA).toBeUndefined()
+        expect(data.dexFeeInPctTokenA).toBeUndefined()
+        expect(data.dexFeeOutPctTokenA).toBeUndefined()
+        expect(data.dexFeePctTokenB).toBeUndefined()
+        expect(data.dexFeeInPctTokenB).toBeUndefined()
+        expect(data.dexFeeOutPctTokenB).toBeUndefined()
+      }
+    }
+  })
+
   it('should be failed as getting non-existent pair', async () => {
     const promise = client.poolpair.getPoolPair('DFI-NONEXIST')
 
