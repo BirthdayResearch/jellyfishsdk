@@ -1,7 +1,7 @@
 import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
-import { CScriptBalances, CTokenBalance, CTokenBalanceVarInt, ScriptBalances, TokenBalance, TokenBalanceVarInt } from './dftx_balance'
+import { CScriptBalances, CTokenBalance, CTokenBalanceVarInt, ScriptBalances, TokenBalanceUInt32, TokenBalanceVarInt } from './dftx_balance'
 
 /**
  * UtxosToAccount DeFi Transaction
@@ -30,8 +30,8 @@ export class CUtxosToAccount extends ComposableBuffer<UtxosToAccount> {
  */
 export interface AccountToUtxos {
   from: Script // -----------------------| n = VarUInt{1-9 bytes}, + n bytes
-  balances: TokenBalance[] // -----------| c = VarUInt{1-9 bytes}, + c x TokenBalance
-  mintingOutputsStart: number // --------| 4 bytes unsigned
+  balances: TokenBalanceUInt32[] // -----| c = VarUInt{1-9 bytes}, + c x TokenBalance
+  mintingOutputsStart: number // --------| VarInt{MSB-b128}
 }
 
 /**
@@ -46,7 +46,7 @@ export class CAccountToUtxos extends ComposableBuffer<AccountToUtxos> {
     return [
       ComposableBuffer.single<Script>(() => a2u.from, v => a2u.from = v, v => new CScript(v)),
       ComposableBuffer.compactSizeArray(() => a2u.balances, v => a2u.balances = v, v => new CTokenBalance(v)),
-      ComposableBuffer.uInt8(() => a2u.mintingOutputsStart, v => a2u.mintingOutputsStart = v)
+      ComposableBuffer.varInt(() => a2u.mintingOutputsStart, v => a2u.mintingOutputsStart = v)
     ]
   }
 }

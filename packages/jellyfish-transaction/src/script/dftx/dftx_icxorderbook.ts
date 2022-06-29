@@ -15,7 +15,7 @@ export enum ICXOrderType {
  */
 export interface ICXCreateOrder {
   orderType: number // -------------| 1 byte unsigned, 0x1 (INTERNAL) | 0x2 (EXTERNAL)
-  tokenId: number // ---------------| VarUInt{1-9 bytes}
+  tokenId: number // ---------------| VarInt{MSB-b128}
   ownerAddress: Script // ----------| n = VarUInt{1-9 bytes}, + n bytes
   receivePubkey?: string // --------| n = VarUInt{1-9 bytes}, 0x00 (default when undefined) | 0x21 (for COMPRESSED_PUBLIC_KEY_SIZE) | 0x41 (for PUBLIC_KEY_SIZE) + n bytes. See implementation at https://github.com/DeFiCh/ain/blob/ff53dcee23db2ffe0da9b147a0a53956f4e7ee31/src/pubkey.h#L57
   amountFrom: BigNumber // ---------| 8 bytes unsigned
@@ -35,7 +35,7 @@ export class CICXCreateOrder extends ComposableBuffer<ICXCreateOrder> {
   composers (cco: ICXCreateOrder): BufferComposer[] {
     return [
       ComposableBuffer.uInt8(() => cco.orderType, v => cco.orderType = v),
-      ComposableBuffer.compactSize(() => cco.tokenId, v => cco.tokenId = v),
+      ComposableBuffer.varInt(() => cco.tokenId, v => cco.tokenId = v),
       ComposableBuffer.single<Script>(() => cco.ownerAddress, v => cco.ownerAddress = v, v => new CScript(v)),
       ComposableBuffer.compactSizeOptionalHex(() => cco.receivePubkey, v => cco.receivePubkey = v),
       ComposableBuffer.satoshiAsBigNumber(() => cco.amountFrom, v => cco.amountFrom = v),

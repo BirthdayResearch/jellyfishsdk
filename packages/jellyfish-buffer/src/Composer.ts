@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
 import { readCompactSize, writeCompactSize } from './CompactSize'
+import { readVarInt, writeVarInt } from './VarInt'
 import { getBitsFrom } from './BitMask'
 import { MAX_INT64, ONE_HUNDRED_MILLION, readBigNumberUInt64, writeBigNumberUInt64 } from './BigNumber'
 
@@ -528,6 +529,23 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
       },
       toBuffer: (buffer: SmartBuffer): void => {
         writeCompactSize(getter(), buffer)
+      }
+    }
+  }
+
+  /**
+   * VarInt helper method, 1 - 9 bytes
+   *
+   * @param getter to read from to buffer
+   * @param setter to set to from buffer
+   */
+  static varInt (getter: () => number, setter: (data: number) => void): BufferComposer {
+    return {
+      fromBuffer: (buffer: SmartBuffer): void => {
+        setter(readVarInt(buffer))
+      },
+      toBuffer: (buffer: SmartBuffer): void => {
+        writeVarInt(getter(), buffer)
       }
     }
   }
