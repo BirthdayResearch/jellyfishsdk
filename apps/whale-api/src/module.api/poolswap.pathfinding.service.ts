@@ -3,6 +3,7 @@ import { UndirectedGraph } from 'graphology'
 import {
   AllSwappableTokensResult,
   BestSwapPathResult,
+  DexFee,
   SwapPathPoolPair,
   SwapPathsResult,
   TokenIdentifier
@@ -15,6 +16,7 @@ import { parseDisplaySymbol } from './token.controller'
 import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
 import { connectedComponents } from 'graphology-components'
 import { NetworkName } from '@defichain/jellyfish-network'
+import { PoolPairFeesService } from './poolpair.fees.service'
 
 @Injectable()
 export class PoolSwapPathFindingService {
@@ -23,6 +25,8 @@ export class PoolSwapPathFindingService {
 
   constructor (
     protected readonly deFiDCache: DeFiDCache,
+    private readonly poolPairFeesServices: PoolPairFeesService,
+
     @Inject('NETWORK') protected readonly network: NetworkName
   ) {
   }
@@ -59,7 +63,8 @@ export class PoolSwapPathFindingService {
           bestPath: path,
           estimatedReturn: formatNumber(
             computeReturnInDestinationToken(path, fromTokenId)
-          ) // denoted in toToken
+          ), // denoted in toToken
+          dexFees: await this.computeDexFees(path)
         }
       }
     }
@@ -80,7 +85,8 @@ export class PoolSwapPathFindingService {
       fromToken: fromToken,
       toToken: toToken,
       bestPath: bestPath,
-      estimatedReturn: formatNumber(bestReturn) // denoted in toToken
+      estimatedReturn: formatNumber(bestReturn), // denoted in toToken
+      dexFees: await this.computeDexFees(bestPath)
     }
   }
 
@@ -252,6 +258,28 @@ export class PoolSwapPathFindingService {
     if (this.tokenGraph.size === 0) {
       await this.syncTokenGraph()
     }
+  }
+
+  private async computeDexFees (path: SwapPathPoolPair[]): Promise<DexFee[]> {
+    const dexFees: DexFee[] = []
+
+    for (const poolPair of path) {
+      const poolpairDexFees = await this.poolPairFeesServices.getDexFees(poolPair)
+
+      poolpairDexFees.forEach(poolpairDexFee => {
+        const existingDexFeeIndex = dexFees.findIndex(dexFee => dexFee.token.id === poolpairDexFee?.token.id)
+        if (existingDexFeeIndex === -1) {
+          dexFees.push(poolpairDexFee)
+        } else {
+          dexFees[existingDexFeeIndex] = {
+            token: poolpairDexFee.token,
+            fee: new BigNumber(dexFees[existingDexFeeIndex].fee).plus(poolpairDexFee.fee).toFixed(8)
+          }
+        }
+      })
+    }
+
+    return dexFees.sort((a, b) => a.token.id.localeCompare(b.token.id))
   }
 }
 

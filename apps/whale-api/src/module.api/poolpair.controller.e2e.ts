@@ -371,7 +371,8 @@ describe('get best path', () => {
           tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
         }
       ],
-      estimatedReturn: '2.00000000'
+      estimatedReturn: '2.00000000',
+      dexFees: []
     })
     expect(paths1.bestPath).toStrictEqual(paths2.bestPath)
   })
@@ -405,7 +406,8 @@ describe('get best path', () => {
           tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
         }
       ],
-      estimatedReturn: '0.50000000'
+      estimatedReturn: '0.50000000',
+      dexFees: []
     })
   })
 
@@ -445,7 +447,8 @@ describe('get best path', () => {
           tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
         }
       ],
-      estimatedReturn: '2.50000000'
+      estimatedReturn: '2.50000000',
+      dexFees: []
     })
   })
 
@@ -473,7 +476,8 @@ describe('get best path', () => {
           tokenB: { id: '11', symbol: 'K', displaySymbol: 'dK' }
         }
       ],
-      estimatedReturn: '7.00000000'
+      estimatedReturn: '7.00000000',
+      dexFees: []
     })
   })
 
@@ -491,7 +495,8 @@ describe('get best path', () => {
         displaySymbol: 'dA'
       },
       bestPath: [],
-      estimatedReturn: '0'
+      estimatedReturn: '0',
+      dexFees: []
     })
   })
 
