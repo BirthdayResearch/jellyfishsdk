@@ -4,6 +4,11 @@ import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
 
 /**
+ * @deprecated renamed to TokenBalanceUInt32
+ */
+export type TokenBalance = TokenBalanceUInt32
+
+/**
  * Known as "struct CBalances" in cpp.
  */
 export interface TokenBalanceUInt32 {
