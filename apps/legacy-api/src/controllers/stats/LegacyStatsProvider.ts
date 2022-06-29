@@ -9,7 +9,7 @@ import {
 import { WhaleApiClientProvider } from '../../providers/WhaleApiClientProvider'
 import BigNumber from 'bignumber.js'
 import { WhaleApiClient } from '@defichain/whale-api-client'
-import { StatsData } from '@defichain/whale-api-client/dist/api/stats'
+import { BurnData, StatsData } from '@defichain/whale-api-client/dist/api/stats'
 import { get } from 'lodash'
 
 // region - Needs to be kept in sync with defi-stats-api-master
@@ -133,7 +133,7 @@ export class MainnetLegacyStatsProvider {
   }
 
   async getBurnInfo (): Promise<LegacyBurnInfo> {
-    const burnInfo: any = await this.api.stats.getBurn()
+    const burnInfo: BurnData = await this.api.stats.getBurn()
     return {
       address: burnInfo.address,
       amount: new BigNumber(burnInfo.amount).toFixed(DECIMAL_PLACES),
