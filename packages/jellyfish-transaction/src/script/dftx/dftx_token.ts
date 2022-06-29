@@ -1,12 +1,12 @@
 import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
-import { CTokenBalance, TokenBalance } from './dftx_balance'
+import { CTokenBalance, TokenBalanceUInt32 } from './dftx_balance'
 import BigNumber from 'bignumber.js'
 
 /**
  * TokenMint DeFi Transaction
  */
 export interface TokenMint {
-  balances: TokenBalance[] // ----------| c = VarUInt{1-9 bytes}, + c x TokenBalance
+  balances: TokenBalanceUInt32[] // ----------| c = VarUInt{1-9 bytes}, + c x TokenBalance
 }
 
 /**
