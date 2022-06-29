@@ -12,6 +12,7 @@
       <w>ancestorsize</w>
       <w>anchorquorum</w>
       <w>anyonecanpay</w>
+      <w>auctionburn</w>
       <w>bayfrontgardensheight</w>
       <w>bayfrontheight</w>
       <w>bayfrontmarinaheight</w>
@@ -65,7 +66,10 @@
       <w>descendantsize</w>
       <w>destroyloanscheme</w>
       <w>devnet</w>
+      <w>dexfeetokens</w>
       <w>dfip</w>
+      <w>dfipaybackfee</w>
+      <w>dfipaybacktokens</w>
       <w>dftx</w>
       <w>dockerignore</w>
       <w>dockerode</w>
@@ -190,7 +194,10 @@
       <w>numequal</w>
       <w>numequalverify</w>
       <w>numnotequal</w>
+      <w>paybackburn</w>
+      <w>paybackfees</w>
       <w>paybackloan</w>
+      <w>paybacktokens</w>
       <w>paytxfee</w>
       <w>pooledtx</w>
       <w>poolpair</w>
