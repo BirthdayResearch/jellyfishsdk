@@ -2566,7 +2566,7 @@ describe('paybackLoan with direct interest dusd burn', () => {
     await tGroup.stop()
   })
 
-  it('should burn interest in dusd if paybackLoan from same loan token', async () => {
+  it('should burn only the interest in dusd if paybackLoan from same loan token', async () => {
     // setup direct interest dusd burn
     await alice.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2206a/dusd_interest_burn': 'true' } })
     await alice.generate(1)
@@ -2577,26 +2577,41 @@ describe('paybackLoan with direct interest dusd burn', () => {
     const bobLoanAccBefore = await bob.rpc.account.getAccount(bobloanAddr)
     expect(bobLoanAccBefore).toStrictEqual(['40.00000000@TSLA'])
 
+    const tslaLoanPaybackAddress = await bob.generateAddress(1)
+    await alice.rpc.account.accountToAccount(aliceColAddr, { [tslaLoanPaybackAddress]: '35@TSLA' })
+    await alice.generate(1)
+    await tGroup.waitForSync()
+
     // burninfo before payback
     const burnInfoBefore = await bob.container.call('getburninfo')
     expect(burnInfoBefore.paybackburn).toStrictEqual([])
 
+    const vaultInfo = await bob.rpc.vault.getVault(bobVaultId) as VaultActive
+    const tslaInterestAmount = vaultInfo.interestAmounts[0].split('@')[0]
+
     await bob.rpc.loan.paybackLoan({
       vaultId: bobVaultId,
-      amounts: '35@TSLA', // partial payback
-      from: bobloanAddr
+      amounts: '35@TSLA',
+      from: tslaLoanPaybackAddress
     })
     await bob.generate(1)
 
-    const bobLoanAccAfter = await bob.rpc.account.getAccount(bobloanAddr)
-    expect(bobLoanAccAfter).toStrictEqual(['5.00000000@TSLA'])
+    // calculate tslaInterestAmount TSLA swapped to DUSD
+    const interestInDUSD = new BigNumber(100).minus(new BigNumber(200 * 100).dividedBy(new BigNumber(tslaInterestAmount).plus(200))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
+
+    const tslaLoanPaybackAddressBalance = await bob.rpc.account.getAccount(tslaLoanPaybackAddress)
+    expect(tslaLoanPaybackAddressBalance).toStrictEqual([])
 
     // check burn after payback
     const burnInfoAfter = await bob.container.call('getburninfo')
-    expect(burnInfoAfter.paybackburn).toStrictEqual(['0.00002283@DUSD'])
+    expect(burnInfoAfter.paybackburn).toStrictEqual([`${interestInDUSD.toFixed(8)}@DUSD`]) // only the interest has been burnt from DUSD.
+
+    // check bobLoanAccBefore is intact.
+    const bobLoanAccAfter = await bob.rpc.account.getAccount(bobloanAddr)
+    expect(bobLoanAccAfter).toStrictEqual(bobLoanAccBefore)
   })
 
-  it('should burn interest in dfi if paybackLoan from DFI', async () => {
+  it('should burn the total payedback amount in dfi if paybackLoan from DFI', async () => {
     // setup direct interest dusd burn
     await alice.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2206a/dusd_interest_burn': 'true' } })
     await alice.generate(1)
@@ -2629,7 +2644,7 @@ describe('paybackLoan with direct interest dusd burn', () => {
       from: dfiPaybackAddress,
       loans: [{
         dToken: tslaId,
-        amounts: `${dfiPaybackAmount}@DFI` // partial payback
+        amounts: `${dfiPaybackAmount}@DFI`
       }]
     })
     await bob.generate(1)
@@ -2639,10 +2654,10 @@ describe('paybackLoan with direct interest dusd burn', () => {
 
     // check burn after payback
     const burnInfoAfter = await bob.container.call('getburninfo')
-    expect(burnInfoAfter.paybackburn).toStrictEqual([`${dfiPaybackAmount.toFixed(8)}@DFI`]) // The whole DFI payed amout will be burned.
+    expect(burnInfoAfter.paybackburn).toStrictEqual([`${dfiPaybackAmount.toFixed(8)}@DFI`]) // The whole DFI payed amout will be burned in DFI
   })
 
-  it('should burn interest in dusd if paybackLoan from AMZN', async () => {
+  it('should burn the total payedback amount in dfi if paybackLoan from AMZN', async () => {
     // setup direct interest dusd burn
     await alice.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2206a/dusd_interest_burn': 'true' } })
     await alice.generate(1)
@@ -2660,7 +2675,6 @@ describe('paybackLoan with direct interest dusd burn', () => {
     const newPenaltyRate = 0.1
     await bob.rpc.masternode.setGov({ ATTRIBUTES: { [amznPaybackKey]: 'true', [penaltyRateKey]: newPenaltyRate.toString() } })
     await bob.generate(1)
-
     await tGroup.waitForSync()
 
     // get AMZN funds for payback
@@ -2694,10 +2708,15 @@ describe('paybackLoan with direct interest dusd burn', () => {
     const bobLoanAccAfter = await bob.rpc.account.getAccount(amznPaybackAddress)
     expect(bobLoanAccAfter).toStrictEqual([`${(2 * amznPaybackAmount - amznPaybackAmount).toFixed(8)}@AMZN`])
 
+    // calculate amznPaybackAmount AMZN swapped to DFI
+    // (AMZN 400: DUSD 100)
+    const intermediateSwappedAmountInDUSD = new BigNumber(100).minus(new BigNumber(400 * 100).dividedBy(new BigNumber(amznPaybackAmount).plus(400))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    // (DUSD 250: DFI 100)
+    const finalswappedAmountInDFI = new BigNumber(100).minus(new BigNumber(100 * 250).dividedBy(new BigNumber(intermediateSwappedAmountInDUSD).plus(250))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
+
     // check burn after payback
     const burnInfoAfter = await bob.container.call('getburninfo')
-    console.log(JSON.stringify(burnInfoAfter))
-    // expect(burnInfoAfter.paybackburn).toStrictEqual([`${...}@DUSD`]) // NOTE(surangap): Interest should be burned in DUSD?
+    expect(burnInfoAfter.paybackburn).toStrictEqual([`${finalswappedAmountInDFI.toFixed(8)}@DFI`]) // Total payed back amount will be burned in DFI.
   })
 })
 
@@ -2712,7 +2731,7 @@ describe('paybackLoan with direct loan dusd burn', () => {
     await tGroup.stop()
   })
 
-  it('should burn loan in dusd if paybackLoan from same loan token', async () => {
+  it('should burn only the interest in dusd if paybackLoan from same loan token', async () => {
     // setup direct interest + loan dusd burn
     await alice.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2206a/dusd_interest_burn': 'true' } })
     await alice.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2206a/dusd_loan_burn': 'true' } })
@@ -2725,26 +2744,41 @@ describe('paybackLoan with direct loan dusd burn', () => {
     const bobLoanAccBefore = await bob.rpc.account.getAccount(bobloanAddr)
     expect(bobLoanAccBefore).toStrictEqual(['40.00000000@TSLA'])
 
+    const tslaLoanPaybackAddress = await bob.generateAddress(1)
+    await alice.rpc.account.accountToAccount(aliceColAddr, { [tslaLoanPaybackAddress]: '35@TSLA' })
+    await alice.generate(1)
+    await tGroup.waitForSync()
+
     // burninfo before payback
     const burnInfoBefore = await bob.container.call('getburninfo')
     expect(burnInfoBefore.paybackburn).toStrictEqual([])
 
+    const vaultInfo = await bob.rpc.vault.getVault(bobVaultId) as VaultActive
+    const tslaInterestAmount = vaultInfo.interestAmounts[0].split('@')[0]
+
+    // calculate tslaInterestAmount TSLA swapped to DUSD
+    const interestInDUSD = new BigNumber(100).minus(new BigNumber(200 * 100).dividedBy(new BigNumber(tslaInterestAmount).plus(200))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
+
     await bob.rpc.loan.paybackLoan({
       vaultId: bobVaultId,
       amounts: '35@TSLA', // partial payback
-      from: bobloanAddr
+      from: tslaLoanPaybackAddress
     })
     await bob.generate(1)
 
-    const bobLoanAccAfter = await bob.rpc.account.getAccount(bobloanAddr)
-    expect(bobLoanAccAfter).toStrictEqual(['5.00000000@TSLA'])
+    const tslaLoanPaybackAddressBalance = await bob.rpc.account.getAccount(tslaLoanPaybackAddress)
+    expect(tslaLoanPaybackAddressBalance).toStrictEqual([])
 
     // check burn after payback
     const burnInfoAfter = await bob.container.call('getburninfo')
-    expect(burnInfoAfter.paybackburn).toStrictEqual(['0.00002283@DUSD'])
+    expect(burnInfoAfter.paybackburn).toStrictEqual([`${interestInDUSD.toFixed(8)}@DUSD`]) // only the interest has been burnt from DUSD.
+
+    // check bobLoanAccBefore is intact.
+    const bobLoanAccAfter = await bob.rpc.account.getAccount(bobloanAddr)
+    expect(bobLoanAccAfter).toStrictEqual(bobLoanAccBefore)
   })
 
-  it('should burn loan in dfi if paybackLoan from DFI', async () => {
+  it('should burn the total payedback amount in dfi if paybackLoan from DFI', async () => {
     // setup direct interest dusd burn
     await alice.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2206a/dusd_interest_burn': 'true' } })
     await alice.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2206a/dusd_loan_burn': 'true' } })
@@ -2792,7 +2826,7 @@ describe('paybackLoan with direct loan dusd burn', () => {
     expect(burnInfoAfter.paybackburn).toStrictEqual([`${dfiPaybackAmount.toFixed(8)}@DFI`]) // The whole DFI payed amout will be burned.
   })
 
-  it('should burn loan in dusd if paybackLoan from AMZN', async () => {
+  it('should burn the total payedback amount in dusd if paybackLoan from AMZN', async () => {
     // setup direct interest dusd burn
     await alice.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2206a/dusd_interest_burn': 'true' } })
     await alice.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2206a/dusd_loan_burn': 'true' } })
@@ -2812,7 +2846,6 @@ describe('paybackLoan with direct loan dusd burn', () => {
     const newPenaltyRate = 0.1
     await bob.rpc.masternode.setGov({ ATTRIBUTES: { [amznPaybackKey]: 'true', [penaltyRateKey]: newPenaltyRate.toString() } })
     await bob.generate(1)
-
     await tGroup.waitForSync()
 
     // get AMZN funds for payback
@@ -2833,6 +2866,10 @@ describe('paybackLoan with direct loan dusd burn', () => {
     const burnInfoBefore = await bob.container.call('getburninfo')
     expect(burnInfoBefore.paybackburn).toStrictEqual([])
 
+    // calculate amznPaybackAmount AMZN swapped to DUSD
+    // (AMZN 400: DUSD 100)
+    const swappedAmountInDUSD = new BigNumber(100).minus(new BigNumber(400 * 100).dividedBy(new BigNumber(amznPaybackAmount).plus(400))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
+
     await bob.rpc.loan.paybackLoan({
       vaultId: bobVaultId,
       from: amznPaybackAddress,
@@ -2848,7 +2885,6 @@ describe('paybackLoan with direct loan dusd burn', () => {
 
     // check burn after payback
     const burnInfoAfter = await bob.container.call('getburninfo')
-    console.log(JSON.stringify(burnInfoAfter))
-    // expect(burnInfoAfter.paybackburn).toStrictEqual([`${...}@DUSD`]) // NOTE(surangap): Interest should be burned in DUSD?
+    expect(burnInfoAfter.paybackburn).toStrictEqual([`${swappedAmountInDUSD.toFixed(8)}@DUSD`]) // Total payed back amount will be burned in DUSD.
   })
 })
