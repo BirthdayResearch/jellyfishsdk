@@ -1,5 +1,5 @@
 import { SmartBuffer } from 'smart-buffer'
-import { readVarUInt, writeVarUInt } from '@defichain/jellyfish-buffer'
+import { readCompactSize, writeCompactSize } from '@defichain/jellyfish-buffer'
 import { toBuffer, toOPCodes } from './_buffer'
 import { OPCode, StaticCode } from './opcode'
 import { OP_PUSHDATA } from './data'
@@ -173,7 +173,7 @@ export const OP_CODES = {
    * @return {OPCode[]} read from buffer to OPCode
    */
   fromBuffer (buffer: SmartBuffer) {
-    const length = readVarUInt(buffer)
+    const length = readCompactSize(buffer)
     if (length === 0) {
       return []
     }
@@ -207,7 +207,7 @@ export const OP_CODES = {
     const buffs = toBuffer(stack)
 
     // Write the len of buffer in bytes and then all the buffer
-    writeVarUInt(buffs.length, buffer)
+    writeCompactSize(buffs.length, buffer)
     buffer.writeBuffer(buffs)
   },
   OP_DEFI_TX: (dftx: DfTx<any>): OP_DEFI_TX => {
