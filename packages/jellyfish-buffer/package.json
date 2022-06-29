@@ -14,10 +14,14 @@
     "build": "tsc -b ./tsconfig.build.json"
   },
   "dependencies": {
+    "bn.js": "^5.2.1",
     "bignumber.js": "^9.0.2",
     "smart-buffer": "^4.2.0"
   },
   "peerDependencies": {
     "defichain": "^0.0.0"
+  },
+  "devDependencies": {
+    "@types/bn.js": "^5.1.0"
   }
 }
