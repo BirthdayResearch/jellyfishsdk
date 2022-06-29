@@ -82,13 +82,14 @@ export class StatsController {
       feeburn: burnInfo.feeburn.toNumber(),
       emissionburn: burnInfo.emissionburn.toNumber(),
       auctionburn: burnInfo.auctionburn.toNumber(),
-      paybackburn: burnInfo.paybackburn.toNumber(),
+      paybackburn: burnInfo.paybackburn,
       dexfeetokens: burnInfo.dexfeetokens,
       dfipaybackfee: burnInfo.dfipaybackfee.toNumber(),
       dfipaybacktokens: burnInfo.dfipaybacktokens,
       paybackfees: burnInfo.paybackfees,
       paybacktokens: burnInfo.paybacktokens,
-      dfip2203: burnInfo.dfip2203
+      dfip2203: burnInfo.dfip2203,
+      dfip2206f: burnInfo.dfip2206f
     }
   }
 

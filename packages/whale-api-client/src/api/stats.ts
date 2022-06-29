@@ -146,7 +146,7 @@ export interface BurnData {
   /**
    * Value of burn after payback
    */
-  paybackburn: number
+  paybackburn: string[]
   /**
    * Formatted as AMOUNT@SYMBOL
    */
@@ -171,4 +171,8 @@ export interface BurnData {
    * Amount of tokens burned due to futureswap
    */
   dfip2203: string[]
+  /**
+   * Amount of tokens burned due to DFI-to-DUSD swap
+   */
+  dfip2206f: string[]
 }

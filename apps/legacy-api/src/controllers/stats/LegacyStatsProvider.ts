@@ -140,11 +140,13 @@ export class MainnetLegacyStatsProvider {
       tokens: burnInfo.tokens,
       feeburn: burnInfo.feeburn,
       auctionburn: burnInfo.auctionburn,
-      paybackburn: new BigNumber(burnInfo.paybackburn).toFixed(8),
+      paybackburn: burnInfo.paybackburn,
       dexfeetokens: burnInfo.dexfeetokens,
       dfipaybackfee: burnInfo.dfipaybackfee,
       dfipaybacktokens: burnInfo.dfipaybacktokens,
-      emissionburn: new BigNumber(burnInfo.emissionburn).toFixed(8)
+      emissionburn: new BigNumber(burnInfo.emissionburn).toFixed(8),
+      dfip2203: burnInfo.dfip2203,
+      dfip2206f: burnInfo.dfip2206f
     }
   }
 
@@ -227,11 +229,13 @@ interface LegacyBurnInfo {
   tokens: string[]
   feeburn: number
   auctionburn: number
-  paybackburn: string
+  paybackburn: string[]
   dexfeetokens: string[]
   dfipaybackfee: number
   dfipaybacktokens: string[]
   emissionburn: string
+  dfip2203: string[]
+  dfip2206f: string[]
 }
 
 interface LegacyTokens {
