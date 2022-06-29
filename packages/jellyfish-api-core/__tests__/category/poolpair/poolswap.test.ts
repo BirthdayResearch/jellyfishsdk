@@ -223,3 +223,353 @@ describe('poolSwap', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'Test PoolSwapTx execution failed:\nInput amount should be positive\', code: -32600, method: poolswap')
   })
 })
+
+describe('poolSwap asymmetric pool swap fee', () => {
+  const container = new MasterNodeRegTestContainer()
+  const testing = Testing.create(container)
+  const client = new ContainerAdapterClient(container)
+
+  beforeEach(async () => {
+    await container.start()
+    await container.waitForWalletCoinbaseMaturity()
+  })
+
+  afterEach(async () => {
+    await container.stop()
+  })
+
+  async function testSwap (poolPairBefore: poolpair.PoolPairInfo, tokenFrom: string, tokenTo: string, feeInPct: BigNumber, feeOutPct: BigNumber): Promise<void> {
+    const swapAmount = 555
+
+    const [receiverAddress, senderAddress] = await testing.generateAddress(2)
+    if (tokenFrom === 'DFI') {
+      await testing.token.dfi({ amount: swapAmount, address: senderAddress })
+    } else {
+      await testing.token.mint({ amount: swapAmount, symbol: 'CAT' })
+      await testing.generate(1)
+      await testing.token.send({ address: senderAddress, amount: swapAmount, symbol: 'CAT' })
+    }
+    await testing.generate(1)
+
+    const metadata: poolpair.PoolSwapMetadata = {
+      from: senderAddress,
+      tokenFrom: tokenFrom,
+      amountFrom: swapAmount,
+      to: receiverAddress,
+      tokenTo: tokenTo
+    }
+
+    const hex = await client.poolpair.poolSwap(metadata)
+    expect(typeof hex).toStrictEqual('string')
+    expect(hex.length).toStrictEqual(64)
+
+    await container.generate(1)
+
+    const catId = Object.keys(await client.token.getToken('CAT'))[0]
+    const dfiId = Object.keys(await client.token.getToken('DFI'))[0]
+
+    // Calculate dex in fee
+    const dexInFee = feeInPct.multipliedBy(swapAmount)
+    const amountIn = new BigNumber(swapAmount).minus(dexInFee)
+
+    // Check results
+    const poolPairAfter = await testing.poolpair.get('CAT-DFI')
+    let swappedAmount
+    let reserveDiff
+    if (tokenFrom === 'DFI') {
+      expect(poolPairAfter.reserveB.minus(poolPairBefore.reserveB)).toStrictEqual(amountIn)
+      swappedAmount = (await client.account.getAccount(receiverAddress, {}, { indexedAmounts: true }))[catId]
+      reserveDiff = poolPairBefore.reserveA.minus(poolPairAfter.reserveA)
+    } else {
+      expect(poolPairAfter.reserveA.minus(poolPairBefore.reserveA)).toStrictEqual(amountIn)
+      swappedAmount = (await client.account.getAccount(receiverAddress, {}, { indexedAmounts: true }))[dfiId]
+      reserveDiff = poolPairBefore.reserveB.minus(poolPairAfter.reserveB)
+    }
+
+    // Check swap amount
+    const dexOutFee = feeOutPct.multipliedBy(reserveDiff).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+    expect(new BigNumber(reserveDiff).minus(dexOutFee)).toStrictEqual(new BigNumber(swappedAmount))
+  }
+
+  it('should poolSwap DFI to CAT - Token a fee direction in', async () => {
+    const poolPairBefore = await testing.fixture.createPoolPair({
+      a: { amount: 1000, symbol: 'CAT' },
+      b: { amount: 500, symbol: 'DFI' }
+    })
+
+    const ppTokenID = Object.keys(await client.token.getToken('CAT-DFI'))[0]
+
+    await client.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/poolpairs/${ppTokenID}/token_a_fee_pct`]: '0.05',
+        [`v0/poolpairs/${ppTokenID}/token_a_fee_direction`]: 'in'
+      }
+    })
+    await container.generate(1)
+
+    await testSwap(poolPairBefore, 'DFI', 'CAT', new BigNumber(0), new BigNumber(0))
+  })
+
+  it('should poolSwap CAT to DFI - Token a fee direction in', async () => {
+    const poolPairBefore = await testing.fixture.createPoolPair({
+      a: { amount: 1000, symbol: 'CAT' },
+      b: { amount: 500, symbol: 'DFI' }
+    })
+
+    const ppTokenID = Object.keys(await client.token.getToken('CAT-DFI'))[0]
+
+    await client.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/poolpairs/${ppTokenID}/token_a_fee_pct`]: '0.05',
+        [`v0/poolpairs/${ppTokenID}/token_a_fee_direction`]: 'in'
+      }
+    })
+    await container.generate(1)
+
+    await testSwap(poolPairBefore, 'CAT', 'DFI', new BigNumber(0.05), new BigNumber(0))
+  })
+
+  it('should poolSwap DFI to CAT - Token a fee direction out', async () => {
+    const poolPairBefore = await testing.fixture.createPoolPair({
+      a: { amount: 1000, symbol: 'CAT' },
+      b: { amount: 500, symbol: 'DFI' }
+    })
+
+    const ppTokenID = Object.keys(await client.token.getToken('CAT-DFI'))[0]
+
+    await client.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/poolpairs/${ppTokenID}/token_a_fee_pct`]: '0.05',
+        [`v0/poolpairs/${ppTokenID}/token_a_fee_direction`]: 'out'
+      }
+    })
+    await container.generate(1)
+
+    await testSwap(poolPairBefore, 'DFI', 'CAT', new BigNumber(0), new BigNumber(0.05))
+  })
+
+  it('should poolSwap CAT to DFI - Token a fee direction out', async () => {
+    const poolPairBefore = await testing.fixture.createPoolPair({
+      a: { amount: 1000, symbol: 'CAT' },
+      b: { amount: 500, symbol: 'DFI' }
+    })
+
+    const ppTokenID = Object.keys(await client.token.getToken('CAT-DFI'))[0]
+
+    await client.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/poolpairs/${ppTokenID}/token_a_fee_pct`]: '0.05',
+        [`v0/poolpairs/${ppTokenID}/token_a_fee_direction`]: 'out'
+      }
+    })
+    await container.generate(1)
+
+    await testSwap(poolPairBefore, 'CAT', 'DFI', new BigNumber(0), new BigNumber(0))
+  })
+
+  it('should poolSwap DFI to CAT - Token b fee direction in', async () => {
+    const poolPairBefore = await testing.fixture.createPoolPair({
+      a: { amount: 1000, symbol: 'CAT' },
+      b: { amount: 500, symbol: 'DFI' }
+    })
+
+    const ppTokenID = Object.keys(await client.token.getToken('CAT-DFI'))[0]
+
+    await client.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/poolpairs/${ppTokenID}/token_a_fee_pct`]: '0',
+        [`v0/poolpairs/${ppTokenID}/token_a_fee_direction`]: 'both',
+        [`v0/poolpairs/${ppTokenID}/token_b_fee_pct`]: '0.05',
+        [`v0/poolpairs/${ppTokenID}/token_b_fee_direction`]: 'in'
+      }
+    })
+    await container.generate(1)
+
+    await testSwap(poolPairBefore, 'DFI', 'CAT', new BigNumber(0.05), new BigNumber(0))
+  })
+
+  it('should poolSwap CAT to DFI - Token b fee direction in', async () => {
+    const poolPairBefore = await testing.fixture.createPoolPair({
+      a: { amount: 1000, symbol: 'CAT' },
+      b: { amount: 500, symbol: 'DFI' }
+    })
+
+    const ppTokenID = Object.keys(await client.token.getToken('CAT-DFI'))[0]
+
+    await client.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/poolpairs/${ppTokenID}/token_a_fee_pct`]: '0',
+        [`v0/poolpairs/${ppTokenID}/token_a_fee_direction`]: 'both',
+        [`v0/poolpairs/${ppTokenID}/token_b_fee_pct`]: '0.05',
+        [`v0/poolpairs/${ppTokenID}/token_b_fee_direction`]: 'in'
+      }
+    })
+    await container.generate(1)
+
+    await testSwap(poolPairBefore, 'CAT', 'DFI', new BigNumber(0), new BigNumber(0))
+  })
+
+  it('should poolSwap DFI to CAT - Token b fee direction out', async () => {
+    const poolPairBefore = await testing.fixture.createPoolPair({
+      a: { amount: 1000, symbol: 'CAT' },
+      b: { amount: 500, symbol: 'DFI' }
+    })
+
+    const ppTokenID = Object.keys(await client.token.getToken('CAT-DFI'))[0]
+
+    await client.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/poolpairs/${ppTokenID}/token_b_fee_pct`]: '0.05',
+        [`v0/poolpairs/${ppTokenID}/token_b_fee_direction`]: 'out'
+      }
+    })
+    await container.generate(1)
+
+    await testSwap(poolPairBefore, 'DFI', 'CAT', new BigNumber(0), new BigNumber(0))
+  })
+
+  it('should poolSwap CAT to DFI - Token b fee direction out', async () => {
+    const poolPairBefore = await testing.fixture.createPoolPair({
+      a: { amount: 1000, symbol: 'CAT' },
+      b: { amount: 500, symbol: 'DFI' }
+    })
+
+    const ppTokenID = Object.keys(await client.token.getToken('CAT-DFI'))[0]
+
+    await client.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/poolpairs/${ppTokenID}/token_b_fee_pct`]: '0.05',
+        [`v0/poolpairs/${ppTokenID}/token_b_fee_direction`]: 'out'
+      }
+    })
+    await container.generate(1)
+
+    await testSwap(poolPairBefore, 'CAT', 'DFI', new BigNumber(0), new BigNumber(0.05))
+  })
+
+  it('should poolSwap DFI to CAT - Both token fee directions in', async () => {
+    const poolPairBefore = await testing.fixture.createPoolPair({
+      a: { amount: 1000, symbol: 'CAT' },
+      b: { amount: 500, symbol: 'DFI' }
+    })
+
+    const ppTokenID = Object.keys(await client.token.getToken('CAT-DFI'))[0]
+
+    await client.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/poolpairs/${ppTokenID}/token_a_fee_pct`]: '0.05',
+        [`v0/poolpairs/${ppTokenID}/token_a_fee_direction`]: 'in',
+        [`v0/poolpairs/${ppTokenID}/token_b_fee_pct`]: '0.05',
+        [`v0/poolpairs/${ppTokenID}/token_b_fee_direction`]: 'in'
+      }
+    })
+    await container.generate(1)
+
+    await testSwap(poolPairBefore, 'DFI', 'CAT', new BigNumber(0.05), new BigNumber(0))
+  })
+
+  it('should poolSwap CAT to DFI - Boyh Token fee directions in', async () => {
+    const poolPairBefore = await testing.fixture.createPoolPair({
+      a: { amount: 1000, symbol: 'CAT' },
+      b: { amount: 500, symbol: 'DFI' }
+    })
+
+    const ppTokenID = Object.keys(await client.token.getToken('CAT-DFI'))[0]
+
+    await client.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/poolpairs/${ppTokenID}/token_a_fee_pct`]: '0.05',
+        [`v0/poolpairs/${ppTokenID}/token_a_fee_direction`]: 'in',
+        [`v0/poolpairs/${ppTokenID}/token_b_fee_pct`]: '0.05',
+        [`v0/poolpairs/${ppTokenID}/token_b_fee_direction`]: 'in'
+      }
+    })
+    await container.generate(1)
+
+    await testSwap(poolPairBefore, 'CAT', 'DFI', new BigNumber(0.05), new BigNumber(0))
+  })
+
+  it('should poolSwap DFI to CAT - Both token fee directions out', async () => {
+    const poolPairBefore = await testing.fixture.createPoolPair({
+      a: { amount: 1000, symbol: 'CAT' },
+      b: { amount: 500, symbol: 'DFI' }
+    })
+
+    const ppTokenID = Object.keys(await client.token.getToken('CAT-DFI'))[0]
+
+    await client.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/poolpairs/${ppTokenID}/token_a_fee_pct`]: '0.05',
+        [`v0/poolpairs/${ppTokenID}/token_a_fee_direction`]: 'out',
+        [`v0/poolpairs/${ppTokenID}/token_b_fee_pct`]: '0.05',
+        [`v0/poolpairs/${ppTokenID}/token_b_fee_direction`]: 'out'
+      }
+    })
+    await container.generate(1)
+
+    await testSwap(poolPairBefore, 'DFI', 'CAT', new BigNumber(0), new BigNumber(0.05))
+  })
+
+  it('should poolSwap CAT to DFI - Boyh Token fee directions out', async () => {
+    const poolPairBefore = await testing.fixture.createPoolPair({
+      a: { amount: 1000, symbol: 'CAT' },
+      b: { amount: 500, symbol: 'DFI' }
+    })
+
+    const ppTokenID = Object.keys(await client.token.getToken('CAT-DFI'))[0]
+
+    await client.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/poolpairs/${ppTokenID}/token_a_fee_pct`]: '0.05',
+        [`v0/poolpairs/${ppTokenID}/token_a_fee_direction`]: 'out',
+        [`v0/poolpairs/${ppTokenID}/token_b_fee_pct`]: '0.05',
+        [`v0/poolpairs/${ppTokenID}/token_b_fee_direction`]: 'out'
+      }
+    })
+    await container.generate(1)
+
+    await testSwap(poolPairBefore, 'CAT', 'DFI', new BigNumber(0), new BigNumber(0.05))
+  })
+
+  it('should poolSwap DFI to CAT - Both token fee directions both', async () => {
+    const poolPairBefore = await testing.fixture.createPoolPair({
+      a: { amount: 1000, symbol: 'CAT' },
+      b: { amount: 500, symbol: 'DFI' }
+    })
+
+    const ppTokenID = Object.keys(await client.token.getToken('CAT-DFI'))[0]
+
+    await client.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/poolpairs/${ppTokenID}/token_a_fee_pct`]: '0.05',
+        [`v0/poolpairs/${ppTokenID}/token_a_fee_direction`]: 'both',
+        [`v0/poolpairs/${ppTokenID}/token_b_fee_pct`]: '0.05',
+        [`v0/poolpairs/${ppTokenID}/token_b_fee_direction`]: 'both'
+      }
+    })
+    await container.generate(1)
+
+    await testSwap(poolPairBefore, 'DFI', 'CAT', new BigNumber(0.05), new BigNumber(0.05))
+  })
+
+  it('should poolSwap CAT to DFI - Boyh Token fee directions both', async () => {
+    const poolPairBefore = await testing.fixture.createPoolPair({
+      a: { amount: 1000, symbol: 'CAT' },
+      b: { amount: 500, symbol: 'DFI' }
+    })
+
+    const ppTokenID = Object.keys(await client.token.getToken('CAT-DFI'))[0]
+
+    await client.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/poolpairs/${ppTokenID}/token_a_fee_pct`]: '0.05',
+        [`v0/poolpairs/${ppTokenID}/token_a_fee_direction`]: 'both',
+        [`v0/poolpairs/${ppTokenID}/token_b_fee_pct`]: '0.05',
+        [`v0/poolpairs/${ppTokenID}/token_b_fee_direction`]: 'both'
+      }
+    })
+    await container.generate(1)
+
+    await testSwap(poolPairBefore, 'CAT', 'DFI', new BigNumber(0.05), new BigNumber(0.05))
+  })
+})
