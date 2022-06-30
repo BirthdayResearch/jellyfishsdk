@@ -236,7 +236,7 @@ describe('get best path - DEX burn fees', () => {
           symbol: 'DUSD'
         }
       }],
-      estimatedReturn: '1.00000000',
+      estimatedReturn: '10.00000000',
       poolPairId: '2',
       priceRatio: {
         ab: '1.00000000',

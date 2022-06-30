@@ -408,7 +408,7 @@ describe('get best path', () => {
           tokenA: { id: '3', symbol: 'C', displaySymbol: 'dC' },
           tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' },
           estimatedDexFee: [],
-          estimatedReturn: '0.25000000'
+          estimatedReturn: '0.50000000'
         }
       ],
       estimatedReturn: '0.50000000'
@@ -445,7 +445,7 @@ describe('get best path', () => {
           tokenA: { id: '1', symbol: 'A', displaySymbol: 'dA' },
           tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' },
           estimatedDexFee: [],
-          estimatedReturn: '2.00000000'
+          estimatedReturn: '10.00000000'
         },
         {
           symbol: 'C-DFI',
@@ -454,7 +454,7 @@ describe('get best path', () => {
           tokenA: { id: '3', symbol: 'C', displaySymbol: 'dC' },
           tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' },
           estimatedDexFee: [],
-          estimatedReturn: '0.25000000'
+          estimatedReturn: '2.50000000'
         }
       ],
       estimatedReturn: '2.50000000'
@@ -581,7 +581,7 @@ describe('get all paths', () => {
             tokenA: { id: '3', symbol: 'C', displaySymbol: 'dC' },
             tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' },
             estimatedDexFee: [],
-            estimatedReturn: '0.25000000'
+            estimatedReturn: '0.50000000'
           }
         ]
       ]
@@ -619,7 +619,7 @@ describe('get all paths', () => {
             tokenA: { id: '1', symbol: 'A', displaySymbol: 'dA' },
             tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' },
             estimatedDexFee: [],
-            estimatedReturn: '2.00000000'
+            estimatedReturn: '10.00000000'
           },
           {
             symbol: 'C-DFI',
@@ -628,7 +628,7 @@ describe('get all paths', () => {
             tokenA: { id: '3', symbol: 'C', displaySymbol: 'dC' },
             tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' },
             estimatedDexFee: [],
-            estimatedReturn: '0.25000000'
+            estimatedReturn: '2.50000000'
           }
         ]
       ]
@@ -666,7 +666,7 @@ describe('get all paths', () => {
             tokenA: { id: '10', symbol: 'J', displaySymbol: 'dJ' },
             tokenB: { id: '12', symbol: 'L', displaySymbol: 'dL' },
             estimatedDexFee: [],
-            estimatedReturn: '2.00000000'
+            estimatedReturn: '0.00000000'
           },
           {
             symbol: 'L-K',
@@ -675,7 +675,7 @@ describe('get all paths', () => {
             tokenA: { id: '12', symbol: 'L', displaySymbol: 'dL' },
             tokenB: { id: '11', symbol: 'K', displaySymbol: 'dK' },
             estimatedDexFee: [],
-            estimatedReturn: '4.00000000'
+            estimatedReturn: '0.00000000'
           }
         ],
         [
@@ -695,7 +695,7 @@ describe('get all paths', () => {
             tokenA: { id: '10', symbol: 'J', displaySymbol: 'dJ' },
             tokenB: { id: '11', symbol: 'K', displaySymbol: 'dK' },
             estimatedDexFee: [],
-            estimatedReturn: '7.00000000'
+            estimatedReturn: '0.00000000'
           }
         ]
       ]
@@ -732,7 +732,7 @@ describe('get all paths', () => {
             priceRatio: { ab: '0.25000000', ba: '4.00000000' },
             tokenA: { id: '12', symbol: 'L', displaySymbol: 'dL' },
             tokenB: { id: '11', symbol: 'K', displaySymbol: 'dK' },
-            estimatedReturn: '4.00000000',
+            estimatedReturn: '8.00000000',
             estimatedDexFee: []
           }
         ],

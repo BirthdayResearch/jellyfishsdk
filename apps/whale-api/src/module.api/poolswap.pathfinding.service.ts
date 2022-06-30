@@ -161,7 +161,7 @@ export class PoolSwapPathFindingService {
           }
         }
 
-        const estimatedReturnTokenB = computeReturnInDestinationToken([swapPathPoolPair], tokenA) // in DFI
+        const estimatedReturnTokenB = computeReturnInDestinationToken2([swapPathPoolPair], tokenA, estimatedReturnTokenA)
         const poolpairDexFees = await this.poolPairFeesServices.getDexFees(swapPathPoolPair, estimatedReturnTokenA, estimatedReturnTokenB)
         estimatedReturnTokenA = estimatedReturnTokenB
         poolPairs.push({
@@ -269,8 +269,8 @@ export class PoolSwapPathFindingService {
   }
 }
 
-function computeReturnInDestinationToken (path: SwapPathTokenPrice[], fromTokenId: string): BigNumber {
-  let total = new BigNumber(1)
+function computeReturnInDestinationToken (path: SwapPathTokenPrice[], fromTokenId: string, previousTotal?: BigNumber): BigNumber {
+  let total = previousTotal === undefined ? new BigNumber(1) : previousTotal
   for (const poolPair of path) {
     if (fromTokenId === poolPair.tokenA.id) {
       total = total.multipliedBy(poolPair.priceRatio.ba)
