@@ -762,7 +762,7 @@ describe('withdrawFutureSwap', () => {
       }
       const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
       await expect(result).rejects.toThrow(RpcApiError)
-      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nDestination should not be set when source amount is a dToken\', code: -32600, method: withdrawfutureswap')
+      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nDestination should not be set when source amount is dToken or DFI\', code: -32600, method: withdrawfutureswap')
     }
 
     // Withdraw fail - try to withdraw from unavailable futureswap
