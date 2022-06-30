@@ -188,7 +188,7 @@ describe('get best path - DEX burn fees', () => {
     expect(paths2.bestPath).toStrictEqual(paths1.bestPath)
   })
 
-  it('should sum up dex fees for each leg in composite swap', async () => {
+  it('should display dex fees for each leg in composite swap', async () => {
     const paths1 = await controller.getBestPath('7', '0') // dAAPL -> DFI
 
     /*
