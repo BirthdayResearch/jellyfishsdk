@@ -592,9 +592,9 @@ export interface BurnInfo {
    */
   auctionburn: BigNumber
   /**
-   * Value of burn after payback
+   * Burns after payback
    */
-  paybackburn: BigNumber
+  paybackburn: string[]
   /**
    * Formatted as AMOUNT@SYMBOL
    */
@@ -619,6 +619,10 @@ export interface BurnInfo {
    * Amount of tokens burned due to futureswap
    */
   dfip2203: string[]
+  /**
+   * Amount of tokens burned due to futureswap
+   */
+  dfip2206f: string[]
 }
 
 export interface FutureSwap {
