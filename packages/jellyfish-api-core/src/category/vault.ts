@@ -46,17 +46,20 @@ export class Vault {
    * Returns information about vault.
    *
    * @param {string} vaultId vault hex id
+   * @param {boolean} [verbose] request verbose info (nextCollateralRatio, interestPerBlockValue, interestsPerBlock)
    * @return {Promise<VaultActive | VaultLiquidation>}
    */
-  async getVault (vaultId: string): Promise<VaultActive | VaultLiquidation> {
+  async getVault (vaultId: string, verbose: boolean = false): Promise<VaultActive | VaultLiquidation> {
     return await this.client.call(
       'getvault',
-      [vaultId],
+      [vaultId, verbose],
       {
         collateralValue: 'bignumber',
         loanValue: 'bignumber',
         interestValue: 'bignumber',
-        informativeRatio: 'bignumber'
+        informativeRatio: 'bignumber',
+        nextCollateralRatio: 'bignumber',
+        interestPerBlockValue: 'bignumber'
       }
     )
   }
@@ -268,6 +271,9 @@ export interface VaultActive extends Vault {
   interestValue: BigNumber
   collateralRatio: number
   informativeRatio: BigNumber
+  nextCollateralRatio?: BigNumber
+  interestPerBlockValue?: BigNumber
+  interestsPerBlock?: string[]
 }
 
 export interface VaultLiquidation extends Vault {
