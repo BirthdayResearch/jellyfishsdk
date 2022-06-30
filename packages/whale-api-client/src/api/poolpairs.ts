@@ -277,7 +277,7 @@ export interface SwapPoolPair {
 
 export interface SwapPathPoolPair extends SwapPoolPair {
   estimatedReturn: string
-  estimatedDexFee: EstimatedDexFee[]
+  estimatedDexFees: EstimatedDexFee[]
 }
 
 export interface TokenIdentifier {

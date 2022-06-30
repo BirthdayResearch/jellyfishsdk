@@ -123,7 +123,7 @@ describe('get best path - DEX burn fees', () => {
       dBTC(id:1) to DFI(id:0) = 0.007% dBTC dex fee
     */
     expect(paths1.bestPath).toStrictEqual([{
-      estimatedDexFee: [{
+      estimatedDexFees: [{
         amount: '0.00700000',
         token: {
           displaySymbol: 'dBTC',
@@ -149,7 +149,7 @@ describe('get best path - DEX burn fees', () => {
       }
     }])
 
-    expect(paths1.bestPath[0].estimatedDexFee).toStrictEqual(paths2.bestPath[0].estimatedDexFee)
+    expect(paths1.bestPath[0].estimatedDexFees).toStrictEqual(paths2.bestPath[0].estimatedDexFees)
   })
 
   it('should get v0/poolpairs if both v0/poolpairs and v0/token is available', async () => {
@@ -160,7 +160,7 @@ describe('get best path - DEX burn fees', () => {
       DUSD(id:1) to DFI(id:0) = 0.005 DUSD
     */
     expect(paths1.bestPath).toStrictEqual([{
-      estimatedDexFee: [{
+      estimatedDexFees: [{
         amount: '0.00500000',
         token: {
           displaySymbol: 'DUSD',
@@ -197,7 +197,7 @@ describe('get best path - DEX burn fees', () => {
       DUSD(id:1) to DFI(id:0)   = 0.005% DUSD dex fee
     */
     expect(paths1.bestPath).toStrictEqual([{
-      estimatedDexFee: [{
+      estimatedDexFees: [{
         amount: '0.00100000',
         token: {
           displaySymbol: 'dAAPL',
@@ -229,7 +229,7 @@ describe('get best path - DEX burn fees', () => {
       }
     },
     {
-      estimatedDexFee: [{
+      estimatedDexFees: [{
         amount: '0.05000000',
         token: {
           displaySymbol: 'DUSD',
@@ -260,11 +260,11 @@ describe('get best path - DEX burn fees', () => {
     const paths1 = await controller.getBestPath('5', '0') // dETH -> DFI
     const paths2 = await controller.getBestPath('0', '5') // DFI -> dETH
     expect(paths1.bestPath.length).toStrictEqual(1)
-    expect(paths1.bestPath[0].estimatedDexFee).toStrictEqual([])
+    expect(paths1.bestPath[0].estimatedDexFees).toStrictEqual([])
     expect(paths1.bestPath[0].estimatedReturn).toStrictEqual('10.00000000')
 
     expect(paths2.bestPath.length).toStrictEqual(1)
-    expect(paths2.bestPath[0].estimatedDexFee).toStrictEqual([])
+    expect(paths2.bestPath[0].estimatedDexFees).toStrictEqual([])
     expect(paths2.bestPath[0].estimatedReturn).toStrictEqual('0.10000000')
   })
 })

@@ -167,7 +167,7 @@ export class PoolSwapPathFindingService {
         poolPairs.push({
           ...swapPathPoolPair,
           estimatedReturn: estimatedReturnTokenB.toFixed(8),
-          estimatedDexFee: poolpairDexFees
+          estimatedDexFees: poolpairDexFees
         })
       }
 
