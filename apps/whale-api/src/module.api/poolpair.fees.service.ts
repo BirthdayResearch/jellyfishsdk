@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import BigNumber from 'bignumber.js'
 import { SemaphoreCache } from '@defichain-apps/libs/caches'
-import { DexFee, SwapPathPoolPair } from '@defichain/whale-api-client/dist/api/poolpairs'
+import { EstimatedDexFee, SwapPathTokenPrice } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { PoolSwapAggregatedMapper } from '../module.model/pool.swap.aggregated'
 import { TransactionVoutMapper } from '../module.model/transaction.vout'
 import { NetworkName } from '@defichain/jellyfish-network'
@@ -20,14 +20,19 @@ export class PoolPairFeesService {
   ) {
   }
 
-  public async getDexFees (path: SwapPathPoolPair): Promise<DexFee[] | []> {
-    const dexFees: DexFee[] = []
-
+  public async getDexFees (path: SwapPathTokenPrice, estimatedReturnTokenA: BigNumber, estimatedReturnTokenB: BigNumber): Promise<EstimatedDexFee[] | []> {
+    const dexFees: EstimatedDexFee[] = []
     // TODO(PIERRE): How does cache work? and how to cache an item in the ATTRIBUTES?
     // return await this.cache.get<BigNumber>('ATTRIBUTES', async () => {
-
     const rpcResult = await this.rpcClient.masternode.getGov('ATTRIBUTES')
-
+    const tokenA = {
+      symbol: path.tokenA.symbol,
+      displaySymbol: path.tokenA.displaySymbol
+    }
+    const tokenB = {
+      symbol: path.tokenB.symbol,
+      displaySymbol: path.tokenB.displaySymbol
+    }
     const poolpairFee = rpcResult.ATTRIBUTES[`v0/poolpairs/${path.poolPairId}/token_a_fee_pct`]
     const tokenAFee = rpcResult.ATTRIBUTES[`v0/token/${path.tokenA.id}/dex_in_fee_pct`]
     const tokenBFee = rpcResult.ATTRIBUTES[`v0/token/${path.tokenB.id}/dex_out_fee_pct`]
@@ -37,8 +42,8 @@ export class PoolPairFeesService {
     */
     if (poolpairFee !== undefined) {
       dexFees.push({
-        token: path.tokenA,
-        fee: new BigNumber(poolpairFee).toFixed(8)
+        token: tokenA,
+        amount: new BigNumber(poolpairFee).multipliedBy(estimatedReturnTokenA).toFixed(8)
       })
 
       return dexFees
@@ -46,15 +51,15 @@ export class PoolPairFeesService {
 
     if (tokenAFee !== undefined) {
       dexFees.push({
-        token: path.tokenA,
-        fee: new BigNumber(tokenAFee).toFixed(8)
+        token: tokenA,
+        amount: new BigNumber(tokenAFee).multipliedBy(estimatedReturnTokenA).toFixed(8)
       })
     }
 
     if (tokenBFee !== undefined) {
       dexFees.push({
-        token: path.tokenB,
-        fee: new BigNumber(tokenBFee).toFixed(8)
+        token: tokenB,
+        amount: new BigNumber(tokenBFee).multipliedBy(estimatedReturnTokenB).toFixed(8)
       })
     }
 

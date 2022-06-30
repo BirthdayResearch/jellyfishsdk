@@ -3,9 +3,9 @@ import { UndirectedGraph } from 'graphology'
 import {
   AllSwappableTokensResult,
   BestSwapPathResult,
-  DexFee,
   SwapPathPoolPair,
   SwapPathsResult,
+  SwapPathTokenPrice,
   TokenIdentifier
 } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { DeFiDCache, PoolPairInfoWithId } from './cache/defid.cache'
@@ -63,8 +63,7 @@ export class PoolSwapPathFindingService {
           bestPath: path,
           estimatedReturn: formatNumber(
             computeReturnInDestinationToken(path, fromTokenId)
-          ), // denoted in toToken
-          dexFees: await this.computeDexFees(path)
+          ) // denoted in toToken
         }
       }
     }
@@ -85,8 +84,7 @@ export class PoolSwapPathFindingService {
       fromToken: fromToken,
       toToken: toToken,
       bestPath: bestPath,
-      estimatedReturn: formatNumber(bestReturn), // denoted in toToken
-      dexFees: await this.computeDexFees(bestPath)
+      estimatedReturn: formatNumber(bestReturn) // denoted in toToken
     }
   }
 
@@ -138,6 +136,7 @@ export class PoolSwapPathFindingService {
 
       // Iterate over the path pairwise; ( tokenA )---< poolPairId >---( tokenB )
       // to collect poolPair info into the final result
+      let estimatedReturnTokenA = new BigNumber(1)
       for (let i = 1; i < path.length; i++) {
         const tokenA = path[i - 1]
         const tokenB = path[i]
@@ -151,7 +150,7 @@ export class PoolSwapPathFindingService {
         }
 
         const poolPair = await this.getPoolPairInfo(poolPairId)
-        poolPairs.push({
+        const swapPathPoolPair = {
           poolPairId: poolPairId,
           symbol: poolPair.symbol,
           tokenA: await this.getTokenIdentifier(poolPair.idTokenA),
@@ -160,6 +159,15 @@ export class PoolSwapPathFindingService {
             ab: formatNumber(new BigNumber(poolPair['reserveA/reserveB'])),
             ba: formatNumber(new BigNumber(poolPair['reserveB/reserveA']))
           }
+        }
+
+        const estimatedReturnTokenB = computeReturnInDestinationToken([swapPathPoolPair], tokenA) // in DFI
+        const poolpairDexFees = await this.poolPairFeesServices.getDexFees(swapPathPoolPair, estimatedReturnTokenA, estimatedReturnTokenB)
+        estimatedReturnTokenA = estimatedReturnTokenB
+        poolPairs.push({
+          ...swapPathPoolPair,
+          estimatedReturn: estimatedReturnTokenB.toFixed(8),
+          estimatedDexFee: poolpairDexFees
         })
       }
 
@@ -259,31 +267,9 @@ export class PoolSwapPathFindingService {
       await this.syncTokenGraph()
     }
   }
-
-  private async computeDexFees (path: SwapPathPoolPair[]): Promise<DexFee[]> {
-    const dexFees: DexFee[] = []
-
-    for (const poolPair of path) {
-      const poolpairDexFees = await this.poolPairFeesServices.getDexFees(poolPair)
-
-      poolpairDexFees.forEach(poolpairDexFee => {
-        const existingDexFeeIndex = dexFees.findIndex(dexFee => dexFee.token.id === poolpairDexFee?.token.id)
-        if (existingDexFeeIndex === -1) {
-          dexFees.push(poolpairDexFee)
-        } else {
-          dexFees[existingDexFeeIndex] = {
-            token: poolpairDexFee.token,
-            fee: new BigNumber(dexFees[existingDexFeeIndex].fee).plus(poolpairDexFee.fee).toFixed(8)
-          }
-        }
-      })
-    }
-
-    return dexFees.sort((a, b) => a.token.id.localeCompare(b.token.id))
-  }
 }
 
-function computeReturnInDestinationToken (path: SwapPathPoolPair[], fromTokenId: string): BigNumber {
+function computeReturnInDestinationToken (path: SwapPathTokenPrice[], fromTokenId: string): BigNumber {
   let total = new BigNumber(1)
   for (const poolPair of path) {
     if (fromTokenId === poolPair.tokenA.id) {
