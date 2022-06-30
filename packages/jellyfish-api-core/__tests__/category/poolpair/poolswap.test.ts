@@ -238,9 +238,7 @@ describe('poolSwap asymmetric pool swap fee', () => {
     await container.stop()
   })
 
-  async function testSwap (poolPairBefore: poolpair.PoolPairInfo, tokenFrom: string, tokenTo: string, feeInPct: BigNumber, feeOutPct: BigNumber): Promise<void> {
-    const swapAmount = 555
-
+  async function poolSwap (tokenFrom: string, tokenTo: string, swapAmount: number): Promise<string> {
     const [receiverAddress, senderAddress] = await testing.generateAddress(2)
     if (tokenFrom === 'DFI') {
       await testing.token.dfi({ amount: swapAmount, address: senderAddress })
@@ -265,30 +263,7 @@ describe('poolSwap asymmetric pool swap fee', () => {
 
     await container.generate(1)
 
-    const catId = Object.keys(await client.token.getToken('CAT'))[0]
-    const dfiId = Object.keys(await client.token.getToken('DFI'))[0]
-
-    // Calculate dex in fee
-    const dexInFee = feeInPct.multipliedBy(swapAmount)
-    const amountIn = new BigNumber(swapAmount).minus(dexInFee)
-
-    // Check results
-    const poolPairAfter = await testing.poolpair.get('CAT-DFI')
-    let swappedAmount
-    let reserveDiff
-    if (tokenFrom === 'DFI') {
-      expect(poolPairAfter.reserveB.minus(poolPairBefore.reserveB)).toStrictEqual(amountIn)
-      swappedAmount = (await client.account.getAccount(receiverAddress, {}, { indexedAmounts: true }))[catId]
-      reserveDiff = poolPairBefore.reserveA.minus(poolPairAfter.reserveA)
-    } else {
-      expect(poolPairAfter.reserveA.minus(poolPairBefore.reserveA)).toStrictEqual(amountIn)
-      swappedAmount = (await client.account.getAccount(receiverAddress, {}, { indexedAmounts: true }))[dfiId]
-      reserveDiff = poolPairBefore.reserveB.minus(poolPairAfter.reserveB)
-    }
-
-    // Check swap amount
-    const dexOutFee = feeOutPct.multipliedBy(reserveDiff).decimalPlaces(8, BigNumber.ROUND_FLOOR)
-    expect(new BigNumber(reserveDiff).minus(dexOutFee)).toStrictEqual(new BigNumber(swappedAmount))
+    return receiverAddress
   }
 
   it('should poolSwap DFI to CAT - TokenA fee direction is in', async () => {
@@ -307,7 +282,27 @@ describe('poolSwap asymmetric pool swap fee', () => {
     })
     await container.generate(1)
 
-    await testSwap(poolPairBefore, 'DFI', 'CAT', new BigNumber(0), new BigNumber(0))
+    const swapAmount = 555
+    const receiverAddress = await poolSwap('DFI', 'CAT', swapAmount) // swap from DFI to CAT
+
+    const feeInPct = new BigNumber(0)
+    const feeOutPct = new BigNumber(0)
+
+    // Calculate dex in fee
+    const dexInFee = feeInPct.multipliedBy(swapAmount)
+    const amountIn = new BigNumber(swapAmount).minus(dexInFee)
+
+    // Check results
+    const poolPairAfter = await testing.poolpair.get('CAT-DFI')
+    expect(poolPairAfter.reserveB.minus(poolPairBefore.reserveB)).toStrictEqual(amountIn)
+
+    const catId = Object.keys(await client.token.getToken('CAT'))[0]
+    const swappedAmount = (await client.account.getAccount(receiverAddress, {}, { indexedAmounts: true }))[catId]
+    const reserveDiff = poolPairBefore.reserveA.minus(poolPairAfter.reserveA)
+
+    // Check swapped amount
+    const dexOutFee = feeOutPct.multipliedBy(reserveDiff).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+    expect(new BigNumber(reserveDiff).minus(dexOutFee)).toStrictEqual(new BigNumber(swappedAmount))
   })
 
   it('should poolSwap CAT to DFI - TokenA fee direction is in', async () => {
@@ -326,7 +321,27 @@ describe('poolSwap asymmetric pool swap fee', () => {
     })
     await container.generate(1)
 
-    await testSwap(poolPairBefore, 'CAT', 'DFI', new BigNumber(0.05), new BigNumber(0))
+    const swapAmount = 555
+    const receiverAddress = await poolSwap('CAT', 'DFI', swapAmount) // swap from CAT to DFI
+
+    const feeInPct = new BigNumber(0.05)
+    const feeOutPct = new BigNumber(0)
+
+    // Calculate dex in fee
+    const dexInFee = feeInPct.multipliedBy(swapAmount)
+    const amountIn = new BigNumber(swapAmount).minus(dexInFee)
+
+    // Check results
+    const poolPairAfter = await testing.poolpair.get('CAT-DFI')
+    expect(poolPairAfter.reserveA.minus(poolPairBefore.reserveA)).toStrictEqual(amountIn)
+
+    const dfiId = Object.keys(await client.token.getToken('DFI'))[0]
+    const swappedAmount = (await client.account.getAccount(receiverAddress, {}, { indexedAmounts: true }))[dfiId]
+    const reserveDiff = poolPairBefore.reserveB.minus(poolPairAfter.reserveB)
+
+    // Check swapped amount
+    const dexOutFee = feeOutPct.multipliedBy(reserveDiff).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+    expect(new BigNumber(reserveDiff).minus(dexOutFee)).toStrictEqual(new BigNumber(swappedAmount))
   })
 
   it('should poolSwap DFI to CAT - TokenA fee direction is out', async () => {
@@ -345,7 +360,27 @@ describe('poolSwap asymmetric pool swap fee', () => {
     })
     await container.generate(1)
 
-    await testSwap(poolPairBefore, 'DFI', 'CAT', new BigNumber(0), new BigNumber(0.05))
+    const swapAmount = 555
+    const receiverAddress = await poolSwap('DFI', 'CAT', swapAmount) // swap from DFI to CAT
+
+    const feeInPct = new BigNumber(0)
+    const feeOutPct = new BigNumber(0.05)
+
+    // Calculate dex in fee
+    const dexInFee = feeInPct.multipliedBy(swapAmount)
+    const amountIn = new BigNumber(swapAmount).minus(dexInFee)
+
+    // Check results
+    const poolPairAfter = await testing.poolpair.get('CAT-DFI')
+    expect(poolPairAfter.reserveB.minus(poolPairBefore.reserveB)).toStrictEqual(amountIn)
+
+    const catId = Object.keys(await client.token.getToken('CAT'))[0]
+    const swappedAmount = (await client.account.getAccount(receiverAddress, {}, { indexedAmounts: true }))[catId]
+    const reserveDiff = poolPairBefore.reserveA.minus(poolPairAfter.reserveA)
+
+    // Check swapped amount
+    const dexOutFee = feeOutPct.multipliedBy(reserveDiff).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+    expect(new BigNumber(reserveDiff).minus(dexOutFee)).toStrictEqual(new BigNumber(swappedAmount))
   })
 
   it('should poolSwap CAT to DFI - TokenA fee direction is out', async () => {
@@ -364,7 +399,27 @@ describe('poolSwap asymmetric pool swap fee', () => {
     })
     await container.generate(1)
 
-    await testSwap(poolPairBefore, 'CAT', 'DFI', new BigNumber(0), new BigNumber(0))
+    const swapAmount = 555
+    const receiverAddress = await poolSwap('CAT', 'DFI', swapAmount) // swap from CAT to DFI
+
+    const feeInPct = new BigNumber(0)
+    const feeOutPct = new BigNumber(0)
+
+    // Calculate dex in fee
+    const dexInFee = feeInPct.multipliedBy(swapAmount)
+    const amountIn = new BigNumber(swapAmount).minus(dexInFee)
+
+    // Check results
+    const poolPairAfter = await testing.poolpair.get('CAT-DFI')
+    expect(poolPairAfter.reserveA.minus(poolPairBefore.reserveA)).toStrictEqual(amountIn)
+
+    const dfiId = Object.keys(await client.token.getToken('DFI'))[0]
+    const swappedAmount = (await client.account.getAccount(receiverAddress, {}, { indexedAmounts: true }))[dfiId]
+    const reserveDiff = poolPairBefore.reserveB.minus(poolPairAfter.reserveB)
+
+    // Check swapped amount
+    const dexOutFee = feeOutPct.multipliedBy(reserveDiff).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+    expect(new BigNumber(reserveDiff).minus(dexOutFee)).toStrictEqual(new BigNumber(swappedAmount))
   })
 
   it('should poolSwap DFI to CAT - TokenB fee direction is in', async () => {
@@ -385,7 +440,27 @@ describe('poolSwap asymmetric pool swap fee', () => {
     })
     await container.generate(1)
 
-    await testSwap(poolPairBefore, 'DFI', 'CAT', new BigNumber(0.05), new BigNumber(0))
+    const swapAmount = 555
+    const receiverAddress = await poolSwap('DFI', 'CAT', swapAmount) // swap from DFI to CAT
+
+    const feeInPct = new BigNumber(0.05)
+    const feeOutPct = new BigNumber(0)
+
+    // Calculate dex in fee
+    const dexInFee = feeInPct.multipliedBy(swapAmount)
+    const amountIn = new BigNumber(swapAmount).minus(dexInFee)
+
+    // Check results
+    const poolPairAfter = await testing.poolpair.get('CAT-DFI')
+    expect(poolPairAfter.reserveB.minus(poolPairBefore.reserveB)).toStrictEqual(amountIn)
+
+    const catId = Object.keys(await client.token.getToken('CAT'))[0]
+    const swappedAmount = (await client.account.getAccount(receiverAddress, {}, { indexedAmounts: true }))[catId]
+    const reserveDiff = poolPairBefore.reserveA.minus(poolPairAfter.reserveA)
+
+    // Check swapped amount
+    const dexOutFee = feeOutPct.multipliedBy(reserveDiff).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+    expect(new BigNumber(reserveDiff).minus(dexOutFee)).toStrictEqual(new BigNumber(swappedAmount))
   })
 
   it('should poolSwap CAT to DFI - TokenB fee direction is in', async () => {
@@ -406,7 +481,27 @@ describe('poolSwap asymmetric pool swap fee', () => {
     })
     await container.generate(1)
 
-    await testSwap(poolPairBefore, 'CAT', 'DFI', new BigNumber(0), new BigNumber(0))
+    const swapAmount = 555
+    const receiverAddress = await poolSwap('CAT', 'DFI', swapAmount) // swap from CAT to DFI
+
+    const feeInPct = new BigNumber(0)
+    const feeOutPct = new BigNumber(0)
+
+    // Calculate dex in fee
+    const dexInFee = feeInPct.multipliedBy(swapAmount)
+    const amountIn = new BigNumber(swapAmount).minus(dexInFee)
+
+    // Check results
+    const poolPairAfter = await testing.poolpair.get('CAT-DFI')
+    expect(poolPairAfter.reserveA.minus(poolPairBefore.reserveA)).toStrictEqual(amountIn)
+
+    const dfiId = Object.keys(await client.token.getToken('DFI'))[0]
+    const swappedAmount = (await client.account.getAccount(receiverAddress, {}, { indexedAmounts: true }))[dfiId]
+    const reserveDiff = poolPairBefore.reserveB.minus(poolPairAfter.reserveB)
+
+    // Check swapped amount
+    const dexOutFee = feeOutPct.multipliedBy(reserveDiff).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+    expect(new BigNumber(reserveDiff).minus(dexOutFee)).toStrictEqual(new BigNumber(swappedAmount))
   })
 
   it('should poolSwap DFI to CAT - TokenB fee direction is out', async () => {
@@ -425,7 +520,27 @@ describe('poolSwap asymmetric pool swap fee', () => {
     })
     await container.generate(1)
 
-    await testSwap(poolPairBefore, 'DFI', 'CAT', new BigNumber(0), new BigNumber(0))
+    const swapAmount = 555
+    const receiverAddress = await poolSwap('DFI', 'CAT', swapAmount) // swap from DFI to CAT
+
+    const feeInPct = new BigNumber(0)
+    const feeOutPct = new BigNumber(0)
+
+    // Calculate dex in fee
+    const dexInFee = feeInPct.multipliedBy(swapAmount)
+    const amountIn = new BigNumber(swapAmount).minus(dexInFee)
+
+    // Check results
+    const poolPairAfter = await testing.poolpair.get('CAT-DFI')
+    expect(poolPairAfter.reserveB.minus(poolPairBefore.reserveB)).toStrictEqual(amountIn)
+
+    const catId = Object.keys(await client.token.getToken('CAT'))[0]
+    const swappedAmount = (await client.account.getAccount(receiverAddress, {}, { indexedAmounts: true }))[catId]
+    const reserveDiff = poolPairBefore.reserveA.minus(poolPairAfter.reserveA)
+
+    // Check swapped amount
+    const dexOutFee = feeOutPct.multipliedBy(reserveDiff).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+    expect(new BigNumber(reserveDiff).minus(dexOutFee)).toStrictEqual(new BigNumber(swappedAmount))
   })
 
   it('should poolSwap CAT to DFI - TokenB fee direction is out', async () => {
@@ -444,7 +559,27 @@ describe('poolSwap asymmetric pool swap fee', () => {
     })
     await container.generate(1)
 
-    await testSwap(poolPairBefore, 'CAT', 'DFI', new BigNumber(0), new BigNumber(0.05))
+    const swapAmount = 555
+    const receiverAddress = await poolSwap('CAT', 'DFI', swapAmount) // swap from CAT to DFI
+
+    const feeInPct = new BigNumber(0)
+    const feeOutPct = new BigNumber(0.05)
+
+    // Calculate dex in fee
+    const dexInFee = feeInPct.multipliedBy(swapAmount)
+    const amountIn = new BigNumber(swapAmount).minus(dexInFee)
+
+    // Check results
+    const poolPairAfter = await testing.poolpair.get('CAT-DFI')
+    expect(poolPairAfter.reserveA.minus(poolPairBefore.reserveA)).toStrictEqual(amountIn)
+
+    const dfiId = Object.keys(await client.token.getToken('DFI'))[0]
+    const swappedAmount = (await client.account.getAccount(receiverAddress, {}, { indexedAmounts: true }))[dfiId]
+    const reserveDiff = poolPairBefore.reserveB.minus(poolPairAfter.reserveB)
+
+    // Check swapped amount
+    const dexOutFee = feeOutPct.multipliedBy(reserveDiff).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+    expect(new BigNumber(reserveDiff).minus(dexOutFee)).toStrictEqual(new BigNumber(swappedAmount))
   })
 
   it('should poolSwap DFI to CAT - Both token fee directions are in', async () => {
@@ -465,7 +600,27 @@ describe('poolSwap asymmetric pool swap fee', () => {
     })
     await container.generate(1)
 
-    await testSwap(poolPairBefore, 'DFI', 'CAT', new BigNumber(0.05), new BigNumber(0))
+    const swapAmount = 555
+    const receiverAddress = await poolSwap('DFI', 'CAT', swapAmount) // swap from DFI to CAT
+
+    const feeInPct = new BigNumber(0.05)
+    const feeOutPct = new BigNumber(0)
+
+    // Calculate dex in fee
+    const dexInFee = feeInPct.multipliedBy(swapAmount)
+    const amountIn = new BigNumber(swapAmount).minus(dexInFee)
+
+    // Check results
+    const poolPairAfter = await testing.poolpair.get('CAT-DFI')
+    expect(poolPairAfter.reserveB.minus(poolPairBefore.reserveB)).toStrictEqual(amountIn)
+
+    const catId = Object.keys(await client.token.getToken('CAT'))[0]
+    const swappedAmount = (await client.account.getAccount(receiverAddress, {}, { indexedAmounts: true }))[catId]
+    const reserveDiff = poolPairBefore.reserveA.minus(poolPairAfter.reserveA)
+
+    // Check swapped amount
+    const dexOutFee = feeOutPct.multipliedBy(reserveDiff).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+    expect(new BigNumber(reserveDiff).minus(dexOutFee)).toStrictEqual(new BigNumber(swappedAmount))
   })
 
   it('should poolSwap CAT to DFI - Both token fee directions are in', async () => {
@@ -486,7 +641,27 @@ describe('poolSwap asymmetric pool swap fee', () => {
     })
     await container.generate(1)
 
-    await testSwap(poolPairBefore, 'CAT', 'DFI', new BigNumber(0.05), new BigNumber(0))
+    const swapAmount = 555
+    const receiverAddress = await poolSwap('CAT', 'DFI', swapAmount) // swap from CAT to DFI
+
+    const feeInPct = new BigNumber(0.05)
+    const feeOutPct = new BigNumber(0)
+
+    // Calculate dex in fee
+    const dexInFee = feeInPct.multipliedBy(swapAmount)
+    const amountIn = new BigNumber(swapAmount).minus(dexInFee)
+
+    // Check results
+    const poolPairAfter = await testing.poolpair.get('CAT-DFI')
+    expect(poolPairAfter.reserveA.minus(poolPairBefore.reserveA)).toStrictEqual(amountIn)
+
+    const dfiId = Object.keys(await client.token.getToken('DFI'))[0]
+    const swappedAmount = (await client.account.getAccount(receiverAddress, {}, { indexedAmounts: true }))[dfiId]
+    const reserveDiff = poolPairBefore.reserveB.minus(poolPairAfter.reserveB)
+
+    // Check swapped amount
+    const dexOutFee = feeOutPct.multipliedBy(reserveDiff).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+    expect(new BigNumber(reserveDiff).minus(dexOutFee)).toStrictEqual(new BigNumber(swappedAmount))
   })
 
   it('should poolSwap DFI to CAT - Both token fee directions are out', async () => {
@@ -507,7 +682,27 @@ describe('poolSwap asymmetric pool swap fee', () => {
     })
     await container.generate(1)
 
-    await testSwap(poolPairBefore, 'DFI', 'CAT', new BigNumber(0), new BigNumber(0.05))
+    const swapAmount = 555
+    const receiverAddress = await poolSwap('DFI', 'CAT', swapAmount) // swap from DFI to CAT
+
+    const feeInPct = new BigNumber(0)
+    const feeOutPct = new BigNumber(0.05)
+
+    // Calculate dex in fee
+    const dexInFee = feeInPct.multipliedBy(swapAmount)
+    const amountIn = new BigNumber(swapAmount).minus(dexInFee)
+
+    // Check results
+    const poolPairAfter = await testing.poolpair.get('CAT-DFI')
+    expect(poolPairAfter.reserveB.minus(poolPairBefore.reserveB)).toStrictEqual(amountIn)
+
+    const catId = Object.keys(await client.token.getToken('CAT'))[0]
+    const swappedAmount = (await client.account.getAccount(receiverAddress, {}, { indexedAmounts: true }))[catId]
+    const reserveDiff = poolPairBefore.reserveA.minus(poolPairAfter.reserveA)
+
+    // Check swapped amount
+    const dexOutFee = feeOutPct.multipliedBy(reserveDiff).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+    expect(new BigNumber(reserveDiff).minus(dexOutFee)).toStrictEqual(new BigNumber(swappedAmount))
   })
 
   it('should poolSwap CAT to DFI - Both token fee directions are out', async () => {
@@ -528,7 +723,27 @@ describe('poolSwap asymmetric pool swap fee', () => {
     })
     await container.generate(1)
 
-    await testSwap(poolPairBefore, 'CAT', 'DFI', new BigNumber(0), new BigNumber(0.05))
+    const swapAmount = 555
+    const receiverAddress = await poolSwap('CAT', 'DFI', swapAmount) // swap from CAT to DFI
+
+    const feeInPct = new BigNumber(0)
+    const feeOutPct = new BigNumber(0.05)
+
+    // Calculate dex in fee
+    const dexInFee = feeInPct.multipliedBy(swapAmount)
+    const amountIn = new BigNumber(swapAmount).minus(dexInFee)
+
+    // Check results
+    const poolPairAfter = await testing.poolpair.get('CAT-DFI')
+    expect(poolPairAfter.reserveA.minus(poolPairBefore.reserveA)).toStrictEqual(amountIn)
+
+    const dfiId = Object.keys(await client.token.getToken('DFI'))[0]
+    const swappedAmount = (await client.account.getAccount(receiverAddress, {}, { indexedAmounts: true }))[dfiId]
+    const reserveDiff = poolPairBefore.reserveB.minus(poolPairAfter.reserveB)
+
+    // Check swapped amount
+    const dexOutFee = feeOutPct.multipliedBy(reserveDiff).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+    expect(new BigNumber(reserveDiff).minus(dexOutFee)).toStrictEqual(new BigNumber(swappedAmount))
   })
 
   it('should poolSwap DFI to CAT - Both token fee directions are both', async () => {
@@ -549,7 +764,27 @@ describe('poolSwap asymmetric pool swap fee', () => {
     })
     await container.generate(1)
 
-    await testSwap(poolPairBefore, 'DFI', 'CAT', new BigNumber(0.05), new BigNumber(0.05))
+    const swapAmount = 555
+    const receiverAddress = await poolSwap('DFI', 'CAT', swapAmount) // swap from DFI to CAT
+
+    const feeInPct = new BigNumber(0.05)
+    const feeOutPct = new BigNumber(0.05)
+
+    // Calculate dex in fee
+    const dexInFee = feeInPct.multipliedBy(swapAmount)
+    const amountIn = new BigNumber(swapAmount).minus(dexInFee)
+
+    // Check results
+    const poolPairAfter = await testing.poolpair.get('CAT-DFI')
+    expect(poolPairAfter.reserveB.minus(poolPairBefore.reserveB)).toStrictEqual(amountIn)
+
+    const catId = Object.keys(await client.token.getToken('CAT'))[0]
+    const swappedAmount = (await client.account.getAccount(receiverAddress, {}, { indexedAmounts: true }))[catId]
+    const reserveDiff = poolPairBefore.reserveA.minus(poolPairAfter.reserveA)
+
+    // Check swapped amount
+    const dexOutFee = feeOutPct.multipliedBy(reserveDiff).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+    expect(new BigNumber(reserveDiff).minus(dexOutFee)).toStrictEqual(new BigNumber(swappedAmount))
   })
 
   it('should poolSwap CAT to DFI - Both token fee directions are both', async () => {
@@ -570,6 +805,26 @@ describe('poolSwap asymmetric pool swap fee', () => {
     })
     await container.generate(1)
 
-    await testSwap(poolPairBefore, 'CAT', 'DFI', new BigNumber(0.05), new BigNumber(0.05))
+    const swapAmount = 555
+    const receiverAddress = await poolSwap('CAT', 'DFI', swapAmount) // swap from CAT to DFI
+
+    const feeInPct = new BigNumber(0.05)
+    const feeOutPct = new BigNumber(0.05)
+
+    // Calculate dex in fee
+    const dexInFee = feeInPct.multipliedBy(swapAmount)
+    const amountIn = new BigNumber(swapAmount).minus(dexInFee)
+
+    // Check results
+    const poolPairAfter = await testing.poolpair.get('CAT-DFI')
+    expect(poolPairAfter.reserveA.minus(poolPairBefore.reserveA)).toStrictEqual(amountIn)
+
+    const dfiId = Object.keys(await client.token.getToken('DFI'))[0]
+    const swappedAmount = (await client.account.getAccount(receiverAddress, {}, { indexedAmounts: true }))[dfiId]
+    const reserveDiff = poolPairBefore.reserveB.minus(poolPairAfter.reserveB)
+
+    // Check swapped amount
+    const dexOutFee = feeOutPct.multipliedBy(reserveDiff).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+    expect(new BigNumber(reserveDiff).minus(dexOutFee)).toStrictEqual(new BigNumber(swappedAmount))
   })
 })
