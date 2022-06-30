@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import BigNumber from 'bignumber.js'
 import { SemaphoreCache } from '@defichain-apps/libs/caches'
-import { EstimatedDexFee, SwapPathTokenPrice } from '@defichain/whale-api-client/dist/api/poolpairs'
+import { EstimatedDexFee, SwapPoolPair } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { PoolSwapAggregatedMapper } from '../module.model/pool.swap.aggregated'
 import { TransactionVoutMapper } from '../module.model/transaction.vout'
 import { NetworkName } from '@defichain/jellyfish-network'
@@ -20,7 +20,7 @@ export class PoolPairFeesService {
   ) {
   }
 
-  public async getDexFees (path: SwapPathTokenPrice, estimatedReturnTokenA: BigNumber, estimatedReturnTokenB: BigNumber): Promise<EstimatedDexFee[] | []> {
+  public async getDexFees (path: SwapPoolPair, estimatedReturnTokenA: BigNumber, estimatedReturnTokenB: BigNumber): Promise<EstimatedDexFee[] | []> {
     const dexFees: EstimatedDexFee[] = []
     // TODO(PIERRE): How does cache work? and how to cache an item in the ATTRIBUTES?
     // return await this.cache.get<BigNumber>('ATTRIBUTES', async () => {

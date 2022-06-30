@@ -264,7 +264,7 @@ export interface SwapPathsResult {
   paths: SwapPathPoolPair[][]
 }
 
-export interface SwapPathTokenPrice {
+export interface SwapPoolPair {
   poolPairId: string
   symbol: string
   tokenA: TokenIdentifier
@@ -275,7 +275,7 @@ export interface SwapPathTokenPrice {
   }
 }
 
-export interface SwapPathPoolPair extends SwapPathTokenPrice {
+export interface SwapPathPoolPair extends SwapPoolPair {
   estimatedReturn: string
   estimatedDexFee: EstimatedDexFee[]
 }

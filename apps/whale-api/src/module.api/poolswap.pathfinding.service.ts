@@ -5,7 +5,7 @@ import {
   BestSwapPathResult,
   SwapPathPoolPair,
   SwapPathsResult,
-  SwapPathTokenPrice,
+  SwapPoolPair,
   TokenIdentifier
 } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { DeFiDCache, PoolPairInfoWithId } from './cache/defid.cache'
@@ -161,7 +161,7 @@ export class PoolSwapPathFindingService {
           }
         }
 
-        const estimatedReturnTokenB = computeReturnInDestinationToken2([swapPathPoolPair], tokenA, estimatedReturnTokenA)
+        const estimatedReturnTokenB = computeReturnInDestinationToken([swapPathPoolPair], tokenA, estimatedReturnTokenA)
         const poolpairDexFees = await this.poolPairFeesServices.getDexFees(swapPathPoolPair, estimatedReturnTokenA, estimatedReturnTokenB)
         estimatedReturnTokenA = estimatedReturnTokenB
         poolPairs.push({
@@ -269,7 +269,7 @@ export class PoolSwapPathFindingService {
   }
 }
 
-function computeReturnInDestinationToken (path: SwapPathTokenPrice[], fromTokenId: string, previousTotal?: BigNumber): BigNumber {
+function computeReturnInDestinationToken (path: SwapPoolPair[], fromTokenId: string, previousTotal?: BigNumber): BigNumber {
   let total = previousTotal === undefined ? new BigNumber(1) : previousTotal
   for (const poolPair of path) {
     if (fromTokenId === poolPair.tokenA.id) {
