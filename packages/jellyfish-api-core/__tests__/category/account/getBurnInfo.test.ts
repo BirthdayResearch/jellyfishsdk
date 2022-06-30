@@ -51,12 +51,13 @@ it('should getBurnInfo', async () => {
     feeburn: new BigNumber('2'),
     auctionburn: new BigNumber(0),
     emissionburn: new BigNumber('6274'),
-    paybackburn: new BigNumber(0),
+    paybackburn: [],
     paybackfees: [],
     paybacktokens: [],
     dexfeetokens: [],
     dfipaybackfee: new BigNumber(0),
     dfipaybacktokens: [],
-    dfip2203: []
+    dfip2203: [],
+    dfip2206f: []
   })
 })

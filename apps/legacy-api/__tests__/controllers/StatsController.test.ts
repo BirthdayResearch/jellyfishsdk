@@ -41,7 +41,10 @@ describe('StatsController', () => {
         ),
         dfipaybackfee: expect.any(Number),
         dfipaybacktokens: expect.arrayContaining([expect.any(String)]),
-        emissionburn: expect.any(String)
+        emissionburn: expect.any(String),
+        dfip2203: expect.arrayContaining(
+          [expect.stringMatching(/\d+\.?\d+@\w+/)] // ['123@BTC', '10.8@DFI', ...]
+        )
       },
 
       timeStamp: expect.any(Number),
