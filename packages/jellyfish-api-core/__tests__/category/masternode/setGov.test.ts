@@ -144,7 +144,7 @@ describe('Masternode setGov poolpair ATTRIBUTES', () => {
   const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
-  const fortCanningGardensHeight = 120
+  const fortCanningSpringHeight = 120
 
   let collateralAddress: string
   let oracleId: string
@@ -212,7 +212,7 @@ describe('Masternode setGov poolpair ATTRIBUTES', () => {
   }
 
   beforeEach(async () => {
-    const startFlags: StartFlags[] = [{ name: 'fortcanninggardensheight', value: fortCanningGardensHeight }]
+    const startFlags: StartFlags[] = [{ name: 'fortcanningspringheight', value: fortCanningSpringHeight }]
     await testing.container.start({ startFlags: startFlags })
     await testing.container.waitForWalletCoinbaseMaturity()
     await setup()
@@ -274,9 +274,9 @@ describe('Masternode setGov poolpair ATTRIBUTES', () => {
   it('should setGov pool pair attributes', async () => {
     await poolPairSetup()
 
-    // must wait until block count reaches fort canning gardens height
+    // must wait until block count reaches fort canning spring height
     const blockCount = await testing.container.getBlockCount()
-    await testing.generate(fortCanningGardensHeight - blockCount)
+    await testing.generate(fortCanningSpringHeight - blockCount)
 
     // should set value 'both'
     {
@@ -327,20 +327,20 @@ describe('Masternode setGov poolpair ATTRIBUTES', () => {
   it('should not setGov invalid pool pair attribute value', async () => {
     await poolPairSetup()
 
-    // must wait until block count reaches fort canning gardens height
+    // must wait until block count reaches fort canning spring height
     const blockCount = await testing.container.getBlockCount()
-    await testing.generate(fortCanningGardensHeight - blockCount)
+    await testing.generate(fortCanningSpringHeight - blockCount)
 
     // Try to set invalid value
     const promise = testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/poolpairs/${ppTokenID}/token_a_fee_direction`]: 'invalid' } })
     await expect(promise).rejects.toThrow('RpcApiError: \'Fee direction value must be both, in or out\', code: -5, method: setgov')
   })
 
-  it('should not set token_a_fee_direction before fort canning gardens height', async () => {
+  it('should not set token_a_fee_direction before fort canning spring height', async () => {
     await poolPairSetup()
 
     // Try to set invalid value
     const promise = testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/poolpairs/${ppTokenID}/token_a_fee_direction`]: 'both' } })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test SetGovVariableTx execution failed:\nATTRIBUTES: Cannot be set before FortCanningGardensHeight\', code: -32600, method: setgov')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test SetGovVariableTx execution failed:\nATTRIBUTES: Cannot be set before FortCanningSpringHeight\', code: -32600, method: setgov')
   })
 })

@@ -291,7 +291,7 @@ describe('poolSwap asymmetric pool swap fee', () => {
     expect(new BigNumber(reserveDiff).minus(dexOutFee)).toStrictEqual(new BigNumber(swappedAmount))
   }
 
-  it('should poolSwap DFI to CAT - Token a fee direction in', async () => {
+  it('should poolSwap DFI to CAT - TokenA fee direction is in', async () => {
     const poolPairBefore = await testing.fixture.createPoolPair({
       a: { amount: 1000, symbol: 'CAT' },
       b: { amount: 500, symbol: 'DFI' }
@@ -310,7 +310,7 @@ describe('poolSwap asymmetric pool swap fee', () => {
     await testSwap(poolPairBefore, 'DFI', 'CAT', new BigNumber(0), new BigNumber(0))
   })
 
-  it('should poolSwap CAT to DFI - Token a fee direction in', async () => {
+  it('should poolSwap CAT to DFI - TokenA fee direction is in', async () => {
     const poolPairBefore = await testing.fixture.createPoolPair({
       a: { amount: 1000, symbol: 'CAT' },
       b: { amount: 500, symbol: 'DFI' }
@@ -329,7 +329,7 @@ describe('poolSwap asymmetric pool swap fee', () => {
     await testSwap(poolPairBefore, 'CAT', 'DFI', new BigNumber(0.05), new BigNumber(0))
   })
 
-  it('should poolSwap DFI to CAT - Token a fee direction out', async () => {
+  it('should poolSwap DFI to CAT - TokenA fee direction is out', async () => {
     const poolPairBefore = await testing.fixture.createPoolPair({
       a: { amount: 1000, symbol: 'CAT' },
       b: { amount: 500, symbol: 'DFI' }
@@ -348,7 +348,7 @@ describe('poolSwap asymmetric pool swap fee', () => {
     await testSwap(poolPairBefore, 'DFI', 'CAT', new BigNumber(0), new BigNumber(0.05))
   })
 
-  it('should poolSwap CAT to DFI - Token a fee direction out', async () => {
+  it('should poolSwap CAT to DFI - TokenA fee direction is out', async () => {
     const poolPairBefore = await testing.fixture.createPoolPair({
       a: { amount: 1000, symbol: 'CAT' },
       b: { amount: 500, symbol: 'DFI' }
@@ -367,7 +367,7 @@ describe('poolSwap asymmetric pool swap fee', () => {
     await testSwap(poolPairBefore, 'CAT', 'DFI', new BigNumber(0), new BigNumber(0))
   })
 
-  it('should poolSwap DFI to CAT - Token b fee direction in', async () => {
+  it('should poolSwap DFI to CAT - TokenB fee direction is in', async () => {
     const poolPairBefore = await testing.fixture.createPoolPair({
       a: { amount: 1000, symbol: 'CAT' },
       b: { amount: 500, symbol: 'DFI' }
@@ -388,7 +388,7 @@ describe('poolSwap asymmetric pool swap fee', () => {
     await testSwap(poolPairBefore, 'DFI', 'CAT', new BigNumber(0.05), new BigNumber(0))
   })
 
-  it('should poolSwap CAT to DFI - Token b fee direction in', async () => {
+  it('should poolSwap CAT to DFI - TokenB fee direction is in', async () => {
     const poolPairBefore = await testing.fixture.createPoolPair({
       a: { amount: 1000, symbol: 'CAT' },
       b: { amount: 500, symbol: 'DFI' }
@@ -409,7 +409,7 @@ describe('poolSwap asymmetric pool swap fee', () => {
     await testSwap(poolPairBefore, 'CAT', 'DFI', new BigNumber(0), new BigNumber(0))
   })
 
-  it('should poolSwap DFI to CAT - Token b fee direction out', async () => {
+  it('should poolSwap DFI to CAT - TokenB fee direction is out', async () => {
     const poolPairBefore = await testing.fixture.createPoolPair({
       a: { amount: 1000, symbol: 'CAT' },
       b: { amount: 500, symbol: 'DFI' }
@@ -428,7 +428,7 @@ describe('poolSwap asymmetric pool swap fee', () => {
     await testSwap(poolPairBefore, 'DFI', 'CAT', new BigNumber(0), new BigNumber(0))
   })
 
-  it('should poolSwap CAT to DFI - Token b fee direction out', async () => {
+  it('should poolSwap CAT to DFI - TokenB fee direction is out', async () => {
     const poolPairBefore = await testing.fixture.createPoolPair({
       a: { amount: 1000, symbol: 'CAT' },
       b: { amount: 500, symbol: 'DFI' }
@@ -447,7 +447,7 @@ describe('poolSwap asymmetric pool swap fee', () => {
     await testSwap(poolPairBefore, 'CAT', 'DFI', new BigNumber(0), new BigNumber(0.05))
   })
 
-  it('should poolSwap DFI to CAT - Both token fee directions in', async () => {
+  it('should poolSwap DFI to CAT - Both token fee directions are in', async () => {
     const poolPairBefore = await testing.fixture.createPoolPair({
       a: { amount: 1000, symbol: 'CAT' },
       b: { amount: 500, symbol: 'DFI' }
@@ -468,7 +468,7 @@ describe('poolSwap asymmetric pool swap fee', () => {
     await testSwap(poolPairBefore, 'DFI', 'CAT', new BigNumber(0.05), new BigNumber(0))
   })
 
-  it('should poolSwap CAT to DFI - Boyh Token fee directions in', async () => {
+  it('should poolSwap CAT to DFI - Both token fee directions are in', async () => {
     const poolPairBefore = await testing.fixture.createPoolPair({
       a: { amount: 1000, symbol: 'CAT' },
       b: { amount: 500, symbol: 'DFI' }
@@ -489,7 +489,7 @@ describe('poolSwap asymmetric pool swap fee', () => {
     await testSwap(poolPairBefore, 'CAT', 'DFI', new BigNumber(0.05), new BigNumber(0))
   })
 
-  it('should poolSwap DFI to CAT - Both token fee directions out', async () => {
+  it('should poolSwap DFI to CAT - Both token fee directions are out', async () => {
     const poolPairBefore = await testing.fixture.createPoolPair({
       a: { amount: 1000, symbol: 'CAT' },
       b: { amount: 500, symbol: 'DFI' }
@@ -510,7 +510,7 @@ describe('poolSwap asymmetric pool swap fee', () => {
     await testSwap(poolPairBefore, 'DFI', 'CAT', new BigNumber(0), new BigNumber(0.05))
   })
 
-  it('should poolSwap CAT to DFI - Boyh Token fee directions out', async () => {
+  it('should poolSwap CAT to DFI - Both token fee directions are out', async () => {
     const poolPairBefore = await testing.fixture.createPoolPair({
       a: { amount: 1000, symbol: 'CAT' },
       b: { amount: 500, symbol: 'DFI' }
@@ -531,7 +531,7 @@ describe('poolSwap asymmetric pool swap fee', () => {
     await testSwap(poolPairBefore, 'CAT', 'DFI', new BigNumber(0), new BigNumber(0.05))
   })
 
-  it('should poolSwap DFI to CAT - Both token fee directions both', async () => {
+  it('should poolSwap DFI to CAT - Both token fee directions are both', async () => {
     const poolPairBefore = await testing.fixture.createPoolPair({
       a: { amount: 1000, symbol: 'CAT' },
       b: { amount: 500, symbol: 'DFI' }
@@ -552,7 +552,7 @@ describe('poolSwap asymmetric pool swap fee', () => {
     await testSwap(poolPairBefore, 'DFI', 'CAT', new BigNumber(0.05), new BigNumber(0.05))
   })
 
-  it('should poolSwap CAT to DFI - Boyh Token fee directions both', async () => {
+  it('should poolSwap CAT to DFI - Both token fee directions are both', async () => {
     const poolPairBefore = await testing.fixture.createPoolPair({
       a: { amount: 1000, symbol: 'CAT' },
       b: { amount: 500, symbol: 'DFI' }
