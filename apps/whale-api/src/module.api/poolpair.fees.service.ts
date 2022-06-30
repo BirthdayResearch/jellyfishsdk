@@ -22,8 +22,6 @@ export class PoolPairFeesService {
 
   public async getDexFees (path: SwapPoolPair, estimatedReturnTokenA: BigNumber, estimatedReturnTokenB: BigNumber): Promise<EstimatedDexFee[] | []> {
     const dexFees: EstimatedDexFee[] = []
-    // TODO(PIERRE): How does cache work? and how to cache an item in the ATTRIBUTES?
-    // return await this.cache.get<BigNumber>('ATTRIBUTES', async () => {
     const rpcResult = await this.rpcClient.masternode.getGov('ATTRIBUTES')
     const tokenA = {
       symbol: path.tokenA.symbol,
@@ -64,8 +62,5 @@ export class PoolPairFeesService {
     }
 
     return dexFees
-    // }, {
-    //     ttl: 0.5 //3600 // 60 minutes
-    // })
   }
 }
