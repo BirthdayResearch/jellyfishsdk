@@ -9,7 +9,7 @@ import {
 import { WhaleApiClientProvider } from '../../providers/WhaleApiClientProvider'
 import BigNumber from 'bignumber.js'
 import { WhaleApiClient } from '@defichain/whale-api-client'
-import { StatsData } from '@defichain/whale-api-client/dist/api/stats'
+import { BurnData, StatsData } from '@defichain/whale-api-client/dist/api/stats'
 import { get } from 'lodash'
 
 // region - Needs to be kept in sync with defi-stats-api-master
@@ -133,7 +133,7 @@ export class MainnetLegacyStatsProvider {
   }
 
   async getBurnInfo (): Promise<LegacyBurnInfo> {
-    const burnInfo: any = await this.api.stats.getBurn()
+    const burnInfo: BurnData = await this.api.stats.getBurn()
     return {
       address: burnInfo.address,
       amount: new BigNumber(burnInfo.amount).toFixed(DECIMAL_PLACES),
@@ -144,7 +144,9 @@ export class MainnetLegacyStatsProvider {
       dexfeetokens: burnInfo.dexfeetokens,
       dfipaybackfee: burnInfo.dfipaybackfee,
       dfipaybacktokens: burnInfo.dfipaybacktokens,
-      emissionburn: new BigNumber(burnInfo.emissionburn).toFixed(8)
+      emissionburn: new BigNumber(burnInfo.emissionburn).toFixed(8),
+      dfip2203: burnInfo.dfip2203,
+      dfip2206f: burnInfo.dfip2206f
     }
   }
 
@@ -232,6 +234,8 @@ interface LegacyBurnInfo {
   dfipaybackfee: number
   dfipaybacktokens: string[]
   emissionburn: string
+  dfip2203: string[]
+  dfip2206f: string[]
 }
 
 interface LegacyTokens {

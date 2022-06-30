@@ -438,9 +438,9 @@ interface BurnInfo {
    */
   emissionburn: BigNumber
   /**
-   * Value of burn after payback
+   * Burns after payback
    */
-  paybackburn: BigNumber
+  paybackburn: string[]
   /**
    * Amount collected via auction burn
    */

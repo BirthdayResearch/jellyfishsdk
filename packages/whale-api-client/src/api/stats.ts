@@ -1,7 +1,4 @@
-import { account } from '@defichain/jellyfish-api-core'
 import { WhaleApiClient } from '../whale.api.client'
-
-export type BurnData = account.BurnInfo
 
 export class Stats {
   constructor (private readonly client: WhaleApiClient) {
@@ -122,4 +119,60 @@ export interface SupplyData {
    * Total - Burned = Circulating
    */
   circulating: number
+}
+
+export interface BurnData {
+  address: string
+  /**
+   * Amount send to burn address
+   */
+  amount: number
+  /**
+   * Token amount send to burn address; formatted as AMOUNT@SYMBOL
+   */
+  tokens: string[]
+  /**
+   * Amount collected via fee burn
+   */
+  feeburn: number
+  /**
+   * Amount collected via emission burn
+   */
+  emissionburn: number
+  /**
+   * Amount collected via auction burn
+   */
+  auctionburn: number
+  /**
+   * Value of burn after payback
+   */
+  paybackburn: number
+  /**
+   * Formatted as AMOUNT@SYMBOL
+   */
+  dexfeetokens: string[]
+  /**
+   * Amount of DFI collected from penalty resulting from paying DUSD using DFI
+   */
+  dfipaybackfee: number
+  /**
+   * Amount of tokens that are paid back; formatted as AMOUNT@SYMBOL
+   */
+  dfipaybacktokens: string[]
+  /**
+   * Amount of paybacks
+   */
+  paybackfees: string[]
+  /**
+   * Amount of tokens that are paid back
+   */
+  paybacktokens: string[]
+  /**
+   * Amount of tokens burned due to futureswap
+   */
+  dfip2203: string[]
+  /**
+   * Amount of tokens burned due to DFI-to-DUSD swap
+   */
+  dfip2206f: string[]
 }
