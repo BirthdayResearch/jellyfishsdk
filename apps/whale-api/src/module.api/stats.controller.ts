@@ -75,9 +75,7 @@ export class StatsController {
   @Get('/burn')
   async getBurn (): Promise<BurnData> {
     const burnInfo = await this.getBurnInfo()
-    const paybackBurn = burnInfo.paybackburn.length !== 0
-      ? burnInfo.paybackburn.map(i => new BigNumber(i)).reduce((a, b) => a.plus(b))
-      : new BigNumber(0)
+    const paybackBurnDFI = findTokenBalance(burnInfo.paybackburn, 'DFI')
 
     return {
       address: burnInfo.address,
@@ -86,7 +84,7 @@ export class StatsController {
       feeburn: burnInfo.feeburn.toNumber(),
       emissionburn: burnInfo.emissionburn.toNumber(),
       auctionburn: burnInfo.auctionburn.toNumber(),
-      paybackburn: paybackBurn.toNumber(),
+      paybackburn: paybackBurnDFI.toNumber(),
       dexfeetokens: burnInfo.dexfeetokens,
       dfipaybackfee: burnInfo.dfipaybackfee.toNumber(),
       dfipaybacktokens: burnInfo.dfipaybacktokens,
@@ -171,20 +169,18 @@ export class StatsController {
     const utxo = burnInfo.amount
     const account = findTokenBalance(burnInfo.tokens, 'DFI')
     const address = utxo.plus(account)
-    const payback = burnInfo.paybackburn.length !== 0
-      ? burnInfo.paybackburn.map(i => new BigNumber(i)).reduce((a, b) => a.plus(b))
-      : new BigNumber(0)
+    const paybackBurnDFI = findTokenBalance(burnInfo.paybackburn, 'DFI')
 
     return {
       address: address.toNumber(),
       fee: burnInfo.feeburn.toNumber(),
       auction: burnInfo.auctionburn.toNumber(),
-      payback: payback.toNumber(),
+      payback: paybackBurnDFI.toNumber(),
       emission: burnInfo.emissionburn.toNumber(),
       total: address
         .plus(burnInfo.feeburn)
         .plus(burnInfo.auctionburn)
-        .plus(payback)
+        .plus(paybackBurnDFI)
         .plus(burnInfo.emissionburn)
         .toNumber()
     }
