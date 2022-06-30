@@ -53,7 +53,7 @@ export interface StatsData {
     address: number
     fee: number
     auction: number
-    payback: string[]
+    payback: number
     emission: number
   }
   price: {
@@ -146,7 +146,7 @@ export interface BurnData {
   /**
    * Value of burn after payback
    */
-  paybackburn: string[]
+  paybackburn: number
   /**
    * Formatted as AMOUNT@SYMBOL
    */

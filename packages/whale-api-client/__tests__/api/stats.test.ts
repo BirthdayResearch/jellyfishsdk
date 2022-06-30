@@ -89,7 +89,7 @@ describe('stats', () => {
         auction: 0,
         emission: 7323.58,
         fee: 4,
-        payback: [],
+        payback: 0,
         total: 7327.58
       },
       tvl: {
@@ -166,7 +166,7 @@ describe('stats', () => {
       dfipaybacktokens: [],
       emissionburn: expect.any(Number),
       feeburn: expect.any(Number),
-      paybackburn: [],
+      paybackburn: 0,
       tokens: [],
       paybackfees: [],
       paybacktokens: []
