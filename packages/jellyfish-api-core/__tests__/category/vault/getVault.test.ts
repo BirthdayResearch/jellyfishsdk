@@ -10,7 +10,7 @@ describe('Vault getVault', () => {
   let collateralAddress: string
   let oracleId: string
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
     collateralAddress = await testing.generateAddress()
@@ -66,7 +66,7 @@ describe('Vault getVault', () => {
     await testing.generate(1)
   })
 
-  afterAll(async () => {
+  afterEach(async () => {
     await testing.container.stop()
   })
 
@@ -211,10 +211,10 @@ describe('Vault getVault', () => {
     await testing.generate(12) // Wait for 12 blocks which are equivalent to 2 hours (1 block = 10 minutes) in order to liquidate the vault
 
     // get auction details
-    await testing.rpc.account.sendTokensToAddress({}, { [collateralAddress]: ['40@TSLA'] })
+    await testing.rpc.account.sendTokensToAddress({}, { [collateralAddress]: ['30@TSLA'] })
     await testing.generate(1)
 
-    const txid = await testing.container.call('placeauctionbid', [vaultId, 0, collateralAddress, '40@TSLA'])
+    const txid = await testing.container.call('placeauctionbid', [vaultId, 0, collateralAddress, '30@TSLA'])
     expect(typeof txid).toStrictEqual('string')
     expect(txid.length).toStrictEqual(64)
     await testing.generate(1)
@@ -225,7 +225,7 @@ describe('Vault getVault', () => {
       loanSchemeId: 'default', // Get default loan scheme
       ownerAddress: ownerAddress,
       state: VaultState.IN_LIQUIDATION,
-      liquidationHeight: 168,
+      liquidationHeight: 156,
       liquidationPenalty: 5,
       batchCount: 2,
       batches: [
@@ -235,9 +235,9 @@ describe('Vault getVault', () => {
             '0.66666666@BTC'
           ],
           index: 0,
-          loan: '20.00004165@TSLA',
+          loan: '20.00003024@TSLA',
           highestBid: {
-            amount: '40.00000000@TSLA',
+            amount: '30.00000000@TSLA',
             owner: collateralAddress
           }
         },
@@ -247,7 +247,7 @@ describe('Vault getVault', () => {
             '0.33333334@BTC'
           ],
           index: 1,
-          loan: '10.00002114@TSLA'
+          loan: '10.00001543@TSLA'
         }
       ]
     })
