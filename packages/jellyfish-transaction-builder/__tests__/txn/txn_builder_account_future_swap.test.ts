@@ -1137,6 +1137,25 @@ describe('create futureswap', () => {
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: DFIP2203 currently disabled for token 2 (code 16)\', code: -26')
   })
+
+  it('should not create DFI-to-DUSD futureswap while dfip2206f is not active', async () => {
+    const swapAmount = 1
+    const dfiAddr = await provider.getAddress()
+    await testing.rpc.account.accountToAccount(collateralAddress, { [dfiAddr]: `${swapAmount}@DFI` })
+    await testing.generate(1)
+
+    await fundForFeesIfUTXONotAvailable(10)
+    const txn = await builder.account.futureSwap({
+      owner: await provider.elliptic.script(),
+      source: { token: 0, amount: new BigNumber(swapAmount) },
+      destination: Number(idDUSD),
+      withdraw: false
+    }, script)
+
+    const promise = sendTransaction(testing.container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: DFIP2206F not currently active (code 16)\', code: -26')
+  })
 })
 
 describe('withdraw futureswap', () => {
