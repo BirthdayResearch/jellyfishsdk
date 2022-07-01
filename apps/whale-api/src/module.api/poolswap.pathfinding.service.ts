@@ -271,7 +271,7 @@ export class PoolSwapPathFindingService {
 }
 
 function computeReturnInDestinationToken (path: SwapPoolPair[], fromTokenId: string, previousTotal?: BigNumber): BigNumber {
-  let total = previousTotal === undefined ? new BigNumber(1) : previousTotal
+  let total = previousTotal ?? new BigNumber(1)
   for (const poolPair of path) {
     if (fromTokenId === poolPair.tokenA.id) {
       total = total.multipliedBy(poolPair.priceRatio.ba)

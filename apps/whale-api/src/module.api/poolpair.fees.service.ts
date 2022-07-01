@@ -22,13 +22,12 @@ export class PoolPairFeesService {
 
   public async getDexFees (tokenPathWithDirection: SwapPathWithDirection): Promise<EstimatedDexFee[] | []> {
     const dexFees: EstimatedDexFee[] = []
-    const rpcResult = await this.rpcClient.masternode.getGov('ATTRIBUTES')
-
     const { tokenFrom, tokenTo, poolPairId } = tokenPathWithDirection
 
-    const poolpairFee = rpcResult.ATTRIBUTES[`v0/poolpairs/${poolPairId}/token_a_fee_pct`]
-    const tokenFromFee = rpcResult.ATTRIBUTES[`v0/token/${tokenFrom.token.id}/dex_in_fee_pct`]
-    const tokenToFee = rpcResult.ATTRIBUTES[`v0/token/${tokenTo.token.id}/dex_out_fee_pct`]
+    const attrs = (await this.rpcClient.masternode.getGov('ATTRIBUTES')).ATTRIBUTES
+    const poolpairFee = attrs[`v0/poolpairs/${poolPairId}/token_a_fee_pct`]
+    const tokenFromFee = attrs[`v0/token/${tokenFrom.token.id}/dex_in_fee_pct`]
+    const tokenToFee = attrs[`v0/token/${tokenTo.token.id}/dex_out_fee_pct`]
 
     const tokenA = {
       symbol: tokenFrom.token.symbol,
