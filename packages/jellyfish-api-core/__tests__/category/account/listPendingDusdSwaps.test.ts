@@ -16,8 +16,7 @@ function now (): number {
 
 async function range (): Promise<number> {
   const h = await testing.container.getBlockCount()
-  const next = h + (futInterval - ((h - startBlock) % futInterval))
-  return next - h
+  return futInterval - ((h - startBlock) % futInterval)
 }
 
 async function setup (): Promise<void> {

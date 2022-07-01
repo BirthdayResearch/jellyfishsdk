@@ -560,7 +560,7 @@ interface ListFutureInfo {
 }
 ```
 
-## listPendingFutureSwaps
+## listPendingDusdSwaps
 
 List pending DUSD swaps futures.
 
