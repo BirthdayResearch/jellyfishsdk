@@ -217,3 +217,97 @@ describe('Masternode setGov ATTRIBUTES', () => {
     expect(govAfter.ATTRIBUTES[key3].toString()).toStrictEqual('0.35')
   })
 })
+
+describe('setGov ATTRIBUTES loan dusd burn keys', () => {
+  const container = new MasterNodeRegTestContainer()
+  const testing = Testing.create(container)
+  const fortCanningSpringHeight = 120
+
+  beforeEach(async () => {
+    const startFlags: StartFlags[] = [{ name: 'fortcanningspringheight', value: fortCanningSpringHeight }]
+    await testing.container.start({ startFlags: startFlags })
+    await testing.container.waitForWalletCoinbaseMaturity()
+  })
+
+  afterEach(async () => {
+    await testing.container.stop()
+  })
+
+  it('should setGov dusd_interest_burn', async () => {
+    const attributesBefore = await testing.rpc.masternode.getGov('ATTRIBUTES')
+    expect(attributesBefore.ATTRIBUTES['v0/params/dfip2206a/dusd_interest_burn']).toBeUndefined()
+
+    // should not set before fortcanningspring
+    {
+      expect(await testing.rpc.blockchain.getBlockCount()).toBeLessThan(fortCanningSpringHeight)
+      const promise = testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2206a/dusd_interest_burn': 'true' } })
+      await expect(promise).rejects.toThrow('RpcApiError: \'Test SetGovVariableTx execution failed:\nATTRIBUTES: Cannot be set before FortCanningSpringHeight\', code: -32600, method: setgov')
+    }
+
+    // move to fortcanningspring
+    await testing.generate(fortCanningSpringHeight - await testing.container.getBlockCount())
+
+    // set the dusd_interest_burn to true
+    {
+      await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2206a/dusd_interest_burn': 'true' } })
+      await testing.container.generate(1)
+
+      const attributesAfter = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributesAfter.ATTRIBUTES['v0/params/dfip2206a/dusd_interest_burn']).toStrictEqual('true')
+    }
+
+    // set the dusd_interest_burn to false
+    {
+      await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2206a/dusd_interest_burn': 'false' } })
+      await testing.container.generate(1)
+
+      const attributesAfter = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributesAfter.ATTRIBUTES['v0/params/dfip2206a/dusd_interest_burn']).toStrictEqual('false')
+    }
+
+    // try to set value other than true/false
+    {
+      const promise = testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2206a/dusd_interest_burn': 'INVALID' } })
+      await expect(promise).rejects.toThrow('RpcApiError: \'Boolean value must be either "true" or "false"\', code: -5, method: setgov')
+    }
+  })
+
+  it('should setGov dusd_loan_burn', async () => {
+    const attributesBefore = await testing.rpc.masternode.getGov('ATTRIBUTES')
+    expect(attributesBefore.ATTRIBUTES['v0/params/dfip2206a/dusd_loan_burn']).toBeUndefined()
+
+    // should not set before fortcanningspring
+    {
+      expect(await testing.rpc.blockchain.getBlockCount()).toBeLessThan(fortCanningSpringHeight)
+      const promise = testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2206a/dusd_loan_burn': 'true' } })
+      await expect(promise).rejects.toThrow('RpcApiError: \'Test SetGovVariableTx execution failed:\nATTRIBUTES: Cannot be set before FortCanningSpringHeight\', code: -32600, method: setgov')
+    }
+
+    // move to fortcanningspring
+    await testing.generate(fortCanningSpringHeight - await testing.container.getBlockCount())
+
+    // set the dusd_loan_burn to true
+    {
+      await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2206a/dusd_loan_burn': 'true' } })
+      await testing.container.generate(1)
+
+      const attributesAfter = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributesAfter.ATTRIBUTES['v0/params/dfip2206a/dusd_loan_burn']).toStrictEqual('true')
+    }
+
+    // set the dusd_loan_burn to false
+    {
+      await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2206a/dusd_loan_burn': 'false' } })
+      await testing.container.generate(1)
+
+      const attributesAfter = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributesAfter.ATTRIBUTES['v0/params/dfip2206a/dusd_loan_burn']).toStrictEqual('false')
+    }
+
+    // try to set value other than true/false
+    {
+      const promise = testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2206a/dusd_loan_burn': 'INVALID' } })
+      await expect(promise).rejects.toThrow('RpcApiError: \'Boolean value must be either "true" or "false"\', code: -5, method: setgov')
+    }
+  })
+})
