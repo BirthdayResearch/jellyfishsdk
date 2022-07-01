@@ -177,8 +177,12 @@ export class DeFiDCache extends GlobalCache {
     return result
   }
 
-  async getDexFees (poolPairId: string, tokenFromId: string, tokenToId: string): Promise<DexFees | undefined> {
-    return await this.get<DexFees>(CachePrefix.DEX_FEES, `${poolPairId}-${tokenFromId}-${tokenToId}`, this.fetchDexFees.bind(this))
+  async getDexFees (poolPairId: string, tokenFromId: string, tokenToId: string): Promise<DexFees> {
+    return await this.get<DexFees>(CachePrefix.DEX_FEES, `${poolPairId}-${tokenFromId}-${tokenToId}`, this.fetchDexFees.bind(this)) ?? {
+      poolPairFee: undefined,
+      tokenFromFee: undefined,
+      tokenToFee: undefined
+    }
   }
 
   private async fetchDexFees (id: string): Promise<DexFees> {
@@ -206,7 +210,7 @@ export interface PoolPairInfoWithId extends PoolPairInfo {
 }
 
 export interface DexFees {
-  poolPairFee: string
-  tokenFromFee: string
-  tokenToFee: string
+  poolPairFee: string | undefined
+  tokenFromFee: string | undefined
+  tokenToFee: string | undefined
 }
