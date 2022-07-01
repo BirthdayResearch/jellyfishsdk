@@ -111,6 +111,23 @@ describe('listPendingDusdSwaps', () => {
   })
 
   it('should listPendingDusdSwaps', async () => {
+    { // set up dfip2203 to enable withdrawFutureSwap
+      await testing.rpc.masternode.setGov({
+        ATTRIBUTES: {
+          'v0/params/dfip2203/reward_pct': '0.05',
+          'v0/params/dfip2203/block_period': '25'
+        }
+      })
+      await testing.generate(1)
+
+      await testing.rpc.masternode.setGov({
+        ATTRIBUTES: {
+          'v0/params/dfip2203/active': 'true'
+        }
+      })
+      await testing.generate(1)
+    }
+
     await testing.rpc.account.futureSwap({
       address: colAddr,
       amount: '30@DFI',
@@ -124,12 +141,17 @@ describe('listPendingDusdSwaps', () => {
     })
     await testing.generate(1)
 
+    await testing.rpc.account.withdrawFutureSwap({
+      address: colAddr,
+      amount: '19@DFI',
+      destination: 'DUSD'
+    })
+    await testing.generate(1)
+
     const list = await testing.rpc.account.listPendingDusdSwaps()
-    expect(list.length).toStrictEqual(2)
+    expect(list.length).toStrictEqual(1)
     expect(list[0].owner).toStrictEqual(colAddr)
-    expect(list[0].amount).toStrictEqual(new BigNumber(44))
-    expect(list[1].owner).toStrictEqual(colAddr)
-    expect(list[1].amount).toStrictEqual(new BigNumber(30))
+    expect(list[0].amount).toStrictEqual(new BigNumber(55)) // 30 + 44 - 19
 
     await testing.generate(await range())
 
@@ -141,25 +163,24 @@ describe('listPendingDusdSwaps', () => {
         depth: 1,
         txtype: DfTxType.FUTURE_SWAP_EXECUTION // 'q'
       })
-    expect(history.length).toStrictEqual(2)
+    expect(history.length).toStrictEqual(1)
     expect(history[0].owner).toStrictEqual(colAddr)
     expect(history[0].type).toStrictEqual('FutureSwapExecution')
-    expect(history[0].amounts).toStrictEqual(['41.80000000@DUSD']) // 44 - (44 * 0.05)
-    expect(history[1].amounts).toStrictEqual(['28.50000000@DUSD']) // 30 - (30 * 0.05)
+    expect(history[0].amounts).toStrictEqual(['52.25000000@DUSD']) // (30 + 44 - 19) * 0.95
 
     // should be empty
     const listAfter = await testing.rpc.account.listPendingDusdSwaps()
     expect(listAfter.length).toStrictEqual(0)
 
     const dusdContractAcc = await testing.rpc.account.getAccount(dusdContractAddr)
-    expect(dusdContractAcc).toStrictEqual(['74.00000000@DFI']) // 30 + 44
+    expect(dusdContractAcc).toStrictEqual(['55.00000000@DFI']) // 30 + 44 - 19
 
     const { ATTRIBUTES: attrs } = await testing.rpc.masternode.getGov('ATTRIBUTES')
-    expect(attrs['v0/live/economy/dfip2206f_current']).toStrictEqual(['74.00000000@DFI']) // 30 + 44
-    expect(attrs['v0/live/economy/dfip2206f_burned']).toStrictEqual(['74.00000000@DFI']) // 30 + 44
-    expect(attrs['v0/live/economy/dfip2206f_minted']).toStrictEqual(['70.30000000@DUSD']) // 74 - (74 * 0.05)
+    expect(attrs['v0/live/economy/dfip2206f_current']).toStrictEqual(['55.00000000@DFI']) // 30 + 44 - 19
+    expect(attrs['v0/live/economy/dfip2206f_burned']).toStrictEqual(['55.00000000@DFI']) // 30 + 44 - 19
+    expect(attrs['v0/live/economy/dfip2206f_minted']).toStrictEqual(['52.25000000@DUSD']) // (30 + 44 - 19) * 0.95
 
     const burn = await testing.rpc.account.getBurnInfo()
-    expect(burn.dfip2206f).toStrictEqual(['74.00000000@DFI']) // 30 + 44
+    expect(burn.dfip2206f).toStrictEqual(['55.00000000@DFI']) // 30 + 44 - 19
   })
 })
