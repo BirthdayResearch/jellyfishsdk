@@ -1,22 +1,14 @@
-import { Inject, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import BigNumber from 'bignumber.js'
-import { SemaphoreCache } from '@defichain-apps/libs/caches'
 import { EstimatedDexFee, SwapPathWithDirection } from '@defichain/whale-api-client/dist/api/poolpairs'
-import { PoolSwapAggregatedMapper } from '../module.model/pool.swap.aggregated'
-import { TransactionVoutMapper } from '../module.model/transaction.vout'
-import { NetworkName } from '@defichain/jellyfish-network'
 import { DeFiDCache } from './cache/defid.cache'
 
 @Injectable()
 export class PoolPairFeesService {
   constructor (
-    @Inject('NETWORK') protected readonly network: NetworkName,
     protected readonly rpcClient: JsonRpcClient,
-    protected readonly deFiDCache: DeFiDCache,
-    protected readonly cache: SemaphoreCache,
-    protected readonly poolSwapAggregatedMapper: PoolSwapAggregatedMapper,
-    protected readonly voutMapper: TransactionVoutMapper
+    private readonly deFiDCache: DeFiDCache
   ) {
   }
 
@@ -24,10 +16,7 @@ export class PoolPairFeesService {
     const dexFees: EstimatedDexFee[] = []
     const { tokenFrom, tokenTo, poolPairId } = tokenPathWithDirection
 
-    const attrs = (await this.rpcClient.masternode.getGov('ATTRIBUTES')).ATTRIBUTES
-    const poolpairFee = attrs[`v0/poolpairs/${poolPairId}/token_a_fee_pct`]
-    const tokenFromFee = attrs[`v0/token/${tokenFrom.token.id}/dex_in_fee_pct`]
-    const tokenToFee = attrs[`v0/token/${tokenTo.token.id}/dex_out_fee_pct`]
+    const { poolPairFee, tokenFromFee, tokenToFee } = await this.deFiDCache.getDexFees(poolPairId, tokenFrom.token.id, tokenTo.token.id)
 
     const tokenA = {
       symbol: tokenFrom.token.symbol,
@@ -41,10 +30,10 @@ export class PoolPairFeesService {
     /*
       v0/poolpairs/{id} takes precedence over v0/token/dex_(in/out)_fee_pct
     */
-    if (poolpairFee !== undefined) {
+    if (poolPairFee !== undefined) {
       dexFees.push({
         token: tokenA,
-        amount: new BigNumber(poolpairFee).multipliedBy(tokenFrom.estimatedReturn).toFixed(8)
+        amount: new BigNumber(poolPairFee).multipliedBy(tokenFrom.estimatedReturn).toFixed(8)
       })
 
       return dexFees

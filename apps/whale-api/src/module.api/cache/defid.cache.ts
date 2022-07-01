@@ -176,6 +176,24 @@ export class DeFiDCache extends GlobalCache {
 
     return result
   }
+
+  async getDexFees (poolPairId: string, tokenFromId: string, tokenToId: string): Promise<DexFees | undefined> {
+    return await this.get<DexFees>(CachePrefix.DEX_FEES, `${poolPairId}-${tokenFromId}-${tokenToId}`, this.fetchDexFees.bind(this))
+  }
+
+  private async fetchDexFees (id: string): Promise<DexFees> {
+    const [poolPairId, tokenFromId, tokenToId] = id.split('-')
+    const attrs = (await this.rpcClient.masternode.getGov('ATTRIBUTES')).ATTRIBUTES
+    const poolPairFee = attrs[`v0/poolpairs/${poolPairId}/token_a_fee_pct`]
+    const tokenFromFee = attrs[`v0/token/${tokenFromId}/dex_in_fee_pct`]
+    const tokenToFee = attrs[`v0/token/${tokenToId}/dex_out_fee_pct`]
+
+    return {
+      poolPairFee,
+      tokenFromFee,
+      tokenToFee
+    }
+  }
 }
 
 // To remove if/when jellyfish-api-core supports IDs on tokenInfo, since it's commonly required
@@ -185,4 +203,10 @@ export interface TokenInfoWithId extends TokenInfo {
 
 export interface PoolPairInfoWithId extends PoolPairInfo {
   id: string
+}
+
+export interface DexFees {
+  poolPairFee: string
+  tokenFromFee: string
+  tokenToFee: string
 }

@@ -5,7 +5,6 @@ import { createTestingApp, stopTestingApp } from '../e2e.module'
 import { addPoolLiquidity, createPoolPair, createToken, getNewAddress, mintTokens } from '@defichain/testing'
 import { BigNumber } from 'bignumber.js'
 import { DeFiDCache } from './cache/defid.cache'
-import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
 import { Testing } from '@defichain/jellyfish-testing'
 
 const container = new MasterNodeRegTestContainer()
@@ -26,7 +25,7 @@ beforeAll(async () => {
   const tokenResult = await container.call('listtokens')
   // precache
   for (const k in tokenResult) {
-    await defiCache.getTokenInfo(k) as TokenInfo
+    await defiCache.getTokenInfo(k)
   }
 })
 
