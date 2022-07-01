@@ -27,7 +27,6 @@ export class PoolSwapPathFindingService {
   constructor (
     protected readonly deFiDCache: DeFiDCache,
     private readonly poolPairFeesServices: PoolPairFeesService,
-
     @Inject('NETWORK') protected readonly network: NetworkName
   ) {
   }
