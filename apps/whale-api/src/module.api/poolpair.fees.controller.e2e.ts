@@ -37,7 +37,7 @@ afterAll(async () => {
 async function setup (): Promise<void> {
   testing = Testing.create(container)
 
-  const tokens = ['DUSD', 'BTC', 'ETH']
+  const tokens = ['DUSD', 'BTC', 'ETH', 'DOGE']
 
   for (const token of tokens) {
     await createToken(container, token)
@@ -67,6 +67,15 @@ async function setup (): Promise<void> {
 
   await addPoolLiquidity(container, {
     tokenA: 'ETH',
+    amountA: 10,
+    tokenB: 'DFI',
+    amountB: 100,
+    shareAddress: await getNewAddress(container)
+  })
+  await testing.generate(1)
+
+  await addPoolLiquidity(container, {
+    tokenA: 'DOGE',
     amountA: 10,
     tokenB: 'DFI',
     amountB: 100,
@@ -104,58 +113,143 @@ async function setup (): Promise<void> {
   await container.call('setgov', [{
     ATTRIBUTES: {
       'v0/poolpairs/2/token_a_fee_pct': '0.005', // DUSD-DFI
-      'v0/token/7/dex_in_fee_pct': '0.001', // dAAPL
+      'v0/token/9/dex_in_fee_pct': '0.001', // dAAPL
       'v0/token/1/dex_out_fee_pct': '0.003', // DUSD
 
       // no v0/poolpairs fee for dBTC
-      'v0/token/3/dex_in_fee_pct': '0.007' // dBTC
+      'v0/token/3/dex_in_fee_pct': '0.007', // dBTC
+      'v0/token/3/dex_out_fee_pct': '0.013', // dBTC
+
+      // no v0/poolpairs fee for dDOGE
+      'v0/token/7/dex_in_fee_pct': '0.011', // DOGE
+      'v0/token/7/dex_out_fee_pct': '0.009' // DOGE
     }
   }])
   await container.generate(1)
 }
 
 describe('get best path - DEX burn fees', () => {
-  it('should get v0/token if no v0/poolpairs is available', async () => {
-    const paths1 = await controller.getBestPath('3', '0') // dBTC -> DFI
-    const paths2 = await controller.getBestPath('0', '3') // DFI -> dBTC
+  it('should use correct v0/token/{id}/dex_(in/out) from gov', async () => {
+    const paths1 = await controller.getBestPath('3', '7') // dBTC -> dDOGE
+    const paths2 = await controller.getBestPath('7', '3') // dDOGE -> dBTC
+    /*
+      dBTC(id:3) to DFI(id:0) = 0.007% dBTC dex fee
+      DFI(id:0) to dDOGE(id:7) = 0.009% dDOGE dex fee
+    */
+    expect(paths1.bestPath).toStrictEqual([
+      {
+        estimatedDexFees: [{
+          amount: '0.00700000',
+          token: {
+            displaySymbol: 'dBTC',
+            symbol: 'BTC'
+          }
+        }],
+        estimatedReturn: '10.00000000',
+        poolPairId: '4',
+        priceRatio: {
+          ab: '0.10000000',
+          ba: '10.00000000'
+        },
+        symbol: 'BTC-DFI',
+        tokenA: {
+          displaySymbol: 'dBTC',
+          id: '3',
+          symbol: 'BTC'
+        },
+        tokenB: {
+          displaySymbol: 'DFI',
+          id: '0',
+          symbol: 'DFI'
+        }
+      }, {
+        estimatedDexFees: [{
+          amount: '0.09000000',
+          token: {
+            displaySymbol: 'dDOGE',
+            symbol: 'DOGE'
+          }
+        }],
+        estimatedReturn: '1.00000000',
+        poolPairId: '8',
+        priceRatio: {
+          ab: '0.10000000',
+          ba: '10.00000000'
+        },
+        symbol: 'DOGE-DFI',
+        tokenA: {
+          displaySymbol: 'dDOGE',
+          id: '7',
+          symbol: 'DOGE'
+        },
+        tokenB: {
+          displaySymbol: 'DFI',
+          id: '0',
+          symbol: 'DFI'
+        }
+      }
+    ])
 
     /*
-      dBTC(id:1) to DFI(id:0) = 0.007% dBTC dex fee
+      dDOGE(id:7) to DFI(id:0) = 0.011% dDOGE dex fee
+      DFI(id:0) to dBTC(id:5) = 0.013% dBTC dex fee
     */
-    expect(paths1.bestPath).toStrictEqual([{
-      estimatedDexFees: [{
-        amount: '0.00700000',
-        token: {
-          displaySymbol: 'dBTC',
-          symbol: 'BTC'
+    expect(paths2.bestPath).toStrictEqual([
+      {
+        estimatedDexFees: [{
+          amount: '0.01100000',
+          token: {
+            displaySymbol: 'dDOGE',
+            symbol: 'DOGE'
+          }
+        }],
+        estimatedReturn: '10.00000000',
+        poolPairId: '8',
+        priceRatio: {
+          ab: '0.10000000',
+          ba: '10.00000000'
+        },
+        symbol: 'DOGE-DFI',
+        tokenA: {
+          displaySymbol: 'dDOGE',
+          id: '7',
+          symbol: 'DOGE'
+        },
+        tokenB: {
+          displaySymbol: 'DFI',
+          id: '0',
+          symbol: 'DFI'
         }
-      }],
-      estimatedReturn: '10.00000000',
-      poolPairId: '4',
-      priceRatio: {
-        ab: '0.10000000',
-        ba: '10.00000000'
-      },
-      symbol: 'BTC-DFI',
-      tokenA: {
-        displaySymbol: 'dBTC',
-        id: '3',
-        symbol: 'BTC'
-      },
-      tokenB: {
-        displaySymbol: 'DFI',
-        id: '0',
-        symbol: 'DFI'
-      }
-    }])
-
-    expect(paths1.bestPath[0].estimatedDexFees).toStrictEqual(paths2.bestPath[0].estimatedDexFees)
+      }, {
+        estimatedDexFees: [{
+          amount: '0.13000000',
+          token: {
+            displaySymbol: 'dBTC',
+            symbol: 'BTC'
+          }
+        }],
+        estimatedReturn: '1.00000000',
+        poolPairId: '4',
+        priceRatio: {
+          ab: '0.10000000',
+          ba: '10.00000000'
+        },
+        symbol: 'BTC-DFI',
+        tokenA: {
+          displaySymbol: 'dBTC',
+          id: '3',
+          symbol: 'BTC'
+        },
+        tokenB: {
+          displaySymbol: 'DFI',
+          id: '0',
+          symbol: 'DFI'
+        }
+      }])
   })
 
   it('should get v0/poolpairs if both v0/poolpairs and v0/token is available', async () => {
-    const paths1 = await controller.getBestPath('1', '0') // DUSD to DFI
-    const paths2 = await controller.getBestPath('0', '1') // DFI to DUSD
-
+    const paths1 = await controller.getBestPath('1', '0') // DUSD -> DFI
     /*
       DUSD(id:1) to DFI(id:0) = 0.005 DUSD
     */
@@ -185,14 +279,13 @@ describe('get best path - DEX burn fees', () => {
         symbol: 'DFI'
       }
     }])
-    expect(paths2.bestPath).toStrictEqual(paths1.bestPath)
   })
 
-  it('should display dex fees for each leg in composite swap', async () => {
-    const paths1 = await controller.getBestPath('7', '0') // dAAPL -> DFI
+  it('should return dex fees for each leg in composite swap', async () => {
+    const paths1 = await controller.getBestPath('9', '0') // dAAPL -> DFI
 
     /*
-      dAAPL(id:7) to DUSD(id:1) = 0.001% dAAPL dex fee
+      dAAPL(id:9) to DUSD(id:1) = 0.001% dAAPL dex fee
                                 = 0.003% DUSD dex fee
       DUSD(id:1) to DFI(id:0)   = 0.005% DUSD dex fee
     */
@@ -211,7 +304,7 @@ describe('get best path - DEX burn fees', () => {
         }
       }],
       estimatedReturn: '10.00000000',
-      poolPairId: '8',
+      poolPairId: '10',
       priceRatio: {
         ab: '0.10000000',
         ba: '10.00000000'
@@ -219,7 +312,7 @@ describe('get best path - DEX burn fees', () => {
       symbol: 'AAPL-DUSD',
       tokenA: {
         displaySymbol: 'dAAPL',
-        id: '7',
+        id: '9',
         symbol: 'AAPL'
       },
       tokenB: {

@@ -297,3 +297,15 @@ export interface DexPrice {
   token: TokenIdentifier
   denominationPrice: string // BigNumber
 }
+
+export interface SwapPathWithDirection {
+  poolPairId: string
+  tokenFrom: {
+    token: TokenIdentifier
+    estimatedReturn: string // BigNumber
+  }
+  tokenTo: {
+    token: TokenIdentifier
+    estimatedReturn: string // BigNumber
+  }
+}
