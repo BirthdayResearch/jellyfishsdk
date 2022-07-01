@@ -34,6 +34,16 @@ export enum DfTxType {
   FUTURE_SWAP_REFUND = 'w'
 }
 
+/**
+ * Configure the format of amounts
+ * id - amount with the following 'id' -> <amount>@id
+ * symbol - amount with the following 'symbol' -> <amount>@symbol
+ */
+export enum Format {
+  ID = 'id',
+  SYMBOL = 'symbol'
+}
+
 export enum SelectionModeType {
   PIE = 'pie',
   CRUMBS = 'crumbs',
@@ -292,6 +302,7 @@ export class Account {
    * @param {DfTxType} [options.txtype] Filter by transaction type. See DfTxType.
    * @param {number} [options.limit=100] Maximum number of records to return, 100 by default
    * @param {number} [options.txn] Order in block, unlimited by default
+   * @param {Format} [options.format] Set the return amount format, Format.SYMBOL by default
    * @return {Promise<AccountHistory[]>}
    */
   async listAccountHistory (
@@ -530,6 +541,7 @@ export interface AccountHistoryOptions {
   txtype?: DfTxType
   limit?: number
   txn?: number
+  format?: Format
 }
 
 export interface AccountHistoryCountOptions {

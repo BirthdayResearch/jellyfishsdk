@@ -216,6 +216,11 @@ enum DfTxType {
   NONE = '0'
 }
 
+enum Format {
+  ID = 'id',
+  SYMBOL = 'symbol'
+}
+
 interface AccountHistory {
   owner: string
   blockHeight: number
@@ -235,6 +240,7 @@ interface AccountHistoryOptions {
   txtype?: DfTxType
   limit?: number
   txn?: number
+  format?: Format
 }
 ```
 

@@ -306,12 +306,13 @@ export class Loan {
    *
    * @deprecated Vault methods are moving to dedicated vault category
    * @param {string} vaultId vault hex id
+   * @param {boolean} [verbose] request verbose info
    * @return {Promise<VaultActive | VaultLiquidation>}
    */
-  async getVault (vaultId: string): Promise<VaultActive | VaultLiquidation> {
+  async getVault (vaultId: string, verbose: boolean = false): Promise<VaultActive | VaultLiquidation> {
     return await this.client.call(
       'getvault',
-      [vaultId],
+      [vaultId, verbose],
       {
         collateralAmounts: 'bignumber',
         loanAmounts: 'bignumber',
@@ -319,7 +320,10 @@ export class Loan {
         collateralValue: 'bignumber',
         loanValue: 'bignumber',
         interestValue: 'bignumber',
-        informativeRatio: 'bignumber'
+        informativeRatio: 'bignumber',
+        nextCollateralRatio: 'bignumber',
+        interestPerBlockValue: 'bignumber',
+        interestsPerBlock: 'bignumber'
       }
     )
   }
