@@ -26,6 +26,24 @@ it('should bi-directional buffer-object-buffer', () => {
     '6a2a4466547851160014dbe1bf723cbc2ce57945a601d658294d6b03aa2a0400e1f505000000000200000000',
     /**
      * SetFutureSwap : {
+     *   owner: 'bcrt1qhj04cg98lmswxt3lsq5zhyka5c3l6mqm3duzem',
+     *   source: '44@DFI',
+     *   destination: 1, // DUSD
+     *   withdraw: false
+     * }
+     */
+    '6a2a4466547851160014bc9f5c20a7fee0e32e3f80282b92dda623fd6c1b0000ac4206010000000100000000',
+    /**
+     * SetFutureSwap : {
+     *   owner: 'bcrt1qhj04cg98lmswxt3lsq5zhyka5c3l6mqm3duzem',
+     *   source: '19@DFI',
+     *   destination: 1, // DUSD
+     *   withdraw: true
+     * }
+     */
+    '6a2a4466547851160014bc9f5c20a7fee0e32e3f80282b92dda623fd6c1b0000b33f71000000000100000001',
+    /**
+     * SetFutureSwap : {
      *   owner: 'bcrt1q3pn27msy2h35khh5aj63kp766nj3gvtewacw5z',
      *   source: '1@TSLA',
      *   destination: 0,

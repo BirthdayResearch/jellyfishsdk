@@ -72,6 +72,84 @@ describe('Masternode', () => {
   })
 })
 
+describe('Masternode setGov ATTRIBUTES dfip2206f for DFI-to-DUSD', () => {
+  const container = new MasterNodeRegTestContainer()
+  const testing = Testing.create(container)
+  const fortCanningSpringHeight = 120
+
+  beforeEach(async () => {
+    const startFlags: StartFlags[] = [{ name: 'fortcanningspringheight', value: fortCanningSpringHeight }]
+    await testing.container.start({ startFlags: startFlags })
+    await testing.container.waitForWalletCoinbaseMaturity()
+  })
+
+  afterEach(async () => {
+    await testing.container.stop()
+  })
+
+  it('should setGov dfip2206f', async () => {
+    const attributesBefore = await testing.rpc.masternode.getGov('ATTRIBUTES')
+    expect(attributesBefore.ATTRIBUTES['v0/params/dfip2206f/active']).toBeUndefined()
+
+    // should not set before fortcanningspring
+    {
+      expect(await testing.rpc.blockchain.getBlockCount()).toBeLessThan(fortCanningSpringHeight)
+      const promise = testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2206f/active': 'true' } })
+      await expect(promise).rejects.toThrow('RpcApiError: \'Test SetGovVariableTx execution failed:\nATTRIBUTES: Cannot be set before FortCanningSpringHeight\', code: -32600, method: setgov')
+    }
+
+    // move to fortcanningspring
+    await testing.generate(fortCanningSpringHeight - await testing.container.getBlockCount())
+
+    // set the dfip2206f to true
+    {
+      await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2206f/active': 'true' } })
+      await testing.container.generate(1)
+
+      const attributesAfter = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributesAfter.ATTRIBUTES['v0/params/dfip2206f/active']).toStrictEqual('true')
+    }
+
+    // set the dfip2206f to false
+    {
+      await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2206f/active': 'false' } })
+      await testing.container.generate(1)
+
+      const attributesAfter = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributesAfter.ATTRIBUTES['v0/params/dfip2206f/active']).toStrictEqual('false')
+    }
+
+    // try to set value other than true/false
+    {
+      const promise = testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2206f/active': 'INVALID' } })
+      await expect(promise).rejects.toThrow('RpcApiError: \'Boolean value must be either "true" or "false"\', code: -5, method: setgov')
+    }
+
+    // set the rest of dfip2206f's value
+    {
+      const startBlock = 10 + await testing.container.getBlockCount()
+      await testing.rpc.masternode.setGov({
+        ATTRIBUTES: {
+          'v0/params/dfip2206f/reward_pct': '0.05',
+          'v0/params/dfip2206f/block_period': '25',
+          'v0/params/dfip2206f/start_block': `${startBlock}`
+        }
+      })
+      await testing.generate(1)
+
+      await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2206f/active': 'true' } })
+      await testing.generate(startBlock - await testing.container.getBlockCount())
+
+      // Retrieve and verify gov vars
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributes.ATTRIBUTES['v0/params/dfip2206f/active']).toStrictEqual('true')
+      expect(attributes.ATTRIBUTES['v0/params/dfip2206f/reward_pct']).toStrictEqual('0.05')
+      expect(attributes.ATTRIBUTES['v0/params/dfip2206f/block_period']).toStrictEqual('25')
+      expect(attributes.ATTRIBUTES['v0/params/dfip2206f/start_block']).toStrictEqual(`${startBlock}`)
+    }
+  })
+})
+
 describe('Masternode setGov ATTRIBUTES', () => {
   const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
