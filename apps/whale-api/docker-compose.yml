@@ -14,7 +14,6 @@ services:
       -rpcpassword=whale-rpcpassword
       -rpcworkqueue=512
       -masternode_operator=mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy
-      -disablewallet=1
       -regtest=1
       -jellyfish_regtest=1
       -txnotokens=0
