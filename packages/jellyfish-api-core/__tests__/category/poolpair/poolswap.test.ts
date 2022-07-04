@@ -136,6 +136,54 @@ describe('poolSwap', () => {
     expect(hex.length).toStrictEqual(64)
   })
 
+  it('should not poolSwap with max price and dex fees', async () => {
+    await testing.token.create({ symbol: 'SLIP' })
+    await testing.generate(1)
+
+    await testing.poolpair.create({
+      tokenA: 'SLIP',
+      tokenB: 'DFI',
+      commission: 0.02
+    })
+    const address = await testing.address('dfi')
+    await testing.token.dfi({ amount: 10001, address })
+    await testing.token.mint({ amount: 10000, symbol: 'SLIP' })
+    await testing.generate(1)
+
+    await testing.poolpair.add({
+      a: { symbol: 'SLIP', amount: 10000 },
+      b: { symbol: 'DFI', amount: 10000 }
+    })
+    await testing.generate(1)
+    const poolPairId = Object.keys(await testing.rpc.poolpair.getPoolPair('SLIP-DFI'))[0]
+
+    await client.masternode.setGov({
+      ATTRIBUTES: {
+        [`v0/poolpairs/${poolPairId}/token_a_fee_pct`]: '0.05',
+        [`v0/poolpairs/${poolPairId}/token_a_fee_direction`]: 'both',
+        [`v0/poolpairs/${poolPairId}/token_b_fee_pct`]: '0.30',
+        [`v0/poolpairs/${poolPairId}/token_b_fee_direction`]: 'both'
+      }
+    })
+    await container.generate(1)
+
+    const metadata = {
+      from: address,
+      tokenFrom: 'DFI',
+      amountFrom: 1,
+      to: address,
+      tokenTo: 'SLIP',
+      maxPrice: 1.5
+    }
+
+    await expect(client.poolpair.poolSwap(metadata))
+      .rejects.toThrow('Price is higher than indicated.')
+    await testing.generate(1)
+
+    const account = await testing.rpc.account.getAccount(address)
+    expect(account).toStrictEqual(['1.00000000@DFI'])
+  })
+
   it('should test against max price protection', async () => {
     const tokenAddress = await getNewAddress(container)
     const dfiAddress = await getNewAddress(container)
