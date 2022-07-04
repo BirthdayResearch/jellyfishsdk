@@ -66,7 +66,7 @@ afterAll(async () => {
   await container.stop()
 })
 
-it('should compositeSwap with maxPrice accounting for commission and dexFees', async () => {
+it('should not compositeSwap with maxPrice accounting for commission and dexFees', async () => {
   await providers.randomizeEllipticPair()
   await container.waitForWalletBalanceGTE(1)
 
@@ -98,7 +98,7 @@ it('should compositeSwap with maxPrice accounting for commission and dexFees', a
       fromAmount: new BigNumber('1'),
       toScript: script,
       toTokenId: pairs.CAT.tokenId,
-      maxPrice: new BigNumber('1.005')
+      maxPrice: new BigNumber('1.2')
     },
     pools: [
       { id: pairs.PIG.poolId },
