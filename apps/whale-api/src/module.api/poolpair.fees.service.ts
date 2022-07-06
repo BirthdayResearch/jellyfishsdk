@@ -1,58 +1,33 @@
 import { Injectable } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import BigNumber from 'bignumber.js'
-import { EstimatedDexFee, SwapPathWithDirection } from '@defichain/whale-api-client/dist/api/poolpairs'
-import { DeFiDCache } from './cache/defid.cache'
+import { EstimatedDexFees } from '@defichain/whale-api-client/dist/api/poolpairs'
+import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
 
 @Injectable()
 export class PoolPairFeesService {
   constructor (
-    protected readonly rpcClient: JsonRpcClient,
-    private readonly deFiDCache: DeFiDCache
+    protected readonly rpcClient: JsonRpcClient
   ) {
   }
 
-  public async getDexFees (tokenPathWithDirection: SwapPathWithDirection): Promise<EstimatedDexFee[] | []> {
-    const dexFees: EstimatedDexFee[] = []
-    const { tokenFrom, tokenTo, poolPairId } = tokenPathWithDirection
+  public async getDexFeesPct (poolPair: PoolPairInfo, poolPairId: string, fromToken: string, toToken: string): Promise<EstimatedDexFees | undefined> {
+    const { dexFeeInPctTokenA, dexFeeOutPctTokenA, dexFeeInPctTokenB, dexFeeOutPctTokenB } = poolPair
+    const tokenADirection = poolPair.idTokenA === fromToken ? 'in' : 'out'
+    const tokenBDirection = poolPair.idTokenB === toToken ? 'out' : 'in'
 
-    const { poolPairFee, tokenFromFee, tokenToFee } = await this.deFiDCache.getDexFees(poolPairId, tokenFrom.token.id, tokenTo.token.id)
-
-    const tokenA = {
-      symbol: tokenFrom.token.symbol,
-      displaySymbol: tokenFrom.token.displaySymbol
-    }
-    const tokenB = {
-      symbol: tokenTo.token.symbol,
-      displaySymbol: tokenTo.token.displaySymbol
+    if (dexFeeInPctTokenA === undefined && dexFeeOutPctTokenA === undefined && dexFeeInPctTokenB === undefined && dexFeeOutPctTokenB === undefined) {
+      return undefined
     }
 
-    /*
-      v0/poolpairs/{id} takes precedence over v0/token/dex_(in/out)_fee_pct
-    */
-    if (poolPairFee !== undefined) {
-      dexFees.push({
-        token: tokenA,
-        amount: new BigNumber(poolPairFee).multipliedBy(tokenFrom.estimatedReturn).toFixed(8)
-      })
+    return {
+      tokenA: (tokenADirection === 'in'
+        ? new BigNumber(dexFeeInPctTokenA ?? 0)
+        : new BigNumber(dexFeeOutPctTokenA ?? 0)).toFixed(8),
 
-      return dexFees
+      tokenB: (tokenBDirection === 'in'
+        ? new BigNumber(dexFeeInPctTokenB ?? 0)
+        : new BigNumber(dexFeeOutPctTokenB ?? 0)).toFixed(8)
     }
-
-    if (tokenFromFee !== undefined) {
-      dexFees.push({
-        token: tokenA,
-        amount: new BigNumber(tokenFromFee).multipliedBy(tokenFrom.estimatedReturn).toFixed(8)
-      })
-    }
-
-    if (tokenToFee !== undefined) {
-      dexFees.push({
-        token: tokenB,
-        amount: new BigNumber(tokenToFee).multipliedBy(tokenTo.estimatedReturn).toFixed(8)
-      })
-    }
-
-    return dexFees
   }
 }

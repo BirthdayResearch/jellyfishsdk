@@ -3,7 +3,6 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, stopTestingApp } from '../e2e.module'
 import { addPoolLiquidity, createPoolPair, createToken, getNewAddress, mintTokens } from '@defichain/testing'
-import { BigNumber } from 'bignumber.js'
 import { DeFiDCache } from './cache/defid.cache'
 import { Testing } from '@defichain/jellyfish-testing'
 
@@ -36,7 +35,7 @@ afterAll(async () => {
 async function setup (): Promise<void> {
   testing = Testing.create(container)
 
-  const tokens = ['DUSD', 'BTC', 'ETH', 'DOGE']
+  const tokens = ['DUSD', 'CAT', 'DOG', 'KOALA', 'FISH']
 
   for (const token of tokens) {
     await createToken(container, token)
@@ -56,7 +55,7 @@ async function setup (): Promise<void> {
   await testing.generate(1)
 
   await addPoolLiquidity(container, {
-    tokenA: 'BTC',
+    tokenA: 'CAT',
     amountA: 100,
     tokenB: 'DFI',
     amountB: 1000,
@@ -65,7 +64,7 @@ async function setup (): Promise<void> {
   await testing.generate(1)
 
   await addPoolLiquidity(container, {
-    tokenA: 'ETH',
+    tokenA: 'DOG',
     amountA: 10,
     tokenB: 'DFI',
     amountB: 100,
@@ -74,7 +73,7 @@ async function setup (): Promise<void> {
   await testing.generate(1)
 
   await addPoolLiquidity(container, {
-    tokenA: 'DOGE',
+    tokenA: 'KOALA',
     amountA: 10,
     tokenB: 'DFI',
     amountB: 100,
@@ -82,162 +81,59 @@ async function setup (): Promise<void> {
   })
   await testing.generate(1)
 
-  const oracleId = await container.call('appointoracle', [await testing.generateAddress(), [
-    { token: 'AAPL', currency: 'USD' }
-  ], 1])
-  await testing.generate(1)
-
-  await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1.5@AAPL', currency: 'USD' }] })
-  await testing.generate(1)
-
-  await container.call('setloantoken', [{
-    symbol: 'AAPL',
-    name: 'APPLE',
-    fixedIntervalPriceId: 'AAPL/USD',
-    mintable: true,
-    interest: new BigNumber(0.01)
-  }])
-  await testing.generate(1)
-  await createPoolPair(container, 'AAPL', 'DUSD')
-  await mintTokens(container, 'AAPL')
   await addPoolLiquidity(container, {
-    tokenA: 'AAPL',
-    amountA: 10,
-    tokenB: 'DUSD',
+    tokenA: 'FISH',
+    amountA: 5,
+    tokenB: 'DFI',
     amountB: 100,
     shareAddress: await getNewAddress(container)
   })
+  await testing.generate(1)
 
   // dex fee set up
   await container.call('setgov', [{
     ATTRIBUTES: {
-      'v0/poolpairs/2/token_a_fee_pct': '0.005', // DUSD-DFI
-      'v0/token/9/dex_in_fee_pct': '0.001', // dAAPL
-      'v0/token/1/dex_out_fee_pct': '0.003', // DUSD
+      // CAT-DFI
+      'v0/poolpairs/4/token_a_fee_pct': '0.001', // CAT
+      'v0/poolpairs/4/token_a_fee_direction': 'in', // CAT
+      'v0/poolpairs/4/token_b_fee_pct': '0.002', // DFI
+      'v0/poolpairs/4/token_b_fee_direction': 'in', // DFI
 
-      // no v0/poolpairs fee for dBTC
-      'v0/token/3/dex_in_fee_pct': '0.007', // dBTC
-      'v0/token/3/dex_out_fee_pct': '0.013', // dBTC
+      'v0/poolpairs/6/token_a_fee_pct': '0.003', // DOG
+      'v0/poolpairs/6/token_a_fee_direction': 'out', // DOG
+      'v0/poolpairs/6/token_b_fee_pct': '0.004', // DFI
+      'v0/poolpairs/6/token_b_fee_direction': 'out', // DFI
 
-      // no v0/poolpairs fee for dDOGE
-      'v0/token/7/dex_in_fee_pct': '0.011', // DOGE
-      'v0/token/7/dex_out_fee_pct': '0.009' // DOGE
+      'v0/poolpairs/8/token_a_fee_pct': '0.005', // KOALA
+      'v0/poolpairs/8/token_a_fee_direction': 'in', // KOALA
+
+      'v0/poolpairs/10/token_b_fee_pct': '0.006', // FISH
+      'v0/poolpairs/10/token_b_fee_direction': 'out' // FISH
     }
   }])
   await container.generate(1)
 }
 
 describe('get best path - DEX burn fees', () => {
-  it('should use correct v0/token/{id}/dex_(in/out) from gov', async () => {
-    const paths1 = await controller.getBestPath('3', '7') // dBTC -> dDOGE
-    const paths2 = await controller.getBestPath('7', '3') // dDOGE -> dBTC
-    /*
-      dBTC(id:3) to DFI(id:0) = 0.007% dBTC dex fee
-      DFI(id:0) to dDOGE(id:7) = 0.009% dDOGE dex fee
-    */
+  it('should return fees - CAT to DFI - Both token fees direction are in', async () => {
+    const paths1 = await controller.getBestPath('3', '0')
+
     expect(paths1.bestPath).toStrictEqual([
       {
-        estimatedDexFees: [{
-          amount: '0.00700000',
-          token: {
-            displaySymbol: 'dBTC',
-            symbol: 'BTC'
-          }
-        }],
-        estimatedReturn: '10.00000000',
+        estimatedDexFees: {
+          tokenA: '0.00100000',
+          tokenB: '0.00000000'
+        },
         poolPairId: '4',
         priceRatio: {
           ab: '0.10000000',
           ba: '10.00000000'
         },
-        symbol: 'BTC-DFI',
+        symbol: 'CAT-DFI',
         tokenA: {
-          displaySymbol: 'dBTC',
+          displaySymbol: 'dCAT',
           id: '3',
-          symbol: 'BTC'
-        },
-        tokenB: {
-          displaySymbol: 'DFI',
-          id: '0',
-          symbol: 'DFI'
-        }
-      }, {
-        estimatedDexFees: [{
-          amount: '0.09000000',
-          token: {
-            displaySymbol: 'dDOGE',
-            symbol: 'DOGE'
-          }
-        }],
-        estimatedReturn: '1.00000000',
-        poolPairId: '8',
-        priceRatio: {
-          ab: '0.10000000',
-          ba: '10.00000000'
-        },
-        symbol: 'DOGE-DFI',
-        tokenA: {
-          displaySymbol: 'dDOGE',
-          id: '7',
-          symbol: 'DOGE'
-        },
-        tokenB: {
-          displaySymbol: 'DFI',
-          id: '0',
-          symbol: 'DFI'
-        }
-      }
-    ])
-
-    /*
-      dDOGE(id:7) to DFI(id:0) = 0.011% dDOGE dex fee
-      DFI(id:0) to dBTC(id:5) = 0.013% dBTC dex fee
-    */
-    expect(paths2.bestPath).toStrictEqual([
-      {
-        estimatedDexFees: [{
-          amount: '0.01100000',
-          token: {
-            displaySymbol: 'dDOGE',
-            symbol: 'DOGE'
-          }
-        }],
-        estimatedReturn: '10.00000000',
-        poolPairId: '8',
-        priceRatio: {
-          ab: '0.10000000',
-          ba: '10.00000000'
-        },
-        symbol: 'DOGE-DFI',
-        tokenA: {
-          displaySymbol: 'dDOGE',
-          id: '7',
-          symbol: 'DOGE'
-        },
-        tokenB: {
-          displaySymbol: 'DFI',
-          id: '0',
-          symbol: 'DFI'
-        }
-      }, {
-        estimatedDexFees: [{
-          amount: '0.13000000',
-          token: {
-            displaySymbol: 'dBTC',
-            symbol: 'BTC'
-          }
-        }],
-        estimatedReturn: '1.00000000',
-        poolPairId: '4',
-        priceRatio: {
-          ab: '0.10000000',
-          ba: '10.00000000'
-        },
-        symbol: 'BTC-DFI',
-        tokenA: {
-          displaySymbol: 'dBTC',
-          id: '3',
-          symbol: 'BTC'
+          symbol: 'CAT'
         },
         tokenB: {
           displaySymbol: 'DFI',
@@ -247,116 +143,257 @@ describe('get best path - DEX burn fees', () => {
       }])
   })
 
-  it('should get v0/poolpairs if both v0/poolpairs and v0/token is available', async () => {
-    const paths1 = await controller.getBestPath('1', '0') // DUSD -> DFI
-    /*
-      DUSD(id:1) to DFI(id:0) = 0.005 DUSD
-    */
-    expect(paths1.bestPath).toStrictEqual([{
-      estimatedDexFees: [{
-        amount: '0.00500000',
-        token: {
-          displaySymbol: 'DUSD',
-          symbol: 'DUSD'
+  it('should return fees - DFI to CAT - Both token fees direction are in', async () => {
+    const paths1 = await controller.getBestPath('0', '3')
+
+    expect(paths1.bestPath).toStrictEqual([
+      {
+        estimatedDexFees: {
+          tokenA: '0.00000000',
+          tokenB: '0.00200000'
+        },
+        poolPairId: '4',
+        priceRatio: {
+          ab: '0.10000000',
+          ba: '10.00000000'
+        },
+        symbol: 'CAT-DFI',
+        tokenA: {
+          displaySymbol: 'dCAT',
+          id: '3',
+          symbol: 'CAT'
+        },
+        tokenB: {
+          displaySymbol: 'DFI',
+          id: '0',
+          symbol: 'DFI'
         }
-      }],
-      estimatedReturn: '1.00000000',
-      poolPairId: '2',
-      priceRatio: {
-        ab: '1.00000000',
-        ba: '1.00000000'
-      },
-      symbol: 'DUSD-DFI',
-      tokenA: {
-        displaySymbol: 'DUSD',
-        id: '1',
-        symbol: 'DUSD'
-      },
-      tokenB: {
-        displaySymbol: 'DFI',
-        id: '0',
-        symbol: 'DFI'
-      }
-    }])
+      }])
   })
 
-  it('should return dex fees for each leg in composite swap', async () => {
-    const paths1 = await controller.getBestPath('9', '0') // dAAPL -> DFI
+  it('should return fees - DFI to DOG - Both token fees direction is out', async () => {
+    const paths1 = await controller.getBestPath('0', '5')
 
-    /*
-      dAAPL(id:9) to DUSD(id:1) = 0.001% dAAPL dex fee
-                                = 0.003% DUSD dex fee
-      DUSD(id:1) to DFI(id:0)   = 0.005% DUSD dex fee
-    */
-    expect(paths1.bestPath).toStrictEqual([{
-      estimatedDexFees: [{
-        amount: '0.00100000',
-        token: {
-          displaySymbol: 'dAAPL',
-          symbol: 'AAPL'
+    expect(paths1.bestPath).toStrictEqual([
+      {
+        estimatedDexFees: {
+          tokenA: '0.00300000',
+          tokenB: '0.00000000'
+        },
+        poolPairId: '6',
+        priceRatio: {
+          ab: '0.10000000',
+          ba: '10.00000000'
+        },
+        symbol: 'DOG-DFI',
+        tokenA: {
+          displaySymbol: 'dDOG',
+          id: '5',
+          symbol: 'DOG'
+        },
+        tokenB: {
+          displaySymbol: 'DFI',
+          id: '0',
+          symbol: 'DFI'
         }
-      }, {
-        amount: '0.03000000',
-        token: {
-          displaySymbol: 'DUSD',
-          symbol: 'DUSD'
+      }])
+  })
+
+  it('should return fees - DOG to DFI - Both token fees direction is out', async () => {
+    const paths1 = await controller.getBestPath('5', '0')
+
+    expect(paths1.bestPath).toStrictEqual([
+      {
+        estimatedDexFees: {
+          tokenA: '0.00000000',
+          tokenB: '0.00400000'
+        },
+        poolPairId: '6',
+        priceRatio: {
+          ab: '0.10000000',
+          ba: '10.00000000'
+        },
+        symbol: 'DOG-DFI',
+        tokenA: {
+          displaySymbol: 'dDOG',
+          id: '5',
+          symbol: 'DOG'
+        },
+        tokenB: {
+          displaySymbol: 'DFI',
+          id: '0',
+          symbol: 'DFI'
         }
-      }],
-      estimatedReturn: '10.00000000',
-      poolPairId: '10',
-      priceRatio: {
-        ab: '0.10000000',
-        ba: '10.00000000'
+      }])
+  })
+
+  it('should return fees - KOALA to DFI - TokenA fee direction is in', async () => {
+    const paths1 = await controller.getBestPath('7', '0')
+
+    expect(paths1.bestPath).toStrictEqual([
+      {
+        estimatedDexFees: {
+          tokenA: '0.00500000',
+          tokenB: '0.00000000'
+        },
+        poolPairId: '8',
+        priceRatio: {
+          ab: '0.10000000',
+          ba: '10.00000000'
+        },
+        symbol: 'KOALA-DFI',
+        tokenA: {
+          displaySymbol: 'dKOALA',
+          id: '7',
+          symbol: 'KOALA'
+        },
+        tokenB: {
+          displaySymbol: 'DFI',
+          id: '0',
+          symbol: 'DFI'
+        }
+      }])
+  })
+
+  it('should return fees - DFI to KOALA - TokenA fee direction is in', async () => {
+    const paths1 = await controller.getBestPath('0', '7')
+
+    expect(paths1.bestPath).toStrictEqual([
+      {
+        estimatedDexFees: {
+          tokenA: '0.00000000',
+          tokenB: '0.00000000'
+        },
+        poolPairId: '8',
+        priceRatio: {
+          ab: '0.10000000',
+          ba: '10.00000000'
+        },
+        symbol: 'KOALA-DFI',
+        tokenA: {
+          displaySymbol: 'dKOALA',
+          id: '7',
+          symbol: 'KOALA'
+        },
+        tokenB: {
+          displaySymbol: 'DFI',
+          id: '0',
+          symbol: 'DFI'
+        }
+      }])
+  })
+
+  it('should return fees - FISH to DFI - TokenB fee direction is out', async () => {
+    const paths1 = await controller.getBestPath('9', '0')
+
+    expect(paths1.bestPath).toStrictEqual([
+      {
+        estimatedDexFees: {
+          tokenA: '0.00000000',
+          tokenB: '0.00600000'
+        },
+        poolPairId: '10',
+        priceRatio: {
+          ab: '0.05000000',
+          ba: '20.00000000'
+        },
+        symbol: 'FISH-DFI',
+        tokenA: {
+          displaySymbol: 'dFISH',
+          id: '9',
+          symbol: 'FISH'
+        },
+        tokenB: {
+          displaySymbol: 'DFI',
+          id: '0',
+          symbol: 'DFI'
+        }
+      }])
+  })
+
+  it('should return fees - DFI to FISH - TokenB fee direction is out', async () => {
+    const paths1 = await controller.getBestPath('0', '9')
+    expect(paths1.bestPath).toStrictEqual([
+      {
+        estimatedDexFees: {
+          tokenA: '0.00000000',
+          tokenB: '0.00000000'
+        },
+        poolPairId: '10',
+        priceRatio: {
+          ab: '0.05000000',
+          ba: '20.00000000'
+        },
+        symbol: 'FISH-DFI',
+        tokenA: {
+          displaySymbol: 'dFISH',
+          id: '9',
+          symbol: 'FISH'
+        },
+        tokenB: {
+          displaySymbol: 'DFI',
+          id: '0',
+          symbol: 'DFI'
+        }
+      }])
+  })
+
+  it('should return dex fees on all pairs - CAT to DOG', async () => {
+    const paths1 = await controller.getBestPath('3', '5')
+
+    // CAT -> DFI -> DOG
+    expect(paths1.bestPath).toStrictEqual([
+      {
+        estimatedDexFees: {
+          tokenA: '0.00100000',
+          tokenB: '0.00000000'
+        },
+        poolPairId: '4',
+        priceRatio: {
+          ab: '0.10000000',
+          ba: '10.00000000'
+        },
+        symbol: 'CAT-DFI',
+        tokenA: {
+          displaySymbol: 'dCAT',
+          id: '3',
+          symbol: 'CAT'
+        },
+        tokenB: {
+          displaySymbol: 'DFI',
+          id: '0',
+          symbol: 'DFI'
+        }
       },
-      symbol: 'AAPL-DUSD',
-      tokenA: {
-        displaySymbol: 'dAAPL',
-        id: '9',
-        symbol: 'AAPL'
-      },
-      tokenB: {
-        displaySymbol: 'DUSD',
-        id: '1',
-        symbol: 'DUSD'
+      {
+        estimatedDexFees: {
+          tokenA: '0.00300000',
+          tokenB: '0.00000000'
+        },
+        poolPairId: '6',
+        priceRatio: {
+          ab: '0.10000000',
+          ba: '10.00000000'
+        },
+        symbol: 'DOG-DFI',
+        tokenA: {
+          displaySymbol: 'dDOG',
+          id: '5',
+          symbol: 'DOG'
+        },
+        tokenB: {
+          displaySymbol: 'DFI',
+          id: '0',
+          symbol: 'DFI'
+        }
       }
-    },
-    {
-      estimatedDexFees: [{
-        amount: '0.05000000',
-        token: {
-          displaySymbol: 'DUSD',
-          symbol: 'DUSD'
-        }
-      }],
-      estimatedReturn: '10.00000000',
-      poolPairId: '2',
-      priceRatio: {
-        ab: '1.00000000',
-        ba: '1.00000000'
-      },
-      symbol: 'DUSD-DFI',
-      tokenA: {
-        displaySymbol: 'DUSD',
-        id: '1',
-        symbol: 'DUSD'
-      },
-      tokenB: {
-        displaySymbol: 'DFI',
-        id: '0',
-        symbol: 'DFI'
-      }
-    }])
+    ])
   })
 
   it('should return [] if dex fees is not set', async () => {
-    const paths1 = await controller.getBestPath('5', '0') // dETH -> DFI
-    const paths2 = await controller.getBestPath('0', '5') // DFI -> dETH
-    expect(paths1.bestPath.length).toStrictEqual(1)
-    expect(paths1.bestPath[0].estimatedDexFees).toStrictEqual([])
-    expect(paths1.bestPath[0].estimatedReturn).toStrictEqual('10.00000000')
-
-    expect(paths2.bestPath.length).toStrictEqual(1)
-    expect(paths2.bestPath[0].estimatedDexFees).toStrictEqual([])
-    expect(paths2.bestPath[0].estimatedReturn).toStrictEqual('0.10000000')
+    const paths1 = await controller.getBestPath('1', '0')
+    const paths2 = await controller.getBestPath('0', '1')
+    expect(paths1.bestPath[0].estimatedDexFees).toStrictEqual(undefined)
+    expect(paths2.bestPath[0].estimatedDexFees).toStrictEqual(undefined)
   })
 })

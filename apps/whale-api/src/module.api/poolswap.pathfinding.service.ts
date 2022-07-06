@@ -5,9 +5,7 @@ import {
   BestSwapPathResult,
   SwapPathPoolPair,
   SwapPathsResult,
-  SwapPoolPair,
-  TokenIdentifier,
-  SwapPathWithDirection
+  TokenIdentifier
 } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { DeFiDCache, PoolPairInfoWithId } from './cache/defid.cache'
 import { Interval } from '@nestjs/schedule'
@@ -135,39 +133,33 @@ export class PoolSwapPathFindingService {
       const poolPairs: SwapPathPoolPair[] = []
       // Iterate over the path pairwise; ( tokenA )---< poolPairId >---( tokenB )
       // to collect poolPair info into the final result
-      let estimatedReturnTokenA = new BigNumber(1)
       for (let i = 1; i < path.length; i++) {
-        const tokenA = path[i - 1]
-        const tokenB = path[i]
+        const tokenAId = path[i - 1]
+        const tokenBId = path[i]
 
-        const poolPairId = this.tokenGraph.edge(tokenA, tokenB)
+        const poolPairId = this.tokenGraph.edge(tokenAId, tokenBId)
         if (poolPairId === undefined) {
           throw new Error(
             'Unexpected error encountered during path finding - ' +
-            `could not find edge between ${tokenA} and ${tokenB}`
+            `could not find edge between ${tokenAId} and ${tokenBId}`
           )
         }
 
         const poolPair = await this.getPoolPairInfo(poolPairId)
-        const swapPathPoolPair = {
+        const tokenA = await this.getTokenIdentifier(poolPair.idTokenA)
+        const tokenB = await this.getTokenIdentifier(poolPair.idTokenB)
+        const estimatedDexFees = await this.poolPairFeesServices.getDexFeesPct(poolPair, poolPairId, tokenAId, tokenBId)
+
+        poolPairs.push({
           poolPairId: poolPairId,
           symbol: poolPair.symbol,
-          tokenA: await this.getTokenIdentifier(poolPair.idTokenA),
-          tokenB: await this.getTokenIdentifier(poolPair.idTokenB),
+          tokenA,
+          tokenB,
           priceRatio: {
             ab: formatNumber(new BigNumber(poolPair['reserveA/reserveB'])),
             ba: formatNumber(new BigNumber(poolPair['reserveB/reserveA']))
-          }
-        }
-
-        const estimatedReturnTokenB = computeReturnInDestinationToken([swapPathPoolPair], tokenA, estimatedReturnTokenA)
-        const swapPathWithDirection = getSwapPathWithDirection(swapPathPoolPair, tokenA, tokenB, estimatedReturnTokenA, estimatedReturnTokenB)
-        const poolpairDexFees = await this.poolPairFeesServices.getDexFees(swapPathWithDirection)
-        estimatedReturnTokenA = estimatedReturnTokenB
-        poolPairs.push({
-          ...swapPathPoolPair,
-          estimatedReturn: estimatedReturnTokenB.toFixed(8),
-          estimatedDexFees: poolpairDexFees
+          },
+          ...((estimatedDexFees != null) && { estimatedDexFees })
         })
       }
 
@@ -269,8 +261,8 @@ export class PoolSwapPathFindingService {
   }
 }
 
-function computeReturnInDestinationToken (path: SwapPoolPair[], fromTokenId: string, previousTotal?: BigNumber): BigNumber {
-  let total = previousTotal ?? new BigNumber(1)
+function computeReturnInDestinationToken (path: SwapPathPoolPair[], fromTokenId: string): BigNumber {
+  let total = new BigNumber(1)
   for (const poolPair of path) {
     if (fromTokenId === poolPair.tokenA.id) {
       total = total.multipliedBy(poolPair.priceRatio.ba)
@@ -287,28 +279,4 @@ function formatNumber (number: BigNumber): string {
   return number.eq(0)
     ? '0'
     : number.toFixed(8)
-}
-
-function getSwapPathWithDirection (path: SwapPoolPair, tokenFromId: string, tokenToId: string, estimatedReturnTokenA: BigNumber, estimatedReturnTokenB: BigNumber): SwapPathWithDirection {
-  if (
-    !((path.tokenA.id === tokenFromId && path.tokenB.id === tokenToId) ||
-      (path.tokenA.id === tokenToId && path.tokenB.id === tokenFromId))
-  ) {
-    throw new Error(
-      'Unexpected error encountered during path finding - ' +
-      `path is not equivalent to pair ${tokenFromId} and ${tokenToId}`
-    )
-  }
-
-  return {
-    poolPairId: path.poolPairId,
-    tokenFrom: {
-      estimatedReturn: new BigNumber(path.tokenA.id === tokenFromId ? estimatedReturnTokenA : estimatedReturnTokenB).toFixed(8),
-      token: path.tokenA.id === tokenFromId ? path.tokenA : path.tokenB
-    },
-    tokenTo: {
-      estimatedReturn: new BigNumber(path.tokenB.id === tokenToId ? estimatedReturnTokenB : estimatedReturnTokenA).toFixed(8),
-      token: path.tokenB.id === tokenToId ? path.tokenB : path.tokenA
-    }
-  }
 }

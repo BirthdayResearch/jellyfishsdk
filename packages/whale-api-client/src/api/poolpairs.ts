@@ -243,12 +243,9 @@ export interface AllSwappableTokensResult {
   swappableTokens: TokenIdentifier[]
 }
 
-export interface EstimatedDexFee {
-  amount: string
-  token: {
-    displaySymbol: string
-    symbol: string
-  }
+export interface EstimatedDexFees {
+  tokenA: string
+  tokenB: string
 }
 
 export interface BestSwapPathResult {
@@ -264,7 +261,7 @@ export interface SwapPathsResult {
   paths: SwapPathPoolPair[][]
 }
 
-export interface SwapPoolPair {
+export interface SwapPathPoolPair {
   poolPairId: string
   symbol: string
   tokenA: TokenIdentifier
@@ -273,11 +270,7 @@ export interface SwapPoolPair {
     ab: string
     ba: string
   }
-}
-
-export interface SwapPathPoolPair extends SwapPoolPair {
-  estimatedReturn: string
-  estimatedDexFees: EstimatedDexFee[]
+  estimatedDexFees?: EstimatedDexFees
 }
 
 export interface TokenIdentifier {
@@ -296,16 +289,4 @@ export interface DexPricesResult {
 export interface DexPrice {
   token: TokenIdentifier
   denominationPrice: string // BigNumber
-}
-
-export interface SwapPathWithDirection {
-  poolPairId: string
-  tokenFrom: {
-    token: TokenIdentifier
-    estimatedReturn: string // BigNumber
-  }
-  tokenTo: {
-    token: TokenIdentifier
-    estimatedReturn: string // BigNumber
-  }
 }

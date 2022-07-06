@@ -367,9 +367,7 @@ describe('get best path', () => {
           poolPairId: '13',
           priceRatio: { ab: '0.50000000', ba: '2.00000000' },
           tokenA: { id: '1', symbol: 'A', displaySymbol: 'dA' },
-          tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' },
-          estimatedReturn: '2.00000000',
-          estimatedDexFees: []
+          tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
         }
       ],
       estimatedReturn: '2.00000000'
@@ -395,18 +393,14 @@ describe('get best path', () => {
           poolPairId: '13',
           priceRatio: { ab: '0.50000000', ba: '2.00000000' },
           tokenA: { id: '1', symbol: 'A', displaySymbol: 'dA' },
-          tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' },
-          estimatedDexFees: [],
-          estimatedReturn: '2.00000000'
+          tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
         },
         {
           symbol: 'C-DFI',
           poolPairId: '15',
           priceRatio: { ab: '0.25000000', ba: '4.00000000' },
           tokenA: { id: '3', symbol: 'C', displaySymbol: 'dC' },
-          tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' },
-          estimatedDexFees: [],
-          estimatedReturn: '0.50000000'
+          tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
         }
       ],
       estimatedReturn: '0.50000000'
@@ -432,27 +426,21 @@ describe('get best path', () => {
           poolPairId: '19',
           priceRatio: { ab: '0.20000000', ba: '5.00000000' },
           tokenA: { id: '7', symbol: 'G', displaySymbol: 'dG' },
-          tokenB: { id: '1', symbol: 'A', displaySymbol: 'dA' },
-          estimatedDexFees: [],
-          estimatedReturn: '5.00000000'
+          tokenB: { id: '1', symbol: 'A', displaySymbol: 'dA' }
         },
         {
           symbol: 'A-DFI',
           poolPairId: '13',
           priceRatio: { ab: '0.50000000', ba: '2.00000000' },
           tokenA: { id: '1', symbol: 'A', displaySymbol: 'dA' },
-          tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' },
-          estimatedDexFees: [],
-          estimatedReturn: '10.00000000'
+          tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
         },
         {
           symbol: 'C-DFI',
           poolPairId: '15',
           priceRatio: { ab: '0.25000000', ba: '4.00000000' },
           tokenA: { id: '3', symbol: 'C', displaySymbol: 'dC' },
-          tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' },
-          estimatedDexFees: [],
-          estimatedReturn: '2.50000000'
+          tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
         }
       ],
       estimatedReturn: '2.50000000'
@@ -480,9 +468,7 @@ describe('get best path', () => {
           poolPairId: '21',
           priceRatio: { ab: '0.14285714', ba: '7.00000000' },
           tokenA: { id: '10', symbol: 'J', displaySymbol: 'dJ' },
-          tokenB: { id: '11', symbol: 'K', displaySymbol: 'dK' },
-          estimatedDexFees: [],
-          estimatedReturn: '7.00000000'
+          tokenB: { id: '11', symbol: 'K', displaySymbol: 'dK' }
         }
       ],
       estimatedReturn: '7.00000000'
@@ -537,9 +523,7 @@ describe('get all paths', () => {
             poolPairId: '13',
             tokenA: { id: '1', symbol: 'A', displaySymbol: 'dA' },
             tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' },
-            priceRatio: { ab: '0.50000000', ba: '2.00000000' },
-            estimatedDexFees: [],
-            estimatedReturn: '2.00000000'
+            priceRatio: { ab: '0.50000000', ba: '2.00000000' }
           }
         ]
       ]
@@ -566,18 +550,14 @@ describe('get all paths', () => {
             poolPairId: '13',
             priceRatio: { ab: '0.50000000', ba: '2.00000000' },
             tokenA: { id: '1', symbol: 'A', displaySymbol: 'dA' },
-            tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' },
-            estimatedDexFees: [],
-            estimatedReturn: '2.00000000'
+            tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
           },
           {
             symbol: 'C-DFI',
             poolPairId: '15',
             priceRatio: { ab: '0.25000000', ba: '4.00000000' },
             tokenA: { id: '3', symbol: 'C', displaySymbol: 'dC' },
-            tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' },
-            estimatedDexFees: [],
-            estimatedReturn: '0.50000000'
+            tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
           }
         ]
       ]
@@ -604,27 +584,21 @@ describe('get all paths', () => {
             poolPairId: '19',
             priceRatio: { ab: '0.20000000', ba: '5.00000000' },
             tokenA: { id: '7', symbol: 'G', displaySymbol: 'dG' },
-            tokenB: { id: '1', symbol: 'A', displaySymbol: 'dA' },
-            estimatedDexFees: [],
-            estimatedReturn: '5.00000000'
+            tokenB: { id: '1', symbol: 'A', displaySymbol: 'dA' }
           },
           {
             symbol: 'A-DFI',
             poolPairId: '13',
             priceRatio: { ab: '0.50000000', ba: '2.00000000' },
             tokenA: { id: '1', symbol: 'A', displaySymbol: 'dA' },
-            tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' },
-            estimatedDexFees: [],
-            estimatedReturn: '10.00000000'
+            tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
           },
           {
             symbol: 'C-DFI',
             poolPairId: '15',
             priceRatio: { ab: '0.25000000', ba: '4.00000000' },
             tokenA: { id: '3', symbol: 'C', displaySymbol: 'dC' },
-            tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' },
-            estimatedDexFees: [],
-            estimatedReturn: '2.50000000'
+            tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
           }
         ]
       ]
@@ -651,27 +625,21 @@ describe('get all paths', () => {
             poolPairId: '20',
             priceRatio: { ab: '0', ba: '0' },
             tokenA: { id: '9', symbol: 'I', displaySymbol: 'dI' },
-            tokenB: { id: '10', symbol: 'J', displaySymbol: 'dJ' },
-            estimatedDexFees: [],
-            estimatedReturn: '0.00000000'
+            tokenB: { id: '10', symbol: 'J', displaySymbol: 'dJ' }
           },
           {
             symbol: 'J-L',
             poolPairId: '22',
             priceRatio: { ab: '0.50000000', ba: '2.00000000' },
             tokenA: { id: '10', symbol: 'J', displaySymbol: 'dJ' },
-            tokenB: { id: '12', symbol: 'L', displaySymbol: 'dL' },
-            estimatedDexFees: [],
-            estimatedReturn: '0.00000000'
+            tokenB: { id: '12', symbol: 'L', displaySymbol: 'dL' }
           },
           {
             symbol: 'L-K',
             poolPairId: '23',
             priceRatio: { ab: '0.25000000', ba: '4.00000000' },
             tokenA: { id: '12', symbol: 'L', displaySymbol: 'dL' },
-            tokenB: { id: '11', symbol: 'K', displaySymbol: 'dK' },
-            estimatedDexFees: [],
-            estimatedReturn: '0.00000000'
+            tokenB: { id: '11', symbol: 'K', displaySymbol: 'dK' }
           }
         ],
         [
@@ -680,18 +648,14 @@ describe('get all paths', () => {
             poolPairId: '20',
             priceRatio: { ab: '0', ba: '0' },
             tokenA: { id: '9', symbol: 'I', displaySymbol: 'dI' },
-            tokenB: { id: '10', symbol: 'J', displaySymbol: 'dJ' },
-            estimatedDexFees: [],
-            estimatedReturn: '0.00000000'
+            tokenB: { id: '10', symbol: 'J', displaySymbol: 'dJ' }
           },
           {
             symbol: 'J-K',
             poolPairId: '21',
             priceRatio: { ab: '0.14285714', ba: '7.00000000' },
             tokenA: { id: '10', symbol: 'J', displaySymbol: 'dJ' },
-            tokenB: { id: '11', symbol: 'K', displaySymbol: 'dK' },
-            estimatedDexFees: [],
-            estimatedReturn: '0.00000000'
+            tokenB: { id: '11', symbol: 'K', displaySymbol: 'dK' }
           }
         ]
       ]
@@ -718,18 +682,14 @@ describe('get all paths', () => {
             poolPairId: '22',
             priceRatio: { ab: '0.50000000', ba: '2.00000000' },
             tokenA: { id: '10', symbol: 'J', displaySymbol: 'dJ' },
-            tokenB: { id: '12', symbol: 'L', displaySymbol: 'dL' },
-            estimatedReturn: '2.00000000',
-            estimatedDexFees: []
+            tokenB: { id: '12', symbol: 'L', displaySymbol: 'dL' }
           },
           {
             symbol: 'L-K',
             poolPairId: '23',
             priceRatio: { ab: '0.25000000', ba: '4.00000000' },
             tokenA: { id: '12', symbol: 'L', displaySymbol: 'dL' },
-            tokenB: { id: '11', symbol: 'K', displaySymbol: 'dK' },
-            estimatedReturn: '8.00000000',
-            estimatedDexFees: []
+            tokenB: { id: '11', symbol: 'K', displaySymbol: 'dK' }
           }
         ],
         [
@@ -738,9 +698,7 @@ describe('get all paths', () => {
             poolPairId: '21',
             priceRatio: { ab: '0.14285714', ba: '7.00000000' },
             tokenA: { id: '10', symbol: 'J', displaySymbol: 'dJ' },
-            tokenB: { id: '11', symbol: 'K', displaySymbol: 'dK' },
-            estimatedReturn: '7.00000000',
-            estimatedDexFees: []
+            tokenB: { id: '11', symbol: 'K', displaySymbol: 'dK' }
           }
         ]
       ]
