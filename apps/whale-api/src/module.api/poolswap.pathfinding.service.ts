@@ -134,27 +134,25 @@ export class PoolSwapPathFindingService {
       // Iterate over the path pairwise; ( tokenA )---< poolPairId >---( tokenB )
       // to collect poolPair info into the final result
       for (let i = 1; i < path.length; i++) {
-        const tokenAId = path[i - 1]
-        const tokenBId = path[i]
+        const tokenA = path[i - 1]
+        const tokenB = path[i]
 
-        const poolPairId = this.tokenGraph.edge(tokenAId, tokenBId)
+        const poolPairId = this.tokenGraph.edge(tokenA, tokenB)
         if (poolPairId === undefined) {
           throw new Error(
             'Unexpected error encountered during path finding - ' +
-            `could not find edge between ${tokenAId} and ${tokenBId}`
+            `could not find edge between ${tokenA} and ${tokenB}`
           )
         }
 
         const poolPair = await this.getPoolPairInfo(poolPairId)
-        const tokenA = await this.getTokenIdentifier(poolPair.idTokenA)
-        const tokenB = await this.getTokenIdentifier(poolPair.idTokenB)
-        const estimatedDexFees = await this.poolPairFeesServices.getDexFeesPct(poolPair, poolPairId, tokenAId, tokenBId)
+        const estimatedDexFees = await this.poolPairFeesServices.getDexFeesPct(poolPair, poolPairId, tokenA, tokenB)
 
         poolPairs.push({
           poolPairId: poolPairId,
           symbol: poolPair.symbol,
-          tokenA,
-          tokenB,
+          tokenA: await this.getTokenIdentifier(poolPair.idTokenA),
+          tokenB: await this.getTokenIdentifier(poolPair.idTokenB),
           priceRatio: {
             ab: formatNumber(new BigNumber(poolPair['reserveA/reserveB'])),
             ba: formatNumber(new BigNumber(poolPair['reserveB/reserveA']))
