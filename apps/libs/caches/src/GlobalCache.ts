@@ -11,7 +11,7 @@ export enum CachePrefix {
   TOKEN_INFO_SYMBOL = 2,
   LOAN_SCHEME_INFO = 3,
   POOL_PAIRS = 4,
-  ALL_TOKEN_INFO = 5
+  ALL_TOKEN_INFO = 5,
 }
 
 export class GlobalCache {
@@ -28,7 +28,7 @@ export class GlobalCache {
    * @param {number} [options.ttl=600] cache ttl, 600 seconds
    * @return Promise<Record<string, T | undefined>>
    */
-  async batch<T>(prefix: CachePrefix, ids: string[], fetch: (id: string) => Promise<T | undefined>, options: CacheOption = {}): Promise<Record<string, T | undefined>> {
+  async batch<T> (prefix: CachePrefix, ids: string[], fetch: (id: string) => Promise<T | undefined>, options: CacheOption = {}): Promise<Record<string, T | undefined>> {
     const records: Record<string, T | undefined> = {}
     for (const id of ids) {
       records[id] = await this.get(prefix, id, fetch, options)
@@ -46,7 +46,7 @@ export class GlobalCache {
    * @param {number} [options.ttl=600] cache ttl, 600 seconds
    * @return {Promise<T | undefined>}
    */
-  async get<T>(prefix: number, id: string, fetch: (id: string) => Promise<T | undefined>, options: CacheOption = {}): Promise<T | undefined> {
+  async get<T> (prefix: number, id: string, fetch: (id: string) => Promise<T | undefined>, options: CacheOption = {}): Promise<T | undefined> {
     const key: string = `${prefix} ${id}`
     const cached = await this.cacheManager.get<T>(key)
     if (cached !== undefined) {
