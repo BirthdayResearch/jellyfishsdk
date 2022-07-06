@@ -44,7 +44,8 @@ describe('StatsController', () => {
         emissionburn: expect.any(String),
         dfip2203: expect.arrayContaining(
           [expect.stringMatching(/\d+\.?\d+@\w+/)] // ['123@BTC', '10.8@DFI', ...]
-        )
+        ),
+        dfip2206f: expect.any(Array)
       },
 
       timeStamp: expect.any(Number),
