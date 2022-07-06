@@ -3,23 +3,11 @@
 [![npm](https://img.shields.io/npm/v/@defichain/jellyfish-network)](https://www.npmjs.com/package/@defichain/jellyfish-network)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/c5b7a65e-aeec-4e12-a7b7-300cbc1a8069/deploy-status)](https://app.netlify.com/sites/cranky-franklin-5e59ef/deploys)
 
-# [@defichain/jellyfish](https://jellyfishsdk.com)
+# [The Jellyfish SDK](https://jellyfishsdk.com)
 
 > https://jellyfishsdk.com
 
 DeFiChain Jellyfish SDK. A collection of TypeScript + JavaScript tools and libraries to build Native DeFi products.
-
-<details>
-<summary><b>Watch this space!</b></summary>
-
-We are consolidating all jellyfish ecosystem projects ocean, whale and playground into this repository.
-
-- For better synergy of DeFiChain open source development across all concerns.
-- Consistent versioning for all ecosystem releases with a single source of truth.
-- Documentation for the entirety of the jellyfish ecosystem via `jellyfishsdk.com`. Incorporating sample and playground.
-- Early regression detection upstream to downstream changes with monolithic repo structure.
-
-</details>
 
 ## Packages
 
