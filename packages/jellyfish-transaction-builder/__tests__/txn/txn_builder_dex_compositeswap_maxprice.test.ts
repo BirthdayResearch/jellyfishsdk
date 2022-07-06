@@ -91,7 +91,7 @@ it('should not compositeSwap with maxPrice accounting for commission and dexFees
   // Fund 10 DFI UTXO, allow provider able to collect 1
   await fundEllipticPair(container, providers.ellipticPair, 10)
 
-   const inputPIGAmount = new BigNumber(1);
+  const inputPIGAmount = new BigNumber(1)
   const txn = await builder.dex.compositeSwap({
     poolSwap: {
       fromScript: script,
@@ -117,7 +117,7 @@ it('should not compositeSwap with maxPrice accounting for commission and dexFees
   // DFI -> CAT
   const inputDFIAfterFeeIn = intermediateSwappedAmountAfterFeeOut.minus(intermediateSwappedAmountAfterFeeOut.multipliedBy(0.15))
   const ammSwappedAmountInCAT = new BigNumber(1000).minus(new BigNumber(1000 * 1000).dividedBy(new BigNumber(inputDFIAfterFeeIn).plus(1000))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
-  const finalSwappedAmountAfterFeeOut = ammSwappedAmountInCAT;
+  const finalSwappedAmountAfterFeeOut = ammSwappedAmountInCAT
   expect(inputPIGAmount.dividedBy(finalSwappedAmountAfterFeeOut).gt(1.2)).toBeTruthy()
 
   const promise = sendTransaction(container, txn)

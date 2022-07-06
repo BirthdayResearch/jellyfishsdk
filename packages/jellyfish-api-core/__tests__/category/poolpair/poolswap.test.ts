@@ -167,7 +167,7 @@ describe('poolSwap', () => {
     })
     await container.generate(1)
 
-    const inputDFIAmount = new BigNumber(1);
+    const inputDFIAmount = new BigNumber(1)
     const metadata = {
       from: address,
       tokenFrom: 'DFI',
