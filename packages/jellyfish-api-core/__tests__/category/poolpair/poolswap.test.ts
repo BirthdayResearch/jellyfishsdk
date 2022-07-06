@@ -167,14 +167,22 @@ describe('poolSwap', () => {
     })
     await container.generate(1)
 
+    const inputDFIAmount = new BigNumber(1);
     const metadata = {
       from: address,
       tokenFrom: 'DFI',
-      amountFrom: 1,
+      amountFrom: inputDFIAmount.toNumber(),
       to: address,
       tokenTo: 'SLIP',
       maxPrice: 1.5
     }
+
+    // manual calculations and verify
+    const inputDFIAfterFeeIn = inputDFIAmount.minus(inputDFIAmount.multipliedBy(0.05))
+    // (SLIP 1000: DFI 1000)
+    const ammSwappedAmountInSLIP = new BigNumber(1000).minus(new BigNumber(1000 * 1000).dividedBy(new BigNumber(inputDFIAfterFeeIn).plus(1000))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    const finalAmountAfterFeeOut = ammSwappedAmountInSLIP.minus(ammSwappedAmountInSLIP.multipliedBy(0.3))
+    expect(inputDFIAmount.dividedBy(finalAmountAfterFeeOut).gt(1.5)).toBeTruthy()
 
     await expect(client.poolpair.poolSwap(metadata))
       .rejects.toThrow('Price is higher than indicated.')
