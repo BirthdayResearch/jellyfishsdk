@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common'
-import { StatsData, SupplyData } from '@defichain/whale-api-client/dist/api/Stats'
+import { BurnData, StatsData, SupplyData } from '@defichain/whale-api-client/dist/api/stats'
 import { SemaphoreCache } from '@defichain-apps/libs/caches'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { BlockMapper } from '../module.model/block'
@@ -69,7 +69,32 @@ export class StatsController {
     }
   }
 
+  /**
+   * Remapped from BurnInfo into BurnData due to upstream standards drift.
+   */
   @Get('/burn')
+  async getBurn (): Promise<BurnData> {
+    const burnInfo = await this.getBurnInfo()
+    const paybackBurnDFI = findTokenBalance(burnInfo.paybackburn, 'DFI')
+
+    return {
+      address: burnInfo.address,
+      amount: burnInfo.amount.toNumber(),
+      tokens: burnInfo.tokens,
+      feeburn: burnInfo.feeburn.toNumber(),
+      emissionburn: burnInfo.emissionburn.toNumber(),
+      auctionburn: burnInfo.auctionburn.toNumber(),
+      paybackburn: paybackBurnDFI.toNumber(),
+      dexfeetokens: burnInfo.dexfeetokens,
+      dfipaybackfee: burnInfo.dfipaybackfee.toNumber(),
+      dfipaybacktokens: burnInfo.dfipaybacktokens,
+      paybackfees: burnInfo.paybackfees,
+      paybacktokens: burnInfo.paybacktokens,
+      dfip2203: burnInfo.dfip2203,
+      dfip2206f: burnInfo.dfip2206f
+    }
+  }
+
   async getBurnInfo (): Promise<BurnInfo> {
     return await this.cachedGet('Controller.stats.getBurnInfo', async () => {
       return await this.rpcClient.account.getBurnInfo()
@@ -79,7 +104,7 @@ export class StatsController {
   private async getLoanInfo (): Promise<GetLoanInfoResult> {
     return await this.cachedGet('Controller.stats.getLoanInfo', async () => {
       return await this.rpcClient.loan.getLoanInfo()
-    }, 299)
+    }, 777)
   }
 
   private async getCachedBurnTotal (): Promise<BigNumber> {
@@ -144,17 +169,18 @@ export class StatsController {
     const utxo = burnInfo.amount
     const account = findTokenBalance(burnInfo.tokens, 'DFI')
     const address = utxo.plus(account)
+    const paybackBurnDFI = findTokenBalance(burnInfo.paybackburn, 'DFI')
 
     return {
       address: address.toNumber(),
       fee: burnInfo.feeburn.toNumber(),
       auction: burnInfo.auctionburn.toNumber(),
-      payback: burnInfo.paybackburn.toNumber(),
+      payback: paybackBurnDFI.toNumber(),
       emission: burnInfo.emissionburn.toNumber(),
       total: address
         .plus(burnInfo.feeburn)
         .plus(burnInfo.auctionburn)
-        .plus(burnInfo.paybackburn)
+        .plus(paybackBurnDFI)
         .plus(burnInfo.emissionburn)
         .toNumber()
     }
@@ -277,7 +303,7 @@ function findTokenBalance (tokens: string[], symbol: string): BigNumber {
   return new BigNumber(0)
 }
 
-function requireValue<T> (value: T | undefined, name: string): T {
+export function requireValue<T> (value: T | undefined, name: string): T {
   if (value === undefined) {
     throw new Error(`failed to compute: ${name}`)
   }

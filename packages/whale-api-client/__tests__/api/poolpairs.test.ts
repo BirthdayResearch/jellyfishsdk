@@ -3,7 +3,7 @@ import { StubWhaleApiClient } from '../stub.client'
 import { StubService } from '../stub.service'
 import { ApiPagedResponse, WhaleApiClient, WhaleApiException } from '../../src'
 import { addPoolLiquidity, createPoolPair, createToken, getNewAddress, mintTokens, poolSwap } from '@defichain/testing'
-import { PoolPairData, PoolSwapAggregatedData, PoolSwapAggregatedInterval, PoolSwapData } from '../../src/api/PoolPairs'
+import { PoolPairData, PoolSwapAggregatedData, PoolSwapAggregatedInterval, PoolSwapData } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { Testing } from '@defichain/jellyfish-testing'
 import waitForExpect from 'wait-for-expect'
 
@@ -20,9 +20,9 @@ beforeEach(async () => {
 
   await container.start()
   await container.waitForWalletCoinbaseMaturity()
-  await service.start()
-
   await setup()
+
+  await service.start()
 })
 
 afterEach(async () => {
@@ -780,7 +780,6 @@ describe('poolswap aggregated', () => {
         id: expect.any(String),
         key: '10-86400'
       }
-
     ])
 
     const hourAggregated: ApiPagedResponse<PoolSwapAggregatedData> = await client.poolpairs.listPoolSwapAggregates('10', PoolSwapAggregatedInterval.ONE_HOUR, 3)

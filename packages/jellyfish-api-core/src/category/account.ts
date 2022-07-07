@@ -34,6 +34,16 @@ export enum DfTxType {
   FUTURE_SWAP_REFUND = 'w'
 }
 
+/**
+ * Configure the format of amounts
+ * id - amount with the following 'id' -> <amount>@id
+ * symbol - amount with the following 'symbol' -> <amount>@symbol
+ */
+export enum Format {
+  ID = 'id',
+  SYMBOL = 'symbol'
+}
+
 export enum SelectionModeType {
   PIE = 'pie',
   CRUMBS = 'crumbs',
@@ -292,6 +302,7 @@ export class Account {
    * @param {DfTxType} [options.txtype] Filter by transaction type. See DfTxType.
    * @param {number} [options.limit=100] Maximum number of records to return, 100 by default
    * @param {number} [options.txn] Order in block, unlimited by default
+   * @param {Format} [options.format] Set the return amount format, Format.SYMBOL by default
    * @return {Promise<AccountHistory[]>}
    */
   async listAccountHistory (
@@ -440,6 +451,25 @@ export class Account {
   async listPendingFutureSwaps (): Promise<ListFutureInfo[]> {
     return await this.client.call('listpendingfutureswaps', [], 'number')
   }
+
+  /**
+   * List pending DUSD swaps futures.
+   *
+   * @return {Promise<DusdSwapsInfo[]>}
+   */
+  async listPendingDusdSwaps (): Promise<DusdSwapsInfo[]> {
+    return await this.client.call('listpendingdusdswaps', [], 'bignumber')
+  }
+
+  /**
+   * Get pending DUSD swaps future.
+   *
+   * @param {string} address to get pending future swaps
+   * @return {Promise<DusdSwapsInfo>}
+   */
+  async getPendingDusdSwaps (address: string): Promise<DusdSwapsInfo> {
+    return await this.client.call('getpendingdusdswaps', [address], 'bignumber')
+  }
 }
 
 export interface AccountPagination {
@@ -511,6 +541,7 @@ export interface AccountHistoryOptions {
   txtype?: DfTxType
   limit?: number
   txn?: number
+  format?: Format
 }
 
 export interface AccountHistoryCountOptions {
@@ -580,9 +611,9 @@ export interface BurnInfo {
    */
   auctionburn: BigNumber
   /**
-   * Value of burn after payback
+   * Burns after payback
    */
-  paybackburn: BigNumber
+  paybackburn: string[]
   /**
    * Formatted as AMOUNT@SYMBOL
    */
@@ -607,6 +638,10 @@ export interface BurnInfo {
    * Amount of tokens burned due to futureswap
    */
   dfip2203: string[]
+  /**
+   * Amount of tokens burned due to DFI-to-DUSD swap
+   */
+  dfip2206f: string[]
 }
 
 export interface FutureSwap {
@@ -629,4 +664,9 @@ export interface ListFutureInfo {
   owner: string
   source: string // eg: '1.234@DUSD'
   destination: string
+}
+
+export interface DusdSwapsInfo {
+  owner: string
+  amount: BigNumber
 }

@@ -9,7 +9,7 @@ import {
   PoolSwapAggregatedData,
   PoolSwapData,
   SwapPathsResult
-} from '@defichain/whale-api-client/dist/api/PoolPairs'
+} from '@defichain/whale-api-client/dist/api/poolpairs'
 import { PaginationQuery } from './_core/api.query'
 import { PoolPairService } from './poolpair.service'
 import { PoolSwapPathFindingService } from './poolswap.pathfinding.service'
@@ -195,7 +195,13 @@ export class PoolPairController {
   }
 }
 
-function mapPoolPair (id: string, info: PoolPairInfo, totalLiquidityUsd?: BigNumber, apr?: PoolPairData['apr'], volume?: PoolPairData['volume']): PoolPairData {
+function mapPoolPair (
+  id: string,
+  info: PoolPairInfo,
+  totalLiquidityUsd?: BigNumber,
+  apr?: PoolPairData['apr'],
+  volume?: PoolPairData['volume']
+): PoolPairData {
   const [symbolA, symbolB] = info.symbol.split('-')
 
   return {

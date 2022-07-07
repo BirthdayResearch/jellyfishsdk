@@ -8,10 +8,8 @@ import {
   PoolSwapData,
   PoolSwapFromToData,
   SwapType
-} from '@defichain/whale-api-client/dist/api/PoolPairs'
+} from '@defichain/whale-api-client/dist/api/poolpairs'
 import { getBlockSubsidy } from './subsidy'
-import { BlockMapper } from '../module.model/block'
-import { TokenMapper } from '../module.model/token'
 import { PoolSwapAggregated, PoolSwapAggregatedMapper } from '../module.model/pool.swap.aggregated'
 import { PoolSwapAggregatedInterval } from '../module.indexer/model/dftx/pool.swap.aggregated'
 import { TransactionVoutMapper } from '../module.model/transaction.vout'
@@ -40,9 +38,7 @@ export class PoolPairService {
     protected readonly deFiDCache: DeFiDCache,
     protected readonly cache: SemaphoreCache,
     protected readonly poolSwapAggregatedMapper: PoolSwapAggregatedMapper,
-    protected readonly voutMapper: TransactionVoutMapper,
-    protected readonly tokenMapper: TokenMapper,
-    protected readonly blockMapper: BlockMapper
+    protected readonly voutMapper: TransactionVoutMapper
   ) {
   }
 
@@ -149,9 +145,9 @@ export class PoolPairService {
     })
   }
 
-  private async getTokenUSDValue (id: number): Promise<BigNumber | undefined> {
+  private async getTokenUSDValue (id: string): Promise<BigNumber | undefined> {
     return await this.cache.get<BigNumber>(`PRICE_FOR_TOKEN_${id}`, async () => {
-      const tokenInfo = await this.tokenMapper.getByTokenId(id)
+      const tokenInfo = await this.deFiDCache.getTokenInfo(id)
       const token = tokenInfo?.symbol
 
       if (token === undefined) {
@@ -201,7 +197,7 @@ export class PoolPairService {
 
         let volume = 0
         for (const tokenId in aggregated) {
-          const tokenPrice = await this.getTokenUSDValue(parseInt(tokenId)) ?? new BigNumber(0)
+          const tokenPrice = await this.getTokenUSDValue(tokenId) ?? new BigNumber(0)
           volume += tokenPrice.toNumber() * aggregated[tokenId]
         }
 
@@ -221,7 +217,7 @@ export class PoolPairService {
     let value = 0
 
     for (const tokenId in amounts) {
-      const tokenPrice = await this.getTokenUSDValue(parseInt(tokenId)) ?? new BigNumber(0)
+      const tokenPrice = await this.getTokenUSDValue(tokenId) ?? new BigNumber(0)
       value += tokenPrice.toNumber() * Number.parseFloat(amounts[tokenId])
     }
     return value

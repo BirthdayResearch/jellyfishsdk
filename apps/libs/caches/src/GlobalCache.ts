@@ -11,6 +11,7 @@ export enum CachePrefix {
   TOKEN_INFO_SYMBOL = 2,
   LOAN_SCHEME_INFO = 3,
   POOL_PAIRS = 4,
+  ALL_TOKEN_INFO = 5,
 }
 
 export class GlobalCache {

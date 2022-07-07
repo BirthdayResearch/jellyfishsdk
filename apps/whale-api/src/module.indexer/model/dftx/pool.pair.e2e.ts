@@ -2,8 +2,6 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, invalidateFromHeight, stopTestingApp, waitForIndexedHeightLatest } from '../../../e2e.module'
 import { addPoolLiquidity, createPoolPair, createToken, getNewAddress, mintTokens, poolSwap, sendTokensToAddress } from '@defichain/testing'
-import { PoolPairTokenMapper } from '../../../module.model/pool.pair.token'
-import { PoolPairHistoryMapper } from '../../../module.model/pool.pair.history'
 import { PoolSwapMapper } from '../../../module.model/pool.swap'
 import { HexEncoder } from '../../../module.model/_hex.encoder'
 import { PoolSwapAggregatedMapper } from '../../../module.model/pool.swap.aggregated'
@@ -25,26 +23,6 @@ beforeEach(async () => {
 
 afterEach(async () => {
   await stopTestingApp(container, app)
-})
-
-describe('index poolpair', () => {
-  it('should index poolpair', async () => {
-    const tokens = ['AB', 'AC']
-
-    for (const token of tokens) {
-      await container.waitForWalletBalanceGTE(110)
-      await createToken(container, token)
-      await mintTokens(container, token)
-    }
-    await createPoolPair(container, 'AB', 'DFI')
-    await createPoolPair(container, 'AC', 'DFI')
-
-    await waitForIndexedHeightLatest(app, container)
-
-    const poolPairTokenMapper = await app.get(PoolPairTokenMapper)
-    const poolPairTokenList = await poolPairTokenMapper.list(1000)
-    expect(poolPairTokenList.length).toStrictEqual(2)
-  })
 })
 
 describe('index poolswap', () => {
@@ -79,29 +57,6 @@ describe('index poolswap', () => {
 
     await waitForIndexedHeightLatest(app, container)
 
-    const poolPairMapper = app.get(PoolPairHistoryMapper)
-    const poolSwapMapper = app.get(PoolSwapMapper)
-    const result = await poolPairMapper.getLatest('3')
-
-    expect(result).toStrictEqual({
-      commission: '0.00000000',
-      id: expect.stringMatching(/[0-f]{64}/),
-      sort: expect.any(String),
-      name: 'A-Default Defi token',
-      pairSymbol: 'A-DFI',
-      poolPairId: '3',
-      status: true,
-      tokenA: {
-        id: 1,
-        symbol: 'A'
-      },
-      tokenB: {
-        id: 0,
-        symbol: 'DFI'
-      },
-      block: expect.any(Object)
-    })
-
     await poolSwap(container, {
       from: ownerAddress,
       tokenFrom: 'A',
@@ -112,26 +67,7 @@ describe('index poolswap', () => {
 
     await waitForIndexedHeightLatest(app, container)
 
-    const resultPostSwap = await poolPairMapper.getLatest('3')
-    expect(resultPostSwap).toStrictEqual({
-      commission: '0.00000000',
-      id: expect.stringMatching(/[0-f]{64}/),
-      sort: expect.any(String),
-      name: 'A-Default Defi token',
-      pairSymbol: 'A-DFI',
-      poolPairId: '3',
-      status: true,
-      tokenA: {
-        id: 1,
-        symbol: 'A'
-      },
-      tokenB: {
-        id: 0,
-        symbol: 'DFI'
-      },
-      block: expect.any(Object)
-    })
-
+    const poolSwapMapper = app.get(PoolSwapMapper)
     const resultSwaps = await poolSwapMapper.query('3', Number.MAX_SAFE_INTEGER)
     expect(resultSwaps).toStrictEqual([{
       txid: expect.stringMatching(/[0-f]{64}/),
@@ -549,36 +485,51 @@ describe('poolswap invalidate', () => {
           block: expect.any(Object)
         }
       ])
-    }
 
-    // Test again at the base height, everything should be 0'd
-    await invalidateFromHeight(app, container, preSwapHeight)
+      // Test again at the base height, everything should be 0'd
+      await invalidateFromHeight(app, container, preSwapHeight)
 
-    {
-      const resultSwaps = await poolSwapMapper.query('2', Number.MAX_SAFE_INTEGER)
-      expect(resultSwaps).toStrictEqual([])
+      {
+        const resultSwaps = await poolSwapMapper.query('2', Number.MAX_SAFE_INTEGER)
+        expect(resultSwaps).toStrictEqual([])
 
-      const aggregated = await aggregatedMapper.query(`2-${PoolSwapAggregatedInterval.ONE_HOUR}`, Number.MAX_SAFE_INTEGER)
-      expect(aggregated).toStrictEqual([
-        {
-          id: expect.any(String),
-          key: '2-3600',
-          bucket: expect.any(Number),
-          aggregated: {
-            amounts: {}
+        const aggregated = await aggregatedMapper.query(`2-${PoolSwapAggregatedInterval.ONE_HOUR}`, Number.MAX_SAFE_INTEGER)
+        expect(aggregated).toStrictEqual([
+          {
+            id: expect.any(String),
+            key: '2-3600',
+            bucket: expect.any(Number),
+            aggregated: {
+              amounts: {
+                1: '-0.80000000'
+              }
+            },
+            block: expect.any(Object)
           },
-          block: expect.any(Object)
-        },
-        {
-          id: expect.any(String),
-          key: '2-3600',
-          bucket: expect.any(Number),
-          aggregated: {
-            amounts: {}
+          {
+            id: expect.any(String),
+            key: '2-3600',
+            bucket: expect.any(Number),
+            aggregated: {
+              amounts: {
+                1: '0.60000000'
+              }
+            },
+            block: expect.any(Object)
           },
-          block: expect.any(Object)
-        }
-      ])
+          {
+            id: expect.any(String),
+            key: '2-3600',
+            bucket: expect.any(Number),
+            aggregated: {
+              amounts: {
+                1: '0.20000000'
+              }
+            },
+            block: expect.any(Object)
+          }
+        ])
+      }
     }
   })
 })

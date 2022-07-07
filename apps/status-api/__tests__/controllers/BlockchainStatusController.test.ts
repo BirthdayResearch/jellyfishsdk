@@ -1,6 +1,6 @@
 import { StatusApiTesting } from '../../testing/StatusApiTesting'
 import { ApiPagedResponse, WhaleApiClient } from '@defichain/whale-api-client'
-import { Block } from '@defichain/whale-api-client/dist/api/Blocks'
+import { Block } from '@defichain/whale-api-client/dist/api/blocks'
 
 describe('BlockchainController - Status test', () => {
   const apiTesting = StatusApiTesting.create()

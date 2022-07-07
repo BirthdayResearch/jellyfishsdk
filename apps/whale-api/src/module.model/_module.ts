@@ -18,9 +18,6 @@ import { OracleMapper } from './oracle'
 import { PriceTickerMapper } from './price.ticker'
 import { MasternodeMapper } from './masternode'
 import { MasternodeStatsMapper } from './masternode.stats'
-import { TokenMapper } from './token'
-import { PoolPairHistoryMapper } from './pool.pair.history'
-import { PoolPairTokenMapper } from './pool.pair.token'
 import { OraclePriceActiveMapper } from './oracle.price.active'
 import { VaultAuctionHistoryMapper } from './vault.auction.batch.history'
 import { PoolSwapAggregatedMapper } from './pool.swap.aggregated'
@@ -49,9 +46,6 @@ import { FutureSwapMapper } from './future.swap'
     PriceTickerMapper,
     MasternodeMapper,
     MasternodeStatsMapper,
-    TokenMapper,
-    PoolPairHistoryMapper,
-    PoolPairTokenMapper,
     PoolSwapMapper,
     PoolSwapAggregatedMapper,
     VaultAuctionHistoryMapper,
@@ -77,9 +71,6 @@ import { FutureSwapMapper } from './future.swap'
     PriceTickerMapper,
     MasternodeMapper,
     MasternodeStatsMapper,
-    TokenMapper,
-    PoolPairHistoryMapper,
-    PoolPairTokenMapper,
     PoolSwapMapper,
     PoolSwapAggregatedMapper,
     VaultAuctionHistoryMapper,
