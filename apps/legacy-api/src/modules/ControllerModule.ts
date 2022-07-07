@@ -7,7 +7,6 @@ import { StatsController } from '../controllers/stats/StatsController'
 import { MainnetLegacyStatsProvider, TestnetLegacyStatsProvider } from '../controllers/stats/LegacyStatsProvider'
 import { ActuatorController } from '@defichain-apps/libs/actuator'
 import { ScheduleModule } from '@nestjs/schedule'
-import { SimpleCache } from '../cache/SimpleCache'
 import { ConfigService } from '@nestjs/config'
 
 /**
@@ -33,7 +32,17 @@ import { ConfigService } from '@nestjs/config'
     MainnetLegacyStatsProvider,
     TestnetLegacyStatsProvider,
     PoolPairController,
-    SimpleCache,
+    {
+      provide: 'OCEAN_ENDPOINT',
+      useFactory: (cfg: ConfigService): string => {
+        const oceanEndpoint = cfg.get<string>('OCEAN_ENDPOINT')
+        if (oceanEndpoint === undefined) {
+          throw new Error('cfg:OCEAN_ENDPOINT was not provided')
+        }
+        return oceanEndpoint
+      },
+      inject: [ConfigService]
+    },
     {
       provide: 'SWAP_CACHE_COUNT',
       useFactory: (cfg: ConfigService): number => {

@@ -1042,7 +1042,7 @@ describe('futureSwap', () => {
       }
       const promise = testing.rpc.account.futureSwap(fswap)
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nDestination should not be set when source amount is a dToken\', code: -32600, method: futureswap')
+      await expect(promise).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nDestination should not be set when source amount is dToken or DFI\', code: -32600, method: futureswap')
     }
     {
       // INVALID destination is given when futureswap dusd to dtoken

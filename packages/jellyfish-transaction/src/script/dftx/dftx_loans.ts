@@ -1,5 +1,5 @@
 import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
-import { CTokenBalance, TokenBalance } from './dftx_balance'
+import { CTokenBalance, TokenBalanceUInt32 } from './dftx_balance'
 import BigNumber from 'bignumber.js'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
@@ -27,7 +27,7 @@ export class CSetLoanScheme extends ComposableBuffer<SetLoanScheme> {
     return [
       ComposableBuffer.uInt32(() => sls.ratio, v => sls.ratio = v),
       ComposableBuffer.satoshiAsBigNumber(() => sls.rate, v => sls.rate = v),
-      ComposableBuffer.varUIntUtf8BE(() => sls.identifier, v => sls.identifier = v),
+      ComposableBuffer.compactSizeUtf8BE(() => sls.identifier, v => sls.identifier = v),
       ComposableBuffer.bigNumberUInt64(() => sls.update, v => sls.update = v)
     ]
   }
@@ -51,7 +51,7 @@ export class CDestroyLoanScheme extends ComposableBuffer<DestroyLoanScheme> {
 
   composers (dls: DestroyLoanScheme): BufferComposer[] {
     return [
-      ComposableBuffer.varUIntUtf8BE(() => dls.identifier, v => dls.identifier = v),
+      ComposableBuffer.compactSizeUtf8BE(() => dls.identifier, v => dls.identifier = v),
       ComposableBuffer.bigNumberUInt64(() => dls.height, v => dls.height = v)
     ]
   }
@@ -74,7 +74,7 @@ export class CSetDefaultLoanScheme extends ComposableBuffer<SetDefaultLoanScheme
 
   composers (sdls: SetDefaultLoanScheme): BufferComposer[] {
     return [
-      ComposableBuffer.varUIntUtf8BE(() => sdls.identifier, v => sdls.identifier = v)
+      ComposableBuffer.compactSizeUtf8BE(() => sdls.identifier, v => sdls.identifier = v)
     ]
   }
 }
@@ -83,7 +83,7 @@ export class CSetDefaultLoanScheme extends ComposableBuffer<SetDefaultLoanScheme
  * SetCollateralToken DeFi Transaction
  */
 export interface SetCollateralToken {
-  token: number // ----------------| VarUInt{1-9 bytes}, Symbol or id of collateral token
+  token: number // ----------------| VarInt{MSB-b128}
   factor: BigNumber // ------------| 8 bytes unsigned, Collateralization factor
   currencyPair: CurrencyPair // ---| c1 = VarUInt{1-9 bytes} + c1 bytes UTF encoded string for token + c2 = VarUInt{1-9 bytes} + c2 bytes UTF encoded string for currency, token/currency pair to use for price of token
   activateAfterBlock: number // ---| 4 bytes unsigned, Changes will be active after the block height
@@ -99,7 +99,7 @@ export class CSetCollateralToken extends ComposableBuffer<SetCollateralToken> {
 
   composers (sct: SetCollateralToken): BufferComposer[] {
     return [
-      ComposableBuffer.varUInt(() => sct.token, v => sct.token = v),
+      ComposableBuffer.varInt(() => sct.token, v => sct.token = v),
       ComposableBuffer.satoshiAsBigNumber(() => sct.factor, v => sct.factor = v),
       ComposableBuffer.single(() => sct.currencyPair, v => sct.currencyPair = v, sct => new CCurrencyPair(sct)),
       ComposableBuffer.uInt32(() => sct.activateAfterBlock, v => sct.activateAfterBlock = v)
@@ -128,8 +128,8 @@ export class CSetLoanToken extends ComposableBuffer<SetLoanToken> {
 
   composers (slt: SetLoanToken): BufferComposer[] {
     return [
-      ComposableBuffer.varUIntUtf8BE(() => slt.symbol, v => slt.symbol = v),
-      ComposableBuffer.varUIntUtf8BE(() => slt.name, v => slt.name = v),
+      ComposableBuffer.compactSizeUtf8BE(() => slt.symbol, v => slt.symbol = v),
+      ComposableBuffer.compactSizeUtf8BE(() => slt.name, v => slt.name = v),
       ComposableBuffer.single(() => slt.currencyPair, v => slt.currencyPair = v, v => new CCurrencyPair(v)),
       ComposableBuffer.uBool8(() => slt.mintable, v => slt.mintable = v),
       ComposableBuffer.satoshiAsBigNumber(() => slt.interest, v => slt.interest = v)
@@ -159,8 +159,8 @@ export class CUpdateLoanToken extends ComposableBuffer<UpdateLoanToken> {
 
   composers (ult: UpdateLoanToken): BufferComposer[] {
     return [
-      ComposableBuffer.varUIntUtf8BE(() => ult.symbol, v => ult.symbol = v),
-      ComposableBuffer.varUIntUtf8BE(() => ult.name, v => ult.name = v),
+      ComposableBuffer.compactSizeUtf8BE(() => ult.symbol, v => ult.symbol = v),
+      ComposableBuffer.compactSizeUtf8BE(() => ult.name, v => ult.name = v),
       ComposableBuffer.single(() => ult.currencyPair, v => ult.currencyPair = v, v => new CCurrencyPair(v)),
       ComposableBuffer.uBool8(() => ult.mintable, v => ult.mintable = v),
       ComposableBuffer.satoshiAsBigNumber(() => ult.interest, v => ult.interest = v),
@@ -175,7 +175,7 @@ export class CUpdateLoanToken extends ComposableBuffer<UpdateLoanToken> {
 export interface TakeLoan {
   vaultId: string // ------------------| 32 bytes, Id of vault used for loan
   to: Script // -----------------------| n = VarUInt{1-9 bytes}, + n bytes, Address to transfer tokens, empty stack when no address is specified.
-  tokenAmounts: TokenBalance[] // -----| c = VarUInt{1-9 bytes} + c x TokenBalance(4 bytes for token Id + 8 bytes for amount), loan token amounts
+  tokenAmounts: TokenBalanceUInt32[] // | c = VarUInt{1-9 bytes} + c x TokenBalance(4 bytes for token Id + 8 bytes for amount), loan token amounts
 }
 
 /**
@@ -190,7 +190,7 @@ export class CTakeLoan extends ComposableBuffer<TakeLoan> {
     return [
       ComposableBuffer.hexBEBufferLE(32, () => tl.vaultId, v => tl.vaultId = v),
       ComposableBuffer.single<Script>(() => tl.to, v => tl.to = v, v => new CScript(v)),
-      ComposableBuffer.varUIntArray(() => tl.tokenAmounts, v => tl.tokenAmounts = v, v => new CTokenBalance(v))
+      ComposableBuffer.compactSizeArray(() => tl.tokenAmounts, v => tl.tokenAmounts = v, v => new CTokenBalance(v))
     ]
   }
 }
@@ -201,7 +201,7 @@ export class CTakeLoan extends ComposableBuffer<TakeLoan> {
 export interface PaybackLoan {
   vaultId: string // --------------------| 32 bytes, Vault Id
   from: Script // -----------------------| n = VarUInt{1-9 bytes}, + n bytes, Address containing collateral
-  tokenAmounts: TokenBalance[] // -------| c = VarUInt{1-9 bytes} + c x TokenBalance(4 bytes for token Id + 8 bytes for amount), Amount to pay loan
+  tokenAmounts: TokenBalanceUInt32[] // -| c = VarUInt{1-9 bytes} + c x TokenBalance(4 bytes for token Id + 8 bytes for amount), Amount to pay loan
 }
 
 /**
@@ -216,14 +216,14 @@ export class CPaybackLoan extends ComposableBuffer<PaybackLoan> {
     return [
       ComposableBuffer.hexBEBufferLE(32, () => pl.vaultId, v => pl.vaultId = v),
       ComposableBuffer.single<Script>(() => pl.from, v => pl.from = v, v => new CScript(v)),
-      ComposableBuffer.varUIntArray(() => pl.tokenAmounts, v => pl.tokenAmounts = v, v => new CTokenBalance(v))
+      ComposableBuffer.compactSizeArray(() => pl.tokenAmounts, v => pl.tokenAmounts = v, v => new CTokenBalance(v))
     ]
   }
 }
 
 export interface TokenPayback {
-  dToken: number // ---------------------| VarUInt{1-9 bytes}
-  amounts: TokenBalance[] // -------| c = VarUInt{1-9 bytes} + c x TokenBalance(4 bytes for token Id + 8 bytes for amount), Amount to pay loan
+  dToken: number // ---------------------| VarInt{MSB-b128}
+  amounts: TokenBalanceUInt32[] // ------| c = VarUInt{1-9 bytes} + c x TokenBalance(4 bytes for token Id + 8 bytes for amount), Amount to pay loan
 }
 
 /**
@@ -233,8 +233,8 @@ export interface TokenPayback {
 export class CTokenPayback extends ComposableBuffer<TokenPayback> {
   composers (tp: TokenPayback): BufferComposer[] {
     return [
-      ComposableBuffer.varUInt(() => tp.dToken, v => tp.dToken = v),
-      ComposableBuffer.varUIntArray(() => tp.amounts, v => tp.amounts = v, v => new CTokenBalance(v))
+      ComposableBuffer.varInt(() => tp.dToken, v => tp.dToken = v),
+      ComposableBuffer.compactSizeArray(() => tp.amounts, v => tp.amounts = v, v => new CTokenBalance(v))
     ]
   }
 }
@@ -260,7 +260,7 @@ export class CPaybackLoanV2 extends ComposableBuffer<PaybackLoanV2> {
     return [
       ComposableBuffer.hexBEBufferLE(32, () => pl.vaultId, v => pl.vaultId = v),
       ComposableBuffer.single<Script>(() => pl.from, v => pl.from = v, v => new CScript(v)),
-      ComposableBuffer.varUIntArray(() => pl.loans, v => pl.loans = v, v => new CTokenPayback(v))
+      ComposableBuffer.compactSizeArray(() => pl.loans, v => pl.loans = v, v => new CTokenPayback(v))
     ]
   }
 }

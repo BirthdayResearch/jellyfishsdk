@@ -20,6 +20,7 @@ const attributeKey = 'ATTRIBUTES'
 const futInterval = 25
 const futRewardPercentage = 0.05
 const contractAddress = 'bcrt1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpsqgljc'
+const dusdContractAddr = 'bcrt1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz7nafu8'
 
 let provider: MockProviders
 let builder: P2WPKHTransactionBuilder
@@ -491,6 +492,117 @@ describe('create futureswap', () => {
     // check results can be retrieved via account history
     const accountHistories = await testing.rpc.account.listAccountHistory('all', { txtype: DfTxType.FUTURE_SWAP_EXECUTION })
     expect(accountHistories[0]).toStrictEqual(expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapExecution', amounts: [`${mintedDUSD.toFixed(8)}@DUSD`] }))
+  })
+
+  it('should DFI-to-DUSD future swaps', async () => {
+    // set dfi to dusd govs
+    const startBlock = 10 + await testing.container.getBlockCount()
+
+    await testing.rpc.masternode.setGov({
+      ATTRIBUTES: {
+        'v0/params/dfip2206f/reward_pct': '0.05',
+        'v0/params/dfip2206f/block_period': `${futInterval}`,
+        'v0/params/dfip2206f/start_block': `${startBlock}`
+      }
+    })
+    await testing.generate(1)
+
+    await testing.rpc.masternode.setGov({
+      ATTRIBUTES: {
+        'v0/params/dfip2206f/active': 'true'
+      }
+    })
+    await testing.generate(startBlock - await testing.container.getBlockCount())
+
+    const swapAmount = 1
+    const dfiAddr = await provider.getAddress()
+    await testing.rpc.account.accountToAccount(collateralAddress, { [dfiAddr]: `${swapAmount}@DFI` })
+    await testing.generate(1)
+
+    await fundForFeesIfUTXONotAvailable(10)
+    const txn = await builder.account.futureSwap({
+      owner: await provider.elliptic.script(),
+      source: { token: 0, amount: new BigNumber(swapAmount) },
+      destination: Number(idDUSD),
+      withdraw: false
+    }, script)
+
+    // Ensure the created txn is correct
+    const outs = await sendTransaction(testing.container, txn)
+    await checkTxouts(outs)
+
+    // check the future is in effect
+    {
+      const pendingFutures = await testing.container.call('listpendingdusdswaps')
+      expect(pendingFutures.length).toStrictEqual(1)
+      expect(pendingFutures[0].owner).toStrictEqual(dfiAddr)
+      expect(pendingFutures[0].amount).toStrictEqual(1)
+
+      const { ATTRIBUTES: attrs } = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attrs['v0/live/economy/dfip2206f_current']).toStrictEqual(['1.00000000@DFI']) // 1
+      expect(attrs['v0/live/economy/dfip2206f_burned']).toStrictEqual([])
+      expect(attrs['v0/live/economy/dfip2206f_minted']).toStrictEqual([])
+
+      // dfip2206f_current burn should be empty
+      const burnBefore = await testing.rpc.account.getBurnInfo()
+      expect(burnBefore.dfip2206f).toStrictEqual([])
+
+      {
+        // check dfiAddr
+        const balance = await testing.rpc.account.getAccount(dfiAddr)
+        expect(balance).toStrictEqual([])
+      }
+
+      {
+        // check dusdContractAddr
+        const balance = await testing.rpc.account.getAccount(dusdContractAddr)
+        expect(balance).toStrictEqual(['1.00000000@DFI'])
+      }
+    }
+
+    // get minted DUSD
+    const dusdMintedBefore = (await testing.rpc.token.getToken(idDUSD))[idDUSD].minted
+
+    // move to next settle block
+    const h = await testing.container.getBlockCount()
+    await testing.generate(futInterval - ((h - startBlock) % futInterval))
+
+    let mintedDUSD: BigNumber
+    // check future settled
+    {
+      // calculate minted DUSD. dtoken goes for a discount.
+      mintedDUSD = new BigNumber((1 - futRewardPercentage) * 1 * swapAmount).dp(8, BigNumber.ROUND_FLOOR) // (1 - reward percentage) * DFI-DUSD value * DFI swap amount;
+      const dusdMintedAfter = (await testing.rpc.token.getToken(idDUSD))[idDUSD].minted
+      expect(dusdMintedAfter).toStrictEqual(dusdMintedBefore.plus(mintedDUSD))
+
+      const pendingFutures = await testing.container.call('listpendingdusdswaps')
+      expect(pendingFutures.length).toStrictEqual(0)
+
+      const { ATTRIBUTES: attrs } = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attrs['v0/live/economy/dfip2206f_current']).toStrictEqual([`${swapAmount.toFixed(8)}@DFI`])
+      expect(attrs['v0/live/economy/dfip2206f_burned']).toStrictEqual([`${swapAmount.toFixed(8)}@DFI`])
+      expect(attrs['v0/live/economy/dfip2206f_minted']).toStrictEqual([`${mintedDUSD.toFixed(8)}@DUSD`])
+
+      {
+        // check dusdContractAddr
+        const balance = await testing.rpc.account.getAccount(dusdContractAddr)
+        expect(balance).toStrictEqual([`${swapAmount.toFixed(8)}@DFI`])
+      }
+
+      {
+        // check dfiAddr
+        const balance = await testing.rpc.account.getAccount(dfiAddr)
+        expect(balance).toStrictEqual([`${mintedDUSD.toFixed(8)}@DUSD`])
+      }
+    }
+
+    // check burn
+    const burnAfter = await testing.rpc.account.getBurnInfo()
+    expect(burnAfter.dfip2206f).toStrictEqual([`${swapAmount.toFixed(8)}@DFI`])
+
+    // check results can be retrieved via account history
+    const accountHistories = await testing.rpc.account.listAccountHistory('all', { txtype: DfTxType.FUTURE_SWAP_EXECUTION })
+    expect(accountHistories[0]).toStrictEqual(expect.objectContaining({ owner: dfiAddr, type: 'FutureSwapExecution', amounts: [`${mintedDUSD.toFixed(8)}@DUSD`] }))
   })
 
   it('should consider new oracle active price, if changed before futureswap execution', async () => {
@@ -965,7 +1077,7 @@ describe('create futureswap', () => {
 
       const promise = sendTransaction(testing.container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Destination should not be set when source amount is a dToken (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Destination should not be set when source amount is dToken or DFI (code 16)\', code: -26')
     }
     {
       // INVALID destination 100 is given when futureswap dusd to dtoken
@@ -1024,6 +1136,25 @@ describe('create futureswap', () => {
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: DFIP2203 currently disabled for token 2 (code 16)\', code: -26')
+  })
+
+  it('should not create DFI-to-DUSD futureswap while dfip2206f is not active', async () => {
+    const swapAmount = 1
+    const dfiAddr = await provider.getAddress()
+    await testing.rpc.account.accountToAccount(collateralAddress, { [dfiAddr]: `${swapAmount}@DFI` })
+    await testing.generate(1)
+
+    await fundForFeesIfUTXONotAvailable(10)
+    const txn = await builder.account.futureSwap({
+      owner: await provider.elliptic.script(),
+      source: { token: 0, amount: new BigNumber(swapAmount) },
+      destination: Number(idDUSD),
+      withdraw: false
+    }, script)
+
+    const promise = sendTransaction(testing.container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: DFIP2206F not currently active (code 16)\', code: -26')
   })
 })
 
@@ -1381,6 +1512,129 @@ describe('withdraw futureswap', () => {
     }
   })
 
+  it('should DFI-to-DUSD withdraw future swaps', async () => {
+    // set dfi to dusd govs
+    const startBlock = 10 + await testing.container.getBlockCount()
+
+    await testing.rpc.masternode.setGov({
+      ATTRIBUTES: {
+        'v0/params/dfip2206f/reward_pct': '0.05',
+        'v0/params/dfip2206f/block_period': `${futInterval}`,
+        'v0/params/dfip2206f/start_block': `${startBlock}`
+      }
+    })
+    await testing.generate(1)
+
+    await testing.rpc.masternode.setGov({
+      ATTRIBUTES: {
+        'v0/params/dfip2206f/active': 'true'
+      }
+    })
+    await testing.generate(startBlock - await testing.container.getBlockCount())
+
+    const swapAmount = 10
+    const withdrawAmount = 7
+    const dfiAddr = await provider.getAddress()
+    await testing.rpc.account.accountToAccount(collateralAddress, { [dfiAddr]: `${swapAmount}@DFI` })
+    await testing.generate(1)
+
+    await testing.rpc.account.futureSwap({
+      address: dfiAddr,
+      amount: `${swapAmount.toFixed(8)}@DFI`,
+      destination: 'DUSD'
+    })
+    await testing.generate(1)
+
+    await fundForFeesIfUTXONotAvailable(10)
+    const txn = await builder.account.futureSwap({
+      owner: await provider.elliptic.script(),
+      source: { token: 0, amount: new BigNumber(withdrawAmount) },
+      destination: Number(idDUSD),
+      withdraw: true
+    }, script)
+
+    // Ensure the created txn is correct
+    const outs = await sendTransaction(testing.container, txn)
+    await checkTxouts(outs)
+
+    // check the future is in effect
+    {
+      const pendingFutures = await testing.container.call('listpendingdusdswaps')
+      expect(pendingFutures.length).toStrictEqual(1)
+      expect(pendingFutures[0].owner).toStrictEqual(dfiAddr)
+      expect(pendingFutures[0].amount).toStrictEqual(3)
+
+      const { ATTRIBUTES: attrs } = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attrs['v0/live/economy/dfip2206f_current']).toStrictEqual(['3.00000000@DFI'])
+      expect(attrs['v0/live/economy/dfip2206f_burned']).toStrictEqual([])
+      expect(attrs['v0/live/economy/dfip2206f_minted']).toStrictEqual([])
+
+      // dfip2206f_current burn should be empty
+      const burnBefore = await testing.rpc.account.getBurnInfo()
+      expect(burnBefore.dfip2206f).toStrictEqual([])
+
+      {
+        // check dfiAddr
+        const balance = await testing.rpc.account.getAccount(dfiAddr)
+        expect(balance).toStrictEqual([`${withdrawAmount.toFixed(8)}@DFI`])
+      }
+
+      {
+        // check dusdContractAddr
+        const balance = await testing.rpc.account.getAccount(dusdContractAddr)
+        expect(balance).toStrictEqual([`${(swapAmount - withdrawAmount).toFixed(8)}@DFI`])
+      }
+    }
+
+    // get minted DUSD
+    const dusdMintedBefore = (await testing.rpc.token.getToken(idDUSD))[idDUSD].minted
+
+    // move to next settle block
+    const h = await testing.container.getBlockCount()
+    await testing.generate(futInterval - ((h - startBlock) % futInterval))
+
+    let mintedDUSD: BigNumber
+    // check future settled
+    {
+      // calculate minted DUSD. dtoken goes for a discount.
+      mintedDUSD = new BigNumber((1 - futRewardPercentage) * 1 * (swapAmount - withdrawAmount)).dp(8) // (1 - reward percentage) * DFI-DUSD value * DFI swap amount;
+      const dusdMintedAfter = (await testing.rpc.token.getToken(idDUSD))[idDUSD].minted
+      expect(dusdMintedAfter).toStrictEqual(dusdMintedBefore.plus(mintedDUSD))
+
+      const pendingFutures = await testing.container.call('listpendingdusdswaps')
+      expect(pendingFutures.length).toStrictEqual(0)
+
+      const { ATTRIBUTES: attrs } = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attrs['v0/live/economy/dfip2206f_current']).toStrictEqual([`${(swapAmount - withdrawAmount).toFixed(8)}@DFI`])
+      expect(attrs['v0/live/economy/dfip2206f_burned']).toStrictEqual([`${(swapAmount - withdrawAmount).toFixed(8)}@DFI`])
+      expect(attrs['v0/live/economy/dfip2206f_minted']).toStrictEqual([`${mintedDUSD.toFixed(8)}@DUSD`])
+
+      {
+        // check dusdContractAddr
+        const balance = await testing.rpc.account.getAccount(dusdContractAddr)
+        expect(balance).toStrictEqual([`${(swapAmount - withdrawAmount).toFixed(8)}@DFI`])
+      }
+
+      {
+        // check dfiAddr
+        const balance = await testing.rpc.account.getAccount(dfiAddr)
+        expect(balance).toStrictEqual([
+          `${withdrawAmount.toFixed(8)}@DFI`,
+          `${mintedDUSD.toFixed(8)}@DUSD`]
+        )
+      }
+    }
+
+    // check burn
+    const burnAfter = await testing.rpc.account.getBurnInfo()
+    expect(burnAfter.dfip2206f).toStrictEqual([`${(swapAmount - withdrawAmount).toFixed(8)}@DFI`
+    ])
+
+    // check results can be retrieved via account history
+    const accountHistories = await testing.rpc.account.listAccountHistory('all', { txtype: DfTxType.FUTURE_SWAP_EXECUTION })
+    expect(accountHistories[0]).toStrictEqual(expect.objectContaining({ owner: dfiAddr, type: 'FutureSwapExecution', amounts: [`${mintedDUSD.toFixed(8)}@DUSD`] }))
+  })
+
   it('should withdraw futureswap from multiple futureswaps dtoken to dusd', async () => {
     const swapAmount = 1
     const swapAmount2 = 10
@@ -1632,7 +1886,7 @@ describe('withdraw futureswap', () => {
       await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: amount 1.00000000 is less than 1.00000001 (code 16)\', code: -26')
     }
 
-    // Withdraw fail - Destination should not be set when source amount is a dToken
+    // Withdraw fail - Destination should not be set when source amount is dToken or DFI
     {
       const withdrawAmount = 0.5
       const txn = await builder.account.futureSwap({
@@ -1644,7 +1898,7 @@ describe('withdraw futureswap', () => {
 
       const promise = sendTransaction(testing.container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Destination should not be set when source amount is a dToken (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Destination should not be set when source amount is dToken or DFI (code 16)\', code: -26')
     }
 
     // Withdraw fail - try to withdraw from unavailable futureswap

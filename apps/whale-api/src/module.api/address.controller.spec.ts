@@ -1,24 +1,17 @@
-import { Test, TestingModule } from '@nestjs/testing'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { AddressController } from './address.controller'
 import { createToken, mintTokens, sendTokensToAddress } from '@defichain/testing'
-import { DeFiDCache } from './cache/defid.cache'
-import { CacheModule } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
-import { ScheduleModule } from '@nestjs/schedule'
-import { DatabaseModule } from '../module.database/_module'
-import { ModelModule } from '../module.model/_module'
-import { DeFiDModule } from '../module.defid/_module'
-import { IndexerModule } from '../module.indexer/_module'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
-import { LoanVaultService } from './loan.vault.service'
 import { Testing } from '@defichain/jellyfish-testing'
 import BigNumber from 'bignumber.js'
+import { createTestingApp, stopTestingApp } from '../e2e.module'
+import { NestFastifyApplication } from '@nestjs/platform-fastify'
 
 const container = new MasterNodeRegTestContainer()
 const testing = Testing.create(container)
 const address = 'bcrt1qf5v8n3kfe6v5mharuvj0qnr7g74xnu9leut39r'
 let controller: AddressController
+let app: NestFastifyApplication
 
 const tokens = ['A', 'B', 'C', 'D', 'E', 'F']
 
@@ -93,36 +86,14 @@ async function setupLoanToken (): Promise<void> {
 
 beforeAll(async () => {
   await container.start()
-  await container.waitForReady()
   await container.waitForWalletCoinbaseMaturity()
-  const defidUrl = await container.getCachedRpcUrl()
 
-  const app: TestingModule = await Test.createTestingModule({
-    imports: [
-      ConfigModule.forRoot({
-        isGlobal: true,
-        load: [() => ({ defid: { url: defidUrl } })]
-      }),
-      CacheModule.register(),
-      ScheduleModule.forRoot(),
-      DatabaseModule.forRoot('memory'),
-      ModelModule,
-      DeFiDModule,
-      IndexerModule
-    ],
-    controllers: [AddressController],
-    providers: [
-      DeFiDCache,
-      LoanVaultService,
-      { provide: 'NETWORK', useValue: 'regtest' }
-    ]
-  }).compile()
-
+  app = await createTestingApp(container)
   controller = app.get(AddressController)
 })
 
 afterAll(async () => {
-  await container.stop()
+  await stopTestingApp(container, app)
 })
 
 describe('listTokens', () => {

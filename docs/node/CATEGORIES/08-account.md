@@ -216,6 +216,11 @@ enum DfTxType {
   NONE = '0'
 }
 
+enum Format {
+  ID = 'id',
+  SYMBOL = 'symbol'
+}
+
 interface AccountHistory {
   owner: string
   blockHeight: number
@@ -235,6 +240,7 @@ interface AccountHistoryOptions {
   txtype?: DfTxType
   limit?: number
   txn?: number
+  format?: Format
 }
 ```
 
@@ -438,9 +444,9 @@ interface BurnInfo {
    */
   emissionburn: BigNumber
   /**
-   * Value of burn after payback
+   * Burns after payback
    */
-  paybackburn: BigNumber
+  paybackburn: string[]
   /**
    * Amount collected via auction burn
    */
@@ -469,6 +475,10 @@ interface BurnInfo {
    * Amount of tokens burned due to futureswap
    */
   dfip2203: string[]
+  /**
+   * Amount of tokens burned due to DFI-to-DUSD swap
+   */
+  dfip2206f: string[]
 }
 ```
 
@@ -547,5 +557,35 @@ interface ListFutureInfo {
   owner: string
   source: string // eg: '1.234@DUSD'
   destination: string
+}
+```
+
+## listPendingDusdSwaps
+
+List pending DUSD swaps futures.
+
+```ts title="client.account.listPendingDusdSwaps()"
+interface account {
+  listPendingDusdSwaps (): Promise<DusdSwapsInfo[]>
+}
+
+interface DusdSwapsInfo {
+  owner: string
+  amount: BigNumber
+}
+```
+
+## getPendingDusdSwaps
+
+Get pending DUSD swaps future.
+
+```ts title="client.account.getPendingDusdSwaps()"
+interface account {
+  getPendingDusdSwaps (address: string): Promise<DusdSwapsInfo>
+}
+
+interface DusdSwapsInfo {
+  owner: string
+  amount: BigNumber
 }
 ```

@@ -20,9 +20,9 @@ beforeEach(async () => {
 
   await container.start()
   await container.waitForWalletCoinbaseMaturity()
-  await service.start()
-
   await setup()
+
+  await service.start()
 })
 
 afterEach(async () => {
@@ -780,7 +780,6 @@ describe('poolswap aggregated', () => {
         id: expect.any(String),
         key: '10-86400'
       }
-
     ])
 
     const hourAggregated: ApiPagedResponse<PoolSwapAggregatedData> = await client.poolpairs.listPoolSwapAggregates('10', PoolSwapAggregatedInterval.ONE_HOUR, 3)

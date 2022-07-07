@@ -22,7 +22,7 @@ export class CCreateVault extends ComposableBuffer<CreateVault> {
   composers (cv: CreateVault): BufferComposer[] {
     return [
       ComposableBuffer.single<Script>(() => cv.ownerAddress, v => cv.ownerAddress = v, v => new CScript(v)),
-      ComposableBuffer.varUIntUtf8BE(() => cv.schemeId, v => cv.schemeId = v)
+      ComposableBuffer.compactSizeUtf8BE(() => cv.schemeId, v => cv.schemeId = v)
     ]
   }
 }
@@ -48,7 +48,7 @@ export class CUpdateVault extends ComposableBuffer<UpdateVault> {
     return [
       ComposableBuffer.hexBEBufferLE(32, () => uv.vaultId, v => uv.vaultId = v),
       ComposableBuffer.single<Script>(() => uv.ownerAddress, v => uv.ownerAddress = v, v => new CScript(v)),
-      ComposableBuffer.varUIntUtf8BE(() => uv.schemeId, v => uv.schemeId = v)
+      ComposableBuffer.compactSizeUtf8BE(() => uv.schemeId, v => uv.schemeId = v)
     ]
   }
 }

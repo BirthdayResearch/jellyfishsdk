@@ -25,7 +25,7 @@ export class CAppointOracle extends ComposableBuffer<AppointOracle> {
     return [
       ComposableBuffer.single<Script>(() => ao.script, v => ao.script = v, v => new CScript(v)),
       ComposableBuffer.uInt8(() => ao.weightage, v => ao.weightage = v),
-      ComposableBuffer.varUIntArray(() => ao.priceFeeds, v => ao.priceFeeds = v, v => new CCurrencyPair(v))
+      ComposableBuffer.compactSizeArray(() => ao.priceFeeds, v => ao.priceFeeds = v, v => new CCurrencyPair(v))
     ]
   }
 }
@@ -75,7 +75,7 @@ export class CUpdateOracle extends ComposableBuffer<UpdateOracle> {
       ComposableBuffer.hexBEBufferLE(32, () => ao.oracleId, v => ao.oracleId = v),
       ComposableBuffer.single<Script>(() => ao.script, v => ao.script = v, v => new CScript(v)),
       ComposableBuffer.uInt8(() => ao.weightage, v => ao.weightage = v),
-      ComposableBuffer.varUIntArray(() => ao.priceFeeds, v => ao.priceFeeds = v, v => new CCurrencyPair(v))
+      ComposableBuffer.compactSizeArray(() => ao.priceFeeds, v => ao.priceFeeds = v, v => new CCurrencyPair(v))
     ]
   }
 }
@@ -101,7 +101,7 @@ export class CSetOracleData extends ComposableBuffer<SetOracleData> {
     return [
       ComposableBuffer.hexBEBufferLE(32, () => ao.oracleId, v => ao.oracleId = v),
       ComposableBuffer.bigNumberUInt64(() => ao.timestamp, v => ao.timestamp = v),
-      ComposableBuffer.varUIntArray(() => ao.tokens, v => ao.tokens = v, v => new CTokenPrice(v))
+      ComposableBuffer.compactSizeArray(() => ao.tokens, v => ao.tokens = v, v => new CTokenPrice(v))
     ]
   }
 }
