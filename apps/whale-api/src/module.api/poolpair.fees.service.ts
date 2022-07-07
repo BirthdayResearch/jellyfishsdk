@@ -11,7 +11,7 @@ export class PoolPairFeesService {
   ) {
   }
 
-  public async getDexFeesPct (poolPair: PoolPairInfo, poolPairId: string, fromToken: string, toToken: string): Promise<EstimatedDexFees | undefined> {
+  public async getDexFeesPct (poolPair: PoolPairInfo, fromToken: string, toToken: string): Promise<EstimatedDexFees | undefined> {
     const { dexFeeInPctTokenA, dexFeeOutPctTokenA, dexFeeInPctTokenB, dexFeeOutPctTokenB } = poolPair
     const tokenADirection = poolPair.idTokenA === fromToken ? 'in' : 'out'
     const tokenBDirection = poolPair.idTokenB === toToken ? 'out' : 'in'

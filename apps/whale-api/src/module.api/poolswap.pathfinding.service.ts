@@ -131,6 +131,7 @@ export class PoolSwapPathFindingService {
 
     for (const path of allSimplePaths(this.tokenGraph, fromTokenId, toTokenId)) {
       const poolPairs: SwapPathPoolPair[] = []
+
       // Iterate over the path pairwise; ( tokenA )---< poolPairId >---( tokenB )
       // to collect poolPair info into the final result
       for (let i = 1; i < path.length; i++) {
@@ -146,7 +147,7 @@ export class PoolSwapPathFindingService {
         }
 
         const poolPair = await this.getPoolPairInfo(poolPairId)
-        const estimatedDexFees = await this.poolPairFeesServices.getDexFeesPct(poolPair, poolPairId, tokenA, tokenB)
+        const estimatedDexFees = await this.poolPairFeesServices.getDexFeesPct(poolPair, tokenA, tokenB)
 
         poolPairs.push({
           poolPairId: poolPairId,
