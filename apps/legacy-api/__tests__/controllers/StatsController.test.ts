@@ -37,7 +37,7 @@ describe('StatsController', () => {
         auctionburn: expect.any(Number),
         paybackburn: expect.any(String),
         // TODO(canonbrother): uncomment assertion below after ocean updated
-        // paybackburntokens: expect.any(String),
+        // paybackburntokens: expect.any(Array),
         dexfeetokens: expect.arrayContaining(
           [expect.stringMatching(/\d+\.?\d+@\w+/)] // ['123@BTC', '10.8@DFI', ...]
         ),
