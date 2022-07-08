@@ -254,6 +254,7 @@ export interface BestSwapPathResult {
   toToken: TokenIdentifier
   bestPath: SwapPathPoolPair[]
   estimatedReturn: string // BigNumber
+  estimatedReturnLessDexFees: string // BigNumber
 }
 
 export interface SwapPathsResult {

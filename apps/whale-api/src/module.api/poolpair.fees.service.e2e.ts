@@ -470,7 +470,7 @@ describe('get best path - DEX burn fees', () => {
 })
 
 describe('get best path - DEX estimated return', () => {
-  it('should less dex fees in estimatedReturn - 1 leg', async () => {
+  it('should less dex fees in estimatedReturnLessDexFees - 1 leg', async () => {
     const paths1 = await controller.getBestPath('15', '0')
 
     /*
@@ -479,10 +479,10 @@ describe('get best path - DEX estimated return', () => {
       DFIToRABBIT = 0.991 * 14.28571428 = 14.1571428515 RABBIT
       RABBITAfterFeeOut = 14.1571428515 - (14.1571428515 * 0.01) = 14.01557143 RABBIT
     */
-    expect(paths1.estimatedReturn).toStrictEqual('14.01557143')
+    expect(paths1.estimatedReturnLessDexFees).toStrictEqual('14.01557143')
   })
 
-  it('should less dex fees in estimatedReturn - 2 legs', async () => {
+  it('should less dex fees in estimatedReturnLessDexFees - 2 legs', async () => {
     const paths1 = await controller.getBestPath('15', '3')
 
     /*
@@ -495,15 +495,16 @@ describe('get best path - DEX estimated return', () => {
       DFIAfterFeeIn = 14.01557143 - (14.01557143 * 0.002) = 13.9875402802871 DFI
       DFI->CAT= 13.9875402802871 * 0.1 = 1.398754028 CAT
     */
-    expect(paths1.estimatedReturn).toStrictEqual('1.39875403')
+    expect(paths1.estimatedReturnLessDexFees).toStrictEqual('1.39875403')
   })
 
   it('should not less dex fees if dex fees is not set', async () => {
     const paths1 = await controller.getBestPath('1', '0')
     expect(paths1.estimatedReturn).toStrictEqual('1.00000000')
+    expect(paths1.estimatedReturnLessDexFees).toStrictEqual('1.00000000')
   })
 
-  // TODO(PIERRE): estimated return with less fee should be returned
+  // TODO(PIERRE): estimated return with less total should be returned
   //  it('should return direct path even if composite swap paths has greater return', async () => {
-  //  it('should return composite swap paths  even if direct path has greater return', async () => {
+  //  it('should return composite swap paths even if direct path has greater return', async () => {
 })
