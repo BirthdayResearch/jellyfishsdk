@@ -60,7 +60,7 @@ export class PoolSwapPathFindingService {
           toToken: toToken,
           bestPath: path,
           estimatedReturn: formatNumber(
-            computeReturnInDestinationToken(path, fromTokenId)
+            computeReturnLessDexFeesInDestinationToken(path, fromTokenId)
           ) // denoted in toToken
         }
       }
@@ -71,7 +71,7 @@ export class PoolSwapPathFindingService {
     let bestReturn = new BigNumber(0)
 
     for (const path of paths) {
-      const totalReturn = computeReturnInDestinationToken(path, fromTokenId)
+      const totalReturn = computeReturnLessDexFeesInDestinationToken(path, fromTokenId)
       if (totalReturn.isGreaterThan(bestReturn)) {
         bestReturn = totalReturn
         bestPath = path
@@ -147,7 +147,7 @@ export class PoolSwapPathFindingService {
         }
 
         const poolPair = await this.getPoolPairInfo(poolPairId)
-        const estimatedDexFees = await this.poolPairFeesServices.getDexFeesPct(poolPair, tokenA, tokenB)
+        const estimatedDexFeesInPct = await this.poolPairFeesServices.getDexFeesPct(poolPair, tokenA, tokenB)
 
         poolPairs.push({
           poolPairId: poolPairId,
@@ -158,7 +158,7 @@ export class PoolSwapPathFindingService {
             ab: formatNumber(new BigNumber(poolPair['reserveA/reserveB'])),
             ba: formatNumber(new BigNumber(poolPair['reserveB/reserveA']))
           },
-          ...((estimatedDexFees != null) && { estimatedDexFees })
+          ...((estimatedDexFeesInPct != null) && { estimatedDexFeesInPct })
         })
       }
 
@@ -260,18 +260,37 @@ export class PoolSwapPathFindingService {
   }
 }
 
-function computeReturnInDestinationToken (path: SwapPathPoolPair[], fromTokenId: string): BigNumber {
-  let total = new BigNumber(1)
+function computeReturnLessDexFeesInDestinationToken (path: SwapPathPoolPair[], fromTokenId: string): BigNumber {
+  let estimatedReturn = new BigNumber(1)
+  let priceRatio, fromTokenFeePct, toTokenFeePct
+
   for (const poolPair of path) {
     if (fromTokenId === poolPair.tokenA.id) {
-      total = total.multipliedBy(poolPair.priceRatio.ba)
       fromTokenId = poolPair.tokenB.id
+      priceRatio = poolPair.priceRatio.ba
+      fromTokenFeePct = poolPair.estimatedDexFeesInPct?.ba
+      toTokenFeePct = poolPair.estimatedDexFeesInPct?.ab
     } else {
-      total = total.multipliedBy(poolPair.priceRatio.ab)
       fromTokenId = poolPair.tokenA.id
+      priceRatio = poolPair.priceRatio.ab
+      fromTokenFeePct = poolPair.estimatedDexFeesInPct?.ab
+      toTokenFeePct = poolPair.estimatedDexFeesInPct?.ba
     }
+
+    const estimatedDexFeeInTokenA = new BigNumber(fromTokenFeePct ?? 0).multipliedBy(estimatedReturn)
+
+    // less dex fee token A
+    estimatedReturn = estimatedReturn.minus(estimatedDexFeeInTokenA)
+
+    // convert to tokenB and
+    const estimatedReturnLessDexFeeA = estimatedReturn.multipliedBy(priceRatio)
+    const estimatedDexFeeInTokenB = new BigNumber(toTokenFeePct ?? 0).multipliedBy(estimatedReturnLessDexFeeA)
+
+    // less dex fee token B
+    estimatedReturn = estimatedReturnLessDexFeeA.minus(estimatedDexFeeInTokenB)
   }
-  return total
+
+  return estimatedReturn.decimalPlaces(8, BigNumber.ROUND_CEIL)
 }
 
 function formatNumber (number: BigNumber): string {

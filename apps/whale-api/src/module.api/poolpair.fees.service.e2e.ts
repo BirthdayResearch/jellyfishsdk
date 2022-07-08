@@ -120,7 +120,6 @@ async function setup (): Promise<void> {
   // dex fee set up
   await container.call('setgov', [{
     ATTRIBUTES: {
-      // CAT-DFI
       'v0/poolpairs/4/token_a_fee_pct': '0.001', // CAT
       'v0/poolpairs/4/token_a_fee_direction': 'in', // CAT
       'v0/poolpairs/4/token_b_fee_pct': '0.002', // DFI
@@ -155,12 +154,11 @@ async function setup (): Promise<void> {
 describe('get best path - DEX burn fees', () => {
   it('should return fees - CAT to DFI - Both token fees direction are in', async () => {
     const paths1 = await controller.getBestPath('3', '0')
-
     expect(paths1.bestPath).toStrictEqual([
       {
-        estimatedDexFees: {
-          tokenA: '0.00100000',
-          tokenB: '0.00000000'
+        estimatedDexFeesInPct: {
+          ba: '0.00100000',
+          ab: '0.00000000'
         },
         poolPairId: '4',
         priceRatio: {
@@ -186,9 +184,9 @@ describe('get best path - DEX burn fees', () => {
 
     expect(paths1.bestPath).toStrictEqual([
       {
-        estimatedDexFees: {
-          tokenA: '0.00000000',
-          tokenB: '0.00200000'
+        estimatedDexFeesInPct: {
+          ba: '0.00000000',
+          ab: '0.00200000'
         },
         poolPairId: '4',
         priceRatio: {
@@ -214,9 +212,9 @@ describe('get best path - DEX burn fees', () => {
 
     expect(paths1.bestPath).toStrictEqual([
       {
-        estimatedDexFees: {
-          tokenA: '0.00300000',
-          tokenB: '0.00000000'
+        estimatedDexFeesInPct: {
+          ba: '0.00300000',
+          ab: '0.00000000'
         },
         poolPairId: '6',
         priceRatio: {
@@ -242,9 +240,9 @@ describe('get best path - DEX burn fees', () => {
 
     expect(paths1.bestPath).toStrictEqual([
       {
-        estimatedDexFees: {
-          tokenA: '0.00000000',
-          tokenB: '0.00400000'
+        estimatedDexFeesInPct: {
+          ba: '0.00000000',
+          ab: '0.00400000'
         },
         poolPairId: '6',
         priceRatio: {
@@ -270,9 +268,9 @@ describe('get best path - DEX burn fees', () => {
 
     expect(paths1.bestPath).toStrictEqual([
       {
-        estimatedDexFees: {
-          tokenA: '0.00500000',
-          tokenB: '0.00000000'
+        estimatedDexFeesInPct: {
+          ba: '0.00500000',
+          ab: '0.00000000'
         },
         poolPairId: '8',
         priceRatio: {
@@ -298,9 +296,9 @@ describe('get best path - DEX burn fees', () => {
 
     expect(paths1.bestPath).toStrictEqual([
       {
-        estimatedDexFees: {
-          tokenA: '0.00000000',
-          tokenB: '0.00000000'
+        estimatedDexFeesInPct: {
+          ba: '0.00000000',
+          ab: '0.00000000'
         },
         poolPairId: '8',
         priceRatio: {
@@ -326,9 +324,9 @@ describe('get best path - DEX burn fees', () => {
 
     expect(paths1.bestPath).toStrictEqual([
       {
-        estimatedDexFees: {
-          tokenA: '0.00000000',
-          tokenB: '0.00600000'
+        estimatedDexFeesInPct: {
+          ba: '0.00000000',
+          ab: '0.00600000'
         },
         poolPairId: '10',
         priceRatio: {
@@ -353,9 +351,9 @@ describe('get best path - DEX burn fees', () => {
     const paths1 = await controller.getBestPath('0', '9')
     expect(paths1.bestPath).toStrictEqual([
       {
-        estimatedDexFees: {
-          tokenA: '0.00000000',
-          tokenB: '0.00000000'
+        estimatedDexFeesInPct: {
+          ba: '0.00000000',
+          ab: '0.00000000'
         },
         poolPairId: '10',
         priceRatio: {
@@ -381,9 +379,9 @@ describe('get best path - DEX burn fees', () => {
     const paths2 = await controller.getBestPath('11', '0')
     expect(paths1.bestPath).toStrictEqual([
       {
-        estimatedDexFees: {
-          tokenA: '0.00700000',
-          tokenB: '0.00000000'
+        estimatedDexFeesInPct: {
+          ba: '0.00700000',
+          ab: '0.00000000'
         },
         poolPairId: '12',
         priceRatio: {
@@ -410,9 +408,9 @@ describe('get best path - DEX burn fees', () => {
     const paths2 = await controller.getBestPath('13', '0')
     expect(paths1.bestPath).toStrictEqual([
       {
-        estimatedDexFees: {
-          tokenA: '0.00000000',
-          tokenB: '0.00800000'
+        estimatedDexFeesInPct: {
+          ba: '0.00000000',
+          ab: '0.00800000'
         },
         poolPairId: '14',
         priceRatio: {
@@ -439,9 +437,9 @@ describe('get best path - DEX burn fees', () => {
     const paths2 = await controller.getBestPath('15', '0')
     expect(paths1.bestPath).toStrictEqual([
       {
-        estimatedDexFees: {
-          tokenA: '0.00900000',
-          tokenB: '0.01000000'
+        estimatedDexFeesInPct: {
+          ba: '0.00900000',
+          ab: '0.01000000'
         },
         poolPairId: '16',
         priceRatio: {
@@ -466,7 +464,46 @@ describe('get best path - DEX burn fees', () => {
   it('should return [] if dex fees is not set', async () => {
     const paths1 = await controller.getBestPath('1', '0')
     const paths2 = await controller.getBestPath('0', '1')
-    expect(paths1.bestPath[0].estimatedDexFees).toStrictEqual(undefined)
-    expect(paths2.bestPath[0].estimatedDexFees).toStrictEqual(undefined)
+    expect(paths1.bestPath[0].estimatedDexFeesInPct).toStrictEqual(undefined)
+    expect(paths2.bestPath[0].estimatedDexFeesInPct).toStrictEqual(undefined)
   })
+})
+
+describe('get best path - DEX estimated return', () => {
+  it('should less dex fees in estimatedReturn - 1 leg', async () => {
+    const paths1 = await controller.getBestPath('15', '0')
+
+    /*
+      1 RABBIT = 14.28571428 DFI, 1 DFI = 0.07 RABBIT
+      DFIAfterFeeIn = 1 - (1 * 0.009) = 0.991 DFI
+      DFIToRABBIT = 0.991 * 14.28571428 = 14.1571428515 RABBIT
+      RABBITAfterFeeOut = 14.1571428515 - (14.1571428515 * 0.01) = 14.01557143 RABBIT
+    */
+    expect(paths1.estimatedReturn).toStrictEqual('14.01557143')
+  })
+
+  it('should less dex fees in estimatedReturn - 2 legs', async () => {
+    const paths1 = await controller.getBestPath('15', '3')
+
+    /*
+      1 RABBIT = 14.28571428 DFI, 1 DFI = 0.07 RABBIT
+      RABBITAFterFeeIn = 1 - (1 * 0.009) = 0.991 RABBIT
+      RABBIT->DFI = 0.991 * 14.28571428 = 14.1571428515 DFI
+      DFIAfterFeeOut = 14.1571428515 - (14.1571428515 * 0.01) = 14.01557143 DFI
+
+      1 DFI = 0.1 CAT, 1 CAT = 10 DFI,
+      DFIAfterFeeIn = 14.01557143 - (14.01557143 * 0.002) = 13.9875402802871 DFI
+      DFI->CAT= 13.9875402802871 * 0.1 = 1.398754028 CAT
+    */
+    expect(paths1.estimatedReturn).toStrictEqual('1.39875403')
+  })
+
+  it('should not less dex fees if dex fees is not set', async () => {
+    const paths1 = await controller.getBestPath('1', '0')
+    expect(paths1.estimatedReturn).toStrictEqual('1.00000000')
+  })
+
+  // TODO(PIERRE): estimated return with less fee should be returned
+  //  it('should return direct path even if composite swap paths has greater return', async () => {
+  //  it('should return composite swap paths  even if direct path has greater return', async () => {
 })
