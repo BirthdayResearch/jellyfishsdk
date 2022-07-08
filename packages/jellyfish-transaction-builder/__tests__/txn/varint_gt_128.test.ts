@@ -49,6 +49,16 @@ beforeAll(async () => {
   builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
   testing = Testing.create(container)
 
+  // create a DCT token
+  await testing.token.create({ symbol: 'FISH', isDAT: false })
+  await testing.generate(1)
+
+  await testing.token.mint({
+    symbol: 'FISH#128',
+    amount: 10000
+  })
+  await testing.generate(1)
+
   for (let i = 0; i < 64; i++) {
     await testing.token.create({ symbol: `A${i}` })
     await testing.token.create({ symbol: `B${i}` })
@@ -229,52 +239,114 @@ it('should poolSwap', async () => {
 it('should accountToAccount', async () => {
   providers.randomizeEllipticPair()
   const script = await providers.elliptic.script()
-  await testing.token.send({
-    symbol: 'PIG',
-    amount: 110,
-    address: await providers.getAddress()
-  })
-  await testing.generate(1)
 
-  await providers.setupMocks()
-  await fundEllipticPair(container, providers.ellipticPair, 1)
+  // >128 DAT token
+  {
+    const tokenId = Number.parseInt(Object.keys(await testing.rpc.token.getToken('PIG'))[0])
+    expect(tokenId).toBeGreaterThan(128)
 
-  const newAddress = await container.getNewAddress()
-  const newP2wpkh = P2WPKH.fromAddress(RegTest, newAddress, P2WPKH)
-  const accountToAccount: AccountToAccount = {
-    from: await providers.elliptic.script(),
-    to: [{
-      script: newP2wpkh.getScript(),
-      balances: [{
-        token: pairs.PIG.tokenId,
-        amount: new BigNumber(100.99)
+    await testing.token.send({
+      symbol: 'PIG',
+      amount: 110,
+      address: await providers.getAddress()
+    })
+    await testing.generate(1)
+
+    await providers.setupMocks()
+    await fundEllipticPair(container, providers.ellipticPair, 1)
+
+    const newAddress = await container.getNewAddress()
+    const newP2wpkh = P2WPKH.fromAddress(RegTest, newAddress, P2WPKH)
+    const accountToAccount: AccountToAccount = {
+      from: await providers.elliptic.script(),
+      to: [{
+        script: newP2wpkh.getScript(),
+        balances: [{
+          token: pairs.PIG.tokenId,
+          amount: new BigNumber(100.99)
+        }]
       }]
-    }]
+    }
+
+    const txn = await builder.account.accountToAccount(accountToAccount, script)
+    const outs = await sendTransaction(container, txn)
+    await testing.generate(1)
+
+    expect(outs.length).toStrictEqual(2)
+    const encoded: string = OP_CODES.OP_DEFI_TX_ACCOUNT_TO_ACCOUNT(accountToAccount).asBuffer().toString('hex')
+    // OP_RETURN + DfTx full buffer
+    const expectedRedeemScript = `6a${encoded}`
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
+    expect(outs[0].tokenId).toStrictEqual(0)
+
+    // change
+    const change = await findOut(outs, providers.elliptic.ellipticPair)
+    expect(change.value).toBeLessThan(1)
+    expect(change.value).toBeGreaterThan(1 - 0.001) // deducted fee
+    const destPubKey = await providers.ellipticPair.publicKey()
+    expect(change.scriptPubKey.hex).toStrictEqual(`0014${HASH160(destPubKey).toString('hex')}`)
+    expect(change.scriptPubKey.addresses[0]).toStrictEqual(Bech32.fromPubKey(destPubKey, 'bcrt'))
+
+    const account = await jsonRpc.account.getAccount(await providers.getAddress())
+    expect(account).toContain('9.01000000@PIG')
+
+    const recipientAccount = await jsonRpc.account.getAccount(newAddress)
+    expect(recipientAccount).toContain('100.99000000@PIG')
   }
 
-  const txn = await builder.account.accountToAccount(accountToAccount, script)
-  const outs = await sendTransaction(container, txn)
-  await testing.generate(1)
+  // DCT token
+  {
+    const fishId = Number.parseInt(Object.keys(await testing.rpc.token.getToken('FISH#128'))[0])
+    expect(fishId).toBeGreaterThanOrEqual(128)
 
-  expect(outs.length).toStrictEqual(2)
-  const encoded: string = OP_CODES.OP_DEFI_TX_ACCOUNT_TO_ACCOUNT(accountToAccount).asBuffer().toString('hex')
-  // OP_RETURN + DfTx full buffer
-  const expectedRedeemScript = `6a${encoded}`
-  expect(outs[0].value).toStrictEqual(0)
-  expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
-  expect(outs[0].tokenId).toStrictEqual(0)
+    await testing.token.send({
+      symbol: 'FISH#128',
+      amount: 110,
+      address: await providers.getAddress()
+    })
+    await testing.generate(1)
 
-  // change
-  const change = await findOut(outs, providers.elliptic.ellipticPair)
-  expect(change.value).toBeLessThan(1)
-  expect(change.value).toBeGreaterThan(1 - 0.001) // deducted fee
-  const destPubKey = await providers.ellipticPair.publicKey()
-  expect(change.scriptPubKey.hex).toStrictEqual(`0014${HASH160(destPubKey).toString('hex')}`)
-  expect(change.scriptPubKey.addresses[0]).toStrictEqual(Bech32.fromPubKey(destPubKey, 'bcrt'))
+    await providers.setupMocks()
+    await fundEllipticPair(container, providers.ellipticPair, 1)
 
-  const account = await jsonRpc.account.getAccount(await providers.getAddress())
-  expect(account).toContain('9.01000000@PIG')
+    const newAddress = await container.getNewAddress()
+    const newP2wpkh = P2WPKH.fromAddress(RegTest, newAddress, P2WPKH)
+    const accountToAccount: AccountToAccount = {
+      from: await providers.elliptic.script(),
+      to: [{
+        script: newP2wpkh.getScript(),
+        balances: [{
+          token: fishId,
+          amount: new BigNumber(100.99)
+        }]
+      }]
+    }
 
-  const recipientAccount = await jsonRpc.account.getAccount(newAddress)
-  expect(recipientAccount).toContain('100.99000000@PIG')
+    const txn = await builder.account.accountToAccount(accountToAccount, script)
+    const outs = await sendTransaction(container, txn)
+    await testing.generate(1)
+
+    expect(outs.length).toStrictEqual(2)
+    const encoded: string = OP_CODES.OP_DEFI_TX_ACCOUNT_TO_ACCOUNT(accountToAccount).asBuffer().toString('hex')
+    // OP_RETURN + DfTx full buffer
+    const expectedRedeemScript = `6a${encoded}`
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
+    expect(outs[0].tokenId).toStrictEqual(0)
+
+    // change
+    const change = await findOut(outs, providers.elliptic.ellipticPair)
+    expect(change.value).toBeLessThan(1)
+    expect(change.value).toBeGreaterThan(1 - 0.001) // deducted fee
+    const destPubKey = await providers.ellipticPair.publicKey()
+    expect(change.scriptPubKey.hex).toStrictEqual(`0014${HASH160(destPubKey).toString('hex')}`)
+    expect(change.scriptPubKey.addresses[0]).toStrictEqual(Bech32.fromPubKey(destPubKey, 'bcrt'))
+
+    const account = await jsonRpc.account.getAccount(await providers.getAddress())
+    expect(account).toContain('9.01000000@FISH#128')
+
+    const recipientAccount = await jsonRpc.account.getAccount(newAddress)
+    expect(recipientAccount).toContain('100.99000000@FISH#128')
+  }
 })
