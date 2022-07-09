@@ -17,7 +17,7 @@ class CustomOperatorMasterNodeRegTestContainer extends MasterNodeRegTestContaine
   }
 }
 
-describe('vote', () => {
+describe.skip('vote', () => {
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
   const testing = Testing.create(new CustomOperatorMasterNodeRegTestContainer())
@@ -85,7 +85,7 @@ describe('vote', () => {
   })
 })
 
-describe('vote with masternode operator with legacy address', () => {
+describe.skip('vote with masternode operator with legacy address', () => {
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
   const testing = Testing.create(new MasterNodeRegTestContainer())

@@ -1,5 +1,4 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
 import { FutureSwap } from 'packages/jellyfish-api-core/src/category/account'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
@@ -14,6 +13,10 @@ async function setup (): Promise<void> {
   collateralAddress = await testing.generateAddress()
   await testing.token.dfi({ address: collateralAddress, amount: 300000 })
   await testing.token.create({ symbol: 'BTC', collateralAddress })
+  await testing.generate(1)
+  await testing.token.create({ symbol: 'TSLA', collateralAddress })
+  await testing.generate(1)
+  await testing.token.create({ symbol: 'DUSD', collateralAddress })
   await testing.generate(1)
   await testing.token.mint({ symbol: 'BTC', amount: 20000 })
   await testing.generate(1)
@@ -50,30 +53,40 @@ async function setup (): Promise<void> {
   await testing.generate(1)
 
   // collateral tokens
-  await testing.rpc.loan.setCollateralToken({
-    token: 'DFI',
-    factor: new BigNumber(1),
-    fixedIntervalPriceId: 'DFI/USD'
+  await testing.rpc.masternode.setGov({
+    ATTRIBUTES: {
+      'v0/token/0/fixed_interval_price_id': 'DFI/USD',
+      'v0/token/0/loan_collateral_enabled': 'true',
+      'v0/token/0/loan_collateral_factor': '1'
+    }
   })
   await testing.generate(1)
 
-  await testing.rpc.loan.setCollateralToken({
-    token: 'BTC',
-    factor: new BigNumber(0.5),
-    fixedIntervalPriceId: 'BTC/USD'
+  await testing.rpc.masternode.setGov({
+    ATTRIBUTES: {
+      'v0/token/1/fixed_interval_price_id': 'BTC/USD',
+      'v0/token/1/loan_collateral_enabled': 'true',
+      'v0/token/1/loan_collateral_factor': '0.5'
+    }
   })
   await testing.generate(1)
 
   // loan token
-  await testing.rpc.loan.setLoanToken({
-    symbol: 'TSLA',
-    fixedIntervalPriceId: 'TSLA/USD'
+  await testing.rpc.masternode.setGov({
+    ATTRIBUTES: {
+      'v0/token/2/fixed_interval_price_id': 'TSLA/USD',
+      'v0/token/2/loan_minting_enabled': 'true',
+      'v0/token/2/loan_minting_interest': '0'
+    }
   })
   await testing.generate(1)
 
-  await testing.rpc.loan.setLoanToken({
-    symbol: 'DUSD',
-    fixedIntervalPriceId: 'DUSD/USD'
+  await testing.rpc.masternode.setGov({
+    ATTRIBUTES: {
+      'v0/token/3/fixed_interval_price_id': 'DUSD/USD',
+      'v0/token/3/loan_minting_enabled': 'true',
+      'v0/token/3/loan_minting_interest': '0'
+    }
   })
   await testing.generate(1)
 
@@ -85,9 +98,12 @@ async function setup (): Promise<void> {
   })
   await testing.generate(1)
 
+  await testing.container.waitForPriceValid('DFI/USD')
+
   await testing.rpc.loan.depositToVault({
     vaultId: vaultId, from: collateralAddress, amount: '100000@DFI'
   })
+  await testing.generate(1)
 
   // wait till the price valid.
   await testing.container.waitForPriceValid('TSLA/USD')
@@ -708,10 +724,14 @@ describe('withdrawFutureSwap', () => {
 
   it('should not withdrawFutureSwap invalid futureswap dtoken to dusd', async () => {
     const swapAmount = 1
-    const nextSettleBlock = await testing.container.call('getfutureswapblock', [])
+    let nextSettleBlock = await testing.container.call('getfutureswapblock', [])
     const tslaAddress = await testing.generateAddress()
     await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount}@TSLA` })
     await testing.generate(1)
+
+    // move to next settle block
+    await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount())
+    nextSettleBlock = await testing.container.call('getfutureswapblock', [])
 
     const fswap: FutureSwap = {
       address: tslaAddress,
@@ -742,7 +762,7 @@ describe('withdrawFutureSwap', () => {
       }
       const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
       await expect(result).rejects.toThrow(RpcApiError)
-      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nDestination should not be set when source amount is a dToken\', code: -32600, method: withdrawfutureswap')
+      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nDestination should not be set when source amount is dToken or DFI\', code: -32600, method: withdrawfutureswap')
     }
 
     // Withdraw fail - try to withdraw from unavailable futureswap
@@ -862,6 +882,7 @@ describe('withdrawFutureSwap', () => {
     {
       const idTSLA = await testing.token.getTokenId('TSLA')
       await testing.rpc.masternode.setGov({ [attributeKey]: { [`v0/token/${idTSLA}/dfip2203`]: 'false' } })
+      await testing.generate(1)
 
       const withdrawFutureSwap: FutureSwap = {
         address: tslaAddress,
@@ -869,14 +890,16 @@ describe('withdrawFutureSwap', () => {
       }
       const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
       await expect(result).rejects.toThrow(RpcApiError)
-      await expect(result).rejects.toThrow('RpcApiError: \'DFIP2203Tx: DFIP2203 currently disabled for token 2 (code 16)\', code: -26, method: withdrawfutureswap')
+      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nDFIP2203 currently disabled for token 2\', code: -32600, method: withdrawfutureswap')
 
       await testing.rpc.masternode.setGov({ [attributeKey]: { [`v0/token/${idTSLA}/dfip2203`]: 'true' } })
+      await testing.generate(1)
     }
 
     // withdraw after setting the dfip2203/active to false
     {
       await testing.rpc.masternode.setGov({ [attributeKey]: { 'v0/params/dfip2203/active': 'false' } })
+      await testing.generate(1)
 
       const withdrawFutureSwap: FutureSwap = {
         address: tslaAddress,
@@ -884,9 +907,10 @@ describe('withdrawFutureSwap', () => {
       }
       const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
       await expect(result).rejects.toThrow(RpcApiError)
-      await expect(result).rejects.toThrow('RpcApiError: \'DFIP2203Tx: DFIP2203 not currently active (code 16)\', code: -26, method: withdrawfutureswap')
+      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nDFIP2203 not currently active\', code: -32600, method: withdrawfutureswap')
 
       await testing.rpc.masternode.setGov({ [attributeKey]: { 'v0/params/dfip2203/active': 'true' } })
+      await testing.generate(1)
     }
 
     // verify that all happened before settle block
@@ -896,10 +920,14 @@ describe('withdrawFutureSwap', () => {
 
   it('should not withdrawFutureSwap invalid futureswap dusd to dtoken', async () => {
     const swapAmount = 1
-    const nextSettleBlock = await testing.container.call('getfutureswapblock', [])
+    let nextSettleBlock = await testing.container.call('getfutureswapblock', [])
     const tslaAddress = await testing.generateAddress()
     await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount}@DUSD` })
     await testing.generate(1)
+
+    // move to next settle block
+    await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount())
+    nextSettleBlock = await testing.container.call('getfutureswapblock', [])
 
     const fswap: FutureSwap = {
       address: tslaAddress,
@@ -1071,6 +1099,7 @@ describe('withdrawFutureSwap', () => {
     {
       const idTSLA = await testing.token.getTokenId('TSLA')
       await testing.rpc.masternode.setGov({ [attributeKey]: { [`v0/token/${idTSLA}/dfip2203`]: 'false' } })
+      await testing.generate(1)
 
       const withdrawFutureSwap: FutureSwap = {
         address: tslaAddress,
@@ -1079,14 +1108,16 @@ describe('withdrawFutureSwap', () => {
       }
       const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
       await expect(result).rejects.toThrow(RpcApiError)
-      await expect(result).rejects.toThrow('RpcApiError: \'DFIP2203Tx: DFIP2203 currently disabled for token 2 (code 16)\', code: -26, method: withdrawfutureswap')
+      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nDFIP2203 currently disabled for token 2\', code: -32600, method: withdrawfutureswap')
 
       await testing.rpc.masternode.setGov({ [attributeKey]: { [`v0/token/${idTSLA}/dfip2203`]: 'true' } })
+      await testing.generate(1)
     }
 
     // withdraw after setting the dfip2203/active to false
     {
       await testing.rpc.masternode.setGov({ [attributeKey]: { 'v0/params/dfip2203/active': 'false' } })
+      await testing.generate(1)
 
       const withdrawFutureSwap: FutureSwap = {
         address: tslaAddress,
@@ -1095,9 +1126,10 @@ describe('withdrawFutureSwap', () => {
       }
       const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
       await expect(result).rejects.toThrow(RpcApiError)
-      await expect(result).rejects.toThrow('RpcApiError: \'DFIP2203Tx: DFIP2203 not currently active (code 16)\', code: -26, method: withdrawfutureswap')
+      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nDFIP2203 not currently active\', code: -32600, method: withdrawfutureswap')
 
       await testing.rpc.masternode.setGov({ [attributeKey]: { 'v0/params/dfip2203/active': 'true' } })
+      await testing.generate(1)
     }
 
     // verify that all happened before settle block

@@ -13,6 +13,7 @@ describe('Masternode', () => {
 
     const govsBefore = await client.masternode.listGovs()
     expect(govsBefore.length).toBeGreaterThan(0)
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const liqSplits = govsBefore.find(l => l[0]?.LP_SPLITS !== undefined) as Array<Record<string, any>>
     expect(liqSplits).toBeDefined()
     expect(Object.keys(liqSplits[0].LP_SPLITS).length).toStrictEqual(0)
@@ -33,6 +34,7 @@ describe('Masternode', () => {
 
     const govVars = await client.masternode.listGovs()
     expect(govVars.length).toBeGreaterThan(0)
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const liqSplits = govVars.find(l => l[0]?.LP_SPLITS !== undefined) as Array<Record<string, any>>
     expect(liqSplits).toBeDefined()
     expect(liqSplits.length).toStrictEqual(1)
@@ -53,6 +55,7 @@ describe('Masternode', () => {
 
     const govVars = await client.masternode.listGovs()
     expect(govVars.length).toBeGreaterThan(0)
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const liqSplits = govVars.find(l => l[0]?.LP_SPLITS !== undefined) as Array<Record<string, any>>
     expect(liqSplits).toBeDefined()
     expect(liqSplits.length).toStrictEqual(2)

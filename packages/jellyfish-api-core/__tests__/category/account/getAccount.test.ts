@@ -1,6 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
+import { AccountOwner, AccountResult } from '@defichain/jellyfish-api-core/dist/category/account'
 
 const container = new MasterNodeRegTestContainer()
 const client = new ContainerAdapterClient(container)
@@ -42,7 +43,7 @@ it('should getAccount', async () => {
 })
 
 it('should getAccount with pagination start and including_start', async () => {
-  let accounts: any[] = []
+  let accounts: Array<AccountResult<AccountOwner, string>> = []
   let beforeAccountCount = 0
 
   await waitForExpect(async () => {

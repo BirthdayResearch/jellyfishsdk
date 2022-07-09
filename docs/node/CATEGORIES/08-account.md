@@ -31,7 +31,7 @@ interface account {
 }
 
 interface AccountPagination {
-  start?: number
+  start?: number | string
   including_start?: boolean
   limit?: number
 }
@@ -98,7 +98,7 @@ interface AccountAmount {
 }
 
 interface AccountPagination {
-  start?: string | number
+  start?: number | string
   including_start?: boolean
   limit?: number
 }
@@ -216,11 +216,16 @@ enum DfTxType {
   NONE = '0'
 }
 
+enum Format {
+  ID = 'id',
+  SYMBOL = 'symbol'
+}
+
 interface AccountHistory {
   owner: string
   blockHeight: number
-  blockHash: string
-  blockTime: number
+  blockHash?: string
+  blockTime?: number
   type: string
   txn: number
   txid: string
@@ -235,6 +240,7 @@ interface AccountHistoryOptions {
   txtype?: DfTxType
   limit?: number
   txn?: number
+  format?: Format
 }
 ```
 
@@ -254,8 +260,8 @@ interface account {
 interface AccountHistory {
   owner: string
   blockHeight: number
-  blockHash: string
-  blockTime: number
+  blockHash?: string
+  blockTime?: number
   type: string
   txn: number
   txid: string
@@ -438,9 +444,9 @@ interface BurnInfo {
    */
   emissionburn: BigNumber
   /**
-   * Value of burn after payback
+   * Burns after payback
    */
-  paybackburn: BigNumber
+  paybackburn: string[]
   /**
    * Amount collected via auction burn
    */
@@ -469,6 +475,10 @@ interface BurnInfo {
    * Amount of tokens burned due to futureswap
    */
   dfip2203: string[]
+  /**
+   * Amount of tokens burned due to DFI-to-DUSD swap
+   */
+  dfip2206f: string[]
 }
 ```
 
@@ -547,5 +557,35 @@ interface ListFutureInfo {
   owner: string
   source: string // eg: '1.234@DUSD'
   destination: string
+}
+```
+
+## listPendingDusdSwaps
+
+List pending DUSD swaps futures.
+
+```ts title="client.account.listPendingDusdSwaps()"
+interface account {
+  listPendingDusdSwaps (): Promise<DusdSwapsInfo[]>
+}
+
+interface DusdSwapsInfo {
+  owner: string
+  amount: BigNumber
+}
+```
+
+## getPendingDusdSwaps
+
+Get pending DUSD swaps future.
+
+```ts title="client.account.getPendingDusdSwaps()"
+interface account {
+  getPendingDusdSwaps (address: string): Promise<DusdSwapsInfo>
+}
+
+interface DusdSwapsInfo {
+  owner: string
+  amount: BigNumber
 }
 ```

@@ -2,7 +2,7 @@ import { StatusApiTesting } from '../../testing/StatusApiTesting'
 import { ApiPagedResponse, WhaleApiClient } from '@defichain/whale-api-client'
 import { WhaleApiProbeIndicator } from '../../src/modules/WhaleApiModule'
 import { HealthIndicatorResult, HealthIndicatorStatus } from '@nestjs/terminus'
-import { Block } from '@defichain/whale-api-client/dist/api/Blocks'
+import { Block } from '@defichain/whale-api-client/dist/api/blocks'
 
 describe('AggregateController - Status test', () => {
   const apiTesting = StatusApiTesting.create()

@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
-import { BufferComposer, ComposableBuffer, readVarUInt, writeVarUInt } from '@defichain/jellyfish-buffer'
+import { BufferComposer, ComposableBuffer, readCompactSize, writeCompactSize } from '@defichain/jellyfish-buffer'
 import { Script, Transaction, TransactionSegWit, Vin, Vout, Witness, WitnessScript } from './tx'
 import { OP_CODES, OPCode } from './script'
 import { dSHA256 } from '@defichain/jellyfish-crypto'
@@ -33,8 +33,8 @@ export class CTransaction extends ComposableBuffer<Transaction> implements Trans
   composers (tx: Transaction): BufferComposer[] {
     return [
       ComposableBuffer.uInt32(() => tx.version, v => tx.version = v),
-      ComposableBuffer.varUIntArray<Vin>(() => tx.vin, v => tx.vin = v, v => new CVin(v)),
-      ComposableBuffer.varUIntArray<Vout>(() => tx.vout, v => tx.vout = v, v => {
+      ComposableBuffer.compactSizeArray<Vin>(() => tx.vin, v => tx.vin = v, v => new CVin(v)),
+      ComposableBuffer.compactSizeArray<Vout>(() => tx.vout, v => tx.vout = v, v => {
         if (tx.version < 4) {
           return new CVoutV2(v)
         }
@@ -146,7 +146,7 @@ export class CVoutV4 extends ComposableBuffer<Vout> implements Vout {
     return [
       ComposableBuffer.satoshiAsBigNumber(() => vout.value, v => vout.value = v),
       ComposableBuffer.single<Script>(() => vout.script, v => vout.script = v, v => new CScript(v)),
-      ComposableBuffer.varUInt(() => vout.tokenId, v => vout.tokenId = v)
+      ComposableBuffer.varInt(() => vout.tokenId, v => vout.tokenId = v)
     ]
   }
 }
@@ -223,8 +223,8 @@ export class CTransactionSegWit extends ComposableBuffer<TransactionSegWit> impl
       ComposableBuffer.uInt32(() => tx.version, v => tx.version = v),
       ComposableBuffer.uInt8(() => tx.marker, v => tx.marker = v),
       ComposableBuffer.uInt8(() => tx.flag, v => tx.flag = v),
-      ComposableBuffer.varUIntArray<Vin>(() => tx.vin, v => tx.vin = v, v => new CVin(v)),
-      ComposableBuffer.varUIntArray<Vout>(() => tx.vout, v => tx.vout = v, v => {
+      ComposableBuffer.compactSizeArray<Vin>(() => tx.vin, v => tx.vin = v, v => new CVin(v)),
+      ComposableBuffer.compactSizeArray<Vout>(() => tx.vout, v => tx.vout = v, v => {
         if (tx.version < 4) {
           return new CVoutV2(v)
         }
@@ -258,7 +258,7 @@ export class CWitness extends ComposableBuffer<Witness> implements Witness {
 
   composers (wit: Witness): BufferComposer[] {
     return [
-      ComposableBuffer.varUIntArray<WitnessScript>(() => wit.scripts, v => wit.scripts = v, v => new CWitnessScript(v))
+      ComposableBuffer.compactSizeArray<WitnessScript>(() => wit.scripts, v => wit.scripts = v, v => new CWitnessScript(v))
     ]
   }
 }
@@ -279,11 +279,11 @@ export class CWitnessScript extends ComposableBuffer<WitnessScript> implements W
     return [
       {
         fromBuffer: (buffer: SmartBuffer): void => {
-          const len = readVarUInt(buffer)
+          const len = readCompactSize(buffer)
           script.hex = buffer.readString(len, 'hex')
         },
         toBuffer: (buffer: SmartBuffer): void => {
-          writeVarUInt(script.hex.length / 2, buffer)
+          writeCompactSize(script.hex.length / 2, buffer)
           buffer.writeString(script.hex, 'hex')
         }
       }

@@ -1,5 +1,5 @@
 {
-  "private": true,
+  "private": false,
   "name": "@defichain/whale-api-wallet",
   "version": "0.0.0",
   "description": "SDK & Ecosystem for building modern lite DeFi Applications at scale.",

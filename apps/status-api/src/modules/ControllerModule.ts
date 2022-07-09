@@ -3,9 +3,10 @@ import { ActuatorController } from '@defichain-apps/libs/actuator'
 import { BlockchainStatusController } from '../controllers/BlockchainStatusController'
 import { WhaleApiClient } from '@defichain/whale-api-client'
 import { ConfigService } from '@nestjs/config'
-import { SemaphoreCache } from '../../../whale/src/module.api/cache/semaphore.cache'
+import { SemaphoreCache } from '@defichain-apps/libs/caches'
 import { OracleStatusController } from '../controllers/OracleStatusController'
 import { OverallStatusController } from '../controllers/OverallStatusController'
+import { NetworkName } from '@defichain/jellyfish-network'
 
 /**
  * Exposed ApiModule for public interfacing
@@ -28,7 +29,7 @@ import { OverallStatusController } from '../controllers/OverallStatusController'
       useFactory: (configService: ConfigService): WhaleApiClient => {
         return new WhaleApiClient({
           version: 'v0',
-          network: configService.get<string>('network'),
+          network: configService.get<string>('network') as NetworkName ?? 'mainnet',
           url: 'https://ocean.defichain.com'
         })
       },

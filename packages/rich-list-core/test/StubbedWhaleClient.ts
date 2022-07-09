@@ -1,6 +1,6 @@
 import { BigNumber } from '@defichain/jellyfish-api-core'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { ApiMethod, ResponseAsString, WhaleApiClient } from '@defichain/whale-api-client'
+import { Method, ResponseAsString, WhaleApiClient } from '@defichain/whale-api-client'
 
 /**
  * a Stubbed WhaleApiClient for test purpose.
@@ -13,7 +13,7 @@ export class StubbedWhaleApiClient extends WhaleApiClient {
     this.stubMethods()
   }
 
-  async requestAsString (method: ApiMethod, path: string, body?: string): Promise<ResponseAsString> {
+  async requestAsString (method: Method, path: string, body?: string): Promise<ResponseAsString> {
     // stub the api method thus test case logic should not reach this point
     throw new Error(`Endpoint "${method}/${path}" not stubbed for test`)
   }

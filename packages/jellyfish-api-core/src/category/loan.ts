@@ -132,13 +132,10 @@ export class Loan {
   /**
    * List collateral tokens.
    *
-   * @param {ListCollateralTokens} [collateralToken = {}]
-   * @param {number} [collateralToken.height = CurrentBlockheight] Valid at specified height
-   * @param {boolean} [collateralToken.all] True = All transactions, false =  Activated transactions
    * @return {Promise<CollateralTokenDetail[]>} Get all collateral tokens
    */
-  async listCollateralTokens (collateralToken: ListCollateralTokens = {}): Promise<CollateralTokenDetail[]> {
-    return await this.client.call('listcollateraltokens', [collateralToken], 'bignumber')
+  async listCollateralTokens (): Promise<CollateralTokenDetail[]> {
+    return await this.client.call('listcollateraltokens', [], 'bignumber')
   }
 
   /**
@@ -309,17 +306,24 @@ export class Loan {
    *
    * @deprecated Vault methods are moving to dedicated vault category
    * @param {string} vaultId vault hex id
+   * @param {boolean} [verbose] request verbose info
    * @return {Promise<VaultActive | VaultLiquidation>}
    */
-  async getVault (vaultId: string): Promise<VaultActive | VaultLiquidation> {
+  async getVault (vaultId: string, verbose: boolean = false): Promise<VaultActive | VaultLiquidation> {
     return await this.client.call(
       'getvault',
-      [vaultId],
+      [vaultId, verbose],
       {
+        collateralAmounts: 'bignumber',
+        loanAmounts: 'bignumber',
+        interestAmounts: 'bignumber',
         collateralValue: 'bignumber',
         loanValue: 'bignumber',
         interestValue: 'bignumber',
-        informativeRatio: 'bignumber'
+        informativeRatio: 'bignumber',
+        nextCollateralRatio: 'bignumber',
+        interestPerBlockValue: 'bignumber',
+        interestsPerBlock: 'bignumber'
       }
     )
   }
@@ -503,16 +507,10 @@ export interface GetLoanSchemeResult {
   default: boolean
 }
 
-export interface ListCollateralTokens {
-  height?: number
-  all?: boolean
-}
-
 export interface CollateralTokenDetail {
   token: string
   factor: BigNumber
   fixedIntervalPriceId: string
-  activateAfterBlock: BigNumber
   tokenId: string
 }
 

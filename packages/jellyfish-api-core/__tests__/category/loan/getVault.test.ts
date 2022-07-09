@@ -1,7 +1,7 @@
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { Testing } from '@defichain/jellyfish-testing'
 import BigNumber from 'bignumber.js'
-import { VaultActive, VaultState } from '../../../src/category/loan'
+import { Interest, VaultActive, VaultState } from '../../../src/category/loan'
 
 describe('Loan getVault', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -9,7 +9,7 @@ describe('Loan getVault', () => {
   let collateralAddress: string
   let oracleId: string
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
     collateralAddress = await testing.generateAddress()
@@ -65,7 +65,7 @@ describe('Loan getVault', () => {
     await testing.generate(1)
   })
 
-  afterAll(async () => {
+  afterEach(async () => {
     await testing.container.stop()
   })
 
@@ -88,6 +88,31 @@ describe('Loan getVault', () => {
       interestValue: expect.any(BigNumber),
       collateralRatio: expect.any(Number),
       informativeRatio: expect.any(BigNumber)
+    })
+  })
+
+  it('should getVault verbose info', async () => {
+    const ownerAddress = await testing.generateAddress()
+    const vaultId = await testing.rpc.container.call('createvault', [ownerAddress, 'default'])
+    await testing.container.generate(1)
+
+    const data = await testing.rpc.loan.getVault(vaultId, true)
+    expect(data).toStrictEqual({
+      vaultId: vaultId,
+      loanSchemeId: 'default', // Get default loan scheme
+      ownerAddress: ownerAddress,
+      state: VaultState.ACTIVE,
+      collateralAmounts: [],
+      loanAmounts: [],
+      interestAmounts: [],
+      collateralValue: expect.any(BigNumber),
+      loanValue: expect.any(BigNumber),
+      interestValue: expect.any(BigNumber),
+      collateralRatio: expect.any(Number),
+      informativeRatio: expect.any(BigNumber),
+      nextCollateralRatio: expect.any(BigNumber),
+      interestPerBlockValue: expect.any(BigNumber),
+      interestsPerBlock: []
     })
   })
 
@@ -134,7 +159,7 @@ describe('Loan getVault', () => {
     await testing.generate(1)
 
     // interest info.
-    const interestInfo: any = await testing.rpc.call('getinterest', ['default', 'TSLA'], 'bignumber')
+    const interestInfo: Interest[] = await testing.rpc.call('getinterest', ['default', 'TSLA'], 'bignumber')
 
     const data = await testing.rpc.loan.getVault(vaultId) as VaultActive
     const informativeRatio: BigNumber = data.collateralValue.dividedBy(data.loanValue).multipliedBy(100)
@@ -185,10 +210,10 @@ describe('Loan getVault', () => {
     await testing.generate(12) // Wait for 12 blocks which are equivalent to 2 hours (1 block = 10 minutes) in order to liquidate the vault
 
     // get auction details
-    await testing.rpc.account.sendTokensToAddress({}, { [collateralAddress]: ['40@TSLA'] })
+    await testing.rpc.account.sendTokensToAddress({}, { [collateralAddress]: ['30@TSLA'] })
     await testing.generate(1)
 
-    const txid = await testing.container.call('placeauctionbid', [vaultId, 0, collateralAddress, '40@TSLA'])
+    const txid = await testing.container.call('placeauctionbid', [vaultId, 0, collateralAddress, '30@TSLA'])
     expect(typeof txid).toStrictEqual('string')
     expect(txid.length).toStrictEqual(64)
     await testing.generate(1)
@@ -199,7 +224,7 @@ describe('Loan getVault', () => {
       loanSchemeId: 'default', // Get default loan scheme
       ownerAddress: ownerAddress,
       state: VaultState.IN_LIQUIDATION,
-      liquidationHeight: 168,
+      liquidationHeight: 156,
       liquidationPenalty: 5,
       batchCount: 2,
       batches: [
@@ -209,9 +234,9 @@ describe('Loan getVault', () => {
             '0.66666666@BTC'
           ],
           index: 0,
-          loan: '20.00004546@TSLA',
+          loan: '20.00003024@TSLA',
           highestBid: {
-            amount: '40.00000000@TSLA',
+            amount: '30.00000000@TSLA',
             owner: collateralAddress
           }
         },
@@ -221,7 +246,7 @@ describe('Loan getVault', () => {
             '0.33333334@BTC'
           ],
           index: 1,
-          loan: '10.00002304@TSLA'
+          loan: '10.00001543@TSLA'
         }
       ]
     })

@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
-      - uses: actions/setup-node@56337c425554a6be30cdef71bf441f15be286854
+      - uses: actions/setup-node@eeb10cff27034e7acf239c5d29f62154018672fd
         with:
           node-version: '16'
           cache: 'npm'
@@ -35,7 +35,7 @@ jobs:
       GH_INSTANCE_TOTAL: 10
     steps:
       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
-      - uses: actions/setup-node@56337c425554a6be30cdef71bf441f15be286854
+      - uses: actions/setup-node@eeb10cff27034e7acf239c5d29f62154018672fd
         with:
           node-version: '16'
           cache: 'npm'
@@ -49,12 +49,26 @@ jobs:
         with:
           fail_ci_if_error: true
 
+  docker-sanity:
+    needs: [ build, lint ]
+    name: Docker Sanity Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - uses: actions/setup-node@eeb10cff27034e7acf239c5d29f62154018672fd
+        with:
+          node-version: '16'
+          cache: 'npm'
+
+      - run: npm ci
+      - run: npm run sanity
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
-      - uses: actions/setup-node@56337c425554a6be30cdef71bf441f15be286854
+      - uses: actions/setup-node@eeb10cff27034e7acf239c5d29f62154018672fd
         with:
           node-version: '16'
           cache: 'npm'
@@ -68,7 +82,7 @@ jobs:
     strategy:
       matrix:
         platform: [ linux/amd64 ]
-        app: [ legacy-api, ocean-api, status-api ]
+        app: [ legacy-api, ocean-api, playground-api, status-api, whale-api ]
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@8b122486cedac8393e77aa9734c3528886e4a1a8

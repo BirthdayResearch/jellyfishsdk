@@ -185,7 +185,7 @@ describe('Vault updateVault', () => {
       ownerAddress: await alice.generateAddress(),
       loanSchemeId: 'scheme'
     })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Vault <b25ab8093b0fcb712b9acecdb6ec21ae9cb862a14766a9fb6523efb1d8d05d60> does not found\', code: -5, method: updatevault')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Vault <b25ab8093b0fcb712b9acecdb6ec21ae9cb862a14766a9fb6523efb1d8d05d60> not found\', code: -5, method: updatevault')
   })
 
   it('should not updateVault if the length of vaultId is not 64', async () => {

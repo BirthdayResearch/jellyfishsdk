@@ -4,6 +4,7 @@ import { ActuatorProbes, ProbeIndicator } from '@defichain-apps/libs/actuator'
 import { BlockchainInfo } from '@defichain/jellyfish-api-core/src/category/blockchain'
 import { WhaleApiClient } from '@defichain/whale-api-client'
 import { ConfigService } from '@nestjs/config'
+import { NetworkName } from '@defichain/jellyfish-network'
 
 @Injectable()
 export class WhaleApiProbeIndicator extends ProbeIndicator {
@@ -46,7 +47,7 @@ export class WhaleApiProbeIndicator extends ProbeIndicator {
       useFactory: (configService: ConfigService): WhaleApiClient => {
         return new WhaleApiClient({
           version: 'v0',
-          network: configService.get<string>('network'),
+          network: configService.get<string>('network') as NetworkName ?? 'mainnet',
           url: 'https://ocean.defichain.com'
         })
       },

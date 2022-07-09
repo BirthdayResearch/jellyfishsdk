@@ -40,7 +40,7 @@ export abstract class CGovernanceVar extends ComposableBuffer<GovernanceVar> {
 
   composers (gv: GovernanceVar): BufferComposer[] {
     return [
-      ComposableBuffer.varUIntUtf8BE(() => gv.key, v => gv.key = v),
+      ComposableBuffer.compactSizeUtf8BE(() => gv.key, v => gv.key = v),
       {
         fromBuffer: (buffer: SmartBuffer): void => {
           if (gv.key === 'LP_DAILY_DFI_REWARD') {
@@ -186,8 +186,8 @@ export class CCreateProposal extends ComposableBuffer<CreateProposal> {
       ComposableBuffer.single<Script>(() => ccp.address, v => ccp.address = v, v => new CScript(v)),
       ComposableBuffer.satoshiAsBigNumber(() => ccp.amount, v => ccp.amount = v),
       ComposableBuffer.uInt8(() => ccp.cycles, v => ccp.cycles = v as ProposalCycles),
-      ComposableBuffer.varUIntUtf8BE(() => ccp.title, v => ccp.title = v),
-      ComposableBuffer.varUIntUtf8BE(() => ccp.context, v => ccp.context = v)
+      ComposableBuffer.compactSizeUtf8BE(() => ccp.title, v => ccp.title = v),
+      ComposableBuffer.compactSizeUtf8BE(() => ccp.context, v => ccp.context = v)
     ]
   }
 }

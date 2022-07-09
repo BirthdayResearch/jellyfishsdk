@@ -61,31 +61,81 @@ it('should have gov set', async () => {
   const gov = await testing.container.call('getgov', ['ATTRIBUTES'])
   expect(gov).toStrictEqual({
     ATTRIBUTES: expect.objectContaining({
+      'v0/params/dfip2203/active': 'true',
+      'v0/params/dfip2203/reward_pct': '0.05',
+      'v0/params/dfip2203/block_period': '20',
+      'v0/token/0/fixed_interval_price_id': 'DFI/USD',
+      'v0/token/0/loan_collateral_enabled': 'true',
+      'v0/token/0/loan_collateral_factor': '1',
+      'v0/token/1/fixed_interval_price_id': 'BTC/USD',
+      'v0/token/1/loan_collateral_enabled': 'true',
+      'v0/token/1/loan_collateral_factor': '1',
+      'v0/token/2/fixed_interval_price_id': 'ETH/USD',
+      'v0/token/2/loan_collateral_enabled': 'true',
+      'v0/token/2/loan_collateral_factor': '0.7',
+      'v0/token/3/fixed_interval_price_id': 'USDT/USD',
+      'v0/token/3/loan_collateral_enabled': 'true',
+      'v0/token/3/loan_collateral_factor': '1',
+      'v0/token/5/fixed_interval_price_id': 'USDC/USD',
+      'v0/token/5/loan_collateral_enabled': 'true',
+      'v0/token/5/loan_collateral_factor': '1',
+      'v0/token/6/fixed_interval_price_id': 'CU10/USD',
+      'v0/token/6/loan_collateral_enabled': 'true',
+      'v0/token/6/loan_collateral_factor': '1',
+      'v0/token/7/fixed_interval_price_id': 'CD10/USD',
+      'v0/token/7/loan_collateral_enabled': 'true',
+      'v0/token/7/loan_collateral_factor': '1',
+      'v0/token/8/fixed_interval_price_id': 'CS25/USD',
+      'v0/token/8/loan_collateral_enabled': 'true',
+      'v0/token/8/loan_collateral_factor': '1',
+      'v0/token/9/fixed_interval_price_id': 'CR50/USD',
+      'v0/token/9/loan_collateral_enabled': 'true',
+      'v0/token/9/loan_collateral_factor': '1',
+      'v0/token/10/fixed_interval_price_id': 'ZERO/USD',
+      'v0/token/10/loan_collateral_enabled': 'true',
+      'v0/token/10/loan_collateral_factor': '1',
+      'v0/token/11/fixed_interval_price_id': 'OFF/USD',
+      'v0/token/11/loan_collateral_enabled': 'true',
+      'v0/token/11/loan_collateral_factor': '1',
       'v0/token/12/payback_dfi': 'true',
       'v0/token/12/payback_dfi_fee_pct': '0.01',
       'v0/token/12/loan_payback/1': 'true',
       'v0/token/12/loan_payback/14': 'true',
       'v0/token/12/loan_payback_fee_pct/1': '0.01',
       'v0/token/12/loan_payback_fee_pct/14': '0.01',
+      'v0/token/12/fixed_interval_price_id': 'DUSD/USD',
+      'v0/token/12/loan_collateral_enabled': 'true',
+      'v0/token/12/loan_collateral_factor': '0.99',
+      'v0/token/12/loan_minting_enabled': 'true',
+      'v0/token/12/loan_minting_interest': '0',
       'v0/token/13/loan_payback/6': 'true',
       'v0/token/13/loan_payback/12': 'true',
       'v0/token/13/loan_payback_fee_pct/6': '0.01',
       'v0/token/13/loan_payback_fee_pct/12': '0.01',
+      'v0/token/13/fixed_interval_price_id': 'TU10/USD',
+      'v0/token/13/loan_minting_enabled': 'true',
+      'v0/token/13/loan_minting_interest': '1',
       'v0/token/14/loan_payback/1': 'true',
       'v0/token/14/loan_payback/12': 'true',
       'v0/token/14/loan_payback_fee_pct/1': '0.01',
       'v0/token/14/loan_payback_fee_pct/12': '0.01',
+      'v0/token/14/fixed_interval_price_id': 'TD10/USD',
+      'v0/token/14/loan_minting_enabled': 'true',
+      'v0/token/14/loan_minting_interest': '1.5',
       'v0/token/15/loan_payback/13': 'true',
       'v0/token/15/loan_payback_fee_pct/13': '0.01',
+      'v0/token/15/fixed_interval_price_id': 'TS25/USD',
+      'v0/token/15/loan_minting_enabled': 'true',
+      'v0/token/15/loan_minting_interest': '2',
       'v0/token/16/payback_dfi': 'true',
       'v0/token/16/payback_dfi_fee_pct': '0.01',
       'v0/token/16/loan_payback/12': 'true',
       'v0/token/16/loan_payback/14': 'true',
       'v0/token/16/loan_payback_fee_pct/12': '0.01',
       'v0/token/16/loan_payback_fee_pct/14': '0.01',
-      'v0/params/dfip2203/active': 'true',
-      'v0/params/dfip2203/reward_pct': '0.05',
-      'v0/params/dfip2203/block_period': '10'
+      'v0/token/16/fixed_interval_price_id': 'TR50/USD',
+      'v0/token/16/loan_minting_enabled': 'true',
+      'v0/token/16/loan_minting_interest': '3'
     })
   })
 
@@ -221,12 +271,12 @@ it('should have gov set', async () => {
 
   const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
   expect(attributes.ATTRIBUTES['v0/params/dfip2203/active']).toStrictEqual('true')
-  expect(attributes.ATTRIBUTES['v0/params/dfip2203/block_period']).toStrictEqual('10')
+  expect(attributes.ATTRIBUTES['v0/params/dfip2203/block_period']).toStrictEqual('20')
   expect(attributes.ATTRIBUTES['v0/params/dfip2203/reward_pct']).toStrictEqual('0.05')
 
   const current = await testing.container.getBlockCount()
   const next = await testing.container.call('getfutureswapblock')
-  expect(next - current).toBeLessThanOrEqual(10)
+  expect(next - current).toBeLessThanOrEqual(20)
   await testing.generate(next - current)
 
   {

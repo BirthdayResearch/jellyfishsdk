@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { ListAuctionHistoryDetail } from '../../../src/category/loan'
+import { ListAuctionHistoryDetail, VaultLiquidation } from '../../../src/category/loan'
 
 describe('Loan listAuctionHistory', () => {
   const tGroup = TestingGroup.create(2, i => new MasterNodeRegTestContainer(GenesisKeys[i]))
@@ -326,8 +326,8 @@ describe('Loan listAuctionHistory', () => {
     await alice.generate(1)
 
     // When there is liquidation
-    const list = await alice.container.call('listauctions', [])
-    list.forEach((l: { state: any }) =>
+    const list: VaultLiquidation[] = await alice.container.call('listauctions', [])
+    list.forEach(l =>
       expect(l.state).toStrictEqual('inLiquidation')
     )
 

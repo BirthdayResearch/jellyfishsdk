@@ -268,6 +268,15 @@ interface MempoolTx {
   }
 }
 ```
+## getMempoolEntry
+
+Get transaction details in the memory pool using a transaction ID.
+
+```ts title="client.blockchain.getMempoolEntry(txId: string)"
+interface blockchain {
+  getMempoolEntry (txId: string): Promise<MempoolTx>
+}
+```
 
 ## getMempoolInfo
 
