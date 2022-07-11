@@ -1,14 +1,15 @@
 import BigNumber from 'bignumber.js'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
-import { findOut, fundEllipticPair, sendTransaction } from '../test.utils'
+import { calculateTxid, findOut, fundEllipticPair, sendTransaction } from '../test.utils'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { RegTest, RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { Testing } from '@defichain/jellyfish-testing'
 import { fromScript, P2WPKH } from '@defichain/jellyfish-address'
-import { AccountToAccount, OP_CODES } from '@defichain/jellyfish-transaction'
+import { AccountToAccount, ICXCreateOrder, ICXOrderType, OP_CODES } from '@defichain/jellyfish-transaction'
 import { Bech32, HASH160, WIF } from '@defichain/jellyfish-crypto'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { ICXOrderInfo } from '@defichain/jellyfish-api-core/dist/category/icxorderbook'
 
 const container = new MasterNodeRegTestContainer()
 let providers: MockProviders
@@ -256,7 +257,7 @@ it('should accountToAccount', async () => {
 
   // >128 DAT token
   {
-    const tokenId = Number.parseInt(Object.keys(await testing.rpc.token.getToken('PIG'))[0])
+    const tokenId = Number(await testing.token.getTokenId('PIG'))
     expect(tokenId).toBeGreaterThan(128)
 
     await testing.token.send({
@@ -575,5 +576,75 @@ it('should setCollateralToken, takeLoan and paybackLoan', async () => {
     const addr = fromScript(script, 'regtest')!.address
     const acc = await testing.rpc.account.getAccount(addr)
     expect(acc).toContain('49.00000000@FOX')
+  }
+})
+
+it('should createICXOrder', async () => {
+  await testing.rpc.account.sendTokensToAddress(
+    {},
+    {
+      [await providers.getAddress()]: ['5@CAT', '5@FISH#128']
+    }
+  )
+
+  const script = await providers.elliptic.script()
+  await fundEllipticPair(container, providers.ellipticPair, 10)
+  await providers.setupMocks()
+
+  // test DCT token
+  {
+    const icxOrder: ICXCreateOrder = {
+      orderType: ICXOrderType.INTERNAL,
+      tokenId: 128, // FISH#128
+      ownerAddress: script,
+      receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941',
+      amountFrom: new BigNumber(5),
+      amountToFill: new BigNumber(5),
+      orderPrice: new BigNumber(0.01),
+      expiry: 2880
+    }
+
+    const encoded: string = OP_CODES.OP_DEFI_TX_ICX_CREATE_ORDER(icxOrder).asBuffer().toString('hex')
+    const expectedRedeemScript = `6a${encoded}`
+
+    const txn = await builder.icxorderbook.createOrder(icxOrder, script)
+    const outs = await sendTransaction(testing.container, txn)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
+
+    const orders = await testing.rpc.icxorderbook.listOrders()
+    const txid = calculateTxid(txn)
+    const order = orders[txid] as ICXOrderInfo
+    expect(order.tokenFrom).toStrictEqual('FISH#128')
+  }
+
+  // test >128 DAT token
+  {
+    const catId = Number(await testing.token.getTokenId('CAT'))
+    expect(catId).toBeGreaterThan(128)
+
+    const icxOrder: ICXCreateOrder = {
+      orderType: ICXOrderType.EXTERNAL,
+      tokenId: catId, // > 128 DAT token
+      ownerAddress: script,
+      receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941',
+      amountFrom: new BigNumber(5),
+      amountToFill: new BigNumber(5),
+      orderPrice: new BigNumber(0.01),
+      expiry: 2880
+    }
+
+    const encoded: string = OP_CODES.OP_DEFI_TX_ICX_CREATE_ORDER(icxOrder).asBuffer().toString('hex')
+    const expectedRedeemScript = `6a${encoded}`
+
+    const txn = await builder.icxorderbook.createOrder(icxOrder, script)
+    const outs = await sendTransaction(testing.container, txn)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
+
+    const orders = await testing.rpc.icxorderbook.listOrders()
+    const txid = calculateTxid(txn)
+    const order = orders[txid] as ICXOrderInfo
+    expect(order.tokenTo).toStrictEqual('CAT')
   }
 })
