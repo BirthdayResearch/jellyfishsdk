@@ -3,11 +3,11 @@ import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { findOut, fundEllipticPair, sendTransaction } from '../test.utils'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { RegTest } from '@defichain/jellyfish-network'
+import { RegTest, RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { Testing } from '@defichain/jellyfish-testing'
-import { P2WPKH } from '@defichain/jellyfish-address'
+import { fromScript, P2WPKH } from '@defichain/jellyfish-address'
 import { AccountToAccount, OP_CODES } from '@defichain/jellyfish-transaction'
-import { Bech32, HASH160 } from '@defichain/jellyfish-crypto'
+import { Bech32, HASH160, WIF } from '@defichain/jellyfish-crypto'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 
 const container = new MasterNodeRegTestContainer()
@@ -40,24 +40,38 @@ const pairs: Record<string, Pair> = {
   }
 }
 
-beforeAll(async () => {
+beforeEach(async () => {
   await container.start()
   await container.waitForWalletCoinbaseMaturity()
   jsonRpc = new JsonRpcClient(await container.getCachedRpcUrl())
 
   providers = await getProviders(container)
+  providers.setEllipticPair(
+    WIF.asEllipticPair(RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.privKey)
+  )
+
   builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
   testing = Testing.create(container)
 
   // create a DCT token
-  await testing.token.create({ symbol: 'FISH', isDAT: false })
-  await testing.generate(1)
+  {
+    const dctAddr = await testing.generateAddress()
+    await testing.token.create({ symbol: 'FISH', isDAT: false, collateralAddress: dctAddr })
+    await testing.generate(1)
 
-  await testing.token.mint({
-    symbol: 'FISH#128',
-    amount: 10000
-  })
-  await testing.generate(1)
+    await testing.token.create({ symbol: 'FROG', isDAT: false, collateralAddress: dctAddr })
+    await testing.generate(1)
+
+    await testing.token.mint({
+      symbol: 'FISH#128',
+      amount: 10000
+    })
+    await testing.token.mint({
+      symbol: 'FROG#129',
+      amount: 10000
+    })
+    await testing.generate(1)
+  }
 
   for (let i = 0; i < 64; i++) {
     await testing.token.create({ symbol: `A${i}` })
@@ -92,7 +106,7 @@ beforeAll(async () => {
   await testing.generate(1)
 })
 
-afterAll(async () => {
+afterEach(async () => {
   await container.stop()
 })
 
@@ -297,7 +311,7 @@ it('should accountToAccount', async () => {
 
   // DCT token
   {
-    const fishId = Number.parseInt(Object.keys(await testing.rpc.token.getToken('FISH#128'))[0])
+    const fishId = Number(await testing.token.getTokenId('FISH#128'))
     expect(fishId).toBeGreaterThanOrEqual(128)
 
     await testing.token.send({
@@ -348,5 +362,218 @@ it('should accountToAccount', async () => {
 
     const recipientAccount = await jsonRpc.account.getAccount(newAddress)
     expect(recipientAccount).toContain('100.99000000@FISH#128')
+  }
+})
+
+it('should setCollateralToken, takeLoan and paybackLoan', async () => {
+  const oracleId = await testing.rpc.oracle.appointOracle(
+    await testing.generateAddress(),
+    [
+      { token: 'DFI', currency: 'USD' },
+      { token: 'DUSD', currency: 'USD' },
+      { token: 'FISH#128', currency: 'USD' },
+      { token: 'FROG#129', currency: 'USD' },
+      { token: 'PIG', currency: 'USD' },
+      { token: 'CAT', currency: 'USD' },
+      { token: 'DOG', currency: 'USD' },
+      { token: 'GOAT', currency: 'USD' },
+      { token: 'FOX', currency: 'USD' }
+    ],
+    { weightage: 1 }
+  )
+  await testing.generate(1)
+
+  await testing.rpc.oracle.setOracleData(
+    oracleId,
+    Math.floor(new Date().getTime() / 1000),
+    {
+      prices: [
+        { tokenAmount: '1@DFI', currency: 'USD' },
+        { tokenAmount: '1@DUSD', currency: 'USD' },
+        { tokenAmount: '1@FISH#128', currency: 'USD' },
+        { tokenAmount: '1@FROG#129', currency: 'USD' },
+        { tokenAmount: '1@PIG', currency: 'USD' },
+        { tokenAmount: '1@DOG', currency: 'USD' },
+        { tokenAmount: '1@GOAT', currency: 'USD' },
+        { tokenAmount: '1@FOX', currency: 'USD' }
+      ]
+    }
+  )
+  await testing.generate(1)
+
+  await testing.rpc.loan.setCollateralToken({
+    token: 'DFI',
+    factor: new BigNumber(1),
+    fixedIntervalPriceId: 'DFI/USD'
+  })
+  await testing.generate(1)
+
+  // Set up DUSD token for loan ops
+  await testing.rpc.loan.setLoanToken({
+    symbol: 'DUSD',
+    fixedIntervalPriceId: 'DUSD/USD'
+  })
+  await testing.generate(1)
+
+  await testing.rpc.loan.setLoanToken({
+    symbol: 'FOX',
+    fixedIntervalPriceId: 'FOX/USD'
+  })
+  await testing.generate(1)
+
+  await providers.setupMocks()
+  const script = await providers.elliptic.script()
+
+  // test DCT token on `setCollateralToken`
+  {
+    await fundEllipticPair(container, providers.ellipticPair, 10)
+
+    const txn = await builder.loans.setCollateralToken({
+      token: 128,
+      factor: new BigNumber(1),
+      currencyPair: { token: 'FISH#128', currency: 'USD' },
+      activateAfterBlock: 0
+    }, script)
+
+    // Ensure the created txn is correct.
+    const outs = await sendTransaction(container, txn)
+    expect(outs[0].value).toStrictEqual(0)
+
+    const col = await testing.rpc.loan.getCollateralToken('FISH#128')
+    expect(col).toStrictEqual({
+      token: 'FISH#128',
+      tokenId: expect.stringMatching(/[0-f]{64}/),
+      factor: new BigNumber(1),
+      fixedIntervalPriceId: 'FISH#128/USD'
+    })
+  }
+
+  // test >128 DAT token on `setCollateralToken`
+  {
+    await fundEllipticPair(container, providers.ellipticPair, 10)
+
+    const catId = Number(await testing.token.getTokenId('CAT'))
+    expect(catId).toBeGreaterThan(128)
+
+    const txn = await builder.loans.setCollateralToken({
+      token: catId,
+      factor: new BigNumber(1),
+      currencyPair: { token: 'CAT', currency: 'USD' },
+      activateAfterBlock: 0
+    }, script)
+
+    // Ensure the created txn is correct.
+    const outs = await sendTransaction(container, txn)
+    expect(outs[0].value).toStrictEqual(0)
+
+    const col = await testing.rpc.loan.getCollateralToken('CAT')
+    expect(col).toStrictEqual({
+      token: 'CAT',
+      tokenId: expect.stringMatching(/[0-f]{64}/),
+      factor: new BigNumber(1),
+      fixedIntervalPriceId: 'CAT/USD'
+    })
+  }
+
+  await testing.rpc.loan.createLoanScheme({
+    minColRatio: 150,
+    interestRate: new BigNumber(3),
+    id: 'default'
+  })
+  await testing.generate(1)
+
+  const vaultId = await testing.rpc.vault.createVault({
+    ownerAddress: await providers.getAddress(),
+    loanSchemeId: 'default'
+  })
+  await testing.generate(1)
+
+  await testing.token.send({
+    symbol: 'DFI',
+    amount: 800,
+    address: await providers.getAddress()
+  })
+  await testing.generate(1)
+
+  await testing.rpc.vault.depositToVault({
+    vaultId: vaultId, from: await providers.getAddress(), amount: '800@DFI'
+  })
+  await testing.generate(1)
+
+  const vault = await container.call('getvault', [vaultId])
+  expect(vault.loanAmounts).toStrictEqual([])
+
+  // test >128 DAT on `takeLoan`
+  const foxId = Number(await testing.token.getTokenId('FOX'))
+  expect(foxId).toBeGreaterThan(128)
+  const dusdId = Number(await testing.token.getTokenId('DUSD'))
+  {
+    await fundEllipticPair(container, providers.ellipticPair, 10)
+
+    const txn = await builder.loans.takeLoan({
+      vaultId: vaultId,
+      to: script,
+      tokenAmounts: [
+        { token: foxId, amount: new BigNumber(150) },
+        { token: dusdId, amount: new BigNumber(200) }
+      ]
+    }, script)
+
+    // Ensure the created txn is correct.
+    const outs = await sendTransaction(container, txn)
+    expect(outs[0].value).toStrictEqual(0)
+
+    const vault = await container.call('getvault', [vaultId])
+    expect(vault.loanAmounts).toContain('150.00008562@FOX')
+
+    const addr = fromScript(script, 'regtest')!.address
+    const acc = await testing.rpc.account.getAccount(addr)
+    expect(acc).toContain('150.00000000@FOX')
+  }
+
+  await testing.poolpair.create({
+    tokenA: 'DUSD',
+    tokenB: 'DFI'
+  })
+  await testing.generate(1)
+
+  await testing.poolpair.add({
+    a: { symbol: 'DUSD', amount: 100 },
+    b: { symbol: 'DFI', amount: 100 }
+  })
+  await testing.generate(1)
+
+  await testing.poolpair.create({
+    tokenA: 'FOX',
+    tokenB: 'DUSD'
+  })
+  await testing.generate(1)
+
+  await testing.poolpair.add({
+    a: { symbol: 'FOX', amount: 100 },
+    b: { symbol: 'DUSD', amount: 100 }
+  })
+  await testing.generate(1)
+
+  // test >128 DAT on `payback`
+  {
+    await fundEllipticPair(container, providers.ellipticPair, 10)
+
+    const txn = await builder.loans.paybackLoan({
+      vaultId: vaultId,
+      from: script,
+      tokenAmounts: [{ token: foxId, amount: new BigNumber(1) }]
+    }, script)
+
+    // Ensure the created txn is correct.
+    const outs = await sendTransaction(container, txn)
+    expect(outs[0].value).toStrictEqual(0)
+
+    const vault = await container.call('getvault', [vaultId])
+    expect(vault.loanAmounts).toContain('149.00068437@FOX')
+
+    const addr = fromScript(script, 'regtest')!.address
+    const acc = await testing.rpc.account.getAccount(addr)
+    expect(acc).toContain('49.00000000@FOX')
   }
 })
