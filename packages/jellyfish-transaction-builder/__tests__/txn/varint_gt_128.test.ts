@@ -111,6 +111,66 @@ afterEach(async () => {
   await container.stop()
 })
 
+it('should createPoolPair and removeLiquidity', async () => {
+  const script = await providers.elliptic.script()
+  await fundEllipticPair(container, providers.ellipticPair, 10)
+  await providers.setupMocks()
+
+  const catId = Number(await testing.token.getTokenId('CAT'))
+
+  // test DCT and >128 DAT token on create pool pair
+  {
+    const txn = await builder.liqPool.create({
+      tokenA: 128,
+      tokenB: catId,
+      commission: new BigNumber(0.1),
+      ownerAddress: script,
+      status: true,
+      pairSymbol: 'FISH-CAT',
+      customRewards: [{ token: 0, amount: new BigNumber(1) }]
+    }, script)
+
+    // Ensure the created txn is correct.
+    const outs = await sendTransaction(container, txn)
+    expect(outs[0].value).toStrictEqual(0)
+
+    const pair = await testing.poolpair.get('FISH-CAT')
+    expect(pair).toBeDefined()
+  }
+
+  const addr = fromScript(script, 'regtest')!.address
+  await testing.poolpair.add({
+    a: {
+      symbol: 'FISH#128',
+      amount: 10
+    },
+    b: {
+      symbol: 'CAT',
+      amount: 100
+    },
+    address: addr
+  })
+  await testing.generate(1)
+
+  // test >128 token id on remove liq
+  {
+    const pairBefore = await testing.rpc.poolpair.getPoolPair('FISH-CAT')
+    const pairId = Number(Object.keys(pairBefore)[0])
+    expect(pairId).toBeGreaterThan(128)
+
+    const txn = await builder.liqPool.removeLiquidity({
+      script: script,
+      tokenId: pairId,
+      amount: pairBefore[pairId].totalLiquidity.minus(1)
+    }, script)
+    const outs = await sendTransaction(container, txn)
+    expect(outs[0].value).toStrictEqual(0)
+
+    const pairAfter = await testing.poolpair.get('FISH-CAT')
+    expect(pairBefore[pairId].totalLiquidity.toNumber()).toBeGreaterThan(pairAfter.totalLiquidity.toNumber())
+  }
+})
+
 it('should compositeSwap', async () => {
   await providers.randomizeEllipticPair()
   await container.waitForWalletBalanceGTE(1)
