@@ -85,6 +85,7 @@ export class StatsController {
       emissionburn: burnInfo.emissionburn.toNumber(),
       auctionburn: burnInfo.auctionburn.toNumber(),
       paybackburn: paybackBurnDFI.toNumber(),
+      paybackburntokens: burnInfo.paybackburn,
       dexfeetokens: burnInfo.dexfeetokens,
       dfipaybackfee: burnInfo.dfipaybackfee.toNumber(),
       dfipaybacktokens: burnInfo.dfipaybacktokens,

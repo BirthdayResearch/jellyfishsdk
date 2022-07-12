@@ -33,7 +33,7 @@
     "@defichain/testing": "^0.0.0",
     "@defichain/whale-api-client": "^0.0.0",
     "@nestjs/common": "^8.4.6",
-    "@nestjs/config": "^2.1.0",
+    "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^8.4.6",
     "@nestjs/platform-express": "^8.4.6",
     "@nestjs/platform-fastify": "^8.4.6",
@@ -61,7 +61,7 @@
     "pg": "^8.7.3",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "rxjs": "^7.5.5",
+    "rxjs": "^7.5.6",
     "subleveldown": "^6.0.1",
     "typeorm": "^0.2.45"
   },
