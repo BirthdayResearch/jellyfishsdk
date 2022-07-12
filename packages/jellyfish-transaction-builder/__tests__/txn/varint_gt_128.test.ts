@@ -72,6 +72,12 @@ beforeEach(async () => {
       amount: 10000
     })
     await testing.generate(1)
+
+    await testing.poolpair.create({
+      tokenA: 'FROG#129',
+      tokenB: 'DFI'
+    })
+    await testing.generate(1)
   }
 
   for (let i = 0; i < 64; i++) {
@@ -175,96 +181,199 @@ it('should compositeSwap', async () => {
   await providers.randomizeEllipticPair()
   await container.waitForWalletBalanceGTE(1)
 
-  await testing.poolpair.add({
-    a: {
+  {
+    await testing.poolpair.add({
+      a: {
+        symbol: 'PIG',
+        amount: 10
+      },
+      b: {
+        symbol: 'DFI',
+        amount: 100
+      }
+    })
+    await testing.poolpair.add({
+      a: {
+        symbol: 'DOG',
+        amount: 50
+      },
+      b: {
+        symbol: 'DFI',
+        amount: 100
+      }
+    })
+    await testing.generate(1)
+
+    await providers.setupMocks() // required to move utxos
+
+    const address = await providers.getAddress()
+
+    const script = await providers.elliptic.script()
+
+    await testing.token.mint({
       symbol: 'PIG',
       amount: 10
-    },
-    b: {
-      symbol: 'DFI',
-      amount: 100
-    }
-  })
-  await testing.poolpair.add({
-    a: {
-      symbol: 'DOG',
-      amount: 50
-    },
-    b: {
-      symbol: 'DFI',
-      amount: 100
-    }
-  })
-  await testing.generate(1)
+    })
+    await testing.generate(1)
+    await testing.token.send({
+      symbol: 'PIG',
+      amount: 10,
+      address
+    })
+    await testing.generate(1)
 
-  await providers.setupMocks() // required to move utxos
+    // Fund 10 DFI UTXO, allow provider able to collect 1
+    await fundEllipticPair(container, providers.ellipticPair, 10)
 
-  const address = await providers.getAddress()
+    // simulate compositeSwap
+    const intermediateDFISwapAmount = new BigNumber(100).minus(new BigNumber(100 * 10).dividedBy(new BigNumber(10 + 1))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    const dogSwapAmount = new BigNumber(50).minus(new BigNumber(50 * 100).dividedBy(new BigNumber(100).plus(intermediateDFISwapAmount))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
 
-  const script = await providers.elliptic.script()
+    const pigReserveAfter = new BigNumber(10 + 1)
+    const dogReserveAfter = new BigNumber(50).minus(dogSwapAmount)
 
-  await testing.token.mint({
-    symbol: 'PIG',
-    amount: 10
-  })
-  await testing.generate(1)
-  await testing.token.send({
-    symbol: 'PIG',
-    amount: 10,
-    address
-  })
-  await testing.generate(1)
+    // Perform SWAP
+    const txn = await builder.dex.compositeSwap({
+      poolSwap: {
+        fromScript: script,
+        fromTokenId: pairs.PIG.tokenId,
+        fromAmount: new BigNumber('1'),
+        toScript: script,
+        toTokenId: pairs.DOG.tokenId,
+        maxPrice: new BigNumber('18446744073709551615.99999999') // max number possible for 16 bytes bignumber
+      },
+      pools: [
+        { id: pairs.PIG.poolId },
+        { id: pairs.DOG.poolId }
+      ]
+    }, script)
 
-  // Fund 10 DFI UTXO, allow provider able to collect 1
-  await fundEllipticPair(container, providers.ellipticPair, 10)
+    // Ensure the created txn is correct.
+    const outs = await sendTransaction(container, txn)
+    expect(outs[0].value).toStrictEqual(0)
 
-  // simulate compositeSwap
-  const intermediateDFISwapAmount = new BigNumber(100).minus(new BigNumber(100 * 10).dividedBy(new BigNumber(10 + 1))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
-  const dogSwapAmount = new BigNumber(50).minus(new BigNumber(50 * 100).dividedBy(new BigNumber(100).plus(intermediateDFISwapAmount))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    // Ensure your balance is correct
+    const account = await jsonRpc.account.getAccount(address)
+    expect(account.length).toStrictEqual(2)
+    expect(account).toContain('9.00000000@PIG')
+    expect(account).toContain(`${dogSwapAmount.toFixed(8)}@DOG`)
 
-  const pigReserveAfter = new BigNumber(10 + 1)
-  const dogReserveAfter = new BigNumber(50).minus(dogSwapAmount)
+    // reflected on DEXes
+    const pigPair = Object.values(await jsonRpc.poolpair.getPoolPair('PIG-DFI', true))
+    expect(pigPair.length).toStrictEqual(1)
+    expect(pigPair[0].reserveA).toStrictEqual(pigReserveAfter)
 
-  // Perform SWAP
-  const txn = await builder.dex.compositeSwap({
-    poolSwap: {
-      fromScript: script,
-      fromTokenId: pairs.PIG.tokenId,
-      fromAmount: new BigNumber('1'),
-      toScript: script,
-      toTokenId: pairs.DOG.tokenId,
-      maxPrice: new BigNumber('18446744073709551615.99999999') // max number possible for 16 bytes bignumber
-    },
-    pools: [
-      { id: pairs.PIG.poolId },
-      { id: pairs.DOG.poolId }
-    ]
-  }, script)
+    const dogPair = Object.values(await jsonRpc.poolpair.getPoolPair('DOG-DFI', true))
+    expect(dogPair.length).toStrictEqual(1)
+    expect(dogPair[0].reserveA).toStrictEqual(dogReserveAfter)
 
-  // Ensure the created txn is correct.
-  const outs = await sendTransaction(container, txn)
-  expect(outs[0].value).toStrictEqual(0)
+    // Ensure you don't send all your balance away during poolswap
+    const prevouts = await providers.prevout.all()
+    expect(prevouts.length).toStrictEqual(1)
+    expect(prevouts[0].value.toNumber()).toBeLessThan(10)
+    expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
+  }
 
-  // Ensure your balance is correct
-  const account = await jsonRpc.account.getAccount(address)
-  expect(account.length).toStrictEqual(2)
-  expect(account).toContain('9.00000000@PIG')
-  expect(account).toContain(`${dogSwapAmount.toFixed(8)}@DOG`)
+  // test DCT on composite swap, >128 DAT to DCT
+  {
+    expect(pairs.CAT.tokenId).toBeGreaterThan(128)
 
-  // reflected on DEXes
-  const pigPair = Object.values(await jsonRpc.poolpair.getPoolPair('PIG-DFI', true))
-  expect(pigPair.length).toStrictEqual(1)
-  expect(pigPair[0].reserveA).toStrictEqual(pigReserveAfter)
+    await testing.poolpair.add({
+      a: {
+        symbol: 'CAT',
+        amount: 10
+      },
+      b: {
+        symbol: 'DFI',
+        amount: 100
+      }
+    })
+    await testing.poolpair.add({
+      a: {
+        symbol: 'FROG#129',
+        amount: 50
+      },
+      b: {
+        symbol: 'DFI',
+        amount: 100
+      }
+    })
+    await testing.generate(1)
 
-  const dogPair = Object.values(await jsonRpc.poolpair.getPoolPair('DOG-DFI', true))
-  expect(dogPair.length).toStrictEqual(1)
-  expect(dogPair[0].reserveA).toStrictEqual(dogReserveAfter)
+    await fundEllipticPair(container, providers.ellipticPair, 10)
 
-  // Ensure you don't send all your balance away during poolswap
-  const prevouts = await providers.prevout.all()
-  expect(prevouts.length).toStrictEqual(1)
-  expect(prevouts[0].value.toNumber()).toBeLessThan(10)
-  expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
+    // simulate compositeSwap
+    const intermediateDFISwapAmount = new BigNumber(100)
+      .minus(new BigNumber(100 * 10).dividedBy(new BigNumber(10 + 1)))
+      .multipliedBy(100000000)
+      .minus(1)
+      .dividedBy(100000000)
+      .decimalPlaces(8, BigNumber.ROUND_CEIL)
+
+    const frogSwapAmount = new BigNumber(50)
+      .minus(new BigNumber(50 * 100)
+        .dividedBy(new BigNumber(100)
+          .plus(intermediateDFISwapAmount)))
+      .multipliedBy(100000000)
+      .minus(1)
+      .dividedBy(100000000)
+      .decimalPlaces(8, BigNumber.ROUND_CEIL)
+
+    const catReserveAfter = new BigNumber(10 + 1)
+    const frogReserveAfter = new BigNumber(50).minus(frogSwapAmount)
+
+    const addr = await providers.getAddress()
+
+    await testing.rpc.account.sendTokensToAddress(
+      {},
+      {
+        [addr]: ['10@CAT']
+      }
+    )
+    await testing.generate(1)
+
+    const frogPairId = Number(Object.keys(await testing.rpc.poolpair.getPoolPair('FROG-DFI'))[0])
+
+    const script = await providers.elliptic.script()
+    const txn = await builder.dex.compositeSwap({
+      poolSwap: {
+        fromScript: script,
+        fromTokenId: pairs.CAT.tokenId,
+        fromAmount: new BigNumber('1'),
+        toScript: script,
+        toTokenId: 129,
+        maxPrice: new BigNumber('18446744073709551615.99999999') // max number possible for 16 bytes bignumber
+      },
+      pools: [
+        { id: pairs.CAT.poolId },
+        { id: frogPairId }
+      ]
+    }, script)
+
+    // Ensure the created txn is correct.
+    const outs = await sendTransaction(container, txn)
+    expect(outs[0].value).toStrictEqual(0)
+
+    // Ensure your balance is correct
+    const account = await jsonRpc.account.getAccount(addr)
+    expect(account).toContain('9.00000000@CAT')
+    expect(account).toContain(`${frogSwapAmount.toFixed(8)}@FROG#129`)
+
+    // reflected on DEXes
+    const catPair = Object.values(await jsonRpc.poolpair.getPoolPair('CAT-DFI', true))
+    expect(catPair.length).toStrictEqual(1)
+    expect(catPair[0].reserveA).toStrictEqual(catReserveAfter)
+
+    const frogPair = Object.values(await jsonRpc.poolpair.getPoolPair('FROG-DFI', true))
+    expect(frogPair.length).toStrictEqual(1)
+    expect(frogPair[0].reserveA).toStrictEqual(frogReserveAfter)
+
+    // Ensure you don't send all your balance away during poolswap
+    const prevouts = await providers.prevout.all()
+    expect(prevouts.length).toStrictEqual(1)
+    expect(prevouts[0].value.toNumber()).toBeLessThan(10)
+    expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
+  }
 })
 
 it('should poolSwap', async () => {
