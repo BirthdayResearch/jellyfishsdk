@@ -129,7 +129,7 @@ describe('Governance', () => {
     }
     const promise = client.governance.createGovCfp(data)
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow("RpcApiError: '<title> must be 128 characters or under', code: -8, method: creategovcfp")
+    await expect(promise).rejects.toThrow("RpcApiError: 'Test CreateCfpTx execution failed:\nproposal title cannot be more than 128 bytes', code: -32600, method: creategovcfp")
   })
 
   it('should not createGovCfp with an empty contex', async () => {
@@ -157,7 +157,7 @@ describe('Governance', () => {
     }
     const promise = client.governance.createGovCfp(data)
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow("RpcApiError: '<context> must be 512 characters or under', code: -8, method: creategovcfp")
+    await expect(promise).rejects.toThrow("RpcApiError: 'Test CreateCfpTx execution failed:\nproposal context cannot be more than 512 bytes', code: -32600, method: creategovcfp")
   })
 
   it('should not createGovCfp with negative amount', async () => {
@@ -183,7 +183,7 @@ describe('Governance', () => {
     }
     const promise = client.governance.createGovCfp(data)
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow("RpcApiError: '<cycles> should be between 1 and 3', code: -8, method: creategovcfp")
+    await expect(promise).rejects.toThrow("RpcApiError: 'Test CreateCfpTx execution failed:\nproposal cycles can be between 1 and 3', code: -32600, method: creategovcfp")
   })
 
   it('should not createGovCfp with cycle > 3', async () => {
@@ -196,7 +196,7 @@ describe('Governance', () => {
     }
     const promise = client.governance.createGovCfp(data)
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow("RpcApiError: '<cycles> should be between 1 and 3', code: -8, method: creategovcfp")
+    await expect(promise).rejects.toThrow("RpcApiError: 'Test CreateCfpTx execution failed:\nproposal cycles can be between 1 and 3', code: -32600, method: creategovcfp")
   })
 
   it('should not createGovCfp with unknown address type', async () => {
@@ -306,7 +306,7 @@ describe('Governance with insufficient fund', () => {
     }
     const promise = client.governance.createGovCfp(data)
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('RpcApiError: \'Insufficient funds\', code: -4, method: creategovcfp')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Add-on auth TX failed: Insufficient funds\', code: -4, method: creategovcfp')
   })
 })
 
@@ -335,6 +335,6 @@ describe('Governance before greatworldheight', () => {
     }
     const promise = client.governance.createGovCfp(data)
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test CreateCfpTx execution failed:\ncalled before GreatWorld height\', code: -32600, method: creategovcfp')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test CreateCfpTx execution failed:\ncalled before GreatWorldHeight height\', code: -32600, method: creategovcfp')
   })
 })

@@ -68,7 +68,7 @@ describe('Governance', () => {
   it('should not createGovVoc with a long title', async () => {
     const promise = client.governance.createGovVoc('a'.repeat(129), 'https://github.com/DeFiCh/dfips')
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow("RpcApiError: '<title> must be 128 characters or under', code: -8, method: creategovvoc")
+    await expect(promise).rejects.toThrow("RpcApiError: 'Test CreateVocTx execution failed:\nproposal title cannot be more than 128 bytes', code: -32600, method: creategovvoc")
   })
 
   it('should not createGovVoc with an empty contex', async () => {
@@ -82,7 +82,7 @@ describe('Governance', () => {
   it('should not createGovVoc with a long contex', async () => {
     const promise = client.governance.createGovVoc('Testing another vote of confidence', 'h'.repeat(513))
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow("RpcApiError: '<context> must be 512 characters or under', code: -8, method: creategovvoc")
+    await expect(promise).rejects.toThrow("RpcApiError: 'Test CreateVocTx execution failed:\nproposal context cannot be more than 512 bytes', code: -32600, method: creategovvoc")
   })
 
   it('should not createGovVoc with wrongly formatted utxos txid', async () => {
@@ -156,6 +156,6 @@ describe('Governance before greatworldheight', () => {
   it('should not createGovVoc before GreatWorld height', async () => {
     const promise = client.governance.createGovVoc('new vote of confidence', 'github issue url and in future IPFS tx')
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test CreateVocTx execution failed:\ncalled before GreatWorld height\', code: -32600, method: creategovvoc')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test CreateVocTx execution failed:\ncalled before GreatWorldHeight height\', code: -32600, method: creategovvoc')
   })
 })
