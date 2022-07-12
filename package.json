@@ -35,7 +35,7 @@
     "eslint-config-standard-with-typescript": "^21.0.1",
     "husky": "^8.0.1",
     "jest": "^27.5.1",
-    "lerna": "^5.1.7",
+    "lerna": "^5.1.8",
     "lint-staged": "^13.0.3",
     "nock": "^13.2.8",
     "shuffle-seed": "^1.1.6",
