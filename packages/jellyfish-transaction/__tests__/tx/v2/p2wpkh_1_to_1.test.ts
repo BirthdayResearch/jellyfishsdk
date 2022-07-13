@@ -4,9 +4,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { Testing } from '@defichain/jellyfish-testing'
 import { getNetworkBitcoinJsLib } from '@defichain/jellyfish-network'
 import { WIF, Elliptic } from '@defichain/jellyfish-crypto'
-import * as bitcoin from 'bitcoinjs-lib'
-import { ECPairFactory } from 'ecpair'
-import * as ecc from 'tiny-secp256k1'
+import { getECPair, BitcoinJsLib } from '@defichain/bitcoinjs'
 
 const unsigned = '0200000001f846da136c83e76c8538caa35346c7836ab603b017b564e35f17d7dfdc57066e0000000000ffffffff01804a5d05000000001600144ab4391ce5a732e36139e72d79a28e01b7b0803400000000'
 const signed = '02000000000101f846da136c83e76c8538caa35346c7836ab603b017b564e35f17d7dfdc57066e0000000000ffffffff01804a5d05000000001600144ab4391ce5a732e36139e72d79a28e01b7b080340247304402206fcd6c8f1582136ad7f0d034aedd960f7aa0c1af8ba7dd982f7ab8c6c7fc75f6022066a0886d96a004381750c95a54391cf958e59143d0a1e1b622ede0f79b5ab14c012103c1f7238aa1d97af163018b76afc000f378698da9537cf6ad7dc902643a3dd5d100000000'
@@ -43,7 +41,7 @@ describe('e2e', () => { // submit to testcontainer
     await testing.container.stop()
   })
 
-  const ECPair = ECPairFactory(ecc)
+  // const ECPair = ECPairFactory(ecc)
   const RegTest = getNetworkBitcoinJsLib('regtest')
   const keySet = {
     bech32: 'bcrt1qykj5fsrne09yazx4n72ue4fwtpx8u65zac9zhn',
@@ -70,17 +68,14 @@ describe('e2e', () => { // submit to testcontainer
     expect(unspent[0].spendable).toStrictEqual(true)
     expect(unspent[0].solvable).toStrictEqual(true)
 
-    const { address, output } = bitcoin.payments.p2wpkh({
-      pubkey: pubKey,
-      network: RegTest
-    })
+    const { address, output } = BitcoinJsLib.getP2WPKH(pubKey, RegTest)
     expect(address).toStrictEqual(keySet.bech32)
 
-    const keyPair = ECPair.fromPrivateKey(privKey, {
+    const keyPair = getECPair(privKey, {
       network: RegTest
     })
 
-    const psbt = new bitcoin.Psbt({ network: RegTest })
+    const psbt = BitcoinJsLib.psbt(RegTest)
       .addInput({
         hash: txid,
         index: vout,
