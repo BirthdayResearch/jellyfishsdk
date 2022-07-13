@@ -14,6 +14,7 @@
     "build": "tsc -b ./tsconfig.build.json"
   },
   "dependencies": {
+    "@defichain/jellyfish-crypto": "0.0.0",
     "bitcoinjs-lib": "^6.0.1",
     "ecpair": "^2.0.1"
   },
