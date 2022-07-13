@@ -35,7 +35,7 @@ afterAll(async () => {
 async function setup (): Promise<void> {
   testing = Testing.create(container)
 
-  const tokens = ['DUSD', 'CAT', 'DOG', 'KOALA', 'FISH', 'TURTLE', 'PANDA', 'RABBIT']
+  const tokens = ['DUSD', 'CAT', 'DOG', 'KOALA', 'FISH', 'TURTLE', 'PANDA', 'RABBIT', 'FOX', 'LION', 'TIGER']
 
   for (const token of tokens) {
     await createToken(container, token)
@@ -117,6 +117,33 @@ async function setup (): Promise<void> {
   })
   await testing.generate(1)
 
+  await addPoolLiquidity(container, {
+    tokenA: 'FOX',
+    amountA: 8,
+    tokenB: 'DFI',
+    amountB: 100,
+    shareAddress: await getNewAddress(container)
+  })
+  await testing.generate(1)
+
+  await addPoolLiquidity(container, {
+    tokenA: 'LION',
+    amountA: 10,
+    tokenB: 'DFI',
+    amountB: 100,
+    shareAddress: await getNewAddress(container)
+  })
+  await testing.generate(1)
+
+  await addPoolLiquidity(container, {
+    tokenA: 'TIGER',
+    amountA: 12,
+    tokenB: 'DFI',
+    amountB: 100,
+    shareAddress: await getNewAddress(container)
+  })
+  await testing.generate(1)
+
   // dex fee set up
   await container.call('setgov', [{
     ATTRIBUTES: {
@@ -145,7 +172,14 @@ async function setup (): Promise<void> {
       'v0/poolpairs/16/token_a_fee_pct': '0.009', // RABBIT
       'v0/poolpairs/16/token_a_fee_direction': 'both', // RABBIT
       'v0/poolpairs/16/token_b_fee_pct': '0.010', // RABBIT
-      'v0/poolpairs/16/token_b_fee_direction': 'both' // RABBIT
+      'v0/poolpairs/16/token_b_fee_direction': 'both', // RABBIT
+
+      'v0/poolpairs/18/token_a_fee_pct': '0.011', // FOX
+
+      'v0/poolpairs/20/token_b_fee_pct': '0.012', // LION
+
+      'v0/poolpairs/22/token_a_fee_pct': '0.013', // TIGER
+      'v0/poolpairs/22/token_b_fee_pct': '0.014' // TIGER
     }
   }])
   await container.generate(1)
@@ -451,6 +485,93 @@ describe('get best path - DEX burn fees', () => {
           displaySymbol: 'dRABBIT',
           id: '15',
           symbol: 'RABBIT'
+        },
+        tokenB: {
+          displaySymbol: 'DFI',
+          id: '0',
+          symbol: 'DFI'
+        }
+      }])
+    expect(paths1.bestPath).toStrictEqual(paths2.bestPath)
+  })
+
+  it('should return fees (bidirectional) - DFI <-> FOX - if tokenA fee direction is not set', async () => {
+    const paths1 = await controller.getBestPath('0', '17')
+    const paths2 = await controller.getBestPath('17', '0')
+    expect(paths1.bestPath).toStrictEqual([
+      {
+        estimatedDexFeesInPct: {
+          ba: '0.01100000',
+          ab: '0.00000000'
+        },
+        poolPairId: '18',
+        priceRatio: {
+          ab: '0.08000000',
+          ba: '12.50000000'
+        },
+        symbol: 'FOX-DFI',
+        tokenA: {
+          displaySymbol: 'dFOX',
+          id: '17',
+          symbol: 'FOX'
+        },
+        tokenB: {
+          displaySymbol: 'DFI',
+          id: '0',
+          symbol: 'DFI'
+        }
+      }])
+    expect(paths1.bestPath).toStrictEqual(paths2.bestPath)
+  })
+
+  it('should return fees (bidirectional) - DFI <-> LION - if tokenB fee direction is not set', async () => {
+    const paths1 = await controller.getBestPath('0', '19')
+    const paths2 = await controller.getBestPath('19', '0')
+    expect(paths1.bestPath).toStrictEqual([
+      {
+        estimatedDexFeesInPct: {
+          ba: '0.00000000',
+          ab: '0.01200000'
+        },
+        poolPairId: '20',
+        priceRatio: {
+          ab: '0.10000000',
+          ba: '10.00000000'
+        },
+        symbol: 'LION-DFI',
+        tokenA: {
+          displaySymbol: 'dLION',
+          id: '19',
+          symbol: 'LION'
+        },
+        tokenB: {
+          displaySymbol: 'DFI',
+          id: '0',
+          symbol: 'DFI'
+        }
+      }])
+    expect(paths1.bestPath).toStrictEqual(paths2.bestPath)
+  })
+
+  it('should return fees (bidirectional) - DFI <-> TIGER - if both token fees direction are not set', async () => {
+    const paths1 = await controller.getBestPath('0', '21')
+    const paths2 = await controller.getBestPath('21', '0')
+    expect(paths1.bestPath).toStrictEqual([
+      {
+        estimatedDexFeesInPct: {
+          ba: '0.01300000',
+          ab: '0.01400000'
+        },
+        poolPairId: '22',
+        priceRatio: {
+          ab: '0.12000000',
+          ba: '8.33333333'
+        },
+        symbol: 'TIGER-DFI',
+        tokenA: {
+          displaySymbol: 'dTIGER',
+          id: '21',
+          symbol: 'TIGER'
         },
         tokenB: {
           displaySymbol: 'DFI',
