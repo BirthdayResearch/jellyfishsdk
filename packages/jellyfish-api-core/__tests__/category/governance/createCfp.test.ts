@@ -43,7 +43,7 @@ describe('Governance', () => {
       expect(proposal.type).toStrictEqual(ProposalType.COMMUNITY_FUND_PROPOSAL)
       expect(proposal.status).toStrictEqual(ProposalStatus.VOTING)
       expect(proposal.amount).toStrictEqual(data.amount.toNumber())
-      expect(proposal.cyclesPaid).toStrictEqual(1)
+      expect(proposal.nextCycle).toStrictEqual(1)
       expect(proposal.totalCycles).toStrictEqual(data.cycles)
       expect(proposal.payoutAddress).toStrictEqual(data.payoutAddress)
 
@@ -69,7 +69,7 @@ describe('Governance', () => {
       expect(proposal.type).toStrictEqual(ProposalType.COMMUNITY_FUND_PROPOSAL)
       expect(proposal.status).toStrictEqual(ProposalStatus.VOTING)
       expect(proposal.amount).toStrictEqual(data.amount.toNumber())
-      expect(proposal.cyclesPaid).toStrictEqual(1)
+      expect(proposal.nextCycle).toStrictEqual(1)
       expect(proposal.totalCycles).toStrictEqual(data.cycles)
       expect(proposal.payoutAddress).toStrictEqual(data.payoutAddress)
 
@@ -95,7 +95,7 @@ describe('Governance', () => {
       expect(proposal.type).toStrictEqual(ProposalType.COMMUNITY_FUND_PROPOSAL)
       expect(proposal.status).toStrictEqual(ProposalStatus.VOTING)
       expect(proposal.amount).toStrictEqual(data.amount.toNumber())
-      expect(proposal.cyclesPaid).toStrictEqual(1)
+      expect(proposal.nextCycle).toStrictEqual(1)
       expect(proposal.totalCycles).toStrictEqual(data.cycles)
       expect(proposal.payoutAddress).toStrictEqual(data.payoutAddress)
 

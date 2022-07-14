@@ -64,7 +64,7 @@ describe('createGovVoc', () => {
       type: governance.ProposalType.VOTE_OF_CONFIDENCE,
       status: governance.ProposalStatus.VOTING,
       amount: createGovVoc.amount,
-      cyclesPaid: 1,
+      nextCycle: 1,
       totalCycles: createGovVoc.cycles,
       finalizeAfter: expect.any(Number),
       payoutAddress: ''

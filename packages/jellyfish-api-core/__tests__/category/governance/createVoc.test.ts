@@ -32,7 +32,7 @@ describe('Governance', () => {
 
     const proposal = await container.call('getgovproposal', [proposalTx])
     expect(typeof proposal.amount).toStrictEqual('number')
-    expect(typeof proposal.cyclesPaid).toStrictEqual('number')
+    expect(typeof proposal.nextCycle).toStrictEqual('number')
     expect(typeof proposal.totalCycles).toStrictEqual('number')
     expect(typeof proposal.finalizeAfter).toStrictEqual('number')
     expect(proposal.title).toStrictEqual('new vote of confidence')

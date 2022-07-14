@@ -65,7 +65,7 @@ describe('Governance', () => {
       expect(typeof proposal.status).toStrictEqual('string')
       expect(proposal.amount instanceof BigNumber).toStrictEqual(true)
       expect(typeof proposal.totalCycles).toStrictEqual('number')
-      expect(typeof proposal.cyclesPaid).toStrictEqual('number')
+      expect(typeof proposal.nextCycle).toStrictEqual('number')
       expect(typeof proposal.finalizeAfter).toStrictEqual('number')
       expect(typeof proposal.payoutAddress).toStrictEqual('string')
     }

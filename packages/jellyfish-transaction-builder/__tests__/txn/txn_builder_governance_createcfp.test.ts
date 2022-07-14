@@ -68,7 +68,7 @@ describe('createGovCfp', () => {
       type: governance.ProposalType.COMMUNITY_FUND_PROPOSAL,
       status: governance.ProposalStatus.VOTING,
       amount: createGovCfp.amount,
-      cyclesPaid: 1,
+      nextCycle: 1,
       totalCycles: createGovCfp.cycles,
       finalizeAfter: expect.any(Number),
       payoutAddress: '2N5wvYsWcAWQUed5vfPxopxZtjkqoT8dFM3'

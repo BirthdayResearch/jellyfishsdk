@@ -39,7 +39,7 @@ describe('Governance', () => {
     expect(typeof proposalId).toStrictEqual('string')
 
     const proposal = await client.governance.getGovProposal(proposalId)
-    expect(typeof proposal.cyclesPaid).toStrictEqual('number')
+    expect(typeof proposal.nextCycle).toStrictEqual('number')
     expect(typeof proposal.finalizeAfter).toStrictEqual('number')
     expect(proposal.proposalId).toStrictEqual(proposalId)
     expect(proposal.title).toStrictEqual(data.title)
