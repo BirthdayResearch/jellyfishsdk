@@ -56,10 +56,12 @@ export class Queue {
 
   async push (message: string): Promise<string> {
     const existed = await this.repo.findOne({
-      queueName: this.queueName,
-      data: message
+      where: {
+        queueName: this.queueName,
+        data: message
+      }
     })
-    if (existed !== undefined) {
+    if (existed !== null) {
       await this.repo.delete(existed.id)
     }
 
