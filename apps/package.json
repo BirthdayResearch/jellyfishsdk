@@ -37,7 +37,7 @@
     "@nestjs/core": "^8.4.6",
     "@nestjs/platform-express": "^8.4.6",
     "@nestjs/platform-fastify": "^8.4.6",
-    "@nestjs/schedule": "^2.0.1",
+    "@nestjs/schedule": "^2.1.0",
     "@nestjs/terminus": "^8.1.1",
     "@nestjs/typeorm": "^8.0.4",
     "async-mutex": "^0.3.2",
@@ -83,9 +83,9 @@
     "@types/validator": "13.7.4",
     "source-map-support": "^0.5.21",
     "supertest": "^6.2.4",
-    "testcontainers": "^8.11.0",
+    "testcontainers": "^8.11.1",
     "ts-loader": "^9.3.1",
-    "ts-node": "^10.8.2",
+    "ts-node": "^10.9.1",
     "tsconfig-paths": "^3.13.0"
   }
 }
