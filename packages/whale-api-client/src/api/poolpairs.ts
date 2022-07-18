@@ -146,6 +146,7 @@ export interface PoolPairData {
   tradeEnabled: boolean
   ownerAddress: string
   rewardPct: string // BigNumber
+  rewardLoanPct: string // BigNumber
   customRewards?: string[]
   creation: {
     tx: string

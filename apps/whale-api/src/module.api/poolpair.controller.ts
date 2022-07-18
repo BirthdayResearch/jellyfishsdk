@@ -250,6 +250,7 @@ function mapPoolPair (
     tradeEnabled: info.tradeEnabled,
     ownerAddress: info.ownerAddress,
     rewardPct: info.rewardPct.toFixed(),
+    rewardLoanPct: info.rewardLoanPct.toFixed(),
     customRewards: info.customRewards,
     creation: {
       tx: info.creationTx,
