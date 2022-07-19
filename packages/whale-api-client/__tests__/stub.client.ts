@@ -49,7 +49,8 @@ export class StubWhaleRpcClient extends WhaleRpcClient {
 
     // @ts-expect-error
     return {
-      url: res.raw.req.url,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      url: res.raw.req.url!,
       ok: res.statusCode === 200,
       redirected: false,
       status: res.statusCode,
