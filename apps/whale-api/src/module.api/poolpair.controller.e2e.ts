@@ -232,6 +232,7 @@ describe('list', () => {
         ba: '6'
       },
       rewardPct: '1',
+      rewardLoanPct: '0',
       customRewards: undefined,
       creation: {
         tx: expect.any(String),
@@ -320,6 +321,7 @@ describe('get', () => {
         ba: '2'
       },
       rewardPct: '0',
+      rewardLoanPct: '0',
       customRewards: undefined,
       creation: {
         tx: expect.any(String),

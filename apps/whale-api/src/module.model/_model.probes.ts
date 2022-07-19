@@ -58,8 +58,8 @@ export class ModelProbeIndicator extends ProbeIndicator {
       return this.withDead('model', 'synced blocks are undefined', details)
     }
 
-    if (index + 2 <= defid) {
-      return this.withDead('model', 'synced blocks are more than 2 blocks behind', details)
+    if (index + 20 <= defid) {
+      return this.withDead('model', 'synced blocks are more than 20 blocks behind', details)
     }
 
     // index defid can experience rollback, so make sure the condition is only checked if `Model == DeFid`
