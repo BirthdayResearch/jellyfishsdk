@@ -1,5 +1,5 @@
-import { Controller, Get } from '@nestjs/common'
-import { BurnData, StatsData, SupplyData } from '@defichain/whale-api-client/dist/api/stats'
+import { Controller, Get, ParseIntPipe, Query, Inject } from '@nestjs/common'
+import { BurnData, RewardDistributionData, StatsData, SupplyData } from '@defichain/whale-api-client/dist/api/stats'
 import { SemaphoreCache } from '@defichain-apps/libs/caches'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { BlockMapper } from '../module.model/block'
@@ -9,7 +9,14 @@ import { PriceTickerMapper } from '../module.model/price.ticker'
 import { MasternodeStats, MasternodeStatsMapper } from '../module.model/masternode.stats'
 import { BlockchainInfo } from '@defichain/jellyfish-api-core/dist/category/blockchain'
 import { getBlockSubsidy } from './subsidy'
-import { BlockSubsidy } from '@defichain/jellyfish-network'
+import {
+  BlockSubsidy,
+  NetworkName,
+  CoinbaseSubsidyOptions,
+  MainNetCoinbaseSubsidyOptions,
+  TestNetCoinbaseSubsidyOptions,
+  getBlockRewardDistribution
+} from '@defichain/jellyfish-network'
 import { BurnInfo } from '@defichain/jellyfish-api-core/dist/category/account'
 import { GetLoanInfoResult } from '@defichain/jellyfish-api-core/dist/category/loan'
 
@@ -22,7 +29,8 @@ export class StatsController {
     protected readonly poolPairService: PoolPairService,
     protected readonly rpcClient: JsonRpcClient,
     protected readonly cache: SemaphoreCache,
-    protected readonly blockSubsidy: BlockSubsidy
+    protected readonly blockSubsidy: BlockSubsidy,
+    @Inject('NETWORK') protected readonly network: NetworkName
   ) {
   }
 
@@ -94,6 +102,20 @@ export class StatsController {
       dfip2203: burnInfo.dfip2203,
       dfip2206f: burnInfo.dfip2206f
     }
+  }
+
+  @Get('/rewards/distribution')
+  async getRewardDistribution (
+    @Query('height', ParseIntPipe) reductionHeight = 0
+  ): Promise<RewardDistributionData> {
+    const options: CoinbaseSubsidyOptions = this.network === 'mainnet'
+      ? MainNetCoinbaseSubsidyOptions
+      : TestNetCoinbaseSubsidyOptions
+
+    const height = options.eunosHeight + reductionHeight * options.emissionReductionInterval
+    const subsidy = this.blockSubsidy.getBlockSubsidy(height)
+
+    return getBlockRewardDistribution(subsidy)
   }
 
   async getBurnInfo (): Promise<BurnInfo> {

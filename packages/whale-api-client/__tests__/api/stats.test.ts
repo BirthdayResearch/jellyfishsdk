@@ -143,6 +143,19 @@ describe('stats', () => {
     })
   })
 
+  it('should get reward distribution', async () => {
+    const data = await client.stats.getRewardDistribution()
+    expect(data).toStrictEqual({
+      masternode: expect.any(Number),
+      community: expect.any(Number),
+      anchor: expect.any(Number),
+      liquidity: expect.any(Number),
+      loan: expect.any(Number),
+      options: expect.any(Number),
+      unallocated: expect.any(Number)
+    })
+  })
+
   it('should get stat supply', async () => {
     const data = await client.stats.getSupply()
     expect(data).toStrictEqual({

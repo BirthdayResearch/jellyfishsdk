@@ -14,6 +14,16 @@ export class Stats {
   }
 
   /**
+   * Get reward distribution of DeFi Blockchain
+   *
+   * @param {number} reductionHeight
+   * @return {Promise<RewardDistributionData>}
+   */
+  async getRewardDistribution (reductionHeight = 0): Promise<RewardDistributionData> {
+    return await this.client.requestData('GET', `stats/rewards/distribution?height=${reductionHeight}`)
+  }
+
+  /**
    * Get supply of DeFi Blockchain
    *
    * @return {Promise<SupplyData>}
@@ -95,6 +105,16 @@ export interface StatsData {
     subversion: string
     protocolversion: number
   }
+}
+
+export interface RewardDistributionData {
+  masternode: number
+  community: number
+  anchor: number
+  liquidity: number
+  loan: number
+  options: number
+  unallocated: number
 }
 
 export interface SupplyData {
