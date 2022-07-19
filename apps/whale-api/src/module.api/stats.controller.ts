@@ -22,6 +22,8 @@ import { GetLoanInfoResult } from '@defichain/jellyfish-api-core/dist/category/l
 
 @Controller('/stats')
 export class StatsController {
+  options: CoinbaseSubsidyOptions
+
   constructor (
     protected readonly blockMapper: BlockMapper,
     protected readonly priceTickerMapper: PriceTickerMapper,
@@ -32,6 +34,9 @@ export class StatsController {
     protected readonly blockSubsidy: BlockSubsidy,
     @Inject('NETWORK') protected readonly network: NetworkName
   ) {
+    this.options = this.network === 'mainnet'
+      ? MainNetCoinbaseSubsidyOptions
+      : TestNetCoinbaseSubsidyOptions
   }
 
   @Get()
@@ -108,11 +113,7 @@ export class StatsController {
   async getRewardDistribution (
     @Query('height', ParseIntPipe) reductionHeight = 0
   ): Promise<RewardDistributionData> {
-    const options: CoinbaseSubsidyOptions = this.network === 'mainnet'
-      ? MainNetCoinbaseSubsidyOptions
-      : TestNetCoinbaseSubsidyOptions
-
-    const height = options.eunosHeight + reductionHeight * options.emissionReductionInterval
+    const height = this.options.eunosHeight + reductionHeight * this.options.emissionReductionInterval
     const subsidy = this.blockSubsidy.getBlockSubsidy(height)
 
     return getBlockRewardDistribution(subsidy)
