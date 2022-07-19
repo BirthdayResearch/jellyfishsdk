@@ -244,8 +244,7 @@ interface LegacyPoolPairData {
   'blockCommissionA': number
   'blockCommissionB': number
   'rewardPct': number
-  // TODO(canonbrother): uncomment the assertion below after ocean updated
-  // 'rewardLoanPct': number
+  'rewardLoanPct': number
   'creationTx': string
   'creationHeight': number
   'totalLiquidityLpToken': string
@@ -278,8 +277,7 @@ function reformatPoolPairData (data: PoolPairData): LegacyPoolPairData {
     blockCommissionA: Number(data.tokenA.blockCommission),
     blockCommissionB: Number(data.tokenB.blockCommission),
     rewardPct: Number(data.rewardPct),
-    // TODO(canonbrother): uncomment assertion below after ocean updated
-    // rewardLoanPct: Number(data.rewardLoanPct),
+    rewardLoanPct: Number(data.rewardLoanPct),
     creationTx: data.creation.tx,
     creationHeight: Number(data.creation.height),
     totalLiquidityLpToken: data.totalLiquidity.token,

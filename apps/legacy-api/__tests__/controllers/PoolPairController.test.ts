@@ -38,8 +38,7 @@ it('/v1/getpoolpair?id=4', async () => {
     blockCommissionA: expect.any(Number),
     blockCommissionB: expect.any(Number),
     rewardPct: expect.any(Number),
-    // TODO(canonbrother): uncomment the assertion below after ocean updated
-    // rewardLoanPct: expect.any(Number),
+    rewardLoanPct: expect.any(Number),
     creationTx: expect.any(String),
     creationHeight: expect.any(Number),
     totalLiquidityLpToken: expect.any(String),
@@ -75,8 +74,7 @@ it('/v1/listpoolpairs', async () => {
       blockCommissionA: expect.any(Number),
       blockCommissionB: expect.any(Number),
       rewardPct: expect.any(Number),
-      // TODO(canonbrother): uncomment the assertion below after ocean updated
-      // rewardLoanPct: expect.any(Number),
+      rewardLoanPct: expect.any(Number),
       creationTx: expect.any(String),
       creationHeight: expect.any(Number),
       totalLiquidityLpToken: expect.any(String),
