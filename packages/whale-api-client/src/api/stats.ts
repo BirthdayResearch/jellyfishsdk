@@ -16,11 +16,10 @@ export class Stats {
   /**
    * Get reward distribution of DeFi Blockchain
    *
-   * @param {number} reductionHeight
    * @return {Promise<RewardDistributionData>}
    */
-  async getRewardDistribution (reductionHeight = 0): Promise<RewardDistributionData> {
-    return await this.client.requestData('GET', `stats/rewards/distribution?height=${reductionHeight}`)
+  async getRewardDistribution (): Promise<RewardDistributionData> {
+    return await this.client.requestData('GET', 'stats/rewards/distribution')
   }
 
   /**

@@ -1,4 +1,4 @@
-import { Controller, Get, ParseIntPipe, Query, Inject } from '@nestjs/common'
+import { Controller, Get, Inject } from '@nestjs/common'
 import { BurnData, RewardDistributionData, StatsData, SupplyData } from '@defichain/whale-api-client/dist/api/stats'
 import { SemaphoreCache } from '@defichain-apps/libs/caches'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
@@ -110,11 +110,9 @@ export class StatsController {
   }
 
   @Get('/rewards/distribution')
-  async getRewardDistribution (
-    @Query('height', ParseIntPipe) reductionHeight = 0
-  ): Promise<RewardDistributionData> {
-    const height = this.options.eunosHeight + reductionHeight * this.options.emissionReductionInterval
-    const subsidy = this.blockSubsidy.getBlockSubsidy(height)
+  async getRewardDistribution (): Promise<RewardDistributionData> {
+    const block = requireValue(await this.blockMapper.getHighest(), 'block')
+    const subsidy = this.blockSubsidy.getBlockSubsidy(block.height)
 
     return getBlockRewardDistribution(subsidy)
   }
