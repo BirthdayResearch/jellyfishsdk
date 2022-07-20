@@ -930,7 +930,8 @@ describe('poolpair - best swap path', () => {
             }
           }
         ],
-        estimatedReturn: '0.33333332'
+        estimatedReturn: '0.33333332',
+        estimatedReturnLessDexFees: '0.33333332'
       })
     })
   })

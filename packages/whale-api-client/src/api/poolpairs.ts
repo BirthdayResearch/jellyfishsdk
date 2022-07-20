@@ -244,11 +244,17 @@ export interface AllSwappableTokensResult {
   swappableTokens: TokenIdentifier[]
 }
 
+export interface EstimatedDexFeesInPct {
+  ab: string
+  ba: string
+}
+
 export interface BestSwapPathResult {
   fromToken: TokenIdentifier
   toToken: TokenIdentifier
   bestPath: SwapPathPoolPair[]
   estimatedReturn: string // BigNumber
+  estimatedReturnLessDexFees: string // BigNumber
 }
 
 export interface SwapPathsResult {
@@ -266,6 +272,7 @@ export interface SwapPathPoolPair {
     ab: string
     ba: string
   }
+  estimatedDexFeesInPct?: EstimatedDexFeesInPct
 }
 
 export interface TokenIdentifier {
