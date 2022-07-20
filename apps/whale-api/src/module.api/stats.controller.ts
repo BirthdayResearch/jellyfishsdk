@@ -16,6 +16,8 @@ import {
 import { BurnInfo } from '@defichain/jellyfish-api-core/dist/category/account'
 import { GetLoanInfoResult } from '@defichain/jellyfish-api-core/dist/category/loan'
 
+const ONE_DFI_IN_SATOSHI = 100_000_000
+
 @Controller('/stats')
 export class StatsController {
   constructor (
@@ -104,7 +106,17 @@ export class StatsController {
     const block = requireValue(await this.blockMapper.getHighest(), 'block')
     const subsidy = this.blockSubsidy.getBlockSubsidy(block.height)
 
-    return getBlockRewardDistribution(subsidy)
+    const distribution = getBlockRewardDistribution(subsidy)
+
+    return {
+      anchor: distribution.anchor / ONE_DFI_IN_SATOSHI,
+      community: distribution.community / ONE_DFI_IN_SATOSHI,
+      liquidity: distribution.liquidity / ONE_DFI_IN_SATOSHI,
+      loan: distribution.loan / ONE_DFI_IN_SATOSHI,
+      masternode: distribution.masternode / ONE_DFI_IN_SATOSHI,
+      options: distribution.options / ONE_DFI_IN_SATOSHI,
+      unallocated: distribution.unallocated / ONE_DFI_IN_SATOSHI
+    }
   }
 
   async getBurnInfo (): Promise<BurnInfo> {
