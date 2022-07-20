@@ -63,6 +63,7 @@ describe('Poolpair', () => {
       expect(data.blockCommissionA instanceof BigNumber).toStrictEqual(true)
       expect(data.blockCommissionB instanceof BigNumber).toStrictEqual(true)
       expect(data.rewardPct instanceof BigNumber).toStrictEqual(true)
+      expect(data.rewardLoanPct instanceof BigNumber).toStrictEqual(true)
       expect(typeof data.creationTx).toStrictEqual('string')
       expect(data.creationHeight instanceof BigNumber).toStrictEqual(true)
     }

@@ -218,6 +218,7 @@ export interface PoolPairInfo {
   blockCommissionA: BigNumber
   blockCommissionB: BigNumber
   rewardPct: BigNumber
+  rewardLoanPct: BigNumber
   customRewards?: string[]
   creationTx: string
   creationHeight: BigNumber

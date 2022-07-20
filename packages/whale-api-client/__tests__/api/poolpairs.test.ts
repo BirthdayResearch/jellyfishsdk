@@ -177,6 +177,7 @@ describe('poolpair info', () => {
         ba: '6'
       },
       rewardPct: '0',
+      rewardLoanPct: '0',
       creation: {
         tx: expect.any(String),
         height: expect.any(Number)
@@ -259,6 +260,7 @@ describe('poolpair info', () => {
         ba: '2'
       },
       rewardPct: '0',
+      rewardLoanPct: '0',
       creation: {
         tx: expect.any(String),
         height: expect.any(Number)
@@ -310,6 +312,7 @@ describe('poolpair info', () => {
         ba: '0.06302576'
       },
       rewardPct: '0',
+      rewardLoanPct: '0',
       creation: {
         tx: expect.any(String),
         height: expect.any(Number)
@@ -569,6 +572,7 @@ describe('poolswap', () => {
         ba: '0.22521508'
       },
       rewardPct: '0',
+      rewardLoanPct: '0',
       creation: {
         tx: expect.any(String),
         height: expect.any(Number)
@@ -617,6 +621,7 @@ describe('poolswap', () => {
         ba: '2.22518815'
       },
       rewardPct: '0',
+      rewardLoanPct: '0',
       creation: {
         tx: expect.any(String),
         height: expect.any(Number)
@@ -700,6 +705,7 @@ describe('poolswap 24h', () => {
         ba: '1.90362879'
       },
       rewardPct: '0',
+      rewardLoanPct: '0',
       creation: {
         tx: expect.any(String),
         height: expect.any(Number)
@@ -924,7 +930,8 @@ describe('poolpair - best swap path', () => {
             }
           }
         ],
-        estimatedReturn: '0.33333332'
+        estimatedReturn: '0.33333332',
+        estimatedReturnLessDexFees: '0.33333332'
       })
     })
   })

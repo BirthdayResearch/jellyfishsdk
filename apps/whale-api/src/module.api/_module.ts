@@ -33,6 +33,7 @@ import { PoolSwapPathFindingService } from './poolswap.pathfinding.service'
 import { PoolPairPricesService } from './poolpair.prices.service'
 import { LegacyController } from './legacy.controller'
 import { LegacySubgraphService } from './legacy.subgraph.service'
+import { PoolPairFeesService } from './poolpair.fees.service'
 
 /**
  * Exposed ApiModule for public interfacing
@@ -84,6 +85,7 @@ import { LegacySubgraphService } from './legacy.subgraph.service'
     PoolPairService,
     PoolSwapPathFindingService,
     PoolPairPricesService,
+    PoolPairFeesService,
     MasternodeService,
     LoanVaultService,
     {

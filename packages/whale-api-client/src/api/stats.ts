@@ -150,6 +150,10 @@ export interface BurnData {
   /**
    * Formatted as AMOUNT@SYMBOL
    */
+  paybackburntokens: string[]
+  /**
+   * Formatted as AMOUNT@SYMBOL
+   */
   dexfeetokens: string[]
   /**
    * Amount of DFI collected from penalty resulting from paying DUSD using DFI
