@@ -1,4 +1,4 @@
-import { Controller, Get, Inject } from '@nestjs/common'
+import { Controller, Get } from '@nestjs/common'
 import { BurnData, RewardDistributionData, StatsData, SupplyData } from '@defichain/whale-api-client/dist/api/stats'
 import { SemaphoreCache } from '@defichain-apps/libs/caches'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
@@ -11,10 +11,6 @@ import { BlockchainInfo } from '@defichain/jellyfish-api-core/dist/category/bloc
 import { getBlockSubsidy } from './subsidy'
 import {
   BlockSubsidy,
-  NetworkName,
-  CoinbaseSubsidyOptions,
-  MainNetCoinbaseSubsidyOptions,
-  TestNetCoinbaseSubsidyOptions,
   getBlockRewardDistribution
 } from '@defichain/jellyfish-network'
 import { BurnInfo } from '@defichain/jellyfish-api-core/dist/category/account'
@@ -22,8 +18,6 @@ import { GetLoanInfoResult } from '@defichain/jellyfish-api-core/dist/category/l
 
 @Controller('/stats')
 export class StatsController {
-  private readonly options: CoinbaseSubsidyOptions
-
   constructor (
     protected readonly blockMapper: BlockMapper,
     protected readonly priceTickerMapper: PriceTickerMapper,
@@ -31,12 +25,8 @@ export class StatsController {
     protected readonly poolPairService: PoolPairService,
     protected readonly rpcClient: JsonRpcClient,
     protected readonly cache: SemaphoreCache,
-    protected readonly blockSubsidy: BlockSubsidy,
-    @Inject('NETWORK') protected readonly network: NetworkName
+    protected readonly blockSubsidy: BlockSubsidy
   ) {
-    this.options = this.network === 'mainnet'
-      ? MainNetCoinbaseSubsidyOptions
-      : TestNetCoinbaseSubsidyOptions
   }
 
   @Get()
