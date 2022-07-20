@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common'
-import { BurnData, StatsData, SupplyData } from '@defichain/whale-api-client/dist/api/stats'
+import { BurnData, RewardDistributionData, StatsData, SupplyData } from '@defichain/whale-api-client/dist/api/stats'
 import { SemaphoreCache } from '@defichain-apps/libs/caches'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { BlockMapper } from '../module.model/block'
@@ -9,9 +9,14 @@ import { PriceTickerMapper } from '../module.model/price.ticker'
 import { MasternodeStats, MasternodeStatsMapper } from '../module.model/masternode.stats'
 import { BlockchainInfo } from '@defichain/jellyfish-api-core/dist/category/blockchain'
 import { getBlockSubsidy } from './subsidy'
-import { BlockSubsidy } from '@defichain/jellyfish-network'
+import {
+  BlockSubsidy,
+  getBlockRewardDistribution
+} from '@defichain/jellyfish-network'
 import { BurnInfo } from '@defichain/jellyfish-api-core/dist/category/account'
 import { GetLoanInfoResult } from '@defichain/jellyfish-api-core/dist/category/loan'
+
+const ONE_DFI_IN_SATOSHI = 100_000_000
 
 @Controller('/stats')
 export class StatsController {
@@ -93,6 +98,24 @@ export class StatsController {
       paybacktokens: burnInfo.paybacktokens,
       dfip2203: burnInfo.dfip2203,
       dfip2206f: burnInfo.dfip2206f
+    }
+  }
+
+  @Get('/rewards/distribution')
+  async getRewardDistribution (): Promise<RewardDistributionData> {
+    const block = requireValue(await this.blockMapper.getHighest(), 'block')
+    const subsidy = this.blockSubsidy.getBlockSubsidy(block.height)
+
+    const distribution = getBlockRewardDistribution(subsidy)
+
+    return {
+      anchor: distribution.anchor / ONE_DFI_IN_SATOSHI,
+      community: distribution.community / ONE_DFI_IN_SATOSHI,
+      liquidity: distribution.liquidity / ONE_DFI_IN_SATOSHI,
+      loan: distribution.loan / ONE_DFI_IN_SATOSHI,
+      masternode: distribution.masternode / ONE_DFI_IN_SATOSHI,
+      options: distribution.options / ONE_DFI_IN_SATOSHI,
+      unallocated: distribution.unallocated / ONE_DFI_IN_SATOSHI
     }
   }
 
