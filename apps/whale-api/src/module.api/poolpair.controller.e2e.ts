@@ -352,7 +352,6 @@ describe('get', () => {
 describe('get best path', () => {
   it('should be bidirectional swap path - listPaths(a, b) === listPaths(b, a)', async () => {
     const paths1 = await controller.getBestPath('1', '0') // A to DFI
-    const paths2 = await controller.getBestPath('0', '1') // DFI to A
     expect(paths1).toStrictEqual({
       fromToken: {
         id: '1',
@@ -373,9 +372,9 @@ describe('get best path', () => {
           tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
         }
       ],
-      estimatedReturn: '2.00000000'
+      estimatedReturn: '2.00000000',
+      estimatedReturnLessDexFees: '2.00000000'
     })
-    expect(paths1.bestPath).toStrictEqual(paths2.bestPath)
   })
 
   it('should get best swap path - 2 legs', async () => {
@@ -407,7 +406,8 @@ describe('get best path', () => {
           tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
         }
       ],
-      estimatedReturn: '0.50000000'
+      estimatedReturn: '0.50000000',
+      estimatedReturnLessDexFees: '0.50000000'
     })
   })
 
@@ -447,7 +447,8 @@ describe('get best path', () => {
           tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
         }
       ],
-      estimatedReturn: '2.50000000'
+      estimatedReturn: '2.50000000',
+      estimatedReturnLessDexFees: '2.50000000'
     })
   })
 
@@ -475,7 +476,8 @@ describe('get best path', () => {
           tokenB: { id: '11', symbol: 'K', displaySymbol: 'dK' }
         }
       ],
-      estimatedReturn: '7.00000000'
+      estimatedReturn: '7.00000000',
+      estimatedReturnLessDexFees: '7.00000000'
     })
   })
 
@@ -493,7 +495,8 @@ describe('get best path', () => {
         displaySymbol: 'dA'
       },
       bestPath: [],
-      estimatedReturn: '0'
+      estimatedReturn: '0',
+      estimatedReturnLessDexFees: '0'
     })
   })
 
@@ -509,7 +512,6 @@ describe('get best path', () => {
 describe('get all paths', () => {
   it('should be bidirectional swap path - listPaths(a, b) === listPaths(b, a)', async () => {
     const paths1 = await controller.listPaths('1', '0') // A to DFI
-    const paths2 = await controller.listPaths('0', '1') // DFI to A
     expect(paths1).toStrictEqual({
       fromToken: {
         id: '1',
@@ -533,7 +535,6 @@ describe('get all paths', () => {
         ]
       ]
     })
-    expect(paths1.paths).toStrictEqual(paths2.paths)
   })
 
   it('should get correct swap path - 2 legs', async () => {
