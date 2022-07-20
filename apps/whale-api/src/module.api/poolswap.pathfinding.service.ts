@@ -54,17 +54,14 @@ export class PoolSwapPathFindingService {
 
     // always use direct path if available
     for (const path of paths) {
+      const { estimatedReturn, estimatedReturnLessDexFees } = computeReturnLessDexFeesInDestinationToken(path, fromTokenId)
       if (path.length === 1) {
         return {
           fromToken: fromToken,
           toToken: toToken,
           bestPath: path,
-          estimatedReturn: formatNumber(
-            computeReturnLessDexFeesInDestinationToken(path, fromTokenId).estimatedReturn
-          ), // denoted in toToken
-          estimatedReturnLessDexFees: formatNumber(
-            computeReturnLessDexFeesInDestinationToken(path, fromTokenId).estimatedReturnLessDexFees
-          ) // denoted in toToken
+          estimatedReturn: formatNumber(estimatedReturn), // denoted in toToken
+          estimatedReturnLessDexFees: formatNumber(estimatedReturnLessDexFees) // denoted in toToken
         }
       }
     }
@@ -76,7 +73,7 @@ export class PoolSwapPathFindingService {
 
     for (const path of paths) {
       const { estimatedReturnLessDexFees, estimatedReturn } = computeReturnLessDexFeesInDestinationToken(path, fromTokenId)
-      if (estimatedReturn.isGreaterThan(bestReturnLessDexFees)) {
+      if (estimatedReturn.isGreaterThan(bestReturn)) {
         bestReturn = estimatedReturn
       }
       if (estimatedReturnLessDexFees.isGreaterThan(bestReturnLessDexFees)) {
@@ -291,16 +288,16 @@ function computeReturnLessDexFeesInDestinationToken (path: SwapPathPoolPair[], f
 
     estimatedReturn = estimatedReturn.multipliedBy(priceRatio)
 
-    // less dex fee token A
-    const estimatedDexFeeInTokenA = new BigNumber(fromTokenFeePct ?? 0).multipliedBy(estimatedReturnLessDexFees)
-    estimatedReturnLessDexFees = estimatedReturnLessDexFees.minus(estimatedDexFeeInTokenA)
+    // less dex fee fromToken
+    const fromTokenEstimatedDexFee = new BigNumber(fromTokenFeePct ?? 0).multipliedBy(estimatedReturnLessDexFees)
+    estimatedReturnLessDexFees = estimatedReturnLessDexFees.minus(fromTokenEstimatedDexFee)
 
-    // convert to tokenB
-    const estimatedReturnLessDexFeeA = estimatedReturnLessDexFees.multipliedBy(priceRatio)
-    const estimatedDexFeeInTokenB = new BigNumber(toTokenFeePct ?? 0).multipliedBy(estimatedReturnLessDexFeeA)
+    // convert to toToken
+    const fromTokenEstimatedReturnLessDexFee = estimatedReturnLessDexFees.multipliedBy(priceRatio)
+    const toTokenEstimatedDexFee = new BigNumber(toTokenFeePct ?? 0).multipliedBy(fromTokenEstimatedReturnLessDexFee)
 
-    // less dex fee token B
-    estimatedReturnLessDexFees = estimatedReturnLessDexFeeA.minus(estimatedDexFeeInTokenB)
+    // less dex fee toToken
+    estimatedReturnLessDexFees = fromTokenEstimatedReturnLessDexFee.minus(toTokenEstimatedDexFee)
   }
 
   return {

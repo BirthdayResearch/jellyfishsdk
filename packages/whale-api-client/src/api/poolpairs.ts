@@ -247,7 +247,6 @@ export interface AllSwappableTokensResult {
 export interface EstimatedDexFeesInPct {
   ab: string
   ba: string
-
 }
 
 export interface BestSwapPathResult {
