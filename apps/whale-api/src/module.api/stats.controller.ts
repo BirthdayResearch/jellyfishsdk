@@ -22,7 +22,7 @@ import { GetLoanInfoResult } from '@defichain/jellyfish-api-core/dist/category/l
 
 @Controller('/stats')
 export class StatsController {
-  options: CoinbaseSubsidyOptions
+  private readonly options: CoinbaseSubsidyOptions
 
   constructor (
     protected readonly blockMapper: BlockMapper,
