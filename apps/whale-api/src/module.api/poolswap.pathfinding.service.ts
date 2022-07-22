@@ -200,13 +200,13 @@ export class PoolSwapPathFindingService {
   }
 
   private async isPoolPairIgnored (poolPair: PoolPairInfoWithId): Promise<boolean> {
+    if (!poolPair.status) {
+      return true
+    }
+
     // Hot Fix for MainNet due to cost of running getPoolPairInfo during boot up.
     if (this.network === 'mainnet') {
       if (poolPair.id === '48') {
-        return true
-      }
-    } else {
-      if (!poolPair.status) {
         return true
       }
     }
