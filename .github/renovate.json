@@ -3,8 +3,7 @@
   "extends": [
     "config:base",
     "helpers:pinGitHubActionDigests",
-    ":semanticCommitTypeAll(bump)",
-    ":semanticCommitScope(package)"
+    ":semanticCommitTypeAll(bump)"
   ],
   "dependencyDashboard": true,
   "dependencyDashboardAutoclose": true,
