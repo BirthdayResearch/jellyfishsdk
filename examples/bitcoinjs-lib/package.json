@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "scripts": {
+    "example": "node example.mjs"
+  },
+  "dependencies": {
+    "@defichain/jellyfish-network": "latest",
+    "bitcoinjs-lib": "^6.0.2",
+    "ecpair": "^2.0.1",
+    "tiny-secp256k1": "^2.2.1"
+  }
+}
