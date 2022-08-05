@@ -1,6 +1,11 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:base", "helpers:pinGitHubActionDigests"],
+  "extends": [
+    "config:base",
+    "helpers:pinGitHubActionDigests",
+    ":semanticCommitTypeAll(bump)",
+    ":semanticCommitScope(package)"
+  ],
   "dependencyDashboard": true,
   "dependencyDashboardAutoclose": true,
   "major": {
@@ -9,6 +14,14 @@
   "packageRules": [
     {
       "matchManagers": ["github-actions"],
+      "enabled": false
+    },
+    {
+      "matchPackagePatterns": ["^defichain$", "^@defichain/"],
+      "enabled": false
+    },
+    {
+      "matchPackagePatterns": ["level", "^level"],
       "enabled": false
     },
     {
