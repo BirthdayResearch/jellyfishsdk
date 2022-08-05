@@ -30,19 +30,20 @@ new bitcoin.Psbt({ network: MainNet })
 // ...
 ```
 
-Alternatively, if you don't want to add another dependencies to your stack, you can statically declare them:
+Alternatively, if you don't want to add another dependencies to your stack, you can statically declare them. Also found
+in DeFiCh/ain project in file chainparams.cpp, under base58Prefixes.
 
 ```js
 const MainNet = {
   messagePrefix: '\x15Defi Signed Message:\n',
   bech32: 'df',
   bip32: {
-    public: 76067358,
-    private: 76066276
+    public: 0x0488b21e,
+    private: 0x0488ade4
   },
-  pubKeyHash: 18,
-  scriptHash: 90,
-  wif: 128
+  pubKeyHash: 0x12,
+  scriptHash: 0x5a,
+  wif: 0x80
 }
 ```
 
@@ -51,12 +52,12 @@ const TestNet = {
   messagePrefix: '\x15Defi Signed Message:\n',
   bech32: 'tf',
   bip32: {
-    public: 70617039,
-    private: 70615956
+    public: 0x043587cf,
+    private: 0x04358394
   },
-  pubKeyHash: 15,
-  scriptHash: 128,
-  wif: 239
+  pubKeyHash: 0xf,
+  scriptHash: 0x80,
+  wif: 0xef
 }
 ```
 
@@ -65,12 +66,12 @@ const RegTest = {
   messagePrefix: '\x15Defi Signed Message:\n',
   bech32: 'bcrt',
   bip32: {
-    public: 70617039,
-    private: 70615956
+    public: 0x043587cf,
+    private: 0x04358394
   },
-  pubKeyHash: 111,
-  scriptHash: 196,
-  wif: 239
+  pubKeyHash: 0x6f,
+  scriptHash: 0xc4,
+  wif: 0xef
 }
 ```
 
