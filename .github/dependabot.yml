@@ -1,26 +1,5 @@
 version: 2
 updates:
-  - package-ecosystem: 'npm'
-    directory: '/'
-    schedule:
-      interval: 'daily'
-    labels:
-      - "kind/dependencies"
-    ignore:
-      - dependency-name: "defich"
-      - dependency-name: "defichain"
-      - dependency-name: "@defich/*"
-      - dependency-name: "@defichain/*"
-      - dependency-name: "level"
-      - dependency-name: "level-js"
-      - dependency-name: "level-packager"
-      - dependency-name: "leveldown"
-      - dependency-name: "lerna"
-    versioning-strategy: 'increase'
-    commit-message:
-      include: scope
-      prefix: bump
-
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
