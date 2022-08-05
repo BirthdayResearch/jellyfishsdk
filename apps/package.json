@@ -80,7 +80,7 @@
     "@types/node": "16.11.47",
     "@types/subleveldown": "^4.1.1",
     "@types/supertest": "2.0.12",
-    "@types/validator": "13.7.4",
+    "@types/validator": "13.7.5",
     "source-map-support": "0.5.21",
     "supertest": "6.2.4",
     "testcontainers": "8.12.0",
