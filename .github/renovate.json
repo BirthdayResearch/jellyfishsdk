@@ -17,6 +17,10 @@
       "enabled": false
     },
     {
+      "matchPackagePatterns": ["lerna"],
+      "enabled": false
+    },
+    {
       "matchPackagePatterns": ["^defichain$", "^@defichain/"],
       "enabled": false
     },
