@@ -1,6 +1,7 @@
 import { dSHA256, EllipticPair, HASH160 } from '@defichain/jellyfish-crypto'
 import { SmartBuffer } from 'smart-buffer'
 import {
+  CVoutV2,
   CVoutV4,
   CWitnessProgram,
   DeFiTransactionConstants,
@@ -79,7 +80,11 @@ function hashOutputs (transaction: Transaction, sigHashType: SIGHASH): string {
   }
 
   const buffer = new SmartBuffer()
-  transaction.vout.forEach(vout => (new CVoutV4(vout)).toBuffer(buffer))
+  if (transaction.version < 4) {
+    transaction.vout.forEach(vout => (new CVoutV2(vout)).toBuffer(buffer))
+  } else {
+    transaction.vout.forEach(vout => (new CVoutV4(vout)).toBuffer(buffer))
+  }
   return dSHA256(buffer.toBuffer()).toString('hex')
 }
 
@@ -239,7 +244,7 @@ export const TransactionSigner = {
   },
 
   validate (transaction: Transaction, inputOptions: SignInputOption[], option: SignOption) {
-    const { version = true, lockTime = true } = (option.validate !== undefined) ? option.validate : {}
+    const { lockTime = true } = (option.validate !== undefined) ? option.validate : {}
 
     if (transaction.vin.length === 0) {
       throw new Error('vin.length = 0 - attempting to sign transaction without vin is not allowed')
@@ -247,10 +252,6 @@ export const TransactionSigner = {
 
     if (transaction.vin.length !== inputOptions.length) {
       throw new Error('vin.length and inputOptions.length must match')
-    }
-
-    if (version && transaction.version !== DeFiTransactionConstants.Version) {
-      throw new Error(`option.validate.version = true - trying to sign a txn ${transaction.version} different from ${DeFiTransactionConstants.Version} is not supported`)
     }
 
     if (lockTime && transaction.lockTime !== 0) {
