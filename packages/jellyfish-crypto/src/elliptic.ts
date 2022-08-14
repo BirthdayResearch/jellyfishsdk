@@ -104,5 +104,3 @@ export const Elliptic = {
     return new SECP256K1(buffer)
   }
 }
-
-export const ECC = ecc

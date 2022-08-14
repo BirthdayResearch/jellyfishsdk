@@ -14,7 +14,6 @@
     "build": "tsc -b ./tsconfig.build.json"
   },
   "dependencies": {
-    "@defichain/bitcoinjs": "0.0.0",
     "bignumber.js": "^9.0.2"
   },
   "peerDependencies": {
