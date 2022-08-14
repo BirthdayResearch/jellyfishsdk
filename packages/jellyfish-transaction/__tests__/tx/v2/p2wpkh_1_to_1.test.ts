@@ -101,6 +101,8 @@ describe('e2e submit to testcontainers', () => {
 
     const signed = psbt.extractTransaction().toHex()
     const txid1 = await testing.rpc.rawtx.sendRawTransaction(signed)
+    await testing.container.generate(1)
+
     const tx = await container.call('getrawtransaction', [txid1, true])
 
     const buffer = SmartBuffer.fromBuffer(Buffer.from(tx.hex, 'hex'))
