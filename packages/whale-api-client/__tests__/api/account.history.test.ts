@@ -147,26 +147,31 @@ describe('listAccountHistory', () => {
     expect(first[1]).toStrictEqual(full[1])
     expect(first[2]).toStrictEqual(full[2])
 
-    const firstLast = first[first.length - 1]
-    const secondToken = `${firstLast.txid}-${firstLast.type}-${firstLast.block.height}`
-    const second = await client.address.listAccountHistory(colAddr, 3, secondToken)
+    const second = await client.paginate(first)
     expect(second[0]).toStrictEqual(full[3])
     expect(second[1]).toStrictEqual(full[4])
     expect(second[2]).toStrictEqual(full[5])
 
-    const secondLast = second[second.length - 1]
-    const thirdToken = `${secondLast.txid}-${secondLast.type}-${secondLast.block.height}`
-    const third = await client.address.listAccountHistory(colAddr, 3, thirdToken)
+    const third = await client.paginate(second)
     expect(third[0]).toStrictEqual(full[6])
     expect(third[1]).toStrictEqual(full[7])
     expect(third[2]).toStrictEqual(full[8])
 
-    const thirdLast = third[third.length - 1]
-    const forthToken = `${thirdLast.txid}-${thirdLast.type}-${thirdLast.block.height}`
-    const forth = await client.address.listAccountHistory(colAddr, 3, forthToken)
+    const forth = await client.paginate(third)
     expect(forth[0]).toStrictEqual(full[9])
     expect(forth[1]).toStrictEqual(full[10])
     expect(forth[2]).toStrictEqual(full[11])
+  })
+
+  it('test listAccountHistory pagination (remainder)', async () => {
+    const full = await client.address.listAccountHistory(colAddr, 100)
+    expect(full.length).toStrictEqual(37)
+
+    const first = await client.address.listAccountHistory(colAddr, 30)
+    expect(first.length).toStrictEqual(30)
+
+    const second = await client.paginate(first)
+    expect(second.length).toStrictEqual(7)
   })
 })
 

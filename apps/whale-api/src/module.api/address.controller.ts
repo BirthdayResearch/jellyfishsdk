@@ -87,7 +87,7 @@ export class AddressController {
         const start = foundIndex + 1 // plus 1 to exclude the prev txid
         const size = start + query.size
         const sliced = list.slice(start, size)
-        if (sliced.length !== query.size) {
+        if (sliced.length === 0) {
           // need a bigger volume to achieve the size
           return await loop(Number(maxBlockHeight), limit * 2)
         }
