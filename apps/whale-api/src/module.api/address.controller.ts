@@ -69,7 +69,24 @@ export class AddressController {
 
     if (next !== undefined) {
       const [txid, txType, maxBlockHeight] = next.split('-')
-
+      /**
+       *  Demostrate workaround the `loop`
+       *  full: [A50, B50, C50, D50, E50, F50, G50, H50, I15, J10, K05, L01]
+       *
+       *  | action | limit | max | output                         | sliced          |
+       *  |--------|-------|-----|--------------------------------|-----------------|
+       *  |        | 3     |     | [A50, B50, C50]                |                 |
+       *  | next1  | 3     | 50  | [A50, B50, C50]                | [ ]             |
+       *  | loop1  | 6     | 50  | [A50, B50, C50, D50, E50, F50] | [D50, E50, F50] |
+       *  | next2  | 3     | 50  | [A50, B50, C50]                | [ ]             |
+       *  | loop2  | 6     | 50  | [A50, B50, C50, D50, E50, F50] | [ ]             |
+       *  | loop3  | 12    | 50  | [A50, B50, C50, D50, E50, F50, | [G50, H50, I15] |
+       *  |        |       |     |  G50, H50, I15, J10, K05, L01] |                 |
+       *  | next3  | 3     | 15  | [I15, J10, K05]                | [J10, K05]      |
+       *  | loop4  | 6     | 15  | [I15, J10, K05, L01]           | [J10, K05, L01] |
+       *
+       *  Found **last batch** on loop4 as its `list.length !== limit`.
+       */
       const loop = async (maxBlockHeight: number, limit: number): Promise<AccountHistory[]> => {
         const list = await this.rpcClient.account.listAccountHistory(address, {
           limit: limit,
@@ -79,6 +96,7 @@ export class AddressController {
         if (list.length === 0) {
           return []
         }
+        const isLastBatch = list.length !== limit
         const foundIndex = list.findIndex(each => each.txid === txid && each.type === txType)
         if (foundIndex === -1) {
           // if not found, extend the size till grab the 'next'
@@ -87,7 +105,7 @@ export class AddressController {
         const start = foundIndex + 1 // plus 1 to exclude the prev txid
         const size = start + query.size
         const sliced = list.slice(start, size)
-        if (sliced.length === 0) {
+        if (sliced.length !== query.size && !isLastBatch) {
           // need a bigger volume to achieve the size
           return await loop(Number(maxBlockHeight), limit * 2)
         }
