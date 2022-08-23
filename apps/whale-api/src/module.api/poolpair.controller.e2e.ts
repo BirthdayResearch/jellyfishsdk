@@ -49,7 +49,6 @@ async function setup (): Promise<void> {
     'G', // bridged via A to the rest
     'H', // isolated - no associated poolpair
     'I', 'J', 'K', 'L', 'M', 'N' // isolated from the rest - only swappable with one another
-
   ]
 
   for (const token of tokens) {
