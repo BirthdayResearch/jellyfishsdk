@@ -135,6 +135,10 @@ export class PoolSwapPathFindingService {
     const poolPairPaths: SwapPathPoolPair[][] = []
 
     for (const path of allSimplePaths(this.tokenGraph, fromTokenId, toTokenId)) {
+      if (path.length > 4) {
+        continue
+      }
+
       const poolPairs: SwapPathPoolPair[] = []
 
       // Iterate over the path pairwise; ( tokenA )---< poolPairId >---( tokenB )
