@@ -472,8 +472,8 @@ describe('get best path', () => {
   it('should ignore correct swap path > 3 legs', async () => {
     const response = await controller.getBestPath('9', '14') // I to N
     /* paths available
-      (4 legs) I-J -> J-L -> L-M -> M-N
-      (5 legs) I-J -> J-K -> K-L -> L-M -> M-N
+      (4 legs) Swap I through -> I-J -> J-L -> L-M -> M-N to get N
+      (5 legs) Swap I through -> I-J -> J-K -> K-L -> L-M -> M-N to get N
     */
     expect(response).toStrictEqual({
       fromToken: {
@@ -656,8 +656,8 @@ describe('get all paths', () => {
     const response = await controller.listPaths('9', '14') // I to N
 
     /* paths available
-      (4 legs) I-J -> J-L -> L-M -> M-N
-      (5 legs) I-J -> J-K -> K-L -> L-M -> M-N
+      (4 legs) Swap I through -> I-J -> J-L -> L-M -> M-N to get N
+      (5 legs) Swap I through -> I-J -> J-K -> K-L -> L-M -> M-N to get N
     */
     expect(response).toStrictEqual({
       fromToken: {

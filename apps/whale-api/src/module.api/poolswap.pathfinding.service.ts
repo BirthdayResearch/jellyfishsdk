@@ -135,6 +135,7 @@ export class PoolSwapPathFindingService {
     const poolPairPaths: SwapPathPoolPair[][] = []
 
     for (const path of allSimplePaths(this.tokenGraph, fromTokenId, toTokenId)) {
+      // Max 3 hops, e.g. A --> B --> C --> D
       if (path.length > 4) {
         continue
       }
