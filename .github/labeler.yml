@@ -4,27 +4,27 @@ labels:
   - label: kind/feature
     sync: true
     matcher:
-      title: "^feat\\(.+\\): .+"
+      title: "^feat\\(.+\\)?: .+"
 
   - label: kind/fix
     sync: true
     matcher:
-      title: "^fix\\(.+\\): .+"
+      title: "^fix\\(.+\\)?: .+"
 
   - label: kind/chore
     sync: true
     matcher:
-      title: "^chore\\(.+\\): .+"
+      title: "^chore\\(.+\\)?: .+"
 
   - label: kind/refactor
     sync: true
     matcher:
-      title: "^refactor\\(.+\\): .+"
+      title: "^refactor\\(.+\\)?: .+"
 
   - label: kind/docs
     sync: true
     matcher:
-      title: "^docs\\(.+\\): .+"
+      title: "^docs\\(.+\\)?: .+"
 
   - label: kind/dependencies
     sync: true
