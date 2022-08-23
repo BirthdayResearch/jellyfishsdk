@@ -1042,7 +1042,7 @@ describe('latest dex prices', () => {
     expect(pricesInB.dexPrices.A.denominationPrice).toStrictEqual('0.33333332')
   })
 
-  it('should list DAT tokens only - M (non-DAT token) is not included in result', async () => {
+  it('should list DAT tokens only - O (non-DAT token) is not included in result', async () => {
     // O not included in any denominated dex prices
     const result = await controller.listDexPrices('DFI')
     expect(result.dexPrices.O).toBeUndefined()
