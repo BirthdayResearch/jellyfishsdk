@@ -310,43 +310,45 @@ describe('Loan setLoanToken', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'Invalid amount\', code: -3, method: setloantoken')
   })
 
-  it('should not setLoanToken if interest number is less than 0', async () => {
-    const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-      token: 'Token15',
-      currency: 'USD'
-    }], 1])
-    await testing.generate(1)
+  // These should pass from ain v2.10.0 and the introduction of negative interest rate
 
-    const timestamp = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@Token15', currency: 'USD' }] })
-    await testing.generate(1)
+  // it('should not setLoanToken if interest number is less than 0', async () => {
+  //   const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+  //     token: 'Token15',
+  //     currency: 'USD'
+  //   }], 1])
+  //   await testing.generate(1)
 
-    const promise = testing.rpc.loan.setLoanToken({
-      symbol: 'Token15',
-      fixedIntervalPriceId: 'Token15/USD',
-      interest: new BigNumber(-15.12345678)
-    })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Amount out of range\', code: -3, method: setloantoken')
-  })
+  //   const timestamp = Math.floor(new Date().getTime() / 1000)
+  //   await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@Token15', currency: 'USD' }] })
+  //   await testing.generate(1)
 
-  it('should not setLoanToken if interest number is greater than 1200000000', async () => {
-    const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-      token: 'Token16',
-      currency: 'USD'
-    }], 1])
-    await testing.generate(1)
+  //   const promise = testing.rpc.loan.setLoanToken({
+  //     symbol: 'Token15',
+  //     fixedIntervalPriceId: 'Token15/USD',
+  //     interest: new BigNumber(-15.12345678)
+  //   })
+  //   await expect(promise).rejects.toThrow('RpcApiError: \'Amount out of range\', code: -3, method: setloantoken')
+  // })
 
-    const timestamp = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@Token16', currency: 'USD' }] })
-    await testing.generate(1)
+  // it('should not setLoanToken if interest number is greater than 1200000000', async () => {
+  //   const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+  //     token: 'Token16',
+  //     currency: 'USD'
+  //   }], 1])
+  //   await testing.generate(1)
 
-    const promise = testing.rpc.loan.setLoanToken({
-      symbol: 'Token16',
-      fixedIntervalPriceId: 'Token16/USD',
-      interest: new BigNumber('1200000000').plus('0.00000001')
-    })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Amount out of range\', code: -3, method: setloantoken')
-  })
+  //   const timestamp = Math.floor(new Date().getTime() / 1000)
+  //   await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@Token16', currency: 'USD' }] })
+  //   await testing.generate(1)
+
+  //   const promise = testing.rpc.loan.setLoanToken({
+  //     symbol: 'Token16',
+  //     fixedIntervalPriceId: 'Token16/USD',
+  //     interest: new BigNumber('1200000000').plus('0.00000001')
+  //   })
+  //   await expect(promise).rejects.toThrow('RpcApiError: \'Amount out of range\', code: -3, method: setloantoken')
+  // })
 
   it('should setLoanToken with utxos', async () => {
     const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
