@@ -165,7 +165,7 @@ describe('listAccountHistory', () => {
 
   it('test listAccountHistory pagination (remainder)', async () => {
     const full = await client.address.listAccountHistory(colAddr, 100)
-    expect(full.length).toBeLessThanOrEqual(40) // (flaky) 37 || 39
+    expect(full.length).toBeLessThanOrEqual(50) // (flaky) 37, 39, 41
 
     const first = await client.address.listAccountHistory(colAddr, 30)
     expect(first.length).toStrictEqual(30)
