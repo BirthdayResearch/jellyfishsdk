@@ -80,15 +80,3 @@ jobs:
         with:
           header: release
           message: ${{ steps.report.outputs.result }}
-
-  forked:
-    if: github.event_name == 'pull_request' && (github.event.pull_request.head.repo.full_name != github.repository || github.actor == 'dependabot[bot]')
-    name: Forked Report
-    runs-on: ubuntu-latest
-    steps:
-      - name: Post Report
-        uses: marocchino/sticky-pull-request-comment@39c5b5dc7717447d0cba270cd115037d32d28443
-        with:
-          header: release
-          message: |
-            Due to forked Pull Request limited permissions, docker build preview for jellyfish/apps cannot be generated for this PR.
