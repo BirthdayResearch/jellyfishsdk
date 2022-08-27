@@ -326,8 +326,7 @@ describe('Loan setLoanToken', () => {
       fixedIntervalPriceId: 'Token15/USD',
       interest: new BigNumber(-15.12345678)
     })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test SetLoanTokenTx execution failed:\n' +
-      'interest rate cannot be less than 0!\', code: -32600, method: setloantoken')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test SetLoanTokenTx execution failed:\ninterest rate cannot be less than 0!\', code: -32600, method: setloantoken')
   })
 
   it.skip('should not setLoanToken if interest number is greater than 1200000000', async () => {
