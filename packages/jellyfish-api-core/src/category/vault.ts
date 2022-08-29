@@ -50,7 +50,7 @@ export class Vault {
    * @return {Promise<VaultActive | VaultLiquidation>}
    */
   async getVault (vaultId: string, verbose: boolean = false): Promise<VaultActive | VaultLiquidation> {
-    return await this.client.call(
+    const vault = await this.client.call<VaultActive | VaultLiquidation>(
       'getvault',
       [vaultId, verbose],
       {
@@ -62,6 +62,12 @@ export class Vault {
         interestPerBlockValue: 'bignumber'
       }
     )
+    // remaps interestPerBlock to BigNumber to handle type regression introduced in https://github.com/DeFiCh/ain/pull/1405
+    if ('interestPerBlockValue' in vault && (vault.interestPerBlockValue != null)) {
+      vault.interestPerBlockValue = new BigNumber(vault.interestPerBlockValue)
+    }
+
+    return vault
   }
 
   /**
