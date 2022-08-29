@@ -40,7 +40,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Resolve Tags
-        uses: actions/github-script@d50f485531ba88479582bc2da03ff424389af5c1
+        uses: actions/github-script@c713e510dbd7d213d92d41b7a7805a986f4c5c66
         id: tags
         env:
           APP: ${{ matrix.app }}
@@ -69,7 +69,7 @@ jobs:
       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
 
       - name: Create Report
-        uses: actions/github-script@d50f485531ba88479582bc2da03ff424389af5c1
+        uses: actions/github-script@c713e510dbd7d213d92d41b7a7805a986f4c5c66
         id: report
         with:
           script: return require('./.github/scripts/release-report.js')({ context })
@@ -80,15 +80,3 @@ jobs:
         with:
           header: release
           message: ${{ steps.report.outputs.result }}
-
-  forked:
-    if: github.event_name == 'pull_request' && (github.event.pull_request.head.repo.full_name != github.repository || github.actor == 'dependabot[bot]')
-    name: Forked Report
-    runs-on: ubuntu-latest
-    steps:
-      - name: Post Report
-        uses: marocchino/sticky-pull-request-comment@39c5b5dc7717447d0cba270cd115037d32d28443
-        with:
-          header: release
-          message: |
-            Due to forked Pull Request limited permissions, docker build preview for jellyfish/apps cannot be generated for this PR.
