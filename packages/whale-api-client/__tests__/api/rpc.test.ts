@@ -69,7 +69,6 @@ describe('whitelisted rpc methods', () => {
     expect(Array.isArray(block.tx)).toStrictEqual(true)
   })
 
-  
   it('should rpc.call(getrawtransaction)', async () => {
     await container.generate(1)
 
