@@ -27,6 +27,16 @@ export class Rawtx {
   async test (rawTx: RawTxReq): Promise<void> {
     return await this.client.requestData('POST', 'rawtx/test', rawTx)
   }
+
+  /**
+   * Get a raw transaction
+   *
+   * @param {string} id of transaction to query
+   * @returns {Promise<string>} rawTx
+   */
+  async get (id: string): Promise<string> {
+    return await this.client.requestData('GET', `rawtx/${id}`)
+  }
 }
 
 /**

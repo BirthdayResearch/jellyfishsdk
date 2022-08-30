@@ -24,7 +24,7 @@ afterAll(async () => {
   await stopTestingApp(container, app)
 })
 
-async function expectTxn (txid: string, amount: number, pubKey: Buffer): Promise<void> {
+async function expectTxn(txid: string, amount: number, pubKey: Buffer): Promise<void> {
   const details = await container.call('gettxout', [txid, 0])
 
   expect(details.value.toString(10)).toStrictEqual(amount.toString())
@@ -144,5 +144,18 @@ describe('send', () => {
         message: 'Absurdly high fee'
       })
     }
+  })
+})
+
+describe('get', () => {
+  it('should accept valid txn and return hex', async () => {
+    const hex = await createSignedTxnHex(container, 10, 9.9999)
+    const result = await controller.send({
+      hex: hex
+    })
+
+    const getResult = await controller.get(result, false)
+
+    expect(hex, getResult)
   })
 })
