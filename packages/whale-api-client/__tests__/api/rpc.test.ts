@@ -68,4 +68,17 @@ describe('whitelisted rpc methods', () => {
     expect(block.hash.length).toStrictEqual(64)
     expect(Array.isArray(block.tx)).toStrictEqual(true)
   })
+
+  
+  it('should rpc.call(getrawtransaction)', async () => {
+    await container.generate(1)
+
+    const hash = await client.rpc.call<string>('getblockhash', [1], 'number')
+    const block = await client.rpc.call<blockchain.Block<blockchain.Transaction>>('getblock', [hash], 'number')
+    const hex = await client.rpc.call<string>('getrawtransaction', [block.tx[0]], 'number')
+
+    expect(block.hash.length).toStrictEqual(64)
+    expect(Array.isArray(block.tx)).toStrictEqual(true)
+    expect(typeof hex).toStrictEqual('string')
+  })
 })
