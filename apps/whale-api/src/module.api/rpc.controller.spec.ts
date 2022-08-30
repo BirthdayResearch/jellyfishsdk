@@ -39,3 +39,17 @@ it('should getblockchaininfo via JSON RPC 1.0', async () => {
   })
   expect(result.result.chain).toStrictEqual('regtest')
 })
+
+it('should getrawtransaction via JSON RPC 1.0', async () => {
+  const hash = await controller.post({ method: 'getblockhash', params: [1] })
+  expect(hash.result.length).toStrictEqual(64)
+
+  const block = await controller.post({ method: 'getblock', params: [hash.result] })
+  expect(Array.isArray(block.result.tx)).toStrictEqual(true)
+
+  const hex = await controller.post({
+    method: 'getrawtransaction',
+    params: [block.result.tx[0]]
+  })
+  expect(typeof hex.result).toStrictEqual('string')
+})
