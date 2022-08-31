@@ -190,6 +190,7 @@ describe('get best path - DEX burn fees', () => {
     const paths1 = await controller.getBestPath('3', '0')
     expect(paths1.bestPath).toStrictEqual([
       {
+        commissionFeeInPct: '0',
         estimatedDexFeesInPct: {
           ba: '0.00100000',
           ab: '0.00000000'
@@ -218,6 +219,7 @@ describe('get best path - DEX burn fees', () => {
 
     expect(paths1.bestPath).toStrictEqual([
       {
+        commissionFeeInPct: '0',
         estimatedDexFeesInPct: {
           ba: '0.00000000',
           ab: '0.00200000'
@@ -246,6 +248,7 @@ describe('get best path - DEX burn fees', () => {
 
     expect(paths1.bestPath).toStrictEqual([
       {
+        commissionFeeInPct: '0',
         estimatedDexFeesInPct: {
           ba: '0.00300000',
           ab: '0.00000000'
@@ -274,6 +277,7 @@ describe('get best path - DEX burn fees', () => {
 
     expect(paths1.bestPath).toStrictEqual([
       {
+        commissionFeeInPct: '0',
         estimatedDexFeesInPct: {
           ba: '0.00000000',
           ab: '0.00400000'
@@ -302,6 +306,7 @@ describe('get best path - DEX burn fees', () => {
 
     expect(paths1.bestPath).toStrictEqual([
       {
+        commissionFeeInPct: '0',
         estimatedDexFeesInPct: {
           ba: '0.00500000',
           ab: '0.00000000'
@@ -330,6 +335,7 @@ describe('get best path - DEX burn fees', () => {
 
     expect(paths1.bestPath).toStrictEqual([
       {
+        commissionFeeInPct: '0',
         estimatedDexFeesInPct: {
           ba: '0.00000000',
           ab: '0.00000000'
@@ -358,6 +364,7 @@ describe('get best path - DEX burn fees', () => {
 
     expect(paths1.bestPath).toStrictEqual([
       {
+        commissionFeeInPct: '0',
         estimatedDexFeesInPct: {
           ba: '0.00000000',
           ab: '0.00600000'
@@ -385,6 +392,7 @@ describe('get best path - DEX burn fees', () => {
     const paths1 = await controller.getBestPath('0', '9')
     expect(paths1.bestPath).toStrictEqual([
       {
+        commissionFeeInPct: '0',
         estimatedDexFeesInPct: {
           ba: '0.00000000',
           ab: '0.00000000'
@@ -413,6 +421,7 @@ describe('get best path - DEX burn fees', () => {
     const paths2 = await controller.getBestPath('11', '0')
     expect(paths1.bestPath).toStrictEqual([
       {
+        commissionFeeInPct: '0',
         estimatedDexFeesInPct: {
           ba: '0.00700000',
           ab: '0.00000000'
@@ -442,6 +451,7 @@ describe('get best path - DEX burn fees', () => {
     const paths2 = await controller.getBestPath('13', '0')
     expect(paths1.bestPath).toStrictEqual([
       {
+        commissionFeeInPct: '0',
         estimatedDexFeesInPct: {
           ba: '0.00000000',
           ab: '0.00800000'
@@ -471,6 +481,7 @@ describe('get best path - DEX burn fees', () => {
     const paths2 = await controller.getBestPath('15', '0')
     expect(paths1.bestPath).toStrictEqual([
       {
+        commissionFeeInPct: '0',
         estimatedDexFeesInPct: {
           ba: '0.00900000',
           ab: '0.01000000'
@@ -500,6 +511,7 @@ describe('get best path - DEX burn fees', () => {
     const paths2 = await controller.getBestPath('17', '0')
     expect(paths1.bestPath).toStrictEqual([
       {
+        commissionFeeInPct: '0',
         estimatedDexFeesInPct: {
           ba: '0.01100000',
           ab: '0.00000000'
@@ -529,6 +541,7 @@ describe('get best path - DEX burn fees', () => {
     const paths2 = await controller.getBestPath('19', '0')
     expect(paths1.bestPath).toStrictEqual([
       {
+        commissionFeeInPct: '0',
         estimatedDexFeesInPct: {
           ba: '0.00000000',
           ab: '0.01200000'
@@ -558,6 +571,7 @@ describe('get best path - DEX burn fees', () => {
     const paths2 = await controller.getBestPath('21', '0')
     expect(paths1.bestPath).toStrictEqual([
       {
+        commissionFeeInPct: '0',
         estimatedDexFeesInPct: {
           ba: '0.01300000',
           ab: '0.01400000'
