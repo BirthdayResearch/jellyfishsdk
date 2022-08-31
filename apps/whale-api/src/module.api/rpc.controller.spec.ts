@@ -1,14 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { RegTestContainer } from '@defichain/testcontainers'
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { RpcController } from './rpc.controller'
 
-const container = new RegTestContainer()
+const container = new MasterNodeRegTestContainer()
 let client: JsonRpcClient
 let controller: RpcController
 
 beforeAll(async () => {
   await container.start()
+  await container.waitForWalletCoinbaseMaturity()
+  await container.waitForWalletBalanceGTE(100)
   client = new JsonRpcClient(await container.getCachedRpcUrl())
 })
 
