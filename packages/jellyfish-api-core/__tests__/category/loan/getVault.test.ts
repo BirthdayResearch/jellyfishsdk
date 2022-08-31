@@ -111,7 +111,7 @@ describe('Loan getVault', () => {
       collateralRatio: expect.any(Number),
       informativeRatio: expect.any(BigNumber),
       nextCollateralRatio: expect.any(BigNumber),
-      interestPerBlockValue: expect.any(BigNumber),
+      interestPerBlockValue: '0.000000000000000000000000',
       interestsPerBlock: []
     })
   })

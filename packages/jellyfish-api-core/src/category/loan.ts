@@ -322,7 +322,6 @@ export class Loan {
         interestValue: 'bignumber',
         informativeRatio: 'bignumber',
         nextCollateralRatio: 'bignumber',
-        interestPerBlockValue: 'bignumber',
         interestsPerBlock: 'bignumber'
       }
     )
