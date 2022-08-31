@@ -272,7 +272,7 @@ export interface SwapPathPoolPair {
     ab: string
     ba: string
   }
-  commissionFeeInPct: string // BigNumber
+  commissionFeeInPct: string
   estimatedDexFeesInPct?: EstimatedDexFeesInPct
 }
 
