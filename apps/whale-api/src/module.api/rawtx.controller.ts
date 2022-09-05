@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Post, ValidationPipe, NotFoundException } from '@nestjs/common'
+import { Body, Controller, HttpCode, Post, Get, Query, Param, ValidationPipe, NotFoundException } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { BadRequestApiException } from './_core/api.error'
 import { IsHexadecimal, IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator'
@@ -97,7 +97,15 @@ export class RawtxController {
 
   @Get('/:txid')
   async get(@Param('txid') txid: string, @Query('verbose') verbose: boolean = false): Promise<string | RawTransaction> {
-    const rawTx = await this.client.rawtx.getRawTransaction(txid, verbose, void 0)
+
+    let rawTx: string | RawTransaction;
+
+    if(verbose) {
+      rawTx = await this.client.rawtx.getRawTransaction(txid, true)
+    }
+    else {
+      rawTx = await this.client.rawtx.getRawTransaction(txid, false)
+    }
     
     if (rawTx === undefined) {
       throw new NotFoundException('transaction not found')
@@ -151,16 +159,5 @@ export class RawtxController {
     }
     throw new BadRequestApiException('Invalid CompositeSwap')
   }
-}
-function Get(arg0: string) {
-  throw new Error('Function not implemented.')
-}
-
-function Param(arg0: string) {
-  throw new Error('Function not implemented.')
-}
-
-function Query(arg0: string) {
-  throw new Error('Function not implemented.')
 }
 
