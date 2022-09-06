@@ -40,7 +40,7 @@
     "@nestjs/schedule": "2.1.0",
     "@nestjs/terminus": "8.1.1",
     "@nestjs/typeorm": "8.0.4",
-    "async-mutex": "0.3.2",
+    "async-mutex": "0.4.0",
     "bignumber.js": "9.0.2",
     "cache-manager": "4.1.0",
     "cbor": "8.1.0",
