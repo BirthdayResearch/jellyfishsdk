@@ -156,7 +156,7 @@ describe('get', () => {
 
     const getResult = await controller.get(result, false)
 
-    expect(hex, getResult)
+    expect(hex).toStrictEqual(getResult)
   })
 
 })
