@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Post, Get, Query, Param, ValidationPipe, NotFoundException } from '@nestjs/common'
+import { Body, Controller, HttpCode, Post, Get, Query, Param, ValidationPipe, NotFoundException, ParseBoolPipe } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { BadRequestApiException } from './_core/api.error'
 import { IsHexadecimal, IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator'

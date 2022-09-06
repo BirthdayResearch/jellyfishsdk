@@ -158,4 +158,5 @@ describe('get', () => {
 
     expect(hex, getResult)
   })
+
 })
