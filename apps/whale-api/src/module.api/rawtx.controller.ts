@@ -96,16 +96,8 @@ export class RawtxController {
   }
 
   @Get('/:txid')
-  async get(@Param('txid') txid: string, @Query('verbose') verbose: boolean = false): Promise<string | RawTransaction> {
-
-    let rawTx: string | RawTransaction;
-
-    if(verbose) {
-      rawTx = await this.client.rawtx.getRawTransaction(txid, true)
-    }
-    else {
-      rawTx = await this.client.rawtx.getRawTransaction(txid, false)
-    }
+  async get(@Param('txid') txid: string, @Query('verbose', ParseBoolPipe) verbose: boolean = false): Promise<string | RawTransaction> {    
+    const rawTx = await this.client.rawtx.getRawTransaction(txid, verbose)
     
     if (rawTx === undefined) {
       throw new NotFoundException('transaction not found')
