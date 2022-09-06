@@ -210,6 +210,7 @@ describe('list', () => {
       status: true,
       tokenA: {
         id: '2',
+        name: 'B',
         symbol: 'B',
         reserve: '50',
         blockCommission: '0',
@@ -222,6 +223,7 @@ describe('list', () => {
       },
       tokenB: {
         id: '0',
+        name: 'Default Defi token',
         symbol: 'DFI',
         reserve: '300',
         blockCommission: '0',
@@ -307,6 +309,7 @@ describe('get', () => {
       status: true,
       tokenA: {
         id: expect.any(String),
+        name: 'A',
         symbol: 'A',
         reserve: '100',
         blockCommission: '0',
@@ -315,6 +318,7 @@ describe('get', () => {
       },
       tokenB: {
         id: '0',
+        name: 'Default Defi token',
         symbol: 'DFI',
         reserve: '200',
         blockCommission: '0',

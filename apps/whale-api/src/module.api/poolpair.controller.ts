@@ -203,6 +203,7 @@ function mapPoolPair (
   volume?: PoolPairData['volume']
 ): PoolPairData {
   const [symbolA, symbolB] = info.symbol.split('-')
+  const [nameA, nameB] = info.name.split('-')
 
   return {
     id: id,
@@ -214,6 +215,7 @@ function mapPoolPair (
       symbol: symbolA,
       displaySymbol: parseDATSymbol(symbolA),
       id: info.idTokenA,
+      name: nameA,
       reserve: info.reserveA.toFixed(),
       blockCommission: info.blockCommissionA.toFixed(),
       fee: info.dexFeePctTokenA !== undefined
@@ -228,6 +230,7 @@ function mapPoolPair (
       symbol: symbolB,
       displaySymbol: parseDATSymbol(symbolB),
       id: info.idTokenB,
+      name: nameB,
       reserve: info.reserveB.toFixed(),
       blockCommission: info.blockCommissionB.toFixed(),
       fee: info.dexFeePctTokenB !== undefined
