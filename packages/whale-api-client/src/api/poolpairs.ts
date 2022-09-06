@@ -277,6 +277,7 @@ export interface SwapPathPoolPair {
 
 export interface TokenIdentifier {
   id: string
+  name: string
   symbol: string
   displaySymbol: string
 }
