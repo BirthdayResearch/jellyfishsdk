@@ -1015,56 +1015,57 @@ describe('poolpair - get dex prices', () => {
         denomination: {
           displaySymbol: 'DFI',
           id: '0',
+          name: 'Default Defi token',
           symbol: 'DFI'
         },
         dexPrices: {
           A: {
             denominationPrice: '2.00000000',
-            token: { displaySymbol: 'dA', id: '1', symbol: 'A' }
+            token: { displaySymbol: 'dA', id: '1', name: 'A', symbol: 'A' }
           },
           B: {
             denominationPrice: '6.00000000',
-            token: { displaySymbol: 'dB', id: '2', symbol: 'B' }
+            token: { displaySymbol: 'dB', id: '2', name: 'B', symbol: 'B' }
           },
           C: {
             denominationPrice: '4.00000000',
-            token: { displaySymbol: 'dC', id: '3', symbol: 'C' }
+            token: { displaySymbol: 'dC', id: '3', name: 'C', symbol: 'C' }
           },
           D: {
             denominationPrice: '0',
-            token: { displaySymbol: 'dD', id: '4', symbol: 'D' }
+            token: { displaySymbol: 'dD', id: '4', name: 'D', symbol: 'D' }
           },
           E: {
             denominationPrice: '0',
-            token: { displaySymbol: 'dE', id: '5', symbol: 'E' }
+            token: { displaySymbol: 'dE', id: '5', name: 'E', symbol: 'E' }
           },
           USDT: {
             denominationPrice: '0.43151288',
-            token: { displaySymbol: 'dUSDT', id: '17', symbol: 'USDT' }
+            token: { displaySymbol: 'dUSDT', id: '17', name: 'USDT', symbol: 'USDT' }
           },
           DUSD: {
             denominationPrice: '0',
-            token: { displaySymbol: 'DUSD', id: '21', symbol: 'DUSD' }
+            token: { displaySymbol: 'DUSD', id: '21', name: 'DUSD', symbol: 'DUSD' }
           },
           USDC: {
             denominationPrice: '0',
-            token: { displaySymbol: 'dUSDC', id: '19', symbol: 'USDC' }
+            token: { displaySymbol: 'dUSDC', id: '19', name: 'USDC', symbol: 'USDC' }
           },
           F: {
             denominationPrice: '0',
-            token: { displaySymbol: 'dF', id: '6', symbol: 'F' }
+            token: { displaySymbol: 'dF', id: '6', name: 'F', symbol: 'F' }
           },
           G: {
             denominationPrice: '0',
-            token: { displaySymbol: 'dG', id: '7', symbol: 'G' }
+            token: { displaySymbol: 'dG', id: '7', name: 'G', symbol: 'G' }
           },
           H: {
             denominationPrice: '0',
-            token: { displaySymbol: 'dH', id: '8', symbol: 'H' }
+            token: { displaySymbol: 'dH', id: '8', name: 'H', symbol: 'H' }
           },
           TEST: {
             denominationPrice: '0',
-            token: { displaySymbol: 'dTEST', id: '22', symbol: 'TEST' }
+            token: { displaySymbol: 'dTEST', id: '22', name: 'TEST', symbol: 'TEST' }
           }
         }
       })

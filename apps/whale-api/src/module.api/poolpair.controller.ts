@@ -15,6 +15,7 @@ import { PoolPairService } from './poolpair.service'
 import { PoolSwapPathFindingService } from './poolswap.pathfinding.service'
 import BigNumber from 'bignumber.js'
 import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
+import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
 import { parseDATSymbol } from './token.controller'
 import { PoolSwapMapper } from '../module.model/pool.swap'
 import { PoolSwapAggregatedMapper } from '../module.model/pool.swap.aggregated'
@@ -55,6 +56,8 @@ export class PoolPairController {
       const totalLiquidityUsd = await this.poolPairService.getTotalLiquidityUsd(info)
       const apr = await this.poolPairService.getAPR(id, info)
       const volume = await this.poolPairService.getUSDVolume(id)
+      info.nameTokenA = (await this.deFiDCache.getTokenInfo(info.idTokenA) as TokenInfo).name
+      info.nameTokenB = (await this.deFiDCache.getTokenInfo(info.idTokenB) as TokenInfo).name
       items.push(mapPoolPair(id, info, totalLiquidityUsd, apr, volume))
     }
 
@@ -81,6 +84,8 @@ export class PoolPairController {
     const totalLiquidityUsd = await this.poolPairService.getTotalLiquidityUsd(info)
     const apr = await this.poolPairService.getAPR(id, info)
     const volume = await this.poolPairService.getUSDVolume(id)
+    info.nameTokenA = (await this.deFiDCache.getTokenInfo(info.idTokenA) as TokenInfo).name
+    info.nameTokenB = (await this.deFiDCache.getTokenInfo(info.idTokenB) as TokenInfo).name
     return mapPoolPair(String(id), info, totalLiquidityUsd, apr, volume)
   }
 
@@ -203,7 +208,6 @@ function mapPoolPair (
   volume?: PoolPairData['volume']
 ): PoolPairData {
   const [symbolA, symbolB] = info.symbol.split('-')
-  const [nameA, nameB] = info.name.split('-')
 
   return {
     id: id,
@@ -215,7 +219,7 @@ function mapPoolPair (
       symbol: symbolA,
       displaySymbol: parseDATSymbol(symbolA),
       id: info.idTokenA,
-      name: nameA,
+      name: info.nameTokenA,
       reserve: info.reserveA.toFixed(),
       blockCommission: info.blockCommissionA.toFixed(),
       fee: info.dexFeePctTokenA !== undefined
@@ -230,7 +234,7 @@ function mapPoolPair (
       symbol: symbolB,
       displaySymbol: parseDATSymbol(symbolB),
       id: info.idTokenB,
-      name: nameB,
+      name: info.nameTokenB,
       reserve: info.reserveB.toFixed(),
       blockCommission: info.blockCommissionB.toFixed(),
       fee: info.dexFeePctTokenB !== undefined
