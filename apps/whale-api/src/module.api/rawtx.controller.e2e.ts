@@ -24,7 +24,7 @@ afterAll(async () => {
   await stopTestingApp(container, app)
 })
 
-async function expectTxn(txid: string, amount: number, pubKey: Buffer): Promise<void> {
+async function expectTxn (txid: string, amount: number, pubKey: Buffer): Promise<void> {
   const details = await container.call('gettxout', [txid, 0])
 
   expect(details.value.toString(10)).toStrictEqual(amount.toString())
@@ -158,5 +158,4 @@ describe('get', () => {
 
     expect(hex).toStrictEqual(getResult)
   })
-
 })

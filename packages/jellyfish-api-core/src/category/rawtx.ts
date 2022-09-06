@@ -130,7 +130,6 @@ export class RawTx {
    */
   getRawTransaction (txid: string, verbose: false, blockHash: string): Promise<string>
 
-  
   /**
    * Get raw transaction with block hash in hex-encoded format
    *
@@ -138,7 +137,7 @@ export class RawTx {
    * @param {boolean} verbose true will return object information, false/omitted will return hex-encoded data
    * @return {Promise<string | RawTransaction>}
    */
-   getRawTransaction (txid: string, verbose: boolean): Promise<string | RawTransaction>
+  getRawTransaction (txid: string, verbose: boolean): Promise<string | RawTransaction>
 
   /**
    * Get raw transaction as json object
