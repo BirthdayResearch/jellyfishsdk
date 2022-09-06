@@ -100,7 +100,7 @@ export class RawtxController {
     const rawTx = await this.client.rawtx.getRawTransaction(txid, verbose)
 
     if (rawTx === undefined) {
-      throw new NotFoundException('transaction not found')
+      throw new NotFoundException('Transaction could not be found')
     }
 
     return rawTx
