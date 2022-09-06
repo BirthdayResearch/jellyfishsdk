@@ -31,11 +31,11 @@ export class Rawtx {
   /**
    * Get a raw transaction
    *
-   * @param {string} id of transaction to query
+   * @param {string} txid of transaction to query
    * @returns {Promise<string>} rawTx
    */
-  async get (id: string): Promise<string> {
-    return await this.client.requestData('GET', `rawtx/${id}`)
+  async get (txid: string): Promise<string> {
+    return await this.client.requestData('GET', `rawtx/${txid}`)
   }
 }
 
