@@ -66,8 +66,8 @@
     "typeorm": "0.2.45"
   },
   "devDependencies": {
-    "@nestjs/cli": "9.0.0",
-    "@nestjs/schematics": "9.0.1",
+    "@nestjs/cli": "9.1.2",
+    "@nestjs/schematics": "9.0.3",
     "@nestjs/testing": "8.4.7",
     "@types/cache-manager": "4.0.1",
     "@types/cron": "1.7.3",
