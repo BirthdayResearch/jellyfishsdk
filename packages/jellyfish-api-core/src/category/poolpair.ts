@@ -201,8 +201,6 @@ export interface PoolPairInfo {
   status: boolean
   idTokenA: string
   idTokenB: string
-  nameTokenA: string
-  nameTokenB: string
   dexFeePctTokenA?: BigNumber
   dexFeeInPctTokenA?: BigNumber
   dexFeeOutPctTokenA?: BigNumber
