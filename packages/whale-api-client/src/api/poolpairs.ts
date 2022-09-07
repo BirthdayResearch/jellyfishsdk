@@ -112,6 +112,7 @@ export interface PoolPairData {
   status: boolean
   tokenA: {
     id: string
+    name: string
     symbol: string
     displaySymbol: string
     reserve: string // BigNumber
@@ -124,6 +125,7 @@ export interface PoolPairData {
   }
   tokenB: {
     id: string
+    name: string
     symbol: string
     displaySymbol: string
     reserve: string // BigNumber
@@ -278,6 +280,7 @@ export interface SwapPathPoolPair {
 
 export interface TokenIdentifier {
   id: string
+  name: string
   symbol: string
   displaySymbol: string
 }

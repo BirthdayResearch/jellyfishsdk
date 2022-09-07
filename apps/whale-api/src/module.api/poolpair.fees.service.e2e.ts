@@ -204,11 +204,13 @@ describe('get best path - DEX burn fees', () => {
         tokenA: {
           displaySymbol: 'dCAT',
           id: '3',
+          name: 'CAT',
           symbol: 'CAT'
         },
         tokenB: {
           displaySymbol: 'DFI',
           id: '0',
+          name: 'Default Defi token',
           symbol: 'DFI'
         }
       }])
@@ -233,11 +235,13 @@ describe('get best path - DEX burn fees', () => {
         tokenA: {
           displaySymbol: 'dCAT',
           id: '3',
+          name: 'CAT',
           symbol: 'CAT'
         },
         tokenB: {
           displaySymbol: 'DFI',
           id: '0',
+          name: 'Default Defi token',
           symbol: 'DFI'
         }
       }])
@@ -262,11 +266,13 @@ describe('get best path - DEX burn fees', () => {
         tokenA: {
           displaySymbol: 'dDOG',
           id: '5',
+          name: 'DOG',
           symbol: 'DOG'
         },
         tokenB: {
           displaySymbol: 'DFI',
           id: '0',
+          name: 'Default Defi token',
           symbol: 'DFI'
         }
       }])
@@ -291,11 +297,13 @@ describe('get best path - DEX burn fees', () => {
         tokenA: {
           displaySymbol: 'dDOG',
           id: '5',
+          name: 'DOG',
           symbol: 'DOG'
         },
         tokenB: {
           displaySymbol: 'DFI',
           id: '0',
+          name: 'Default Defi token',
           symbol: 'DFI'
         }
       }])
@@ -320,11 +328,13 @@ describe('get best path - DEX burn fees', () => {
         tokenA: {
           displaySymbol: 'dKOALA',
           id: '7',
+          name: 'KOALA',
           symbol: 'KOALA'
         },
         tokenB: {
           displaySymbol: 'DFI',
           id: '0',
+          name: 'Default Defi token',
           symbol: 'DFI'
         }
       }])
@@ -349,11 +359,13 @@ describe('get best path - DEX burn fees', () => {
         tokenA: {
           displaySymbol: 'dKOALA',
           id: '7',
+          name: 'KOALA',
           symbol: 'KOALA'
         },
         tokenB: {
           displaySymbol: 'DFI',
           id: '0',
+          name: 'Default Defi token',
           symbol: 'DFI'
         }
       }])
@@ -378,11 +390,13 @@ describe('get best path - DEX burn fees', () => {
         tokenA: {
           displaySymbol: 'dFISH',
           id: '9',
+          name: 'FISH',
           symbol: 'FISH'
         },
         tokenB: {
           displaySymbol: 'DFI',
           id: '0',
+          name: 'Default Defi token',
           symbol: 'DFI'
         }
       }])
@@ -406,11 +420,13 @@ describe('get best path - DEX burn fees', () => {
         tokenA: {
           displaySymbol: 'dFISH',
           id: '9',
+          name: 'FISH',
           symbol: 'FISH'
         },
         tokenB: {
           displaySymbol: 'DFI',
           id: '0',
+          name: 'Default Defi token',
           symbol: 'DFI'
         }
       }])
@@ -435,11 +451,13 @@ describe('get best path - DEX burn fees', () => {
         tokenA: {
           displaySymbol: 'dTURTLE',
           id: '11',
+          name: 'TURTLE',
           symbol: 'TURTLE'
         },
         tokenB: {
           displaySymbol: 'DFI',
           id: '0',
+          name: 'Default Defi token',
           symbol: 'DFI'
         }
       }])
@@ -465,11 +483,13 @@ describe('get best path - DEX burn fees', () => {
         tokenA: {
           displaySymbol: 'dPANDA',
           id: '13',
+          name: 'PANDA',
           symbol: 'PANDA'
         },
         tokenB: {
           displaySymbol: 'DFI',
           id: '0',
+          name: 'Default Defi token',
           symbol: 'DFI'
         }
       }])
@@ -495,11 +515,13 @@ describe('get best path - DEX burn fees', () => {
         tokenA: {
           displaySymbol: 'dRABBIT',
           id: '15',
+          name: 'RABBIT',
           symbol: 'RABBIT'
         },
         tokenB: {
           displaySymbol: 'DFI',
           id: '0',
+          name: 'Default Defi token',
           symbol: 'DFI'
         }
       }])
@@ -525,11 +547,13 @@ describe('get best path - DEX burn fees', () => {
         tokenA: {
           displaySymbol: 'dFOX',
           id: '17',
+          name: 'FOX',
           symbol: 'FOX'
         },
         tokenB: {
           displaySymbol: 'DFI',
           id: '0',
+          name: 'Default Defi token',
           symbol: 'DFI'
         }
       }])
@@ -555,11 +579,13 @@ describe('get best path - DEX burn fees', () => {
         tokenA: {
           displaySymbol: 'dLION',
           id: '19',
+          name: 'LION',
           symbol: 'LION'
         },
         tokenB: {
           displaySymbol: 'DFI',
           id: '0',
+          name: 'Default Defi token',
           symbol: 'DFI'
         }
       }])
@@ -585,11 +611,13 @@ describe('get best path - DEX burn fees', () => {
         tokenA: {
           displaySymbol: 'dTIGER',
           id: '21',
+          name: 'TIGER',
           symbol: 'TIGER'
         },
         tokenB: {
           displaySymbol: 'DFI',
           id: '0',
+          name: 'Default Defi token',
           symbol: 'DFI'
         }
       }])

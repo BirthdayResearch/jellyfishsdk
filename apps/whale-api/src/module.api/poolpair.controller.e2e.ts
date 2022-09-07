@@ -210,6 +210,7 @@ describe('list', () => {
       status: true,
       tokenA: {
         id: '2',
+        name: 'B',
         symbol: 'B',
         reserve: '50',
         blockCommission: '0',
@@ -222,6 +223,7 @@ describe('list', () => {
       },
       tokenB: {
         id: '0',
+        name: 'Default Defi token',
         symbol: 'DFI',
         reserve: '300',
         blockCommission: '0',
@@ -307,6 +309,7 @@ describe('get', () => {
       status: true,
       tokenA: {
         id: expect.any(String),
+        name: 'A',
         symbol: 'A',
         reserve: '100',
         blockCommission: '0',
@@ -315,6 +318,7 @@ describe('get', () => {
       },
       tokenB: {
         id: '0',
+        name: 'Default Defi token',
         symbol: 'DFI',
         reserve: '200',
         blockCommission: '0',
@@ -372,11 +376,13 @@ describe('get best path', () => {
     expect(paths1).toStrictEqual({
       fromToken: {
         id: '1',
+        name: 'A',
         symbol: 'A',
         displaySymbol: 'dA'
       },
       toToken: {
         id: '0',
+        name: 'Default Defi token',
         symbol: 'DFI',
         displaySymbol: 'DFI'
       },
@@ -400,11 +406,13 @@ describe('get best path', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '1',
+        name: 'A',
         symbol: 'A',
         displaySymbol: 'dA'
       },
       toToken: {
         id: '3',
+        name: 'C',
         symbol: 'C',
         displaySymbol: 'dC'
       },
@@ -436,11 +444,13 @@ describe('get best path', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '7',
+        name: 'G',
         symbol: 'G',
         displaySymbol: 'dG'
       },
       toToken: {
         id: '3',
+        name: 'C',
         symbol: 'C',
         displaySymbol: 'dC'
       },
@@ -484,11 +494,13 @@ describe('get best path', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '9',
+        name: 'I',
         symbol: 'I',
         displaySymbol: 'dI'
       },
       toToken: {
         id: '14',
+        name: 'N',
         symbol: 'N',
         displaySymbol: 'dN'
       },
@@ -505,11 +517,13 @@ describe('get best path', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '10',
+        name: 'J',
         symbol: 'J',
         displaySymbol: 'dJ'
       },
       toToken: {
         id: '11',
+        name: 'K',
         symbol: 'K',
         displaySymbol: 'dK'
       },
@@ -597,11 +611,13 @@ describe('get best path', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '8',
+        name: 'H',
         symbol: 'H',
         displaySymbol: 'dH'
       },
       toToken: {
         id: '1',
+        name: 'A',
         symbol: 'A',
         displaySymbol: 'dA'
       },
@@ -626,11 +642,13 @@ describe('get all paths', () => {
     expect(paths1).toStrictEqual({
       fromToken: {
         id: '1',
+        name: 'A',
         symbol: 'A',
         displaySymbol: 'dA'
       },
       toToken: {
         id: '0',
+        name: 'Default Defi token',
         symbol: 'DFI',
         displaySymbol: 'DFI'
       },
@@ -654,11 +672,13 @@ describe('get all paths', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '1',
+        name: 'A',
         symbol: 'A',
         displaySymbol: 'dA'
       },
       toToken: {
         id: '3',
+        name: 'C',
         symbol: 'C',
         displaySymbol: 'dC'
       },
@@ -690,11 +710,13 @@ describe('get all paths', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '7',
+        name: 'G',
         symbol: 'G',
         displaySymbol: 'dG'
       },
       toToken: {
         id: '3',
+        name: 'C',
         symbol: 'C',
         displaySymbol: 'dC'
       },
@@ -739,11 +761,13 @@ describe('get all paths', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '9',
+        name: 'I',
         symbol: 'I',
         displaySymbol: 'dI'
       },
       toToken: {
         id: '14',
+        name: 'N',
         symbol: 'N',
         displaySymbol: 'dN'
       },
@@ -756,11 +780,13 @@ describe('get all paths', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '9',
+        name: 'I',
         symbol: 'I',
         displaySymbol: 'dI'
       },
       toToken: {
         id: '11',
+        name: 'K',
         symbol: 'K',
         displaySymbol: 'dK'
       },
@@ -818,11 +844,13 @@ describe('get all paths', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '10',
+        name: 'J',
         symbol: 'J',
         displaySymbol: 'dJ'
       },
       toToken: {
         id: '11',
+        name: 'K',
         symbol: 'K',
         displaySymbol: 'dK'
       },
@@ -864,11 +892,13 @@ describe('get all paths', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '8',
+        name: 'H',
         symbol: 'H',
         displaySymbol: 'dH'
       },
       toToken: {
         id: '1',
+        name: 'A',
         symbol: 'A',
         displaySymbol: 'dA'
       },
@@ -897,16 +927,16 @@ describe('get list swappable tokens', () => {
   it('should list correct swappable tokens', async () => {
     const result = await controller.listSwappableTokens('1') // A
     expect(result).toStrictEqual({
-      fromToken: { id: '1', symbol: 'A', displaySymbol: 'dA' },
+      fromToken: { id: '1', name: 'A', symbol: 'A', displaySymbol: 'dA' },
       swappableTokens: [
-        { id: '7', symbol: 'G', displaySymbol: 'dG' },
-        { id: '0', symbol: 'DFI', displaySymbol: 'DFI' },
-        { id: '30', symbol: 'USDT', displaySymbol: 'dUSDT' },
-        { id: '6', symbol: 'F', displaySymbol: 'dF' },
-        { id: '5', symbol: 'E', displaySymbol: 'dE' },
-        { id: '4', symbol: 'D', displaySymbol: 'dD' },
-        { id: '3', symbol: 'C', displaySymbol: 'dC' },
-        { id: '2', symbol: 'B', displaySymbol: 'dB' }
+        { id: '7', name: 'G', symbol: 'G', displaySymbol: 'dG' },
+        { id: '0', name: 'Default Defi token', symbol: 'DFI', displaySymbol: 'DFI' },
+        { id: '30', name: 'USDT', symbol: 'USDT', displaySymbol: 'dUSDT' },
+        { id: '6', name: 'F', symbol: 'F', displaySymbol: 'dF' },
+        { id: '5', name: 'E', symbol: 'E', displaySymbol: 'dE' },
+        { id: '4', name: 'D', symbol: 'D', displaySymbol: 'dD' },
+        { id: '3', name: 'C', symbol: 'C', displaySymbol: 'dC' },
+        { id: '2', name: 'B', symbol: 'B', displaySymbol: 'dB' }
       ]
     })
   })
@@ -920,7 +950,7 @@ describe('get list swappable tokens', () => {
   it('should list no tokens for token that is not swappable with any', async () => {
     const result = await controller.listSwappableTokens('8') // H
     expect(result).toStrictEqual({
-      fromToken: { id: '8', symbol: 'H', displaySymbol: 'dH' },
+      fromToken: { id: '8', name: 'H', symbol: 'H', displaySymbol: 'dH' },
       swappableTokens: []
     })
   })
@@ -936,66 +966,66 @@ describe('latest dex prices', () => {
   it('should get latest dex prices - denomination: DFI', async () => {
     const result = await controller.listDexPrices('DFI')
     expect(result).toStrictEqual({
-      denomination: { displaySymbol: 'DFI', id: '0', symbol: 'DFI' },
+      denomination: { displaySymbol: 'DFI', id: '0', name: 'Default Defi token', symbol: 'DFI' },
       dexPrices: {
         USDT: {
-          token: { displaySymbol: 'dUSDT', id: '30', symbol: 'USDT' },
+          token: { displaySymbol: 'dUSDT', id: '30', name: 'USDT', symbol: 'USDT' },
           denominationPrice: '0.43151288'
         },
         N: {
-          token: { displaySymbol: 'dN', id: '14', symbol: 'N' },
+          token: { displaySymbol: 'dN', id: '14', name: 'N', symbol: 'N' },
           denominationPrice: '0'
         },
         M: {
-          token: { displaySymbol: 'dM', id: '13', symbol: 'M' },
+          token: { displaySymbol: 'dM', id: '13', name: 'M', symbol: 'M' },
           denominationPrice: '0'
         },
         L: {
-          token: { displaySymbol: 'dL', id: '12', symbol: 'L' },
+          token: { displaySymbol: 'dL', id: '12', name: 'L', symbol: 'L' },
           denominationPrice: '0'
         },
         K: {
-          token: { displaySymbol: 'dK', id: '11', symbol: 'K' },
+          token: { displaySymbol: 'dK', id: '11', name: 'K', symbol: 'K' },
           denominationPrice: '0'
         },
         J: {
-          token: { displaySymbol: 'dJ', id: '10', symbol: 'J' },
+          token: { displaySymbol: 'dJ', id: '10', name: 'J', symbol: 'J' },
           denominationPrice: '0'
         },
         I: {
-          token: { displaySymbol: 'dI', id: '9', symbol: 'I' },
+          token: { displaySymbol: 'dI', id: '9', name: 'I', symbol: 'I' },
           denominationPrice: '0'
         },
         H: {
-          token: { displaySymbol: 'dH', id: '8', symbol: 'H' },
+          token: { displaySymbol: 'dH', id: '8', name: 'H', symbol: 'H' },
           denominationPrice: '0'
         },
         G: {
-          token: { displaySymbol: 'dG', id: '7', symbol: 'G' },
+          token: { displaySymbol: 'dG', id: '7', name: 'G', symbol: 'G' },
           denominationPrice: '10.00000000'
         },
         F: {
-          token: { displaySymbol: 'dF', id: '6', symbol: 'F' },
+          token: { displaySymbol: 'dF', id: '6', name: 'F', symbol: 'F' },
           denominationPrice: '0'
         },
         E: {
-          token: { displaySymbol: 'dE', id: '5', symbol: 'E' },
+          token: { displaySymbol: 'dE', id: '5', name: 'E', symbol: 'E' },
           denominationPrice: '0'
         },
         D: {
-          token: { displaySymbol: 'dD', id: '4', symbol: 'D' },
+          token: { displaySymbol: 'dD', id: '4', name: 'D', symbol: 'D' },
           denominationPrice: '0'
         },
         C: {
-          token: { displaySymbol: 'dC', id: '3', symbol: 'C' },
+          token: { displaySymbol: 'dC', id: '3', name: 'C', symbol: 'C' },
           denominationPrice: '4.00000000'
         },
         B: {
-          token: { displaySymbol: 'dB', id: '2', symbol: 'B' },
+          token: { displaySymbol: 'dB', id: '2', name: 'B', symbol: 'B' },
           denominationPrice: '6.00000000'
         },
         A: {
-          token: { displaySymbol: 'dA', id: '1', symbol: 'A' },
+          token: { displaySymbol: 'dA', id: '1', name: 'A', symbol: 'A' },
           denominationPrice: '2.00000000'
         }
       }
@@ -1005,66 +1035,66 @@ describe('latest dex prices', () => {
   it('should get latest dex prices - denomination: USDT', async () => {
     const result = await controller.listDexPrices('USDT')
     expect(result).toStrictEqual({
-      denomination: { displaySymbol: 'dUSDT', id: '30', symbol: 'USDT' },
+      denomination: { displaySymbol: 'dUSDT', id: '30', name: 'USDT', symbol: 'USDT' },
       dexPrices: {
         DFI: {
-          token: { displaySymbol: 'DFI', id: '0', symbol: 'DFI' },
+          token: { displaySymbol: 'DFI', id: '0', name: 'Default Defi token', symbol: 'DFI' },
           denominationPrice: '2.31742792' // 1 DFI = 2.31 USDT
         },
         A: {
-          token: { displaySymbol: 'dA', id: '1', symbol: 'A' },
+          token: { displaySymbol: 'dA', id: '1', name: 'A', symbol: 'A' },
           denominationPrice: '4.63485584' // 1 A = 4.63 USDT
         },
         G: {
-          token: { displaySymbol: 'dG', id: '7', symbol: 'G' },
+          token: { displaySymbol: 'dG', id: '7', name: 'G', symbol: 'G' },
           denominationPrice: '23.17427920' // 1 G = 5 A = 10 DFI = 23 USDT
         },
         B: {
-          token: { displaySymbol: 'dB', id: '2', symbol: 'B' },
+          token: { displaySymbol: 'dB', id: '2', name: 'B', symbol: 'B' },
           denominationPrice: '13.90456752'
         },
         C: {
-          token: { displaySymbol: 'dC', id: '3', symbol: 'C' },
+          token: { displaySymbol: 'dC', id: '3', name: 'C', symbol: 'C' },
           denominationPrice: '9.26971168'
         },
         N: {
-          token: { displaySymbol: 'dN', id: '14', symbol: 'N' },
+          token: { displaySymbol: 'dN', id: '14', name: 'N', symbol: 'N' },
           denominationPrice: '0'
         },
         M: {
-          token: { displaySymbol: 'dM', id: '13', symbol: 'M' },
+          token: { displaySymbol: 'dM', id: '13', name: 'M', symbol: 'M' },
           denominationPrice: '0'
         },
         L: {
-          token: { displaySymbol: 'dL', id: '12', symbol: 'L' },
+          token: { displaySymbol: 'dL', id: '12', name: 'L', symbol: 'L' },
           denominationPrice: '0'
         },
         K: {
-          token: { displaySymbol: 'dK', id: '11', symbol: 'K' },
+          token: { displaySymbol: 'dK', id: '11', name: 'K', symbol: 'K' },
           denominationPrice: '0'
         },
         J: {
-          token: { displaySymbol: 'dJ', id: '10', symbol: 'J' },
+          token: { displaySymbol: 'dJ', id: '10', name: 'J', symbol: 'J' },
           denominationPrice: '0'
         },
         I: {
-          token: { displaySymbol: 'dI', id: '9', symbol: 'I' },
+          token: { displaySymbol: 'dI', id: '9', name: 'I', symbol: 'I' },
           denominationPrice: '0'
         },
         H: {
-          token: { displaySymbol: 'dH', id: '8', symbol: 'H' },
+          token: { displaySymbol: 'dH', id: '8', name: 'H', symbol: 'H' },
           denominationPrice: '0'
         },
         F: {
-          token: { displaySymbol: 'dF', id: '6', symbol: 'F' },
+          token: { displaySymbol: 'dF', id: '6', name: 'F', symbol: 'F' },
           denominationPrice: '0'
         },
         E: {
-          token: { displaySymbol: 'dE', id: '5', symbol: 'E' },
+          token: { displaySymbol: 'dE', id: '5', name: 'E', symbol: 'E' },
           denominationPrice: '0'
         },
         D: {
-          token: { displaySymbol: 'dD', id: '4', symbol: 'D' },
+          token: { displaySymbol: 'dD', id: '4', name: 'D', symbol: 'D' },
           denominationPrice: '0'
         }
       }
