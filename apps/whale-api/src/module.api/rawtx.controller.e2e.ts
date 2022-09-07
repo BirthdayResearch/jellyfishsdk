@@ -151,11 +151,11 @@ describe('send', () => {
 describe('get', () => {
   it('should accept valid txn and return hex', async () => {
     const hex = await createSignedTxnHex(container, 10, 9.9999)
-    const result = await controller.send({
+    const txid = await controller.send({
       hex: hex
     })
 
-    const getResult = await controller.get(result, false)
+    const getResult = await controller.get(txid, false)
 
     expect(hex).toStrictEqual(getResult)
   })
