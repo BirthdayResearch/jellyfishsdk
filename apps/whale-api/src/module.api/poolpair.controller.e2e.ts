@@ -574,7 +574,7 @@ describe('get best path', () => {
     })
   })
 
-  it('should deduct commission fees - 2 legs', async () => {
+  it('should deduct commission and dex fees - 2 legs', async () => {
     const response = await controller.getBestPath('10', '13')
     expect(response).toStrictEqual({
       fromToken: {
