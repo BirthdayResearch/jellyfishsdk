@@ -187,7 +187,9 @@ async function setup (): Promise<void> {
   await container.call('setgov', [{
     ATTRIBUTES: {
       'v0/poolpairs/16/token_a_fee_pct': '0.05',
-      'v0/poolpairs/16/token_b_fee_pct': '0.08'
+      'v0/poolpairs/16/token_b_fee_pct': '0.08',
+      'v0/poolpairs/26/token_a_fee_pct': '0.07',
+      'v0/poolpairs/26/token_b_fee_pct': '0.09'
     }
   }])
   await container.generate(1)
@@ -547,11 +549,13 @@ describe('get best path', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '10',
+        name: 'J',
         symbol: 'J',
         displaySymbol: 'dJ'
       },
       toToken: {
         id: '12',
+        name: 'L',
         symbol: 'L',
         displaySymbol: 'dL'
       },
@@ -560,8 +564,8 @@ describe('get best path', () => {
           symbol: 'J-L',
           poolPairId: '24',
           priceRatio: { ab: '0.50000000', ba: '2.00000000' },
-          tokenA: { id: '10', symbol: 'J', displaySymbol: 'dJ' },
-          tokenB: { id: '12', symbol: 'L', displaySymbol: 'dL' },
+          tokenA: { id: '10', name: 'J', symbol: 'J', displaySymbol: 'dJ' },
+          tokenB: { id: '12', name: 'L', symbol: 'L', displaySymbol: 'dL' },
           commissionFeeInPct: '0.10000000'
         }
       ],
@@ -575,11 +579,13 @@ describe('get best path', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '10',
+        name: 'J',
         symbol: 'J',
         displaySymbol: 'dJ'
       },
       toToken: {
         id: '13',
+        name: 'M',
         symbol: 'M',
         displaySymbol: 'dM'
       },
@@ -588,21 +594,25 @@ describe('get best path', () => {
           symbol: 'J-L',
           poolPairId: '24',
           priceRatio: { ab: '0.50000000', ba: '2.00000000' },
-          tokenA: { id: '10', symbol: 'J', displaySymbol: 'dJ' },
-          tokenB: { id: '12', symbol: 'L', displaySymbol: 'dL' },
+          tokenA: { id: '10', name: 'J', symbol: 'J', displaySymbol: 'dJ' },
+          tokenB: { id: '12', name: 'L', symbol: 'L', displaySymbol: 'dL' },
           commissionFeeInPct: '0.10000000'
         },
         {
           symbol: 'L-M',
           poolPairId: '26',
           priceRatio: { ab: '0.12500000', ba: '8.00000000' },
-          tokenA: { id: '12', symbol: 'L', displaySymbol: 'dL' },
-          tokenB: { id: '13', symbol: 'M', displaySymbol: 'dM' },
-          commissionFeeInPct: '0.50000000'
+          tokenA: { id: '12', name: 'L', symbol: 'L', displaySymbol: 'dL' },
+          tokenB: { id: '13', name: 'M', symbol: 'M', displaySymbol: 'dM' },
+          commissionFeeInPct: '0.50000000',
+          estimatedDexFeesInPct: {
+            ab: '0.09000000',
+            ba: '0.07000000'
+          }
         }
       ],
       estimatedReturn: '16.00000000',
-      estimatedReturnLessDexFees: '7.20000000'
+      estimatedReturnLessDexFees: '6.09336000'
     })
   })
 
