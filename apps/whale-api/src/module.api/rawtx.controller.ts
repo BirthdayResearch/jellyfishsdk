@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Post, Get, Query, Param, ValidationPipe, ParseBoolPipe } from '@nestjs/common'
+import { Body, Controller, HttpCode, Post, Get, Query, Param, ValidationPipe, NotFoundException, ParseBoolPipe } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { BadRequestApiException } from './_core/api.error'
 import { IsHexadecimal, IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator'
@@ -102,7 +102,7 @@ export class RawtxController {
       return rawTx
     } catch (err) {
       if ((err as RpcApiError)?.payload?.message === 'No such mempool or blockchain transaction. Use gettransaction for wallet transactions.') {
-        throw new BadRequestApiException('Transaction could not be found')
+        throw new NotFoundException('Transaction could not be found')
       }
 
       throw new BadRequestApiException((err as RpcApiError)?.payload?.message)
