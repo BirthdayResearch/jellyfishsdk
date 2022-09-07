@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Post, Get, Query, Param, ValidationPipe, NotFoundException, ParseBoolPipe } from '@nestjs/common'
+import { Body, Controller, HttpCode, Post, Get, Query, Param, ValidationPipe, ParseBoolPipe } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { BadRequestApiException } from './_core/api.error'
 import { IsHexadecimal, IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator'
@@ -37,7 +37,7 @@ export class RawtxController {
    */
   private readonly defaultMaxFeeRate: BigNumber = new BigNumber('0.1')
 
-  constructor(
+  constructor (
     private readonly client: JsonRpcClient,
     private readonly deFiDCache: DeFiDCache
   ) {
@@ -49,7 +49,7 @@ export class RawtxController {
    * @throws {BadRequestApiException} if tx fail mempool acceptance
    */
   @Post('/send')
-  async send(@Body() tx: RawTxDto): Promise<string> {
+  async send (@Body() tx: RawTxDto): Promise<string> {
     await this.validate(tx.hex)
 
     const maxFeeRate = this.getMaxFeeRate(tx)
@@ -76,7 +76,7 @@ export class RawtxController {
    */
   @Post('/test')
   @HttpCode(200)
-  async test(@Body(ValidationPipe) tx: RawTxDto): Promise<void> {
+  async test (@Body(ValidationPipe) tx: RawTxDto): Promise<void> {
     const maxFeeRate = this.getMaxFeeRate(tx)
     try {
       const result = await this.client.rawtx.testMempoolAccept(tx.hex, maxFeeRate)
@@ -96,12 +96,11 @@ export class RawtxController {
   }
 
   @Get('/:txid')
-  async get(@Param('txid') txid: string, @Query('verbose', ParseBoolPipe) verbose: boolean = false): Promise<string | RawTransaction> {
+  async get (@Param('txid') txid: string, @Query('verbose', ParseBoolPipe) verbose: boolean = false): Promise<string | RawTransaction> {
     try {
       const rawTx = await this.client.rawtx.getRawTransaction(txid, verbose)
       return rawTx
-    }
-    catch (err) {
+    } catch (err) {
       if ((err as RpcApiError)?.payload?.message === 'No such mempool or blockchain transaction. Use gettransaction for wallet transactions.') {
         throw new BadRequestApiException('Transaction could not be found')
       }
@@ -110,14 +109,14 @@ export class RawtxController {
     }
   }
 
-  private getMaxFeeRate(tx: RawTxDto): BigNumber {
+  private getMaxFeeRate (tx: RawTxDto): BigNumber {
     if (tx.maxFeeRate !== undefined) {
       return new BigNumber(tx.maxFeeRate)
     }
     return this.defaultMaxFeeRate
   }
 
-  async validate(hex: string): Promise<void> {
+  async validate (hex: string): Promise<void> {
     if (!hex.startsWith('040000000001')) {
       return
     }
