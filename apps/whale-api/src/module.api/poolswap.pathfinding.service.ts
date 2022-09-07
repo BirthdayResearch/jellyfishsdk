@@ -226,6 +226,7 @@ export class PoolSwapPathFindingService {
     }
     return {
       id: tokenId,
+      name: tokenInfo.name,
       symbol: tokenInfo.symbol,
       displaySymbol: parseDisplaySymbol(tokenInfo)
     }
