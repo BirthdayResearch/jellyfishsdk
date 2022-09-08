@@ -261,4 +261,17 @@ describe('send', () => {
       }])
     }
   })
+
+  describe('get', () => {
+    it('should accept valid txn and return raw tx', async () => {
+      const hex = await createSignedTxnHex(container, 10, 9.9999)
+      const txid = await client.rawtx.send({
+        hex: hex
+      })
+      expect(txid.length).toStrictEqual(64)
+
+      const rawtx = await client.rawtx.get(txid)
+      expect(rawtx).toStrictEqual(hex)
+    })
+  })
 })
