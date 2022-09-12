@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Post, ValidationPipe } from '@nestjs/common'
+import { Body, Controller, HttpCode, Post, Get, Query, Param, ValidationPipe, NotFoundException, ParseBoolPipe } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { BadRequestApiException } from './_core/api.error'
 import { IsHexadecimal, IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator'
@@ -13,6 +13,7 @@ import {
 } from '@defichain/jellyfish-transaction'
 import { DeFiDCache } from './cache/defid.cache'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
+import { RawTransaction } from '@defichain/jellyfish-api-core/dist/category/rawtx'
 
 class RawTxDto {
   @IsNotEmpty()
@@ -90,6 +91,20 @@ export class RawtxController {
         throw new BadRequestApiException('Transaction decode failed')
       }
       /* istanbul ignore next */
+      throw new BadRequestApiException((err as RpcApiError)?.payload?.message)
+    }
+  }
+
+  @Get('/:txid')
+  async get (@Param('txid') txid: string, @Query('verbose', ParseBoolPipe) verbose: boolean = false): Promise<string | RawTransaction> {
+    try {
+      const rawTx = await this.client.rawtx.getRawTransaction(txid, verbose)
+      return rawTx
+    } catch (err) {
+      if ((err as RpcApiError)?.payload?.message === 'No such mempool or blockchain transaction. Use gettransaction for wallet transactions.') {
+        throw new NotFoundException('Transaction could not be found')
+      }
+
       throw new BadRequestApiException((err as RpcApiError)?.payload?.message)
     }
   }
