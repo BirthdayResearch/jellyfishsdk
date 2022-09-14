@@ -112,7 +112,8 @@ describe('takeLoan with negative interest success', () => {
     await testing.generate(1)
     const txid = await testing.rpc.loan.takeLoan({
       vaultId: bobVaultId,
-      amounts: `${dusdLoanAmount}@DUSD`
+      amounts: `${dusdLoanAmount}@DUSD`,
+      to: aliceAddr
     })
     expect(typeof txid).toStrictEqual('string')
     await testing.generate(1)
@@ -156,23 +157,51 @@ describe('takeLoan with negative interest success', () => {
 
   it('should fully pay back a vault with negative interest rate', async () => {
     const vaultBefore = await testing.rpc.vault.getVault(bobVaultId) as VaultActive
-    console.log(vaultBefore)
     const dusdInterestPerBlock = new BigNumber((-(interestRate / 100) * dusdLoanAmount) / (365 * blocksPerDay)) //  netInterest * loanAmt / 365 * blocksPerDay
+    const interest = await testing.container.call('getstoredinterest', [bobVaultId, 'DUSD'])
+    const interestPerBlockBN = new BigNumber(interest.interestPerBlock)
+    const interestPerBlock = interestPerBlockBN.toFixed(8, BigNumber.ROUND_CEIL)
     const afterLoanValue = dusdInterestPerBlock.plus(dusdLoanAmount).toFixed(8, BigNumber.ROUND_CEIL)
     const afterLoanAmount = `${afterLoanValue}@DUSD`
-    console.log(afterLoanAmount)
+
+    expect(dusdInterestPerBlock.toFixed(8, BigNumber.ROUND_CEIL)).toStrictEqual(interestPerBlock)
+    expect(vaultBefore.loanSchemeId).toStrictEqual('scheme')
+    expect(vaultBefore.ownerAddress).toStrictEqual(bobVaultAddr)
+    expect(vaultBefore.state).toStrictEqual('active')
+    expect(vaultBefore.collateralAmounts).toStrictEqual(['10000.00000000@DFI'])
+    expect(vaultBefore.collateralValue).toStrictEqual(new BigNumber(10000))
+    expect(vaultBefore.loanValue.toFixed(8, BigNumber.ROUND_CEIL))
+      .toStrictEqual(afterLoanValue)
+    expect(vaultBefore.loanAmounts[0])
+      .toStrictEqual(afterLoanAmount)
+    expect(vaultBefore.interestAmounts).toStrictEqual([`${interestPerBlock}@DUSD`])
+    expect(vaultBefore.interestValue).toStrictEqual(new BigNumber(0))
+    expect(vaultBefore.collateralRatio).toStrictEqual(200)
+    expect(vaultBefore.informativeRatio).toStrictEqual(new BigNumber('200.19043991000000'))
 
     // payback loan
-    const loanPaybackResult = await testing.rpc.loan.paybackLoan({
+    await testing.rpc.loan.paybackLoan({
       vaultId: bobVaultId,
       amounts: afterLoanAmount,
       from: aliceAddr
     })
 
-    const vaultAfter = await testing.rpc.vault.getVault(bobVaultId) as VaultActive
-    console.log(vaultAfter)
-    console.log(loanPaybackResult)
-
+    // move the chain forward one block
     await testing.generate(1)
+
+    // check that theres no interest and loan amount to pay back
+    const vaultAfter = await testing.rpc.vault.getVault(bobVaultId) as VaultActive
+    expect(dusdInterestPerBlock.toFixed(8, BigNumber.ROUND_CEIL)).toStrictEqual(interestPerBlock)
+    expect(vaultAfter.loanSchemeId).toStrictEqual('scheme')
+    expect(vaultAfter.ownerAddress).toStrictEqual(bobVaultAddr)
+    expect(vaultAfter.state).toStrictEqual('active')
+    expect(vaultAfter.collateralAmounts).toStrictEqual(['10000.00000000@DFI'])
+    expect(vaultAfter.collateralValue).toStrictEqual(new BigNumber(10000))
+    expect(vaultAfter.loanValue).toStrictEqual(new BigNumber(0))
+    expect(vaultAfter.loanAmounts).toStrictEqual([])
+    expect(vaultAfter.interestAmounts).toStrictEqual([])
+    expect(vaultAfter.interestValue).toStrictEqual(new BigNumber(0))
+    expect(vaultAfter.collateralRatio).toStrictEqual(-1)
+    expect(vaultAfter.informativeRatio).toStrictEqual(new BigNumber(-1))
   })
 })
