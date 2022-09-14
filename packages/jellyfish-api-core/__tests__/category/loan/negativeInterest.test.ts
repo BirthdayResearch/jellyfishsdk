@@ -14,6 +14,8 @@ let timestamp: number
 const blocksPerDay = (60 * 60 * 24) / (10 * 60) // 144 in regtest
 // High interest rate so the change will be significant
 const interestRate = 5000
+// 5K DUSD Loan
+const dusdLoanAmount = 5000
 
 describe('takeLoan with negative interest success', () => {
   beforeEach(async () => {
@@ -100,10 +102,6 @@ describe('takeLoan with negative interest success', () => {
     expect(bobVault.interestValue).toStrictEqual(new BigNumber(0))
     expect(bobVault.collateralRatio).toStrictEqual(-1) // empty loan
     expect(bobVault.informativeRatio).toStrictEqual(new BigNumber(-1)) // empty loan
-  }
-
-  it('should takeLoan with negative interest and accrue DUSD', async () => {
-    const dusdLoanAmount = 5000
 
     // set negative interest rate to cancel
     await testing.rpc.masternode.setGov({
@@ -125,8 +123,9 @@ describe('takeLoan with negative interest success', () => {
       }
     })
     await testing.generate(1)
-    // manually calculate interest to compare rpc getInterest above is working correctly
-    // const height = await testing.container.getBlockCount()
+  }
+
+  it('should takeLoan with negative interest and accrue DUSD', async () => {
     const dusdInterestPerBlock = new BigNumber((-(interestRate / 100) * dusdLoanAmount) / (365 * blocksPerDay)) //  netInterest * loanAmt / 365 * blocksPerDay
     const interest = await testing.container.call('getstoredinterest', [bobVaultId, 'DUSD'])
     const vaultAfter = await testing.rpc.vault.getVault(bobVaultId) as VaultActive
@@ -153,5 +152,27 @@ describe('takeLoan with negative interest success', () => {
     // // check received loan via getTokenBalances while takeLoan without 'to'
     const tBalances = await testing.rpc.account.getTokenBalances()
     expect(tBalances).toStrictEqual(['30000.00000000@0', '5000.00000000@1']) // tokenId: 2 is DUSD
+  })
+
+  it('should fully pay back a vault with negative interest rate', async () => {
+    const vaultBefore = await testing.rpc.vault.getVault(bobVaultId) as VaultActive
+    console.log(vaultBefore)
+    const dusdInterestPerBlock = new BigNumber((-(interestRate / 100) * dusdLoanAmount) / (365 * blocksPerDay)) //  netInterest * loanAmt / 365 * blocksPerDay
+    const afterLoanValue = dusdInterestPerBlock.plus(dusdLoanAmount).toFixed(8, BigNumber.ROUND_CEIL)
+    const afterLoanAmount = `${afterLoanValue}@DUSD`
+    console.log(afterLoanAmount)
+
+    // payback loan
+    const loanPaybackResult = await testing.rpc.loan.paybackLoan({
+      vaultId: bobVaultId,
+      amounts: afterLoanAmount,
+      from: aliceAddr
+    })
+
+    const vaultAfter = await testing.rpc.vault.getVault(bobVaultId) as VaultActive
+    console.log(vaultAfter)
+    console.log(loanPaybackResult)
+
+    await testing.generate(1)
   })
 })
