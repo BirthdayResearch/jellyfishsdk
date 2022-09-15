@@ -613,14 +613,23 @@ describe('get best path', () => {
       ],
       estimatedReturn: '16.00000000',
       /*
-        Swap through first leg -- J -> L (only commission fees)
-          -> Deduct commission fee
-          -> Convert fromToken -> toToken by price ratio
+        Swap through first leg -- J -> L (No DEX fees)
+          Deduct commission fee: 1 * 0.1
+            = 1 - (1 * 0.1)
+          Convert fromToken -> toToken by price ratio
+            = 0.9 * 2
+        Swap through second leg -- L -> M  (With DEX fees)
+          Deduct commission fee: 1.8 * 0.5
+            = 1.8 - 0.9
+          Deduct dex fees fromToken: estLessDexFees * 0.07
+            = 0.9 - 0.063
+          Convert fromToken -> toToken by price ratio
+            = 0.837 * 8
+          Deduct dex fees toToken: estLessDexFees * 0.09
+            = 6.696 - 0.60264
 
-        Swap through second leg -- L -> M (with commission & DEX fees)
-          -> Deduct commission fee and dex fees
-          -> Convert fromToken -> toToken by price ratio
-          -> Deduct dex fees toToken
+        Estimated return less commission and dex fees
+          = 6.09336
       */
       estimatedReturnLessDexFees: '6.09336000'
     })
