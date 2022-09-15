@@ -27,6 +27,29 @@ export class OracleStatusController {
     }, 5) // cache status result for 5 seconds
   }
 
+  /**
+   * To provide the status of each ticker determined by the number of oracles responded given the ticker id
+   *
+   * @return {Promise<OracleStatus>}
+   * @param token
+   * @param currency
+   */
+  @Get('/:token/:currency')
+  async getOracleRespondStatus (@Param('token') token: string, @Param('currency') currency: string): Promise<{ status: OracleStatus }> {
+    return await this.cachedGet(`oracle-${token}-${currency}`, async () => {
+      const oracles = await this.client.prices.getOracles(token, currency, 60)
+      const total = oracles.filter(oracle => oracle.feed !== undefined).length
+
+      const prices = await this.client.prices.get(token, currency)
+      const active = prices.price.aggregated.oracles.active
+
+      if (active > 3 || (active / total) >= 0.75) {
+        return { status: 'operational' }
+      }
+      return { status: 'outage' }
+    }, 5) // cache status result for 5 seconds
+  }
+
   private async getAlivePriceFeed (oracle: Oracle): Promise<{ status: OracleStatus }> {
     const id = oracle.id
 
