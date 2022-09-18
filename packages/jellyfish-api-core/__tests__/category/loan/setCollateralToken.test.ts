@@ -54,7 +54,7 @@ describe('Loan setCollateralToken', () => {
 
   it('should setCollateralToken if factor is greater than 1', async () => {
     const txid = await testing.rpc.loan.setCollateralToken({ token: 'AAPL', factor: new BigNumber(1.01), fixedIntervalPriceId: 'AAPL/USD' })
-    expect(txid).toStrictEqual(/[a-zA-Z0-9]{64}/)
+    expect(txid.length).toStrictEqual(64)
   })
 
   it('should not setCollateralToken if factor is less than 0', async () => {
