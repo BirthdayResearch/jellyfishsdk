@@ -45,3 +45,4 @@ services:
       -fortcanningroadheight=11
       -fortcanningcrunchheight=12
       -fortcanningspringheight=13
+      -greatworldheight=14

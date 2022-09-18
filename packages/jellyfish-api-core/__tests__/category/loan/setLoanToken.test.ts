@@ -310,7 +310,7 @@ describe('Loan setLoanToken', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'Invalid amount\', code: -3, method: setloantoken')
   })
 
-  it('should not setLoanToken if interest number is less than 0', async () => {
+  it('should setLoanToken if interest number is less than 0', async () => {
     const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token15',
       currency: 'USD'
@@ -321,12 +321,14 @@ describe('Loan setLoanToken', () => {
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@Token15', currency: 'USD' }] })
     await testing.generate(1)
 
-    const promise = testing.rpc.loan.setLoanToken({
+    const loanTokenId = await testing.rpc.loan.setLoanToken({
       symbol: 'Token15',
       fixedIntervalPriceId: 'Token15/USD',
       interest: new BigNumber(-15.12345678)
     })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test SetLoanTokenTx execution failed:\ninterest rate cannot be less than 0!\', code: -32600, method: setloantoken')
+    expect(typeof loanTokenId).toStrictEqual('string')
+    expect(loanTokenId.length).toStrictEqual(64)
+    await testing.generate(1)
   })
 
   it.skip('should not setLoanToken if interest number is greater than 1200000000', async () => {
