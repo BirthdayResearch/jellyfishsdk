@@ -116,7 +116,7 @@ describe('/rpc/getblockchaininfo', () => {
     size_on_disk: expect.any(Number),
     softforks: expect.any(Object),
     verificationprogress: 1,
-    warnings: ''
+    warnings: expect.any(String)
   }
 
   it('should return correct data - request via raw http', async () => {

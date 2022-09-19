@@ -1,15 +1,14 @@
-import { GenesisKeys } from '@defichain/testcontainers'
+import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { fundEllipticPair, sendTransaction } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
-import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { Testing } from '@defichain/jellyfish-testing'
 import { RegTest } from '@defichain/jellyfish-network'
 
 describe('loan.setCollateralToken()', () => {
-  const container = new LoanMasterNodeRegTestContainer()
+  const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
   let providers: MockProviders
@@ -92,7 +91,11 @@ describe('loan.setCollateralToken()', () => {
     await expect(promise).rejects.toThrow('DeFiDRpcError: \'SetLoanCollateralTokenTx: No such token (2) (code 16)\', code: -26')
   })
 
-  it('should not setCollateralToken if factor is greater than 1', async () => {
+  it('should setCollateralToken if factor is greater than 1', async () => {
+    // Fund 10 DFI UTXO
+    await fundEllipticPair(testing.container, providers.ellipticPair, 10)
+    await providers.setupMocks() // Required to move utxos
+
     const script = await providers.elliptic.script()
     const txn = await builder.loans.setCollateralToken({
       token: 1,
@@ -100,8 +103,7 @@ describe('loan.setCollateralToken()', () => {
       currencyPair: { token: 'AAPL', currency: 'USD' },
       activateAfterBlock: 0
     }, script)
-    const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow("DeFiDRpcError: 'SetLoanCollateralTokenTx: Percentage exceeds 100% (code 16)', code: -26")
+    await sendTransaction(testing.container, txn)
   })
 
   it('should not setCollateralToken if currencyPair does not belong to any oracle', async () => {

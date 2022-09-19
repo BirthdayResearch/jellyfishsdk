@@ -1,10 +1,9 @@
-import { LoanMasterNodeRegTestContainer } from './loan_container'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
-import { GenesisKeys } from '@defichain/testcontainers'
+import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 
 describe('Loan setCollateralToken', () => {
-  const container = new LoanMasterNodeRegTestContainer()
+  const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
   beforeAll(async () => {
@@ -53,9 +52,9 @@ describe('Loan setCollateralToken', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'Token TSLA does not exist!\', code: -8, method: setcollateraltoken')
   })
 
-  it('should not setCollateralToken if factor is greater than 1', async () => {
-    const promise = testing.rpc.loan.setCollateralToken({ token: 'AAPL', factor: new BigNumber(1.01), fixedIntervalPriceId: 'AAPL/USD' })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test SetLoanCollateralTokenTx execution failed:\nPercentage exceeds 100%\', code: -32600, method: setcollateraltoken')
+  it('should setCollateralToken if factor is greater than 1', async () => {
+    const txid = await testing.rpc.loan.setCollateralToken({ token: 'AAPL', factor: new BigNumber(1.01), fixedIntervalPriceId: 'AAPL/USD' })
+    expect(txid.length).toStrictEqual(64)
   })
 
   it('should not setCollateralToken if factor is less than 0', async () => {
@@ -135,7 +134,7 @@ describe('Loan setCollateralToken', () => {
 })
 
 describe('Loan setCollateralToken with activateAfterBlock', () => {
-  const container = new LoanMasterNodeRegTestContainer()
+  const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
   beforeAll(async () => {
