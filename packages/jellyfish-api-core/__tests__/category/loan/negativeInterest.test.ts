@@ -21,7 +21,7 @@ const tslaLoanAmount = 2500
 // AMZN loan amount
 const amznLoanAmount = 1666.66
 
-describe('takeLoan with negative interest success', () => {
+describe.skip('takeLoan with negative interest success', () => {
   beforeEach(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
@@ -266,7 +266,7 @@ describe('takeLoan with negative interest success', () => {
   })
 })
 
-describe('takeLoan (multiple) with negative interest success', () => {
+describe.skip('takeLoan (multiple) with negative interest success', () => {
   beforeEach(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
