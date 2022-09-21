@@ -108,6 +108,7 @@ it('should have gov set', async () => {
       'v0/token/12/loan_collateral_factor': '0.99',
       'v0/token/12/loan_minting_enabled': 'true',
       'v0/token/12/loan_minting_interest': '0',
+      'v0/token/12/loan_payback_collateral': 'true',
       'v0/token/13/loan_payback/6': 'true',
       'v0/token/13/loan_payback/12': 'true',
       'v0/token/13/loan_payback_fee_pct/6': '0.01',
@@ -135,8 +136,7 @@ it('should have gov set', async () => {
       'v0/token/16/loan_payback_fee_pct/14': '0.01',
       'v0/token/16/fixed_interval_price_id': 'TR50/USD',
       'v0/token/16/loan_minting_enabled': 'true',
-      'v0/token/16/loan_minting_interest': '3',
-      'v0/token/12/loan_payback_collateral': 'true'
+      'v0/token/16/loan_minting_interest': '3'
     })
   })
 
