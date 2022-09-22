@@ -138,6 +138,18 @@ export class Blockchain {
   }
 
   /**
+   * Returns statistics about the unspent transaction output set.
+   * Note this call may take some time.
+   *
+   * @return {Promise<TxOutSetInfo>}
+   */
+  async getTxOutSetInfo (): Promise<TxOutSetInfo> {
+    return await this.client.call('gettxoutsetinfo', [], {
+      total_amount: 'bignumber'
+    })
+  }
+
+  /**
    * Get all transaction ids in memory pool as string
    *
    * @param {boolean} verbose false
@@ -341,6 +353,17 @@ export interface UTXODetails {
   value: BigNumber
   scriptPubKey: ScriptPubKey
   coinbase: boolean
+}
+
+export interface TxOutSetInfo {
+  height: number
+  bestblock: string
+  transactions: Number
+  txouts: Number
+  bogosize: Number
+  hash_serialized_2: string
+  disk_size: Number
+  total_amount: BigNumber
 }
 
 export interface ScriptPubKey {

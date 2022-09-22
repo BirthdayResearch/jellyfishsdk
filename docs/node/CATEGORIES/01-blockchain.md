@@ -226,6 +226,28 @@ interface ScriptPubKey {
 }
 ```
 
+## getTxOutSetInfo
+
+Returns statistics about the unspent transaction output set.
+Note this call may take some time.
+
+```ts title="client.blockchain.getTxOutSetInfo()"
+interface blockchain {
+  getTxOutSetInfo (): Promise<TxOutSetInfo>
+}
+
+interface TxOutSetInfo {
+  height: number
+  bestblock: string
+  transactions: Number
+  txouts: Number
+  bogosize: Number
+  hash_serialized_2: string
+  disk_size: Number
+  total_amount: BigNumber
+}
+```
+
 ## getRawMempool
 
 Get all transaction ids in memory pool as string[] if verbose is false else as json object
