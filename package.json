@@ -12,12 +12,10 @@
     "./website",
     "./packages/*"
   ],
-  "engines": {
-    "node": ">=v16.17.0"
-  },
   "scripts": {
     "prepare": "husky install",
     "lint": "eslint . --fix",
+    "format": "prettier --write .",
     "test": "jest --maxWorkers=100%",
     "sanity": "jest --maxWorkers=100% --config=jest.sanity.js",
     "ci:test": "jest --ci --coverage --forceExit --maxWorkers=4",
@@ -27,6 +25,7 @@
     "all:publish": "lerna exec --no-private -- npm publish --tag latest --access public"
   },
   "devDependencies": {
+    "@defichain/prettier": "workspace:*",
     "@types/jest": "27.5.2",
     "eslint": "7.32.0",
     "eslint-config-standard-jsx": "10.0.0",
@@ -42,8 +41,13 @@
     "wait-for-expect": "3.0.2"
   },
   "lint-staged": {
+    "*": "prettier --write --ignore-unknown",
     "*.{ts,js}": [
       "eslint --fix"
     ]
+  },
+  "prettier": "@defichain/prettier",
+  "engines": {
+    "node": "^18.0.0 || ^16.16.0"
   }
 }
