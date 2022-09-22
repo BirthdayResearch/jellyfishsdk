@@ -700,6 +700,7 @@ describe('listTransactionsUnspent', () => {
     const response = await controller.listTransactionsUnspent(addressA.bech32, {
       size: 30
     })
+    console.log(response)
 
     expect(response.data.length).toStrictEqual(4)
     expect(response.page).toBeUndefined()
