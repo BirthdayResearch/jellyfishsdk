@@ -18,14 +18,15 @@ describe('TxOutSetInfo', () => {
   it('should getTxOutSetInfo', async () => {
     const txOutSetInfo = await client.blockchain.getTxOutSetInfo()
 
-    expect(txOutSetInfo.height).toBeGreaterThanOrEqual(1)
-    expect(txOutSetInfo).toHaveProperty('bestblock')
-    expect(txOutSetInfo.transactions).toBeGreaterThanOrEqual(1)
-    expect(txOutSetInfo.txouts).toBeGreaterThanOrEqual(1)
-    expect(txOutSetInfo.bogosize).toBeGreaterThanOrEqual(1)
-    expect(txOutSetInfo).toHaveProperty('hash_serialized_2')
-    expect(txOutSetInfo.disk_size).toBeGreaterThanOrEqual(0)
-    expect(txOutSetInfo.total_amount instanceof BigNumber).toStrictEqual(true)
-    expect(txOutSetInfo.total_amount.toNumber()).toBeGreaterThanOrEqual(1)
+    expect(txOutSetInfo).toStrictEqual({
+      height: 1,
+      bestblock: expect.any(String),
+      transactions: 10,
+      txouts: 15,
+      bogosize: 1117,
+      hash_serialized_2: expect.any(String),
+      disk_size: 0,
+      total_amount: new BigNumber(400000259.8)
+    })
   })
 })
