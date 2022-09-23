@@ -50,7 +50,7 @@ jobs:
           fail_ci_if_error: true
 
   docker-sanity:
-    needs: [build, lint]
+    needs: build
     name: Docker Sanity Test
     runs-on: ubuntu-latest
     steps:
