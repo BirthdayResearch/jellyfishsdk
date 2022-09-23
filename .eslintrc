@@ -2,29 +2,12 @@
   "parserOptions": {
     "project": "./tsconfig.json"
   },
-  "extends": [
-    "standard-with-typescript",
-    "standard-jsx"
-  ],
-  "ignorePatterns": [
-    "dist",
-    "*.json",
-    "website",
-    "examples"
-  ],
+  "extends": ["standard-with-typescript", "standard-jsx", "prettier"],
+  "ignorePatterns": ["dist", "*.json", "website", "examples"],
   "rules": {
-    "curly": [
-      "error",
-      "all"
-    ],
-    "brace-style": [
-      "error",
-      "1tbs"
-    ],
-    "func-style": [
-      2,
-      "declaration"
-    ],
+    "curly": ["error", "all"],
+    "brace-style": ["error", "1tbs"],
+    "func-style": [2, "declaration"],
     "indent": "off",
     "@typescript-eslint/indent": [
       "error",
@@ -54,19 +37,14 @@
       }
     },
     {
-      "files": [
-        "**/__tests__/**/*.test.ts"
-      ],
+      "files": ["**/__tests__/**/*.test.ts"],
       "rules": {
         "@typescript-eslint/no-non-null-assertion": "off",
         "no-lone-blocks": "off"
       }
     },
     {
-      "files": [
-        "**/jellyfish-api-core/__tests__/**/*.ts",
-        "**/jellyfish-api-core/src/**/*.ts"
-      ],
+      "files": ["**/jellyfish-api-core/__tests__/**/*.ts", "**/jellyfish-api-core/src/**/*.ts"],
       "rules": {
         "@typescript-eslint/no-explicit-any": "error"
       }
