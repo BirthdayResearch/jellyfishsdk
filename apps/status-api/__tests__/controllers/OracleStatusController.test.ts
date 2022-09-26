@@ -108,7 +108,7 @@ async function getMockedOracle (): Promise<Oracle> {
 }
 
 describe('OracleStatusController - Oracle Active Status test', () => {
-  it('/oracles/<token>-<currency> - should get operational if 3 or more active', async () => {
+  it('/oracles/ticker/<token>-<currency> - should get operational if at least 3 and 75% active', async () => {
     jest.spyOn(apiTesting.app.get(WhaleApiClient).prices, 'getOracles')
       .mockReturnValueOnce(getMockedPriceOracle(3))
 
@@ -117,7 +117,7 @@ describe('OracleStatusController - Oracle Active Status test', () => {
 
     const res = await apiTesting.app.inject({
       method: 'GET',
-      url: 'oracles/AMZN/USD'
+      url: 'oracles/ticker/AMZN-USD'
     })
     expect(res.json()).toStrictEqual({
       status: 'operational'
@@ -125,7 +125,7 @@ describe('OracleStatusController - Oracle Active Status test', () => {
     expect(res.statusCode).toStrictEqual(200)
   })
 
-  it('/oracles/<token>-<currency> - should get outage if less than 3 active', async () => {
+  it('/oracles/ticker/<token>-<currency> - should get outage if less than 3 active', async () => {
     jest.spyOn(apiTesting.app.get(WhaleApiClient).prices, 'getOracles')
       .mockReturnValueOnce(getMockedPriceOracle(3))
 
@@ -134,7 +134,7 @@ describe('OracleStatusController - Oracle Active Status test', () => {
 
     const res = await apiTesting.app.inject({
       method: 'GET',
-      url: 'oracles/DFI/USD'
+      url: 'oracles/ticker/DFI-USD'
     })
     expect(res.json()).toStrictEqual({
       status: 'outage'
@@ -142,7 +142,7 @@ describe('OracleStatusController - Oracle Active Status test', () => {
     expect(res.statusCode).toStrictEqual(200)
   })
 
-  it('/oracles/<token>-<currency> - should get outage if less than 75% active', async () => {
+  it('/oracles/ticker/<token>-<currency> - should get outage if less than 75% active', async () => {
     jest.spyOn(apiTesting.app.get(WhaleApiClient).prices, 'getOracles')
       .mockReturnValueOnce(getMockedPriceOracle(5))
 
@@ -151,7 +151,7 @@ describe('OracleStatusController - Oracle Active Status test', () => {
 
     const res = await apiTesting.app.inject({
       method: 'GET',
-      url: 'oracles/GME/USD'
+      url: 'oracles/ticker/GME-USD'
     })
     expect(res.json()).toStrictEqual({
       status: 'outage'
@@ -159,7 +159,7 @@ describe('OracleStatusController - Oracle Active Status test', () => {
     expect(res.statusCode).toStrictEqual(200)
   })
 
-  it('/oracles/<token>-<currency> - should get data from cache', async () => {
+  it('/oracles/ticker/<token>-<currency> - should get data from cache', async () => {
     jest.spyOn(apiTesting.app.get(WhaleApiClient).prices, 'getOracles')
       .mockReturnValueOnce(getMockedPriceOracle(5))
 
@@ -168,7 +168,7 @@ describe('OracleStatusController - Oracle Active Status test', () => {
 
     const res1 = await apiTesting.app.inject({
       method: 'GET',
-      url: 'oracles/ETH/USD'
+      url: 'oracles/ticker/ETH-USD'
     })
     const result1 = res1.json()
 
@@ -182,14 +182,14 @@ describe('OracleStatusController - Oracle Active Status test', () => {
 
     const res2 = await apiTesting.app.inject({
       method: 'GET',
-      url: 'oracles/ETH/USD'
+      url: 'oracles/ticker/ETH-USD'
     })
     const result2 = res2.json()
 
     expect(result1).toStrictEqual(result2)
   })
 
-  it('/oracles/<token>-<currency> - should not get data from cache after 5 seconds', async () => {
+  it('/oracles/ticker/<token>-<currency> - should not get data from cache after 5 seconds', async () => {
     jest.spyOn(apiTesting.app.get(WhaleApiClient).prices, 'getOracles')
       .mockReturnValueOnce(getMockedPriceOracle(5))
 
@@ -198,7 +198,7 @@ describe('OracleStatusController - Oracle Active Status test', () => {
 
     const res1 = await apiTesting.app.inject({
       method: 'GET',
-      url: 'oracles/ETH/USD'
+      url: 'oracles/ticker/ETH-USD'
     })
     const result1 = res1.json()
 
@@ -213,7 +213,7 @@ describe('OracleStatusController - Oracle Active Status test', () => {
 
     const res2 = await apiTesting.app.inject({
       method: 'GET',
-      url: 'oracles/ETH/USD'
+      url: 'oracles/ticker/ETH-USD'
     })
     const result2 = res2.json()
 

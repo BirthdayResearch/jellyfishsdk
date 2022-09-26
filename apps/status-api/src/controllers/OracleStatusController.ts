@@ -34,7 +34,7 @@ export class OracleStatusController {
    * @param token
    * @param currency
    */
-  @Get('/:token/:currency')
+  @Get('/ticker/:token-:currency')
   async getOracleRespondStatus (@Param('token') token: string, @Param('currency') currency: string): Promise<{ status: OracleStatus }> {
     return await this.cachedGet(`oracle-${token}-${currency}`, async () => {
       const oracles = await this.client.prices.getOracles(token, currency, 60)
@@ -43,7 +43,7 @@ export class OracleStatusController {
       const prices = await this.client.prices.get(token, currency)
       const active = prices.price.aggregated.oracles.active
 
-      if (active > 3 || (active / total) >= 0.75) {
+      if (active >= 3 && (active / total) >= 0.75) {
         return { status: 'operational' }
       }
       return { status: 'outage' }
