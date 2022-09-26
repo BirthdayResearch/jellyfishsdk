@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
@@ -30,7 +30,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        instance: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
+        instance: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     env:
       GH_INSTANCE_TOTAL: 10
     steps:
@@ -50,7 +50,7 @@ jobs:
           fail_ci_if_error: true
 
   docker-sanity:
-    needs: [ build, lint ]
+    needs: build
     name: Docker Sanity Test
     runs-on: ubuntu-latest
     steps:
@@ -63,17 +63,34 @@ jobs:
       - run: npm ci
       - run: npm run sanity
 
-  lint:
-    name: Lint
+  lint_prettier:
+    name: Lint (prettier)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
-      - uses: actions/setup-node@2fddd8803e2f5c9604345a0b591c3020ee971a93
+      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # tag=v3.0.2
+
+      - uses: actions/setup-node@2fddd8803e2f5c9604345a0b591c3020ee971a93 # tag=v3.4.1
         with:
-          node-version: '16'
-          cache: 'npm'
+          node-version: 16
+          cache: npm
 
       - run: npm ci
+
+      - run: npx --no-install prettier --check .
+
+  lint_eslint:
+    name: Lint (eslint)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # tag=v3.0.2
+
+      - uses: actions/setup-node@2fddd8803e2f5c9604345a0b591c3020ee971a93 # tag=v3.4.1
+        with:
+          node-version: 16
+          cache: npm
+
+      - run: npm ci
+
       - run: npx --no-install eslint .
 
   docker-buildx:
@@ -81,8 +98,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        platform: [ linux/amd64 ]
-        app: [ legacy-api, ocean-api, playground-api, status-api, whale-api ]
+        platform: [linux/amd64]
+        app: [legacy-api, ocean-api, playground-api, status-api, whale-api]
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@8b122486cedac8393e77aa9734c3528886e4a1a8
