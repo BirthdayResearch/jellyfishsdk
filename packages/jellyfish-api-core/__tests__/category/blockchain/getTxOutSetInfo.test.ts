@@ -19,7 +19,7 @@ describe('TxOutSetInfo', () => {
     const txOutSetInfo = await client.blockchain.getTxOutSetInfo()
 
     expect(txOutSetInfo).toStrictEqual({
-      height: expect.any(Number),
+      height: 2,
       bestblock: expect.any(String),
       transactions: expect.any(Number),
       txouts: expect.any(Number),
