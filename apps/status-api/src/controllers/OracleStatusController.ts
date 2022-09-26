@@ -43,10 +43,10 @@ export class OracleStatusController {
       const prices = await this.client.prices.get(token, currency)
       const active = prices.price.aggregated.oracles.active
 
-      if (active >= 3 && (active / total) >= 0.75) {
-        return { status: 'operational' }
+      if ((total > 3 && active <= 3) || (total <= 3 && active < 3)) {
+        return { status: 'outage' }
       }
-      return { status: 'outage' }
+      return { status: 'operational' }
     }, 5) // cache status result for 5 seconds
   }
 

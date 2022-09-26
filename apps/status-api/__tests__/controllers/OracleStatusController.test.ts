@@ -108,7 +108,7 @@ async function getMockedOracle (): Promise<Oracle> {
 }
 
 describe('OracleStatusController - Oracle Active Status test', () => {
-  it('/oracles/ticker/<token>-<currency> - should get operational if at least 3 and 75% active', async () => {
+  it('/oracles/ticker/<token>-<currency> - should get operational if 3 active for total 3 oracles', async () => {
     jest.spyOn(apiTesting.app.get(WhaleApiClient).prices, 'getOracles')
       .mockReturnValueOnce(getMockedPriceOracle(3))
 
@@ -125,12 +125,29 @@ describe('OracleStatusController - Oracle Active Status test', () => {
     expect(res.statusCode).toStrictEqual(200)
   })
 
-  it('/oracles/ticker/<token>-<currency> - should get outage if less than 3 active', async () => {
+  it('/oracles/ticker/<token>-<currency> - should get outage if at < 3 for total 3 oracles', async () => {
     jest.spyOn(apiTesting.app.get(WhaleApiClient).prices, 'getOracles')
       .mockReturnValueOnce(getMockedPriceOracle(3))
 
     jest.spyOn(apiTesting.app.get(WhaleApiClient).prices, 'get')
       .mockReturnValueOnce(getMockedPriceTicker(2))
+
+    const res = await apiTesting.app.inject({
+      method: 'GET',
+      url: 'oracles/ticker/USDT-USD'
+    })
+    expect(res.json()).toStrictEqual({
+      status: 'outage'
+    })
+    expect(res.statusCode).toStrictEqual(200)
+  })
+
+  it('/oracles/ticker/<token>-<currency> - should get outage if <= 3 active', async () => {
+    jest.spyOn(apiTesting.app.get(WhaleApiClient).prices, 'getOracles')
+      .mockReturnValueOnce(getMockedPriceOracle(5))
+
+    jest.spyOn(apiTesting.app.get(WhaleApiClient).prices, 'get')
+      .mockReturnValueOnce(getMockedPriceTicker(3))
 
     const res = await apiTesting.app.inject({
       method: 'GET',
@@ -142,19 +159,19 @@ describe('OracleStatusController - Oracle Active Status test', () => {
     expect(res.statusCode).toStrictEqual(200)
   })
 
-  it('/oracles/ticker/<token>-<currency> - should get outage if less than 75% active', async () => {
+  it('/oracles/ticker/<token>-<currency> - should get operational if > 3 active', async () => {
     jest.spyOn(apiTesting.app.get(WhaleApiClient).prices, 'getOracles')
       .mockReturnValueOnce(getMockedPriceOracle(5))
 
     jest.spyOn(apiTesting.app.get(WhaleApiClient).prices, 'get')
-      .mockReturnValueOnce(getMockedPriceTicker(3))
+      .mockReturnValueOnce(getMockedPriceTicker(4))
 
     const res = await apiTesting.app.inject({
       method: 'GET',
       url: 'oracles/ticker/GME-USD'
     })
     expect(res.json()).toStrictEqual({
-      status: 'outage'
+      status: 'operational'
     })
     expect(res.statusCode).toStrictEqual(200)
   })
