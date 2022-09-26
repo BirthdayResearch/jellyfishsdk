@@ -3,8 +3,8 @@ import { PlaceAuctionBid, CPlaceAuctionBid } from '@defichain/jellyfish-transact
 import { RawBlock } from '../_abstract'
 import { Injectable, Logger } from '@nestjs/common'
 import { VaultAuctionHistoryMapper } from '../../../module.model/vault.auction.batch.history'
-import { HexEncoder } from '../../../module.model/_hex.encoder'
 import { toBuffer } from '@defichain/jellyfish-transaction/dist/script/_buffer'
+import { HexEncoder } from '../../../module.model/_hex.encoder'
 
 @Injectable()
 export class PlaceAuctionBidIndexer extends DfTxIndexer<PlaceAuctionBid> {
