@@ -18,7 +18,6 @@ import { NetworkName } from '@defichain/jellyfish-network'
   controllers: [
     ActuatorController,
     BlockchainStatusController,
-    ActuatorController,
     OracleStatusController,
     OverallStatusController
   ],
