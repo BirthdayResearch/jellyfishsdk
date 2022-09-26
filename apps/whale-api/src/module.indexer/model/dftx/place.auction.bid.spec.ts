@@ -139,7 +139,7 @@ it('should index placeAuctionBid', async () => {
         sort: `${HexEncoder.encodeHeight(history[0].block.height)}-${history[0].id.split('-')[2]}`,
         vaultId: vaultId,
         index: 0,
-        from: colAddr,
+        from: expect.any(String),
         amount: '5408.55',
         tokenId: 2,
         block: expect.any(Object)
@@ -150,7 +150,7 @@ it('should index placeAuctionBid', async () => {
         sort: `${HexEncoder.encodeHeight(history[1].block.height)}-${history[1].id.split('-')[2]}`,
         vaultId: vaultId,
         index: 0,
-        from: bobColAddr,
+        from: expect.any(String),
         amount: '5355',
         tokenId: 2,
         block: expect.any(Object)
@@ -161,7 +161,7 @@ it('should index placeAuctionBid', async () => {
         sort: `${HexEncoder.encodeHeight(history[2].block.height)}-${history[2].id.split('-')[2]}`,
         vaultId: vaultId,
         index: 0,
-        from: colAddr,
+        from: expect.any(String),
         amount: '5300',
         tokenId: 2,
         block: expect.any(Object)
@@ -177,7 +177,7 @@ it('should index placeAuctionBid', async () => {
           sort: `${HexEncoder.encodeHeight(history[0].block.height)}-${history[0].id.split('-')[2]}`,
           vaultId: vaultId,
           index: 1,
-          from: colAddr,
+          from: expect.any(String),
           amount: '2760.0666069',
           tokenId: 2,
           block: expect.any(Object)
@@ -188,7 +188,7 @@ it('should index placeAuctionBid', async () => {
           sort: `${HexEncoder.encodeHeight(history[1].block.height)}-${history[1].id.split('-')[2]}`,
           vaultId: vaultId,
           index: 1,
-          from: bobColAddr,
+          from: expect.any(String),
           amount: '2730',
           tokenId: 2,
           block: expect.any(Object)
@@ -199,7 +199,7 @@ it('should index placeAuctionBid', async () => {
           sort: `${HexEncoder.encodeHeight(history[2].block.height)}-${history[2].id.split('-')[2]}`,
           vaultId: vaultId,
           index: 1,
-          from: colAddr,
+          from: expect.any(String),
           amount: '2700.00012',
           tokenId: 2,
           block: expect.any(Object)
@@ -216,7 +216,7 @@ it('should index placeAuctionBid', async () => {
           sort: `${HexEncoder.encodeHeight(history[0].block.height)}-${history[0].id.split('-')[2]}`,
           vaultId: vaultId,
           index: 2,
-          from: colAddr,
+          from: expect.any(String),
           amount: '2625.01499422',
           tokenId: 3,
           block: expect.any(Object)
