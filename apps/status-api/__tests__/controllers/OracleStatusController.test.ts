@@ -108,6 +108,23 @@ async function getMockedOracle (): Promise<Oracle> {
 }
 
 describe('OracleStatusController - Oracle Active Status test', () => {
+  it('/oracles/ticker/<token>-<currency> - allow special characters such as dot(.)', async () => {
+    jest.spyOn(apiTesting.app.get(WhaleApiClient).prices, 'getOracles')
+      .mockReturnValueOnce(getMockedPriceOracle(3))
+
+    jest.spyOn(apiTesting.app.get(WhaleApiClient).prices, 'get')
+      .mockReturnValueOnce(getMockedPriceTicker(3))
+
+    const res = await apiTesting.app.inject({
+      method: 'GET',
+      url: 'oracles/ticker/BRK.B-USD'
+    })
+    expect(res.json()).toStrictEqual({
+      status: 'operational'
+    })
+    expect(res.statusCode).toStrictEqual(200)
+  })
+
   it('/oracles/ticker/<token>-<currency> - should get operational if 3 active for total 3 oracles', async () => {
     jest.spyOn(apiTesting.app.get(WhaleApiClient).prices, 'getOracles')
       .mockReturnValueOnce(getMockedPriceOracle(3))
@@ -235,6 +252,30 @@ describe('OracleStatusController - Oracle Active Status test', () => {
     const result2 = res2.json()
 
     expect(result1).not.toStrictEqual(result2)
+  })
+
+  it('/oracles/ticker/<token>-<currency>-<notvalid> - should return 400 if not in correct format', async () => {
+    const res = await apiTesting.app.inject({
+      method: 'GET',
+      url: 'oracles/ticker/DFI-USD-SGD'
+    })
+    expect(res.statusCode).toStrictEqual(400)
+  })
+
+  it('/oracles/ticker/<token>/<currency> - should return 400 if not in correct format', async () => {
+    const res = await apiTesting.app.inject({
+      method: 'GET',
+      url: 'oracles/ticker/BRK.B--USD'
+    })
+    expect(res.statusCode).toStrictEqual(400)
+  })
+
+  it('/oracles/ticker/<token> - should return 400 if not in correct format', async () => {
+    const res = await apiTesting.app.inject({
+      method: 'GET',
+      url: 'oracles/ticker/BRK.B'
+    })
+    expect(res.statusCode).toStrictEqual(400)
   })
 })
 
