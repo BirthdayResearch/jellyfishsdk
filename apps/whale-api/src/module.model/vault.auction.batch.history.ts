@@ -63,7 +63,7 @@ export interface VaultAuctionBatchHistory extends Model {
 
   vaultId: string
   index: number
-  from: string
+  from: string // -------------------| hex script
   amount: string // -------------------| stringified bignumber
   tokenId: number // ------------------| tokenId
 

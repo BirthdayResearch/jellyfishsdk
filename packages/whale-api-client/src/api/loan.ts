@@ -211,6 +211,7 @@ export interface VaultAuctionBatchHistory {
   vaultId: string
   index: number
   from: string
+  address: string
   amount: string
   tokenId: number
 
