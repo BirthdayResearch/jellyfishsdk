@@ -171,6 +171,7 @@ it('should listVaultAuctionHistory', async () => {
         vaultId: vaultId,
         index: 0,
         from: expect.any(String),
+        address: colAddr,
         amount: '5408.55',
         tokenId: 2,
         block: expect.any(Object)
@@ -182,6 +183,7 @@ it('should listVaultAuctionHistory', async () => {
         vaultId: vaultId,
         index: 0,
         from: expect.any(String),
+        address: bobColAddr,
         amount: '5355',
         tokenId: 2,
         block: expect.any(Object)
@@ -193,6 +195,7 @@ it('should listVaultAuctionHistory', async () => {
         vaultId: vaultId,
         index: 0,
         from: expect.any(String),
+        address: colAddr,
         amount: '5300',
         tokenId: 2,
         block: expect.any(Object)
@@ -211,6 +214,7 @@ it('should listVaultAuctionHistory', async () => {
         vaultId: vaultId,
         index: 0,
         from: expect.any(String),
+        address: bobColAddr,
         amount: '5355.123',
         tokenId: 4,
         block: expect.any(Object)
@@ -222,6 +226,7 @@ it('should listVaultAuctionHistory', async () => {
         vaultId: vaultId,
         index: 0,
         from: expect.any(String),
+        address: colAddr,
         amount: '5300.123',
         tokenId: 4,
         block: expect.any(Object)
@@ -241,6 +246,7 @@ it('should listVaultAuctionHistory with pagination', async () => {
       vaultId: vaultId,
       index: 0,
       from: expect.any(String),
+      address: colAddr,
       amount: '5408.55',
       tokenId: 2,
       block: expect.any(Object)
@@ -257,6 +263,7 @@ it('should listVaultAuctionHistory with pagination', async () => {
       vaultId: vaultId,
       index: 0,
       from: expect.any(String),
+      address: bobColAddr,
       amount: '5355',
       tokenId: 2,
       block: expect.any(Object)
@@ -273,6 +280,7 @@ it('should listVaultAuctionHistory with pagination', async () => {
       vaultId: vaultId,
       index: 0,
       from: expect.any(String),
+      address: colAddr,
       amount: '5300',
       tokenId: 2,
       block: expect.any(Object)
