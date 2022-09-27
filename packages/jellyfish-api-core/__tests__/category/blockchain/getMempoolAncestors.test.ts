@@ -18,7 +18,7 @@ describe('getMempoolAncestors', () => {
   })
 
   it('should return empty array for transaction id without ancestors', async () => {
-    const txId = await testing.rpc.wallet.sendToAddress(address, amount)
+    const txId = await testing.rpc.wallet.sendToAddress('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 0.003)
     const mempoolEntry = await testing.rpc.blockchain.getMempoolAncestors(txId)
 
     expect(mempoolEntry.length).toStrictEqual(0)
