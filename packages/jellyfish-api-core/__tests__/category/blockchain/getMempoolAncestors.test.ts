@@ -77,7 +77,7 @@ describe('getMempoolAncestors', () => {
       const mempoolAncestors = await testing.rpc.blockchain.getMempoolAncestors(txId, false)
       expect(mempoolAncestors.length).toBeGreaterThan(0)
       for (const ancestorId of mempoolAncestors) {
-        expect(ancestorId).toStrictEqual(expect.stringMatching(/^[0-f]{64}$/))
+        expect(ancestorId).toStrictEqual(expect.stringMatching(/^[0-9a-f]{64}$/))
       }
     })
 
