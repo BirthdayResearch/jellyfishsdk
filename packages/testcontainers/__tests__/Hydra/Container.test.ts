@@ -1,10 +1,10 @@
-import { DeFiDContainer, StartedDeFiDContainer } from '../../src/containers/Hydra/DeFiDContainer'
+import { NativeChainContainer, StartedNativeChainContainer } from '../../src/containers/Hydra/NativeChainContainer'
 
 describe('container error handling', () => {
-  let container: StartedDeFiDContainer
+  let container: StartedNativeChainContainer
 
   beforeAll(async () => {
-    container = await new DeFiDContainer().start()
+    container = await new NativeChainContainer().start()
   })
 
   afterAll(async () => {

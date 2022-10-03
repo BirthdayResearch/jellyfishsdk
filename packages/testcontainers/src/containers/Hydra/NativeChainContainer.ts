@@ -9,7 +9,7 @@ import { getNetwork, Network as JellyfishNetwork } from '@defichain/jellyfish-ne
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 /**
- * Mandatory options to start defid with
+ * Mandatory options to start NativeChain with
  */
 export interface StartOptions {
   // TODO(fuxingloh): change to cookie based auth soon
@@ -25,14 +25,14 @@ export interface StartFlags {
 }
 
 /**
- * DeFiChain defid node managed in docker
+ * DeFiChain NativeChain node managed in docker
  */
-export class DeFiDContainer extends GenericContainer {
+export class NativeChainContainer extends GenericContainer {
   /**
    * @param {string} image docker image name
    */
   constructor (
-    image: string = DeFiDContainer.image,
+    image: string = NativeChainContainer.image,
     protected readonly config: JellyfishNetwork = getNetwork('testnet')
   ) {
     super(image)
@@ -50,7 +50,7 @@ export class DeFiDContainer extends GenericContainer {
     password: 'testcontainers-password'
   }
 
-  protected startOptions: StartOptions = DeFiDContainer.DefaultStartOptions
+  protected startOptions: StartOptions = NativeChainContainer.DefaultStartOptions
   protected cachedRpcUrl?: string
 
   /**
@@ -74,26 +74,26 @@ export class DeFiDContainer extends GenericContainer {
   public static readonly PREFIX = 'defichain-testcontainers-'
 
   /**
-   * Create container and start it immediately waiting for defid to be ready
+   * Create container and start it immediately waiting for NativeChain to be ready
    */
-  public async start (): Promise<StartedDeFiDContainer> {
+  public async start (): Promise<StartedNativeChainContainer> {
     const network = await new Network().start()
 
     const rand = Math.floor(Math.random() * 10000000)
 
     this.withExposedPorts(...Object.values(this.config.ports))
-      .withName(`${DeFiDContainer.PREFIX}-${this.config.name}-${rand}`)
+      .withName(`${NativeChainContainer.PREFIX}-${this.config.name}-${rand}`)
       .withNetworkMode(network.getName())
       .withCmd(this.getCmd())
       .withStartupTimeout(120_000)
 
-    const startedContainer = new StartedDeFiDContainer(await super.start(), this.startOptions, this.config)
+    const startedContainer = new StartedNativeChainContainer(await super.start(), this.startOptions, this.config)
     return startedContainer
   }
 }
 
-export class StartedDeFiDContainer extends AbstractStartedContainer {
-  protected startOptions: StartOptions = DeFiDContainer.DefaultStartOptions
+export class StartedNativeChainContainer extends AbstractStartedContainer {
+  protected startOptions: StartOptions = NativeChainContainer.DefaultStartOptions
 
   // Isaac: is this still necessary?
   protected cachedRpcUrl?: string
@@ -116,7 +116,7 @@ export class StartedDeFiDContainer extends AbstractStartedContainer {
   }
 
   /**
-  * Get host machine url used for defid rpc calls with auth
+  * Get host machine url used for NativeChain rpc calls with auth
   * TODO(fuxingloh): not a great design when network config changed, the url and ports get refresh
   */
   async getCachedRpcUrl (): Promise<string> {
@@ -136,7 +136,7 @@ export class StartedDeFiDContainer extends AbstractStartedContainer {
   /**
    * For convenience sake, utility rpc for the current node.
    * JSON 'result' is parsed and returned
-   * @throws DeFiDRpcError is raised for RPC errors
+   * @throws NativeChainRpcError is raised for RPC errors
    */
   async call (method: string, params: any = []): Promise<any> {
     const body = JSON.stringify({
@@ -153,7 +153,7 @@ export class StartedDeFiDContainer extends AbstractStartedContainer {
     } = JSON.parse(text)
 
     if (error !== undefined && error !== null) {
-      throw new DeFiDRpcError(error)
+      throw new NativeChainRpcError(error)
     }
 
     return result
@@ -206,8 +206,8 @@ export class StartedDeFiDContainer extends AbstractStartedContainer {
 /**
  * RPC error from container
  */
-export class DeFiDRpcError extends Error {
+export class NativeChainRpcError extends Error {
   constructor (error: { code: number, message: string }) {
-    super(`DeFiDRpcError: '${error.message}', code: ${error.code}`)
+    super(`NativeChainRpcError: '${error.message}', code: ${error.code}`)
   }
 }
