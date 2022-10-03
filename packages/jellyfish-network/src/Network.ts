@@ -27,6 +27,12 @@ export interface Network {
   scriptHashPrefix: 0x5a | 0x80 | 0xc4
   /** For message signing. */
   messagePrefix: '\x15Defi Signed Message:\n'
+
+  /** [HYDRA] */
+  ports: {
+    rpc: number
+    ws: number
+  }
 }
 
 /**
@@ -61,7 +67,11 @@ export const MainNet: Network = {
   wifPrefix: 0x80,
   pubKeyHashPrefix: 0x12,
   scriptHashPrefix: 0x5a,
-  messagePrefix: '\x15Defi Signed Message:\n'
+  messagePrefix: '\x15Defi Signed Message:\n',
+  ports: {
+    rpc: 8554,
+    ws: 8555
+  }
 }
 
 /**
@@ -79,7 +89,11 @@ export const TestNet: Network = {
   wifPrefix: 0xef,
   pubKeyHashPrefix: 0xf,
   scriptHashPrefix: 0x80,
-  messagePrefix: '\x15Defi Signed Message:\n'
+  messagePrefix: '\x15Defi Signed Message:\n',
+  ports: {
+    rpc: 18554,
+    ws: 18555
+  }
 }
 
 /**
@@ -97,5 +111,9 @@ export const RegTest: Network = {
   wifPrefix: 0xef,
   pubKeyHashPrefix: 0x6f,
   scriptHashPrefix: 0xc4,
-  messagePrefix: '\x15Defi Signed Message:\n'
+  messagePrefix: '\x15Defi Signed Message:\n',
+  ports: {
+    rpc: 19554,
+    ws: 19555
+  }
 }

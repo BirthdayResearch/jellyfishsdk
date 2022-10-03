@@ -1,4 +1,4 @@
-import { RegTestContainer } from './'
+import { RegTestContainer } from '.'
 
 /**
  * SPV RPCs(test purposes only) for Bitcoin blockchain
