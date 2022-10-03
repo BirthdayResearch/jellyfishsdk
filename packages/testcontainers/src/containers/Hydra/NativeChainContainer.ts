@@ -5,7 +5,7 @@ import {
 } from 'testcontainers'
 import fetch from 'cross-fetch'
 import { AbstractStartedContainer } from 'testcontainers/dist/modules/abstract-started-container'
-import { getNetwork, Network as JellyfishNetwork } from '@defichain/jellyfish-network'
+import { getNetwork, Network as JellyfishNetwork, NetworkName } from '@defichain/jellyfish-network'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 /**
@@ -32,8 +32,7 @@ export class NativeChainContainer extends GenericContainer {
    * @param {string} image docker image name
    */
   constructor (
-    image: string = NativeChainContainer.image,
-    protected readonly config: JellyfishNetwork = getNetwork('testnet')
+    image: string = NativeChainContainer.image
   ) {
     super(image)
   }
@@ -51,6 +50,19 @@ export class NativeChainContainer extends GenericContainer {
   }
 
   protected startOptions: StartOptions = NativeChainContainer.DefaultStartOptions
+
+  public withStartOptions (startOptions: StartOptions): this {
+    this.startOptions = startOptions
+    return this
+  }
+
+  private networkConfig: JellyfishNetwork = getNetwork('testnet')
+
+  public withJellyfishNetwork (networkName: NetworkName): this {
+    this.networkConfig = getNetwork(networkName)
+    return this
+  }
+
   protected cachedRpcUrl?: string
 
   /**
@@ -81,27 +93,27 @@ export class NativeChainContainer extends GenericContainer {
 
     const rand = Math.floor(Math.random() * 10000000)
 
-    this.withExposedPorts(...Object.values(this.config.ports))
-      .withName(`${NativeChainContainer.PREFIX}-${this.config.name}-${rand}`)
+    this.withExposedPorts(...Object.values(this.networkConfig.ports))
+      .withName(`${NativeChainContainer.PREFIX}-${this.networkConfig.name}-${rand}`)
       .withNetworkMode(network.getName())
       .withCmd(this.getCmd())
       .withStartupTimeout(120_000)
 
-    const startedContainer = new StartedNativeChainContainer(await super.start(), this.startOptions, this.config)
+    const startedContainer = new StartedNativeChainContainer(await super.start(), this.startOptions, this.networkConfig)
     return startedContainer
   }
 }
 
 export class StartedNativeChainContainer extends AbstractStartedContainer {
-  protected startOptions: StartOptions = NativeChainContainer.DefaultStartOptions
-
   // Isaac: is this still necessary?
   protected cachedRpcUrl?: string
 
-  constructor (startedTestContainer: StartedTestContainer, startOptions: StartOptions, protected readonly config: JellyfishNetwork = getNetwork('testnet')) {
+  constructor (
+    startedTestContainer: StartedTestContainer,
+    private readonly startOptions: StartOptions = NativeChainContainer.DefaultStartOptions,
+    private readonly networkConfig: JellyfishNetwork = getNetwork('testnet')
+  ) {
     super(startedTestContainer)
-    this.startOptions = startOptions
-    this.config = config
   }
 
   /**
@@ -121,7 +133,7 @@ export class StartedNativeChainContainer extends AbstractStartedContainer {
   */
   async getCachedRpcUrl (): Promise<string> {
     if (this.cachedRpcUrl === undefined) {
-      const port = this.getMappedPort(this.config.ports.rpc)
+      const port = this.getMappedPort(this.networkConfig.ports.rpc)
       const user = this.startOptions.user
       const password = this.startOptions.password
       this.cachedRpcUrl = `http://${user}:${password}@127.0.0.1:${port}/`
