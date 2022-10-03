@@ -56,7 +56,7 @@ export class NativeChainContainer extends GenericContainer {
     return this
   }
 
-  private networkConfig: JellyfishNetwork = getNetwork('testnet')
+  protected networkConfig: JellyfishNetwork = getNetwork('testnet')
 
   public withJellyfishNetwork (networkName: NetworkName): this {
     this.networkConfig = getNetwork(networkName)
