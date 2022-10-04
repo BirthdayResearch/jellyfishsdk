@@ -64,7 +64,7 @@ export class PoolPairController {
       return item.id
     })
     response.data = response.data.filter(value => {
-      return value.symbol !== 'BURN-DFI'
+      return !value.symbol.startsWith('BURN-')
     })
     return response
   }
