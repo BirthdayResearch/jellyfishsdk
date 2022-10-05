@@ -1,28 +1,11 @@
 import {
   GenericContainer,
-  Network,
   StartedTestContainer
 } from 'testcontainers'
 import fetch from 'cross-fetch'
 import { AbstractStartedContainer } from 'testcontainers/dist/modules/abstract-started-container'
-import { getNetwork, Network as JellyfishNetwork, NetworkName } from '@defichain/jellyfish-network'
+import { getNetwork, Network as BlockchainNetwork, NetworkName } from '@defichain/jellyfish-network'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-
-/**
- * Mandatory options to start NativeChain with
- */
-export interface StartOptions {
-  // TODO(fuxingloh): change to cookie based auth soon
-  user: string
-  password: string
-  timeout?: number
-  startFlags?: StartFlags[]
-}
-
-export interface StartFlags {
-  name: string
-  value: number
-}
 
 /**
  * DeFiChain NativeChain node managed in docker
@@ -44,76 +27,142 @@ export class NativeChainContainer extends GenericContainer {
     return 'defi/defichain:HEAD-02ef6a1b3'
   }
 
-  public static readonly DefaultStartOptions = {
-    user: 'testcontainers-user',
-    password: 'testcontainers-password'
-  }
-
-  protected startOptions: StartOptions = NativeChainContainer.DefaultStartOptions
-
-  public withStartOptions (startOptions: StartOptions): this {
-    this.startOptions = startOptions
-    return this
-  }
-
-  protected networkConfig: JellyfishNetwork = getNetwork('testnet')
-
-  public withJellyfishNetwork (networkName: NetworkName): this {
-    this.networkConfig = getNetwork(networkName)
-    return this
-  }
-
-  protected cachedRpcUrl?: string
+  public static readonly PREFIX = 'defichain-testcontainers-'
 
   /**
-   * Convenience Cmd builder with StartOptions
+   * Generate a name for a new docker container with network type and random number
    */
-  protected getCmd (): string[] {
-    const { user, password } = this.startOptions
+  generateName (): string {
+    const rand = Math.floor(Math.random() * 10000000)
+    return `${NativeChainContainer.PREFIX}-${this.blockchainNetwork.name}-${rand}`
+  }
 
-    return [
+  protected blockchainNetwork: BlockchainNetwork = getNetwork('testnet')
+
+  /**
+   * @param networkName Blockchain network name (e.g. 'testnet')
+   * @returns this
+   */
+  public withBlockchainNetwork (networkName: NetworkName): this {
+    this.blockchainNetwork = getNetwork(networkName)
+    return this
+  }
+
+  public static readonly DefaultRpcUser = 'testcontainers-user'
+  public static readonly DefaultRpcPassword = 'testcontainers-password'
+
+  protected rpcUser: string = NativeChainContainer.DefaultRpcUser
+  protected rpcPassword: string = NativeChainContainer.DefaultRpcPassword
+
+  public withRpcUser (rpcUser: string): this {
+    this.rpcUser = rpcUser
+    return this
+  }
+
+  public withRpcPassword (rpcPassword: string): this {
+    this.rpcPassword = rpcPassword
+    return this
+  }
+
+  public static readonly defaultCmd = {
+    prepend: [
       'defid',
       '-printtoconsole',
       '-rpcallowip=0.0.0.0/0',
       '-rpcbind=0.0.0.0',
-      '-rpcworkqueue=512',
-      `-rpcuser=${user}`,
-      `-rpcpassword=${password}`
-    ]
+      '-rpcworkqueue=512'
+    ],
+    testnet: [
+      '-testnet=1'
+    ],
+    regtest: [
+      '-regtest=1',
+      '-jellyfish_regtest=1',
+      '-txnotokens=0',
+      '-logtimemicros',
+      '-txindex=1',
+      '-acindex=1',
+      '-amkheight=0',
+      '-bayfrontheight=1',
+      '-bayfrontgardensheight=2',
+      '-clarkequayheight=3',
+      '-dakotaheight=4',
+      '-dakotacrescentheight=5',
+      '-eunosheight=6',
+      '-eunospayaheight=7',
+      '-fortcanningheight=8',
+      '-fortcanningmuseumheight=9',
+      '-fortcanninghillheight=10',
+      '-fortcanningroadheight=11',
+      '-fortcanningcrunchheight=12',
+      '-fortcanningspringheight=13',
+      '-fortcanninggreatworldheight=14',
+      '-fortcanningepilogueheight=15'
+    ],
+    mainnet: [],
+    devnet: []
   }
 
-  /* eslint-disable @typescript-eslint/no-non-null-assertion, no-void */
-  public static readonly PREFIX = 'defichain-testcontainers-'
+  /**
+   * Convenience Cmd builder
+   */
+  protected generateCmd (): string[] {
+    // TODO: improve command generation with `addCmd(x)`
+
+    const { defaultCmd } = NativeChainContainer
+
+    const authCmd = [
+      `-rpcuser=${this.rpcUser}`,
+      `-rpcpassword=${this.rpcPassword}`
+    ]
+
+    return [
+      ...defaultCmd.prepend,
+      ...authCmd,
+      ...defaultCmd[this.blockchainNetwork.name]
+    ]
+  }
 
   /**
    * Create container and start it immediately waiting for NativeChain to be ready
    */
   public async start (): Promise<StartedNativeChainContainer> {
-    const network = await new Network().start()
+    this.withExposedPorts(...(this.hasExposedPorts ? this.ports : Object.values(this.blockchainNetwork.ports)))
+      .withName(this.name ?? this.generateName())
+      .withCmd(this.cmd.length > 0 ? this.cmd : this.generateCmd())
 
-    const rand = Math.floor(Math.random() * 10000000)
-
-    this.withExposedPorts(...Object.values(this.networkConfig.ports))
-      .withName(`${NativeChainContainer.PREFIX}-${this.networkConfig.name}-${rand}`)
-      .withNetworkMode(network.getName())
-      .withCmd(this.getCmd())
-      .withStartupTimeout(120_000)
-
-    const startedContainer = new StartedNativeChainContainer(await super.start(), this.startOptions, this.networkConfig)
+    const {
+      rpcUser,
+      rpcPassword,
+      blockchainNetwork
+    } = this
+    const startedContainer = new StartedNativeChainContainer(await super.start(), { rpcUser, rpcPassword, blockchainNetwork })
+    console.log(startedContainer)
     return startedContainer
   }
 }
 
+export interface StartedContainerConfig {
+  rpcUser: string
+  rpcPassword: string
+  blockchainNetwork: BlockchainNetwork
+}
+
 export class StartedNativeChainContainer extends AbstractStartedContainer {
-  // Isaac: is this still necessary?
-  protected cachedRpcUrl?: string
+  protected readonly rpcUrl: string
 
   constructor (
     startedTestContainer: StartedTestContainer,
-    private readonly startOptions: StartOptions = NativeChainContainer.DefaultStartOptions,
-    private readonly networkConfig: JellyfishNetwork = getNetwork('testnet')
+    protected readonly config: StartedContainerConfig
   ) {
     super(startedTestContainer)
+    const {
+      rpcUser,
+      rpcPassword,
+      blockchainNetwork
+    } = config
+    const port = this.getMappedPort(blockchainNetwork.ports.rpc)
+    this.rpcUrl = `http://${rpcUser}:${rpcPassword}@127.0.0.1:${port}/`
   }
 
   /**
@@ -127,22 +176,8 @@ export class StartedNativeChainContainer extends AbstractStartedContainer {
     }
   }
 
-  /**
-  * Get host machine url used for NativeChain rpc calls with auth
-  * TODO(fuxingloh): not a great design when network config changed, the url and ports get refresh
-  */
-  async getCachedRpcUrl (): Promise<string> {
-    if (this.cachedRpcUrl === undefined) {
-      const port = this.getMappedPort(this.networkConfig.ports.rpc)
-      const user = this.startOptions.user
-      const password = this.startOptions.password
-      this.cachedRpcUrl = `http://${user}:${password}@127.0.0.1:${port}/`
-    }
-    return this.cachedRpcUrl
-  }
-
-  async getJsonRpcProvider (): Promise<JsonRpcClient> {
-    return new JsonRpcClient(await this.getCachedRpcUrl())
+  async getJsonRpcClient (): Promise<JsonRpcClient> {
+    return new JsonRpcClient(this.rpcUrl)
   }
 
   /**
@@ -176,8 +211,7 @@ export class StartedNativeChainContainer extends AbstractStartedContainer {
    * Not error checked, returns the raw JSON as string.
    */
   async post (body: string): Promise<string> {
-    const url = await this.getCachedRpcUrl()
-    const response = await fetch(url, {
+    const response = await fetch(this.rpcUrl, {
       method: 'POST',
       body: body
     })

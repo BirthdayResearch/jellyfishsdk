@@ -1,10 +1,16 @@
+import { Network } from 'testcontainers'
 import { NativeChainContainer, StartedNativeChainContainer } from '../../src/containers/Hydra/NativeChainContainer'
 
 describe('container error handling', () => {
   let container: StartedNativeChainContainer
 
   beforeAll(async () => {
-    container = await new NativeChainContainer().start()
+    const startedNetwork = await new Network().start()
+    container = await new NativeChainContainer()
+      .withNetworkMode((startedNetwork).getName())
+      .withBlockchainNetwork('testnet')
+      .withStartupTimeout(60_000)
+      .start()
   })
 
   afterAll(async () => {

@@ -31,7 +31,7 @@ export interface Network {
   /** [HYDRA] */
   ports: {
     rpc: number
-    ws: number
+    p2p: number
   }
 }
 
@@ -70,7 +70,7 @@ export const MainNet: Network = {
   messagePrefix: '\x15Defi Signed Message:\n',
   ports: {
     rpc: 8554,
-    ws: 8555
+    p2p: 8555
   }
 }
 
@@ -92,7 +92,7 @@ export const TestNet: Network = {
   messagePrefix: '\x15Defi Signed Message:\n',
   ports: {
     rpc: 18554,
-    ws: 18555
+    p2p: 18555
   }
 }
 
@@ -114,6 +114,6 @@ export const RegTest: Network = {
   messagePrefix: '\x15Defi Signed Message:\n',
   ports: {
     rpc: 19554,
-    ws: 19555
+    p2p: 19555
   }
 }
