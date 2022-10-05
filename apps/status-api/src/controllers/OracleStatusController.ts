@@ -2,6 +2,7 @@ import { Controller, Get, Param } from '@nestjs/common'
 import { WhaleApiClient } from '@defichain/whale-api-client'
 import { Oracle } from '@defichain/whale-api-client/dist/api/oracles'
 import { SemaphoreCache } from '@defichain-apps/libs/caches'
+import { BadRequestApiException } from '../../../whale-api/src/module.api/_core/api.error'
 
 type OracleStatus = 'outage' | 'operational'
 
@@ -31,12 +32,18 @@ export class OracleStatusController {
    * To provide the status of each ticker determined by the number of oracles responded given the ticker id
    *
    * @return {Promise<OracleStatus>}
-   * @param token
-   * @param currency
+   * @param pair
    */
-  @Get('/ticker/:token-:currency')
-  async getOracleRespondStatus (@Param('token') token: string, @Param('currency') currency: string): Promise<{ status: OracleStatus }> {
-    return await this.cachedGet(`oracle-${token}-${currency}`, async () => {
+  @Get('/ticker/:pair')
+  async getOracleRespondStatus (@Param('pair') pair: string): Promise<{ status: OracleStatus }> {
+    const regex: RegExp = /^[a-zA-Z.]+-[a-zA-Z]+$/
+    const isValid = regex.test(pair)
+    if (!isValid) {
+      throw new BadRequestApiException('Provided pair is not in valid format')
+    }
+
+    const [token, currency] = pair.split('-')
+    return await this.cachedGet(`oracle-${pair}`, async () => {
       const oracles = await this.client.prices.getOracles(token, currency, 60)
       const total = oracles.filter(oracle => oracle.feed !== undefined).length
 
