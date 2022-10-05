@@ -1,5 +1,5 @@
 import { Network } from 'testcontainers'
-import { NativeChainContainer, StartedNativeChainContainer } from '../../src/containers/Hydra/NativeChainContainer'
+import { NativeChainContainer, StartedNativeChainContainer } from '../../src/containers/NativeChainContainer'
 
 describe('container error handling', () => {
   let container: StartedNativeChainContainer

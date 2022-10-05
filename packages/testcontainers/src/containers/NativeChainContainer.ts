@@ -137,7 +137,6 @@ export class NativeChainContainer extends GenericContainer {
       blockchainNetwork
     } = this
     const startedContainer = new StartedNativeChainContainer(await super.start(), { rpcUser, rpcPassword, blockchainNetwork })
-    console.log(startedContainer)
     return startedContainer
   }
 }

@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '../RegTestContainer/Masternode'
 import { AppContainer } from '.'
-import { waitForCondition } from '../../../utils'
+import { waitForCondition } from '../../utils'
 
 export class WhaleSanityContainer extends AppContainer {
   constructor (port?: number, blockchain?: MasterNodeRegTestContainer) {

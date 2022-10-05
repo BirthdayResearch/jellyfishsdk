@@ -14,15 +14,15 @@ export const GenesisKeys = RegTestFoundationKeys
  */
 export type MasterNodeKey = MNK
 
-export * from './containers/Dockerode/DeFiDContainer'
-export * from './containers/Dockerode/MainNetContainer'
-export * from './containers/Dockerode/TestNetContainer'
-export * from './containers/Dockerode/RegTestContainer/index'
-export * from './containers/Dockerode/RegTestContainer/Masternode'
-export * from './containers/Dockerode/RegTestContainer/Persistent'
-export * from './containers/Dockerode/RegTestContainer/ContainerGroup'
+export * from './containers/DeFiDContainer'
+export * from './containers/MainNetContainer'
+export * from './containers/TestNetContainer'
+export * from './containers/RegTestContainer/index'
+export * from './containers/RegTestContainer/Masternode'
+export * from './containers/RegTestContainer/Persistent'
+export * from './containers/RegTestContainer/ContainerGroup'
 export * from './utils'
 
-export * from './containers/Dockerode/RegTestContainer/LoanContainer'
+export * from './containers/RegTestContainer/LoanContainer'
 
-export * from './containers/Dockerode/AppContainer/WhaleSanityContainer'
+export * from './containers/AppContainer/WhaleSanityContainer'
