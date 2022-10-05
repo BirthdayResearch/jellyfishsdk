@@ -1,6 +1,6 @@
 import Dockerode, { DockerOptions, Network } from 'dockerode'
 import { v4 as uuidv4 } from 'uuid'
-import { waitForCondition } from '../../../utils'
+import { waitForCondition } from '../../utils'
 import { MasterNodeRegTestContainer } from './Masternode'
 import { RegTestContainer } from './index'
 import { StartOptions } from '../DeFiDContainer'
