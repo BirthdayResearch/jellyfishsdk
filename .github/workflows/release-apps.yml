@@ -40,7 +40,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Resolve Tags
-        uses: actions/github-script@d4560e157075e2d93aa3022b5b51a42a880f1f93
+        uses: actions/github-script@7dff1a87643417cf3b95bb10b29f4c4bc60d8ebd
         id: tags
         env:
           APP: ${{ matrix.app }}
@@ -69,7 +69,7 @@ jobs:
       - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
 
       - name: Create Report
-        uses: actions/github-script@d4560e157075e2d93aa3022b5b51a42a880f1f93
+        uses: actions/github-script@7dff1a87643417cf3b95bb10b29f4c4bc60d8ebd
         id: report
         with:
           script: return require('./.github/scripts/release-report.js')({ context })
