@@ -15,7 +15,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
       - uses: actions/setup-node@969bd2663942d722d85b6a8626225850c2f7be4b
         with:
           node-version: '16'
@@ -34,7 +34,7 @@ jobs:
     env:
       GH_INSTANCE_TOTAL: 10
     steps:
-      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
       - uses: actions/setup-node@969bd2663942d722d85b6a8626225850c2f7be4b
         with:
           node-version: '16'
@@ -54,7 +54,7 @@ jobs:
     name: Docker Sanity Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
       - uses: actions/setup-node@969bd2663942d722d85b6a8626225850c2f7be4b
         with:
           node-version: '16'
@@ -67,7 +67,7 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
       - uses: actions/setup-node@969bd2663942d722d85b6a8626225850c2f7be4b
         with:
           node-version: '16'
