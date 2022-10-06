@@ -36,7 +36,7 @@ jobs:
           password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Resolve ECR Tags
-        uses: actions/github-script@d4560e157075e2d93aa3022b5b51a42a880f1f93
+        uses: actions/github-script@7dff1a87643417cf3b95bb10b29f4c4bc60d8ebd
         id: ecr-tags
         with:
           script: return require('./.github/scripts/release-ecr-tags.js')({ context })
