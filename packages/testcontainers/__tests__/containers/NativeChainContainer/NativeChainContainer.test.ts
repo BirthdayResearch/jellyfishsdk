@@ -1,5 +1,5 @@
 import { Network } from 'testcontainers'
-import { NativeChainContainer, StartedNativeChainContainer } from '../../src/containers/NativeChainContainer'
+import { NativeChainContainer, StartedNativeChainContainer } from '../../../src'
 
 describe('nativechain mainnet', () => {
   let container: StartedNativeChainContainer
@@ -45,7 +45,7 @@ describe('nativechain testnet', () => {
   })
 })
 
-describe('native testnet: override docker image', () => {
+describe('nativechain testnet: override docker image', () => {
   let container: StartedNativeChainContainer
 
   beforeAll(async () => {
