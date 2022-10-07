@@ -290,6 +290,50 @@ interface MempoolTx {
   }
 }
 ```
+
+## getMempoolAncestors
+
+Get all in-mempool ancestors if a transaction id is in mempool as string[] if verbose is false else as json object
+
+```ts title="client.blockchain.getMempoolAncestors()"
+interface blockchain {
+  getMempoolAncestors (txId: string, verbose?: false): Promise<string[]>
+  getMempoolAncestors (txId: string, verbose?: true): Promise<MempoolTx>
+  getMempoolAncestors (txId: string, verbose?: boolean: Promise<string[] | MempoolTx>
+}
+
+interface MempoolTx {
+  [key: string]: {
+    vsize: BigNumber
+    /**
+     * @deprecated same as vsize. Only returned if defid is started with -deprecatedrpc=size
+     */
+    size: BigNumber
+    weight: BigNumber
+    fee: BigNumber
+    modifiedfee: BigNumber
+    time: BigNumber
+    height: BigNumber
+    descendantcount: BigNumber
+    descendantsize: BigNumber
+    descendantfees: BigNumber
+    ancestorcount: BigNumber
+    ancestorsize: BigNumber
+    ancestorfees: BigNumber
+    wtxid: string
+    fees: {
+      base: BigNumber
+      modified: BigNumber
+      ancestor: BigNumber
+      descendant: BigNumber
+    }
+    depends: string[]
+    spentby: string[]
+    'bip125-replaceable': boolean
+  }
+}
+```
+
 ## getMempoolEntry
 
 Get transaction details in the memory pool using a transaction ID.
