@@ -168,6 +168,7 @@ export class PoolSwapPathFindingService {
             ab: formatNumber(new BigNumber(poolPair['reserveA/reserveB'])),
             ba: formatNumber(new BigNumber(poolPair['reserveB/reserveA']))
           },
+          commissionFeeInPct: formatNumber(new BigNumber(poolPair.commission)),
           ...((estimatedDexFeesInPct != null) && { estimatedDexFeesInPct })
         })
       }
@@ -293,6 +294,10 @@ function computeReturnLessDexFeesInDestinationToken (path: SwapPathPoolPair[], f
     }
 
     estimatedReturn = estimatedReturn.multipliedBy(priceRatio)
+
+    // less commission fee
+    const commissionFee = estimatedReturnLessDexFees.multipliedBy(poolPair.commissionFeeInPct)
+    estimatedReturnLessDexFees = estimatedReturnLessDexFees.minus(commissionFee)
 
     // less dex fee fromToken
     const fromTokenEstimatedDexFee = new BigNumber(fromTokenFeePct ?? 0).multipliedBy(estimatedReturnLessDexFees)

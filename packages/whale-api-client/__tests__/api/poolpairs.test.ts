@@ -926,7 +926,9 @@ describe('poolpair - best swap path', () => {
               id: '0',
               name: 'Default Defi token',
               symbol: 'DFI'
-            }
+            },
+            commissionFeeInPct: '0'
+
           },
           {
             poolPairId: '10',
@@ -946,7 +948,8 @@ describe('poolpair - best swap path', () => {
               id: '0',
               name: 'Default Defi token',
               symbol: 'DFI'
-            }
+            },
+            commissionFeeInPct: '0'
           }
         ],
         estimatedReturn: '0.33333332',
@@ -991,14 +994,16 @@ describe('poolpair - all swap paths', () => {
               poolPairId: '9',
               priceRatio: { ab: '0.50000000', ba: '2.00000000' },
               tokenA: { displaySymbol: 'dA', id: '1', name: 'A', symbol: 'A' },
-              tokenB: { displaySymbol: 'DFI', id: '0', name: 'Default Defi token', symbol: 'DFI' }
+              tokenB: { displaySymbol: 'DFI', id: '0', name: 'Default Defi token', symbol: 'DFI' },
+              commissionFeeInPct: '0'
             },
             {
               symbol: 'B-DFI',
               poolPairId: '10',
               priceRatio: { ab: '0.16666666', ba: '6.00000000' },
               tokenA: { displaySymbol: 'dB', id: '2', name: 'B', symbol: 'B' },
-              tokenB: { displaySymbol: 'DFI', id: '0', name: 'Default Defi token', symbol: 'DFI' }
+              tokenB: { displaySymbol: 'DFI', id: '0', name: 'Default Defi token', symbol: 'DFI' },
+              commissionFeeInPct: '0'
             }
           ]
         ]
