@@ -1,15 +1,21 @@
-name: Governance
+name: OSS Governance
 
 on:
   pull_request_target:
     types: [ opened, edited, synchronize ]
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+  statuses: write
+  checks: write
+
 jobs:
-  labeler:
-    name: Labeler
+  Labeler:
     runs-on: ubuntu-latest
     steps:
-      - uses: fuxingloh/multi-labeler@b1fea02293f8d144fba482241dc3985089836d2a
+      - uses: fuxingloh/multi-labeler@12623606c1cb561e9fff26c8f275563a3a39ba8f
         with:
-          github-token: ${{ secrets.DEFICHAIN_BOT_GITHUB_TOKEN }}
+          github-token: ${{ secrets.JELLYFISHSDK_BOT_GITHUB_TOKEN }}
           config-path: .github/labeler.yml

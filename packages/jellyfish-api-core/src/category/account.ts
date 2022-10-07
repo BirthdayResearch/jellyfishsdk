@@ -29,7 +29,19 @@ export enum DfTxType {
   UPDATE_POOL_PAIR = 'u',
   SET_GOV_VARIABLE = 'G',
   AUTO_AUTH_PREP = 'A',
-  NONE = '0'
+  NONE = '0',
+  FUTURE_SWAP_EXECUTION = 'q',
+  FUTURE_SWAP_REFUND = 'w'
+}
+
+/**
+ * Configure the format of amounts
+ * id - amount with the following 'id' -> <amount>@id
+ * symbol - amount with the following 'symbol' -> <amount>@symbol
+ */
+export enum Format {
+  ID = 'id',
+  SYMBOL = 'symbol'
 }
 
 export enum SelectionModeType {
@@ -290,6 +302,7 @@ export class Account {
    * @param {DfTxType} [options.txtype] Filter by transaction type. See DfTxType.
    * @param {number} [options.limit=100] Maximum number of records to return, 100 by default
    * @param {number} [options.txn] Order in block, unlimited by default
+   * @param {Format} [options.format] Set the return amount format, Format.SYMBOL by default
    * @return {Promise<AccountHistory[]>}
    */
   async listAccountHistory (
@@ -388,10 +401,79 @@ export class Account {
   async getBurnInfo (): Promise<BurnInfo> {
     return await this.client.call('getburninfo', [], 'bignumber')
   }
+
+  /**
+   * Creates and submits to the network a futures contract.
+   *
+   * @param {FutureSwap} future
+   * @param {string} future.address Address to fund contract and receive resulting token
+   * @param {string} future.amount Amount to send in amount@token format
+   * @param {string} [future.destination] Expected dToken if DUSD supplied
+   * @param {UTXO[]} [options.utxos = []]
+   * @param {string} options.utxos.txid
+   * @param {number} options.utxos.vout
+   * @return {Promise<string>}
+   */
+  async futureSwap (future: FutureSwap, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('futureswap', [future.address, future.amount, future.destination, utxos], 'number')
+  }
+
+  /**
+   * Creates and submits to the network a withdrawal from futures contract transaction.
+   *
+   * @param {FutureSwap} future
+   * @param {string} future.address Address to fund contract and receive resulting token
+   * @param {string} future.amount Amount to send in amount@token format
+   * @param {string} [future.destination] Expected dToken if DUSD supplied
+   * @param {UTXO[]} [options.utxos = []]
+   * @param {string} options.utxos.txid
+   * @param {number} options.utxos.vout
+   * @return {Promise<string>}
+   */
+  async withdrawFutureSwap (future: FutureSwap, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('withdrawfutureswap', [future.address, future.amount, future.destination, utxos], 'number')
+  }
+
+  /**
+   * Get specific pending futures.
+   *
+   * @return {Promise<GetFutureInfo>}
+   */
+  async getPendingFutureSwaps (address: string): Promise<GetFutureInfo> {
+    return await this.client.call('getpendingfutureswaps', [address], 'number')
+  }
+
+  /**
+   * List all pending futures.
+   *
+   * @return {Promise<ListFutureInfo[]>}
+   */
+  async listPendingFutureSwaps (): Promise<ListFutureInfo[]> {
+    return await this.client.call('listpendingfutureswaps', [], 'number')
+  }
+
+  /**
+   * List pending DUSD swaps futures.
+   *
+   * @return {Promise<DusdSwapsInfo[]>}
+   */
+  async listPendingDusdSwaps (): Promise<DusdSwapsInfo[]> {
+    return await this.client.call('listpendingdusdswaps', [], 'bignumber')
+  }
+
+  /**
+   * Get pending DUSD swaps future.
+   *
+   * @param {string} address to get pending future swaps
+   * @return {Promise<DusdSwapsInfo>}
+   */
+  async getPendingDusdSwaps (address: string): Promise<DusdSwapsInfo> {
+    return await this.client.call('getpendingdusdswaps', [address], 'bignumber')
+  }
 }
 
 export interface AccountPagination {
-  start?: number
+  start?: number | string
   including_start?: boolean
   limit?: number
 }
@@ -443,8 +525,8 @@ export interface UTXO {
 export interface AccountHistory {
   owner: string
   blockHeight: number
-  blockHash: string
-  blockTime: number
+  blockHash?: string
+  blockTime?: number
   type: string
   txn: number
   txid: string
@@ -459,6 +541,7 @@ export interface AccountHistoryOptions {
   txtype?: DfTxType
   limit?: number
   txn?: number
+  format?: Format
 }
 
 export interface AccountHistoryCountOptions {
@@ -528,9 +611,9 @@ export interface BurnInfo {
    */
   auctionburn: BigNumber
   /**
-   * Value of burn after payback
+   * Burns after payback
    */
-  paybackburn: BigNumber
+  paybackburn: string[]
   /**
    * Formatted as AMOUNT@SYMBOL
    */
@@ -543,4 +626,47 @@ export interface BurnInfo {
    * Amount of tokens that are paid back; formatted as AMOUNT@SYMBOL
    */
   dfipaybacktokens: string[]
+  /**
+   * Amount of paybacks
+   */
+  paybackfees: string[]
+  /**
+   * Amount of tokens that are paid back
+   */
+  paybacktokens: string[]
+  /**
+   * Amount of tokens burned due to futureswap
+   */
+  dfip2203: string[]
+  /**
+   * Amount of tokens burned due to DFI-to-DUSD swap
+   */
+  dfip2206f: string[]
+}
+
+export interface FutureSwap {
+  address: string
+  amount: string
+  destination?: string
+}
+
+export interface GetFutureInfo {
+  owner: string
+  values: FutureData[]
+}
+
+export interface FutureData {
+  source: string // eg: '1.234@DUSD'
+  destination: string
+}
+
+export interface ListFutureInfo {
+  owner: string
+  source: string // eg: '1.234@DUSD'
+  destination: string
+}
+
+export interface DusdSwapsInfo {
+  owner: string
+  amount: BigNumber
 }

@@ -6,8 +6,8 @@ slug: /jellyfish/api/blockchain
 ---
 
 ```js
-import {Client} from '@defichain/jellyfish'
-const client = new Client()
+import {JsonRpcClient} from '@defichain/jellyfish-api-jsonrpc'
+const client = new JsonRpcClient('http://foo:bar@localhost:8554')
 
 // Using client.blockchain.
 const something = await client.blockchain.method()
@@ -226,6 +226,28 @@ interface ScriptPubKey {
 }
 ```
 
+## getTxOutSetInfo
+
+Returns statistics about the unspent transaction output set.
+Note this call may take some time.
+
+```ts title="client.blockchain.getTxOutSetInfo()"
+interface blockchain {
+  getTxOutSetInfo (): Promise<TxOutSetInfo>
+}
+
+interface TxOutSetInfo {
+  height: number
+  bestblock: string
+  transactions: Number
+  txouts: Number
+  bogosize: Number
+  hash_serialized_2: string
+  disk_size: Number
+  total_amount: BigNumber
+}
+```
+
 ## getRawMempool
 
 Get all transaction ids in memory pool as string[] if verbose is false else as json object
@@ -266,6 +288,59 @@ interface MempoolTx {
     spentby: string[]
     'bip125-replaceable': boolean
   }
+}
+```
+
+## getMempoolAncestors
+
+Get all in-mempool ancestors if a transaction id is in mempool as string[] if verbose is false else as json object
+
+```ts title="client.blockchain.getMempoolAncestors()"
+interface blockchain {
+  getMempoolAncestors (txId: string, verbose?: false): Promise<string[]>
+  getMempoolAncestors (txId: string, verbose?: true): Promise<MempoolTx>
+  getMempoolAncestors (txId: string, verbose?: boolean: Promise<string[] | MempoolTx>
+}
+
+interface MempoolTx {
+  [key: string]: {
+    vsize: BigNumber
+    /**
+     * @deprecated same as vsize. Only returned if defid is started with -deprecatedrpc=size
+     */
+    size: BigNumber
+    weight: BigNumber
+    fee: BigNumber
+    modifiedfee: BigNumber
+    time: BigNumber
+    height: BigNumber
+    descendantcount: BigNumber
+    descendantsize: BigNumber
+    descendantfees: BigNumber
+    ancestorcount: BigNumber
+    ancestorsize: BigNumber
+    ancestorfees: BigNumber
+    wtxid: string
+    fees: {
+      base: BigNumber
+      modified: BigNumber
+      ancestor: BigNumber
+      descendant: BigNumber
+    }
+    depends: string[]
+    spentby: string[]
+    'bip125-replaceable': boolean
+  }
+}
+```
+
+## getMempoolEntry
+
+Get transaction details in the memory pool using a transaction ID.
+
+```ts title="client.blockchain.getMempoolEntry(txId: string)"
+interface blockchain {
+  getMempoolEntry (txId: string): Promise<MempoolTx>
 }
 ```
 

@@ -38,7 +38,7 @@ describe('Token', () => {
     }
   }
 
-  async function createToken (symbol: string, metadata?: any): Promise<void> {
+  async function createToken (symbol: string): Promise<void> {
     const address = await container.call('getnewaddress')
     const defaultMetadata = {
       symbol,
@@ -48,7 +48,7 @@ describe('Token', () => {
       tradeable: true,
       collateralAddress: address
     }
-    await client.token.createToken({ ...defaultMetadata, ...metadata })
+    await client.token.createToken({ ...defaultMetadata })
   }
 
   it('should updateToken', async () => {

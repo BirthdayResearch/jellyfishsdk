@@ -1,24 +1,20 @@
-import { Controller, Get, Query } from '@nestjs/common'
-import { PoolPairData } from '@defichain/whale-api-client/src/api/PoolPairs'
+import { Controller, DefaultValuePipe, Get, Inject, Logger, ParseIntPipe, Query } from '@nestjs/common'
+import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
 import { NetworkValidationPipe, SupportedNetwork } from '../pipes/NetworkValidationPipe'
 import BigNumber from 'bignumber.js'
-import { Transaction, TransactionVout } from '@defichain/whale-api-client/src/api/Transactions'
-import {
-  CCompositeSwap,
-  CompositeSwap,
-  CPoolSwap,
-  OP_DEFI_TX,
-  PoolSwap,
-  toOPCodes
-} from '@defichain/jellyfish-transaction'
-import { SmartBuffer } from 'smart-buffer'
-import { AccountHistory } from '@defichain/jellyfish-api-core/src/category/account'
-import { fromScript } from '@defichain/jellyfish-address'
+import { Block } from '@defichain/whale-api-client/dist/api/blocks'
+import { WhaleApiClient } from '@defichain/whale-api-client'
+import { fetch } from 'cross-fetch'
 
 @Controller('v1')
 export class PoolPairController {
-  constructor (private readonly whaleApiClientProvider: WhaleApiClientProvider) {
+  private readonly logger = new Logger(PoolPairController.name)
+
+  constructor (
+    private readonly whaleApiClientProvider: WhaleApiClientProvider,
+    @Inject('OCEAN_ENDPOINT') private readonly oceanEndpoint: string
+  ) {
   }
 
   @Get('getpoolpair')
@@ -62,7 +58,7 @@ export class PoolPairController {
 
       const [baseVolume, quoteVolume] = getVolumes(poolPair)
 
-      const pairKey = base.symbol + '_' + quote.symbol
+      const pairKey = `${base.symbol}_${quote.symbol}`
       result[pairKey] = {
         base_id: base.id,
         base_name: base.symbol,
@@ -82,110 +78,17 @@ export class PoolPairController {
   @Get('getsubgraphswaps')
   async getSubgraphSwaps (
     @Query('network', NetworkValidationPipe) network: SupportedNetwork = 'mainnet',
-    @Query('limit') limit: number = 30,
+    @Query('limit', new DefaultValuePipe(20), new ParseIntPipe()) limit: number = 20,
     @Query('next') nextString?: string
   ): Promise<LegacySubgraphSwapsResponse> {
-    limit = Math.min(30, limit)
-    const nextToken: NextToken = (nextString !== undefined) ? JSON.parse(Buffer.from(nextString, 'base64url').toString()) : {}
-    const {
-      swaps,
-      next
-    } = await this.getSwapsHistory(network, limit, nextToken)
-
-    return {
-      data: { swaps: swaps },
-      page: {
-        next: Buffer.from(JSON.stringify(next), 'utf8').toString('base64url')
-      }
-    }
-  }
-
-  async getSwapsHistory (network: SupportedNetwork, limit: number, next: NextToken): Promise<{ swaps: LegacySubgraphSwap[], next: NextToken }> {
-    const api = this.whaleApiClientProvider.getClient(network)
-    const swaps: LegacySubgraphSwap[] = []
-
-    let iterations = 0
-    while (swaps.length <= limit) {
-      for (const block of await api.blocks.list(200, next?.height)) {
-        for (const transaction of await api.blocks.getTransactions(block.hash, 200, next?.order)) {
-          next = {
-            height: block.height.toString(),
-            order: transaction.order.toString()
-          }
-
-          if (transaction.voutCount !== 2) {
-            continue
-          }
-          if (transaction.weight === 605) {
-            continue
-          }
-
-          iterations++
-
-          const vouts = await api.transactions.getVouts(transaction.txid, 1)
-          const dftx = findPoolSwapDfTx(vouts)
-          if (dftx === undefined) {
-            continue
-          }
-
-          const swap = await this.findSwap(network, dftx, transaction)
-          if (swap === undefined) {
-            continue
-          }
-
-          swaps.push(swap)
-
-          if (swaps.length === limit) {
-            return {
-              swaps,
-              next
-            }
-          }
-        }
-
-        next = {
-          height: block.height.toString(),
-          order: '0'
-        }
-      }
-
-      if (swaps.length === 0 || iterations >= 1000) {
-        break
-      }
+    const url = new URL(`${this.oceanEndpoint}/${network}/legacy/getsubgraphswaps`)
+    url.searchParams.set('limit', limit.toString())
+    if (nextString !== undefined) {
+      url.searchParams.set('next', nextString)
     }
 
-    return {
-      swaps,
-      next
-    }
-  }
-
-  async findSwap (network: SupportedNetwork, poolSwap: PoolSwap, transaction: Transaction): Promise<LegacySubgraphSwap | undefined> {
-    const api = this.whaleApiClientProvider.getClient(network)
-    const fromAddress = fromScript(poolSwap.fromScript, network)?.address
-    const toAddress = fromScript(poolSwap.toScript, network)?.address
-
-    const fromHistory: AccountHistory = await api.rpc.call<AccountHistory>('getaccounthistory', [fromAddress, transaction.block.height, transaction.order], 'number')
-    let toHistory: AccountHistory
-    if (toAddress === fromAddress) {
-      toHistory = fromHistory
-    } else {
-      toHistory = await api.rpc.call<AccountHistory>('getaccounthistory', [toAddress, transaction.block.height, transaction.order], 'number')
-    }
-
-    const from = findAmountSymbol(fromHistory, true)
-    const to = findAmountSymbol(toHistory, false)
-
-    if (from === undefined || to === undefined) {
-      return undefined
-    }
-
-    return {
-      id: transaction.txid,
-      timestamp: transaction.block.medianTime.toString(),
-      from: from,
-      to: to
-    }
+    return await fetch(url.toString())
+      .then(async res => await res.json() as LegacySubgraphSwapsResponse)
   }
 
   @Get('listyieldfarming')
@@ -206,16 +109,45 @@ export class PoolPairController {
       provider_URL: 'https://defichain.com',
       tvl: stats.tvl.total,
       links: [
-        { title: 'Twitter', link: 'https://twitter.com/defichain' },
-        { title: 'YouTube', link: 'https://www.youtube.com/DeFiChain' },
-        { title: 'Reddit', link: 'https://reddit.com/r/defiblockchain' },
-        { title: 'Telegram', link: 'https://t.me/defiblockchain' },
-        { title: 'LinkedIn', link: 'https://www.linkedin.com/company/defichain' },
-        { title: 'Facebook', link: 'https://www.facebook.com/defichain.official' },
-        { title: 'GitHub', link: 'https://github.com/DeFiCh' },
-        { title: 'Discord', link: 'https://discord.com/invite/py55egyaGy' }
+        {
+          title: 'Twitter',
+          link: 'https://twitter.com/defichain'
+        },
+        {
+          title: 'YouTube',
+          link: 'https://www.youtube.com/DeFiChain'
+        },
+        {
+          title: 'Reddit',
+          link: 'https://reddit.com/r/defiblockchain'
+        },
+        {
+          title: 'Telegram',
+          link: 'https://t.me/defiblockchain'
+        },
+        {
+          title: 'LinkedIn',
+          link: 'https://www.linkedin.com/company/defichain'
+        },
+        {
+          title: 'Facebook',
+          link: 'https://www.facebook.com/defichain.official'
+        },
+        {
+          title: 'GitHub',
+          link: 'https://github.com/DeFiCh'
+        },
+        {
+          title: 'Discord',
+          link: 'https://discord.com/invite/py55egyaGy'
+        }
       ]
     }
+  }
+
+  async isRecentBlock (api: WhaleApiClient, block: Block): Promise<boolean> {
+    const chainHeight = (await api.stats.get()).count.blocks
+    return chainHeight - block.height <= 2
   }
 }
 
@@ -245,7 +177,7 @@ export class PoolPairControllerV2 {
 
       const [baseVolume, quoteVolume] = getVolumes(poolPair)
 
-      const pairKey = base.symbol + '_' + quote.symbol
+      const pairKey = `${base.symbol}_${quote.symbol}`
       result[pairKey] = {
         base_id: base.id,
         base_name: base.symbol,
@@ -312,7 +244,7 @@ interface LegacyPoolPairData {
   'blockCommissionA': number
   'blockCommissionB': number
   'rewardPct': number
-  // 'rewardLoanPct': number
+  'rewardLoanPct': number
   'creationTx': string
   'creationHeight': number
   'totalLiquidityLpToken': string
@@ -337,7 +269,7 @@ function reformatPoolPairData (data: PoolPairData): LegacyPoolPairData {
     reserveA: data.tokenA.reserve,
     reserveB: data.tokenB.reserve,
     commission: Number(data.commission),
-    totalLiquidity: Number(data.totalLiquidity.usd),
+    totalLiquidity: Number(data.totalLiquidity.usd ?? 0),
     'reserveA/reserveB': Number(data.priceRatio.ab),
     'reserveB/reserveA': Number(data.priceRatio.ba),
     tradeEnabled: data.tradeEnabled,
@@ -345,6 +277,7 @@ function reformatPoolPairData (data: PoolPairData): LegacyPoolPairData {
     blockCommissionA: Number(data.tokenA.blockCommission),
     blockCommissionB: Number(data.tokenB.blockCommission),
     rewardPct: Number(data.rewardPct),
+    rewardLoanPct: Number(data.rewardLoanPct),
     creationTx: data.creation.tx,
     creationHeight: Number(data.creation.height),
     totalLiquidityLpToken: data.totalLiquidity.token,
@@ -380,7 +313,7 @@ function mapPoolPairsToLegacyYieldFarmingPool (poolPair: PoolPairData): LegacyLi
     // Identity
     pair: poolPair.symbol,
     name: poolPair.name,
-    pairLink: 'https://defiscan.live/tokens/' + poolPair.id,
+    pairLink: `https://defiscan.live/tokens/${poolPair.id}`,
     logo: 'https://defichain.com/downloads/symbol-defi-blockchain.svg',
 
     // Tokenomics
@@ -438,50 +371,12 @@ interface LegacySubgraphSwapFromTo {
   symbol: string
 }
 
-function findPoolSwapDfTx (vouts: TransactionVout[]): PoolSwap | undefined {
-  const hex = vouts[0].script.hex
-  const buffer = SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
-  const stack = toOPCodes(buffer)
-  if (stack.length !== 2 || stack[1].type !== 'OP_DEFI_TX') {
-    return undefined
-  }
-
-  const dftx = (stack[1] as OP_DEFI_TX).tx
-  if (dftx === undefined) {
-    return undefined
-  }
-
-  switch (dftx.name) {
-    case CPoolSwap.OP_NAME:
-      return (dftx.data as PoolSwap)
-
-    case CCompositeSwap.OP_NAME:
-      return (dftx.data as CompositeSwap).poolSwap
-
-    default:
-      return undefined
-  }
+export function encodeBase64 (next: NextToken): string {
+  return Buffer.from(JSON.stringify(next), 'utf8').toString('base64url')
 }
 
-function findAmountSymbol (history: AccountHistory, outgoing: boolean): LegacySubgraphSwapFromTo | undefined {
-  for (const amount of history.amounts) {
-    const [value, symbol] = amount.split('@')
-    const isNegative = value.startsWith('-')
-
-    if (isNegative && outgoing) {
-      return {
-        amount: new BigNumber(value).absoluteValue().toFixed(8),
-        symbol: symbol
-      }
-    }
-
-    if (!isNegative && !outgoing) {
-      return {
-        amount: new BigNumber(value).absoluteValue().toFixed(8),
-        symbol: symbol
-      }
-    }
-  }
-
-  return undefined
+export interface BlockTxn {
+  swap: LegacySubgraphSwap | null
+  height: number
+  order: number
 }

@@ -12,6 +12,7 @@
       <w>ancestorsize</w>
       <w>anchorquorum</w>
       <w>anyonecanpay</w>
+      <w>auctionburn</w>
       <w>bayfrontgardensheight</w>
       <w>bayfrontheight</w>
       <w>bayfrontmarinaheight</w>
@@ -19,20 +20,25 @@
       <w>bech</w>
       <w>bestblock</w>
       <w>bestblockhash</w>
+      <w>bitcoinjs</w>
       <w>blockhash</w>
       <w>blockreward</w>
       <w>blocktime</w>
       <w>booland</w>
       <w>boolor</w>
+      <w>buildcache</w>
       <w>canonbrother</w>
       <w>chainparams</w>
       <w>chainwork</w>
+      <w>chanakasameera</w>
       <w>checklocktimeverify</w>
       <w>checkmultisig</w>
       <w>checkmultisigverify</w>
       <w>checksequenceverify</w>
       <w>checksig</w>
       <w>checksigverify</w>
+      <w>chee</w>
+      <w>chyuan</w>
       <w>clarkequayheight</w>
       <w>closevault</w>
       <w>codeclimate</w>
@@ -61,8 +67,12 @@
       <w>descendantsize</w>
       <w>destroyloanscheme</w>
       <w>devnet</w>
+      <w>dexfeetokens</w>
       <w>dfip</w>
+      <w>dfipaybackfee</w>
+      <w>dfipaybacktokens</w>
       <w>dftx</w>
+      <w>dockerignore</w>
       <w>dockerode</w>
       <w>dogfooding</w>
       <w>dummypos</w>
@@ -79,6 +89,7 @@
       <w>fuxingloh</w>
       <w>generatetoaddress</w>
       <w>getaccount</w>
+      <w>getaccounthistory</w>
       <w>getactivemasternodecount</w>
       <w>getaddressinfo</w>
       <w>getbalance</w>
@@ -86,8 +97,10 @@
       <w>getblockchaininfo</w>
       <w>getblockcount</w>
       <w>getblockhash</w>
+      <w>getblockstats</w>
       <w>getburninfo</w>
       <w>getcollateraltoken</w>
+      <w>getfutureswapblock</w>
       <w>getgov</w>
       <w>getinterest</w>
       <w>getloanscheme</w>
@@ -97,6 +110,7 @@
       <w>getmintinginfo</w>
       <w>getnetworkhashps</w>
       <w>getnewaddress</w>
+      <w>getpendingfutureswaps</w>
       <w>getpoolpair</w>
       <w>getrawmempool</w>
       <w>getrawtransaction</w>
@@ -139,11 +153,13 @@
       <w>lastblockcreationattempt</w>
       <w>lessthan</w>
       <w>lessthanorequal</w>
+      <w>leveldown</w>
       <w>libevent</w>
       <w>listaccounts</w>
       <w>listaddressgroupings</w>
       <w>listburnhistory</w>
       <w>listcollateraltokens</w>
+      <w>listcommunitybalances</w>
       <w>listgovs</w>
       <w>listloanschemes</w>
       <w>listloantokens</w>
@@ -166,6 +182,7 @@
       <w>mediantime</w>
       <w>mempool</w>
       <w>merkleroot</w>
+      <w>micnncim</w>
       <w>mincolratio</w>
       <w>mintable</w>
       <w>mintedblocks</w>
@@ -184,7 +201,10 @@
       <w>numequal</w>
       <w>numequalverify</w>
       <w>numnotequal</w>
+      <w>paybackburn</w>
+      <w>paybackfees</w>
       <w>paybackloan</w>
+      <w>paybacktokens</w>
       <w>paytxfee</w>
       <w>pooledtx</w>
       <w>poolpair</w>

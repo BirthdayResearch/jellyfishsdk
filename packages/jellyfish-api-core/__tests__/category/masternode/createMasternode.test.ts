@@ -45,7 +45,7 @@ describe('Masternode', () => {
     expect(typeof mn.creationHeight).toStrictEqual('number')
     expect(typeof mn.resignHeight).toStrictEqual('number')
     expect(typeof mn.resignTx).toStrictEqual('string')
-    expect(typeof mn.banTx).toStrictEqual('string')
+    expect(typeof mn.rewardAddress).toStrictEqual('string')
     expect(mn.state).toStrictEqual(MasternodeState.PRE_ENABLED)
     expect(typeof mn.state).toStrictEqual('string')
     expect(typeof mn.mintedBlocks).toStrictEqual('number')
@@ -117,7 +117,7 @@ describe('Masternode', () => {
     const ownerAddress = await client.wallet.getNewAddress()
     await container.fundAddress(ownerAddress, 10)
     const utxos = await container.call('listunspent')
-    const utxo = utxos.find((utxo: any) => utxo.address === ownerAddress)
+    const utxo = utxos.find((utxo: { address: string }) => utxo.address === ownerAddress)
 
     const txid = await client.masternode.createMasternode(
       ownerAddress, ownerAddress, { utxos: [{ txid: utxo.txid, vout: utxo.vout }] }

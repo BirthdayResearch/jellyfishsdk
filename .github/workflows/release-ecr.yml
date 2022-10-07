@@ -1,0 +1,54 @@
+name: Release Apps for ECR
+
+on:
+  release:
+    types: [ published ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  APPS: 'legacy-api,ocean-api,playground-api,status-api,whale-api'
+
+jobs:
+  build:
+    name: Publish
+    runs-on: ubuntu-latest
+    environment: ECR Release Publishing
+    strategy:
+      matrix:
+        app: [ legacy-api, ocean-api, playground-api, status-api, whale-api ]
+    steps:
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@8b122486cedac8393e77aa9734c3528886e4a1a8
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@dc7b9719a96d48369863986a06765841d7ea23f6
+
+      - name: Login to Public ECR
+        uses: docker/login-action@49ed152c8eca782a232dede0303416e8f356c37b
+        with:
+          registry: public.ecr.aws
+          username: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Resolve ECR Tags
+        uses: actions/github-script@7dff1a87643417cf3b95bb10b29f4c4bc60d8ebd
+        id: ecr-tags
+        with:
+          script: return require('./.github/scripts/release-ecr-tags.js')({ context })
+          result-encoding: string
+
+      - name: Build & Publish
+        uses: docker/build-push-action@c84f38281176d4c9cdb1626ffafcd6b3911b5d94
+        with:
+          push: true
+          build-args: APP=${{ matrix.app }}
+          platforms: |
+            linux/amd64
+            linux/arm64
+          tags: |
+            public.ecr.aws/birthdayresearch/${{ matrix.app }}:${{ steps.ecr-tags.outputs.result }}

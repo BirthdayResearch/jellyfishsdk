@@ -1,4 +1,4 @@
-import { OP_CODES, Script, TransactionSegWit, PoolAddLiquidity, PoolRemoveLiquidity } from '@defichain/jellyfish-transaction'
+import { OP_CODES, Script, TransactionSegWit, PoolAddLiquidity, PoolRemoveLiquidity, PoolCreatePair } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 import { TxnBuilderError, TxnBuilderErrorType } from './txn_builder_error'
 
@@ -47,6 +47,20 @@ export class TxnBuilderLiqPool extends P2WPKHTxnBuilder {
   async removeLiquidity (removeLiquidity: PoolRemoveLiquidity, changeScript: Script): Promise<TransactionSegWit> {
     return await this.createDeFiTx(
       OP_CODES.OP_DEFI_TX_POOL_REMOVE_LIQUIDITY(removeLiquidity),
+      changeScript
+    )
+  }
+
+  /**
+   * Create pool pair.
+   *
+   * @param {PoolCreatePair} create pool pair
+   * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
+   * @returns {Promise<TransactionSegWit>}
+   */
+  async create (create: PoolCreatePair, changeScript: Script): Promise<TransactionSegWit> {
+    return await this.createDeFiTx(
+      OP_CODES.OP_DEFI_TX_POOL_CREATE_PAIR(create),
       changeScript
     )
   }

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base",
+    "helpers:pinGitHubActionDigests",
+    ":semanticCommitTypeAll(bump)"
+  ],
+  "dependencyDashboard": true,
+  "dependencyDashboardAutoclose": true,
+  "major": {
+    "dependencyDashboardApproval": true
+  },
+  "rangeStrategy": "bump",
+  "packageRules": [
+    {
+      "matchManagers": ["github-actions"],
+      "enabled": false
+    },
+    {
+      "matchPackagePatterns": ["lerna"],
+      "enabled": false
+    },
+    {
+      "matchPackagePatterns": ["^defichain$", "^@defichain/"],
+      "enabled": false
+    },
+    {
+      "matchPackagePatterns": ["level", "^level"],
+      "enabled": false
+    },
+    {
+      "matchPackagePatterns": ["eslint"],
+      "groupName": "eslint"
+    },
+    {
+      "matchPackagePatterns": ["jest"],
+      "groupName": "jest"
+    }
+  ]
+}

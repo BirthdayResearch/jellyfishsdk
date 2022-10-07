@@ -241,9 +241,9 @@ export class Wallet {
    * Lists groups of addresses which have had their common ownership made public
    * by common use as inputs or as the resulting change in past transactions
    *
-   * @return {Promise<any[][][]>}
+   * @return {Promise<string | BigNumber[][][]>}
    */
-  async listAddressGroupings (): Promise<any[][][]> {
+  async listAddressGroupings (): Promise<string | BigNumber[][][]> {
     return await this.client.call('listaddressgroupings', [], 'bignumber')
   }
 

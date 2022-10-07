@@ -1,7 +1,7 @@
 import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
-import { CScriptBalances, CTokenBalance, ScriptBalances, TokenBalance } from './dftx_balance'
+import { CScriptBalances, CTokenBalance, CTokenBalanceVarInt, ScriptBalances, TokenBalanceUInt32, TokenBalanceVarInt } from './dftx_balance'
 
 /**
  * UtxosToAccount DeFi Transaction
@@ -20,7 +20,7 @@ export class CUtxosToAccount extends ComposableBuffer<UtxosToAccount> {
 
   composers (u2a: UtxosToAccount): BufferComposer[] {
     return [
-      ComposableBuffer.varUIntArray(() => u2a.to, v => u2a.to = v, v => new CScriptBalances(v))
+      ComposableBuffer.compactSizeArray(() => u2a.to, v => u2a.to = v, v => new CScriptBalances(v))
     ]
   }
 }
@@ -30,8 +30,8 @@ export class CUtxosToAccount extends ComposableBuffer<UtxosToAccount> {
  */
 export interface AccountToUtxos {
   from: Script // -----------------------| n = VarUInt{1-9 bytes}, + n bytes
-  balances: TokenBalance[] // -----------| c = VarUInt{1-9 bytes}, + c x TokenBalance
-  mintingOutputsStart: number // --------| 4 bytes unsigned
+  balances: TokenBalanceUInt32[] // -----| c = VarUInt{1-9 bytes}, + c x TokenBalance
+  mintingOutputsStart: number // --------| VarInt{MSB-b128}
 }
 
 /**
@@ -45,8 +45,8 @@ export class CAccountToUtxos extends ComposableBuffer<AccountToUtxos> {
   composers (a2u: AccountToUtxos): BufferComposer[] {
     return [
       ComposableBuffer.single<Script>(() => a2u.from, v => a2u.from = v, v => new CScript(v)),
-      ComposableBuffer.varUIntArray(() => a2u.balances, v => a2u.balances = v, v => new CTokenBalance(v)),
-      ComposableBuffer.uInt8(() => a2u.mintingOutputsStart, v => a2u.mintingOutputsStart = v)
+      ComposableBuffer.compactSizeArray(() => a2u.balances, v => a2u.balances = v, v => new CTokenBalance(v)),
+      ComposableBuffer.varInt(() => a2u.mintingOutputsStart, v => a2u.mintingOutputsStart = v)
     ]
   }
 }
@@ -70,7 +70,7 @@ export class CAccountToAccount extends ComposableBuffer<AccountToAccount> {
   composers (a2a: AccountToAccount): BufferComposer[] {
     return [
       ComposableBuffer.single<Script>(() => a2a.from, v => a2a.from = v, v => new CScript(v)),
-      ComposableBuffer.varUIntArray(() => a2a.to, v => a2a.to = v, v => new CScriptBalances(v))
+      ComposableBuffer.compactSizeArray(() => a2a.to, v => a2a.to = v, v => new CScriptBalances(v))
     ]
   }
 }
@@ -93,8 +93,36 @@ export class CAnyAccountToAccount extends ComposableBuffer<AnyAccountToAccount> 
 
   composers (aa2a: AnyAccountToAccount): BufferComposer[] {
     return [
-      ComposableBuffer.varUIntArray(() => aa2a.from, v => aa2a.from = v, v => new CScriptBalances(v)),
-      ComposableBuffer.varUIntArray(() => aa2a.to, v => aa2a.to = v, v => new CScriptBalances(v))
+      ComposableBuffer.compactSizeArray(() => aa2a.from, v => aa2a.from = v, v => new CScriptBalances(v)),
+      ComposableBuffer.compactSizeArray(() => aa2a.to, v => aa2a.to = v, v => new CScriptBalances(v))
+    ]
+  }
+}
+
+/**
+ * FutureSwap DeFi Transaction
+ */
+export interface SetFutureSwap {
+  owner: Script // ----------------------| n = VarUInt{1-9 bytes}, + n bytes, Address used to fund contract with
+  source: TokenBalanceVarInt // ---------| VarUInt{1-9 bytes} for token Id + 8 bytes for amount, Source amount in amount@token format
+  destination: number // ----------------| 4 bytes unsigned, Destination dToken
+  withdraw: boolean // ------------------| 1 byte, True if withdraw
+}
+
+/**
+ * Composable FutureSwap, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CSetFutureSwap extends ComposableBuffer<SetFutureSwap> {
+  static OP_CODE = 0x51 // 'Q'
+  static OP_NAME = 'OP_DEFI_TX_FUTURE_SWAP'
+
+  composers (sfs: SetFutureSwap): BufferComposer[] {
+    return [
+      ComposableBuffer.single<Script>(() => sfs.owner, v => sfs.owner = v, v => new CScript(v)),
+      ComposableBuffer.single<TokenBalanceVarInt>(() => sfs.source, v => sfs.source = v, v => new CTokenBalanceVarInt(v)),
+      ComposableBuffer.uInt32(() => sfs.destination, v => sfs.destination = v),
+      ComposableBuffer.uBool8(() => sfs.withdraw, v => sfs.withdraw = v)
     ]
   }
 }

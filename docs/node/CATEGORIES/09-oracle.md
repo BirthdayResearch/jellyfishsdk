@@ -6,8 +6,8 @@ slug: /jellyfish/api/oracle
 ---
 
 ```js
-import {Client} from '@defichain/jellyfish'
-const client = new Client()
+import {JsonRpcClient} from '@defichain/jellyfish-api-jsonrpc'
+const client = new JsonRpcClient('http://foo:bar@localhost:8554')
 
 // Using client.oracle.
 const something = await client.oracle.method()
@@ -248,5 +248,15 @@ interface ListFixedIntervalPrice {
   nextPrice: BigNumber
   timestamp: number
   isLive: boolean
+}
+```
+
+## getFutureSwapBlock
+
+Get the next block that futures will execute and update on.
+
+```ts title="client.oracle.getFutureSwapBlock()"
+interface oracle {
+  getFutureSwapBlock (): Promise<number>
 }
 ```

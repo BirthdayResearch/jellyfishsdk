@@ -2,16 +2,8 @@
   "private": false,
   "name": "@defichain/jellyfish-wallet-mnemonic",
   "version": "0.0.0",
-  "description": "A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized finance for Bitcoin",
-  "keywords": [
-    "DeFiChain",
-    "DeFi",
-    "Blockchain",
-    "API",
-    "Bitcoin"
-  ],
-  "repository": "DeFiCh/jellyfish",
-  "bugs": "https://github.com/DeFiCh/jellyfish/issues",
+  "description": "SDK & Ecosystem for building modern lite DeFi Applications at scale.",
+  "repository": "JellyfishSDK/jellyfish",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -32,6 +24,6 @@
     "defichain": "^0.0.0"
   },
   "devDependencies": {
-    "@types/create-hmac": "^1.1.0"
+    "@types/create-hmac": "1.1.0"
   }
 }

@@ -17,7 +17,7 @@ class CustomOperatorGovernanceMasterNodeRegTestContainer extends MasterNodeRegTe
   }
 }
 
-describe('setgov', () => {
+describe.skip('setgov', () => {
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
   const testing = Testing.create(new CustomOperatorGovernanceMasterNodeRegTestContainer())
@@ -78,7 +78,7 @@ describe('setgov', () => {
   })
 })
 
-describe('setgov', () => {
+describe.skip('setgov', () => {
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
   const nonFoundation = new MasterNodeRegTestContainer()

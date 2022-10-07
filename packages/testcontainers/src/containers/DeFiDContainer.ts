@@ -35,7 +35,7 @@ export abstract class DeFiDContainer extends DockerContainer {
     if (process?.env?.DEFICHAIN_DOCKER_IMAGE !== undefined) {
       return process.env.DEFICHAIN_DOCKER_IMAGE
     }
-    return 'defi/defichain:master-2471a960b'
+    return 'defi/defichain:HEAD-02ef6a1b3'
   }
 
   public static readonly DefaultStartOptions = {
@@ -99,7 +99,7 @@ export abstract class DeFiDContainer extends DockerContainer {
    */
   async setDeFiConf (options: string[]): Promise<void> {
     if (options.length > 0) {
-      const fileContents = options.join('\n') + '\n'
+      const fileContents = `${options.join('\n')}\n`
 
       await this.exec({
         Cmd: ['bash', '-c', `echo "${fileContents}" > ~/.defi/defi.conf`]

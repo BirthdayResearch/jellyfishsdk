@@ -4,6 +4,10 @@ on:
   push:
     branches: [ main ]
 
+permissions:
+  contents: write
+  pull-requests: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
@@ -12,6 +16,6 @@ jobs:
   main:
     runs-on: ubuntu-latest
     steps:
-      - uses: release-drafter/release-drafter@e9ee02fbac03d922bac6212003695e8358dd88b0
+      - uses: release-drafter/release-drafter@df69d584deac33d8569990cb6413f82447181076
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

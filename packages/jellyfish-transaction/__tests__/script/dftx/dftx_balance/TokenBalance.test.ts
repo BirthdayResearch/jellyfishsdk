@@ -1,10 +1,10 @@
 import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
-import { CTokenBalance, CTokenBalanceVarInt, TokenBalance, TokenBalanceVarInt } from '../../../../src/script/dftx/dftx_balance'
+import { CTokenBalance, CTokenBalanceVarInt, TokenBalanceUInt32, TokenBalanceVarInt } from '../../../../src/script/dftx/dftx_balance'
 
 {
   const data = '000000003da5a50300000000'
-  const tokenBalance: TokenBalance = {
+  const tokenBalance: TokenBalanceUInt32 = {
     token: 0,
     amount: new BigNumber('0.61187389')
   }

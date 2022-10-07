@@ -314,6 +314,6 @@ describe('loans.createVault when no default scheme and the given schemeId is emp
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('VaultTx: There is not default loan scheme (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'VaultTx: There is no default loan scheme (code 16)\', code: -26')
   })
 })

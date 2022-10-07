@@ -5,14 +5,15 @@ import {
   PipeTransform
 } from '@nestjs/common'
 
-export type SupportedNetwork = 'mainnet' | 'testnet'
+export type SupportedNetwork = 'mainnet' | 'testnet' | 'regtest'
 
 @Injectable()
 export class NetworkValidationPipe implements PipeTransform {
   private static readonly VALID_NETWORKS: Set<undefined | SupportedNetwork> = new Set([
     undefined, // defaults to 'mainnet'
     'mainnet',
-    'testnet'
+    'testnet',
+    'regtest'
   ])
 
   transform (value: any, metadata: ArgumentMetadata): any {

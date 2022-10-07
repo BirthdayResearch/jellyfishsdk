@@ -13,8 +13,8 @@ export interface CurrencyPair {
 export class CCurrencyPair extends ComposableBuffer<CurrencyPair> {
   composers (cp: CurrencyPair): BufferComposer[] {
     return [
-      ComposableBuffer.varUIntUtf8BE(() => cp.token, v => cp.token = v),
-      ComposableBuffer.varUIntUtf8BE(() => cp.currency, v => cp.currency = v)
+      ComposableBuffer.compactSizeUtf8BE(() => cp.token, v => cp.token = v),
+      ComposableBuffer.compactSizeUtf8BE(() => cp.currency, v => cp.currency = v)
     ]
   }
 }
@@ -31,7 +31,7 @@ export interface TokenAmount {
 export class CTokenAmount extends ComposableBuffer<TokenAmount> {
   composers (tp: TokenAmount): BufferComposer[] {
     return [
-      ComposableBuffer.varUIntUtf8BE(() => tp.currency, v => tp.currency = v),
+      ComposableBuffer.compactSizeUtf8BE(() => tp.currency, v => tp.currency = v),
       ComposableBuffer.satoshiAsBigNumber(() => tp.amount, v => tp.amount = v)
     ]
   }
@@ -49,8 +49,8 @@ export interface TokenPrice {
 export class CTokenPrice extends ComposableBuffer<TokenPrice> {
   composers (sb: TokenPrice): BufferComposer[] {
     return [
-      ComposableBuffer.varUIntUtf8BE(() => sb.token, v => sb.token = v),
-      ComposableBuffer.varUIntArray(() => sb.prices, v => sb.prices = v, v => new CTokenAmount(v))
+      ComposableBuffer.compactSizeUtf8BE(() => sb.token, v => sb.token = v),
+      ComposableBuffer.compactSizeArray(() => sb.prices, v => sb.prices = v, v => new CTokenAmount(v))
     ]
   }
 }

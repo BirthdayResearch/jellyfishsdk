@@ -88,6 +88,7 @@ describe('Loan updateLoanToken', () => {
         }
       },
       fixedIntervalPriceId: 'Token1/USD',
+      mintable: true,
       interest: 0.01
     }])
   })
@@ -287,12 +288,15 @@ describe('Loan updateLoanToken', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'Invalid amount\', code: -3, method: updateloantoken')
   })
 
-  it('should not updateLoanToken if interest number is less than 0', async () => {
-    const promise = testing.rpc.loan.updateLoanToken('Token1', { interest: new BigNumber(-15.12345678) })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Amount out of range\', code: -3, method: updateloantoken')
+  it('should updateLoanToken if interest number is less than 0', async () => {
+    await testing.rpc.loan.updateLoanToken('Token1', { interest: new BigNumber(-15.12345678) }) // 8 digits in the fractional part
+    await testing.generate(1)
+
+    const data = await testing.container.call('getloantoken', [loanTokenId])
+    expect(data.interest).toStrictEqual(-15.12345678)
   })
 
-  it('should not updateLoanToken if interest number is greater than 1200000000', async () => {
+  it.skip('should not updateLoanToken if interest number is greater than 1200000000', async () => {
     const promise = testing.rpc.loan.updateLoanToken('Token1', { interest: new BigNumber('1200000000').plus('0.00000001') })
     await expect(promise).rejects.toThrow('RpcApiError: \'Amount out of range\', code: -3, method: updateloantoken')
   })

@@ -1,19 +1,9 @@
 {
-  "private": true,
+  "private": false,
   "name": "@defichain/whale-api-client",
   "version": "0.0.0",
-  "description": "Official JS client for DeFi Whale, the super index for DeFi Blockchain to simplify DeFi light implementation.",
-  "keywords": [
-    "DeFiChain",
-    "DeFi",
-    "DeFi Whale",
-    "Whale",
-    "Blockchain",
-    "API",
-    "Bitcoin"
-  ],
-  "repository": "DeFiCh/jellyfish",
-  "bugs": "https://github.com/DeFiCh/jellyfish/issues",
+  "description": "SDK & Ecosystem for building modern lite DeFi Applications at scale.",
+  "repository": "JellyfishSDK/jellyfish",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -26,7 +16,6 @@
   "dependencies": {
     "@defichain/jellyfish-api-core": "^0.0.0",
     "@defichain/jellyfish-api-jsonrpc": "^0.0.0",
-    "@defichain/ocean-api-client": "^0.0.0",
     "abort-controller": "^3.0.0",
     "cross-fetch": "^3.1.5",
     "url-search-params-polyfill": "8.1.1"

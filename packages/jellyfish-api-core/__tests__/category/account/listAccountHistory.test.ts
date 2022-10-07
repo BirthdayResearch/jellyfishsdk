@@ -1,7 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
-import { DfTxType, BalanceTransferPayload } from '../../../src/category/account'
+import { DfTxType, BalanceTransferPayload, AccountResult, AccountOwner, Format } from '../../../src/category/account'
 
 function createTokenForContainer (container: MasterNodeRegTestContainer) {
   return async (address: string, symbol: string, amount: number) => {
@@ -83,7 +83,7 @@ describe('Account', () => {
   })
 
   it('should listAccountHistory with owner CScript', async () => {
-    const accounts: any[] = await client.account.listAccounts()
+    const accounts: Array<AccountResult<AccountOwner, string>> = await client.account.listAccounts()
 
     const { owner } = accounts[0]
     const { hex, addresses } = owner
@@ -263,7 +263,7 @@ describe('Account', () => {
   })
 
   it('should listAccountHistory with owner CScript options block height and txn 1', async () => {
-    const accounts: any[] = await client.account.listAccounts()
+    const accounts: Array<AccountResult<AccountOwner, string>> = await client.account.listAccounts()
 
     const { owner } = accounts[0]
     const { hex, addresses } = owner
@@ -284,7 +284,7 @@ describe('Account', () => {
   })
 
   it('should listAccountHistory with owner CScript options block height and txn 0', async () => {
-    const accounts: any[] = await client.account.listAccounts()
+    const accounts: Array<AccountResult<AccountOwner, string>> = await client.account.listAccounts()
 
     const { owner } = accounts[0]
     const { hex, addresses } = owner
@@ -302,6 +302,61 @@ describe('Account', () => {
         expect(accountHistory.txn).toBeLessThanOrEqual(options.txn)
       }
     })
+  })
+
+  it('should listAccountHistory with options format', async () => {
+    { // amount format should be id
+      const options = {
+        token: 'DBTC',
+        format: Format.ID
+      }
+      const accountHistories = await client.account.listAccountHistory('mine', options)
+      expect(accountHistories.length).toBeGreaterThan(0)
+      for (let i = 0; i < accountHistories.length; i += 1) {
+        const accountHistory = accountHistories[i]
+        expect(accountHistory.amounts.length).toBeGreaterThan(0)
+        for (let j = 0; j < accountHistory.amounts.length; j += 1) {
+          const amount = accountHistory.amounts[j]
+          const id = amount.split('@')[1]
+          expect(id).toStrictEqual('1')
+        }
+      }
+    }
+
+    { // amount format should be symbol
+      const options = {
+        token: 'DBTC',
+        format: Format.SYMBOL
+      }
+      const accountHistories = await client.account.listAccountHistory('mine', options)
+      expect(accountHistories.length).toBeGreaterThan(0)
+      for (let i = 0; i < accountHistories.length; i += 1) {
+        const accountHistory = accountHistories[i]
+        expect(accountHistory.amounts.length).toBeGreaterThan(0)
+        for (let j = 0; j < accountHistory.amounts.length; j += 1) {
+          const amount = accountHistory.amounts[j]
+          const symbol = amount.split('@')[1]
+          expect(symbol).toStrictEqual('DBTC')
+        }
+      }
+    }
+
+    { // amount format default should be symbol
+      const options = {
+        token: 'DFI'
+      }
+      const accountHistories = await client.account.listAccountHistory('mine', options)
+      expect(accountHistories.length).toBeGreaterThan(0)
+      for (let i = 0; i < accountHistories.length; i += 1) {
+        const accountHistory = accountHistories[i]
+        expect(accountHistory.amounts.length).toBeGreaterThan(0)
+        for (let j = 0; j < accountHistory.amounts.length; j += 1) {
+          const amount = accountHistory.amounts[j]
+          const symbol = amount.split('@')[1]
+          expect(symbol).toStrictEqual('DFI')
+        }
+      }
+    }
   })
 })
 

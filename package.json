@@ -2,9 +2,8 @@
   "private": false,
   "name": "defichain",
   "version": "0.0.0",
-  "description": "A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized finance for Bitcoin",
-  "repository": "DeFiCh/jellyfish",
-  "bugs": "https://github.com/DeFiCh/jellyfish/issues",
+  "description": "SDK & Ecosystem for building modern lite DeFi Applications at scale.",
+  "repository": "JellyfishSDK/jellyfish",
   "license": "MIT",
   "files": [],
   "workspaces": [
@@ -14,12 +13,13 @@
     "./packages/*"
   ],
   "engines": {
-    "node": ">=14.x"
+    "node": ">=v16.17.0"
   },
   "scripts": {
     "prepare": "husky install",
     "lint": "eslint . --fix",
     "test": "jest --maxWorkers=100%",
+    "sanity": "jest --maxWorkers=100% --config=jest.sanity.js",
     "ci:test": "jest --ci --coverage --forceExit --maxWorkers=4",
     "all:clean": "rm -rf ./packages/**/dist && rm -rf ./apps/dist && rm -rf ./packages/**/tsconfig.build.tsbuildinfo",
     "all:build": "lerna run build",
@@ -27,19 +27,19 @@
     "all:publish": "lerna exec --no-private -- npm publish --tag latest --access public"
   },
   "devDependencies": {
-    "@types/jest": "^27.4.1",
-    "eslint": "^7.32.0",
-    "eslint-config-standard-jsx": "^10.0.0",
-    "eslint-config-standard-with-typescript": "^21.0.1",
-    "husky": "^7.0.4",
-    "jest": "^27.5.1",
-    "lerna": "^4.0.0",
-    "lint-staged": "^12.3.7",
-    "shuffle-seed": "^1.1.6",
-    "nock": "^13.2.4",
-    "ts-jest": "^27.1.3",
+    "@types/jest": "27.5.2",
+    "eslint": "7.32.0",
+    "eslint-config-standard-jsx": "10.0.0",
+    "eslint-config-standard-with-typescript": "21.0.1",
+    "husky": "8.0.1",
+    "jest": "27.5.1",
+    "lerna": "5.1.8",
+    "lint-staged": "13.0.3",
+    "nock": "13.2.9",
+    "shuffle-seed": "1.1.6",
+    "ts-jest": "27.1.5",
     "typescript": "4.2.4",
-    "wait-for-expect": "^3.0.2"
+    "wait-for-expect": "3.0.2"
   },
   "lint-staged": {
     "*.{ts,js}": [
