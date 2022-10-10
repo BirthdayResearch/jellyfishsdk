@@ -7,6 +7,7 @@ import { AbstractStartedContainer } from 'testcontainers/dist/modules/abstract-s
 import { getNetwork, MasterNodeKey, Network as BlockchainNetwork, NetworkName, RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { waitForCondition } from '..'
+import { RestartOptions } from 'testcontainers/dist/test-container'
 
 /**
  * DeFiChain NativeChain node managed in docker
@@ -191,20 +192,31 @@ export interface StartedContainerConfig {
 }
 
 export class StartedNativeChainContainer extends AbstractStartedContainer {
-  protected readonly rpcUrl: string
+  private assumedSpvHeight: number = 0
+  static SPV_EXPIRATION = 10
+  protected rpcUrl: string
 
   constructor (
     startedTestContainer: StartedTestContainer,
     protected readonly config: StartedContainerConfig
   ) {
     super(startedTestContainer)
+    this.rpcUrl = this.generateRpcUrl()
+  }
+
+  private generateRpcUrl (): string {
     const {
       rpcUser,
       rpcPassword,
       blockchainNetwork
-    } = config
+    } = this.config
     const port = this.getMappedPort(blockchainNetwork.ports.rpc)
-    this.rpcUrl = `http://${rpcUser}:${rpcPassword}@127.0.0.1:${port}/`
+    return `http://${rpcUser}:${rpcPassword}@127.0.0.1:${port}/`
+  }
+
+  async restart (options?: Partial<RestartOptions> | undefined): Promise<void> {
+    await super.restart(options)
+    this.rpcUrl = this.generateRpcUrl()
   }
 
   /**
@@ -622,6 +634,31 @@ export class StartedNativeChainContainer extends AbstractStartedContainer {
       privKey,
       pubKey: getaddressinfo.pubkey
     }
+  }
+
+  /** ---- SPV FUNCTIONS  ---- */
+  /**
+   * Funds a Bitcoin address with 1 BTC(for test purposes only)
+   *
+   * @param {number} address A bitcoin address
+   * @return {string} txid
+   */
+  async spvFundAddress (address: string): Promise<string> {
+    return await this.call('spv_fundaddress', [address])
+  }
+
+  /**
+   * Set last processed block height.
+   *
+   * @param {number} height BTC chain height
+   */
+  async spvSetLastHeight (height: number): Promise<void> {
+    this.assumedSpvHeight = height
+    return await this.call('spv_setlastheight', [height])
+  }
+
+  async increaseSpvHeight (height: number = StartedNativeChainContainer.SPV_EXPIRATION): Promise<void> {
+    return await this.spvSetLastHeight(this.assumedSpvHeight + height)
   }
 }
 

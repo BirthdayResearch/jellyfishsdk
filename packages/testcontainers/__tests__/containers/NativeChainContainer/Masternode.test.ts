@@ -1,7 +1,7 @@
 import { Network } from 'testcontainers'
 import { NativeChainContainer, StartedNativeChainContainer } from '../../../src'
 
-describe('masternode', () => {
+describe('nativechain masternode', () => {
   let container: StartedNativeChainContainer
 
   beforeAll(async () => {
