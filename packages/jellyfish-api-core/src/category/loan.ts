@@ -267,6 +267,16 @@ export class Loan {
     return await this.client.call('paybackloan', [metadata, utxos], 'number')
   }
 
+  /**
+   * Return loan with vault's collaterals
+   *
+   * @param {string} [vaultId] Vault hex id
+   * @return {Promise<string>} The hex-encoded hash of broadcasted transaction
+   */
+  async paybackWithCollateral (vaultId: string): Promise<string> {
+    return await this.client.call('paybackwithcollateral', [vaultId], 'number')
+  }
+
   // --- Deprecated vault methods---
   /**
    * Creates a vault transaction.
