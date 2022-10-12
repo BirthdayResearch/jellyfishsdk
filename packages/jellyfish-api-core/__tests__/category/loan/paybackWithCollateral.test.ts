@@ -3,12 +3,16 @@ import BigNumber from 'bignumber.js'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { Testing } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '../../../src'
+import { VaultActive } from '@defichain/jellyfish-api-core/dist/category/vault'
 
 const container = new MasterNodeRegTestContainer()
 const testing = Testing.create(container)
 let mnAddress: string
 let collateralAddress: string
 let vaultId: string
+
+const netInterest = 1 / 100 // (scheme.rate + loanToken.interest) / 100
+const blocksPerDay = (60 * 60 * 24) / (10 * 60) // 144 in regtest
 
 async function setup (): Promise<void> {
   mnAddress = RegTestFoundationKeys[0].owner.address
@@ -24,8 +28,8 @@ async function setup (): Promise<void> {
     { token: 'DUSD', currency: 'USD' }
   ]
 
-  const addr = await testing.generateAddress()
-  const oracleId = await testing.rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
+  const addr = await testing.container.getNewAddress('', 'legacy')
+  const oracleId = await testing.rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 10 })
   await testing.generate(1)
 
   const timestamp = Math.floor(new Date().getTime() / 1000)
@@ -57,29 +61,7 @@ async function setup (): Promise<void> {
   await testing.generate(1)
 
   // mint DUSD
-  await testing.token.mint({ symbol: 'DUSD', amount: 20000 })
-  await testing.generate(1)
-
-  // create loan scheme
-  await testing.rpc.loan.createLoanScheme({
-    minColRatio: 150,
-    interestRate: new BigNumber(1),
-    id: 'LOAN001'
-  })
-
-  // set collateral tokens
-  await testing.rpc.loan.setCollateralToken({
-    token: 'DFI',
-    factor: new BigNumber(1),
-    fixedIntervalPriceId: 'DFI/USD'
-  })
-  await testing.generate(1)
-
-  await testing.rpc.loan.setCollateralToken({
-    token: 'DUSD',
-    factor: new BigNumber(1),
-    fixedIntervalPriceId: 'DUSD/USD'
-  })
+  await testing.token.mint({ symbol: 'DUSD', amount: 10000 })
   await testing.generate(1)
 
   await testing.rpc.account.utxosToAccount({ [mnAddress]: '10000@DFI' })
@@ -97,6 +79,29 @@ async function setup (): Promise<void> {
   await testing.rpc.poolpair.addPoolLiquidity({
     [mnAddress]: ['5000@DFI', '5000@DUSD']
   }, mnAddress)
+  await testing.generate(1)
+
+  // create loan scheme
+  await testing.rpc.loan.createLoanScheme({
+    minColRatio: 150,
+    interestRate: new BigNumber(1),
+    id: 'LOAN001'
+  })
+  await testing.generate(1)
+
+  // set collateral tokens
+  await testing.rpc.loan.setCollateralToken({
+    token: 'DFI',
+    factor: new BigNumber(1),
+    fixedIntervalPriceId: 'DFI/USD'
+  })
+  await testing.generate(1)
+
+  await testing.rpc.loan.setCollateralToken({
+    token: 'DUSD',
+    factor: new BigNumber(1),
+    fixedIntervalPriceId: 'DUSD/USD'
+  })
   await testing.generate(1)
 
   await testing.rpc.account.accountToAccount(mnAddress, { [collateralAddress]: '2000@DFI' })
@@ -135,7 +140,7 @@ describe('paybackLoanWithCollateral - error cases', () => {
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise)
       .rejects
-      .toThrowError(`RpcApiError: 'Vault <${invalidVaultId}> not found', code: -5, method: paybackwithcollateral`)
+      .toThrowError(`Vault <${invalidVaultId}> not found`)
   })
 
   it('should throw error if payback of loan with collateral is not active', async () => {
@@ -147,7 +152,7 @@ describe('paybackLoanWithCollateral - error cases', () => {
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise)
       .rejects
-      .toThrowError(/Payback of DUSD loan with collateral is not currently active/)
+      .toThrowError('Payback of DUSD loan with collateral is not currently active')
   })
 
   it('should throw error if vault has no collateral', async () => {
@@ -156,7 +161,7 @@ describe('paybackLoanWithCollateral - error cases', () => {
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise)
       .rejects
-      .toThrowError(/Vault has no collaterals/)
+      .toThrowError('Vault has no collaterals')
   })
 
   it('should throw error if vault has no DUSD collateral', async () => {
@@ -168,7 +173,7 @@ describe('paybackLoanWithCollateral - error cases', () => {
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise)
       .rejects
-      .toThrowError(/Vault does not have any DUSD collaterals/)
+      .toThrowError('Vault does not have any DUSD collaterals')
   })
 
   it('should throw error if vault has no loans', async () => {
@@ -180,7 +185,7 @@ describe('paybackLoanWithCollateral - error cases', () => {
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise)
       .rejects
-      .toThrowError(/Vault has no loans/)
+      .toThrowError('Vault has no loans')
   })
 
   it('should throw error if vault has no DUSD loans', async () => {
@@ -198,7 +203,7 @@ describe('paybackLoanWithCollateral - error cases', () => {
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise)
       .rejects
-      .toThrowError(/Vault does not have any DUSD loans/)
+      .toThrowError('Vault does not have any DUSD loans')
   })
 
   it.skip('should throw error if vault does not have enough collateralization ratio defined by loan scheme', async () => {
@@ -207,26 +212,27 @@ describe('paybackLoanWithCollateral - error cases', () => {
     await testing.generate(1)
 
     await testing.rpc.vault.depositToVault({
-      vaultId, from: collateralAddress, amount: '151@DFI'
+      vaultId, from: collateralAddress, amount: '1000@DFI'
     })
     await testing.generate(1)
 
     await testing.rpc.vault.depositToVault({
-      vaultId, from: collateralAddress, amount: '1000@DUSD'
+      vaultId, from: collateralAddress, amount: '500@DUSD'
     })
     await testing.generate(1)
 
     await testing.rpc.loan.takeLoan({
       vaultId,
-      amounts: '100@TSLA'
+      amounts: '900@TSLA'
     })
     await testing.generate(1)
-
+    console.log('loan1')
     await testing.rpc.loan.takeLoan({
       vaultId,
       amounts: '100@DUSD'
     })
     await testing.generate(1)
+    console.log('loan2')
 
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/token/${idDUSD}/loan_minting_interest`]: '50000000' } })
     await testing.generate(2) // accrue enough interest to drop below collateralization ratio
@@ -250,7 +256,7 @@ describe('paybackLoanWithCollateral - success cases', () => {
     await testing.container.stop()
   })
 
-  it.skip('should paybackLoanWithCollateral when collateral is greater than loan', async () => {
+  it('should paybackLoanWithCollateral when collateral is greater than loan', async () => {
     await testing.rpc.vault.depositToVault({
       vaultId, from: collateralAddress, amount: '2000@DFI'
     })
@@ -263,31 +269,235 @@ describe('paybackLoanWithCollateral - success cases', () => {
 
     await testing.rpc.loan.takeLoan({
       vaultId,
-      amounts: '1000@DUSD',
-      to: collateralAddress
+      amounts: '1000@DUSD'
     })
+    await testing.generate(1)
 
-    const promise = testing.rpc.loan.paybackWithCollateral(vaultId)
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise)
-      .rejects
-      .toThrowError('RpcApiError: \'Test PaybackWithCollateralTx execution failed: Vault does not have any DUSD collaterals\', code: -32600')
+    const idDUSD = await testing.token.getTokenId('DUSD')
+    const mintedAmountBefore = (await testing.rpc.token.getToken('DUSD'))[idDUSD].minted
+
+    const vaultBefore = await testing.rpc.vault.getVault(vaultId) as VaultActive
+    const collateralAmountBefore = new BigNumber(vaultBefore.collateralAmounts[1].split('@')[0])
+    const loanAmountBefore = new BigNumber(vaultBefore.loanAmounts[0].split('@')[0])
+
+    expect(vaultBefore.loanAmounts.some(amt => amt.includes('DUSD'))).toBe(true)
+    expect(vaultBefore.interestAmounts.some(amt => amt.includes('DUSD'))).toBe(true)
+
+    await testing.rpc.loan.paybackWithCollateral(vaultId)
+    await testing.generate(1)
+
+    const vaultAfter = await testing.rpc.vault.getVault(vaultId) as VaultActive
+
+    const collateralAmountAfter = new BigNumber(vaultAfter.collateralAmounts[1].split('@')[0])
+
+    expect(vaultAfter.loanAmounts.some(amt => amt.includes('DUSD'))).toBe(false) // paid back all DUSD loans
+    expect(vaultAfter.interestAmounts.some(amt => amt.includes('DUSD'))).toBe(false) // paid back all DUSD interest
+    expect(vaultAfter.collateralAmounts.some(amt => amt.includes('DUSD'))).toBe(true)
+    expect(collateralAmountAfter).toEqual(collateralAmountBefore.minus(loanAmountBefore))
+
+    const storedInterest = await testing.container.call('getstoredinterest', [
+      vaultId,
+      idDUSD
+    ])
+    const interestPerBlock = new BigNumber(storedInterest.interestPerBlock).toFixed(8, BigNumber.ROUND_CEIL)
+    const interestToHeight = new BigNumber(storedInterest.interestToHeight).toFixed(8, BigNumber.ROUND_CEIL)
+
+    expect(interestPerBlock).toStrictEqual(new BigNumber(0).toFixed(8, BigNumber.ROUND_CEIL))
+    expect(interestToHeight).toStrictEqual(new BigNumber(0).toFixed(8, BigNumber.ROUND_CEIL))
+
+    const mintedAmountAfter = (await testing.rpc.token.getToken('DUSD'))[idDUSD].minted
+    expect(mintedAmountBefore).toEqual(mintedAmountAfter.plus(loanAmountBefore))
   })
 
-  it.skip('should paybackLoanWithCollateral when loan is greater than collateral', async () => {
+  it('should paybackLoanWithCollateral when loan is greater than collateral', async () => {
+    const collateralDUSDAmount = 1000
 
+    await testing.rpc.vault.depositToVault({
+      vaultId, from: collateralAddress, amount: '2000@DFI'
+    })
+    await testing.generate(1)
+
+    await testing.rpc.vault.depositToVault({
+      vaultId, from: collateralAddress, amount: `${collateralDUSDAmount}@DUSD`
+    })
+    await testing.generate(1)
+
+    await testing.rpc.loan.takeLoan({
+      vaultId,
+      amounts: '1100@DUSD'
+    })
+    await testing.generate(1)
+
+    const idDUSD = await testing.token.getTokenId('DUSD')
+    const mintedAmountBefore = (await testing.rpc.token.getToken('DUSD'))[idDUSD].minted
+
+    const vaultBefore = await testing.rpc.vault.getVault(vaultId) as VaultActive
+    const loanAmountBefore = new BigNumber(vaultBefore.loanAmounts[0].split('@')[0])
+
+    expect(vaultBefore.collateralAmounts.some(amt => amt.includes('DUSD'))).toBe(true)
+
+    await testing.rpc.loan.paybackWithCollateral(vaultId)
+    await testing.generate(1)
+
+    const vaultAfter = await testing.rpc.vault.getVault(vaultId) as VaultActive
+
+    const interestAmount = new BigNumber(vaultAfter.interestAmounts[0].split('@')[0])
+    const loanAmountAfter = new BigNumber(vaultAfter.loanAmounts[0].split('@')[0])
+
+    expect(vaultAfter.collateralAmounts.some(amt => amt.includes('DUSD'))).toBe(false) // used all DUSD collateral
+    expect(loanAmountAfter).toEqual(loanAmountBefore.minus(collateralDUSDAmount).plus(interestAmount))
+
+    const storedInterest = await testing.container.call('getstoredinterest', [
+      vaultId,
+      idDUSD
+    ])
+    const interestPerBlock = new BigNumber(storedInterest.interestPerBlock).toFixed(8, BigNumber.ROUND_CEIL)
+    const interestToHeight = new BigNumber(storedInterest.interestToHeight).toFixed(8, BigNumber.ROUND_CEIL)
+
+    expect(interestAmount.toFixed(8, BigNumber.ROUND_CEIL)).toEqual(interestPerBlock)
+    expect(interestToHeight).toStrictEqual(new BigNumber(0).toFixed(8, BigNumber.ROUND_CEIL))
+
+    const mintedAmountAfter = (await testing.rpc.token.getToken('DUSD'))[idDUSD].minted
+    expect(mintedAmountBefore).toEqual(mintedAmountAfter.plus(collateralDUSDAmount))
   })
 
-  it.skip('should paybackLoanWithCollateral when loan is equal to collateral', async () => {
+  it('should paybackLoanWithCollateral when loan is equal to collateral', async () => {
+    const loanDUSDAmount = 1000
+    const BN = BigNumber.clone({ DECIMAL_PLACES: 40 })
+    const dusdInterestPerBlock = new BN(netInterest * loanDUSDAmount).dividedBy(new BN(365 * blocksPerDay)).toFixed(8, BigNumber.ROUND_CEIL)
 
+    const collateralDUSDAmount = (new BigNumber(loanDUSDAmount).plus(dusdInterestPerBlock)).toNumber()
+
+    await testing.rpc.vault.depositToVault({
+      vaultId, from: collateralAddress, amount: '2000@DFI'
+    })
+    await testing.generate(1)
+
+    await testing.rpc.vault.depositToVault({
+      vaultId, from: collateralAddress, amount: `${collateralDUSDAmount}@DUSD`
+    })
+    await testing.generate(1)
+
+    await testing.rpc.loan.takeLoan({
+      vaultId,
+      amounts: `${loanDUSDAmount}@DUSD`
+    })
+    await testing.generate(1)
+
+    const idDUSD = await testing.token.getTokenId('DUSD')
+    const mintedAmountBefore = (await testing.rpc.token.getToken('DUSD'))[idDUSD].minted
+
+    await testing.rpc.loan.paybackWithCollateral(vaultId)
+    await testing.generate(1)
+
+    const vaultAfter = await testing.rpc.vault.getVault(vaultId) as VaultActive
+
+    expect(vaultAfter.loanAmounts.some(amt => amt.includes('DUSD'))).toBe(false) // paid back all DUSD loans
+    expect(vaultAfter.interestAmounts.some(amt => amt.includes('DUSD'))).toBe(false) // paid back all DUSD interest
+    expect(vaultAfter.collateralAmounts.some(amt => amt.includes('DUSD'))).toBe(false) // used all DUSD collateral
+
+    const storedInterest = await testing.container.call('getstoredinterest', [
+      vaultId,
+      idDUSD
+    ])
+    const interestPerBlock = new BigNumber(storedInterest.interestPerBlock).toFixed(8, BigNumber.ROUND_CEIL)
+    const interestToHeight = new BigNumber(storedInterest.interestToHeight).toFixed(8, BigNumber.ROUND_CEIL)
+
+    expect(interestPerBlock).toStrictEqual(new BigNumber(0).toFixed(8, BigNumber.ROUND_CEIL))
+    expect(interestToHeight).toStrictEqual(new BigNumber(0).toFixed(8, BigNumber.ROUND_CEIL))
+
+    const mintedAmountAfter = (await testing.rpc.token.getToken('DUSD'))[idDUSD].minted
+    expect(mintedAmountBefore).toEqual(mintedAmountAfter.plus(collateralDUSDAmount))
   })
 
-  it.skip('should paybackLoanWithCollateral when interest is greater than collateral', async () => {
+  it('should paybackLoanWithCollateral when interest is greater than collateral', async () => {
+    const collateralDUSDAmount = 0.000001
+    const loanDUSDAmount = 1000
 
+    await testing.rpc.vault.depositToVault({
+      vaultId, from: collateralAddress, amount: '2000@DFI'
+    })
+    await testing.generate(1)
+
+    await testing.rpc.vault.depositToVault({
+      vaultId, from: collateralAddress, amount: `${collateralDUSDAmount}@DUSD`
+    })
+    await testing.generate(1)
+
+    await testing.rpc.loan.takeLoan({
+      vaultId,
+      amounts: `${loanDUSDAmount}@DUSD`
+    })
+    await testing.generate(1)
+
+    const idDUSD = await testing.token.getTokenId('DUSD')
+    const mintedAmountBefore = (await testing.rpc.token.getToken('DUSD'))[idDUSD].minted
+
+    const vaultBefore = await testing.rpc.vault.getVault(vaultId) as VaultActive
+
+    expect(vaultBefore.collateralAmounts.some(amt => amt.includes('DUSD'))).toBe(true)
+
+    await testing.rpc.loan.paybackWithCollateral(vaultId)
+    await testing.generate(1)
+
+    const vaultAfter = await testing.rpc.vault.getVault(vaultId) as VaultActive
+    const interestAmount = new BigNumber(vaultAfter.interestAmounts[0].split('@')[0])
+
+    expect(vaultAfter.collateralAmounts.some(amt => amt.includes('DUSD'))).toBe(false) // used all DUSD collateral
+
+    const storedInterest = await testing.container.call('getstoredinterest', [
+      vaultId,
+      idDUSD
+    ])
+    const interestPerBlock = new BigNumber(storedInterest.interestPerBlock)
+    const mintedAmountAfter = (await testing.rpc.token.getToken('DUSD'))[idDUSD].minted
+
+    expect(interestAmount.toFixed(8, BigNumber.ROUND_CEIL)).toEqual(interestPerBlock.times(2).minus(collateralDUSDAmount).toFixed(8, BigNumber.ROUND_CEIL))
+    expect(mintedAmountBefore).toEqual(mintedAmountAfter.plus(collateralDUSDAmount))
   })
 
-  it.skip('should paybackLoanWithCollateral when interest is equal to collateral', async () => {
+  it('should paybackLoanWithCollateral when interest is equal to collateral', async () => {
+    const loanDUSDAmount = 1000
+    const BN = BigNumber.clone({ DECIMAL_PLACES: 40 })
+    const dusdInterestPerBlock = new BN(netInterest * loanDUSDAmount).dividedBy(new BN(365 * blocksPerDay)).toFixed(8, BigNumber.ROUND_CEIL)
 
+    const collateralDUSDAmount = dusdInterestPerBlock
+
+    await testing.rpc.vault.depositToVault({
+      vaultId, from: collateralAddress, amount: '2000@DFI'
+    })
+    await testing.generate(1)
+
+    await testing.rpc.vault.depositToVault({
+      vaultId, from: collateralAddress, amount: `${collateralDUSDAmount}@DUSD`
+    })
+    await testing.generate(1)
+
+    await testing.rpc.loan.takeLoan({
+      vaultId,
+      amounts: `${loanDUSDAmount}@DUSD`
+    })
+    await testing.generate(1)
+
+    // const idDUSD = await testing.token.getTokenId('DUSD')
+    // const mintedAmountBefore = (await testing.rpc.token.getToken('DUSD'))[idDUSD].minted
+
+    const vaultBefore = await testing.rpc.vault.getVault(vaultId) as VaultActive
+    const loanAmountBefore = new BigNumber(vaultBefore.loanAmounts[0].split('@')[0])
+    const interestAmountBefore = new BigNumber(vaultBefore.interestAmounts[0].split('@')[0])
+
+    expect(vaultBefore.collateralAmounts.some(amt => amt.includes('DUSD'))).toBe(true)
+
+    await testing.rpc.loan.paybackWithCollateral(vaultId)
+    await testing.generate(1)
+
+    const vaultAfter = await testing.rpc.vault.getVault(vaultId) as VaultActive
+    const loanAmountAfter = new BigNumber(vaultAfter.loanAmounts[0].split('@')[0])
+    const interestAmountAfter = new BigNumber(vaultAfter.interestAmounts[0].split('@')[0])
+
+    expect(vaultAfter.collateralAmounts.some(amt => amt.includes('DUSD'))).toBe(false) // used all DUSD collateral
+    expect(loanAmountBefore).toEqual(loanAmountAfter)
+    expect(interestAmountBefore).toEqual(interestAmountAfter)
   })
 
   it.skip('should paybackLoanWithCollateral when negative interest collateral is greater than collateral', async () => {
