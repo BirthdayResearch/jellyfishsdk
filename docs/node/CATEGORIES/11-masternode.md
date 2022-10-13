@@ -269,3 +269,12 @@ interface MasternodeResult<T> {
   [id: string]: T
 }
 ```
+
+## clearMempool
+Clears the memory pool and returns a list of the removed transaction ids.
+
+```ts title="client.masternode.clearMempool"
+interface masternode {
+  clearMempool (): Promise<string[]> 
+}
+```
