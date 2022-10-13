@@ -432,6 +432,21 @@ interface WaitBlockResult {
 }
 ```
 
+## waitForBlock
+
+Waits for a specific new block and returns useful info about it.
+
+```ts title="client.blockchain.waitForBlock()"
+interface blockchain {
+  waitForBlock (blockhash: string, timeout: number = 30000): Promise<WaitBlockResult>
+}
+
+interface WaitBlockResult {
+  hash: string
+  height: number
+}
+```
+
 ## waitForBlockHeight
 
 Waits for block height equal or higher than provided and returns the height and hash of the current tip.
