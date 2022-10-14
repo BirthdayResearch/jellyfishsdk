@@ -18,13 +18,13 @@ describe('clear mempool', () => {
     const createdTxId = await testing.rpc.wallet.sendToAddress('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 0.003)
 
     const txIdsInMempoolBefore = await testing.rpc.blockchain.getRawMempool(false)
-    expect(txIdsInMempoolBefore.length).toBe(1)
+    expect(txIdsInMempoolBefore.length).toStrictEqual(1)
 
     const removedTxIds = await testing.rpc.masternode.clearMempool()
 
     expect(removedTxIds).toContain(createdTxId)
 
     const txIdsInMempoolAfter = await testing.rpc.blockchain.getRawMempool(false)
-    expect(txIdsInMempoolAfter.length).toBe(0)
+    expect(txIdsInMempoolAfter.length).toStrictEqual(0)
   })
 })
