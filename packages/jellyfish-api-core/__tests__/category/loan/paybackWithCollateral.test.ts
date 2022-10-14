@@ -18,9 +18,6 @@ async function setup (): Promise<void> {
   mnAddress = RegTestFoundationKeys[0].owner.address
   collateralAddress = await testing.generateAddress()
 
-  await testing.token.dfi({ address: collateralAddress, amount: 300000 })
-  await testing.generate(1)
-
   // oracle setup
   const priceFeeds = [
     { token: 'DFI', currency: 'USD' },
@@ -51,7 +48,7 @@ async function setup (): Promise<void> {
     symbol: 'DUSD',
     fixedIntervalPriceId: 'DUSD/USD'
   })
-  await testing.generate(20)
+  await testing.generate(1)
 
   // setLoanToken TSLA
   await testing.rpc.loan.setLoanToken({
@@ -291,7 +288,7 @@ describe('paybackLoanWithCollateral - success cases', () => {
     expect(vaultAfter.loanAmounts.some(amt => amt.includes('DUSD'))).toBe(false) // paid back all DUSD loans
     expect(vaultAfter.interestAmounts.some(amt => amt.includes('DUSD'))).toBe(false) // paid back all DUSD interest
     expect(vaultAfter.collateralAmounts.some(amt => amt.includes('DUSD'))).toBe(true)
-    expect(collateralAmountAfter).toEqual(collateralAmountBefore.minus(loanAmountBefore))
+    expect(collateralAmountAfter).toStrictEqual(collateralAmountBefore.minus(loanAmountBefore))
 
     const storedInterest = await testing.container.call('getstoredinterest', [
       vaultId,
@@ -304,7 +301,7 @@ describe('paybackLoanWithCollateral - success cases', () => {
     expect(interestToHeight).toStrictEqual(new BigNumber(0).toFixed(8, BigNumber.ROUND_CEIL))
 
     const mintedAmountAfter = (await testing.rpc.token.getToken('DUSD'))[idDUSD].minted
-    expect(mintedAmountBefore).toEqual(mintedAmountAfter.plus(loanAmountBefore))
+    expect(mintedAmountBefore).toStrictEqual(mintedAmountAfter.plus(loanAmountBefore))
   })
 
   it('should paybackLoanWithCollateral when loan is greater than collateral', async () => {
@@ -343,7 +340,7 @@ describe('paybackLoanWithCollateral - success cases', () => {
     const loanAmountAfter = new BigNumber(vaultAfter.loanAmounts[0].split('@')[0])
 
     expect(vaultAfter.collateralAmounts.some(amt => amt.includes('DUSD'))).toBe(false) // used all DUSD collateral
-    expect(loanAmountAfter).toEqual(loanAmountBefore.minus(collateralDUSDAmount).plus(interestAmount))
+    expect(loanAmountAfter).toStrictEqual(loanAmountBefore.minus(collateralDUSDAmount).plus(interestAmount))
 
     const storedInterest = await testing.container.call('getstoredinterest', [
       vaultId,
@@ -352,11 +349,11 @@ describe('paybackLoanWithCollateral - success cases', () => {
     const interestPerBlock = new BigNumber(storedInterest.interestPerBlock).toFixed(8, BigNumber.ROUND_CEIL)
     const interestToHeight = new BigNumber(storedInterest.interestToHeight).toFixed(8, BigNumber.ROUND_CEIL)
 
-    expect(interestAmount.toFixed(8, BigNumber.ROUND_CEIL)).toEqual(interestPerBlock)
+    expect(interestAmount.toFixed(8, BigNumber.ROUND_CEIL)).toStrictEqual(interestPerBlock)
     expect(interestToHeight).toStrictEqual(new BigNumber(0).toFixed(8, BigNumber.ROUND_CEIL))
 
     const mintedAmountAfter = (await testing.rpc.token.getToken('DUSD'))[idDUSD].minted
-    expect(mintedAmountBefore).toEqual(mintedAmountAfter.plus(collateralDUSDAmount))
+    expect(mintedAmountBefore).toStrictEqual(mintedAmountAfter.plus(collateralDUSDAmount))
   })
 
   it('should paybackLoanWithCollateral when loan is equal to collateral', async () => {
@@ -405,7 +402,7 @@ describe('paybackLoanWithCollateral - success cases', () => {
     expect(interestToHeight).toStrictEqual(new BigNumber(0).toFixed(8, BigNumber.ROUND_CEIL))
 
     const mintedAmountAfter = (await testing.rpc.token.getToken('DUSD'))[idDUSD].minted
-    expect(mintedAmountBefore).toEqual(mintedAmountAfter.plus(collateralDUSDAmount))
+    expect(mintedAmountBefore).toStrictEqual(mintedAmountAfter.plus(collateralDUSDAmount))
   })
 
   it('should paybackLoanWithCollateral when interest is greater than collateral', async () => {
@@ -450,8 +447,8 @@ describe('paybackLoanWithCollateral - success cases', () => {
     const interestPerBlock = new BigNumber(storedInterest.interestPerBlock)
     const mintedAmountAfter = (await testing.rpc.token.getToken('DUSD'))[idDUSD].minted
 
-    expect(interestAmount.toFixed(8, BigNumber.ROUND_CEIL)).toEqual(interestPerBlock.times(2).minus(collateralDUSDAmount).toFixed(8, BigNumber.ROUND_CEIL))
-    expect(mintedAmountBefore).toEqual(mintedAmountAfter.plus(collateralDUSDAmount))
+    expect(interestAmount.toFixed(8, BigNumber.ROUND_CEIL)).toStrictEqual(interestPerBlock.times(2).minus(collateralDUSDAmount).toFixed(8, BigNumber.ROUND_CEIL))
+    expect(mintedAmountBefore).toStrictEqual(mintedAmountAfter.plus(collateralDUSDAmount))
   })
 
   it('should paybackLoanWithCollateral when interest is equal to collateral', async () => {
@@ -494,13 +491,13 @@ describe('paybackLoanWithCollateral - success cases', () => {
     const interestAmountAfter = new BigNumber(vaultAfter.interestAmounts[0].split('@')[0])
 
     expect(vaultAfter.collateralAmounts.some(amt => amt.includes('DUSD'))).toBe(false) // used all DUSD collateral
-    expect(loanAmountBefore).toEqual(loanAmountAfter)
-    expect(interestAmountBefore).toEqual(interestAmountAfter)
-    expect(vaultAfter.collateralValue).toEqual(vaultBefore.collateralValue.minus(dusdInterestPerBlock))
+    expect(loanAmountBefore).toStrictEqual(loanAmountAfter)
+    expect(interestAmountBefore).toStrictEqual(interestAmountAfter)
+    expect(vaultAfter.collateralValue).toStrictEqual(vaultBefore.collateralValue.minus(dusdInterestPerBlock))
 
     const mintedAmountAfter = (await testing.rpc.token.getToken('DUSD'))[idDUSD].minted
 
-    expect(mintedAmountBefore).toEqual(mintedAmountAfter.plus(collateralDUSDAmount))
+    expect(mintedAmountBefore).toStrictEqual(mintedAmountAfter.plus(collateralDUSDAmount))
   })
 
   it('should paybackLoanWithCollateral when negative interest collateral is greater than collateral', async () => {
@@ -541,7 +538,7 @@ describe('paybackLoanWithCollateral - success cases', () => {
 
     // collateral amount should be equal to the opposite of DUSD interest amount
     const collateralAmount = new BigNumber(vaultAfter.collateralAmounts[1].split('@')[0])
-    expect(collateralAmount).toEqual(interestAmount.multipliedBy(-1))
+    expect(collateralAmount).toStrictEqual(interestAmount.multipliedBy(-1))
 
     expect(vaultAfter.loanAmounts.some(amt => amt.includes('DUSD'))).toBe(false) // paid back all DUSD loan
     expect(vaultAfter.interestAmounts.some(amt => amt.includes('DUSD'))).toBe(false) // paid back all DUSD interest
@@ -557,7 +554,7 @@ describe('paybackLoanWithCollateral - success cases', () => {
     expect(interestToHeight).toStrictEqual(new BigNumber(0).toFixed(8, BigNumber.ROUND_CEIL))
 
     const mintedAmountAfter = (await testing.rpc.token.getToken('DUSD'))[idDUSD].minted
-    expect(mintedAmountBefore).toEqual(mintedAmountAfter.plus(loanAmountBefore))
+    expect(mintedAmountBefore).toStrictEqual(mintedAmountAfter.plus(loanAmountBefore))
   })
 
   it('should paybackLoanWithCollateral when negative interest loan is greater than collateral', async () => {
@@ -599,10 +596,10 @@ describe('paybackLoanWithCollateral - success cases', () => {
     const loanAmountAfter = new BigNumber(vaultAfter.loanAmounts[0].split('@')[0])
     const interestAmountAfter = new BigNumber(vaultAfter.interestAmounts[0].split('@')[0])
 
-    expect(loanAmountAfter).toEqual(loanAmountBefore.minus(collateralDUSDAmount).plus(interestAmountAfter))
+    expect(loanAmountAfter).toStrictEqual(loanAmountBefore.minus(collateralDUSDAmount).plus(interestAmountAfter))
     expect(vaultAfter.collateralAmounts.some(amt => amt.includes('DUSD'))).toBe(false) // used all DUSD collateral
 
     const mintedAmountAfter = (await testing.rpc.token.getToken('DUSD'))[idDUSD].minted
-    expect(mintedAmountBefore).toEqual(mintedAmountAfter.plus(collateralDUSDAmount))
+    expect(mintedAmountBefore).toStrictEqual(mintedAmountAfter.plus(collateralDUSDAmount))
   })
 })
