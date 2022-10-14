@@ -91,7 +91,7 @@ jobs:
         uses: docker/setup-buildx-action@95cb08cb2672c73d4ffd2f422e6d11953d2a9c70
 
       - name: Build platforms
-        uses: docker/build-push-action@c84f38281176d4c9cdb1626ffafcd6b3911b5d94
+        uses: docker/build-push-action@c56af957549030174b10d6867f20e78cfd7debc5
         with:
           push: false
           build-args: APP=${{ matrix.app }}
