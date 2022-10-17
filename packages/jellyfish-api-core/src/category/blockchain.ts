@@ -255,6 +255,17 @@ export class Blockchain {
   }
 
   /**
+   * Waits for a specific new block and returns useful info about it.
+   *
+   * @param {string} blockhash Block hash to wait for.
+   * @param {number} [timeout=30000] in millis
+   * @return Promise<WaitBlockResult> the current block on timeout or exit
+   */
+  async waitForBlock (blockhash: string, timeout: number = 30000): Promise<WaitBlockResult> {
+    return await this.client.call('waitforblock', [blockhash, timeout], 'number')
+  }
+
+  /**
    * Waits for block height equal or higher than provided and returns the height and hash of the current tip.
    *
    *
