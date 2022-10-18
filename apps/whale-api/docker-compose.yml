@@ -36,6 +36,7 @@ services:
       -fortcanningspringheight=13
       -fortcanninggreatworldheight=14
       -fortcanningepilogueheight=15
+      -regtest-skip-loan-collateral-validation
 
   defi-whale:
     build:
