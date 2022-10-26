@@ -1,20 +1,54 @@
-import { TestingGroup } from '@defichain/jellyfish-testing'
+import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers/dist/index'
 import { net } from '../../../src'
+import { ContainerAdapterClient } from '../../container_adapter_client'
 
 describe('Network without masternode', () => {
-  const tgroup = TestingGroup.create(2)
-  const { rpc: { net } } = tgroup.get(0)
+  const container = new RegTestContainer()
+  const client = new ContainerAdapterClient(container)
 
   beforeAll(async () => {
-    await tgroup.start()
+    await container.start()
   })
 
   afterAll(async () => {
-    await tgroup.stop()
+    await container.stop()
   })
 
   it('should getNetTotals', async () => {
-    const info: net.NetTotals = await net.getNetTotals()
+    const info: net.NetTotals = await client.net.getNetTotals()
+
+    expect(info).toStrictEqual({
+      totalbytesrecv: expect.any(Number),
+      totalbytessent: expect.any(Number),
+      timemillis: expect.any(Number),
+      uploadtarget: expect.any(Object)
+    })
+
+    expect(info.uploadtarget).toStrictEqual({
+      timeframe: expect.any(Number),
+      target: expect.any(Number),
+      target_reached: expect.any(Boolean),
+      serve_historical_blocks: expect.any(Boolean),
+      bytes_left_in_cycle: expect.any(Number),
+      time_left_in_cycle: expect.any(Number)
+    })
+  })
+})
+
+describe('Network on masternode', () => {
+  const container = new MasterNodeRegTestContainer()
+  const client = new ContainerAdapterClient(container)
+
+  beforeAll(async () => {
+    await container.start()
+  })
+
+  afterAll(async () => {
+    await container.stop()
+  })
+
+  it('should getNetTotals', async () => {
+    const info: net.NetTotals = await client.net.getNetTotals()
 
     expect(info).toStrictEqual({
       totalbytesrecv: expect.any(Number),
