@@ -6,7 +6,7 @@
     ":semanticCommitTypeAll(bump)"
   ],
   "dependencyDashboard": true,
-  "dependencyDashboardAutoclose": true,
+  "dependencyDashboardAutoclose": false,
   "major": {
     "dependencyDashboardApproval": true
   },
