@@ -21,16 +21,14 @@ describe('Network without masternode', () => {
       totalbytesrecv: expect.any(Number),
       totalbytessent: expect.any(Number),
       timemillis: expect.any(Number),
-      uploadtarget: expect.any(Object)
-    })
-
-    expect(info.uploadtarget).toStrictEqual({
-      timeframe: expect.any(Number),
-      target: expect.any(Number),
-      target_reached: expect.any(Boolean),
-      serve_historical_blocks: expect.any(Boolean),
-      bytes_left_in_cycle: expect.any(Number),
-      time_left_in_cycle: expect.any(Number)
+      uploadtarget: {
+        timeframe: expect.any(Number),
+        target: expect.any(Number),
+        target_reached: expect.any(Boolean),
+        serve_historical_blocks: expect.any(Boolean),
+        bytes_left_in_cycle: expect.any(Number),
+        time_left_in_cycle: expect.any(Number)
+      }
     })
   })
 })
@@ -54,16 +52,14 @@ describe('Network on masternode', () => {
       totalbytesrecv: expect.any(Number),
       totalbytessent: expect.any(Number),
       timemillis: expect.any(Number),
-      uploadtarget: expect.any(Object)
-    })
-
-    expect(info.uploadtarget).toStrictEqual({
-      timeframe: expect.any(Number),
-      target: expect.any(Number),
-      target_reached: expect.any(Boolean),
-      serve_historical_blocks: expect.any(Boolean),
-      bytes_left_in_cycle: expect.any(Number),
-      time_left_in_cycle: expect.any(Number)
+      uploadtarget: {
+        timeframe: expect.any(Number),
+        target: expect.any(Number),
+        target_reached: expect.any(Boolean),
+        serve_historical_blocks: expect.any(Boolean),
+        bytes_left_in_cycle: expect.any(Number),
+        time_left_in_cycle: expect.any(Number)
+      }
     })
   })
 })
