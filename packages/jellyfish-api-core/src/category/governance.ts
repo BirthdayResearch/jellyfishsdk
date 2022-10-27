@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 import { ApiClient } from '../.'
 
 export enum ProposalType {
-  COMMUNITY_FUND_REQUEST = 'CommunityFundRequest',
+  COMMUNITY_FUND_PROPOSAL = 'CommunityFundProposal',
   BLOCK_REWARD_RELLOCATION = 'BlockRewardRellocation',
   VOTE_OF_CONFIDENCE = 'VoteOfConfidence'
 }
@@ -49,10 +49,12 @@ export class Governance {
   }
 
   /**
-   * Creates a Community Fund Request.
+   * Creates a Community Fund Proposal.
    *
    * @param {CFPData} data Community fund proposal data
    * @param {string} data.title Title of community fund request
+   * @param {string} data.context Context of community fund request
+   * @param {string} data.contextHash Hash of the content which context field point to of community fund request
    * @param {BigNumber} data.amount Amount per period
    * @param {string} data.payoutAddress Any valid address to receive the funds
    * @param {number} [data.cycles=1] Number of cycles for periodic fund request. Defaults to one cycle.
@@ -61,11 +63,11 @@ export class Governance {
    * @param {number} [utxos.vout] The output number
    * @return {Promise<string>} txid
    */
-  async createCfp (data: CFPData, utxos: UTXO[] = []): Promise<string> {
+  async createGovCfp (data: CFPData, utxos: UTXO[] = []): Promise<string> {
     const defaultData = {
       cycles: 1
     }
-    return await this.client.call('createcfp', [{ ...defaultData, ...data }, utxos], 'number')
+    return await this.client.call('creategovcfp', [{ ...defaultData, ...data }, utxos], 'number')
   }
 
   /**
@@ -82,13 +84,14 @@ export class Governance {
    * Creates a Vote of Confidence.
    *
    * @param {string} title Vote of confidence's title
+   * @param {string} context The context field for vote of confidence
    * @param {UTXO[]} [utxos = []] Specific utxos to spend
    * @param {string} [utxos.txid] The transaction id
    * @param {number} [utxos.vout] The output number
    * @return {Promise<string>} txid
    */
-  async createVoc (title: string, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('createvoc', [title, utxos], 'number')
+  async createGovVoc (title: string, context: string, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('creategovvoc', [title, context, utxos], 'number')
   }
 
   /**
@@ -136,6 +139,8 @@ export class Governance {
 
 export interface CFPData {
   title: string
+  context: string
+  contextHash?: string
   amount: BigNumber
   payoutAddress: string
   cycles?: number

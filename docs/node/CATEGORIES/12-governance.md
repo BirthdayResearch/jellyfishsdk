@@ -13,17 +13,19 @@ const client = new JsonRpcClient('http://foo:bar@localhost:8554')
 const something = await client.governance.method()
 ```
 
-## createCfp
+## createGovCfp
 
-Creates a Community Fund Request.
+Creates a Community Fund Proposal.
 
-```ts title="client.governance.createCfp()"
+```ts title="client.governance.createGovCfp()"
 interface governance {
-  createCfp (data: CFPData, utxos: UTXO[] = []): Promise<string>
+  createGovCfp (data: CFPData, utxos: UTXO[] = []): Promise<string>
 }
 
 interface CFPData {
   title: string
+  context: string
+  contextHash?: string
   amount: BigNumber
   payoutAddress: string
   cycles?: number

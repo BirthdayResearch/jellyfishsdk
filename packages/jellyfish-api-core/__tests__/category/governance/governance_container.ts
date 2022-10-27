@@ -2,7 +2,7 @@ import { MasterNodeRegTestContainer, StartOptions } from '@defichain/testcontain
 
 export class GovernanceMasterNodeRegTestContainer extends MasterNodeRegTestContainer {
   constructor () {
-    super(undefined, 'defi/defichain:master-bcce2b47e')
+    super(undefined, 'defi/defichain:epic-grandcentral-0cdada064')
   }
 
   /**
@@ -10,15 +10,15 @@ export class GovernanceMasterNodeRegTestContainer extends MasterNodeRegTestConta
    */
   protected getCmd (opts: StartOptions): string[] {
     const cmd = super.getCmd(opts)
-      .filter(cmd => cmd !== '-eunospayaheight=7')
-      .filter(cmd => cmd !== '-fortcanningheight=8')
-      .filter(cmd => cmd !== '-fortcanningmuseumheight=9')
-      .filter(cmd => cmd !== '-fortcanninghillheight=10')
-      .filter(cmd => cmd !== '-fortcanningroadheight=11')
+    // .filter(cmd => cmd !== '-eunospayaheight=7')
+    // .filter(cmd => cmd !== '-fortcanningheight=8')
+    // .filter(cmd => cmd !== '-fortcanningmuseumheight=9')
+    // .filter(cmd => cmd !== '-fortcanninghillheight=10')
+    // .filter(cmd => cmd !== '-fortcanningroadheight=11')
 
     return [
       ...cmd,
-      '-fortcanningheight=20'
+      '-grandcentralheight=16'
     ]
   }
 }
