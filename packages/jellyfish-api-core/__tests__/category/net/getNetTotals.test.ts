@@ -39,6 +39,7 @@ describe('Network on masternode', () => {
 
   beforeAll(async () => {
     await container.start()
+    await container.generate(1)
   })
 
   afterAll(async () => {
