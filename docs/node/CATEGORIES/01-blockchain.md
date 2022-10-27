@@ -423,7 +423,7 @@ Retrieve a BIP 157 content filter for a particular block.
 
 ```ts title="client.blockchain.getBlockFilter()"
 interface blockchain {
-  getBlockFilter (blockHash?: string, filterType: string = 'basic'): Promise<BlockFilter>
+  getBlockFilter (blockHash: string, filterType: string = 'basic'): Promise<BlockFilter>
 }
 
 interface BlockFilter {

@@ -247,11 +247,11 @@ export class Blockchain {
   /**
    * Retrieve a BIP 157 content filter for a particular block.
    *
-   * @param {string} [blockHash] The hash of the block.
+   * @param {string} blockHash The hash of the block.
    * @param {string} [filterType] The type name of the filter. Defaults to basic.
    * @return {Promise<BlockFilter>}
    */
-  async getBlockFilter (blockHash?: string, filterType: string = 'basic'): Promise<BlockFilter> {
+  async getBlockFilter (blockHash: string, filterType: string = 'basic'): Promise<BlockFilter> {
     return await this.client.call('getblockfilter', [blockHash, filterType], 'number')
   }
 
