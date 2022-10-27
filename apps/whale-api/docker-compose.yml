@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   defi-blockchain:
-    image: defi/defichain:epic-grandcentral-79a24035e
+    image: defi/defichain:epic-grandcentral-bfb0eedb7
     ports:
       - "19554:19554"
     command: >
