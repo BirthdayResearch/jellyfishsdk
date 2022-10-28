@@ -72,13 +72,13 @@ interface ProposalInfo {
 }
  ```
 
-## createVoc
+## createGovVoc
 
 Creates a Vote of Confidence.
 
-```ts title="client.governance.createVoc()"
+```ts title="client.governance.createGovVoc()"
 interface governance {
-  createVoc (title: string, utxos: UTXO[] = []): Promise<string>
+  createGovVoc (title: string, context: string, utxos: UTXO[] = []): Promise<string>
 }
 
 interface UTXO {

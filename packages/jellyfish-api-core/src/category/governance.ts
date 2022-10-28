@@ -84,13 +84,14 @@ export class Governance {
    * Creates a Vote of Confidence.
    *
    * @param {string} title Vote of confidence's title
+   * @param {string} context Vote of confidence's context
    * @param {UTXO[]} [utxos = []] Specific utxos to spend
    * @param {string} [utxos.txid] The transaction id
    * @param {number} [utxos.vout] The output number
    * @return {Promise<string>} txid
    */
-  async createVoc (title: string, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('createvoc', [title, utxos], 'number')
+  async createGovVoc (title: string, context: string, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('creategovvoc', [title, context, utxos], 'number')
   }
 
   /**

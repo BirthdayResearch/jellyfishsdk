@@ -63,7 +63,7 @@ describe.skip('createCfp', () => {
     expect(proposal).toStrictEqual({
       proposalId: txid,
       title: createCfp.title,
-      type: governance.ProposalType.COMMUNITY_FUND_REQUEST,
+      type: governance.ProposalType.COMMUNITY_FUND_PROPOSAL,
       status: governance.ProposalStatus.VOTING,
       amount: createCfp.amount,
       cyclesPaid: 1,

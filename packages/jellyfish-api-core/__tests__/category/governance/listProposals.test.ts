@@ -27,8 +27,8 @@ describe.skip('Governance', () => {
       amount: 100,
       payoutAddress: await container.call('getnewaddress')
     }])
-    await client.governance.createVoc('first vote of confidence')
-    await client.governance.createVoc('second vote of confidence')
+    await client.governance.createGovVoc('first vote of confidence', '<Git issue url>')
+    await client.governance.createGovVoc('second vote of confidence', '<Git issue url>')
     await container.generate(1)
   }
 
@@ -87,7 +87,6 @@ describe.skip('Governance without proposals', () => {
 
   beforeAll(async () => {
     await container.start()
-    await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
   })
 

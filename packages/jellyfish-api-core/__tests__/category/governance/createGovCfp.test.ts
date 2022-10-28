@@ -33,7 +33,7 @@ describe('On-chain governance disabled', () => {
   })
 })
 
-describe('On-chain governance enabled - success cases', () => {
+describe('On-chain governance enabled', () => {
   beforeAll(async () => {
     await container.start()
     await container.waitForWalletCoinbaseMaturity()
@@ -46,7 +46,7 @@ describe('On-chain governance enabled - success cases', () => {
     await container.stop()
   })
 
-  it('should createGovCfp - without UTXOs', async () => {
+  it('should createGovCfp without UTXOs', async () => {
     const burnInfo = await client.account.getBurnInfo()
     expect(burnInfo.feeburn).toStrictEqual(new BigNumber(0))
 
@@ -142,7 +142,7 @@ describe('On-chain governance enabled - success cases', () => {
     }
   })
 
-  it('should createGovCfp - with UTXOs', async () => {
+  it('should createGovCfp with UTXOs', async () => {
     const data = {
       title: 'Test',
       context: '<Git issue url>',
@@ -160,19 +160,6 @@ describe('On-chain governance enabled - success cases', () => {
     expect(rawtx.vin[0].txid).toStrictEqual(utxo.txid)
     expect(rawtx.vin[0].vout).toStrictEqual(utxo.vout)
   })
-})
-
-describe('On-chain governance enabled - error cases', () => {
-  beforeAll(async () => {
-    await container.start()
-    await container.waitForWalletCoinbaseMaturity()
-    await client.masternode.setGov({ ATTRIBUTES: { 'v0/governance/global/enabled': 'true' } })
-    await container.generate(1)
-  })
-
-  afterAll(async () => {
-    await container.stop()
-  })
 
   it('should throw error if proposal cycles < 1', async () => {
     const data = {
@@ -184,7 +171,7 @@ describe('On-chain governance enabled - error cases', () => {
     }
     const promise = client.governance.createGovCfp(data)
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('proposal cycles can be between 1 and 3')
+    await expect(promise).rejects.toThrow("RpcApiError: 'Test CreateCfpTx execution failed:\nproposal cycles can be between 1 and 3', code: -32600, method: creategovcfp")
   })
 
   it('should throw error if proposal cycles > 3', async () => {
@@ -319,7 +306,7 @@ describe('On-chain governance enabled - error cases', () => {
   })
 })
 
-describe('On-chain governance - still in Initial Block Download', () => {
+describe('On-chain governance while still in Initial Block Download', () => {
   beforeAll(async () => {
     await container.start()
   })
@@ -342,7 +329,7 @@ describe('On-chain governance - still in Initial Block Download', () => {
   })
 })
 
-describe('On-chain governance - insufficient funds', () => {
+describe('On-chain governance with insufficient funds', () => {
   beforeAll(async () => {
     await container.start()
     await container.generate(1)
