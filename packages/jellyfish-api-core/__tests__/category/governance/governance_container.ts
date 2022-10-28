@@ -10,11 +10,7 @@ export class GovernanceMasterNodeRegTestContainer extends MasterNodeRegTestConta
    */
   protected getCmd (opts: StartOptions): string[] {
     const cmd = super.getCmd(opts)
-    // .filter(cmd => cmd !== '-eunospayaheight=7')
-    // .filter(cmd => cmd !== '-fortcanningheight=8')
-    // .filter(cmd => cmd !== '-fortcanningmuseumheight=9')
-    // .filter(cmd => cmd !== '-fortcanninghillheight=10')
-    // .filter(cmd => cmd !== '-fortcanningroadheight=11')
+      .filter(cmd => cmd !== '-regtest-skip-loan-collateral-validation')
 
     return [
       ...cmd,

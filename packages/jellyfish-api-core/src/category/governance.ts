@@ -76,22 +76,21 @@ export class Governance {
    * @param {string} proposalId Proposal id
    * @return {Promise<ProposalInfo>} Information about the proposal
    */
-  async getProposal (proposalId: string): Promise<ProposalInfo> {
-    return await this.client.call('getproposal', [proposalId], { amount: 'bignumber' })
+  async getGovProposal (proposalId: string): Promise<ProposalInfo> {
+    return await this.client.call('getgovproposal', [proposalId], { amount: 'bignumber' })
   }
 
   /**
    * Creates a Vote of Confidence.
    *
    * @param {string} title Vote of confidence's title
-   * @param {string} context The context field for vote of confidence
    * @param {UTXO[]} [utxos = []] Specific utxos to spend
    * @param {string} [utxos.txid] The transaction id
    * @param {number} [utxos.vout] The output number
    * @return {Promise<string>} txid
    */
-  async createGovVoc (title: string, context: string, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('creategovvoc', [title, context, utxos], 'number')
+  async createVoc (title: string, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('createvoc', [title, utxos], 'number')
   }
 
   /**
@@ -157,10 +156,11 @@ export interface UTXO {
 export interface ProposalInfo {
   proposalId: string
   title: string
+  context: string
   type: ProposalType
   status: ProposalStatus
   amount: BigNumber
-  cyclesPaid: number
+  nextCycle: number
   totalCycles: number
   finalizeAfter: number
   payoutAddress: string

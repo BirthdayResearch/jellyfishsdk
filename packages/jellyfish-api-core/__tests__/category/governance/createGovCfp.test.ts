@@ -59,8 +59,6 @@ describe('On-chain governance enabled - success cases', () => {
         payoutAddress: await container.getNewAddress('', 'p2sh-segwit'),
         cycles: 2
       }
-      const cycle1 = 103 + (103 % 70) + 70
-      const finalHeight = cycle1 + (cycle1 % 70) + 70
 
       const proposalTx = await client.governance.createGovCfp(data)
       await container.generate(1)
@@ -72,7 +70,7 @@ describe('On-chain governance enabled - success cases', () => {
         type: ProposalType.COMMUNITY_FUND_PROPOSAL,
         status: ProposalStatus.VOTING,
         amount: data.amount.toNumber(),
-        finalizeAfter: finalHeight,
+        finalizeAfter: expect.any(Number),
         nextCycle: 1,
         totalCycles: data.cycles,
         payoutAddress: data.payoutAddress,
@@ -95,9 +93,6 @@ describe('On-chain governance enabled - success cases', () => {
       const proposalTx = await client.governance.createGovCfp(data)
       await container.generate(1)
 
-      const cycle1 = 104 + (104 % 70) + 70
-      const finalHeight = cycle1 + (cycle1 % 70) + 70
-
       const proposal = await container.call('getgovproposal', [proposalTx])
       expect(proposal).toStrictEqual({
         title: data.title,
@@ -105,7 +100,7 @@ describe('On-chain governance enabled - success cases', () => {
         type: ProposalType.COMMUNITY_FUND_PROPOSAL,
         status: ProposalStatus.VOTING,
         amount: data.amount.toNumber(),
-        finalizeAfter: finalHeight,
+        finalizeAfter: expect.any(Number),
         nextCycle: 1,
         totalCycles: data.cycles,
         payoutAddress: data.payoutAddress,
@@ -128,9 +123,6 @@ describe('On-chain governance enabled - success cases', () => {
       const proposalTx = await client.governance.createGovCfp(data)
       await container.generate(1)
 
-      const cycle1 = 105 + (105 % 70) + 70
-      const finalHeight = cycle1 + (cycle1 % 70) + 70
-
       const proposal = await container.call('getgovproposal', [proposalTx])
       expect(proposal).toStrictEqual({
         title: data.title,
@@ -138,7 +130,7 @@ describe('On-chain governance enabled - success cases', () => {
         type: ProposalType.COMMUNITY_FUND_PROPOSAL,
         status: ProposalStatus.VOTING,
         amount: data.amount.toNumber(),
-        finalizeAfter: finalHeight,
+        finalizeAfter: expect.any(Number),
         nextCycle: 1,
         totalCycles: data.cycles,
         payoutAddress: data.payoutAddress,

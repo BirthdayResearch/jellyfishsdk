@@ -47,7 +47,7 @@ describe.skip('Governance', () => {
       expect(typeof proposal.status).toStrictEqual('string')
       expect(proposal.amount instanceof BigNumber).toStrictEqual(true)
       expect(typeof proposal.totalCycles).toStrictEqual('number')
-      expect(typeof proposal.cyclesPaid).toStrictEqual('number')
+      expect(typeof proposal.nextCycle).toStrictEqual('number')
       expect(typeof proposal.finalizeAfter).toStrictEqual('number')
       expect(typeof proposal.payoutAddress).toStrictEqual('string')
     }
@@ -76,7 +76,7 @@ describe.skip('Governance', () => {
     })
 
     expect(proposals.length).toStrictEqual(1)
-    expect(proposals[0].type).toStrictEqual(ProposalType.COMMUNITY_FUND_REQUEST)
+    expect(proposals[0].type).toStrictEqual(ProposalType.COMMUNITY_FUND_PROPOSAL)
     expect(proposals[0].status).toStrictEqual(ProposalStatus.REJECTED)
   })
 })

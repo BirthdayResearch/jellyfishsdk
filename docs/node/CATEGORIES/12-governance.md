@@ -37,13 +37,13 @@ interface UTXO {
 }
 ```
 
-## getProposal
+## getGovProposal
 
-Returns information about the proposal.
+Returns real time information about the proposal.
 
-```ts title="client.governance.getProposal()"
+```ts title="client.governance.getGovProposal()"
 interface governance {
-  getProposal (proposalId: string): Promise<ProposalInfo>
+  getGovProposal (proposalId: string): Promise<ProposalInfo>
 }
 
 enum ProposalType {
@@ -61,10 +61,11 @@ enum ProposalStatus {
 interface ProposalInfo {
   proposalId: string
   title: string
+  context: string
   type: ProposalType
   status: ProposalStatus
   amount: BigNumber
-  cyclesPaid: number
+  nextCycle: number
   totalCycles: number
   finalizeAfter: number
   payoutAddress: string
