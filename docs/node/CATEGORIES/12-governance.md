@@ -138,13 +138,13 @@ interface ProposalInfo {
 }
 ```
 
-## vote
+## voteGov
 
 Vote on a community proposal.
 
-```ts title="client.governance.vote()"
+```ts title="client.governance.voteGov()"
 interface governance {
-  async vote (data: VoteData, utxos: UTXO[] = []): Promise<string>
+  async voteGov (data: VoteData, utxos: UTXO[] = []): Promise<string>
 }
 
 enum VoteDecision {

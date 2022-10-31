@@ -46,7 +46,7 @@ describe.skip('Governance', () => {
     for (const [id, data] of Object.entries(masternodes)) {
       if (data.operatorIsMine) {
         await testing.container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
-        await testing.rpc.governance.vote({ proposalId, masternodeId: id, decision: VoteDecision.YES })
+        await testing.rpc.governance.voteGov({ proposalId, masternodeId: id, decision: VoteDecision.YES })
       }
     }
     await testing.container.generate(1)
@@ -67,7 +67,7 @@ describe.skip('Governance', () => {
     for (const [id, data] of Object.entries(masternodes)) {
       if (data.operatorIsMine) {
         await testing.container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
-        await testing.rpc.governance.vote({ proposalId, masternodeId: id, decision: VoteDecision.YES })
+        await testing.rpc.governance.voteGov({ proposalId, masternodeId: id, decision: VoteDecision.YES })
       }
     }
     await testing.container.generate(1)
@@ -90,7 +90,7 @@ describe.skip('Governance', () => {
     for (const [id, data] of Object.entries(masternodes)) {
       if (data.operatorIsMine) {
         await testing.container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
-        await testing.rpc.governance.vote({ proposalId, masternodeId: id, decision: VoteDecision.YES })
+        await testing.rpc.governance.voteGov({ proposalId, masternodeId: id, decision: VoteDecision.YES })
         masternodeId = id // Uses the last id as masternodeId
       }
     }

@@ -121,8 +121,8 @@ export class Governance {
    * @param {string} [utxos.vout] The output number
    * @return {Promise<string>} txid
    */
-  async vote (data: VoteData, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('vote', [data.proposalId, data.masternodeId, data.decision, utxos], 'number')
+  async voteGov (data: VoteData, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('votegov', [data.proposalId, data.masternodeId, data.decision, utxos], 'number')
   }
 
   /**
