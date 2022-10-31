@@ -1,9 +1,9 @@
+import BigNumber from 'bignumber.js'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { ListProposalsStatus, ListProposalsType, ProposalStatus, ProposalType } from '../../../src/category/governance'
 import { GovernanceMasterNodeRegTestContainer } from './governance_container'
-import BigNumber from 'bignumber.js'
 
-describe.skip('Governance', () => {
+describe('Governance', () => {
   const container = new GovernanceMasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -15,18 +15,23 @@ describe.skip('Governance', () => {
   })
 
   async function setup (): Promise<void> {
-    await container.call('createcfp', [{
+    await client.masternode.setGov({ ATTRIBUTES: { 'v0/governance/global/enabled': 'true' } })
+    await container.generate(1)
+
+    await client.governance.createGovCfp({
       title: 'First community fund proposal',
-      amount: 100,
-      payoutAddress: await container.call('getnewaddress')
-    }])
+      context: '<Git issue url>',
+      amount: new BigNumber(100),
+      payoutAddress: await container.getNewAddress()
+    })
     await container.generate(200) // Expires proposal
 
-    await container.call('createcfp', [{
+    await client.governance.createGovCfp({
       title: 'Second community fund proposal',
-      amount: 100,
-      payoutAddress: await container.call('getnewaddress')
-    }])
+      context: '<Git issue url>',
+      amount: new BigNumber(100),
+      payoutAddress: await container.getNewAddress()
+    })
     await client.governance.createGovVoc('first vote of confidence', '<Git issue url>')
     await client.governance.createGovVoc('second vote of confidence', '<Git issue url>')
     await container.generate(1)
@@ -36,41 +41,44 @@ describe.skip('Governance', () => {
     await container.stop()
   })
 
-  it('should listProposals', async () => {
-    const proposals = await client.governance.listProposals()
+  it('should listGovProposals', async () => {
+    const proposals = await client.governance.listGovProposals()
 
     expect(proposals.length).toStrictEqual(4)
     for (const proposal of proposals) {
-      expect(typeof proposal.proposalId).toStrictEqual('string')
-      expect(typeof proposal.title).toStrictEqual('string')
-      expect(typeof proposal.type).toStrictEqual('string')
-      expect(typeof proposal.status).toStrictEqual('string')
-      expect(proposal.amount instanceof BigNumber).toStrictEqual(true)
-      expect(typeof proposal.totalCycles).toStrictEqual('number')
-      expect(typeof proposal.nextCycle).toStrictEqual('number')
-      expect(typeof proposal.finalizeAfter).toStrictEqual('number')
-      expect(typeof proposal.payoutAddress).toStrictEqual('string')
+      expect(proposal).toStrictEqual({
+        title: expect.any(String),
+        context: expect.any(String),
+        type: expect.any(String),
+        status: expect.any(String),
+        amount: expect.any(BigNumber),
+        finalizeAfter: expect.any(Number),
+        nextCycle: expect.any(Number),
+        totalCycles: expect.any(Number),
+        payoutAddress: expect.any(String),
+        proposalId: expect.any(String)
+      })
     }
   })
 
-  it('should listProposals with type ListProposalsType.VOC', async () => {
-    const proposals = await client.governance.listProposals({
+  it('should listGovProposals with type ListProposalsType.VOC', async () => {
+    const proposals = await client.governance.listGovProposals({
       type: ListProposalsType.VOC
     })
     expect(proposals.length).toStrictEqual(2)
     expect(proposals.every(({ type }) => type === ProposalType.VOTE_OF_CONFIDENCE)).toStrictEqual(true)
   })
 
-  it('should listProposals with status ListProposalsStatus.VOTING', async () => {
-    const proposals = await client.governance.listProposals({
+  it('should listGovProposals with status ListProposalsStatus.VOTING', async () => {
+    const proposals = await client.governance.listGovProposals({
       status: ListProposalsStatus.VOTING
     })
     expect(proposals.length).toStrictEqual(3)
     expect(proposals.every(({ status }) => status === ProposalStatus.VOTING)).toStrictEqual(true)
   })
 
-  it('should listProposals with type ListProposalsType.CFP and status ListProposalsStatus.REJECTED', async () => {
-    const proposals = await client.governance.listProposals({
+  it('should listGovProposals with type ListProposalsType.CFP and status ListProposalsStatus.REJECTED', async () => {
+    const proposals = await client.governance.listGovProposals({
       type: ListProposalsType.CFP,
       status: ListProposalsStatus.REJECTED
     })
@@ -81,7 +89,7 @@ describe.skip('Governance', () => {
   })
 })
 
-describe.skip('Governance without proposals', () => {
+describe('Governance without proposals', () => {
   const container = new GovernanceMasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -94,8 +102,8 @@ describe.skip('Governance without proposals', () => {
     await container.stop()
   })
 
-  it('should listProposals with empty array if no proposal available', async () => {
-    const proposals = await client.governance.listProposals()
+  it('should listGovProposals with empty array if no proposal available', async () => {
+    const proposals = await client.governance.listGovProposals()
     expect(proposals.length).toStrictEqual(0)
   })
 })

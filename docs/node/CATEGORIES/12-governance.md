@@ -47,7 +47,7 @@ interface governance {
 }
 
 enum ProposalType {
-  COMMUNITY_FUND_REQUEST = 'CommunityFundRequest',
+  COMMUNITY_FUND_PROPOSAL = 'CommunityFundProposal',
   BLOCK_REWARD_RELLOCATION = 'BlockRewardRellocation',
   VOTE_OF_CONFIDENCE = 'VoteOfConfidence'
 }
@@ -87,13 +87,13 @@ interface UTXO {
 }
 ```
 
-## listProposals
+## listGovProposals
 
 Returns list of proposals.
 
-```ts title="client.governance.listProposals()"
+```ts title="client.governance.listGovProposals()"
 interface governance {
-  async listProposals ({
+  async listGovProposals ({
     type = ListProposalsType.ALL,
     status = ListProposalsStatus.ALL
   } = {}): Promise<ProposalInfo[]>
@@ -114,7 +114,7 @@ enum ListProposalsStatus {
 }
 
 enum ProposalType {
-  COMMUNITY_FUND_REQUEST = 'CommunityFundRequest',
+  COMMUNITY_FUND_PROPOSAL = 'CommunityFundProposal',
   BLOCK_REWARD_RELLOCATION = 'BlockRewardRellocation',
   VOTE_OF_CONFIDENCE = 'VoteOfConfidence'
 }

@@ -102,11 +102,11 @@ export class Governance {
    * @param {ListProposalsStatus} [options.status=ListProposalsStatus.ALL] status of proposals
    * @return {Promise<ProposalInfo[]>}
    */
-  async listProposals ({
+  async listGovProposals ({
     type = ListProposalsType.ALL,
     status = ListProposalsStatus.ALL
   } = {}): Promise<ProposalInfo[]> {
-    return await this.client.call('listproposals', [type, status], { amount: 'bignumber' })
+    return await this.client.call('listgovproposals', [type, status], { amount: 'bignumber' })
   }
 
   /**
