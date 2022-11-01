@@ -56,7 +56,7 @@ describe.skip('createCfp', () => {
     expect(outs[0].value).toStrictEqual(1)
     expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
 
-    const listProposals = await testing.rpc.governance.listProposals()
+    const listProposals = await testing.rpc.governance.listGovProposals()
     const txid = calculateTxid(txn)
 
     const proposal = listProposals.find(el => el.proposalId === txid)

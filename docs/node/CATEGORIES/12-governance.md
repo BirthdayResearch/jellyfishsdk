@@ -25,7 +25,7 @@ interface governance {
 interface CFPData {
   title: string
   context: string
-  contextHash?: string
+  contexthash?: string
   amount: BigNumber
   payoutAddress: string
   cycles?: number

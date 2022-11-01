@@ -54,7 +54,7 @@ export class Governance {
    * @param {CFPData} data Community fund proposal data
    * @param {string} data.title Title of community fund request
    * @param {string} data.context Context of community fund request
-   * @param {string} data.contextHash Hash of the content which context field point to of community fund request
+   * @param {string} data.contexthash Hash of the content which context field point to of community fund request
    * @param {BigNumber} data.amount Amount per period
    * @param {string} data.payoutAddress Any valid address to receive the funds
    * @param {number} [data.cycles=1] Number of cycles for periodic fund request. Defaults to one cycle.
@@ -140,7 +140,7 @@ export class Governance {
 export interface CFPData {
   title: string
   context: string
-  contextHash?: string
+  contexthash?: string
   amount: BigNumber
   payoutAddress: string
   cycles?: number
