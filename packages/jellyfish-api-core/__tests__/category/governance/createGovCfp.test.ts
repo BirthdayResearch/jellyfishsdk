@@ -78,7 +78,7 @@ describe('On-chain governance enabled', () => {
       })
 
       const burnInfo = await client.account.getBurnInfo()
-      expect(burnInfo.feeburn).toStrictEqual(new BigNumber(1))
+      expect(burnInfo.feeburn).toStrictEqual(new BigNumber(0.5))
     }
 
     // Create cfp with legacy address
@@ -108,7 +108,7 @@ describe('On-chain governance enabled', () => {
       })
 
       const burnInfo = await client.account.getBurnInfo()
-      expect(burnInfo.feeburn).toStrictEqual(new BigNumber(2))
+      expect(burnInfo.feeburn).toStrictEqual(new BigNumber(1))
     }
 
     // Create cfp with bech32 address
@@ -138,7 +138,7 @@ describe('On-chain governance enabled', () => {
       })
 
       const burnInfo = await client.account.getBurnInfo()
-      expect(burnInfo.feeburn).toStrictEqual(new BigNumber(3))
+      expect(burnInfo.feeburn).toStrictEqual(new BigNumber(1.5))
     }
   })
 

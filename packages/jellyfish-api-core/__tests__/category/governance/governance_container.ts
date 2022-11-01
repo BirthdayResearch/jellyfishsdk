@@ -2,7 +2,7 @@ import { MasterNodeRegTestContainer, StartOptions } from '@defichain/testcontain
 
 export class GovernanceMasterNodeRegTestContainer extends MasterNodeRegTestContainer {
   constructor () {
-    super(undefined, 'defi/defichain:epic-grandcentral-0cdada064')
+    super(undefined, 'defi/defichain:epic-grandcentral-493dc64b6')
   }
 
   /**
@@ -10,7 +10,6 @@ export class GovernanceMasterNodeRegTestContainer extends MasterNodeRegTestConta
    */
   protected getCmd (opts: StartOptions): string[] {
     const cmd = super.getCmd(opts)
-      .filter(cmd => cmd !== '-regtest-skip-loan-collateral-validation')
 
     return [
       ...cmd,
