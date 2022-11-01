@@ -78,7 +78,7 @@ describe('Governance', () => {
 masternode <${masternodeId}> is not active', code: -32600, method: votegov`)
   })
 
-  it('should not vote on a proposal with a masternode that did not mine at least one block', async () => {
+  it('should not vote on a proposal with a masternode that did not mint at least one block', async () => {
     const proposalId = await client.governance.createGovCfp({
       title: 'A community fund proposal',
       context: '<Git issue url>',

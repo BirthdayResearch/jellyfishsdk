@@ -132,8 +132,8 @@ export class Governance {
    * @param {MasternodeType | string} [masternode=MasternodeType.MINE] masternode id or reserved words 'mine' to list votes for all owned accounts or 'all' to list all votes
    * @return {Promise<ListVotesResult[]>} Proposal vote information
    */
-  async listVotes (proposalId: string, masternode: MasternodeType | string = MasternodeType.MINE): Promise<ListVotesResult[]> {
-    return await this.client.call('listvotes', [proposalId, masternode], 'number')
+  async listGovVotes (proposalId: string, masternode: MasternodeType | string = MasternodeType.MINE): Promise<ListVotesResult[]> {
+    return await this.client.call('listgovvotes', [proposalId, masternode], 'number')
   }
 }
 

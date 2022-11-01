@@ -1,20 +1,21 @@
-import { GenesisKeys, StartOptions } from '@defichain/testcontainers'
+import { StartOptions } from '@defichain/testcontainers'
 import { MasternodeType, VoteDecision } from '../../../src/category/governance'
 import { GovernanceMasterNodeRegTestContainer } from './governance_container'
 import { Testing } from '@defichain/jellyfish-testing'
 import { masternode } from '@defichain/jellyfish-api-core'
+import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
 class MultiOperatorGovernanceMasterNodeRegTestContainer extends GovernanceMasterNodeRegTestContainer {
   protected getCmd (opts: StartOptions): string[] {
     return [
       ...super.getCmd(opts),
-      `-masternode_operator=${GenesisKeys[1].operator.address}`,
-      `-masternode_operator=${GenesisKeys[2].operator.address}`
+      `-masternode_operator=${RegTestFoundationKeys[1].operator.address}`,
+      `-masternode_operator=${RegTestFoundationKeys[2].operator.address}`
     ]
   }
 }
 
-describe.skip('Governance', () => {
+describe('Governance', () => {
   const testing = Testing.create(new MultiOperatorGovernanceMasterNodeRegTestContainer())
 
   let masternodes: masternode.MasternodeResult<masternode.MasternodeInfo>
@@ -22,15 +23,17 @@ describe.skip('Governance', () => {
   beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/governance/global/enabled': 'true' } })
+    await testing.container.generate(1)
 
     /**
      * Import the private keys of the masternode_operator in order to be able to mint blocks and vote on proposals.
      * This setup uses the default masternode + two additional masternodes for a total of 3 masternodes.
      */
-    await testing.rpc.wallet.importPrivKey(GenesisKeys[1].owner.privKey)
-    await testing.rpc.wallet.importPrivKey(GenesisKeys[1].operator.privKey)
-    await testing.rpc.wallet.importPrivKey(GenesisKeys[2].owner.privKey)
-    await testing.rpc.wallet.importPrivKey(GenesisKeys[2].operator.privKey)
+    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[1].owner.privKey)
+    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[1].operator.privKey)
+    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[2].owner.privKey)
+    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[2].operator.privKey)
 
     masternodes = await testing.rpc.masternode.listMasternodes()
   })
@@ -39,7 +42,7 @@ describe.skip('Governance', () => {
     await testing.container.stop()
   })
 
-  it('should listVotes', async () => {
+  it('should listGovVotes', async () => {
     const proposalId = await testing.rpc.governance.createGovVoc('A vote of confidence', '<Git issue url>') // Creates a vote of confidence on which to vote
     await testing.container.generate(1)
 
@@ -51,7 +54,7 @@ describe.skip('Governance', () => {
     }
     await testing.container.generate(1)
 
-    const votes = await testing.rpc.governance.listVotes(proposalId)
+    const votes = await testing.rpc.governance.listGovVotes(proposalId)
     expect(votes.length).toStrictEqual(3) // The three masternodes should have voted on the proposal
     expect(typeof votes[0].masternodeId).toStrictEqual('string')
     expect(votes[0].masternodeId.length).toStrictEqual(64)
@@ -60,7 +63,7 @@ describe.skip('Governance', () => {
     expect(votes[0].vote).toStrictEqual('YES')
   })
 
-  it('should listVotes with filter masternode=MasternodeType.ALL', async () => {
+  it('should listGovVotes with filter masternode=MasternodeType.ALL', async () => {
     const proposalId = await testing.rpc.governance.createGovVoc('A vote of confidence', '<Git issue url>') // Creates a vote of confidence on which to vote
     await testing.container.generate(1)
 
@@ -72,7 +75,7 @@ describe.skip('Governance', () => {
     }
     await testing.container.generate(1)
 
-    const votes = await testing.rpc.governance.listVotes(proposalId, MasternodeType.ALL)
+    const votes = await testing.rpc.governance.listGovVotes(proposalId, MasternodeType.ALL)
     expect(votes.length).toStrictEqual(3) // The three masternodes should have voted on the proposal
     expect(typeof votes[0].masternodeId).toStrictEqual('string')
     expect(votes[0].masternodeId.length).toStrictEqual(64)
@@ -81,7 +84,7 @@ describe.skip('Governance', () => {
     expect(votes[0].vote).toStrictEqual('YES')
   })
 
-  it('should listVotes with filter on a specific masternodeId', async () => {
+  it('should listGovVotes with filter on a specific masternodeId', async () => {
     const proposalId = await testing.rpc.governance.createGovVoc('A vote of confidence', '<Git issue url>') // Creates a vote of confidence on which to vote
     let masternodeId = ''
 
@@ -96,7 +99,7 @@ describe.skip('Governance', () => {
     }
     await testing.container.generate(1)
 
-    const votes = await testing.rpc.governance.listVotes(proposalId, masternodeId)
+    const votes = await testing.rpc.governance.listGovVotes(proposalId, masternodeId)
     expect(votes.length).toStrictEqual(1)
     expect(votes[0].masternodeId).toStrictEqual(masternodeId)
     expect(votes[0].proposalId).toStrictEqual(proposalId)

@@ -165,13 +165,13 @@ interface UTXO {
 }
 ```
 
-## listVotes
+## listGovVotes
 
 Returns information about proposal votes.
 
-```ts title="client.governance.listVotes()"
+```ts title="client.governance.listGovVotes()"
 interface governance {
-  async listVotes (proposalId: string, masternode: MasternodeType | string = MasternodeType.MINE): Promise<ListVotesResult[]>
+  async listGovVotes (proposalId: string, masternode: MasternodeType | string = MasternodeType.MINE): Promise<ListVotesResult[]>
 }
 
 enum MasternodeType {
