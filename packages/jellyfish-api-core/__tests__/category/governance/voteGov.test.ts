@@ -92,7 +92,7 @@ masternode <${masternodeId}> is not active', code: -32600, method: votegov`)
     const promise = client.governance.voteGov({ proposalId, masternodeId, decision: VoteDecision.YES })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow(`RpcApiError: 'Test VoteTx execution failed:
-masternode <${masternodeId}> did not mine at least one block', code: -32600, method: votegov`)
+masternode <${masternodeId}> did not mint at least one block', code: -32600, method: votegov`)
   })
 
   it('should not vote on a proposal not in voting period', async () => {
