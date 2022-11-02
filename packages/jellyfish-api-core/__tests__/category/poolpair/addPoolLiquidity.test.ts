@@ -1,12 +1,10 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { UTXO } from '@defichain/jellyfish-api-core/dist/category/poolpair'
-import { Testing } from '@defichain/jellyfish-testing'
 
 describe('Poolpair', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
-  const testing = Testing.create(container)
 
   beforeAll(async () => {
     await container.start()
@@ -98,7 +96,7 @@ describe('Poolpair', () => {
 
     const address = await container.getNewAddress()
     await container.call('sendtokenstoaddress', [{}, { [address]: ['20@DFI'] }])
-    await testing.generate(1)
+    await container.generate(1)
 
     await client.poolpair.poolSwap({
       from: address,
