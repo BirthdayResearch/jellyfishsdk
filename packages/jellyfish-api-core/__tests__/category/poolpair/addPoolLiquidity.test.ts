@@ -1,10 +1,12 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { UTXO } from '@defichain/jellyfish-api-core/dist/category/poolpair'
+import { Testing } from '@defichain/jellyfish-testing'
 
 describe('Poolpair', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
+  const testing = Testing.create(container)
 
   beforeAll(async () => {
     await container.start()
@@ -39,7 +41,7 @@ describe('Poolpair', () => {
     const defaultMetadata = {
       tokenA: 'DFI',
       tokenB,
-      commission: 0,
+      commission: 0.02,
       status: true,
       ownerAddress: address
     }
@@ -83,6 +85,34 @@ describe('Poolpair', () => {
     }, shareAddress)
 
     expect(typeof data).toStrictEqual('string')
+  })
+
+  // runs on the HEAD-273e26b5f container instead of epic-grandcentral
+  it('should give rewards after activation', async () => {
+    const shareAddress = await container.call('getnewaddress')
+
+    await client.poolpair.addPoolLiquidity({
+      '*': ['5@DFI', '100@DDAI']
+    }, shareAddress)
+    await container.generate(1)
+
+    const address = await container.getNewAddress()
+    await container.call('sendtokenstoaddress', [{}, { [address]: ['20@DFI'] }])
+    await testing.generate(1)
+
+    await client.poolpair.poolSwap({
+      from: address,
+      tokenFrom: 'DFI',
+      amountFrom: 10,
+      to: address,
+      tokenTo: 'DDAI'
+    })
+    await container.generate(2)
+
+    const accountHistory = (await client.account.listAccountHistory('all')).filter((item) => {
+      return item.type === 'Commission'
+    })
+    expect(accountHistory).toHaveLength(1)
   })
 
   it('should addPoolLiquidity with utxos', async () => {
