@@ -125,7 +125,13 @@ describe('Poolpair', () => {
       maxPrice: 0.4
     })
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('Price is higher than indicated')
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -32600,
+        message: 'Cannot find usable pool pair. Details: Price is higher than indicated.',
+        method: 'testpoolswap'
+      }
+    })
   })
 
   it('testpoolswap should not affect the ori poolpair data', async () => {
@@ -175,6 +181,12 @@ describe('Poolpair', () => {
       tokenTo: 'DFI'
     })
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('Lack of liquidity')
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -32600,
+        message: 'Cannot find usable pool pair. Details: Lack of liquidity.',
+        method: 'testpoolswap'
+      }
+    })
   })
 })

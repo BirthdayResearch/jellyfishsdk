@@ -11,11 +11,11 @@ jobs:
     environment: NPM Release Publishing
     steps:
       - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
-      - uses: actions/setup-node@969bd2663942d722d85b6a8626225850c2f7be4b
+      - uses: actions/setup-node@8c91899e586c5b171469028077307d293428b516
         with:
           node-version: '16'
 
-      - uses: actions/github-script@7dff1a87643417cf3b95bb10b29f4c4bc60d8ebd
+      - uses: actions/github-script@d556feaca394842dc55e4734bf3bb9f685482fa0
         id: version
         with:
           script: |
