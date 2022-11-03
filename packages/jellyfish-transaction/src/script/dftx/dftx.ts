@@ -94,7 +94,9 @@ import {
   CPaybackLoan,
   PaybackLoan,
   CPaybackLoanV2,
-  PaybackLoanV2
+  PaybackLoanV2,
+  CPaybackWithCollateral,
+  PaybackWithCollateral
 } from './dftx_loans'
 import {
   CCreateVault,
@@ -279,6 +281,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<PaybackLoan>(CPaybackLoan.OP_NAME, d => new CPaybackLoan(d))
       case CPaybackLoanV2.OP_CODE:
         return compose<PaybackLoanV2>(CPaybackLoanV2.OP_NAME, d => new CPaybackLoanV2(d))
+      case CPaybackWithCollateral.OP_CODE:
+        return compose<PaybackWithCollateral>(CPaybackWithCollateral.OP_NAME, d => new CPaybackWithCollateral(d))
       case CPlaceAuctionBid.OP_CODE:
         return compose<PlaceAuctionBid>(CPlaceAuctionBid.OP_NAME, d => new CPlaceAuctionBid(d))
       default:
