@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { TokenController } from './token.controller'
+import { parseDATSymbol, TokenController } from './token.controller'
 import { createPoolPair, createToken } from '@defichain/testing'
 import { NotFoundException, CacheModule } from '@nestjs/common'
 import { DeFiDCache } from './cache/defid.cache'
@@ -306,5 +306,16 @@ describe('get', () => {
         error: 'Not Found'
       })
     }
+  })
+
+  it('should append token symbols with "d"', () => {
+    expect(parseDATSymbol('BTC')).toStrictEqual('dBTC')
+    expect(parseDATSymbol('ETH')).toStrictEqual('dETH')
+  })
+
+  it('should not append selected token symbols with "d"', () => {
+    ['DUSD', 'DFI', 'csETH'].forEach((symbol) => {
+      expect(parseDATSymbol(symbol)).toStrictEqual(symbol)
+    })
   })
 })
