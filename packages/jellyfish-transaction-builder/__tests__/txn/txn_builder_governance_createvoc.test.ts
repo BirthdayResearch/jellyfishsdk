@@ -38,6 +38,7 @@ describe.skip('createVoc', () => {
     const createVoc: CreateVoc = {
       type: 0x03,
       title: 'vote of confidence',
+      context: 'https://github.com/DeFiCh/dfips',
       amount: new BigNumber(0),
       address: {
         stack: []
@@ -75,6 +76,7 @@ describe.skip('createVoc', () => {
     const promise = builder.governance.createVoc({
       type: 0x03,
       title: 'vote of confidence',
+      context: 'https://github.com/DeFiCh/dfips',
       amount: new BigNumber(10),
       address: {
         stack: []
@@ -91,6 +93,7 @@ describe.skip('createVoc', () => {
     const promise = builder.governance.createVoc({
       type: 0x03,
       title: 'vote of confidence',
+      context: 'https://github.com/DeFiCh/dfips',
       amount: new BigNumber(0),
       address: {
         stack: [
@@ -112,6 +115,7 @@ describe.skip('createVoc', () => {
       type: 0x03,
       title: 'X'.repeat(150),
       amount: new BigNumber(0),
+      context: 'https://github.com/DeFiCh/dfips',
       address: {
         stack: []
       },

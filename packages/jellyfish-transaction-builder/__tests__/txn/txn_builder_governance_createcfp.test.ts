@@ -37,6 +37,7 @@ describe.skip('createCfp', () => {
     const createCfp: CreateCfp = {
       type: 0x01,
       title: 'Testing new community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
       amount: new BigNumber(100),
       address: {
         stack: [
@@ -78,6 +79,7 @@ describe.skip('createCfp', () => {
     const txn = await builder.governance.createCfp({
       type: 0x01,
       title: 'X'.repeat(150),
+      context: 'https://github.com/DeFiCh/dfips',
       amount: new BigNumber(100),
       address: {
         stack: [

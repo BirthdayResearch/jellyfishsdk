@@ -59,6 +59,7 @@ describe.skip('vote', () => {
     const createVocTxn = await builder.governance.createCfp({
       type: 0x01,
       title: 'community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
       amount: new BigNumber(10),
       address: script,
       cycles: 2
@@ -124,6 +125,7 @@ describe.skip('vote with masternode operator with legacy address', () => {
     const createVocTxn = await builder.governance.createCfp({
       type: 0x01,
       title: 'community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
       amount: new BigNumber(10),
       address: script,
       cycles: 2

@@ -164,6 +164,7 @@ export interface CreateProposal {
   amount: BigNumber // ----------| 8 bytes unsigned
   cycles: ProposalCycles // -----| 1 byte unsigned int
   title: string // --------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
+  context: string // --------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
 }
 
 export interface CreateCfp extends CreateProposal {
@@ -185,13 +186,14 @@ export class CCreateProposal extends ComposableBuffer<CreateProposal> {
       ComposableBuffer.single<Script>(() => ccp.address, v => ccp.address = v, v => new CScript(v)),
       ComposableBuffer.satoshiAsBigNumber(() => ccp.amount, v => ccp.amount = v),
       ComposableBuffer.uInt8(() => ccp.cycles, v => ccp.cycles = v as ProposalCycles),
-      ComposableBuffer.compactSizeUtf8BE(() => ccp.title, v => ccp.title = v)
+      ComposableBuffer.compactSizeUtf8BE(() => ccp.title, v => ccp.title = v),
+      ComposableBuffer.compactSizeUtf8BE(() => ccp.context, v => ccp.context = v)
     ]
   }
 }
 
 export class CCreateCfp extends CCreateProposal {
-  static OP_CODE = 0x50 // 'P'
+  static OP_CODE = 0x7a // 'z'
   static OP_NAME = 'OP_DEFI_TX_CREATE_CFP'
 }
 
@@ -214,7 +216,7 @@ export interface Vote {
  */
 export class CVote extends ComposableBuffer<Vote> {
   static OP_CODE = 0x4f // 'O'
-  static OP_NAME = 'OP_DEFI_TX_CREATE_CFP'
+  static OP_NAME = 'OP_DEFI_TX_VOTE'
   composers (vote: Vote): BufferComposer[] {
     return [
       ComposableBuffer.hexBEBufferLE(32, () => vote.proposalId, v => vote.proposalId = v),
