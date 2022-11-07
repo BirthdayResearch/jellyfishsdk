@@ -99,7 +99,7 @@ export function parseDisplaySymbol (tokenInfo: TokenInfo): string {
 }
 
 export function parseDATSymbol (symbol: string): string {
-  if (['DUSD', 'DFI'].includes(symbol)) {
+  if (['DUSD', 'DFI', 'csETH'].includes(symbol)) {
     return symbol
   }
 
