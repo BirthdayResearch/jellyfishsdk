@@ -35,6 +35,22 @@
     {
       "matchPackagePatterns": ["jest"],
       "groupName": "jest"
+    },
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["defi/defichain"],
+      "versioning": "regex:^v?(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)?-\\w*$"
+    }
+  ],
+  "docker-compose": {
+    "versioning": "docker"
+  },
+  "regexManagers": [
+    {
+      "fileMatch": ["^DeFiDContainer.ts$"],
+      "matchStrings": ["image: defi\/defichain:(?<currentValue>.*?)\\n"],
+      "depNameTemplate": "defi/defichain",
+      "datasourceTemplate": "docker"
     }
   ]
 }
