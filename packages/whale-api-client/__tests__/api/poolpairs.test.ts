@@ -76,6 +76,14 @@ async function setup (): Promise<void> {
     shareAddress: await getNewAddress(container)
   })
 
+  await addPoolLiquidity(container, {
+    tokenA: 'H',
+    amountA: 10,
+    tokenB: 'DFI',
+    amountB: 20,
+    shareAddress: await getNewAddress(container)
+  })
+
   // dexUsdtDfi setup
   await createToken(container, 'USDT')
   await createPoolPair(container, 'USDT', 'DFI')
@@ -170,7 +178,7 @@ describe('poolpair info', () => {
       commission: '0',
       totalLiquidity: {
         token: '122.47448713',
-        usd: '1390.4567576291117892'
+        usd: '1390.456752'
       },
       tradeEnabled: true,
       ownerAddress: expect.any(String),
@@ -255,7 +263,7 @@ describe('poolpair info', () => {
       commission: '0',
       totalLiquidity: {
         token: '141.42135623',
-        usd: '926.9711717527411928'
+        usd: '926.971168'
       },
       tradeEnabled: true,
       ownerAddress: expect.any(String),
@@ -309,7 +317,7 @@ describe('poolpair info', () => {
       commission: '0',
       totalLiquidity: {
         token: '125.52465893',
-        usd: '1000'
+        usd: '292.1153159032192'
       },
       tradeEnabled: true,
       ownerAddress: expect.any(String),
@@ -571,7 +579,7 @@ describe('poolswap', () => {
       commission: '0',
       totalLiquidity: {
         token: '141.42135623',
-        usd: '311.06415164247241009334543708'
+        usd: '311.0641517515816424'
       },
       tradeEnabled: true,
       ownerAddress: expect.any(String),
@@ -615,14 +623,14 @@ describe('poolswap', () => {
         displaySymbol: 'DUSD'
       },
       apr: {
-        reward: 0,
-        total: 0.12174783188792529,
-        commission: 0.12174783188792529
+        reward: null,
+        total: null,
+        commission: null
       },
       commission: '0.002',
       totalLiquidity: {
         token: '44.72135954',
-        usd: '133.42228154'
+        usd: '0'
       },
       tradeEnabled: true,
       ownerAddress: expect.any(String),
@@ -708,7 +716,7 @@ describe('poolswap 24h', () => {
       commission: '0',
       totalLiquidity: {
         token: '141.42135623',
-        usd: '904.36211934160574766567579176'
+        usd: '904.3621151151974128'
       },
       tradeEnabled: true,
       ownerAddress: expect.any(String),
@@ -1072,7 +1080,7 @@ describe('poolpair - get dex prices', () => {
             token: { displaySymbol: 'DUSD', id: '21', name: 'DUSD', symbol: 'DUSD' }
           },
           USDC: {
-            denominationPrice: '0',
+            denominationPrice: '0.12605152',
             token: { displaySymbol: 'dUSDC', id: '19', name: 'USDC', symbol: 'USDC' }
           },
           F: {
@@ -1084,7 +1092,7 @@ describe('poolpair - get dex prices', () => {
             token: { displaySymbol: 'dG', id: '7', name: 'G', symbol: 'G' }
           },
           H: {
-            denominationPrice: '0',
+            denominationPrice: '2.00000000',
             token: { displaySymbol: 'dH', id: '8', name: 'H', symbol: 'H' }
           },
           TEST: {
