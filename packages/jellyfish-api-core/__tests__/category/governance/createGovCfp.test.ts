@@ -239,6 +239,20 @@ describe('On-chain governance enabled', () => {
     await expect(promise).rejects.toThrow("RpcApiError: 'Test CreateCfpTx execution failed:\nproposal context must not be empty', code: -32600, method: creategovcfp")
   })
 
+  it('should throw error if proposal context hash exceeds 512 bytes', async () => {
+    const data = {
+      title: 'Test',
+      amount: new BigNumber(100),
+      context: '<Git issue url>',
+      contexthash: 'a'.repeat(513),
+      payoutAddress: await container.getNewAddress(),
+      cycles: 3
+    }
+    const promise = client.governance.createGovCfp(data)
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow("RpcApiError: 'Test CreateCfpTx execution failed:\nproposal context hash cannot be more than 512 bytes', code: -32600, method: creategovcfp")
+  })
+
   it('should throw error if address is of an unknown type', async () => {
     const data = {
       title: 'Test',
@@ -261,6 +275,19 @@ describe('On-chain governance enabled', () => {
     const promise = client.governance.createGovCfp(data)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow("RpcApiError: 'Amount out of range', code: -3, method: creategovcfp")
+  })
+
+  it('should throw error if proposal wants to gain all money (amount exceeds 1.2B DFI)', async () => {
+    const MAX_MONEY = 1200000000 * 100000000
+    const data = {
+      title: 'Test',
+      amount: new BigNumber(MAX_MONEY + 1),
+      context: '<Git issue url>',
+      payoutAddress: await container.getNewAddress()
+    }
+    const promise = client.governance.createGovCfp(data)
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow("RpcApiError: 'Invalid amount', code: -3, method: creategovcfp")
   })
 
   it('should throw error if utxo format is invalid', async () => {
