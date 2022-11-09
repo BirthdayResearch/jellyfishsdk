@@ -79,7 +79,7 @@ export class PoolPairService {
     const usdtToken = await this.deFiDCache.getTokenInfoBySymbol('USDT')
 
     if (usdtToken === undefined) {
-      throw new NotFoundException('Unable to find USDT token')
+      return undefined
     }
 
     const usdtTokenId = Object.keys(usdtToken)[0]
