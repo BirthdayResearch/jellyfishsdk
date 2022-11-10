@@ -176,6 +176,21 @@ export class Masternode {
   }
 
   /**
+   * Unset special governance variables
+   *
+   * @param {Record<string, any>} input json object
+   * @param {UTXO[]} [utxos = []] Specific utxos to spend
+   * @param {string} [utxos.txid] The transaction id
+   * @param {string} [utxos.vout] The output number
+   * @return {Promise<string>} hash
+   *
+   */
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  async unsetGov (input: Record<string, any>, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('unsetgov', [input, utxos], 'number')
+  }
+
+  /**
    * Get information about governance variable
    *
    * @param {string} name governance name
