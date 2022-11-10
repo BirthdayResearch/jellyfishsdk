@@ -57,6 +57,9 @@ describe('Poolpair', () => {
       tokenTo: 'DFI'
     }) // 199.99999729@0
 
+    if (typeof result !== 'string') {
+      throw new Error(`result was ${typeof result}, expected string`)
+    }
     const testPoolSwapResultAmount = new BigNumber(result.split('@')[0]) // 199.99999729
     const swapped = new BigNumber(poolpair.reserveB).minus(reserveBAfter) // 199.87995198635029880408
 
@@ -187,6 +190,89 @@ describe('Poolpair', () => {
         message: 'Cannot find usable pool pair. Details: Lack of liquidity.',
         method: 'testpoolswap'
       }
+    })
+  })
+
+  it('should fail if wrong path option is used', async () => {
+    const tokenBatAddress = await getNewAddress(container)
+    const poolLiquidityAddress = await getNewAddress(container)
+
+    await createToken(container, 'BAT')
+    await createToken(container, 'BTC')
+    await mintTokens(container, 'BAT')
+    await mintTokens(container, 'BTC')
+    await createPoolPair(container, 'BAT', 'DFI')
+    await createPoolPair(container, 'BTC', 'DFI')
+    await addPoolLiquidity(container, {
+      tokenA: 'BAT',
+      amountA: 1000,
+      tokenB: 'DFI',
+      amountB: 500,
+      shareAddress: poolLiquidityAddress
+    })
+    await addPoolLiquidity(container, {
+      tokenA: 'BTC',
+      amountA: 1000,
+      tokenB: 'DFI',
+      amountB: 500,
+      shareAddress: poolLiquidityAddress
+    })
+
+    const promise = client.poolpair.testPoolSwap({
+      from: tokenBatAddress,
+      tokenFrom: 'BAT',
+      amountFrom: 13,
+      to: await getNewAddress(container),
+      tokenTo: 'BTC'
+    }, 'direct')
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -32600,
+        message: 'Direct pool pair not found. Use \'auto\' mode to use composite swap.',
+        method: 'testpoolswap'
+      }
+    })
+  })
+
+  it('should return verbose output', async () => {
+    const tokenBatAddress = await getNewAddress(container)
+    const poolLiquidityAddress = await getNewAddress(container)
+
+    await createToken(container, 'BAT')
+    await createToken(container, 'BTC')
+    await mintTokens(container, 'BAT')
+    await mintTokens(container, 'BTC')
+    await createPoolPair(container, 'BAT', 'DFI')
+    await createPoolPair(container, 'BTC', 'DFI')
+    await addPoolLiquidity(container, {
+      tokenA: 'BAT',
+      amountA: 1000,
+      tokenB: 'DFI',
+      amountB: 500,
+      shareAddress: poolLiquidityAddress
+    })
+    await addPoolLiquidity(container, {
+      tokenA: 'BTC',
+      amountA: 1000,
+      tokenB: 'DFI',
+      amountB: 500,
+      shareAddress: poolLiquidityAddress
+    })
+
+    const promise = await client.poolpair.testPoolSwap({
+      from: tokenBatAddress,
+      tokenFrom: 'BAT',
+      amountFrom: 13,
+      to: await getNewAddress(container),
+      tokenTo: 'BTC'
+    }, 'auto', true)
+
+    expect(promise).toStrictEqual({
+      path: 'auto',
+      pools: ['3', '4'],
+      amount: '12.67056529@2'
     })
   })
 })

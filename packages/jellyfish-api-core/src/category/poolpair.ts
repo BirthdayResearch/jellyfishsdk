@@ -153,10 +153,12 @@ export class PoolPair {
    * @param {string} metadata.to address of the owner of tokenTo
    * @param {string} metadata.tokenTo swap to token {symbol/id}
    * @param {number} [metadata.maxPrice] acceptable max price
-   * @return {Promise<string>} formatted as 'amount@token' swapped
+   * @param {'auto' | 'direct' | 'composite'} [path] swap path to use, defaults to auto
+   * @param {boolean} [verbose] return pool path used, defaults to false
+   * @return {Promise<string | TestPoolSwapVerboseResult>} formatted as 'amount@token' swapped
    */
-  async testPoolSwap (metadata: PoolSwapMetadata): Promise<string> {
-    return await this.client.call('testpoolswap', [metadata], 'bignumber')
+  async testPoolSwap (metadata: PoolSwapMetadata, path: 'auto' | 'direct' | 'composite' = 'auto', verbose: boolean = false): Promise<string | TestPoolSwapVerboseResult> {
+    return await this.client.call('testpoolswap', [metadata, path, verbose], 'bignumber')
   }
 
   /**
@@ -261,4 +263,10 @@ export interface PoolSwapMetadata {
   to: string
   tokenTo: string
   maxPrice?: number
+}
+
+export interface TestPoolSwapVerboseResult {
+  path: string
+  pools: string[]
+  amount: string
 }
