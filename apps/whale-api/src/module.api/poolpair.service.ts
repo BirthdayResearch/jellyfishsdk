@@ -72,10 +72,41 @@ export class PoolPairService {
   }
 
   /**
+   * TODO(fuxingloh): graph based matrix resolution
+   * Currently implemented with fix pair derivation
+  * Ideally should use vertex directed graph where we can always find total liquidity if it can be resolved.
+  */
+  async getTotalLiquidityUsd (info: PoolPairInfo): Promise<BigNumber | undefined> {
+    const [a, b] = info.symbol.split('-')
+    if (['DUSD', 'USDT', 'USDC'].includes(a)) {
+      return info.reserveA.multipliedBy(2)
+    }
+
+    if (['DUSD', 'USDT', 'USDC'].includes(b)) {
+      return info.reserveB.multipliedBy(2)
+    }
+
+    const USDT_PER_DFI = await this.getUSD_PER_DFI()
+    if (USDT_PER_DFI === undefined) {
+      return
+    }
+
+    if (a === 'DFI') {
+      return info.reserveA.multipliedBy(2).multipliedBy(USDT_PER_DFI)
+    }
+
+    if (b === 'DFI') {
+      return info.reserveB.multipliedBy(2).multipliedBy(USDT_PER_DFI)
+    }
+
+    return await this.getTotalLiquidityUsdByBestPath(info)
+  }
+
+  /**
    * Graph based matrix resolution
    * Returns the total liquidity of the poolpair by finding its best path to USDT
    */
-  async getTotalLiquidityUsd (info: PoolPairInfo): Promise<BigNumber | undefined> {
+  async getTotalLiquidityUsdByBestPath (info: PoolPairInfo): Promise<BigNumber | undefined> {
     const usdtToken = await this.deFiDCache.getTokenInfoBySymbol('USDT')
 
     if (usdtToken === undefined) {

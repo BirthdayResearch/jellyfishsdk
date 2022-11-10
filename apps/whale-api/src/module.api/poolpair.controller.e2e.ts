@@ -237,14 +237,14 @@ describe('list', () => {
         }
       },
       apr: {
-        reward: 2229.4200090255626,
-        total: 2229.4200090255626,
+        reward: 2229.42,
+        total: 2229.42,
         commission: 0
       },
       commission: '0',
       totalLiquidity: {
         token: '122.47448713',
-        usd: '1390.456752'
+        usd: '1390.4567576291117892'
       },
       tradeEnabled: true,
       ownerAddress: expect.any(String),
@@ -335,7 +335,7 @@ describe('get', () => {
       commission: '0',
       totalLiquidity: {
         token: '141.42135623',
-        usd: '926.971168'
+        usd: '926.9711717527411928'
       },
       tradeEnabled: true,
       ownerAddress: expect.any(String),

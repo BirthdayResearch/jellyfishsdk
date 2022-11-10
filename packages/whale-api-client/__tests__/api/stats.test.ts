@@ -93,10 +93,10 @@ describe('stats', () => {
         total: 7327.58
       },
       tvl: {
-        dex: 5853.942327903219,
+        dex: 5853.942343505482,
         masternodes: 185.39423435054823,
         loan: 0,
-        total: 6039.336562253768
+        total: 6039.336577856031
       },
       price: {
         usd: 2.317427929381853,
@@ -473,10 +473,10 @@ describe('loan - stats', () => {
       },
       burned: expect.any(Object),
       tvl: {
-        dex: 4000,
+        dex: 6000,
         loan: 20000,
         masternodes: 40,
-        total: 24040
+        total: 26040
       },
       price: {
         usd: 0.5,
