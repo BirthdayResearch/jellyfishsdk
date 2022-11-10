@@ -168,6 +168,7 @@ export interface ProposalInfo {
   proposalId: string
   title: string
   context: string
+  contexthash?: string
   type: ProposalType
   status: ProposalStatus
   amount: BigNumber
@@ -175,6 +176,7 @@ export interface ProposalInfo {
   totalCycles: number
   finalizeAfter: number
   payoutAddress: string
+  options?: string[]
 }
 
 export interface VoteData {

@@ -11,7 +11,7 @@ describe('Governance', () => {
   beforeAll(async () => {
     await container.start()
     await container.waitForWalletCoinbaseMaturity()
-    await client.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/governance_enabled': 'true' } })
+    await client.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/gov': 'true' } })
     await container.generate(1)
   })
 
@@ -52,6 +52,6 @@ describe('Governance', () => {
     const promise = client.governance.getGovProposal(proposalId)
 
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow(`RpcApiError: 'Proposal <${proposalId}> does not exists', code: -8, method: getgovproposal`)
+    await expect(promise).rejects.toThrow(`RpcApiError: 'Proposal <${proposalId}> does not exist', code: -8, method: getgovproposal`)
   })
 })

@@ -62,6 +62,7 @@ interface ProposalInfo {
   proposalId: string
   title: string
   context: string
+  contexthash?: string
   type: ProposalType
   status: ProposalStatus
   amount: BigNumber
@@ -69,6 +70,7 @@ interface ProposalInfo {
   totalCycles: number
   finalizeAfter: number
   payoutAddress: string
+  options?: string[]
 }
  ```
 
@@ -135,13 +137,16 @@ enum ProposalStatus {
 interface ProposalInfo {
   proposalId: string
   title: string
+  context: string
+  contexthash?: string
   type: ProposalType
   status: ProposalStatus
   amount: BigNumber
-  cyclesPaid: number
+  nextCycle: number
   totalCycles: number
   finalizeAfter: number
   payoutAddress: string
+  options?: string[]
 }
 ```
 

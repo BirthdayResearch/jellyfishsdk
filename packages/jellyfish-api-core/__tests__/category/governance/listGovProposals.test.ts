@@ -15,7 +15,7 @@ describe('Governance', () => {
   })
 
   async function setup (): Promise<void> {
-    await client.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/governance_enabled': 'true' } })
+    await client.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/gov': 'true' } })
     await container.generate(1)
 
     await client.governance.createGovCfp({

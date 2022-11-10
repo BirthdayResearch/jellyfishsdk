@@ -11,7 +11,7 @@ describe('Governance', () => {
   beforeAll(async () => {
     await container.start()
     await container.waitForWalletCoinbaseMaturity()
-    await client.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/governance_enabled': 'true' } })
+    await client.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/gov': 'true' } })
     await container.generate(1)
   })
 
@@ -131,7 +131,7 @@ masternode <${masternodeId}> does not mine at least one block', code: -32600, me
 
     const promise = client.governance.voteGov({ proposalId, masternodeId, decision: VoteDecision.YES })
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow(`RpcApiError: 'Proposal <${proposalId}> does not exists', code: -8, method: votegov`)
+    await expect(promise).rejects.toThrow(`RpcApiError: 'Proposal <${proposalId}> does not exist', code: -8, method: votegov`)
   })
 
   it('should vote with utxos', async () => {

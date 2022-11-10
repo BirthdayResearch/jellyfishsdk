@@ -31,7 +31,7 @@ describe('On-chain governance enabled', () => {
   beforeAll(async () => {
     await container.start()
     await container.waitForWalletCoinbaseMaturity()
-    await client.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/governance_enabled': 'true' } })
+    await client.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/gov': 'true' } })
     await container.generate(1)
   })
 
@@ -62,6 +62,63 @@ describe('On-chain governance enabled', () => {
       totalCycles: expect.any(Number),
       payoutAddress: '',
       proposalId: proposalTx
+    })
+  })
+
+  it('should createGovVoc with context hash', async () => {
+    const data = {
+      title: 'new vote of confidence',
+      context: '<Git issue url>',
+      contextHash: '<context hash>'
+    }
+    const proposalTx = await client.governance.createGovVoc(data)
+    await container.generate(1)
+
+    expect(typeof proposalTx).toStrictEqual('string')
+    expect(proposalTx.length).toStrictEqual(64)
+
+    const proposal = await container.call('getgovproposal', [proposalTx])
+    expect(proposal).toStrictEqual({
+      title: 'new vote of confidence',
+      context: '<Git issue url>',
+      contexthash: '<context hash>',
+      type: ProposalType.VOTE_OF_CONFIDENCE,
+      status: ProposalStatus.VOTING,
+      amount: expect.any(Number),
+      finalizeAfter: expect.any(Number),
+      nextCycle: expect.any(Number),
+      totalCycles: expect.any(Number),
+      payoutAddress: '',
+      proposalId: proposalTx
+    })
+  })
+
+  it('should create emergency vote of confidence', async () => {
+    const utxo = await container.fundAddress(await container.call('getnewaddress'), 10)
+    const data = {
+      title: 'new emergency vote of confidence',
+      context: '<Git issue url>',
+      emergency: true
+    }
+    const proposalTx = await client.governance.createGovVoc(data, [utxo])
+    await container.generate(1)
+
+    expect(typeof proposalTx).toStrictEqual('string')
+    expect(proposalTx.length).toStrictEqual(64)
+
+    const proposal = await container.call('getgovproposal', [proposalTx])
+    expect(proposal).toStrictEqual({
+      title: 'new emergency vote of confidence',
+      context: '<Git issue url>',
+      type: ProposalType.VOTE_OF_CONFIDENCE,
+      status: ProposalStatus.VOTING,
+      amount: expect.any(Number),
+      finalizeAfter: expect.any(Number),
+      nextCycle: expect.any(Number),
+      totalCycles: expect.any(Number),
+      payoutAddress: '',
+      proposalId: proposalTx,
+      options: ['emergency']
     })
   })
 

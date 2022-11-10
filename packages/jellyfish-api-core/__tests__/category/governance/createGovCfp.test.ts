@@ -37,7 +37,7 @@ describe('On-chain governance enabled', () => {
   beforeAll(async () => {
     await container.start()
     await container.waitForWalletCoinbaseMaturity()
-    await client.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/governance_enabled': 'true' } })
+    await client.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/gov': 'true' } })
     await client.wallet.sendToAddress(mnAddress, 10)
     await container.generate(1)
   })
