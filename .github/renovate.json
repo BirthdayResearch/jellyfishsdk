@@ -13,7 +13,7 @@
   "rangeStrategy": "bump",
   "packageRules": [
     {
-      "matchPackageNames": ["node", "npm", "pnpm", "yarn"],
+      "matchPackageNames": ["node", "npm", "pnpm", "yarn", "@types/node"],
       "groupName": "engines",
       "enabled": false
     },
