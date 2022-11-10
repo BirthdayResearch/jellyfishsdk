@@ -37,7 +37,7 @@ describe('On-chain governance enabled', () => {
   beforeAll(async () => {
     await container.start()
     await container.waitForWalletCoinbaseMaturity()
-    await client.masternode.setGov({ ATTRIBUTES: { 'v0/governance/global/enabled': 'true' } })
+    await client.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/governance_enabled': 'true' } })
     await client.wallet.sendToAddress(mnAddress, 10)
     await container.generate(1)
   })
@@ -78,7 +78,7 @@ describe('On-chain governance enabled', () => {
       })
 
       const burnInfo = await client.account.getBurnInfo()
-      expect(burnInfo.feeburn).toStrictEqual(new BigNumber(0.5))
+      expect(burnInfo.feeburn).toStrictEqual(new BigNumber(5))
     }
 
     // Create cfp with legacy address
@@ -108,7 +108,7 @@ describe('On-chain governance enabled', () => {
       })
 
       const burnInfo = await client.account.getBurnInfo()
-      expect(burnInfo.feeburn).toStrictEqual(new BigNumber(1))
+      expect(burnInfo.feeburn).toStrictEqual(new BigNumber(10))
     }
 
     // Create cfp with bech32 address
@@ -138,7 +138,7 @@ describe('On-chain governance enabled', () => {
       })
 
       const burnInfo = await client.account.getBurnInfo()
-      expect(burnInfo.feeburn).toStrictEqual(new BigNumber(1.5))
+      expect(burnInfo.feeburn).toStrictEqual(new BigNumber(15))
     }
   })
 
@@ -171,20 +171,20 @@ describe('On-chain governance enabled', () => {
     }
     const promise = client.governance.createGovCfp(data)
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow("RpcApiError: 'Test CreateCfpTx execution failed:\nproposal cycles can be between 1 and 3', code: -32600, method: creategovcfp")
+    await expect(promise).rejects.toThrow("RpcApiError: 'Test CreateCfpTx execution failed:\nproposal cycles can be between 1 and 100', code: -32600, method: creategovcfp")
   })
 
-  it('should throw error if proposal cycles > 3', async () => {
+  it('should throw error if proposal cycles > 100', async () => {
     const data = {
       title: 'Test',
       amount: new BigNumber(100),
       context: '<Git issue url>',
       payoutAddress: await container.getNewAddress(),
-      cycles: 4
+      cycles: 101
     }
     const promise = client.governance.createGovCfp(data)
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow("RpcApiError: 'Test CreateCfpTx execution failed:\nproposal cycles can be between 1 and 3', code: -32600, method: creategovcfp")
+    await expect(promise).rejects.toThrow("RpcApiError: 'Test CreateCfpTx execution failed:\nproposal cycles can be between 1 and 100', code: -32600, method: creategovcfp")
   })
 
   it('should throw error if proposal title exceeds 128 bytes', async () => {
@@ -244,7 +244,7 @@ describe('On-chain governance enabled', () => {
       title: 'Test',
       amount: new BigNumber(100),
       context: '<Git issue url>',
-      contexthash: 'a'.repeat(513),
+      contextHash: 'a'.repeat(513),
       payoutAddress: await container.getNewAddress(),
       cycles: 3
     }

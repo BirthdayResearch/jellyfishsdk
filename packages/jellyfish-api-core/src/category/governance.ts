@@ -54,7 +54,7 @@ export class Governance {
    * @param {CFPData} data Community fund proposal data
    * @param {string} data.title Title of community fund request
    * @param {string} data.context Context of community fund request
-   * @param {string} data.contexthash Hash of the content which context field point to of community fund request
+   * @param {string} data.contextHash Hash of the content which context field point to of community fund request
    * @param {BigNumber} data.amount Amount per period
    * @param {string} data.payoutAddress Any valid address to receive the funds
    * @param {number} [data.cycles=1] Number of cycles for periodic fund request. Defaults to one cycle.
@@ -83,15 +83,18 @@ export class Governance {
   /**
    * Creates a Vote of Confidence.
    *
-   * @param {string} title Vote of confidence's title
-   * @param {string} context Vote of confidence's context
+   * @param {VOCData} data Vote of confidence data
+   * @param {string} data.title Vote of confidence's title
+   * @param {string} data.context Vote of confidence's context
+   * @param {string} data.contextHash Hash of the content which context field point to of vote of confidence request
+   * @param {boolean} data.emergency Is this emergency VOC
    * @param {UTXO[]} [utxos = []] Specific utxos to spend
    * @param {string} [utxos.txid] The transaction id
    * @param {number} [utxos.vout] The output number
    * @return {Promise<string>} txid
    */
-  async createGovVoc (title: string, context: string, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('creategovvoc', [title, context, utxos], 'number')
+  async createGovVoc (data: VOCData, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('creategovvoc', [data, utxos], 'number')
   }
 
   /**
@@ -140,10 +143,17 @@ export class Governance {
 export interface CFPData {
   title: string
   context: string
-  contexthash?: string
+  contextHash?: string
   amount: BigNumber
   payoutAddress: string
   cycles?: number
+}
+
+export interface VOCData {
+  title: string
+  context: string
+  contextHash?: string
+  emergency?: boolean
 }
 
 /** Input UTXO */

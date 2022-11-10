@@ -11,7 +11,7 @@ describe('Governance', () => {
   beforeAll(async () => {
     await container.start()
     await container.waitForWalletCoinbaseMaturity()
-    await client.masternode.setGov({ ATTRIBUTES: { 'v0/governance/global/enabled': 'true' } })
+    await client.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/governance_enabled': 'true' } })
     await container.generate(1)
   })
 

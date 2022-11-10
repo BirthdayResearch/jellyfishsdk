@@ -15,7 +15,7 @@ describe('Governance', () => {
   })
 
   async function setup (): Promise<void> {
-    await client.masternode.setGov({ ATTRIBUTES: { 'v0/governance/global/enabled': 'true' } })
+    await client.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/governance_enabled': 'true' } })
     await container.generate(1)
 
     await client.governance.createGovCfp({
@@ -32,8 +32,14 @@ describe('Governance', () => {
       amount: new BigNumber(100),
       payoutAddress: await container.getNewAddress()
     })
-    await client.governance.createGovVoc('first vote of confidence', '<Git issue url>')
-    await client.governance.createGovVoc('second vote of confidence', '<Git issue url>')
+    await client.governance.createGovVoc({
+      title: 'first vote of confidence',
+      context: '<Git issue url>'
+    })
+    await client.governance.createGovVoc({
+      title: 'second vote of confidence',
+      context: '<Git issue url>'
+    })
     await container.generate(1)
   }
 
