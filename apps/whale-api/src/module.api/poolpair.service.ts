@@ -74,8 +74,8 @@ export class PoolPairService {
   /**
    * TODO(fuxingloh): graph based matrix resolution
    * Currently implemented with fix pair derivation
-  * Ideally should use vertex directed graph where we can always find total liquidity if it can be resolved.
-  */
+   * Ideally should use vertex directed graph where we can always find total liquidity if it can be resolved.
+   */
   async getTotalLiquidityUsd (info: PoolPairInfo): Promise<BigNumber | undefined> {
     const [a, b] = info.symbol.split('-')
     if (['DUSD', 'USDT', 'USDC'].includes(a)) {
