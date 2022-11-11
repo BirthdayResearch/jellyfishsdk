@@ -13,6 +13,11 @@
   "rangeStrategy": "bump",
   "packageRules": [
     {
+      "matchPackageNames": ["node", "npm", "pnpm", "yarn", "@types/node"],
+      "groupName": "engines",
+      "enabled": false
+    },
+    {
       "matchManagers": ["github-actions"],
       "enabled": false
     },
