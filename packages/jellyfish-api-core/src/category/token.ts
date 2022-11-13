@@ -108,7 +108,7 @@ export class Token {
    * @param {UTXO[]} [utxos = []] A json array of json objects. Provide it if you want to spent specific UTXOs
    * @param {string} [utxos.txid] The transaction id
    * @param {number} [utxos.vout] The output number
-   * @return {Promise<string>} Transaction hash
+   * @return {Promise<string>} The hex-encoded hash of broadcasted transaction
    */
   async burnTokens (amounts: string, from: string, context?: string, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('burntokens', [{ amounts, from, context }, utxos], 'number')
