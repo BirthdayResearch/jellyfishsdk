@@ -41,7 +41,8 @@ export class RegTestContainer extends DeFiDContainer {
       '-fortcanninggreatworldheight=14',
       '-fortcanningepilogueheight=15',
       '-grandcentralheight=16',
-      '-regtest-skip-loan-collateral-validation'
+      '-regtest-skip-loan-collateral-validation',
+      '-regtest-minttoken-simulate-mainnet=false'
     ]
 
     if (opts.startFlags != null && opts.startFlags.length > 0) {
