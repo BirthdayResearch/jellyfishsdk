@@ -168,7 +168,7 @@ export interface ProposalInfo {
   proposalId: string
   title: string
   context: string
-  contexthash?: string
+  contexthash: string
   type: ProposalType
   status: ProposalStatus
   amount: BigNumber

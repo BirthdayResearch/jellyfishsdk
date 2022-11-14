@@ -54,6 +54,7 @@ describe('On-chain governance enabled', () => {
     expect(proposal).toStrictEqual({
       title: 'new vote of confidence',
       context: '<Git issue url>',
+      contexthash: '',
       type: ProposalType.VOTE_OF_CONFIDENCE,
       status: ProposalStatus.VOTING,
       amount: expect.any(Number),
@@ -110,6 +111,7 @@ describe('On-chain governance enabled', () => {
     expect(proposal).toStrictEqual({
       title: 'new emergency vote of confidence',
       context: '<Git issue url>',
+      contexthash: '',
       type: ProposalType.VOTE_OF_CONFIDENCE,
       status: ProposalStatus.VOTING,
       amount: expect.any(Number),

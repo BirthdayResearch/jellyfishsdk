@@ -36,6 +36,7 @@ describe('Governance', () => {
     expect(proposal).toStrictEqual({
       title: data.title,
       context: data.context,
+      contexthash: '',
       type: ProposalType.COMMUNITY_FUND_PROPOSAL,
       status: ProposalStatus.VOTING,
       amount: new BigNumber(data.amount),

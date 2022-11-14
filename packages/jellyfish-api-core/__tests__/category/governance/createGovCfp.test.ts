@@ -67,6 +67,7 @@ describe('On-chain governance enabled', () => {
       expect(proposal).toStrictEqual({
         title: data.title,
         context: data.context,
+        contexthash: '',
         type: ProposalType.COMMUNITY_FUND_PROPOSAL,
         status: ProposalStatus.VOTING,
         amount: data.amount.toNumber(),
@@ -97,6 +98,7 @@ describe('On-chain governance enabled', () => {
       expect(proposal).toStrictEqual({
         title: data.title,
         context: data.context,
+        contexthash: '',
         type: ProposalType.COMMUNITY_FUND_PROPOSAL,
         status: ProposalStatus.VOTING,
         amount: data.amount.toNumber(),
@@ -127,6 +129,7 @@ describe('On-chain governance enabled', () => {
       expect(proposal).toStrictEqual({
         title: data.title,
         context: data.context,
+        contexthash: '',
         type: ProposalType.COMMUNITY_FUND_PROPOSAL,
         status: ProposalStatus.VOTING,
         amount: data.amount.toNumber(),

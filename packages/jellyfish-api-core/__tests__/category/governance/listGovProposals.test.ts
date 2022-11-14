@@ -55,6 +55,7 @@ describe('Governance', () => {
       expect(proposal).toStrictEqual({
         title: expect.any(String),
         context: expect.any(String),
+        contexthash: expect.any(String),
         type: expect.any(String),
         status: expect.any(String),
         amount: expect.any(BigNumber),
