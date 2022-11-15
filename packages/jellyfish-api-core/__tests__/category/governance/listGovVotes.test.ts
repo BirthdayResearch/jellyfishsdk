@@ -43,7 +43,11 @@ describe('Governance', () => {
   })
 
   it('should listGovVotes', async () => {
-    const proposalId = await testing.rpc.governance.createGovVoc('A vote of confidence', '<Git issue url>') // Creates a vote of confidence on which to vote
+    const data = {
+      title: 'A vote of confidence',
+      context: '<Git issue url>'
+    }
+    const proposalId = await testing.rpc.governance.createGovVoc(data) // Creates a vote of confidence on which to vote
     await testing.container.generate(1)
 
     for (const [id, data] of Object.entries(masternodes)) {
@@ -64,7 +68,11 @@ describe('Governance', () => {
   })
 
   it('should listGovVotes with filter masternode=MasternodeType.ALL', async () => {
-    const proposalId = await testing.rpc.governance.createGovVoc('A vote of confidence', '<Git issue url>') // Creates a vote of confidence on which to vote
+    const data = {
+      title: 'A vote of confidence',
+      context: '<Git issue url>'
+    }
+    const proposalId = await testing.rpc.governance.createGovVoc(data) // Creates a vote of confidence on which to vote
     await testing.container.generate(1)
 
     for (const [id, data] of Object.entries(masternodes)) {
@@ -85,7 +93,11 @@ describe('Governance', () => {
   })
 
   it('should listGovVotes with filter on a specific masternodeId', async () => {
-    const proposalId = await testing.rpc.governance.createGovVoc('A vote of confidence', '<Git issue url>') // Creates a vote of confidence on which to vote
+    const data = {
+      title: 'A vote of confidence',
+      context: '<Git issue url>'
+    }
+    const proposalId = await testing.rpc.governance.createGovVoc(data) // Creates a vote of confidence on which to vote
     let masternodeId = ''
 
     await testing.container.generate(1)
