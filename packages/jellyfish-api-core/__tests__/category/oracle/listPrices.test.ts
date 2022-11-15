@@ -1,7 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import BigNumber from 'bignumber.js'
-import { RpcApiError } from '@defichain/jellyfish-api-core'
 
 describe('Oracle', () => {
   const container = new MasterNodeRegTestContainer()
@@ -66,11 +65,9 @@ describe('Oracle', () => {
     await container.generate(1)
   })
 
-  it('should throw error if no oracle is appointed', async () => {
-    const promise = client.oracle.listPrices()
-
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('RpcApiError: \'start index greater than number of prices available\', code: -1, method: listprices')
+  it('should listPrices with empty array if no oracle is appointed', async () => {
+    const data = await client.oracle.listPrices()
+    expect(data.length).toStrictEqual(0)
   })
 
   it.skip('should listPrices with error msg for price timestamps 4200 seconds before the current time', async () => {
