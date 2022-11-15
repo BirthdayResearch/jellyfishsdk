@@ -549,8 +549,6 @@ describe('setGov consortium ATTRIBUTES', () => {
 
     await tGroup.get(0).container.fundAddress(account1, 10)
 
-    await tGroup.get(0).generate(1)
-
     idBTC = await tGroup.get(0).token.getTokenId(symbolBTC)
   }
 
@@ -674,9 +672,6 @@ describe('setGov consortium ATTRIBUTES', () => {
   })
 
   it('should set member information', async () => {
-    // Move to grand central height
-    await tGroup.get(0).generate(150 - await tGroup.get(0).container.getBlockCount())
-
     expect(await setGovAttr({
       [`v0/consortium/${idBTC}/mint_limit`]: '10',
       [`v0/consortium/${idBTC}/mint_limit_daily`]: '1'
@@ -697,7 +692,7 @@ describe('setGov consortium ATTRIBUTES', () => {
       }`
     })).toBeTruthy()
 
-    await tGroup.get(0).generate(1)
+    await tGroup.get(0).generate(5)
 
     const attr = (await tGroup.get(0).rpc.masternode.getGov('ATTRIBUTES')).ATTRIBUTES
     expect(attr['v0/consortium/1/members']).toStrictEqual(`{"01":{"name":"test","ownerAddress":"${account1}","backingId":"blablabla","mintLimit":10.00000000,"dailyMintLimit":1.00000000,"status":1}}`)

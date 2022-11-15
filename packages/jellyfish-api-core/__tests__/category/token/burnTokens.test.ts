@@ -30,21 +30,13 @@ describe('burnTokens', () => {
       tradeable: true,
       collateralAddress: address
     })
-
     await testing.generate(1)
 
-    await testing.generate(1)
     await testing.rpc.token.mintTokens(`10@${symbolDBTC}`)
     await testing.generate(1)
 
     await testing.container.fundAddress(address, 10)
-    await testing.generate(1)
   }
-
-  it('should throw error if called before GrandCentral height', async () => {
-    const promise = testing.rpc.token.burnTokens(`2@${symbolDBTC}`, address)
-    await expect(promise).rejects.toThrowError('called before GrandCentral height')
-  })
 
   it('should throw an error if invalid value is provided for amount', async () => {
     // Move to grand central height

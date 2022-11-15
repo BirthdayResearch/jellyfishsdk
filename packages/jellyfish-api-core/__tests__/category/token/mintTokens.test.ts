@@ -1,4 +1,4 @@
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { MasterNodeRegTestContainer, StartFlags } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { BigNumber, RpcApiError } from '../../../src'
 import { TestingGroup } from '@defichain/jellyfish-testing'
@@ -96,7 +96,8 @@ describe('Consortium', () => {
   const blocksPerDay = (60 * 60 * 24) / (10 * 60) // 144 in regtest
 
   beforeAll(async () => {
-    await tGroup.start()
+    const startFlags: StartFlags[] = [{ name: 'regtest-minttoken-simulate-mainnet', value: 0 }]
+    await tGroup.start({ startFlags: startFlags })
 
     account0 = await tGroup.get(0).generateAddress()
     account1 = await tGroup.get(1).generateAddress()
@@ -132,9 +133,6 @@ describe('Consortium', () => {
 
     idBTC = await tGroup.get(0).token.getTokenId(symbolBTC)
     idDOGE = await tGroup.get(0).token.getTokenId(symbolDOGE)
-
-    // Move to grand central height
-    await tGroup.get(0).container.generate(150 - await tGroup.get(0).container.getBlockCount())
   })
 
   afterAll(async () => {
@@ -162,10 +160,11 @@ describe('Consortium', () => {
   }
 
   it('should throw an error if foundation or consortium member authorization is not present', async () => {
-    await expect(tGroup.get(2).rpc.token.mintTokens(`1@${symbolBTC}`)).rejects.toThrow('Need foundation or consortium member authorization')
-    await expect(tGroup.get(3).rpc.token.mintTokens(`1@${symbolBTC}`)).rejects.toThrow('Need foundation or consortium member authorization')
-    await expect(tGroup.get(2).rpc.token.mintTokens(`1@${symbolDOGE}`)).rejects.toThrow('Need foundation or consortium member authorization')
-    await expect(tGroup.get(3).rpc.token.mintTokens(`1@${symbolDOGE}`)).rejects.toThrow('Need foundation or consortium member authorization')
+    const errorMsg = 'RpcApiError: \'Test MintTokenTx execution failed:\nYou are not a foundation member or token owner and cannot mint this token!\', code: -32600, method: minttokens'
+    await expect(tGroup.get(2).rpc.token.mintTokens(`1@${symbolBTC}`)).rejects.toThrow(errorMsg)
+    await expect(tGroup.get(3).rpc.token.mintTokens(`1@${symbolBTC}`)).rejects.toThrow(errorMsg)
+    await expect(tGroup.get(2).rpc.token.mintTokens(`1@${symbolDOGE}`)).rejects.toThrow(errorMsg)
+    await expect(tGroup.get(3).rpc.token.mintTokens(`1@${symbolDOGE}`)).rejects.toThrow(errorMsg)
   })
 
   it('should throw an error if the token is not specified in governance vars', async () => {
@@ -200,7 +199,7 @@ describe('Consortium', () => {
     }])
 
     // Trying to mint DOGE
-    await expect(tGroup.get(2).rpc.token.mintTokens(`1@${symbolDOGE}`)).rejects.toThrow('Need foundation or consortium member authorization')
+    await expect(tGroup.get(2).rpc.token.mintTokens(`1@${symbolDOGE}`)).rejects.toThrow('RpcApiError: \'Test MintTokenTx execution failed:\nYou are not a foundation member or token owner and cannot mint this token!\', code: -32600, method: minttokens')
   })
 
   it('should throw an error if member daily mint limit exceeds', async () => {
@@ -305,11 +304,11 @@ describe('Consortium', () => {
     expect(attr2[`v0/live/economy/consortium/${idBTC}/burnt`]).toStrictEqual(new BigNumber(10))
     expect(attr2[`v0/live/economy/consortium/${idBTC}/supply`]).toStrictEqual(new BigNumber(1))
     expect(attr2[`v0/live/economy/consortium_members/${idBTC}/01/minted`]).toStrictEqual(new BigNumber(10))
-    expect(attr2[`v0/live/economy/consortium_members/${idBTC}/01/daily_minted`]).toStrictEqual('288/5.00000000')
+    expect(attr2[`v0/live/economy/consortium_members/${idBTC}/01/daily_minted`]).toStrictEqual(`${blocksPerDay}/5.00000000`)
     expect(attr2[`v0/live/economy/consortium_members/${idBTC}/01/burnt`]).toStrictEqual(new BigNumber(10))
     expect(attr2[`v0/live/economy/consortium_members/${idBTC}/01/supply`]).toStrictEqual(new BigNumber(0))
     expect(attr2[`v0/live/economy/consortium_members/${idBTC}/02/minted`]).toStrictEqual(new BigNumber(1))
-    expect(attr2[`v0/live/economy/consortium_members/${idBTC}/02/daily_minted`]).toStrictEqual('432/1.00000000')
+    expect(attr2[`v0/live/economy/consortium_members/${idBTC}/02/daily_minted`]).toStrictEqual(`${blocksPerDay * 2}/1.00000000`)
     expect(attr2[`v0/live/economy/consortium_members/${idBTC}/02/burnt`]).toStrictEqual(new BigNumber(0))
     expect(attr2[`v0/live/economy/consortium_members/${idBTC}/02/supply`]).toStrictEqual(new BigNumber(1))
 
@@ -317,7 +316,7 @@ describe('Consortium', () => {
     expect(attr2[`v0/live/economy/consortium/${idDOGE}/burnt`]).toStrictEqual(new BigNumber(0))
     expect(attr2[`v0/live/economy/consortium/${idDOGE}/supply`]).toStrictEqual(new BigNumber(2))
     expect(attr2[`v0/live/economy/consortium_members/${idDOGE}/02/minted`]).toStrictEqual(new BigNumber(2))
-    expect(attr2[`v0/live/economy/consortium_members/${idDOGE}/02/daily_minted`]).toStrictEqual('432/2.00000000')
+    expect(attr2[`v0/live/economy/consortium_members/${idDOGE}/02/daily_minted`]).toStrictEqual(`${blocksPerDay * 2}/2.00000000`)
     expect(attr2[`v0/live/economy/consortium_members/${idDOGE}/02/burnt`]).toStrictEqual(new BigNumber(0))
     expect(attr2[`v0/live/economy/consortium_members/${idDOGE}/02/supply`]).toStrictEqual(new BigNumber(2))
   })

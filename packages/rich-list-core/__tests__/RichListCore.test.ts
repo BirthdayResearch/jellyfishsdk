@@ -16,8 +16,8 @@ const EXPECTED_RICH_LIST_ADDRESSES = [
   'mud4VMfbBqXNpbt8ur33KHKx8pk3npSq8c',
   'bcrt1qyrfrpadwgw7p5eh3e9h3jmu4kwlz4prx73cqny',
   'bcrt1qyeuu9rvq8a67j86pzvh5897afdmdjpyankp4mu',
-  'mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy',
-  '2NCWAKfEehP3qibkLKYQjXaWMK23k4EDMVS'
+  '2NCWAKfEehP3qibkLKYQjXaWMK23k4EDMVS',
+  'mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy'
 ]
 
 describe('RichListCore', () => {
