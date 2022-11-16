@@ -49,4 +49,3 @@ services:
       -fortcanningepilogueheight=15
       -grandcentralheight=16
       -regtest-skip-loan-collateral-validation
-      -regtest-minttoken-simulate-mainnet=false
