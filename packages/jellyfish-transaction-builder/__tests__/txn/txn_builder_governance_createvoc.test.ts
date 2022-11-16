@@ -1,4 +1,4 @@
-import { DeFiDRpcError, GenesisKeys } from '@defichain/testcontainers'
+import { DeFiDRpcError } from '@defichain/testcontainers'
 import { Testing } from '@defichain/jellyfish-testing'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
@@ -9,9 +9,9 @@ import BigNumber from 'bignumber.js'
 import { GovernanceMasterNodeRegTestContainer } from '../../../jellyfish-api-core/__tests__/category/governance/governance_container'
 import { governance } from '@defichain/jellyfish-api-core'
 import { TxnBuilderError } from '../../src/txn/txn_builder_error'
-import { RegTest } from '@defichain/jellyfish-network'
+import { RegTest, RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
-describe.skip('createVoc', () => {
+describe('createVoc', () => {
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
   const testing = Testing.create(new GovernanceMasterNodeRegTestContainer())
@@ -19,9 +19,10 @@ describe.skip('createVoc', () => {
   beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/gov': 'true' } })
 
     providers = await getProviders(testing.container)
-    providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[0].owner.privKey)) // set it to container default
+    providers.setEllipticPair(WIF.asEllipticPair(RegTestFoundationKeys[0].owner.privKey)) // set it to container default
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     await testing.container.waitForWalletBalanceGTE(11)
@@ -36,11 +37,11 @@ describe.skip('createVoc', () => {
   it('should createVoc', async () => {
     const script = await providers.elliptic.script()
     const createVoc: CreateVoc = {
-      type: 0x03,
-      title: 'vote of confidence',
+      type: 0x02,
+      title: 'vote',
       context: 'https://github.com/DeFiCh/dfips',
       amount: new BigNumber(0),
-      address: {
+      payoutAddress: {
         stack: []
       },
       cycles: 2
@@ -54,10 +55,10 @@ describe.skip('createVoc', () => {
     expect(outs[0].value).toStrictEqual(5)
     expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
 
-    const listProposals = await testing.rpc.governance.listProposals()
+    const listProposals = await testing.rpc.container.call('listgovproposals')
     const txid = calculateTxid(txn)
 
-    const proposal = listProposals.find(el => el.proposalId === txid)
+    const proposal = listProposals.find((el: governance.ProposalInfo) => el.proposalId === txid)
     expect(proposal).toStrictEqual({
       proposalId: txid,
       title: createVoc.title,
@@ -71,14 +72,14 @@ describe.skip('createVoc', () => {
     })
   })
 
-  it('should reject with invalid amount', async () => {
+  it.skip('should reject with invalid amount', async () => {
     const script = await providers.elliptic.script()
     const promise = builder.governance.createVoc({
-      type: 0x03,
+      type: 0x02,
       title: 'vote of confidence',
       context: 'https://github.com/DeFiCh/dfips',
       amount: new BigNumber(10),
-      address: {
+      payoutAddress: {
         stack: []
       },
       cycles: 2
@@ -88,14 +89,14 @@ describe.skip('createVoc', () => {
     await expect(promise).rejects.toThrow('CreateVoc amount should be 0')
   })
 
-  it('should reject with invalid address', async () => {
+  it.skip('should reject with invalid address', async () => {
     const script = await providers.elliptic.script()
     const promise = builder.governance.createVoc({
-      type: 0x03,
+      type: 0x02,
       title: 'vote of confidence',
       context: 'https://github.com/DeFiCh/dfips',
       amount: new BigNumber(0),
-      address: {
+      payoutAddress: {
         stack: [
           OP_CODES.OP_HASH160,
           OP_CODES.OP_PUSHDATA_HEX_LE('8b5401d88a3d4e54fc701663dd99a5ab792af0a4'),
@@ -109,14 +110,14 @@ describe.skip('createVoc', () => {
     await expect(promise).rejects.toThrow('CreateVoc address stack should be empty')
   })
 
-  it('should reject with invalid title length', async () => {
+  it.skip('should reject with invalid title length', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.governance.createVoc({
-      type: 0x03,
+      type: 0x02,
       title: 'X'.repeat(150),
       amount: new BigNumber(0),
       context: 'https://github.com/DeFiCh/dfips',
-      address: {
+      payoutAddress: {
         stack: []
       },
       cycles: 2

@@ -33,7 +33,7 @@ export class TxnBuilderGovernance extends P2WPKHTxnBuilder {
         'CreateVoc amount should be 0'
       )
     }
-    if (createVoc.address.stack.length !== 0) {
+    if (createVoc.payoutAddress.stack.length !== 0) {
       throw new TxnBuilderError(TxnBuilderErrorType.INVALID_VOC_ADDRESS,
         'CreateVoc address stack should be empty'
       )

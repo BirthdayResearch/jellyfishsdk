@@ -39,7 +39,7 @@ describe.skip('createCfp', () => {
       title: 'Testing new community fund proposal',
       context: 'https://github.com/DeFiCh/dfips',
       amount: new BigNumber(100),
-      address: {
+      payoutAddress: {
         stack: [
           OP_CODES.OP_HASH160,
           OP_CODES.OP_PUSHDATA_HEX_LE('8b5401d88a3d4e54fc701663dd99a5ab792af0a4'),
@@ -81,7 +81,7 @@ describe.skip('createCfp', () => {
       title: 'X'.repeat(150),
       context: 'https://github.com/DeFiCh/dfips',
       amount: new BigNumber(100),
-      address: {
+      payoutAddress: {
         stack: [
           OP_CODES.OP_HASH160,
           OP_CODES.OP_PUSHDATA_HEX_LE('8b5401d88a3d4e54fc701663dd99a5ab792af0a4'),

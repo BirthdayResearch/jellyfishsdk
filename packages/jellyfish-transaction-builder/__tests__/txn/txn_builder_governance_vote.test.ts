@@ -61,7 +61,7 @@ describe.skip('vote', () => {
       title: 'community fund proposal',
       context: 'https://github.com/DeFiCh/dfips',
       amount: new BigNumber(10),
-      address: script,
+      payoutAddress: script,
       cycles: 2
     }, script)
 
@@ -127,7 +127,7 @@ describe.skip('vote with masternode operator with legacy address', () => {
       title: 'community fund proposal',
       context: 'https://github.com/DeFiCh/dfips',
       amount: new BigNumber(10),
-      address: script,
+      payoutAddress: script,
       cycles: 2
     }, script)
 
