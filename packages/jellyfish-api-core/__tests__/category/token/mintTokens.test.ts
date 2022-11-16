@@ -254,6 +254,57 @@ describe('Consortium', () => {
     expect(attr[`v0/live/economy/consortium/${idBTC}/supply`]).toStrictEqual(new BigNumber('1'))
   })
 
+  it('should be able to set unlimited mint limits per member when global mint_limit or mint_limit_daily is set to -1', async () => {
+    await setGovAttr({
+      [`v0/consortium/${idBTC}/mint_limit_daily`]: '-1',
+      [`v0/consortium/${idBTC}/mint_limit`]: '-1'
+    })
+
+    // Increase limits
+    await setMemberInfo(idBTC, [{
+      id: '01',
+      name: 'account1BTC',
+      ownerAddress: account1,
+      dailyMintLimit: '10000000.00000000',
+      mintLimit: '10000000.00000000'
+    }, {
+      id: '02',
+      name: 'account2BTC',
+      ownerAddress: account2,
+      dailyMintLimit: '50000000.00000000',
+      mintLimit: '50000000.00000000'
+    }, {
+      id: '03',
+      name: 'account3BTC',
+      ownerAddress: account3,
+      dailyMintLimit: '50000000.00000000',
+      mintLimit: '50000000.00000000'
+    }])
+
+    // Decrease limits
+    await setMemberInfo(idBTC, [{
+      id: '01',
+      name: 'account1BTC',
+      ownerAddress: account1,
+      dailyMintLimit: '5.00000000',
+      mintLimit: '10.00000000'
+    }, {
+      id: '02',
+      name: 'account2BTC',
+      ownerAddress: account2,
+      dailyMintLimit: '5.00000000',
+      mintLimit: '10.00000000'
+    }, {
+      id: '03',
+      name: 'account3BTC',
+      ownerAddress: account3,
+      dailyMintLimit: '5.00000000',
+      mintLimit: '10.00000000'
+    }])
+
+    await tGroup.get(0).generate(5)
+  })
+
   it('should return correct governance attribute values', async () => {
     // Set global mint limits for DOGE
     await setGovAttr({
@@ -283,8 +334,8 @@ describe('Consortium', () => {
 
     const attr0 = (await tGroup.get(0).rpc.masternode.getGov('ATTRIBUTES')).ATTRIBUTES
     expect(attr0[`v0/consortium/${idBTC}/members`]).toStrictEqual(`{"01":{"name":"account1BTC","ownerAddress":"${account1}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":10.00000000,"dailyMintLimit":5.00000000,"status":0},"02":{"name":"account2BTC","ownerAddress":"${account2}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":10.00000000,"dailyMintLimit":5.00000000,"status":0},"03":{"name":"account3BTC","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":10.00000000,"dailyMintLimit":5.00000000,"status":0}}`)
-    expect(attr0[`v0/consortium/${idBTC}/mint_limit`]).toStrictEqual('20')
-    expect(attr0[`v0/consortium/${idBTC}/mint_limit_daily`]).toStrictEqual('5')
+    expect(attr0[`v0/consortium/${idBTC}/mint_limit`]).toStrictEqual('-1')
+    expect(attr0[`v0/consortium/${idBTC}/mint_limit_daily`]).toStrictEqual('-1')
 
     expect(attr0[`v0/consortium/${idDOGE}/members`]).toStrictEqual(`{"01":{"name":"account1DOGE","ownerAddress":"${account1}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":5.00000000,"dailyMintLimit":2.00000000,"status":0},"02":{"name":"account2DOGE","ownerAddress":"${account2}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":5.00000000,"dailyMintLimit":2.00000000,"status":0}}`)
     expect(attr0[`v0/consortium/${idDOGE}/mint_limit`]).toStrictEqual('6')
