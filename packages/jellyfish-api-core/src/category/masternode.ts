@@ -179,7 +179,7 @@ export class Masternode {
    * Get information about governance variable
    *
    * @param {string} name governance name
-   * @return {Promise<Record<string, any>} governance information as json object
+   * @return {Promise<Record<string, any>>} governance information as json object
    */
   /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   async getGov (name: string): Promise<Record<string, any>> {

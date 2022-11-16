@@ -34,6 +34,8 @@ import { PoolPairPricesService } from './poolpair.prices.service'
 import { LegacyController } from './legacy.controller'
 import { LegacySubgraphService } from './legacy.subgraph.service'
 import { PoolPairFeesService } from './poolpair.fees.service'
+import { ConsortiumController } from './consortium.controller'
+import { ConsortiumService } from './consortium.service'
 
 /**
  * Exposed ApiModule for public interfacing
@@ -56,7 +58,8 @@ import { PoolPairFeesService } from './poolpair.fees.service'
     FeeController,
     RawtxController,
     LoanController,
-    LegacyController
+    LegacyController,
+    ConsortiumController
   ],
   providers: [
     {
@@ -100,7 +103,8 @@ import { PoolPairFeesService } from './poolpair.fees.service'
       },
       inject: [ConfigService]
     },
-    LegacySubgraphService
+    LegacySubgraphService,
+    ConsortiumService
   ],
   exports: [
     DeFiDCache
