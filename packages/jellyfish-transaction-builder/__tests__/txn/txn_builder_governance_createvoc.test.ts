@@ -38,16 +38,17 @@ describe('createVoc', () => {
     const script = await providers.elliptic.script()
     const createVoc: CreateVoc = {
       type: 0x02,
-      title: 'vote',
+      title: ' a vote of confidence',
       context: 'https://github.com/DeFiCh/dfips',
-      amount: new BigNumber(0),
-      payoutAddress: {
+      contexthash: '<context hash>',
+      nAmount: new BigNumber(0),
+      address: {
         stack: []
       },
-      cycles: 2
+      nCycles: 2,
+      options: 0x00
     }
     const txn = await builder.governance.createVoc(createVoc, script)
-
     const encoded: string = OP_CODES.OP_DEFI_TX_CREATE_VOC(createVoc).asBuffer().toString('hex')
     const expectedRedeemScript = `6a${encoded}`
 
@@ -62,65 +63,73 @@ describe('createVoc', () => {
     expect(proposal).toStrictEqual({
       proposalId: txid,
       title: createVoc.title,
+      context: createVoc.context,
+      contexthash: createVoc.contexthash,
       type: governance.ProposalType.VOTE_OF_CONFIDENCE,
       status: governance.ProposalStatus.VOTING,
-      amount: createVoc.amount,
-      cyclesPaid: 1,
-      totalCycles: createVoc.cycles,
+      amount: createVoc.nAmount.toNumber(),
+      nextCycle: 1,
+      totalCycles: createVoc.nCycles,
       finalizeAfter: expect.any(Number),
       payoutAddress: ''
     })
   })
 
-  it.skip('should reject with invalid amount', async () => {
+  it('should reject with invalid amount', async () => {
     const script = await providers.elliptic.script()
     const promise = builder.governance.createVoc({
       type: 0x02,
       title: 'vote of confidence',
       context: 'https://github.com/DeFiCh/dfips',
-      amount: new BigNumber(10),
-      payoutAddress: {
+      contexthash: '<context hash>',
+      nAmount: new BigNumber(10),
+      address: {
         stack: []
       },
-      cycles: 2
+      nCycles: 2,
+      options: 0x00
     }, script)
 
     await expect(promise).rejects.toThrow(TxnBuilderError)
     await expect(promise).rejects.toThrow('CreateVoc amount should be 0')
   })
 
-  it.skip('should reject with invalid address', async () => {
+  it('should reject with invalid address', async () => {
     const script = await providers.elliptic.script()
     const promise = builder.governance.createVoc({
       type: 0x02,
       title: 'vote of confidence',
       context: 'https://github.com/DeFiCh/dfips',
-      amount: new BigNumber(0),
-      payoutAddress: {
+      contexthash: '<context hash>',
+      nAmount: new BigNumber(0),
+      address: {
         stack: [
           OP_CODES.OP_HASH160,
           OP_CODES.OP_PUSHDATA_HEX_LE('8b5401d88a3d4e54fc701663dd99a5ab792af0a4'),
           OP_CODES.OP_EQUAL
         ]
       },
-      cycles: 2
+      nCycles: 2,
+      options: 0x00
     }, script)
 
     await expect(promise).rejects.toThrow(TxnBuilderError)
     await expect(promise).rejects.toThrow('CreateVoc address stack should be empty')
   })
 
-  it.skip('should reject with invalid title length', async () => {
+  it('should reject with invalid title length', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.governance.createVoc({
       type: 0x02,
       title: 'X'.repeat(150),
-      amount: new BigNumber(0),
+      nAmount: new BigNumber(0),
       context: 'https://github.com/DeFiCh/dfips',
-      payoutAddress: {
+      contexthash: '<context hash>',
+      address: {
         stack: []
       },
-      cycles: 2
+      nCycles: 2,
+      options: 0x00
     }, script)
     const promise = sendTransaction(testing.container, txn)
 

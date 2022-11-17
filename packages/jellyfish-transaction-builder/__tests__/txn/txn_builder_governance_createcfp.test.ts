@@ -1,4 +1,4 @@
-import { DeFiDRpcError, GenesisKeys } from '@defichain/testcontainers'
+import { DeFiDRpcError } from '@defichain/testcontainers'
 import { Testing } from '@defichain/jellyfish-testing'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
@@ -8,9 +8,9 @@ import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
 import { GovernanceMasterNodeRegTestContainer } from '../../../jellyfish-api-core/__tests__/category/governance/governance_container'
 import { governance } from '@defichain/jellyfish-api-core'
-import { RegTest } from '@defichain/jellyfish-network'
+import { RegTest, RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
-describe.skip('createCfp', () => {
+describe('createCfp', () => {
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
   const testing = Testing.create(new GovernanceMasterNodeRegTestContainer())
@@ -18,9 +18,10 @@ describe.skip('createCfp', () => {
   beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/gov': 'true' } })
 
     providers = await getProviders(testing.container)
-    providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[0].owner.privKey)) // set it to container default
+    providers.setEllipticPair(WIF.asEllipticPair(RegTestFoundationKeys[0].owner.privKey)) // set it to container default
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     await testing.container.waitForWalletBalanceGTE(11)
@@ -38,15 +39,17 @@ describe.skip('createCfp', () => {
       type: 0x01,
       title: 'Testing new community fund proposal',
       context: 'https://github.com/DeFiCh/dfips',
-      amount: new BigNumber(100),
-      payoutAddress: {
+      contexthash: '<context hash>',
+      nAmount: new BigNumber(100),
+      address: {
         stack: [
           OP_CODES.OP_HASH160,
           OP_CODES.OP_PUSHDATA_HEX_LE('8b5401d88a3d4e54fc701663dd99a5ab792af0a4'),
           OP_CODES.OP_EQUAL
         ]
       },
-      cycles: 2
+      nCycles: 2,
+      options: 0x00
     }
     const txn = await builder.governance.createCfp(createCfp, script)
 
@@ -64,11 +67,13 @@ describe.skip('createCfp', () => {
     expect(proposal).toStrictEqual({
       proposalId: txid,
       title: createCfp.title,
+      context: createCfp.context,
+      contexthash: createCfp.contexthash,
       type: governance.ProposalType.COMMUNITY_FUND_REQUEST,
       status: governance.ProposalStatus.VOTING,
-      amount: createCfp.amount,
-      cyclesPaid: 1,
-      totalCycles: createCfp.cycles,
+      amount: createCfp.nAmount,
+      nextCycle: 1,
+      totalCycles: createCfp.nCycles,
       finalizeAfter: expect.any(Number),
       payoutAddress: '2N5wvYsWcAWQUed5vfPxopxZtjkqoT8dFM3'
     })
@@ -80,15 +85,17 @@ describe.skip('createCfp', () => {
       type: 0x01,
       title: 'X'.repeat(150),
       context: 'https://github.com/DeFiCh/dfips',
-      amount: new BigNumber(100),
-      payoutAddress: {
+      contexthash: '<context hash>',
+      nAmount: new BigNumber(100),
+      address: {
         stack: [
           OP_CODES.OP_HASH160,
           OP_CODES.OP_PUSHDATA_HEX_LE('8b5401d88a3d4e54fc701663dd99a5ab792af0a4'),
           OP_CODES.OP_EQUAL
         ]
       },
-      cycles: 2
+      nCycles: 2,
+      options: 0x00
     }, script)
 
     const promise = sendTransaction(testing.container, txn)

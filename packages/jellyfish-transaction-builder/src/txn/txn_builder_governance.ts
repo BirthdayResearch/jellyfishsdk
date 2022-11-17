@@ -28,12 +28,12 @@ export class TxnBuilderGovernance extends P2WPKHTxnBuilder {
    * @returns {Promise<TransactionSegWit>}
    */
   async createVoc (createVoc: CreateVoc, changeScript: Script): Promise<TransactionSegWit> {
-    if (!createVoc.amount.isEqualTo(new BigNumber(0))) {
+    if (!createVoc.nAmount.isEqualTo(new BigNumber(0))) {
       throw new TxnBuilderError(TxnBuilderErrorType.INVALID_VOC_AMOUNT,
         'CreateVoc amount should be 0'
       )
     }
-    if (createVoc.payoutAddress.stack.length !== 0) {
+    if (createVoc.address.stack.length !== 0) {
       throw new TxnBuilderError(TxnBuilderErrorType.INVALID_VOC_ADDRESS,
         'CreateVoc address stack should be empty'
       )

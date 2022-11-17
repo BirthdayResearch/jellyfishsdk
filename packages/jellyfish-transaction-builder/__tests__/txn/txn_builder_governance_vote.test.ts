@@ -60,9 +60,11 @@ describe.skip('vote', () => {
       type: 0x01,
       title: 'community fund proposal',
       context: 'https://github.com/DeFiCh/dfips',
-      amount: new BigNumber(10),
-      payoutAddress: script,
-      cycles: 2
+      contexthash: '<context hash>',
+      nAmount: new BigNumber(10),
+      address: script,
+      nCycles: 2,
+      options: 0x00
     }, script)
 
     const proposalId = calculateTxid(createVocTxn)
@@ -126,9 +128,11 @@ describe.skip('vote with masternode operator with legacy address', () => {
       type: 0x01,
       title: 'community fund proposal',
       context: 'https://github.com/DeFiCh/dfips',
-      amount: new BigNumber(10),
-      payoutAddress: script,
-      cycles: 2
+      contexthash: '<context hash>',
+      nAmount: new BigNumber(10),
+      address: script,
+      nCycles: 2,
+      options: 0x00
     }, script)
 
     const proposalId = calculateTxid(createVocTxn)
