@@ -39,9 +39,6 @@ describe('burnTokens', () => {
   }
 
   it('should throw an error if invalid value is provided for amount', async () => {
-    // Move to grand central height
-    await testing.generate(150)
-
     // @ts-expect-error
     await expect(testing.rpc.token.burnTokens(null, address)).rejects.toThrow('Invalid parameters, argument "amounts" must not be null')
     await expect(testing.rpc.token.burnTokens('', address)).rejects.toThrow(': Invalid amount')
