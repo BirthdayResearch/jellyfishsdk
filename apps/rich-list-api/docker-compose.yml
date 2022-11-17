@@ -13,7 +13,7 @@ services:
       POSTGRES_DB: defichainrichlist
 
   defi-blockchain:
-    image: defi/defichain:HEAD-453b1c948
+    image: defi/defichain:master-7ce2d1721
     ports:
       - "19554:19554"
     command: >
