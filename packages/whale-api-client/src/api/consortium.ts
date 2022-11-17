@@ -17,7 +17,13 @@ export class Consortium {
   }
 }
 
+export interface MemberDetail {
+  backingId: string
+  name: string
+}
+
 export interface MemberInfo {
+  tokenId: string
   id: string
   name: string
   backingAddress: string
@@ -25,9 +31,7 @@ export interface MemberInfo {
 
 export interface MemberWithTokenInfo extends MemberInfo {
   minted: string
-  backed: string
   burnt: string
-  supply: string
 }
 
 export interface AssetBreakdownInfo {

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { DeFiDCache } from './cache/defid.cache'
+import { DeFiDCache, TokenInfoWithId } from './cache/defid.cache'
 import { SemaphoreCache } from '@defichain-apps/libs/caches'
-import { AssetBreakdownInfo, MemberInfo } from '@defichain/whale-api-client/dist/api/consortium'
+import { AssetBreakdownInfo, MemberDetail } from '@defichain/whale-api-client/dist/api/consortium'
 import BigNumber from 'bignumber.js'
 
 @Injectable()
@@ -13,39 +13,59 @@ export class ConsortiumService {
     protected readonly cache: SemaphoreCache
   ) {}
 
-  private pushToAssetBreakdownInfo (memberInfo: MemberInfo[], tokens: any[], assetBreakdownInfo: AssetBreakdownInfo[], key: string, value: string): void {
+  private updateBurnMintAmounts (assetBreakdownInfo: AssetBreakdownInfo[], tokens: TokenInfoWithId[], key: string, value: string): void {
     const tokenId = key.split('/')[4]
     const memberId = key.split('/')[5]
-    const member = memberInfo.find(am => am.id === memberId)
-    const type = key.split('/')[6] as 'burnt' | 'minted' | 'supply'
-    const token = tokens?.find(t => t.id === tokenId)
+    const type = key.split('/')[6] as 'burnt' | 'minted'
+    const token = tokens.find(t => t.id === tokenId)
+    if (token === undefined) {
+      return
+    }
     const val = new BigNumber(value).toFixed(+token.decimal.toString())
 
-    const memberObj = {
-      id: memberId,
-      name: member?.name ?? '',
-      backingAddress: member?.backingAddress ?? '',
-      minted: '-1',
-      backed: '-1',
-      supply: '-1',
-      burnt: '-1'
+    const existingABI = assetBreakdownInfo.find(abi => abi.tokenSymbol === token.symbol)
+    if (existingABI === undefined) {
+      return
     }
-    memberObj[type] = val
+
+    const existingMember = existingABI.memberInfo.find(mi => mi.id === memberId && mi.tokenId === token.id)
+    if (existingMember === undefined) {
+      return
+    }
+
+    existingMember[type] = val
+  }
+
+  private pushToAssetBreakdownInfo (assetBreakdownInfo: AssetBreakdownInfo[], memberId: string, memberDetail: MemberDetail, tokenId: string, tokens: TokenInfoWithId[]): void {
+    const member = {
+      id: memberId,
+      name: memberDetail.name,
+      minted: '0.00000000',
+      burnt: '0.00000000',
+      backingAddress: memberDetail.backingId,
+      tokenId: tokenId
+    }
+
+    const token = tokens.find(t => t.id === tokenId)
+    if (token === undefined) {
+      return
+    }
 
     const existingABI = assetBreakdownInfo.find(abi => abi.tokenSymbol === token.symbol)
-    if (existingABI !== undefined) {
-      const existingMember = existingABI.memberInfo.find(mi => mi.id === memberId)
-      if (existingMember !== undefined) {
-        existingMember[type] = val
-      } else {
-        existingABI.memberInfo.push(memberObj)
-      }
-    } else {
+    if (existingABI === undefined) {
       assetBreakdownInfo.push({
         tokenSymbol: token.symbol,
-        memberInfo: [memberObj]
+        memberInfo: [member]
       })
+      return
     }
+
+    const existingMember = existingABI.memberInfo.find(mi => mi.id === memberId && mi.tokenId === token.id)
+    if (existingMember !== undefined) {
+      return
+    }
+
+    existingABI.memberInfo.push(member)
   }
 
   async getAssetBreakdown (): Promise<AssetBreakdownInfo[]> {
@@ -55,33 +75,26 @@ export class ConsortiumService {
       const keys: string[] = Object.keys(attrs)
       const values: string[] = Object.values(attrs)
       const assetBreakdownInfo: AssetBreakdownInfo[] = []
-      const memberInfo: MemberInfo[] = []
+      const membersKeyRegex = /^v0\/consortium\/\d+\/members$/
+      const mintedKeyRegex = /^v0\/live\/economy\/consortium_members\/\d+\/\d+\/minted$/
+      const burntKeyRegex = /^v0\/live\/economy\/consortium_members\/\d+\/\d+\/burnt$/
 
-      const tokens = await this.defidCache.getAllTokenInfo() as any[]
+      const tokens: TokenInfoWithId[] = await this.defidCache.getAllTokenInfo() as TokenInfoWithId[]
 
       keys.forEach((key, i) => {
-        if (/^v0\/consortium\/\d+\/members$/.exec(key) !== null) {
-          const membersPerToken = JSON.parse(values[i])
-          const memberIds = Object.keys(membersPerToken)
-          const memberDetails = Object.values(membersPerToken) as any
+        if (membersKeyRegex.exec(key) !== null) {
+          const tokenId: string = key.split('/')[2]
+          const membersPerToken: object = JSON.parse(values[i])
+          const memberIds: string[] = Object.keys(membersPerToken)
+          const memberDetails: MemberDetail[] = Object.values(membersPerToken)
 
-          memberIds.forEach((mi, j) => {
-            if (memberInfo.find(am => am.id === mi) === undefined) {
-              memberInfo.push({
-                id: mi,
-                backingAddress: memberDetails[j].backingId,
-                name: memberDetails[j].name
-              })
-            }
+          memberIds.forEach((memberId, j) => {
+            this.pushToAssetBreakdownInfo(assetBreakdownInfo, memberId, memberDetails[j], tokenId, tokens)
           })
         }
 
-        if (
-          /^v0\/live\/economy\/consortium_members\/\d+\/\d+\/minted$/.exec(key) !== null ||
-          /^v0\/live\/economy\/consortium_members\/\d+\/\d+\/burnt$/.exec(key) !== null ||
-          /^v0\/live\/economy\/consortium_members\/\d+\/\d+\/supply$/.exec(key) !== null
-        ) {
-          this.pushToAssetBreakdownInfo(memberInfo, tokens, assetBreakdownInfo, key, values[i])
+        if (mintedKeyRegex.exec(key) !== null || burntKeyRegex.exec(key) !== null) {
+          this.updateBurnMintAmounts(assetBreakdownInfo, tokens, key, values[i])
         }
       })
 

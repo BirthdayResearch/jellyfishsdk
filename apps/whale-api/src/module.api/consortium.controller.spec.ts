@@ -40,7 +40,7 @@ describe('getAssetBreakdown', () => {
       "${mi.id}":{
         "name":"${mi.name}", 
         "ownerAddress":"${mi.ownerAddress}",
-        "backingId":"blablabla",
+        "backingId":"${tokenId}-${mi.name}",
         "dailyMintLimit":${mi.dailyMintLimit},
         "mintLimit":${mi.mintLimit}
       }`
@@ -135,13 +135,14 @@ describe('getAssetBreakdown', () => {
     expect(info).toStrictEqual([{
       tokenSymbol: symbolBTC,
       memberInfo: [
-        { id: '01', name: 'alice', minted: '1.00000000', supply: '1.00000000', burnt: '0.00000000', backed: '-1', backingAddress: 'blablabla' },
-        { id: '02', name: 'bob', minted: '4.00000000', supply: '2.00000000', burnt: '2.00000000', backed: '-1', backingAddress: 'blablabla' }
+        { id: '01', name: 'alice', minted: '1.00000000', burnt: '0.00000000', backingAddress: `${idBTC}-alice`, tokenId: idBTC },
+        { id: '02', name: 'bob', minted: '4.00000000', burnt: '2.00000000', backingAddress: `${idBTC}-bob`, tokenId: idBTC }
       ]
     }, {
       tokenSymbol: symbolETH,
       memberInfo: [
-        { id: '01', name: 'alice', minted: '2.00000000', supply: '1.00000000', burnt: '1.00000000', backed: '-1', backingAddress: 'blablabla' }
+        { id: '01', name: 'alice', minted: '2.00000000', burnt: '1.00000000', backingAddress: `${idETH}-alice`, tokenId: idETH },
+        { id: '02', name: 'bob', minted: '0.00000000', burnt: '0.00000000', backingAddress: `${idETH}-bob`, tokenId: idETH }
       ]
     }])
   })
