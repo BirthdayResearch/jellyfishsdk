@@ -713,18 +713,9 @@ describe('setGov consortium ATTRIBUTES', () => {
     })
   })
 
-  it('should throw an error if global limit is set to 0', async () => {
-    const promise = setGovAttr({
+  it('allow global limit to be 0', async () => {
+    expect(await setGovAttr({
       [`v0/consortium/${idBTC}/mint_limit`]: '0'
-    })
-
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toMatchObject({
-      payload: {
-        code: -5,
-        message: 'Amount must be positive or -1',
-        method: 'setgov'
-      }
-    })
+    })).toBeTruthy()
   })
 })
