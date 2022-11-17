@@ -697,4 +697,25 @@ describe('setGov consortium ATTRIBUTES', () => {
     const attr = (await tGroup.get(0).rpc.masternode.getGov('ATTRIBUTES')).ATTRIBUTES
     expect(attr['v0/consortium/1/members']).toStrictEqual(`{"01":{"name":"test","ownerAddress":"${account1}","backingId":"blablabla","mintLimit":10.00000000,"dailyMintLimit":1.00000000,"status":1}}`)
   })
+
+  it('should throw an error if global limit is set to negative value other than -1', async () => {
+    const promise = setGovAttr({
+      [`v0/consortium/${idBTC}/mint_limit`]: '-2'
+    })
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -5,
+        message: 'Amount must be positive or -1',
+        method: 'setgov'
+      }
+    })
+  })
+
+  it('allow global limit to be 0', async () => {
+    expect(await setGovAttr({
+      [`v0/consortium/${idBTC}/mint_limit`]: '0'
+    })).toBeTruthy()
+  })
 })
