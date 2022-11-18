@@ -35,12 +35,12 @@ describe('getAssetBreakdown', () => {
     await alice.generate(1)
   }
 
-  async function setMemberInfo (tokenId: string, memberInfo: Array<{ id: string, name: string, ownerAddress: string, mintLimit: string, dailyMintLimit: string }>): Promise<void> {
+  async function setMemberInfo (tokenId: string, memberInfo: Array<{ id: string, name: string, backingId: string, ownerAddress: string, mintLimit: string, dailyMintLimit: string }>): Promise<void> {
     const infoObjs = memberInfo.map(mi => `
       "${mi.id}":{
         "name":"${mi.name}", 
         "ownerAddress":"${mi.ownerAddress}",
-        "backingId":"${tokenId}-${mi.name}",
+        "backingId":"${mi.backingId}",
         "dailyMintLimit":${mi.dailyMintLimit},
         "mintLimit":${mi.mintLimit}
       }`
@@ -90,12 +90,14 @@ describe('getAssetBreakdown', () => {
       id: '01',
       name: 'alice',
       ownerAddress: accountAlice,
+      backingId: 'abc',
       dailyMintLimit: '5.00000000',
       mintLimit: '10.00000000'
     }, {
       id: '02',
       name: 'bob',
       ownerAddress: accountBob,
+      backingId: 'def,hij',
       dailyMintLimit: '5.00000000',
       mintLimit: '10.00000000'
     }])
@@ -104,12 +106,14 @@ describe('getAssetBreakdown', () => {
       id: '01',
       name: 'alice',
       ownerAddress: accountAlice,
+      backingId: '',
       dailyMintLimit: '10.00000000',
       mintLimit: '20.00000000'
     }, {
       id: '02',
       name: 'bob',
       ownerAddress: accountBob,
+      backingId: ' lmn ,    opq',
       dailyMintLimit: '10.00000000',
       mintLimit: '20.00000000'
     }])
@@ -135,14 +139,14 @@ describe('getAssetBreakdown', () => {
     expect(info).toStrictEqual([{
       tokenSymbol: symbolBTC,
       memberInfo: [
-        { id: '01', name: 'alice', minted: '1.00000000', burnt: '0.00000000', backingAddress: `${idBTC}-alice`, tokenId: idBTC },
-        { id: '02', name: 'bob', minted: '4.00000000', burnt: '2.00000000', backingAddress: `${idBTC}-bob`, tokenId: idBTC }
+        { id: '01', name: 'alice', minted: '1.00000000', burnt: '0.00000000', backingAddresses: ['abc'], tokenId: idBTC },
+        { id: '02', name: 'bob', minted: '4.00000000', burnt: '2.00000000', backingAddresses: ['def', 'hij'], tokenId: idBTC }
       ]
     }, {
       tokenSymbol: symbolETH,
       memberInfo: [
-        { id: '01', name: 'alice', minted: '2.00000000', burnt: '1.00000000', backingAddress: `${idETH}-alice`, tokenId: idETH },
-        { id: '02', name: 'bob', minted: '0.00000000', burnt: '0.00000000', backingAddress: `${idETH}-bob`, tokenId: idETH }
+        { id: '01', name: 'alice', minted: '2.00000000', burnt: '1.00000000', backingAddresses: [], tokenId: idETH },
+        { id: '02', name: 'bob', minted: '0.00000000', burnt: '0.00000000', backingAddresses: ['lmn', 'opq'], tokenId: idETH }
       ]
     }])
   })

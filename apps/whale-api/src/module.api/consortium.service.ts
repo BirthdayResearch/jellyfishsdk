@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { DeFiDCache, TokenInfoWithId } from './cache/defid.cache'
 import { SemaphoreCache } from '@defichain-apps/libs/caches'
-import { AssetBreakdownInfo, MemberDetail } from '@defichain/whale-api-client/dist/api/consortium'
+import { AssetBreakdownInfo, MemberDetail, MemberWithTokenInfo } from '@defichain/whale-api-client/dist/api/consortium'
 import BigNumber from 'bignumber.js'
 
 @Injectable()
@@ -37,13 +37,15 @@ export class ConsortiumService {
   }
 
   private pushToAssetBreakdownInfo (assetBreakdownInfo: AssetBreakdownInfo[], memberId: string, memberDetail: MemberDetail, tokenId: string, tokens: TokenInfoWithId[]): void {
-    const member = {
+    const backingAddresses: string[] = memberDetail.backingId.length > 0 ? memberDetail.backingId.split(',').map(a => a.trim()) : []
+
+    const member: MemberWithTokenInfo = {
       id: memberId,
       name: memberDetail.name,
       minted: '0.00000000',
       burnt: '0.00000000',
-      backingAddress: memberDetail.backingId,
-      tokenId: tokenId
+      backingAddresses,
+      tokenId
     }
 
     const token = tokens.find(t => t.id === tokenId)

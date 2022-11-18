@@ -26,7 +26,7 @@ export interface MemberInfo {
   tokenId: string
   id: string
   name: string
-  backingAddress: string
+  backingAddresses: string[]
 }
 
 export interface MemberWithTokenInfo extends MemberInfo {
