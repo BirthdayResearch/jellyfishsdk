@@ -96,7 +96,7 @@ describe('Consortium', () => {
   const blocksPerDay = (60 * 60 * 24) / (10 * 60) // 144 in regtest
 
   beforeAll(async () => {
-    const startFlags: StartFlags[] = [{ name: 'regtest-minttoken-simulate-mainnet', value: 0 }]
+    const startFlags: StartFlags[] = [{ name: 'regtest-minttoken-simulate-mainnet', value: 1 }]
     await tGroup.start({ startFlags: startFlags })
 
     account0 = await tGroup.get(0).generateAddress()
@@ -145,20 +145,6 @@ describe('Consortium', () => {
     await tGroup.get(0).generate(1)
   }
 
-  async function setMemberInfo (tokenId: string, memberInfo: Array<{ id: string, name: string, ownerAddress: string, mintLimit: string, dailyMintLimit: string }>): Promise<void> {
-    const infoObjs = memberInfo.map(mi => `
-      "${mi.id}":{
-        "name":"${mi.name}", 
-        "ownerAddress":"${mi.ownerAddress}",
-        "backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf",
-        "dailyMintLimit":${mi.dailyMintLimit},
-        "mintLimit":${mi.mintLimit}
-      }`
-    )
-
-    return await setGovAttr({ [`v0/consortium/${tokenId}/members`]: `{${infoObjs.join(',')}}` })
-  }
-
   it('should throw an error if foundation or consortium member authorization is not present', async () => {
     const errorMsg = 'RpcApiError: \'Test MintTokenTx execution failed:\nYou are not a foundation member or token owner and cannot mint this token!\', code: -32600, method: minttokens'
     await expect(tGroup.get(2).rpc.token.mintTokens(`1@${symbolBTC}`)).rejects.toThrow(errorMsg)
@@ -178,25 +164,32 @@ describe('Consortium', () => {
     })
 
     // Set consortium members for BTC
-    await setMemberInfo(idBTC, [{
-      id: '01',
-      name: 'account1BTC',
-      ownerAddress: account1,
-      dailyMintLimit: '5.00000000',
-      mintLimit: '10.00000000'
-    }, {
-      id: '02',
-      name: 'account2BTC',
-      ownerAddress: account2,
-      dailyMintLimit: '5.00000000',
-      mintLimit: '10.00000000'
-    }, {
-      id: '03',
-      name: 'account3BTC',
-      ownerAddress: account3,
-      dailyMintLimit: '5.00000000',
-      mintLimit: '10.00000000'
-    }])
+    await setGovAttr({
+      [`v0/consortium/${idBTC}/members`]: {
+        '01': {
+          id: '01',
+          name: 'account1BTC',
+          ownerAddress: account1,
+          dailyMintLimit: 5,
+          mintLimit: 10,
+          backingId: 'backing1'
+        },
+        '02': {
+          name: 'account2BTC',
+          ownerAddress: account2,
+          dailyMintLimit: 5,
+          mintLimit: 10,
+          backingId: 'backing2'
+        },
+        '03': {
+          name: 'account3BTC',
+          ownerAddress: account3,
+          dailyMintLimit: 5,
+          mintLimit: 10,
+          backingId: 'backing3'
+        }
+      }
+    })
 
     // Trying to mint DOGE
     await expect(tGroup.get(2).rpc.token.mintTokens(`1@${symbolDOGE}`)).rejects.toThrow('RpcApiError: \'Test MintTokenTx execution failed:\nYou are not a foundation member or token owner and cannot mint this token!\', code: -32600, method: minttokens')
@@ -261,46 +254,60 @@ describe('Consortium', () => {
     })
 
     // Increase limits
-    await setMemberInfo(idBTC, [{
-      id: '01',
-      name: 'account1BTC',
-      ownerAddress: account1,
-      dailyMintLimit: '10000000.00000000',
-      mintLimit: '10000000.00000000'
-    }, {
-      id: '02',
-      name: 'account2BTC',
-      ownerAddress: account2,
-      dailyMintLimit: '50000000.00000000',
-      mintLimit: '50000000.00000000'
-    }, {
-      id: '03',
-      name: 'account3BTC',
-      ownerAddress: account3,
-      dailyMintLimit: '50000000.00000000',
-      mintLimit: '50000000.00000000'
-    }])
+    await setGovAttr({
+      [`v0/consortium/${idBTC}/members`]: {
+        '01': {
+          id: '01',
+          name: 'account1BTC',
+          ownerAddress: account1,
+          dailyMintLimit: 10000000,
+          mintLimit: 10000000,
+          backingId: 'backing1'
+        },
+        '02': {
+          name: 'account2BTC',
+          ownerAddress: account2,
+          dailyMintLimit: 50000000,
+          mintLimit: 50000000,
+          backingId: 'backing2'
+        },
+        '03': {
+          name: 'account3BTC',
+          ownerAddress: account3,
+          dailyMintLimit: 50000000,
+          mintLimit: 50000000,
+          backingId: 'backing3'
+        }
+      }
+    })
 
     // Decrease limits
-    await setMemberInfo(idBTC, [{
-      id: '01',
-      name: 'account1BTC',
-      ownerAddress: account1,
-      dailyMintLimit: '5.00000000',
-      mintLimit: '10.00000000'
-    }, {
-      id: '02',
-      name: 'account2BTC',
-      ownerAddress: account2,
-      dailyMintLimit: '5.00000000',
-      mintLimit: '10.00000000'
-    }, {
-      id: '03',
-      name: 'account3BTC',
-      ownerAddress: account3,
-      dailyMintLimit: '5.00000000',
-      mintLimit: '10.00000000'
-    }])
+    await setGovAttr({
+      [`v0/consortium/${idBTC}/members`]: {
+        '01': {
+          id: '01',
+          name: 'account1BTC',
+          ownerAddress: account1,
+          dailyMintLimit: 5,
+          mintLimit: 10,
+          backingId: 'backing1'
+        },
+        '02': {
+          name: 'account2BTC',
+          ownerAddress: account2,
+          dailyMintLimit: 5,
+          mintLimit: 10,
+          backingId: 'backing2'
+        },
+        '03': {
+          name: 'account3BTC',
+          ownerAddress: account3,
+          dailyMintLimit: 5,
+          mintLimit: 10,
+          backingId: 'backing3'
+        }
+      }
+    })
 
     await tGroup.get(0).generate(5)
   })
@@ -314,30 +321,72 @@ describe('Consortium', () => {
 
     // Add consortium members for DOGE
     await setGovAttr({
-      [`v0/consortium/${idDOGE}/members`]: `{
-        "01": {
-          "name":"account1DOGE",
-          "ownerAddress":"${account1}",
-          "backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf",
-          "dailyMintLimit":2.00000000,
-          "mintLimit":5.00000000
+      [`v0/consortium/${idDOGE}/members`]: {
+        '01': {
+          name: 'account1DOGE',
+          ownerAddress: account1,
+          backingId: 'ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf',
+          dailyMintLimit: 2.00000000,
+          mintLimit: 5.00000000
         },
-        "02": {
-          "name":"account2DOGE",
-          "ownerAddress":"${account2}",
-          "backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf",
-          "dailyMintLimit":2.00000000,
-          "mintLimit":5.00000000
+        '02': {
+          name: 'account2DOGE',
+          ownerAddress: account2,
+          backingId: 'ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf',
+          dailyMintLimit: 2.00000000,
+          mintLimit: 5.00000000
         }
-      }`
+      }
     })
 
     const attr0 = (await tGroup.get(0).rpc.masternode.getGov('ATTRIBUTES')).ATTRIBUTES
-    expect(attr0[`v0/consortium/${idBTC}/members`]).toStrictEqual(`{"01":{"name":"account1BTC","ownerAddress":"${account1}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":10.00000000,"dailyMintLimit":5.00000000,"status":0},"02":{"name":"account2BTC","ownerAddress":"${account2}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":10.00000000,"dailyMintLimit":5.00000000,"status":0},"03":{"name":"account3BTC","ownerAddress":"${account3}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":10.00000000,"dailyMintLimit":5.00000000,"status":0}}`)
+    expect(attr0[`v0/consortium/${idBTC}/members`]).toStrictEqual({
+      '01': {
+        name: 'account1BTC',
+        ownerAddress: account1,
+        backingId: 'backing1',
+        mintLimit: new BigNumber(10),
+        dailyMintLimit: new BigNumber(5),
+        status: new BigNumber(0)
+      },
+      '02': {
+        name: 'account2BTC',
+        ownerAddress: account2,
+        backingId: 'backing2',
+        mintLimit: new BigNumber(10),
+        dailyMintLimit: new BigNumber(5),
+        status: new BigNumber(0)
+      },
+      '03': {
+        name: 'account3BTC',
+        ownerAddress: account3,
+        backingId: 'backing3',
+        mintLimit: new BigNumber(10),
+        dailyMintLimit: new BigNumber(5),
+        status: new BigNumber(0)
+      }
+    })
     expect(attr0[`v0/consortium/${idBTC}/mint_limit`]).toStrictEqual('-1')
     expect(attr0[`v0/consortium/${idBTC}/mint_limit_daily`]).toStrictEqual('-1')
 
-    expect(attr0[`v0/consortium/${idDOGE}/members`]).toStrictEqual(`{"01":{"name":"account1DOGE","ownerAddress":"${account1}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":5.00000000,"dailyMintLimit":2.00000000,"status":0},"02":{"name":"account2DOGE","ownerAddress":"${account2}","backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf","mintLimit":5.00000000,"dailyMintLimit":2.00000000,"status":0}}`)
+    expect(attr0[`v0/consortium/${idDOGE}/members`]).toStrictEqual({
+      '01': {
+        name: 'account1DOGE',
+        ownerAddress: account1,
+        backingId: 'ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf',
+        mintLimit: new BigNumber(5),
+        dailyMintLimit: new BigNumber(2),
+        status: new BigNumber(0)
+      },
+      '02': {
+        name: 'account2DOGE',
+        ownerAddress: account2,
+        backingId: 'ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf',
+        mintLimit: new BigNumber(5),
+        dailyMintLimit: new BigNumber(2),
+        status: new BigNumber(0)
+      }
+    })
     expect(attr0[`v0/consortium/${idDOGE}/mint_limit`]).toStrictEqual('6')
     expect(attr0[`v0/consortium/${idDOGE}/mint_limit_daily`]).toStrictEqual('6')
 
@@ -374,16 +423,16 @@ describe('Consortium', () => {
 
   it('should throw an error if tried to mint a token while not being an active member of the consortium', async () => {
     await setGovAttr({
-      [`v0/consortium/${idDOGE}/members`]: `{
-        "01": {
-          "name":"account1DOGE",
-          "ownerAddress":"${account1}",
-          "backingId":"ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf",
-          "dailyMintLimit":2.00000000,
-          "mintLimit":5.00000000,
-          "status":1
+      [`v0/consortium/${idDOGE}/members`]: {
+        '01': {
+          name: 'account1DOGE',
+          ownerAddress: account1,
+          backingId: 'ebf634ef7143bc5466995a385b842649b2037ea89d04d469bfa5ec29daf7d1cf',
+          dailyMintLimit: 2.00000000,
+          mintLimit: 5.00000000,
+          status: 1
         }
-      }`
+      }
     })
 
     await expect(tGroup.get(1).rpc.token.mintTokens(`1@${symbolDOGE}`)).rejects.toThrow(`Cannot mint token, not an active member of consortium for ${symbolDOGE}!`)
