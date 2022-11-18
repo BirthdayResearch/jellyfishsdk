@@ -225,6 +225,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose(CAutoAuthPrep.OP_NAME, () => new CAutoAuthPrep())
       case CCreateMasternode.OP_CODE:
         return compose<CreateMasternode>(CCreateMasternode.OP_NAME, d => new CCreateMasternode(d))
+      case CUpdateMasternode.OP_CODE:
+        return compose<CreateMasternode>(CUpdateMasternode.OP_NAME, d => new CUpdateMasternode(d))
       case CResignMasternode.OP_CODE:
         return compose<ResignMasternode>(CResignMasternode.OP_NAME, d => new CResignMasternode(d))
       case CSetGovernance.OP_CODE:

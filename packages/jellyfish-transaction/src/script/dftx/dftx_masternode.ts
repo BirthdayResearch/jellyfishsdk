@@ -59,3 +59,27 @@ export class CResignMasternode extends ComposableBuffer<ResignMasternode> {
     ]
   }
 }
+
+/**
+ * UpdateMasternode DeFi Transaction
+ */
+export interface UpdateMasternode {
+  nodeId: string // --------------------------------| VarUInt{32 bytes}
+  // updates:
+}
+
+/**
+ * Composable UpdateMasternode, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CUpdateMasternode extends ComposableBuffer<UpdateMasternode> {
+  static OP_CODE = 0x6D // 'm'
+  static OP_NAME = 'OP_DEFI_TX_UPDATE_MASTER_NODE'
+
+  composers (cmn: UpdateMasternode): BufferComposer[] {
+    return [
+      ComposableBuffer.hexBEBufferLE(32, () => cmn.nodeId, v => cmn.nodeId = v)
+
+    ]
+  }
+}
