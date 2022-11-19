@@ -1,5 +1,7 @@
 import { SmartBuffer } from 'smart-buffer'
 import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
+import { Script } from '../../tx'
+import { CScript } from '../../tx_composer'
 
 /**
  * CreateMasternode DeFi Transaction
@@ -63,9 +65,16 @@ export class CResignMasternode extends ComposableBuffer<ResignMasternode> {
 /**
  * UpdateMasternode DeFi Transaction
  */
+// export interface UpdateMasternodeValues {
+//   ownerAddress?: string
+//   operatorAddress?: string
+//   rewardAddress?: string
+// }
 export interface UpdateMasternode {
   nodeId: string // --------------------------------| VarUInt{32 bytes}
-  // updates:
+  ownerAddress?: Script
+  operatorAddress?: Script
+  rewardAddress?: Script
 }
 
 /**
@@ -76,10 +85,20 @@ export class CUpdateMasternode extends ComposableBuffer<UpdateMasternode> {
   static OP_CODE = 0x6D // 'm'
   static OP_NAME = 'OP_DEFI_TX_UPDATE_MASTER_NODE'
 
-  composers (cmn: UpdateMasternode): BufferComposer[] {
-    return [
-      ComposableBuffer.hexBEBufferLE(32, () => cmn.nodeId, v => cmn.nodeId = v)
-
+  composers (umn: UpdateMasternode): BufferComposer[] {
+    let { ownerAddress, operatorAddress, rewardAddress } = umn
+    const bufferComposer = [
+      ComposableBuffer.hexBEBufferLE(32, () => umn.nodeId, v => umn.nodeId = v)
     ]
+    if (typeof ownerAddress !== 'undefined') {
+      bufferComposer.push(ComposableBuffer.single<Script>(() => ownerAddress as Script, v => ownerAddress = v, v => new CScript(v)))
+    }
+    if (typeof ownerAddress !== 'undefined') {
+      bufferComposer.push(ComposableBuffer.single<Script>(() => operatorAddress as Script, v => operatorAddress = v, v => new CScript(v)))
+    }
+    if (typeof ownerAddress !== 'undefined') {
+      bufferComposer.push(ComposableBuffer.single<Script>(() => rewardAddress as Script, v => rewardAddress = v, v => new CScript(v)))
+    }
+    return bufferComposer
   }
 }
