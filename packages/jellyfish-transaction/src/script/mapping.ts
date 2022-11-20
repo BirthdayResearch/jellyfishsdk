@@ -123,7 +123,14 @@ import {
   CICXClaimDFCHTLC,
   ICXClaimDFCHTLC
 } from './dftx/dftx_icxorderbook'
-import { CCreateMasternode, CreateMasternode, CResignMasternode, CUpdateMasternode, ResignMasternode, UpdateMasternode } from './dftx/dftx_masternode'
+import {
+  CCreateMasternode,
+  CreateMasternode,
+  CResignMasternode,
+  ResignMasternode,
+  CUpdateMasternode,
+  UpdateMasternode
+} from './dftx/dftx_masternode'
 
 /**
  * @param num to map as OPCode, 1 byte long

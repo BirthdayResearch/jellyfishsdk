@@ -12,7 +12,14 @@ import {
   CUtxosToAccount,
   CSetFutureSwap
 } from './dftx_account'
-import { CCreateMasternode, CreateMasternode, CResignMasternode, ResignMasternode, CUpdateMasternode, UpdateMasternode } from './dftx_masternode'
+import {
+  CCreateMasternode,
+  CreateMasternode,
+  CResignMasternode,
+  ResignMasternode,
+  CUpdateMasternode,
+  UpdateMasternode
+} from './dftx_masternode'
 import { CAutoAuthPrep } from './dftx_misc'
 import {
   CPoolAddLiquidity,

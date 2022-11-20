@@ -1,7 +1,5 @@
 import { SmartBuffer } from 'smart-buffer'
 import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
-import { Script } from '../../tx'
-import { CScript } from '../../tx_composer'
 
 /**
  * CreateMasternode DeFi Transaction
@@ -62,6 +60,42 @@ export class CResignMasternode extends ComposableBuffer<ResignMasternode> {
   }
 }
 
+export interface UpdateMasternodeAddress {
+  addressType: number // --------------------------| 1 byte, 0x01 = p2pkh, 0x04 = p2wpkh
+  addressPubKeyHash: string // -------------------| VarUInt{20 bytes}
+}
+
+/**
+ * Composable TokenBalance, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CUpdateMasternodeAddress extends ComposableBuffer<UpdateMasternodeAddress> {
+  composers (umn: UpdateMasternodeAddress): BufferComposer[] {
+    return [
+      ComposableBuffer.uInt8(() => umn.addressType, v => umn.addressType = v),
+      ComposableBuffer.hex(20, () => umn.addressPubKeyHash, v => umn.addressPubKeyHash = v)
+    ]
+  }
+}
+
+interface UpdateMasternodeData {
+  updateType: number // ----| 1 byte, 0x01 = OwnerAddress, 0x02 = OperatorAddress, 0x03 = SetRewardAddress, 0x04 = RemRewardAddress
+  address: UpdateMasternodeAddress[] // -------------------| [] for RemRewardAddress
+}
+
+/**
+ * Composable TokenBalance, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CUpdateMasternodeData extends ComposableBuffer<UpdateMasternodeData> {
+  composers (umn: UpdateMasternodeData): BufferComposer[] {
+    return [
+      ComposableBuffer.uInt8(() => umn.updateType, v => umn.updateType = v),
+      ComposableBuffer.compactSizeArray(() => umn.address, v => umn.address = v, v => new CUpdateMasternodeAddress(v))
+    ]
+  }
+}
+
 /**
  * UpdateMasternode DeFi Transaction
  */
@@ -72,9 +106,7 @@ export class CResignMasternode extends ComposableBuffer<ResignMasternode> {
 // }
 export interface UpdateMasternode {
   nodeId: string // --------------------------------| VarUInt{32 bytes}
-  ownerAddress?: Script
-  operatorAddress?: Script
-  rewardAddress?: Script
+  updates: UpdateMasternodeData[]
 }
 
 /**
@@ -86,19 +118,9 @@ export class CUpdateMasternode extends ComposableBuffer<UpdateMasternode> {
   static OP_NAME = 'OP_DEFI_TX_UPDATE_MASTER_NODE'
 
   composers (umn: UpdateMasternode): BufferComposer[] {
-    let { ownerAddress, operatorAddress, rewardAddress } = umn
-    const bufferComposer = [
-      ComposableBuffer.hexBEBufferLE(32, () => umn.nodeId, v => umn.nodeId = v)
+    return [
+      ComposableBuffer.hexBEBufferLE(32, () => umn.nodeId, v => umn.nodeId = v),
+      ComposableBuffer.compactSizeArray(() => umn.updates, v => umn.updates = v, v => new CUpdateMasternodeData(v))
     ]
-    if (typeof ownerAddress !== 'undefined') {
-      bufferComposer.push(ComposableBuffer.single<Script>(() => ownerAddress as Script, v => ownerAddress = v, v => new CScript(v)))
-    }
-    if (typeof ownerAddress !== 'undefined') {
-      bufferComposer.push(ComposableBuffer.single<Script>(() => operatorAddress as Script, v => operatorAddress = v, v => new CScript(v)))
-    }
-    if (typeof ownerAddress !== 'undefined') {
-      bufferComposer.push(ComposableBuffer.single<Script>(() => rewardAddress as Script, v => rewardAddress = v, v => new CScript(v)))
-    }
-    return bufferComposer
   }
 }
