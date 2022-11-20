@@ -9,7 +9,7 @@ export class ConsortiumController {
   ) {}
 
   /**
-   *  Gets the asset breakdown information for consortium members.
+   *  Gets the asset breakdown information of consortium members.
    *
    * @return {Promise<AssetBreakdownInfo[]>}
     */

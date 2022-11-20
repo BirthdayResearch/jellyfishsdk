@@ -134,7 +134,7 @@ describe('getAssetBreakdown', () => {
     await bob.generate(5)
   }
 
-  it('should return proper asset breakdown infomation', async () => {
+  it('should return proper asset breakdown information', async () => {
     const info = await controller.getAssetBreakdown()
     expect(info).toStrictEqual([{
       tokenSymbol: symbolBTC,
