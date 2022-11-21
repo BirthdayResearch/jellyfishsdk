@@ -13,6 +13,12 @@ describe('Poolpair', () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
+
+    await createToken(container, 'BAT')
+    await createToken(container, 'BTC')
+
+    await createPoolPair(container, 'BAT', 'DFI')
+    await createPoolPair(container, 'BTC', 'DFI')
   })
 
   afterAll(async () => {
@@ -172,9 +178,7 @@ describe('Poolpair', () => {
 
   it('should be failed as lack of liquidity', async () => {
     const tokenBatAddress = await getNewAddress(container)
-    await createToken(container, 'BAT')
     await mintTokens(container, 'BAT')
-    await createPoolPair(container, 'BAT', 'DFI')
 
     const promise = client.poolpair.testPoolSwap({
       from: tokenBatAddress,
@@ -197,12 +201,8 @@ describe('Poolpair', () => {
     const tokenBatAddress = await getNewAddress(container)
     const poolLiquidityAddress = await getNewAddress(container)
 
-    await createToken(container, 'BAT')
-    await createToken(container, 'BTC')
     await mintTokens(container, 'BAT')
     await mintTokens(container, 'BTC')
-    await createPoolPair(container, 'BAT', 'DFI')
-    await createPoolPair(container, 'BTC', 'DFI')
     await addPoolLiquidity(container, {
       tokenA: 'BAT',
       amountA: 1000,
@@ -240,12 +240,8 @@ describe('Poolpair', () => {
     const tokenBatAddress = await getNewAddress(container)
     const poolLiquidityAddress = await getNewAddress(container)
 
-    await createToken(container, 'BAT')
-    await createToken(container, 'BTC')
     await mintTokens(container, 'BAT')
     await mintTokens(container, 'BTC')
-    await createPoolPair(container, 'BAT', 'DFI')
-    await createPoolPair(container, 'BTC', 'DFI')
     await addPoolLiquidity(container, {
       tokenA: 'BAT',
       amountA: 1000,
@@ -272,7 +268,7 @@ describe('Poolpair', () => {
     expect(promise).toStrictEqual({
       path: 'auto',
       pools: ['3', '4'],
-      amount: '12.67056529@2'
+      amount: '12.83316880@2'
     })
   })
 
@@ -339,7 +335,7 @@ describe('Poolpair', () => {
     await expect(promise).rejects.toMatchObject({
       payload: {
         code: -32600,
-        message: 'Cannot find usable pool pair. Details: Too many pool IDs provided, max 3 allowed, 4 provided',
+        message: 'Cannot find usable pool pair. Details: Too many pool IDs provided, max 3 allowed, 10 provided',
         method: 'testpoolswap'
       }
     })
