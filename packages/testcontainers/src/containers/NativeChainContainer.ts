@@ -163,7 +163,7 @@ export class NativeChainContainer extends GenericContainer {
   public async start (): Promise<StartedNativeChainContainer> {
     this.withExposedPorts(...(this.hasExposedPorts ? this.ports : Object.values(this.blockchainNetwork.ports)))
       .withName(this.name ?? this.generateName())
-      .withCmd(this.cmd.length > 0 ? this.cmd.concat(this.addedCmds) : this.generateCmd())
+      .withCommand(this.command.length > 0 ? this.command.concat(this.addedCmds) : this.generateCmd())
 
     const {
       rpcUser,
@@ -175,7 +175,7 @@ export class NativeChainContainer extends GenericContainer {
       await super.start(),
       { rpcUser, rpcPassword, blockchainNetwork, masterNodeKey })
 
-    if (masterNodeKey != null && masterNodeKey !== undefined) {
+    if (masterNodeKey != null) {
       await startedContainer.call('importprivkey', [masterNodeKey.operator.privKey, 'operator', true])
       await startedContainer.call('importprivkey', [masterNodeKey.owner.privKey, 'owner', true])
     }
@@ -313,7 +313,7 @@ export class StartedNativeChainContainer extends AbstractStartedContainer {
    * @param {number} maxTries
    */
   async generate (nblocks: number, address: string | undefined = this.config.masterNodeKey?.operator.address, maxTries: number = 1000000): Promise<void> {
-    if (address == null || address === undefined) {
+    if (address == null) {
       throw new Error('Undefined address to generate to. Please specify an address or initialize the container with a MasterNodeKey.')
     }
     for (let minted = 0, tries = 0; minted < nblocks && tries < maxTries; tries++) {
@@ -421,10 +421,7 @@ export class StartedNativeChainContainer extends AbstractStartedContainer {
   async waitForAnchorTeams (nodesLength: number, timeout: number = 30000): Promise<void> {
     return await waitForCondition(async () => {
       const anchorTeams = await this.call('getanchorteams')
-      if (anchorTeams.auth.length === nodesLength && anchorTeams.confirm.length === nodesLength) {
-        return true
-      }
-      return false
+      return anchorTeams.auth.length === nodesLength && anchorTeams.confirm.length === nodesLength
     }, timeout, 100, 'waitForAnchorTeams')
   }
 
@@ -440,10 +437,7 @@ export class StartedNativeChainContainer extends AbstractStartedContainer {
   async waitForAnchorAuths (nodesLength: number, timeout: number = 30000): Promise<void> {
     return await waitForCondition(async () => {
       const auths = await this.call('spv_listanchorauths')
-      if (auths.length > 0 && auths[0].signers === nodesLength) {
-        return true
-      }
-      return false
+      return auths.length > 0 && auths[0].signers === nodesLength
     }, timeout, 100, 'waitForAnchorAuths')
   }
 
@@ -460,10 +454,7 @@ export class StartedNativeChainContainer extends AbstractStartedContainer {
     const majority = 2
     return await waitForCondition(async () => {
       const confirms = await this.call('spv_listanchorrewardconfirms')
-      if (confirms.length === 1 && confirms[0].signers >= majority) {
-        return true
-      }
-      return false
+      return confirms.length === 1 && confirms[0].signers >= majority
     }, timeout, 100, 'waitForAnchorRewardConfrims')
   }
 
