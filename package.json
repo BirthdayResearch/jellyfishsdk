@@ -13,7 +13,7 @@
     "./packages/*"
   ],
   "engines": {
-    "node": ">=v16.17.0"
+    "node": ">=v18.12.1"
   },
   "scripts": {
     "prepare": "husky install",
