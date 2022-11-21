@@ -62,7 +62,7 @@ export class CResignMasternode extends ComposableBuffer<ResignMasternode> {
 
 export interface UpdateMasternodeAddress {
   addressType: number // --------------------------| 1 byte, 0x01 = p2pkh, 0x04 = p2wpkh
-  addressPubKeyHash: string // -------------------| VarUInt{20 bytes}
+  addressPubKeyHash?: string // -------------------| VarUInt{20 bytes}
 }
 
 /**
@@ -73,7 +73,7 @@ export class CUpdateMasternodeAddress extends ComposableBuffer<UpdateMasternodeA
   composers (umn: UpdateMasternodeAddress): BufferComposer[] {
     return [
       ComposableBuffer.uInt8(() => umn.addressType, v => umn.addressType = v),
-      ComposableBuffer.hex(20, () => umn.addressPubKeyHash, v => umn.addressPubKeyHash = v)
+      ComposableBuffer.compactSizeOptionalHex(() => umn.addressPubKeyHash, v => umn.addressPubKeyHash = v)
     ]
   }
 }
