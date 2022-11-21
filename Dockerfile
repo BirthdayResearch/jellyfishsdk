@@ -1,4 +1,4 @@
-FROM node:16-alpine3.13
+FROM node:18-alpine3.15
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 # Add curl to use docker healthcheck capability
