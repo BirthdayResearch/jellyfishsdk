@@ -99,11 +99,6 @@ export class CUpdateMasternodeData extends ComposableBuffer<UpdateMasternodeData
 /**
  * UpdateMasternode DeFi Transaction
  */
-// export interface UpdateMasternodeValues {
-//   ownerAddress?: string
-//   operatorAddress?: string
-//   rewardAddress?: string
-// }
 export interface UpdateMasternode {
   nodeId: string // --------------------------------| VarUInt{32 bytes}
   updates: UpdateMasternodeData[]
@@ -114,7 +109,7 @@ export interface UpdateMasternode {
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
 export class CUpdateMasternode extends ComposableBuffer<UpdateMasternode> {
-  static OP_CODE = 0x6D // 'm'
+  static OP_CODE = 0x6d // 'm'
   static OP_NAME = 'OP_DEFI_TX_UPDATE_MASTER_NODE'
 
   composers (umn: UpdateMasternode): BufferComposer[] {
