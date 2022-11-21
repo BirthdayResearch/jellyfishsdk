@@ -4,7 +4,8 @@ import {
   OP_CODES,
   ResignMasternode,
   Script,
-  TransactionSegWit
+  TransactionSegWit,
+  UpdateMasternode
 } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 
@@ -38,6 +39,20 @@ export class TxnBuilderMasternode extends P2WPKHTxnBuilder {
   async resign (resignMasternode: ResignMasternode, changeScript: Script): Promise<TransactionSegWit> {
     return await this.createDeFiTx(
       OP_CODES.OP_DEFI_TX_RESIGN_MASTER_NODE(resignMasternode),
+      changeScript
+    )
+  }
+
+  /**
+   * Build update masternode transaction
+   *
+   * @param {UpdateMasternode} updateMasternode transaction to create
+   * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
+   * @return {Promise<TransactionSegWit>}
+   */
+  async update (updateMasternode: UpdateMasternode, changeScript: Script): Promise<TransactionSegWit> {
+    return await this.createDeFiTx(
+      OP_CODES.OP_DEFI_TX_UPDATE_MASTER_NODE(updateMasternode),
       changeScript
     )
   }
