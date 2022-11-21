@@ -80,7 +80,7 @@ export class CUpdateMasternodeAddress extends ComposableBuffer<UpdateMasternodeA
 
 interface UpdateMasternodeData {
   updateType: number // ----| 1 byte, 0x01 = OwnerAddress, 0x02 = OperatorAddress, 0x03 = SetRewardAddress, 0x04 = RemRewardAddress
-  address: UpdateMasternodeAddress[] // -------------------| [] for RemRewardAddress
+  address: UpdateMasternodeAddress
 }
 
 /**
@@ -91,7 +91,7 @@ export class CUpdateMasternodeData extends ComposableBuffer<UpdateMasternodeData
   composers (umn: UpdateMasternodeData): BufferComposer[] {
     return [
       ComposableBuffer.uInt8(() => umn.updateType, v => umn.updateType = v),
-      ComposableBuffer.compactSizeArray(() => umn.address, v => umn.address = v, v => new CUpdateMasternodeAddress(v))
+      ComposableBuffer.single<UpdateMasternodeAddress>(() => umn.address, v => umn.address = v, v => new CUpdateMasternodeAddress(v))
     ]
   }
 }

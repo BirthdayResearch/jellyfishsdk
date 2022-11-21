@@ -53,7 +53,7 @@ describe('UpdateMasternode', () => {
       updates: [
         {
           updateType: 0x02,
-          address: [{ addressType: 0x01, addressPubKeyHash: addressDestHex2 }]
+          address: { addressType: 0x01, addressPubKeyHash: addressDestHex2 }
         }
       ]
     }
