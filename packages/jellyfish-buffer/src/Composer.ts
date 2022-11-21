@@ -642,7 +642,13 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
       },
       toBuffer: (buffer: SmartBuffer): void => {
         const maxPrice = getter()
-        if (maxPrice.decimalPlaces() > 8) {
+        const maxPriceDecimalPlaces = maxPrice.decimalPlaces()
+
+        if (maxPriceDecimalPlaces === null) {
+          throw new Error('maxPrice cannot be ±Infinity or NaN')
+        }
+
+        if (maxPriceDecimalPlaces > 8) {
           throw new Error('Too many decimals to be correctly represented. Will lose precision with more than 8 decimals')
         }
 
