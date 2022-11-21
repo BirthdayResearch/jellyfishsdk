@@ -39,6 +39,6 @@ describe('Mining', () => {
     expect(info.networkhashps).toBeGreaterThan(0)
     expect(info.pooledtx).toStrictEqual(0)
     expect(info.chain).toStrictEqual('regtest')
-    expect(info.warnings).toStrictEqual('')
+    expect(['', 'This is a pre-release test build - use at your own risk - do not use for mining or merchant applications']).toContain(info.warnings)
   })
 })
