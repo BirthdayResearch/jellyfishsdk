@@ -1,4 +1,4 @@
-import { DeFiDRpcError } from '@defichain/testcontainers'
+import { DeFiDRpcError, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { Testing } from '@defichain/jellyfish-testing'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
@@ -6,7 +6,6 @@ import { calculateTxid, fundEllipticPair, sendTransaction } from '../test.utils'
 import { CreateVoc, OP_CODES } from '@defichain/jellyfish-transaction'
 import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
-import { GovernanceMasterNodeRegTestContainer } from '../../../jellyfish-api-core/__tests__/category/governance/governance_container'
 import { governance } from '@defichain/jellyfish-api-core'
 import { TxnBuilderError } from '../../src/txn/txn_builder_error'
 import { RegTest, RegTestFoundationKeys } from '@defichain/jellyfish-network'
@@ -14,7 +13,7 @@ import { RegTest, RegTestFoundationKeys } from '@defichain/jellyfish-network'
 describe('createVoc', () => {
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
-  const testing = Testing.create(new GovernanceMasterNodeRegTestContainer())
+  const testing = Testing.create(new MasterNodeRegTestContainer())
 
   beforeAll(async () => {
     await testing.container.start()
@@ -64,13 +63,14 @@ describe('createVoc', () => {
       proposalId: txid,
       title: createVoc.title,
       context: createVoc.context,
-      contexthash: createVoc.contexthash,
+      contextHash: createVoc.contexthash,
       type: governance.ProposalType.VOTE_OF_CONFIDENCE,
       status: governance.ProposalStatus.VOTING,
       amount: createVoc.nAmount.toNumber(),
-      nextCycle: 1,
+      currentCycle: 1,
       totalCycles: createVoc.nCycles,
-      finalizeAfter: expect.any(Number),
+      cycleEndHeight: expect.any(Number),
+      proposalEndHeight: expect.any(Number),
       payoutAddress: ''
     })
   })

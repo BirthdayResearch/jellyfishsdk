@@ -1,4 +1,4 @@
-import { DeFiDRpcError } from '@defichain/testcontainers'
+import { DeFiDRpcError, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { Testing } from '@defichain/jellyfish-testing'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
@@ -6,14 +6,13 @@ import { calculateTxid, fundEllipticPair, sendTransaction } from '../test.utils'
 import { CreateCfp, OP_CODES } from '@defichain/jellyfish-transaction'
 import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
-import { GovernanceMasterNodeRegTestContainer } from '../../../jellyfish-api-core/__tests__/category/governance/governance_container'
 import { governance } from '@defichain/jellyfish-api-core'
 import { RegTest, RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
 describe('createCfp', () => {
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
-  const testing = Testing.create(new GovernanceMasterNodeRegTestContainer())
+  const testing = Testing.create(new MasterNodeRegTestContainer())
 
   beforeAll(async () => {
     await testing.container.start()
@@ -62,13 +61,14 @@ describe('createCfp', () => {
       proposalId: txid,
       title: createCfp.title,
       context: createCfp.context,
-      contexthash: createCfp.contexthash,
+      contextHash: createCfp.contexthash,
       type: 'CommunityFundProposal',
       status: governance.ProposalStatus.VOTING,
       amount: createCfp.nAmount.toNumber(),
-      nextCycle: 1,
+      currentCycle: 1,
       totalCycles: createCfp.nCycles,
-      finalizeAfter: expect.any(Number),
+      cycleEndHeight: expect.any(Number),
+      proposalEndHeight: expect.any(Number),
       payoutAddress: expect.any(String)
     })
   })

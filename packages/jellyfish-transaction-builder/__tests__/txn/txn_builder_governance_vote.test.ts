@@ -1,15 +1,14 @@
-import { DeFiDRpcError, StartOptions } from '@defichain/testcontainers'
+import { DeFiDRpcError, StartOptions, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { Testing } from '@defichain/jellyfish-testing'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { calculateTxid, fundEllipticPair, sendTransaction } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
-import { GovernanceMasterNodeRegTestContainer } from '../../../jellyfish-api-core/__tests__/category/governance/governance_container'
 import { OP_CODES, Vote } from '@defichain/jellyfish-transaction'
 import { RegTest, RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
-class CustomOperatorGovernanceMasterNodeRegTestContainer extends GovernanceMasterNodeRegTestContainer {
+class CustomOperatorGovernanceMasterNodeRegTestContainer extends MasterNodeRegTestContainer {
   protected getCmd (opts: StartOptions): string[] {
     return [
       ...super.getCmd(opts),
@@ -92,7 +91,7 @@ describe('vote', () => {
 describe('vote with masternode operator with legacy address', () => {
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
-  const testing = Testing.create(new GovernanceMasterNodeRegTestContainer())
+  const testing = Testing.create(new MasterNodeRegTestContainer())
 
   let masternodeId: string
   let masternodeOperatorAddress: string
