@@ -218,7 +218,7 @@ Unset governance variables
 
 ```ts title="client.masternode.unsetGov()"
 interface masternode {
-  unsetGov (input: Record<string, number | string | string[]>, utxos: UTXO[] = []): Promise<string>
+  unsetGov (variables: Record<string, number | string | string[]>, utxos: UTXO[] = []): Promise<string>
 }
 ```
 

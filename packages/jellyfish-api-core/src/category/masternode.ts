@@ -178,15 +178,15 @@ export class Masternode {
   /**
    * Unset special governance variables
    *
-   * @param {Record<string, number | string | string[]>} input json object
+   * @param {Record<string, number | string | string[]>} variables json object
    * @param {UTXO[]} [utxos = []] Specific utxos to spend
    * @param {string} [utxos.txid] The transaction id
    * @param {string} [utxos.vout] The output number
    * @return {Promise<string>} hash
    *
    */
-  async unsetGov (input: Record<string, number | string | string[]>, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('unsetgov', [input, utxos], 'number')
+  async unsetGov (variables: Record<string, number | string | string[]>, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('unsetgov', [variables, utxos], 'number')
   }
 
   /**
