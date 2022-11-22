@@ -29,6 +29,15 @@ export class Net {
   }
 
   /**
+   * Returns information about network traffic, including bytes in, bytes out, and current time.
+   *
+   * @return {Promise<NetTotals>}
+   */
+  async getNetTotals (): Promise<NetTotals> {
+    return await this.client.call('getnettotals', [], 'number')
+  }
+
+  /**
    * Returns an object containing various state info regarding P2P networking.
    *
    * @return {Promise<NetworkInfo>}
@@ -112,4 +121,20 @@ export interface LocalAddress {
   address: string
   port: number
   score: number
+}
+
+export interface NetTotals {
+  totalbytesrecv: number
+  totalbytessent: number
+  timemillis: number
+  uploadtarget: UploadTarget
+}
+
+export interface UploadTarget {
+  timeframe: number
+  target: number
+  target_reached: boolean
+  serve_historical_blocks: boolean
+  bytes_left_in_cycle: number
+  time_left_in_cycle: number
 }

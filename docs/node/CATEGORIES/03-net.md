@@ -69,6 +69,32 @@ export interface PeerInfo {
 }
 ```
 
+## getNetTotals
+
+Returns information about network traffic, including bytes in, bytes out, and current time.
+
+```ts title="client.net.getNetTotals()"
+interface net {
+  getNetTotals (): Promise<NetTotals>
+}
+
+interface NetTotals {
+  totalbytesrecv: number
+  totalbytessent: number
+  timemillis: number
+  uploadtarget: UploadTarget
+}
+
+interface UploadTarget {
+  timeframe: number
+  target: number
+  target_reached: boolean
+  serve_historical_blocks: boolean
+  bytes_left_in_cycle: number
+  time_left_in_cycle: number
+}
+```
+
 ## getNetworkInfo
 
 Returns an object containing various state info regarding P2P networking.
