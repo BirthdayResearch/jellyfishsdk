@@ -90,6 +90,7 @@ interface UpdateMasternodeData {
 export class CUpdateMasternodeData extends ComposableBuffer<UpdateMasternodeData> {
   composers (umn: UpdateMasternodeData): BufferComposer[] {
     const addressBuffer = []
+
     if (umn.address != null) {
       addressBuffer.push(
         ComposableBuffer.single<UpdateMasternodeAddress>(() => umn.address as UpdateMasternodeAddress, v => umn.address = v, v => new CUpdateMasternodeAddress(v))
