@@ -31,7 +31,7 @@ export interface MemberInfo {
 
 export interface MemberWithTokenInfo extends MemberInfo {
   minted: string
-  burnt: string
+  burned: string
 }
 
 export interface AssetBreakdownInfo {

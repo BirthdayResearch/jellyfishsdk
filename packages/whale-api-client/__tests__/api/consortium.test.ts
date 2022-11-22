@@ -1,6 +1,8 @@
+import sinon from 'sinon'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { StubWhaleApiClient } from '../stub.client'
 import { StubService } from '../stub.service'
+import { GlobalCache } from '@defichain-apps/libs/caches'
 
 const tGroup = TestingGroup.create(2)
 const alice = tGroup.get(0)
@@ -10,6 +12,7 @@ const symbolETH = 'dETH'
 let accountAlice: string, accountBob: string
 let idBTC: string
 let idETH: string
+let globalCacheGetStub: sinon.SinonStub
 
 const service = new StubService(alice.container)
 const client = new StubWhaleApiClient(service)
@@ -19,7 +22,10 @@ beforeAll(async () => {
   await service.start()
   await alice.container.waitForWalletCoinbaseMaturity()
 
-  await setup()
+  globalCacheGetStub = sinon.stub(GlobalCache.prototype, 'get')
+  globalCacheGetStub.callsFake((prefix, id, fetch) => {
+    return fetch()
+  })
 })
 
 afterAll(async () => {
@@ -135,19 +141,26 @@ async function setup (): Promise<void> {
   await bob.generate(5)
 }
 
-it('should return proper asset breakdown information', async () => {
+it('should respond an empty list if theres no consortium members or tokens initialized', async () => {
+  const info = await client.consortium.getAssetBreakdown()
+  expect(info).toStrictEqual([])
+})
+
+it('should respond proper asset breakdown information', async () => {
+  await setup()
+
   const info = await client.consortium.getAssetBreakdown()
   expect(info).toStrictEqual([{
     tokenSymbol: symbolBTC,
     memberInfo: [
-      { id: '01', name: 'alice', minted: '1.00000000', burnt: '0.00000000', backingAddresses: ['abc'], tokenId: idBTC },
-      { id: '02', name: 'bob', minted: '4.00000000', burnt: '2.00000000', backingAddresses: ['def', 'hij'], tokenId: idBTC }
+      { id: '01', name: 'alice', minted: '1.00000000', burned: '0.00000000', backingAddresses: ['abc'], tokenId: idBTC },
+      { id: '02', name: 'bob', minted: '4.00000000', burned: '2.00000000', backingAddresses: ['def', 'hij'], tokenId: idBTC }
     ]
   }, {
     tokenSymbol: symbolETH,
     memberInfo: [
-      { id: '01', name: 'alice', minted: '2.00000000', burnt: '1.00000000', backingAddresses: [], tokenId: idETH },
-      { id: '02', name: 'bob', minted: '0.00000000', burnt: '0.00000000', backingAddresses: ['lmn', 'opq'], tokenId: idETH }
+      { id: '01', name: 'alice', minted: '2.00000000', burned: '1.00000000', backingAddresses: [], tokenId: idETH },
+      { id: '02', name: 'bob', minted: '0.00000000', burned: '0.00000000', backingAddresses: ['lmn', 'opq'], tokenId: idETH }
     ]
   }])
 })

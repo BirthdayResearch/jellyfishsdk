@@ -1,7 +1,9 @@
+import sinon from 'sinon'
 import { ConsortiumController } from './consortium.controller'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { createTestingApp, stopTestingApp } from '../e2e.module'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
+import { GlobalCache } from '@defichain-apps/libs/caches'
 
 describe('getAssetBreakdown', () => {
   const tGroup = TestingGroup.create(2)
@@ -14,6 +16,7 @@ describe('getAssetBreakdown', () => {
   let idETH: string
   let app: NestFastifyApplication
   let controller: ConsortiumController
+  let globalCacheGetStub: sinon.SinonStub
 
   beforeAll(async () => {
     await tGroup.start()
@@ -22,11 +25,15 @@ describe('getAssetBreakdown', () => {
     app = await createTestingApp(alice.container)
     controller = app.get(ConsortiumController)
 
-    await setup()
+    globalCacheGetStub = sinon.stub(GlobalCache.prototype, 'get')
+    globalCacheGetStub.callsFake((prefix, id, fetch) => {
+      return fetch()
+    })
   })
 
   afterAll(async () => {
     await stopTestingApp(tGroup, app)
+    globalCacheGetStub.restore()
   })
 
   async function setGovAttr (ATTRIBUTES: object): Promise<void> {
@@ -119,34 +126,41 @@ describe('getAssetBreakdown', () => {
     }])
 
     await alice.rpc.token.mintTokens(`1@${symbolBTC}`)
-    await alice.generate(5)
+    await alice.generate(1)
 
     await alice.rpc.token.mintTokens(`2@${symbolETH}`)
-    await alice.generate(5)
+    await alice.generate(1)
 
     await alice.rpc.token.burnTokens(`1@${symbolETH}`, accountAlice)
-    await alice.generate(5)
+    await alice.generate(1)
 
     await bob.rpc.token.mintTokens(`4@${symbolBTC}`)
-    await bob.generate(5)
+    await bob.generate(1)
 
     await bob.rpc.token.burnTokens(`2@${symbolBTC}`, accountBob)
-    await bob.generate(5)
+    await bob.generate(1)
   }
 
-  it('should return proper asset breakdown information', async () => {
+  it('should return an empty list if theres no consortium members or tokens initialized', async () => {
+    const info = await controller.getAssetBreakdown()
+    expect(info).toStrictEqual([])
+  })
+
+  it('should return list of valid asset breakdown information', async () => {
+    await setup()
+
     const info = await controller.getAssetBreakdown()
     expect(info).toStrictEqual([{
       tokenSymbol: symbolBTC,
       memberInfo: [
-        { id: '01', name: 'alice', minted: '1.00000000', burnt: '0.00000000', backingAddresses: ['abc'], tokenId: idBTC },
-        { id: '02', name: 'bob', minted: '4.00000000', burnt: '2.00000000', backingAddresses: ['def', 'hij'], tokenId: idBTC }
+        { id: '01', name: 'alice', minted: '1.00000000', burned: '0.00000000', backingAddresses: ['abc'], tokenId: idBTC },
+        { id: '02', name: 'bob', minted: '4.00000000', burned: '2.00000000', backingAddresses: ['def', 'hij'], tokenId: idBTC }
       ]
     }, {
       tokenSymbol: symbolETH,
       memberInfo: [
-        { id: '01', name: 'alice', minted: '2.00000000', burnt: '1.00000000', backingAddresses: [], tokenId: idETH },
-        { id: '02', name: 'bob', minted: '0.00000000', burnt: '0.00000000', backingAddresses: ['lmn', 'opq'], tokenId: idETH }
+        { id: '01', name: 'alice', minted: '2.00000000', burned: '1.00000000', backingAddresses: [], tokenId: idETH },
+        { id: '02', name: 'bob', minted: '0.00000000', burned: '0.00000000', backingAddresses: ['lmn', 'opq'], tokenId: idETH }
       ]
     }])
   })
