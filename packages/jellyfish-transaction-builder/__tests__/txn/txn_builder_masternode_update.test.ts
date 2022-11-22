@@ -318,36 +318,36 @@ describe('UpdateMasternode', () => {
     const setRewardTxn: TransactionSegWit = await builder.masternode.update(setRewardAddressUpdate, script)
     await sendTransaction(container, setRewardTxn)
 
-    // WIP
+    await container.generate(50)
 
-    // const updateMasternode: UpdateMasternode = {
-    //   nodeId: txid,
-    //   updates: [
-    //     {
-    //       updateType: 0x04,
-    //     }
-    //   ]
-    // }
+    const updateMasternode: UpdateMasternode = {
+      nodeId: txid,
+      updates: [
+        {
+          updateType: 0x04
+        }
+      ]
+    }
 
-    // const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script)
-    // const outs = await sendTransaction(container, txn)
+    const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script)
+    const outs = await sendTransaction(container, txn)
 
-    // const encoded: string = OP_CODES.OP_DEFI_TX_UPDATE_MASTER_NODE(updateMasternode).asBuffer().toString('hex')
-    // const expectedRedeemScript = `6a${encoded}`
+    const encoded: string = OP_CODES.OP_DEFI_TX_UPDATE_MASTER_NODE(updateMasternode).asBuffer().toString('hex')
+    const expectedRedeemScript = `6a${encoded}`
 
-    // expect(outs.length).toStrictEqual(2)
-    // expect(outs[0].value).toStrictEqual(0)
-    // expect(outs[0].n).toStrictEqual(0)
-    // expect(outs[0].tokenId).toStrictEqual(0)
-    // expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 446654786d')).toBeTruthy()
-    // expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
-    // expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
+    expect(outs.length).toStrictEqual(2)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[0].n).toStrictEqual(0)
+    expect(outs[0].tokenId).toStrictEqual(0)
+    expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 446654786d')).toBeTruthy()
+    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
+    expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
 
-    // expect(outs[1].value).toBeGreaterThan(6)
-    // expect(outs[1].n).toStrictEqual(1)
-    // expect(outs[1].tokenId).toStrictEqual(0)
-    // expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
-    // expect(outs[1].scriptPubKey.reqSigs).toStrictEqual(1)
-    // expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
+    expect(outs[1].value).toBeGreaterThan(6)
+    expect(outs[1].n).toStrictEqual(1)
+    expect(outs[1].tokenId).toStrictEqual(0)
+    expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
+    expect(outs[1].scriptPubKey.reqSigs).toStrictEqual(1)
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
   })
 })
