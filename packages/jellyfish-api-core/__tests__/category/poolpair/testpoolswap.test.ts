@@ -189,4 +189,42 @@ describe('Poolpair', () => {
       }
     })
   })
+
+  it('should throw error when no tokenFrom', async () => {
+    const promise = client.poolpair.testPoolSwap({
+      from: await getNewAddress(container),
+      tokenFrom: '',
+      amountFrom: 13,
+      to: await getNewAddress(container),
+      tokenTo: 'DFI'
+    })
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -8,
+        message: 'tokenFrom is empty',
+        method: 'testpoolswap'
+      }
+    })
+  })
+
+  it('should throw error when no tokenTo', async () => {
+    const promise = client.poolpair.testPoolSwap({
+      from: await getNewAddress(container),
+      tokenFrom: 'DFI',
+      amountFrom: 13,
+      to: await getNewAddress(container),
+      tokenTo: ''
+    })
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -8,
+        message: 'tokenTo is empty',
+        method: 'testpoolswap'
+      }
+    })
+  })
 })
