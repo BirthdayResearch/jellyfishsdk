@@ -310,7 +310,7 @@ describe('UpdateMasternode', () => {
       updates: [
         {
           updateType: 0x04,
-          address: { addressType: 0x00, addressPubKeyHash: undefined }
+          address: { addressType: 0x00 }
         }
       ]
     }

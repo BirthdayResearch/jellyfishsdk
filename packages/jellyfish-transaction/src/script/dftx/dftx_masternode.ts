@@ -62,7 +62,7 @@ export class CResignMasternode extends ComposableBuffer<ResignMasternode> {
 
 export interface UpdateMasternodeAddress {
   addressType: number // --------------------------| 1 byte, 0x01 = p2pkh, 0x04 = p2wpkh, 0x00 to remove reward address
-  addressPubKeyHash?: string // -------------------| VarUInt{20 bytes}
+  addressPubKeyHash?: string // -------------------| VarUInt{20 bytes}, set undefined to remove reward address
 }
 
 /**
