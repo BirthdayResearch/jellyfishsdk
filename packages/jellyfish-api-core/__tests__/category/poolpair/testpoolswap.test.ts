@@ -356,6 +356,20 @@ describe('Poolpair', () => {
     }, 'direct')).toBeTruthy()
   })
 
+  it('should testpoolswap in custom mode', async () => {
+    const path: string[] = []
+    path.push(Object.keys(await client.poolpair.getPoolPair('T1-T2'))[0])
+    path.push(Object.keys(await client.poolpair.getPoolPair('T2-T3'))[0])
+
+    expect(await client.poolpair.testPoolSwap({
+      from: await getNewAddress(container),
+      tokenFrom: 'T1',
+      amountFrom: 13,
+      to: await getNewAddress(container),
+      tokenTo: 'T3'
+    }, path)).toBeTruthy()
+  })
+
   it('should testpoolswap in auto mode', async () => {
     expect(await client.poolpair.testPoolSwap({
       from: await getNewAddress(container),
