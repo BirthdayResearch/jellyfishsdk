@@ -185,8 +185,7 @@ export class Masternode {
    * @return {Promise<string>} hash
    *
    */
-  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-  async unsetGov (input: Record<string, any>, utxos: UTXO[] = []): Promise<string> {
+  async unsetGov (input: Record<string, number | string | string[]>, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('unsetgov', [input, utxos], 'number')
   }
 

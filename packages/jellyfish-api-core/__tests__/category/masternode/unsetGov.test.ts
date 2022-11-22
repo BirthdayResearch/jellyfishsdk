@@ -11,7 +11,6 @@ describe('Masternode', () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
-    await container.generate(20)
 
     await createToken(container, 'CAT')
   })
@@ -48,8 +47,7 @@ describe('Masternode', () => {
   })
 
   it('should unset ATTRIBUTES', async () => {
-    await client.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/gov-unset': 'true' } })
-    await client.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2203/active': 'true' } })
+    await client.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/gov-unset': 'true', 'v0/params/dfip2203/active': 'true' } })
     await container.generate(1)
 
     const govBefore = await client.masternode.getGov('ATTRIBUTES')
@@ -67,6 +65,21 @@ describe('Masternode', () => {
     expect(govAfter).toMatchObject({
       ATTRIBUTES: {
         'v0/params/feature/gov-unset': 'true'
+      }
+    })
+  })
+
+  it('should throw error if unsetting invalid governance variable', async () => {
+    await client.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/gov-unset': 'true' } })
+    await container.generate(1)
+
+    const promise = client.masternode.unsetGov({ ATTRIBUTES: ['v0/params/dfip2203/active'] })
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -32600,
+        message: 'Test UnsetGovVariableTx execution failed:\nATTRIBUTES: Attribute {97} not exists',
+        method: 'unsetgov'
       }
     })
   })
