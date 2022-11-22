@@ -196,6 +196,44 @@ describe('Poolpair', () => {
     })
   })
 
+  it('should throw error when no tokenFrom', async () => {
+    const promise = client.poolpair.testPoolSwap({
+      from: await getNewAddress(container),
+      tokenFrom: '',
+      amountFrom: 13,
+      to: await getNewAddress(container),
+      tokenTo: 'DFI'
+    })
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -8,
+        message: 'tokenFrom is empty',
+        method: 'testpoolswap'
+      }
+    })
+  })
+
+  it('should throw error when no tokenTo', async () => {
+    const promise = client.poolpair.testPoolSwap({
+      from: await getNewAddress(container),
+      tokenFrom: 'DFI',
+      amountFrom: 13,
+      to: await getNewAddress(container),
+      tokenTo: ''
+    })
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -8,
+        message: 'tokenTo is empty',
+        method: 'testpoolswap'
+      }
+    })
+  })
+
   it('should fail if wrong path option is used', async () => {
     const tokenBatAddress = await getNewAddress(container)
     const poolLiquidityAddress = await getNewAddress(container)
@@ -268,75 +306,6 @@ describe('Poolpair', () => {
       path: 'auto',
       pools: ['3', '4'],
       amount: '12.83316880@2'
-    })
-  })
-
-  it('should not compositeSwap for more than 3 pools', async () => {
-    const toAddress = await getNewAddress(container)
-    const fromAddress = await getNewAddress(container)
-    const poolLiquidityAddress = await getNewAddress(container)
-
-    await createToken(container, 'T1')
-    await createToken(container, 'T2')
-    await createToken(container, 'T3')
-    await createToken(container, 'T4')
-    await createToken(container, 'T5')
-
-    await mintTokens(container, 'T1')
-    await mintTokens(container, 'T2')
-    await mintTokens(container, 'T3')
-    await mintTokens(container, 'T4')
-    await mintTokens(container, 'T5')
-
-    await createPoolPair(container, 'T1', 'T2')
-    await createPoolPair(container, 'T2', 'T3')
-    await createPoolPair(container, 'T3', 'T4')
-    await createPoolPair(container, 'T4', 'T5')
-
-    await addPoolLiquidity(container, {
-      tokenA: 'T1',
-      amountA: 100,
-      tokenB: 'T2',
-      amountB: 100,
-      shareAddress: poolLiquidityAddress
-    })
-    await addPoolLiquidity(container, {
-      tokenA: 'T2',
-      amountA: 100,
-      tokenB: 'T3',
-      amountB: 100,
-      shareAddress: poolLiquidityAddress
-    })
-    await addPoolLiquidity(container, {
-      tokenA: 'T3',
-      amountA: 100,
-      tokenB: 'T4',
-      amountB: 100,
-      shareAddress: poolLiquidityAddress
-    })
-    await addPoolLiquidity(container, {
-      tokenA: 'T4',
-      amountA: 100,
-      tokenB: 'T5',
-      amountB: 100,
-      shareAddress: poolLiquidityAddress
-    })
-
-    const promise = client.poolpair.testPoolSwap({
-      from: toAddress,
-      tokenFrom: 'T1',
-      amountFrom: 1,
-      to: fromAddress,
-      tokenTo: 'T5'
-    }, Object.keys(await client.poolpair.listPoolPairs()).slice(0, 4), true)
-
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toMatchObject({
-      payload: {
-        code: -32600,
-        message: 'Cannot find usable pool pair. Details: Too many pool IDs provided, max 3 allowed, 4 provided',
-        method: 'testpoolswap'
-      }
     })
   })
 })
