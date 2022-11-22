@@ -19,6 +19,33 @@ describe('Poolpair', () => {
 
     await createPoolPair(container, 'BAT', 'DFI')
     await createPoolPair(container, 'BTC', 'DFI')
+
+    await createToken(container, 'T1')
+    await createToken(container, 'T2')
+    await createToken(container, 'T3')
+
+    await mintTokens(container, 'T1')
+    await mintTokens(container, 'T2')
+    await mintTokens(container, 'T3')
+
+    await createPoolPair(container, 'T1', 'T2')
+    await createPoolPair(container, 'T2', 'T3')
+
+    const poolLiquidityAddress = await getNewAddress(container)
+    await addPoolLiquidity(container, {
+      tokenA: 'T1',
+      amountA: 500,
+      tokenB: 'T2',
+      amountB: 500,
+      shareAddress: poolLiquidityAddress
+    })
+    await addPoolLiquidity(container, {
+      tokenA: 'T2',
+      amountA: 500,
+      tokenB: 'T3',
+      amountB: 500,
+      shareAddress: poolLiquidityAddress
+    })
   })
 
   afterAll(async () => {
@@ -307,5 +334,43 @@ describe('Poolpair', () => {
       pools: ['3', '4'],
       amount: '12.83316880@2'
     })
+  })
+
+  it('should testpoolswap in composite mode', async () => {
+    expect(await client.poolpair.testPoolSwap({
+      from: await getNewAddress(container),
+      tokenFrom: 'T1',
+      amountFrom: 13,
+      to: await getNewAddress(container),
+      tokenTo: 'T3'
+    }, 'composite')).toBeTruthy()
+  })
+
+  it('should testpoolswap in direct mode', async () => {
+    expect(await client.poolpair.testPoolSwap({
+      from: await getNewAddress(container),
+      tokenFrom: 'T1',
+      amountFrom: 13,
+      to: await getNewAddress(container),
+      tokenTo: 'T2'
+    }, 'direct')).toBeTruthy()
+  })
+
+  it('should testpoolswap in auto mode', async () => {
+    expect(await client.poolpair.testPoolSwap({
+      from: await getNewAddress(container),
+      tokenFrom: 'T1',
+      amountFrom: 13,
+      to: await getNewAddress(container),
+      tokenTo: 'T2'
+    }, 'auto')).toBeTruthy()
+
+    expect(await client.poolpair.testPoolSwap({
+      from: await getNewAddress(container),
+      tokenFrom: 'T1',
+      amountFrom: 13,
+      to: await getNewAddress(container),
+      tokenTo: 'T3'
+    }, 'auto')).toBeTruthy()
   })
 })
