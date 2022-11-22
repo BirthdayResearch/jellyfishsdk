@@ -70,7 +70,7 @@ export class PoolPair {
    * @param {string | string[]} from[address] provides at least two types of token with format 'amoun@token'
    * @param {string} shareAddress defi address for crediting tokens
    * @param {PoolLiquidityOptions} [options]
-   * @param {AddPoolLiquidityUTXO[]} [options.utxos] utxos array of specific UTXOs to spend
+   * @param {UTXO[]} [options.utxos] utxos array of specific UTXOs to spend
    * @param {string} [options.utxos.txid]
    * @param {number} [options.utxos.vout]
    * @return {Promise<string>}
@@ -175,7 +175,11 @@ export class PoolPair {
    */
   testPoolSwap (metadata: PoolSwapMetadata, path?: 'auto' | 'direct' | 'composite' | string[], verbose?: true): Promise<TestPoolSwapVerboseResult>
 
-  async testPoolSwap (metadata: PoolSwapMetadata, path: 'auto' | 'direct' | 'composite' | string[] = 'auto', verbose: boolean = false): Promise<string | TestPoolSwapVerboseResult> {
+  async testPoolSwap (
+    metadata: PoolSwapMetadata,
+    path: 'auto' | 'direct' | 'composite' | string[] = 'auto',
+    verbose: boolean = false
+  ): Promise<string | TestPoolSwapVerboseResult> {
     return await this.client.call('testpoolswap', [metadata, path, verbose], 'bignumber')
   }
 
