@@ -62,13 +62,14 @@ interface ProposalInfo {
   proposalId: string
   title: string
   context: string
-  contexthash: string
+  contextHash: string
   type: ProposalType
   status: ProposalStatus
   amount: BigNumber
-  nextCycle: number
+  currentCycle: number
   totalCycles: number
-  finalizeAfter: number
+  cycleEndHeight: number
+  proposalEndHeight: number
   payoutAddress: string
   options?: string[]
 }
@@ -138,13 +139,14 @@ interface ProposalInfo {
   proposalId: string
   title: string
   context: string
-  contexthash: string
+  contextHash: string
   type: ProposalType
   status: ProposalStatus
   amount: BigNumber
-  nextCycle: number
+  currentCycle: number
   totalCycles: number
-  finalizeAfter: number
+  cycleEndHeight: number
+  proposalEndHeight: number
   payoutAddress: string
   options?: string[]
 }

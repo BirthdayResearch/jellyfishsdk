@@ -1,9 +1,9 @@
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { ProposalStatus, ProposalType } from '../../../src/category/governance'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
-import { GovernanceMasterNodeRegTestContainer } from './governance_container'
 
-const container = new GovernanceMasterNodeRegTestContainer()
+const container = new MasterNodeRegTestContainer()
 const client = new ContainerAdapterClient(container)
 
 describe('On-chain governance disabled', () => {
@@ -54,12 +54,13 @@ describe('On-chain governance enabled', () => {
     expect(proposal).toStrictEqual({
       title: 'new vote of confidence',
       context: '<Git issue url>',
-      contexthash: '',
+      contextHash: '',
       type: ProposalType.VOTE_OF_CONFIDENCE,
       status: ProposalStatus.VOTING,
       amount: expect.any(Number),
-      finalizeAfter: expect.any(Number),
-      nextCycle: expect.any(Number),
+      cycleEndHeight: expect.any(Number),
+      proposalEndHeight: expect.any(Number),
+      currentCycle: expect.any(Number),
       totalCycles: expect.any(Number),
       payoutAddress: '',
       proposalId: proposalTx
@@ -82,12 +83,13 @@ describe('On-chain governance enabled', () => {
     expect(proposal).toStrictEqual({
       title: 'new vote of confidence',
       context: '<Git issue url>',
-      contexthash: '<context hash>',
+      contextHash: '<context hash>',
       type: ProposalType.VOTE_OF_CONFIDENCE,
       status: ProposalStatus.VOTING,
       amount: expect.any(Number),
-      finalizeAfter: expect.any(Number),
-      nextCycle: expect.any(Number),
+      cycleEndHeight: expect.any(Number),
+      proposalEndHeight: expect.any(Number),
+      currentCycle: expect.any(Number),
       totalCycles: expect.any(Number),
       payoutAddress: '',
       proposalId: proposalTx
@@ -111,12 +113,13 @@ describe('On-chain governance enabled', () => {
     expect(proposal).toStrictEqual({
       title: 'new emergency vote of confidence',
       context: '<Git issue url>',
-      contexthash: '',
+      contextHash: '',
       type: ProposalType.VOTE_OF_CONFIDENCE,
       status: ProposalStatus.VOTING,
       amount: expect.any(Number),
-      finalizeAfter: expect.any(Number),
-      nextCycle: expect.any(Number),
+      cycleEndHeight: expect.any(Number),
+      proposalEndHeight: expect.any(Number),
+      currentCycle: expect.any(Number),
       totalCycles: expect.any(Number),
       payoutAddress: '',
       proposalId: proposalTx,

@@ -1,11 +1,11 @@
 import BigNumber from 'bignumber.js'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { ProposalStatus, ProposalType } from '../../../src/category/governance'
-import { GovernanceMasterNodeRegTestContainer } from './governance_container'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 
-const container = new GovernanceMasterNodeRegTestContainer()
+const container = new MasterNodeRegTestContainer()
 const client = new ContainerAdapterClient(container)
 const mnAddress = RegTestFoundationKeys[0].owner.address
 
@@ -67,12 +67,13 @@ describe('On-chain governance enabled', () => {
       expect(proposal).toStrictEqual({
         title: data.title,
         context: data.context,
-        contexthash: '',
+        contextHash: '',
         type: ProposalType.COMMUNITY_FUND_PROPOSAL,
         status: ProposalStatus.VOTING,
         amount: data.amount.toNumber(),
-        finalizeAfter: expect.any(Number),
-        nextCycle: 1,
+        cycleEndHeight: expect.any(Number),
+        proposalEndHeight: expect.any(Number),
+        currentCycle: 1,
         totalCycles: data.cycles,
         payoutAddress: data.payoutAddress,
         proposalId: proposalTx
@@ -98,12 +99,13 @@ describe('On-chain governance enabled', () => {
       expect(proposal).toStrictEqual({
         title: data.title,
         context: data.context,
-        contexthash: '',
+        contextHash: '',
         type: ProposalType.COMMUNITY_FUND_PROPOSAL,
         status: ProposalStatus.VOTING,
         amount: data.amount.toNumber(),
-        finalizeAfter: expect.any(Number),
-        nextCycle: 1,
+        cycleEndHeight: expect.any(Number),
+        proposalEndHeight: expect.any(Number),
+        currentCycle: 1,
         totalCycles: data.cycles,
         payoutAddress: data.payoutAddress,
         proposalId: proposalTx
@@ -129,12 +131,13 @@ describe('On-chain governance enabled', () => {
       expect(proposal).toStrictEqual({
         title: data.title,
         context: data.context,
-        contexthash: '',
+        contextHash: '',
         type: ProposalType.COMMUNITY_FUND_PROPOSAL,
         status: ProposalStatus.VOTING,
         amount: data.amount.toNumber(),
-        finalizeAfter: expect.any(Number),
-        nextCycle: 1,
+        cycleEndHeight: expect.any(Number),
+        proposalEndHeight: expect.any(Number),
+        currentCycle: 1,
         totalCycles: data.cycles,
         payoutAddress: data.payoutAddress,
         proposalId: proposalTx

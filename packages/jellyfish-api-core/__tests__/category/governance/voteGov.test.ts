@@ -1,11 +1,11 @@
 import BigNumber from 'bignumber.js'
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { RpcApiError } from '../../../src'
 import { VoteDecision } from '../../../src/category/governance'
-import { GovernanceMasterNodeRegTestContainer } from './governance_container'
 
 describe('Governance', () => {
-  const container = new GovernanceMasterNodeRegTestContainer()
+  const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
   beforeAll(async () => {

@@ -1,11 +1,10 @@
-import { StartOptions } from '@defichain/testcontainers'
+import { StartOptions, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { MasternodeType, VoteDecision } from '../../../src/category/governance'
-import { GovernanceMasterNodeRegTestContainer } from './governance_container'
 import { Testing } from '@defichain/jellyfish-testing'
 import { masternode } from '@defichain/jellyfish-api-core'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
-class MultiOperatorGovernanceMasterNodeRegTestContainer extends GovernanceMasterNodeRegTestContainer {
+class MultiOperatorGovernanceMasterNodeRegTestContainer extends MasterNodeRegTestContainer {
   protected getCmd (opts: StartOptions): string[] {
     return [
       ...super.getCmd(opts),

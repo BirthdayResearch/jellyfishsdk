@@ -1,10 +1,10 @@
 import BigNumber from 'bignumber.js'
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { ListProposalsStatus, ListProposalsType, ProposalStatus, ProposalType } from '../../../src/category/governance'
-import { GovernanceMasterNodeRegTestContainer } from './governance_container'
 
 describe('Governance', () => {
-  const container = new GovernanceMasterNodeRegTestContainer()
+  const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
   beforeAll(async () => {
@@ -55,12 +55,13 @@ describe('Governance', () => {
       expect(proposal).toStrictEqual({
         title: expect.any(String),
         context: expect.any(String),
-        contexthash: expect.any(String),
+        contextHash: expect.any(String),
         type: expect.any(String),
         status: expect.any(String),
         amount: expect.any(BigNumber),
-        finalizeAfter: expect.any(Number),
-        nextCycle: expect.any(Number),
+        cycleEndHeight: expect.any(Number),
+        proposalEndHeight: expect.any(Number),
+        currentCycle: expect.any(Number),
         totalCycles: expect.any(Number),
         payoutAddress: expect.any(String),
         proposalId: expect.any(String)
@@ -97,7 +98,7 @@ describe('Governance', () => {
 })
 
 describe('Governance without proposals', () => {
-  const container = new GovernanceMasterNodeRegTestContainer()
+  const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
   beforeAll(async () => {
