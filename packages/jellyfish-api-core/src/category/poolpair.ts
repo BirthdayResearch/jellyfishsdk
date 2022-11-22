@@ -154,9 +154,27 @@ export class PoolPair {
    * @param {string} metadata.tokenTo swap to token {symbol/id}
    * @param {number} [metadata.maxPrice] acceptable max price
    * @param {'auto' | 'direct' | 'composite' | Array<string>} [path] swap path to use, defaults to auto. Provide array of poolpair IDs to set path manually.
-   * @param {boolean} [verbose] return pool path used, defaults to false
-   * @return {Promise<string | TestPoolSwapVerboseResult>} formatted as 'amount@token' swapped
+   * @param {boolean} [verbose=false] return pool path used, defaults to false
+   * @return {Promise<string>} formatted as 'amount@token' swapped
    */
+  testPoolSwap (metadata: PoolSwapMetadata, path?: 'auto' | 'direct' | 'composite' | string[], verbose?: false): Promise<string>
+
+  /**
+   * Create a test pool swap transaction to check pool swap's return result
+   *
+   * @param {PoolSwapMetadata} metadata a provided information to create test pool swap transaction
+   * @param {string} metadata.from address of the owner of tokenFrom
+   * @param {string} metadata.tokenFrom swap from token {symbol/id}
+   * @param {number} metadata.amountFrom amount from tokenA
+   * @param {string} metadata.to address of the owner of tokenTo
+   * @param {string} metadata.tokenTo swap to token {symbol/id}
+   * @param {number} [metadata.maxPrice] acceptable max price
+   * @param {'auto' | 'direct' | 'composite' | Array<string>} [path] swap path to use, defaults to auto. Provide array of poolpair IDs to set path manually.
+   * @param {boolean} [verbose=true] return pool path used, defaults to false
+   * @return {Promise<string>} formatted as 'amount@token' swapped
+   */
+  testPoolSwap (metadata: PoolSwapMetadata, path?: 'auto' | 'direct' | 'composite' | string[], verbose?: true): Promise<TestPoolSwapVerboseResult>
+
   async testPoolSwap (metadata: PoolSwapMetadata, path: 'auto' | 'direct' | 'composite' | string[] = 'auto', verbose: boolean = false): Promise<string | TestPoolSwapVerboseResult> {
     return await this.client.call('testpoolswap', [metadata, path, verbose], 'bignumber')
   }

@@ -63,9 +63,8 @@ describe('Poolpair', () => {
       tokenTo: 'DFI'
     }) // 199.99999729@0
 
-    if (typeof result !== 'string') {
-      throw new Error(`result was ${typeof result}, expected string`)
-    }
+    expect(typeof result).toStrictEqual('string')
+
     const testPoolSwapResultAmount = new BigNumber(result.split('@')[0]) // 199.99999729
     const swapped = new BigNumber(poolpair.reserveB).minus(reserveBAfter) // 199.87995198635029880408
 
