@@ -329,13 +329,13 @@ describe('Poolpair', () => {
       amountFrom: 1,
       to: fromAddress,
       tokenTo: 'T5'
-    }, Object.keys(await client.poolpair.listPoolPairs()), true)
+    }, Object.keys(await client.poolpair.listPoolPairs()).slice(0, 4), true)
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toMatchObject({
       payload: {
         code: -32600,
-        message: 'Cannot find usable pool pair. Details: Too many pool IDs provided, max 3 allowed, 10 provided',
+        message: 'Cannot find usable pool pair. Details: Too many pool IDs provided, max 3 allowed, 4 provided',
         method: 'testpoolswap'
       }
     })
