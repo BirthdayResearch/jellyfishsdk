@@ -60,32 +60,6 @@ describe('Poolpair', () => {
     await container.generate(1)
   }
 
-  it('should addPoolLiquidity', async () => {
-    const shareAddress = await container.call('getnewaddress')
-    const data = await client.poolpair.addPoolLiquidity({
-      '*': ['10@DFI', '200@DDAI']
-    }, shareAddress)
-
-    expect(typeof data).toStrictEqual('string')
-  })
-
-  it('should addPoolLiquidity with specific input token address', async () => {
-    const tokenAAddress = await container.call('getnewaddress')
-    const tokenBAddress = await container.call('getnewaddress')
-    await container.call('sendtokenstoaddress', [{}, { [tokenAAddress]: ['10@DFI'] }])
-    await container.call('sendtokenstoaddress', [{}, { [tokenBAddress]: ['200@DDAI'] }])
-    await container.generate(1)
-
-    const shareAddress = await container.call('getnewaddress')
-    const data = await client.poolpair.addPoolLiquidity({
-      [tokenAAddress]: '5@DFI',
-      [tokenBAddress]: '100@DDAI'
-    }, shareAddress)
-
-    expect(typeof data).toStrictEqual('string')
-  })
-
-  // runs on the HEAD-273e26b5f container instead of epic-grandcentral
   it('should give rewards after activation', async () => {
     const shareAddress = await container.call('getnewaddress')
 
@@ -111,6 +85,31 @@ describe('Poolpair', () => {
       return item.type === 'Commission'
     })
     expect(accountHistory).toHaveLength(1)
+  })
+
+  it('should addPoolLiquidity', async () => {
+    const shareAddress = await container.call('getnewaddress')
+    const data = await client.poolpair.addPoolLiquidity({
+      '*': ['10@DFI', '200@DDAI']
+    }, shareAddress)
+
+    expect(typeof data).toStrictEqual('string')
+  })
+
+  it('should addPoolLiquidity with specific input token address', async () => {
+    const tokenAAddress = await container.call('getnewaddress')
+    const tokenBAddress = await container.call('getnewaddress')
+    await container.call('sendtokenstoaddress', [{}, { [tokenAAddress]: ['10@DFI'] }])
+    await container.call('sendtokenstoaddress', [{}, { [tokenBAddress]: ['200@DDAI'] }])
+    await container.generate(1)
+
+    const shareAddress = await container.call('getnewaddress')
+    const data = await client.poolpair.addPoolLiquidity({
+      [tokenAAddress]: '5@DFI',
+      [tokenBAddress]: '100@DDAI'
+    }, shareAddress)
+
+    expect(typeof data).toStrictEqual('string')
   })
 
   it('should addPoolLiquidity with utxos', async () => {
