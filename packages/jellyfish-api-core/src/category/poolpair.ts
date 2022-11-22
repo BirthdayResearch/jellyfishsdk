@@ -70,7 +70,7 @@ export class PoolPair {
    * @param {string | string[]} from[address] provides at least two types of token with format 'amoun@token'
    * @param {string} shareAddress defi address for crediting tokens
    * @param {PoolLiquidityOptions} [options]
-   * @param {UTXO[]} [options.utxos] utxos array of specific UTXOs to spend
+   * @param {AddPoolLiquidityUTXO[]} [options.utxos] utxos array of specific UTXOs to spend
    * @param {string} [options.utxos.txid]
    * @param {number} [options.utxos.vout]
    * @return {Promise<string>}
@@ -153,34 +153,10 @@ export class PoolPair {
    * @param {string} metadata.to address of the owner of tokenTo
    * @param {string} metadata.tokenTo swap to token {symbol/id}
    * @param {number} [metadata.maxPrice] acceptable max price
-   * @param {'auto' | 'direct' | 'composite' | Array<string>} [path] swap path to use, defaults to auto. Provide array of poolpair IDs to set path manually.
-   * @param {boolean} [verbose=false] return pool path used, defaults to false
    * @return {Promise<string>} formatted as 'amount@token' swapped
    */
-  testPoolSwap (metadata: PoolSwapMetadata, path?: 'auto' | 'direct' | 'composite' | string[], verbose?: false): Promise<string>
-
-  /**
-   * Create a test pool swap transaction to check pool swap's return result
-   *
-   * @param {PoolSwapMetadata} metadata a provided information to create test pool swap transaction
-   * @param {string} metadata.from address of the owner of tokenFrom
-   * @param {string} metadata.tokenFrom swap from token {symbol/id}
-   * @param {number} metadata.amountFrom amount from tokenA
-   * @param {string} metadata.to address of the owner of tokenTo
-   * @param {string} metadata.tokenTo swap to token {symbol/id}
-   * @param {number} [metadata.maxPrice] acceptable max price
-   * @param {'auto' | 'direct' | 'composite' | Array<string>} [path] swap path to use, defaults to auto. Provide array of poolpair IDs to set path manually.
-   * @param {boolean} [verbose=true] return pool path used, defaults to false
-   * @return {Promise<string>} formatted as 'amount@token' swapped
-   */
-  testPoolSwap (metadata: PoolSwapMetadata, path?: 'auto' | 'direct' | 'composite' | string[], verbose?: true): Promise<TestPoolSwapVerboseResult>
-
-  async testPoolSwap (
-    metadata: PoolSwapMetadata,
-    path: 'auto' | 'direct' | 'composite' | string[] = 'auto',
-    verbose: boolean = false
-  ): Promise<string | TestPoolSwapVerboseResult> {
-    return await this.client.call('testpoolswap', [metadata, path, verbose], 'bignumber')
+  async testPoolSwap (metadata: PoolSwapMetadata): Promise<string> {
+    return await this.client.call('testpoolswap', [metadata], 'bignumber')
   }
 
   /**
@@ -285,10 +261,4 @@ export interface PoolSwapMetadata {
   to: string
   tokenTo: string
   maxPrice?: number
-}
-
-export interface TestPoolSwapVerboseResult {
-  path: string
-  pools: string[]
-  amount: string
 }

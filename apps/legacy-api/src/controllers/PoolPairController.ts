@@ -67,8 +67,8 @@ export class PoolPairController {
         quote_name: quote.symbol,
         quote_symbol: quote.symbol,
         last_price: poolPair.priceRatio.ab,
-        base_volume: baseVolume.isNaN() ? 0 : baseVolume.toNumber(),
-        quote_volume: quoteVolume.isNaN() ? 0 : quoteVolume.toNumber(),
+        base_volume: baseVolume.toNumber(),
+        quote_volume: quoteVolume.toNumber(),
         isFrozen: (poolPair.status) ? 0 : 1
       }
     }
@@ -186,8 +186,8 @@ export class PoolPairControllerV2 {
         quote_name: quote.symbol,
         quote_symbol: quote.symbol,
         last_price: poolPair.priceRatio.ba, // inverted from v1
-        base_volume: baseVolume.isNaN() ? 0 : baseVolume.toNumber(),
-        quote_volume: quoteVolume.isNaN() ? 0 : quoteVolume.toNumber(),
+        base_volume: baseVolume.toNumber(),
+        quote_volume: quoteVolume.toNumber(),
         isFrozen: (poolPair.status) ? 0 : 1
       }
     }

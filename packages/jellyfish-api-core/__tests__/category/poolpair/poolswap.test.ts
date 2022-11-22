@@ -710,20 +710,4 @@ describe('poolSwap asymmetric pool swap fee', () => {
 
     await checkCATtoDFI(poolPairBefore, receiverAddress, feeInPct, feeOutPct)
   })
-
-  it('should swap to sender if no recipient is specified', async () => {
-    await testing.fixture.createPoolPair({
-      a: { amount: 1000, symbol: 'CAT' },
-      b: { amount: 1000, symbol: 'DFI' }
-    })
-    const swapper = await testing.generateAddress()
-    await utxosToAccount(container, 1, { address: swapper })
-
-    await container.call('compositeswap', [{ from: swapper, tokenFrom: 'DFI', amountFrom: 1, tokenTo: 'CAT' }])
-    await container.generate(1)
-
-    const swapperAccount = await client.account.getAccount(swapper)
-    expect(swapperAccount[0]).toContain('CAT')
-    expect(swapperAccount[0]).not.toContain('DFI')
-  })
 })

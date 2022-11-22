@@ -1,7 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import BigNumber from 'bignumber.js'
-import { RpcApiError } from '../../../src'
 
 describe('Poolpair', () => {
   const container = new MasterNodeRegTestContainer()
@@ -78,20 +77,5 @@ describe('Poolpair', () => {
       }
     }
     expect(assertions).toStrictEqual(1)
-  })
-
-  it('should throw error if name is too long', async () => {
-    const address = await container.call('getnewaddress')
-    const metadata = {
-      tokenA: 'DBTC',
-      tokenB: 'DFI',
-      commission: 1,
-      status: true,
-      ownerAddress: address,
-      pairSymbol: 'abcdefghijklmnopqrt'
-    }
-    const promise = client.poolpair.createPoolPair(metadata)
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('pairSymbol is larger than')
   })
 })
