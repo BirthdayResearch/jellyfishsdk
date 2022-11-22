@@ -212,6 +212,16 @@ interface masternode {
 }
 ```
 
+## unsetGov
+
+Unset governance variables
+
+```ts title="client.masternode.unsetGov()"
+interface masternode {
+  unsetGov (input: Record<string, number | string | string[]>, utxos: UTXO[] = []): Promise<string>
+}
+```
+
 ## isAppliedCustomTransaction
 
 Checks that custom transaction was affected on chain
