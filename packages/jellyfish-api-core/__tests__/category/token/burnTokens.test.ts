@@ -1,93 +1,119 @@
-import { Testing } from '@defichain/jellyfish-testing'
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers/dist/index'
+import { TestingGroup } from '@defichain/jellyfish-testing'
 
 describe('burnTokens', () => {
-  const container = new MasterNodeRegTestContainer()
-  const testing = Testing.create(container)
-
-  let address: string
+  const tGroup = TestingGroup.create(2)
   const symbolDBTC = 'DBTC'
+  let account0: string, account1: string
+  let idBTC: string
 
-  beforeAll(async () => {
-    await container.start()
-    await setup()
-  })
+  beforeEach(async () => {
+    await tGroup.start()
 
-  afterAll(async () => {
-    await container.start()
-  })
+    account0 = await tGroup.get(0).generateAddress()
+    account1 = await tGroup.get(1).generateAddress()
 
-  async function setup (): Promise<void> {
-    await container.waitForWalletCoinbaseMaturity()
-
-    address = await testing.generateAddress()
-
-    await testing.rpc.token.createToken({
+    await tGroup.get(0).token.create({
       symbol: symbolDBTC,
       name: symbolDBTC,
       isDAT: true,
       mintable: true,
       tradeable: true,
-      collateralAddress: address
+      collateralAddress: account0
     })
-    await testing.generate(1)
+    await tGroup.get(0).generate(1)
 
-    await testing.rpc.token.mintTokens(`10@${symbolDBTC}`)
-    await testing.generate(1)
+    await tGroup.get(0).container.fundAddress(account0, 10)
+    await tGroup.get(0).container.fundAddress(account1, 10)
 
-    await testing.container.fundAddress(address, 10)
+    await tGroup.get(0).generate(1)
+
+    idBTC = await tGroup.get(0).token.getTokenId(symbolDBTC)
+
+    await setGovAttr({ 'v0/params/feature/consortium': 'true' })
+
+    await setGovAttr({
+      [`v0/consortium/${idBTC}/mint_limit`]: '10',
+      [`v0/consortium/${idBTC}/mint_limit_daily`]: '5',
+      [`v0/consortium/${idBTC}/members`]: {
+        '02': {
+          name: 'account2BTC',
+          ownerAddress: account0,
+          dailyMintLimit: 5,
+          mintLimit: 10,
+          backingId: 'backing2'
+        }
+      }
+    })
+
+    await tGroup.get(0).rpc.token.mintTokens(`10@${symbolDBTC}`)
+    await tGroup.get(0).generate(1)
+  })
+
+  afterEach(async () => {
+    await tGroup.stop()
+  })
+
+  async function setGovAttr (ATTRIBUTES: object): Promise<void> {
+    const hash = await tGroup.get(0).rpc.masternode.setGov({ ATTRIBUTES })
+    expect(hash).toBeTruthy()
+    await tGroup.get(0).generate(1)
   }
 
   it('should throw an error if invalid value is provided for amount', async () => {
     // @ts-expect-error
-    await expect(testing.rpc.token.burnTokens(null, address)).rejects.toThrow('Invalid parameters, argument "amounts" must not be null')
-    await expect(testing.rpc.token.burnTokens('', address)).rejects.toThrow(': Invalid amount')
-    await expect(testing.rpc.token.burnTokens(`A@${symbolDBTC}`, address)).rejects.toThrow(': Invalid amount')
-    await expect(testing.rpc.token.burnTokens('2@ABC', address)).rejects.toThrow(': Invalid Defi token: ABC')
-    await expect(testing.rpc.token.burnTokens(`-2@${symbolDBTC}`, address)).rejects.toThrow('RpcApiError: \': Amount out of range\', code: -3, method: burntokens')
+    await expect(tGroup.get(0).rpc.token.burnTokens(null, account0)).rejects.toThrow('Invalid parameters, argument "amounts" must not be null')
+    await expect(tGroup.get(0).rpc.token.burnTokens('', account0)).rejects.toThrow(': Invalid amount')
+    await expect(tGroup.get(0).rpc.token.burnTokens(`A@${symbolDBTC}`, account0)).rejects.toThrow(': Invalid amount')
+    await expect(tGroup.get(0).rpc.token.burnTokens('2@ABC', account0)).rejects.toThrow(': Invalid Defi token: ABC')
+    await expect(tGroup.get(0).rpc.token.burnTokens(`-2@${symbolDBTC}`, account0)).rejects.toThrow('RpcApiError: \': Amount out of range\', code: -3, method: burntokens')
   })
 
   it('should throw an error if invalid value is provided for from', async () => {
     // @ts-expect-error
-    await expect(testing.rpc.token.burnTokens(`2@${symbolDBTC}`, null)).rejects.toThrow('Invalid parameters, argument "from" must not be null')
-    await expect(testing.rpc.token.burnTokens(`2@${symbolDBTC}`, '')).rejects.toThrow('recipient () does not refer to any valid address')
-    await expect(testing.rpc.token.burnTokens(`2@${symbolDBTC}`, 'ABC')).rejects.toThrow('recipient (ABC) does not refer to any valid address')
+    await expect(tGroup.get(0).rpc.token.burnTokens(`2@${symbolDBTC}`, null)).rejects.toThrow('Invalid parameters, argument "from" must not be null')
+    await expect(tGroup.get(0).rpc.token.burnTokens(`2@${symbolDBTC}`, '')).rejects.toThrow('recipient () does not refer to any valid address')
+    await expect(tGroup.get(0).rpc.token.burnTokens(`2@${symbolDBTC}`, 'ABC')).rejects.toThrow('recipient (ABC) does not refer to any valid address')
   })
 
   it('should throw an error if not enough tokens are available to burn', async () => {
-    const promise = testing.rpc.token.burnTokens(`11@${symbolDBTC}`, address)
+    const promise = tGroup.get(0).rpc.token.burnTokens(`11@${symbolDBTC}`, account0)
     await expect(promise).rejects.toThrow('RpcApiError: \'Test BurnTokenTx execution failed:\nnot enough tokens exist to subtract this amount\', code: -32600, method: burntokens')
   })
 
+  it('should throw an error if tried to burn tokens under another masternode', async () => {
+    const promise = tGroup.get(0).rpc.token.burnTokens(`1@${symbolDBTC}`, account1)
+    await expect(promise).rejects.toThrow(`RpcApiError: 'Incorrect authorization for ${account1}', code: -5, method: burntokens`)
+  })
+
   it('should burn tokens without context', async () => {
-    const burnTxId = await testing.rpc.token.burnTokens(`1@${symbolDBTC}`, address)
-    expect(burnTxId).not.toBe(null)
+    const burnTxId = await tGroup.get(0).rpc.token.burnTokens(`1@${symbolDBTC}`, account0)
+    expect(burnTxId).toBeTruthy()
 
-    await testing.generate(1)
+    await tGroup.get(0).generate(1)
 
-    const tokensAfterBurn = await testing.rpc.account.getAccount(address)
+    const tokensAfterBurn = await tGroup.get(0).rpc.account.getAccount(account0)
     expect(tokensAfterBurn[0]).toStrictEqual(`9.00000000@${symbolDBTC}`)
   })
 
   it('should burn tokens with context', async () => {
-    const burnTxId = await testing.rpc.token.burnTokens(`1@${symbolDBTC}`, address, address)
-    expect(burnTxId).not.toBe(null)
+    const burnTxId = await tGroup.get(0).rpc.token.burnTokens(`1@${symbolDBTC}`, account0, account0)
+    expect(burnTxId).toBeTruthy()
 
-    await testing.generate(1)
+    await tGroup.get(0).generate(1)
 
-    const tokensAfterBurn = await testing.rpc.account.getAccount(address)
-    expect(tokensAfterBurn[0]).toStrictEqual(`8.00000000@${symbolDBTC}`)
+    const tokensAfterBurn = await tGroup.get(0).rpc.account.getAccount(account0)
+    expect(tokensAfterBurn[0]).toStrictEqual(`9.00000000@${symbolDBTC}`)
   })
 
   it('should burn tokens with utxos', async () => {
-    const { txid, vout } = await testing.container.fundAddress(address, 10)
+    const { txid, vout } = await tGroup.get(0).container.fundAddress(account0, 10)
 
-    const burnTxId = await testing.rpc.token.burnTokens(`1@${symbolDBTC}`, address, address, [{ txid, vout }])
-    expect(burnTxId).not.toBe(null)
+    const burnTxId = await tGroup.get(0).rpc.token.burnTokens(`1@${symbolDBTC}`, account0, account0, [{ txid, vout }])
+    expect(burnTxId).toBeTruthy()
 
-    await testing.generate(1)
+    await tGroup.get(0).generate(1)
 
-    const tokensAfterBurn = await testing.rpc.account.getAccount(address)
-    expect(tokensAfterBurn[0]).toStrictEqual(`7.00000000@${symbolDBTC}`)
+    const tokensAfterBurn = await tGroup.get(0).rpc.account.getAccount(account0)
+    expect(tokensAfterBurn[0]).toStrictEqual(`9.00000000@${symbolDBTC}`)
   })
 })
