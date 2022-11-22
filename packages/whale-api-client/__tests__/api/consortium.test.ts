@@ -33,6 +33,7 @@ afterAll(async () => {
     await service.stop()
   } finally {
     await tGroup.stop()
+    globalCacheGetStub.restore()
   }
 })
 
