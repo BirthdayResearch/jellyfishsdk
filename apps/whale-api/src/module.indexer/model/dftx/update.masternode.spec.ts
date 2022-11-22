@@ -51,7 +51,8 @@ describe('Update masternode (pre eunos paya)', () => {
 
     await client.masternode.updateMasternode(masternodeId, {
       operatorAddress: addressDest.utf8String,
-      ownerAddress: addressDest.utf8String
+      rewardAddress: addressDest.utf8String
+      // ownerAddress: addressDest.utf8String // @TODO(kvenho) Blockchain is not fix yet
     })
 
     await container.generate(1)
@@ -59,9 +60,15 @@ describe('Update masternode (pre eunos paya)', () => {
     await container.generate(1)
     await waitForIndexedHeight(app, updateHeight)
 
+    // Get masternode details from blockchain
+    const gotMasternodeForReward = await client.masternode.getMasternode(masternodeId)
+    // expect(gotMasternodeForReward[masternodeId]?.ownerAuthAddress).toStrictEqual(addressDest.utf8String) // @TODO(kvenho) Blockchain is not fix yet
+    expect(gotMasternodeForReward[masternodeId]?.operatorAuthAddress).toStrictEqual(addressDest.utf8String)
+    expect(gotMasternodeForReward[masternodeId]?.rewardAddress).toStrictEqual(addressDest.utf8String)
+
     const updatedMasternode = await masternodeMapper.get(masternodeId)
     expect(updatedMasternode?.operatorAddress).toStrictEqual(addressDest.utf8String)
-    expect(updatedMasternode?.ownerAddress).toStrictEqual(addressDest.utf8String)
+    // expect(updatedMasternode?.ownerAddress).toStrictEqual(addressDest.utf8String) // @TODO(kvenho) Blockchain is not fix yet
 
     const masternodeStatsMapper = app.get(MasternodeStatsMapper)
     const masternodeStats = await masternodeStatsMapper.getLatest()
@@ -76,9 +83,35 @@ describe('Update masternode (pre eunos paya)', () => {
         }
       ]
     })
+
+    // enable updating again @TODO(kvenho) Not sure this correct or not
+    const gotBlockCount = await client.blockchain.getBlockCount()
+    await client.masternode.setGov({
+      ATTRIBUTES: {
+        'v0/params/feature/mn-setowneraddress': 'true',
+        'v0/params/feature/mn-setoperatoraddress': 'true',
+        'v0/params/feature/mn-setrewardaddress': 'true'
+      }
+    })
+    await container.generate(70)
+    await waitForIndexedHeight(app, gotBlockCount)
+
+    // Remove reward address
+    await client.masternode.updateMasternode(masternodeId, {
+      rewardAddress: ''
+    })
+
+    await container.generate(1)
+    const updateAgainHeight = await client.blockchain.getBlockCount()
+    await container.generate(1)
+    await waitForIndexedHeight(app, updateAgainHeight)
+
+    const gotMasternodeForRewardAgain = await client.masternode.getMasternode(masternodeId)
+    expect(gotMasternodeForRewardAgain[masternodeId]?.rewardAddress).toStrictEqual('')
   })
 })
 
+// @TODO(kvenho) Wait Shoham get back to me
 describe.skip('invalidate', () => {
   const container = new DelayedEunosPayaTestContainer()
   let app: NestFastifyApplication
