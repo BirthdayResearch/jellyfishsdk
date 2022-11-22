@@ -88,7 +88,7 @@ describe('Poolpair', () => {
       commission: 1,
       status: true,
       ownerAddress: address,
-      pairSymbol: '000000000'
+      pairSymbol: 'abcdefghijklmnopqrt'
     }
     const promise = client.poolpair.createPoolPair(metadata)
     await expect(promise).rejects.toThrow(RpcApiError)
