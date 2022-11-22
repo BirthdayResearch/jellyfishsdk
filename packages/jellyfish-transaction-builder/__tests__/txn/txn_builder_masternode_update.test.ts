@@ -309,7 +309,8 @@ describe('UpdateMasternode', () => {
       nodeId: txid,
       updates: [
         {
-          updateType: 0x04
+          updateType: 0x04,
+          address: { addressType: 0x00 }
         }
       ]
     }
