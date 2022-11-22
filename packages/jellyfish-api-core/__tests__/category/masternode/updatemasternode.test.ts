@@ -10,6 +10,16 @@ describe('Masternode', () => {
   beforeAll(async () => {
     await container.start()
     await container.waitForWalletCoinbaseMaturity()
+
+    // enable updating
+    await client.masternode.setGov({
+      ATTRIBUTES: {
+        'v0/params/feature/mn-setowneraddress': 'true',
+        'v0/params/feature/mn-setoperatoraddress': 'true',
+        'v0/params/feature/mn-setrewardaddress': 'true'
+      }
+    })
+    await container.generate(1)
   })
 
   afterAll(async () => {
@@ -17,20 +27,22 @@ describe('Masternode', () => {
   })
 
   it('should updateMasternode ownerAddress with bech32 address', async () => {
-    const ownerAddress1 = await client.wallet.getNewAddress()
-    const masternodeId = await client.masternode.createMasternode(ownerAddress1)
+    const initialAddress = await client.wallet.getNewAddress()
+    const masternodeId = await client.masternode.createMasternode(initialAddress)
 
+    // wait for masternode to be enabled
     await container.generate(20)
 
     const masternodesBefore = await client.masternode.listMasternodes()
     const masternodesLengthBefore = Object.keys(masternodesBefore).length
 
-    const ownerAddress2 = await client.wallet.getNewAddress()
+    const newAddress = await client.wallet.getNewAddress()
     await client.masternode.updateMasternode(masternodeId, {
-      ownerAddress: ownerAddress2
+      ownerAddress: newAddress
     })
 
-    await container.generate(70)
+    // wait for masternode to be enabled
+    await container.generate(65)
 
     const masternodesAfter = await client.masternode.listMasternodes()
     const masternodesLengthAfter = Object.keys(masternodesAfter).length
@@ -42,13 +54,13 @@ describe('Masternode', () => {
     }
 
     expect(mn).toStrictEqual({
-      operatorAuthAddress: ownerAddress1,
-      ownerAuthAddress: ownerAddress2,
+      ownerAuthAddress: newAddress,
+      operatorAuthAddress: initialAddress,
+      rewardAddress: '',
       creationHeight: expect.any(Number),
       resignHeight: expect.any(Number),
       resignTx: expect.any(String),
       collateralTx: expect.any(String),
-      rewardAddress: expect.any(String),
       state: expect.any(String),
       mintedBlocks: expect.any(Number),
       ownerIsMine: expect.any(Boolean),
@@ -59,20 +71,20 @@ describe('Masternode', () => {
   })
 
   it('should updateMasternode operatorAddress with bech32 address', async () => {
-    const ownerAddress1 = await client.wallet.getNewAddress()
-    const masternodeId = await client.masternode.createMasternode(ownerAddress1)
+    const initialAddress = await client.wallet.getNewAddress()
+    const masternodeId = await client.masternode.createMasternode(initialAddress)
 
     await container.generate(20)
 
     const masternodesBefore = await client.masternode.listMasternodes()
     const masternodesLengthBefore = Object.keys(masternodesBefore).length
 
-    const ownerAddress2 = await client.wallet.getNewAddress()
+    const newAddress = await client.wallet.getNewAddress()
     await client.masternode.updateMasternode(masternodeId, {
-      operatorAddress: ownerAddress2
+      operatorAddress: newAddress
     })
 
-    await container.generate(70)
+    await container.generate(65)
 
     const masternodesAfter = await client.masternode.listMasternodes()
     const masternodesLengthAfter = Object.keys(masternodesAfter).length
@@ -84,13 +96,13 @@ describe('Masternode', () => {
     }
 
     expect(mn).toStrictEqual({
-      operatorAuthAddress: ownerAddress2,
-      ownerAuthAddress: ownerAddress1,
+      ownerAuthAddress: initialAddress,
+      operatorAuthAddress: newAddress,
+      rewardAddress: '',
       creationHeight: expect.any(Number),
       resignHeight: expect.any(Number),
       resignTx: expect.any(String),
       collateralTx: expect.any(String),
-      rewardAddress: expect.any(String),
       state: expect.any(String),
       mintedBlocks: expect.any(Number),
       ownerIsMine: expect.any(Boolean),
@@ -100,21 +112,21 @@ describe('Masternode', () => {
     })
   })
 
-  it('should updateMasternode ownerAddress with legacy address', async () => {
-    const ownerAddress1 = await client.wallet.getNewAddress('', AddressType.LEGACY)
-    const masternodeId = await client.masternode.createMasternode(ownerAddress1)
+  it('should updateMasternode rewardAddress with bech32 address', async () => {
+    const initialAddress = await client.wallet.getNewAddress()
+    const masternodeId = await client.masternode.createMasternode(initialAddress)
 
     await container.generate(20)
 
     const masternodesBefore = await client.masternode.listMasternodes()
     const masternodesLengthBefore = Object.keys(masternodesBefore).length
 
-    const ownerAddress2 = await client.wallet.getNewAddress('', AddressType.LEGACY)
+    const newAddress = await client.wallet.getNewAddress()
     await client.masternode.updateMasternode(masternodeId, {
-      ownerAddress: ownerAddress2
+      rewardAddress: newAddress
     })
 
-    await container.generate(70)
+    await container.generate(65)
 
     const masternodesAfter = await client.masternode.listMasternodes()
     const masternodesLengthAfter = Object.keys(masternodesAfter).length
@@ -126,13 +138,13 @@ describe('Masternode', () => {
     }
 
     expect(mn).toStrictEqual({
-      operatorAuthAddress: ownerAddress1,
-      ownerAuthAddress: ownerAddress2,
+      ownerAuthAddress: initialAddress,
+      operatorAuthAddress: initialAddress,
+      rewardAddress: newAddress,
       creationHeight: expect.any(Number),
       resignHeight: expect.any(Number),
       resignTx: expect.any(String),
       collateralTx: expect.any(String),
-      rewardAddress: expect.any(String),
       state: expect.any(String),
       mintedBlocks: expect.any(Number),
       ownerIsMine: expect.any(Boolean),
@@ -142,21 +154,25 @@ describe('Masternode', () => {
     })
   })
 
-  it('should updateMasternode operatorAddress with legacy address', async () => {
-    const ownerAddress1 = await client.wallet.getNewAddress('', AddressType.LEGACY)
-    const masternodeId = await client.masternode.createMasternode(ownerAddress1)
+  it('should update multiple address with bech32 address', async () => {
+    const initialAddress = await client.wallet.getNewAddress()
+    const masternodeId = await client.masternode.createMasternode(initialAddress)
 
     await container.generate(20)
 
     const masternodesBefore = await client.masternode.listMasternodes()
     const masternodesLengthBefore = Object.keys(masternodesBefore).length
 
-    const ownerAddress2 = await client.wallet.getNewAddress('', AddressType.LEGACY)
+    const ownerAddress = await client.wallet.getNewAddress()
+    const operatorAddress = await client.wallet.getNewAddress()
+    const rewardAddress = await client.wallet.getNewAddress()
     await client.masternode.updateMasternode(masternodeId, {
-      operatorAddress: ownerAddress2
+      ownerAddress,
+      operatorAddress,
+      rewardAddress
     })
 
-    await container.generate(70)
+    await container.generate(65)
 
     const masternodesAfter = await client.masternode.listMasternodes()
     const masternodesLengthAfter = Object.keys(masternodesAfter).length
@@ -168,13 +184,59 @@ describe('Masternode', () => {
     }
 
     expect(mn).toStrictEqual({
-      operatorAuthAddress: ownerAddress2,
-      ownerAuthAddress: ownerAddress1,
+      operatorAuthAddress: operatorAddress,
+      ownerAuthAddress: ownerAddress,
+      rewardAddress: rewardAddress,
       creationHeight: expect.any(Number),
       resignHeight: expect.any(Number),
       resignTx: expect.any(String),
       collateralTx: expect.any(String),
-      rewardAddress: expect.any(String),
+      state: expect.any(String),
+      mintedBlocks: expect.any(Number),
+      ownerIsMine: expect.any(Boolean),
+      localMasternode: expect.any(Boolean),
+      operatorIsMine: expect.any(Boolean),
+      targetMultipliers: expect.any(Object)
+    })
+  })
+
+  it('should update multiple address with legacy address', async () => {
+    const initialAddress = await client.wallet.getNewAddress('', AddressType.LEGACY)
+    const masternodeId = await client.masternode.createMasternode(initialAddress)
+
+    await container.generate(20)
+
+    const masternodesBefore = await client.masternode.listMasternodes()
+    const masternodesLengthBefore = Object.keys(masternodesBefore).length
+
+    const ownerAddress = await client.wallet.getNewAddress('', AddressType.LEGACY)
+    const operatorAddress = await client.wallet.getNewAddress('', AddressType.LEGACY)
+    const rewardAddress = await client.wallet.getNewAddress('', AddressType.LEGACY)
+    await client.masternode.updateMasternode(masternodeId, {
+      ownerAddress,
+      operatorAddress,
+      rewardAddress
+    })
+
+    await container.generate(65)
+
+    const masternodesAfter = await client.masternode.listMasternodes()
+    const masternodesLengthAfter = Object.keys(masternodesAfter).length
+    expect(masternodesLengthAfter).toStrictEqual(masternodesLengthBefore)
+
+    const mn = masternodesAfter[masternodeId]
+    if (mn === undefined) {
+      throw new Error('should not reach here')
+    }
+
+    expect(mn).toStrictEqual({
+      operatorAuthAddress: operatorAddress,
+      ownerAuthAddress: ownerAddress,
+      rewardAddress: rewardAddress,
+      creationHeight: expect.any(Number),
+      resignHeight: expect.any(Number),
+      resignTx: expect.any(String),
+      collateralTx: expect.any(String),
       state: expect.any(String),
       mintedBlocks: expect.any(Number),
       ownerIsMine: expect.any(Boolean),
@@ -211,6 +273,38 @@ describe('Masternode', () => {
 
     const rawtx = await container.call('getrawtransaction', [updateTxId, true])
     expect(rawtx.vin[0].txid).toStrictEqual(utxo.txid)
+  })
+
+  it('should remove reward address', async () => {
+    const initialAddress = await client.wallet.getNewAddress()
+    const masternodeId = await client.masternode.createMasternode(initialAddress)
+
+    await container.generate(20)
+
+    const rewardAddress = await client.wallet.getNewAddress()
+    await client.masternode.updateMasternode(masternodeId, {
+      rewardAddress
+    })
+    await container.generate(50)
+
+    const masternodesBefore = await client.masternode.listMasternodes()
+    const mnBefore = masternodesBefore[masternodeId]
+    if (mnBefore === undefined) {
+      throw new Error('should not reach here')
+    }
+    expect(mnBefore.rewardAddress).toStrictEqual(rewardAddress)
+
+    await client.masternode.updateMasternode(masternodeId, {
+      rewardAddress: ''
+    })
+    await container.generate(50)
+
+    const masternodesAfter = await client.masternode.listMasternodes()
+    const mnAfter = masternodesAfter[masternodeId]
+    if (mnAfter === undefined) {
+      throw new Error('should not reach here')
+    }
+    expect(mnAfter.rewardAddress).toStrictEqual('')
   })
 
   it('should be failed as p2sh address is not allowed', async () => {
@@ -271,6 +365,16 @@ describe('Masternode', () => {
 
       await expect(promise).rejects.toThrow(RpcApiError)
       await expect(promise).rejects.toThrow(`RpcApiError: 'operatorAddress (${invalidAddress}) does not refer to a P2PKH or P2WPKH address', code: -8, method: updatemasternode`)
+    }
+
+    {
+      const invalidAddress = 'INVALID_ADDRESS'
+      const promise = client.masternode.updateMasternode(masternodeId, {
+        rewardAddress: invalidAddress
+      })
+
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow(`RpcApiError: 'rewardAddress (${invalidAddress}) does not refer to a P2PKH or P2WPKH address', code: -8, method: updatemasternode`)
     }
   })
 })
