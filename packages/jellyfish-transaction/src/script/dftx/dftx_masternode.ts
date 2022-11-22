@@ -61,7 +61,7 @@ export class CResignMasternode extends ComposableBuffer<ResignMasternode> {
 }
 
 export interface UpdateMasternodeAddress {
-  addressType: number // --------------------------| 1 byte, 0x01 = p2pkh, 0x04 = p2wpkh
+  addressType: number // --------------------------| 1 byte, 0x01 = p2pkh, 0x04 = p2wpkh, 0x00 to remove reward address
   addressPubKeyHash?: string // -------------------| VarUInt{20 bytes}
 }
 
@@ -80,7 +80,7 @@ export class CUpdateMasternodeAddress extends ComposableBuffer<UpdateMasternodeA
 
 interface UpdateMasternodeData {
   updateType: number // ----| 1 byte, 0x01 = OwnerAddress, 0x02 = OperatorAddress, 0x03 = SetRewardAddress, 0x04 = RemRewardAddress
-  address?: UpdateMasternodeAddress // -------------------| set undefined if updateType is 0x04 = RemRewardAddress
+  address: UpdateMasternodeAddress
 }
 
 /**
@@ -89,26 +89,9 @@ interface UpdateMasternodeData {
  */
 export class CUpdateMasternodeData extends ComposableBuffer<UpdateMasternodeData> {
   composers (umn: UpdateMasternodeData): BufferComposer[] {
-    const addressBuffer = []
-
-    if (umn.address != null) {
-      addressBuffer.push(
-        ComposableBuffer.single<UpdateMasternodeAddress>(() => umn.address as UpdateMasternodeAddress, v => umn.address = v, v => new CUpdateMasternodeAddress(v))
-      )
-    } else {
-      addressBuffer.push({
-        fromBuffer: (buffer: SmartBuffer): void => {
-          buffer.readUInt16LE(0x0000)
-        },
-        toBuffer: (buffer: SmartBuffer): void => {
-          buffer.writeUInt16LE(0x0000)
-        }
-      })
-    }
-
     return [
       ComposableBuffer.uInt8(() => umn.updateType, v => umn.updateType = v),
-      ...addressBuffer
+      ComposableBuffer.single<UpdateMasternodeAddress>(() => umn.address, v => umn.address = v, v => new CUpdateMasternodeAddress(v))
     ]
   }
 }
