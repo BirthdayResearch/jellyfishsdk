@@ -156,14 +156,13 @@ export class CSetGovernanceHeight extends ComposableBuffer<SetGovernanceHeight> 
 }
 
 export type ProposalType = 0x01 | 0x02 // 0x01 (CommunityFundProposal) | 0x02 (VoteOfConfidence)
-export type ProposalCycles = 0x01 | 0x02 | 0x03 // need to change to 100
-export type Options = 0x00
+export type Options = 0x00 | 0x01
 
 export interface CreateProposal {
   type: ProposalType // ---------| 1 byte unsigned int
   address: Script // ------------| n = VarUInt{1-9 bytes}, + n bytes
   nAmount: BigNumber // ---------| 8 bytes unsigned
-  nCycles: ProposalCycles // ----| 1 byte unsigned int
+  nCycles: number // ------------| 1 byte unsigned int
   title: string // --------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
   context: string // ------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
   contexthash: string // --------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
@@ -173,6 +172,7 @@ export interface CreateProposal {
 
 export interface CreateCfp extends CreateProposal {
   type: 0x01
+  options: 0x00
 }
 export interface CreateVoc extends CreateProposal {
   type: 0x02
@@ -189,7 +189,7 @@ export class CCreateProposal extends ComposableBuffer<CreateProposal> {
       ComposableBuffer.uInt8(() => ccp.type, v => ccp.type = v as ProposalType),
       ComposableBuffer.single<Script>(() => ccp.address, v => ccp.address = v, v => new CScript(v)),
       ComposableBuffer.satoshiAsBigNumber(() => ccp.nAmount, v => ccp.nAmount = v),
-      ComposableBuffer.uInt8(() => ccp.nCycles, v => ccp.nCycles = v as ProposalCycles),
+      ComposableBuffer.uInt8(() => ccp.nCycles, v => ccp.nCycles = v),
       ComposableBuffer.compactSizeUtf8BE(() => ccp.title, v => ccp.title = v),
       ComposableBuffer.compactSizeUtf8BE(() => ccp.context, v => ccp.context = v),
       ComposableBuffer.compactSizeUtf8BE(() => ccp.contexthash, v => ccp.contexthash = v),

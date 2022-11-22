@@ -54,7 +54,11 @@ export enum TxnBuilderErrorType {
   /**
    * Invalid `CreateVoc` address, should be an empty stack
    */
-  INVALID_VOC_ADDRESS
+  INVALID_VOC_ADDRESS,
+  /**
+   * Invalid `CreateCfp` cycle, should be between 0 and 100
+   */
+  INVALID_CFP_CYCLE,
 }
 
 /**

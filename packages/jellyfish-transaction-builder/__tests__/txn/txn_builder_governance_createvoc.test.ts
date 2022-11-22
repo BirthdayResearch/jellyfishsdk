@@ -38,7 +38,7 @@ describe('createVoc', () => {
     const script = await providers.elliptic.script()
     const createVoc: CreateVoc = {
       type: 0x02,
-      title: ' a vote of confidence',
+      title: 'a vote of confidence',
       context: 'https://github.com/DeFiCh/dfips',
       contexthash: '<context hash>',
       nAmount: new BigNumber(0),
@@ -117,6 +117,26 @@ describe('createVoc', () => {
     await expect(promise).rejects.toThrow('CreateVoc address stack should be empty')
   })
 
+  it('should reject with empty title', async () => {
+    const script = await providers.elliptic.script()
+    const txn = await builder.governance.createVoc({
+      type: 0x02,
+      title: '',
+      nAmount: new BigNumber(0),
+      context: 'https://github.com/DeFiCh/dfips',
+      contexthash: '<context hash>',
+      address: {
+        stack: []
+      },
+      nCycles: 2,
+      options: 0x00
+    }, script)
+    const promise = sendTransaction(testing.container, txn)
+
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateVocTx: proposal title must not be empty (code 16)', code: -26")
+  })
+
   it('should reject with invalid title length', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.governance.createVoc({
@@ -135,5 +155,45 @@ describe('createVoc', () => {
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateVocTx: proposal title cannot be more than 128 bytes (code 16)', code: -26")
+  })
+
+  it('should reject with empty context', async () => {
+    const script = await providers.elliptic.script()
+    const txn = await builder.governance.createVoc({
+      type: 0x02,
+      title: 'vote of confidence',
+      nAmount: new BigNumber(0),
+      context: '',
+      contexthash: '<context hash>',
+      address: {
+        stack: []
+      },
+      nCycles: 2,
+      options: 0x00
+    }, script)
+    const promise = sendTransaction(testing.container, txn)
+
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateVocTx: proposal context must not be empty (code 16)', code: -26")
+  })
+
+  it('should reject with invalid context length', async () => {
+    const script = await providers.elliptic.script()
+    const txn = await builder.governance.createVoc({
+      type: 0x02,
+      title: 'vote of confidence',
+      nAmount: new BigNumber(0),
+      context: 'X'.repeat(513),
+      contexthash: '<context hash>',
+      address: {
+        stack: []
+      },
+      nCycles: 2,
+      options: 0x00
+    }, script)
+    const promise = sendTransaction(testing.container, txn)
+
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateVocTx: proposal context cannot be more than 512 bytes (code 16)', code: -26")
   })
 })

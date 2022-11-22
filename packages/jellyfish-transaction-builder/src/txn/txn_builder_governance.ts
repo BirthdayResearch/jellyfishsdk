@@ -12,7 +12,12 @@ export class TxnBuilderGovernance extends P2WPKHTxnBuilder {
    * @returns {Promise<TransactionSegWit>}
    */
   async createCfp (createCfp: CreateCfp, changeScript: Script): Promise<TransactionSegWit> {
-    const creationFee = this.network.name === 'regtest' ? new BigNumber('1') : new BigNumber('10')
+    if (createCfp.nCycles > 100) {
+      throw new TxnBuilderError(TxnBuilderErrorType.INVALID_CFP_CYCLE,
+        'CreateCfp cycles should be between 0 and 100'
+      )
+    }
+    const creationFee = this.network.name === 'regtest' ? new BigNumber('10') : new BigNumber('10')
     return await this.createDeFiTx(
       OP_CODES.OP_DEFI_TX_CREATE_CFP(createCfp),
       changeScript,

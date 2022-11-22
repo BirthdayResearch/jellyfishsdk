@@ -25,7 +25,7 @@ describe('createCfp', () => {
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     await testing.container.waitForWalletBalanceGTE(11)
-    await fundEllipticPair(testing.container, providers.ellipticPair, 3) // Amount needed for two cfp creation + fees
+    await fundEllipticPair(testing.container, providers.ellipticPair, 50)
     await providers.setupMocks()
   })
 
@@ -41,13 +41,7 @@ describe('createCfp', () => {
       context: 'https://github.com/DeFiCh/dfips',
       contexthash: '<context hash>',
       nAmount: new BigNumber(100),
-      address: {
-        stack: [
-          OP_CODES.OP_HASH160,
-          OP_CODES.OP_PUSHDATA_HEX_LE('8b5401d88a3d4e54fc701663dd99a5ab792af0a4'),
-          OP_CODES.OP_EQUAL
-        ]
-      },
+      address: script,
       nCycles: 2,
       options: 0x00
     }
@@ -57,25 +51,25 @@ describe('createCfp', () => {
     const expectedRedeemScript = `6a${encoded}`
 
     const outs = await sendTransaction(testing.container, txn)
-    expect(outs[0].value).toStrictEqual(1)
+    expect(outs[0].value).toStrictEqual(10)
     expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
 
-    const listProposals = await testing.rpc.governance.listProposals()
+    const listProposals = await testing.rpc.container.call('listgovproposals')
     const txid = calculateTxid(txn)
 
-    const proposal = listProposals.find(el => el.proposalId === txid)
+    const proposal = listProposals.find((el: governance.ProposalInfo) => el.proposalId === txid)
     expect(proposal).toStrictEqual({
       proposalId: txid,
       title: createCfp.title,
       context: createCfp.context,
       contexthash: createCfp.contexthash,
-      type: governance.ProposalType.COMMUNITY_FUND_REQUEST,
+      type: 'CommunityFundProposal',
       status: governance.ProposalStatus.VOTING,
-      amount: createCfp.nAmount,
+      amount: createCfp.nAmount.toNumber(),
       nextCycle: 1,
       totalCycles: createCfp.nCycles,
       finalizeAfter: expect.any(Number),
-      payoutAddress: '2N5wvYsWcAWQUed5vfPxopxZtjkqoT8dFM3'
+      payoutAddress: expect.any(String)
     })
   })
 
@@ -87,13 +81,7 @@ describe('createCfp', () => {
       context: 'https://github.com/DeFiCh/dfips',
       contexthash: '<context hash>',
       nAmount: new BigNumber(100),
-      address: {
-        stack: [
-          OP_CODES.OP_HASH160,
-          OP_CODES.OP_PUSHDATA_HEX_LE('8b5401d88a3d4e54fc701663dd99a5ab792af0a4'),
-          OP_CODES.OP_EQUAL
-        ]
-      },
+      address: script,
       nCycles: 2,
       options: 0x00
     }, script)

@@ -1,4 +1,4 @@
-import { DeFiDRpcError, GenesisKeys, StartOptions } from '@defichain/testcontainers'
+import { DeFiDRpcError, StartOptions } from '@defichain/testcontainers'
 import { Testing } from '@defichain/jellyfish-testing'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
@@ -7,31 +7,32 @@ import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
 import { GovernanceMasterNodeRegTestContainer } from '../../../jellyfish-api-core/__tests__/category/governance/governance_container'
 import { OP_CODES, Vote } from '@defichain/jellyfish-transaction'
-import { RegTest } from '@defichain/jellyfish-network'
+import { RegTest, RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
 class CustomOperatorGovernanceMasterNodeRegTestContainer extends GovernanceMasterNodeRegTestContainer {
   protected getCmd (opts: StartOptions): string[] {
     return [
       ...super.getCmd(opts),
-      `-masternode_operator=${GenesisKeys[GenesisKeys.length - 1].operator.address}` // Uses masternode_operator with bech32 address to be able to craft vote transaction
+      `-masternode_operator=${RegTestFoundationKeys[RegTestFoundationKeys.length - 1].operator.address}` // Uses masternode_operator with bech32 address to be able to craft vote transaction
     ]
   }
 }
 
-describe.skip('vote', () => {
+describe('vote', () => {
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
   const testing = Testing.create(new CustomOperatorGovernanceMasterNodeRegTestContainer())
 
-  const masternodeOperatorAddress = GenesisKeys[GenesisKeys.length - 1].operator.address
+  const masternodeOperatorAddress = RegTestFoundationKeys[RegTestFoundationKeys.length - 1].operator.address
   let masternodeId: string
 
   beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/gov': 'true' } })
 
-    await testing.container.call('importprivkey', [GenesisKeys[GenesisKeys.length - 1].operator.privKey, 'operator', true])
-    await testing.container.call('importprivkey', [GenesisKeys[GenesisKeys.length - 1].owner.privKey, 'owner', true])
+    await testing.container.call('importprivkey', [RegTestFoundationKeys[RegTestFoundationKeys.length - 1].operator.privKey, 'operator', true])
+    await testing.container.call('importprivkey', [RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.privKey, 'owner', true])
 
     const masternodeList = await testing.rpc.masternode.listMasternodes()
     for (const id in masternodeList) {
@@ -42,11 +43,11 @@ describe.skip('vote', () => {
     }
 
     providers = await getProviders(testing.container)
-    providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
+    providers.setEllipticPair(WIF.asEllipticPair(RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.privKey))
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     await testing.container.waitForWalletBalanceGTE(12)
-    await fundEllipticPair(testing.container, providers.ellipticPair, 50)
+    await fundEllipticPair(testing.container, providers.ellipticPair, 11)
     await providers.setupMocks()
   })
 
@@ -88,7 +89,7 @@ describe.skip('vote', () => {
   })
 })
 
-describe.skip('vote with masternode operator with legacy address', () => {
+describe('vote with masternode operator with legacy address', () => {
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
   const testing = Testing.create(new GovernanceMasterNodeRegTestContainer())
@@ -99,6 +100,7 @@ describe.skip('vote with masternode operator with legacy address', () => {
   beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/gov': 'true' } })
 
     const masternodeList = await testing.rpc.masternode.listMasternodes()
     for (const id in masternodeList) {
@@ -110,7 +112,7 @@ describe.skip('vote with masternode operator with legacy address', () => {
     }
 
     providers = await getProviders(testing.container)
-    providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[0].owner.privKey))
+    providers.setEllipticPair(WIF.asEllipticPair(RegTestFoundationKeys[0].owner.privKey))
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     await testing.container.waitForWalletBalanceGTE(12)
