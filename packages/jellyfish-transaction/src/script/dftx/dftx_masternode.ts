@@ -66,7 +66,7 @@ export interface UpdateMasternodeAddress {
 }
 
 /**
- * Composable TokenBalance, C stands for Composable.
+ * Composable UpdateMasternodeAddress, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
 export class CUpdateMasternodeAddress extends ComposableBuffer<UpdateMasternodeAddress> {
@@ -84,7 +84,7 @@ interface UpdateMasternodeData {
 }
 
 /**
- * Composable TokenBalance, C stands for Composable.
+ * Composable UpdateMasternodeData, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
 export class CUpdateMasternodeData extends ComposableBuffer<UpdateMasternodeData> {
