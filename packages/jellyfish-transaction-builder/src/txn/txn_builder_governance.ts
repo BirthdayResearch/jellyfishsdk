@@ -17,7 +17,7 @@ export class TxnBuilderGovernance extends P2WPKHTxnBuilder {
         'CreateCfp cycles should be between 0 and 100'
       )
     }
-    const creationFee = this.network.name === 'regtest' ? new BigNumber('10') : new BigNumber('10')
+    const creationFee = BigNumber.maximum(10, createCfp.nAmount.multipliedBy(0.01))
     return await this.createDeFiTx(
       OP_CODES.OP_DEFI_TX_CREATE_CFP(createCfp),
       changeScript,
@@ -43,7 +43,10 @@ export class TxnBuilderGovernance extends P2WPKHTxnBuilder {
         'CreateVoc address stack should be empty'
       )
     }
-    const creationFee = this.network.name === 'regtest' ? new BigNumber('5') : new BigNumber('50')
+    let creationFee = this.network.name === 'regtest' || this.network.name === 'devnet' ? new BigNumber('5') : new BigNumber('50')
+    if (createVoc.options === 1) {
+      creationFee = new BigNumber('10000')
+    }
     return await this.createDeFiTx(
       OP_CODES.OP_DEFI_TX_CREATE_VOC(createVoc),
       changeScript,
