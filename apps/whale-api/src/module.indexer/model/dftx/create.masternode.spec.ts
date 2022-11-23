@@ -157,6 +157,11 @@ describe('create masternode (post eunos paya)', () => {
     expect(masternode?.creationHeight).toStrictEqual(masternodeRPCInfo.creationHeight)
     expect(masternode?.resignHeight).toStrictEqual(masternodeRPCInfo.resignHeight)
     expect(masternode?.mintedBlocks).toStrictEqual(masternodeRPCInfo.mintedBlocks)
+    expect(masternode?.updateRecords).toStrictEqual([{
+      height: 103,
+      ownerAddress: masternodeRPCInfo.ownerAuthAddress,
+      operatorAddress: masternodeRPCInfo.operatorAuthAddress
+    }])
 
     // Test stats here too
     const masternodeStatsMapper = app.get(MasternodeStatsMapper)

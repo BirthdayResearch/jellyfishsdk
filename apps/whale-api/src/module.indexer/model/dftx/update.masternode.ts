@@ -55,6 +55,25 @@ export class UpdateMasternodeIndexer extends DfTxIndexer<UpdateMasternode> {
 
     const mn = await this.masternodeMapper.get(data.nodeId)
     if (mn !== undefined) {
+      let updateRecords: Array<{
+        height: number
+        ownerAddress: string
+        operatorAddress: string
+      }> = []
+
+      if (mn.updateRecords !== undefined) {
+        updateRecords = [...mn.updateRecords]
+      }
+
+      updateRecords = [
+        {
+          height: block.height,
+          ownerAddress: (ownerAddress !== null) ? ownerAddress : mn.ownerAddress,
+          operatorAddress: (operatorAddress !== null) ? operatorAddress : mn.operatorAddress
+        },
+        ...updateRecords
+      ]
+
       await this.masternodeMapper.put({
         id: data.nodeId,
         sort: HexEncoder.encodeHeight(block.height) + txn.txid,
@@ -65,7 +84,8 @@ export class UpdateMasternodeIndexer extends DfTxIndexer<UpdateMasternode> {
         mintedBlocks: 0,
         timelock: 0,
         block: { hash: block.hash, height: block.height, medianTime: block.mediantime, time: block.time },
-        collateral: txn.vout[1].value.toFixed(8)
+        collateral: txn.vout[1].value.toFixed(8),
+        updateRecords
       })
 
       await this.indexStats(block, mn)

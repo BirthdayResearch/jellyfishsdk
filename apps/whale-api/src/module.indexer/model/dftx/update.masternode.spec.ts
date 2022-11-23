@@ -6,10 +6,11 @@ import { P2WPKH } from '@defichain/jellyfish-address'
 import { MasternodeMapper } from '../../../module.model/masternode'
 import { MasternodeStatsMapper } from '../../../module.model/masternode.stats'
 
-describe('Update masternode (pre eunos paya)', () => {
+describe('Update masternode', () => {
   const container = new DelayedEunosPayaTestContainer()
   let app: NestFastifyApplication
   let client: JsonRpcClient
+  let masternodeId: string
 
   beforeAll(async () => {
     await container.start()
@@ -17,17 +18,11 @@ describe('Update masternode (pre eunos paya)', () => {
 
     app = await createTestingApp(container)
     client = new JsonRpcClient(await container.getCachedRpcUrl())
-  })
 
-  afterAll(async () => {
-    await stopTestingApp(container, app)
-  })
-
-  it('should index update masternode', async () => {
     await container.generate(1)
 
     const ownerAddress = await client.wallet.getNewAddress()
-    const masternodeId = await client.masternode.createMasternode(ownerAddress)
+    masternodeId = await client.masternode.createMasternode(ownerAddress)
     await container.generate(20)
 
     const height = await client.blockchain.getBlockCount()
@@ -41,7 +36,13 @@ describe('Update masternode (pre eunos paya)', () => {
     })
     await container.generate(70)
     await waitForIndexedHeight(app, height)
+  })
 
+  afterAll(async () => {
+    await stopTestingApp(container, app)
+  })
+
+  it('should index update operatorAddress, ownerAddress, and rewardAddress in masternode', async () => {
     const masternodeMapper = app.get(MasternodeMapper)
     const masternode = await masternodeMapper.get(masternodeId)
     expect(masternode).not.toStrictEqual(undefined)
@@ -83,8 +84,9 @@ describe('Update masternode (pre eunos paya)', () => {
         }
       ]
     })
+  })
 
-    // enable updating again @TODO(kvenho) Not sure this correct or not
+  it('should index update remove rewardAddress in masternode', async () => {
     const gotBlockCount = await client.blockchain.getBlockCount()
     await client.masternode.setGov({
       ATTRIBUTES: {
@@ -96,7 +98,6 @@ describe('Update masternode (pre eunos paya)', () => {
     await container.generate(70)
     await waitForIndexedHeight(app, gotBlockCount)
 
-    // Remove reward address
     await client.masternode.updateMasternode(masternodeId, {
       rewardAddress: ''
     })
