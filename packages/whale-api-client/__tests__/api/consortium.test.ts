@@ -2,7 +2,6 @@ import { StubWhaleApiClient } from '../stub.client'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { StubService } from '../stub.service'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import _ from 'lodash'
 import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../../../../apps/whale-api/src/e2e.module'
 
 describe('getTransactionHistory', () => {
@@ -17,6 +16,7 @@ describe('getTransactionHistory', () => {
   let idETH: string
   const service = new StubService(alice.container)
   const client = new StubWhaleApiClient(service)
+  const txIdMatcher = expect.stringMatching(/[0-f]{64}/)
 
   beforeAll(async () => {
     await tGroup.start()
@@ -155,23 +155,18 @@ describe('getTransactionHistory', () => {
   })
 
   it('should throw an error if the max block height is invalid', async () => {
-    await expect(client.consortium.getTransactionHistory(1, undefined, -2)).rejects.toThrow('InvalidmaxBlockHeight')
+    await expect(client.consortium.getTransactionHistory(1, undefined, -2)).rejects.toThrow('InvalidMaxBlockHeight')
   })
 
   it('should filter transactions with search term (member name)', async () => {
     const info = await client.consortium.getTransactionHistory(10, 'alice')
 
     expect(info.transactions.length).toStrictEqual(3)
-
-    expect(_.omit(info.transactions[0], ['txId'])).toStrictEqual({ type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 119 })
-    expect(info.transactions[0].txId).not.toBe(undefined)
-
-    expect(_.omit(info.transactions[1], ['txId'])).toStrictEqual({ type: 'Mint', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '2.00000000' }], address: accountAlice, block: 114 })
-    expect(info.transactions[1].txId).not.toBe(undefined)
-
-    expect(_.omit(info.transactions[2], ['txId'])).toStrictEqual({ type: 'Mint', member: 'alice', tokenAmounts: [{ token: 'dBTC', amount: '1.00000000' }], address: accountAlice, block: 109 })
-    expect(info.transactions[2].txId).not.toBe(undefined)
-
+    expect(info.transactions).toStrictEqual([
+      { txId: txIdMatcher, type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 119 },
+      { txId: txIdMatcher, type: 'Mint', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '2.00000000' }], address: accountAlice, block: 114 },
+      { txId: txIdMatcher, type: 'Mint', member: 'alice', tokenAmounts: [{ token: 'dBTC', amount: '1.00000000' }], address: accountAlice, block: 109 }
+    ])
     expect(info.total).toStrictEqual(3)
   })
 
@@ -179,16 +174,11 @@ describe('getTransactionHistory', () => {
     const info = await client.consortium.getTransactionHistory(20, accountAlice)
 
     expect(info.transactions.length).toStrictEqual(3)
-
-    expect(_.omit(info.transactions[0], ['txId'])).toStrictEqual({ type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 119 })
-    expect(info.transactions[0].txId).not.toBe(undefined)
-
-    expect(_.omit(info.transactions[1], ['txId'])).toStrictEqual({ type: 'Mint', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '2.00000000' }], address: accountAlice, block: 114 })
-    expect(info.transactions[1].txId).not.toBe(undefined)
-
-    expect(_.omit(info.transactions[2], ['txId'])).toStrictEqual({ type: 'Mint', member: 'alice', tokenAmounts: [{ token: 'dBTC', amount: '1.00000000' }], address: accountAlice, block: 109 })
-    expect(info.transactions[2].txId).not.toBe(undefined)
-
+    expect(info.transactions).toStrictEqual([
+      { txId: txIdMatcher, type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 119 },
+      { txId: txIdMatcher, type: 'Mint', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '2.00000000' }], address: accountAlice, block: 114 },
+      { txId: txIdMatcher, type: 'Mint', member: 'alice', tokenAmounts: [{ token: 'dBTC', amount: '1.00000000' }], address: accountAlice, block: 109 }
+    ])
     expect(info.total).toStrictEqual(3)
   })
 
@@ -198,7 +188,9 @@ describe('getTransactionHistory', () => {
     const info = await client.consortium.getTransactionHistory(20, tx.txid)
 
     expect(info.transactions.length).toStrictEqual(1)
-    expect(info.transactions[0]).toStrictEqual({ type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 119, txId: tx.txid })
+    expect(info.transactions).toStrictEqual([
+      { txId: tx.txid, type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 119 }
+    ])
     expect(info.total).toStrictEqual(1)
   })
 
@@ -206,16 +198,11 @@ describe('getTransactionHistory', () => {
     const info = await client.consortium.getTransactionHistory(3)
 
     expect(info.transactions.length).toStrictEqual(3)
-
-    expect(_.omit(info.transactions[0], ['txId'])).toStrictEqual({ type: 'Burn', member: 'bob', tokenAmounts: [{ token: 'dBTC', amount: '-2.00000000' }], address: accountBob, block: 129 })
-    expect(info.transactions[0].txId).not.toBe(undefined)
-
-    expect(_.omit(info.transactions[1], ['txId'])).toStrictEqual({ type: 'Mint', member: 'bob', tokenAmounts: [{ token: 'dBTC', amount: '4.00000000' }], address: accountBob, block: 124 })
-    expect(info.transactions[1].txId).not.toBe(undefined)
-
-    expect(_.omit(info.transactions[2], ['txId'])).toStrictEqual({ type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 119 })
-    expect(info.transactions[2].txId).not.toBe(undefined)
-
+    expect(info.transactions).toStrictEqual([
+      { txId: txIdMatcher, type: 'Burn', member: 'bob', tokenAmounts: [{ token: 'dBTC', amount: '-2.00000000' }], address: accountBob, block: 129 },
+      { txId: txIdMatcher, type: 'Mint', member: 'bob', tokenAmounts: [{ token: 'dBTC', amount: '4.00000000' }], address: accountBob, block: 124 },
+      { txId: txIdMatcher, type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 119 }
+    ])
     expect(info.total).toStrictEqual(5)
   })
 
@@ -223,13 +210,10 @@ describe('getTransactionHistory', () => {
     const info = await client.consortium.getTransactionHistory(2, accountAlice)
 
     expect(info.transactions.length).toStrictEqual(2)
-
-    expect(_.omit(info.transactions[0], ['txId'])).toStrictEqual({ type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 119 })
-    expect(info.transactions[0].txId).not.toBe(undefined)
-
-    expect(_.omit(info.transactions[1], ['txId'])).toStrictEqual({ type: 'Mint', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '2.00000000' }], address: accountAlice, block: 114 })
-    expect(info.transactions[1].txId).not.toBe(undefined)
-
+    expect(info.transactions).toStrictEqual([
+      { txId: txIdMatcher, type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 119 },
+      { txId: txIdMatcher, type: 'Mint', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '2.00000000' }], address: accountAlice, block: 114 }
+    ])
     expect(info.total).toStrictEqual(3)
   })
 
@@ -237,21 +221,25 @@ describe('getTransactionHistory', () => {
     const info = await client.consortium.getTransactionHistory(3, undefined, 124)
 
     expect(info.transactions.length).toStrictEqual(3)
-
-    expect(_.omit(info.transactions[0], ['txId'])).toStrictEqual({ type: 'Mint', member: 'bob', tokenAmounts: [{ token: 'dBTC', amount: '4.00000000' }], address: accountBob, block: 124 })
-    expect(info.transactions[0].txId).not.toBe(undefined)
-
-    expect(_.omit(info.transactions[1], ['txId'])).toStrictEqual({ type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 119 })
-    expect(info.transactions[1].txId).not.toBe(undefined)
-
-    expect(_.omit(info.transactions[2], ['txId'])).toStrictEqual({ type: 'Mint', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '2.00000000' }], address: accountAlice, block: 114 })
-    expect(info.transactions[2].txId).not.toBe(undefined)
-
+    expect(info.transactions).toStrictEqual([
+      { txId: txIdMatcher, type: 'Mint', member: 'bob', tokenAmounts: [{ token: 'dBTC', amount: '4.00000000' }], address: accountBob, block: 124 },
+      { txId: txIdMatcher, type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 119 },
+      { txId: txIdMatcher, type: 'Mint', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '2.00000000' }], address: accountAlice, block: 114 }
+    ])
     expect(info.total).toStrictEqual(5)
   })
 
   it('should return empty list of transactions for invalid search term', async () => {
     const info = await client.consortium.getTransactionHistory(20, 'invalid-term')
+
+    expect(info.transactions.length).toStrictEqual(0)
+    expect(info.total).toStrictEqual(0)
+  })
+
+  it('should not return other transactions from consortium members apart from mints or burns', async () => {
+    const { txid } = await alice.container.fundAddress(accountBob, 10)
+
+    const info = await client.consortium.getTransactionHistory(20, txid)
 
     expect(info.transactions.length).toStrictEqual(0)
     expect(info.total).toStrictEqual(0)

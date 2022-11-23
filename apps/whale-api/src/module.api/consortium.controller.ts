@@ -30,7 +30,7 @@ export class ConsortiumController {
     }
 
     if (maxBlockHeight < -1) {
-      throw new ForbiddenException('InvalidmaxBlockHeight')
+      throw new ForbiddenException('InvalidMaxBlockHeight')
     }
 
     return await this.cache.get<ConsortiumTransactionResponse>(`CONSORTIUM_TRANSACTIONS_${JSON.stringify(query)}`, async () => {
