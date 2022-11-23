@@ -58,7 +58,7 @@ export enum TxnBuilderErrorType {
   /**
    * Invalid `CreateCfp` cycle, should be between 0 and 100
    */
-  INVALID_CFP_CYCLE,
+  INVALID_CFP_CYCLE
 }
 
 /**

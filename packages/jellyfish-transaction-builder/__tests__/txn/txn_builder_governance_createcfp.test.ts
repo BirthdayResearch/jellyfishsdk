@@ -8,6 +8,7 @@ import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
 import { governance } from '@defichain/jellyfish-api-core'
 import { RegTest, RegTestFoundationKeys } from '@defichain/jellyfish-network'
+import { TxnBuilderError } from '../../src/txn/txn_builder_error'
 
 describe('createCfp', () => {
   let providers: MockProviders
@@ -71,6 +72,23 @@ describe('createCfp', () => {
       proposalEndHeight: expect.any(Number),
       payoutAddress: expect.any(String)
     })
+  })
+
+  it('should reject if proposal cycles > 100', async () => {
+    const script = await providers.elliptic.script()
+    const promise = builder.governance.createCfp({
+      type: 0x01,
+      title: 'Testing new community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
+      contexthash: '<context hash>',
+      nAmount: new BigNumber(100),
+      address: script,
+      nCycles: 101,
+      options: 0x00
+    }, script)
+
+    await expect(promise).rejects.toThrow(TxnBuilderError)
+    await expect(promise).rejects.toThrow('CreateCfp cycles should be between 0 and 100')
   })
 
   it('should reject with empty title', async () => {
