@@ -61,7 +61,6 @@ describe('Update masternode', () => {
     await container.generate(1)
     await waitForIndexedHeight(app, updateHeight)
 
-    // Get masternode details from blockchain
     const gotMasternodeForReward = await client.masternode.getMasternode(masternodeId)
     // expect(gotMasternodeForReward[masternodeId]?.ownerAuthAddress).toStrictEqual(addressDest.utf8String) // @TODO(kvenho) Blockchain is not fix yet
     expect(gotMasternodeForReward[masternodeId]?.operatorAuthAddress).toStrictEqual(addressDest.utf8String)
@@ -112,8 +111,7 @@ describe('Update masternode', () => {
   })
 })
 
-// @TODO(kvenho) Wait Shoham get back to me
-describe.skip('invalidate', () => {
+describe('invalidate', () => {
   const container = new DelayedEunosPayaTestContainer()
   let app: NestFastifyApplication
   let client: JsonRpcClient
@@ -166,8 +164,8 @@ describe.skip('invalidate', () => {
     await waitForIndexedHeight(app, updateHeight)
 
     const updateMasternode = await masternodeMapper.get(masternodeId)
-
     expect(updateMasternode?.operatorAddress).toStrictEqual(addressDestHex)
+    expect(updateMasternode?.updateRecords?.length).toStrictEqual(2)
 
     await invalidateFromHeight(app, container, updateHeight)
     await container.generate(2)
@@ -175,9 +173,12 @@ describe.skip('invalidate', () => {
 
     {
       const invalidatedMasternode = await masternodeMapper.get(masternodeId)
-      console.log('invalidatedMasternode', invalidatedMasternode)
-      // expect(invalidatedMasternode?.resignHeight).toStrictEqual(-1)
-      // expect(invalidatedMasternode?.resignTx).toStrictEqual(undefined)
+      const initialAddressDest: P2WPKH = P2WPKH.fromAddress(RegTest, ownerAddress, P2WPKH)
+      const initialAddressDestHex = initialAddressDest.utf8String
+
+      expect(invalidatedMasternode?.ownerAddress).toStrictEqual(initialAddressDestHex)
+      expect(invalidatedMasternode?.operatorAddress).toStrictEqual(initialAddressDestHex)
+      expect(invalidatedMasternode?.updateRecords?.length).toStrictEqual(1)
     }
   })
 })

@@ -76,7 +76,7 @@ export class UpdateMasternodeIndexer extends DfTxIndexer<UpdateMasternode> {
 
       await this.masternodeMapper.put({
         id: data.nodeId,
-        sort: HexEncoder.encodeHeight(block.height) + txn.txid,
+        sort: `${HexEncoder.encodeHeight(block.height)}${txn.txid}`,
         ownerAddress: (ownerAddress !== null) ? ownerAddress : mn.ownerAddress,
         operatorAddress: (operatorAddress !== null) ? operatorAddress : mn.operatorAddress,
         creationHeight: block.height,
@@ -118,7 +118,31 @@ export class UpdateMasternodeIndexer extends DfTxIndexer<UpdateMasternode> {
     }))
   }
 
-  async invalidateTransaction (_: RawBlock, transaction: DfTxTransaction<UpdateMasternode>): Promise<void> {
+  async invalidateTransaction (block: RawBlock, transaction: DfTxTransaction<UpdateMasternode>): Promise<void> {
+    const txn = transaction.txn
+    const data = transaction.dftx.data
+
+    const mn = await this.masternodeMapper.get(data.nodeId)
+    if (mn !== undefined) {
+      let updateRecords = mn.updateRecords ?? []
+      updateRecords = updateRecords.filter(record => record.height !== block.height)
+
+      await this.masternodeMapper.put({
+        id: data.nodeId,
+        sort: `${HexEncoder.encodeHeight(block.height)}${txn.txid}`,
+        ownerAddress: updateRecords[0].ownerAddress,
+        operatorAddress: updateRecords[0].operatorAddress,
+        creationHeight: block.height,
+        resignHeight: -1,
+        mintedBlocks: 0,
+        timelock: 0,
+        block: { hash: block.hash, height: block.height, medianTime: block.mediantime, time: block.time },
+        collateral: txn.vout[1].value.toFixed(8),
+        updateRecords
+      })
+
+      await this.indexStats(block, mn)
+    }
   }
 
   async invalidateBlockStart (block: RawBlock): Promise<void> {
