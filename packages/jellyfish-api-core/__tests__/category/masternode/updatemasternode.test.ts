@@ -1,9 +1,9 @@
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers/dist/index'
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { AddressType } from '../../../src/category/wallet'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 
-describe('Masternode', () => {
+describe('Update Masternode', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -30,8 +30,7 @@ describe('Masternode', () => {
     const initialAddress = await client.wallet.getNewAddress()
     const masternodeId = await client.masternode.createMasternode(initialAddress)
 
-    // wait for masternode to be enabled
-    await container.generate(20)
+    await container.generate(20) // wait for masternode to be enabled
 
     const masternodesBefore = await client.masternode.listMasternodes()
     const masternodesLengthBefore = Object.keys(masternodesBefore).length
@@ -41,8 +40,7 @@ describe('Masternode', () => {
       ownerAddress: newAddress
     })
 
-    // wait for masternode to be enabled
-    await container.generate(65)
+    await container.generate(65) // wait for masternode to be enabled
 
     const masternodesAfter = await client.masternode.listMasternodes()
     const masternodesLengthAfter = Object.keys(masternodesAfter).length
@@ -74,7 +72,7 @@ describe('Masternode', () => {
     const initialAddress = await client.wallet.getNewAddress()
     const masternodeId = await client.masternode.createMasternode(initialAddress)
 
-    await container.generate(20)
+    await container.generate(20) // wait for masternode to be enabled
 
     const masternodesBefore = await client.masternode.listMasternodes()
     const masternodesLengthBefore = Object.keys(masternodesBefore).length
@@ -84,7 +82,7 @@ describe('Masternode', () => {
       operatorAddress: newAddress
     })
 
-    await container.generate(65)
+    await container.generate(65) // wait for masternode to be enabled
 
     const masternodesAfter = await client.masternode.listMasternodes()
     const masternodesLengthAfter = Object.keys(masternodesAfter).length
@@ -116,7 +114,7 @@ describe('Masternode', () => {
     const initialAddress = await client.wallet.getNewAddress()
     const masternodeId = await client.masternode.createMasternode(initialAddress)
 
-    await container.generate(20)
+    await container.generate(20) // wait for masternode to be enabled
 
     const masternodesBefore = await client.masternode.listMasternodes()
     const masternodesLengthBefore = Object.keys(masternodesBefore).length
@@ -126,7 +124,7 @@ describe('Masternode', () => {
       rewardAddress: newAddress
     })
 
-    await container.generate(65)
+    await container.generate(65) // wait for masternode to be enabled
 
     const masternodesAfter = await client.masternode.listMasternodes()
     const masternodesLengthAfter = Object.keys(masternodesAfter).length
@@ -154,14 +152,11 @@ describe('Masternode', () => {
     })
   })
 
-  it('should update multiple address with bech32 address', async () => {
+  it('should update multiple address simultaneously with bech32 address', async () => {
     const initialAddress = await client.wallet.getNewAddress()
     const masternodeId = await client.masternode.createMasternode(initialAddress)
 
     await container.generate(20)
-
-    const masternodesBefore = await client.masternode.listMasternodes()
-    const masternodesLengthBefore = Object.keys(masternodesBefore).length
 
     const ownerAddress = await client.wallet.getNewAddress()
     const operatorAddress = await client.wallet.getNewAddress()
@@ -174,11 +169,8 @@ describe('Masternode', () => {
 
     await container.generate(65)
 
-    const masternodesAfter = await client.masternode.listMasternodes()
-    const masternodesLengthAfter = Object.keys(masternodesAfter).length
-    expect(masternodesLengthAfter).toStrictEqual(masternodesLengthBefore)
-
-    const mn = masternodesAfter[masternodeId]
+    const masternodes = await client.masternode.listMasternodes()
+    const mn = masternodes[masternodeId]
     if (mn === undefined) {
       throw new Error('should not reach here')
     }
@@ -200,14 +192,11 @@ describe('Masternode', () => {
     })
   })
 
-  it('should update multiple address with legacy address', async () => {
+  it('should update multiple address simultaneously with legacy address', async () => {
     const initialAddress = await client.wallet.getNewAddress('', AddressType.LEGACY)
     const masternodeId = await client.masternode.createMasternode(initialAddress)
 
     await container.generate(20)
-
-    const masternodesBefore = await client.masternode.listMasternodes()
-    const masternodesLengthBefore = Object.keys(masternodesBefore).length
 
     const ownerAddress = await client.wallet.getNewAddress('', AddressType.LEGACY)
     const operatorAddress = await client.wallet.getNewAddress('', AddressType.LEGACY)
@@ -220,11 +209,8 @@ describe('Masternode', () => {
 
     await container.generate(65)
 
-    const masternodesAfter = await client.masternode.listMasternodes()
-    const masternodesLengthAfter = Object.keys(masternodesAfter).length
-    expect(masternodesLengthAfter).toStrictEqual(masternodesLengthBefore)
-
-    const mn = masternodesAfter[masternodeId]
+    const masternodes = await client.masternode.listMasternodes()
+    const mn = masternodes[masternodeId]
     if (mn === undefined) {
       throw new Error('should not reach here')
     }
@@ -376,5 +362,110 @@ describe('Masternode', () => {
       await expect(promise).rejects.toThrow(RpcApiError)
       await expect(promise).rejects.toThrow(`RpcApiError: 'rewardAddress (${invalidAddress}) does not refer to a P2PKH or P2WPKH address', code: -8, method: updatemasternode`)
     }
+  })
+
+  it('should not update masternode while in PRE_ENABLED or TRANSFERRING state', async () => {
+    const initialAddress = await client.wallet.getNewAddress()
+    const masternodeId = await client.masternode.createMasternode(initialAddress)
+
+    await container.generate(1)
+
+    // test call before masternode active
+    const ownerAddress = await client.wallet.getNewAddress()
+    {
+      const promise = client.masternode.updateMasternode(masternodeId, { ownerAddress: ownerAddress })
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow(`RpcApiError: 'Test UpdateMasternodeTx execution failed:\nMasternode ${masternodeId} is not in 'ENABLED' state', code: -32600, method: updatemasternode`)
+    }
+    {
+      const promise = client.masternode.updateMasternode(masternodeId, { operatorAddress: ownerAddress })
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow(`RpcApiError: 'Test UpdateMasternodeTx execution failed:\nMasternode ${masternodeId} is not in 'ENABLED' state', code: -32600, method: updatemasternode`)
+    }
+    {
+      const promise = client.masternode.updateMasternode(masternodeId, { rewardAddress: ownerAddress })
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow(`RpcApiError: 'Test UpdateMasternodeTx execution failed:\nMasternode ${masternodeId} is not in 'ENABLED' state', code: -32600, method: updatemasternode`)
+    }
+
+    {
+      const masternodes = await client.masternode.listMasternodes()
+      const mn = masternodes[masternodeId]
+      if (mn === undefined) {
+        throw new Error('should not reach here')
+      }
+      expect(mn.state).toStrictEqual('PRE_ENABLED')
+      expect(mn.ownerAuthAddress).toStrictEqual(initialAddress)
+    }
+
+    await container.generate(20)
+
+    // Check new state is TRANSFERRING and owner is still the same
+    await client.masternode.updateMasternode(masternodeId, {
+      ownerAddress: ownerAddress
+    })
+
+    await container.generate(20)
+
+    {
+      const masternodes = await client.masternode.listMasternodes()
+      const mn = masternodes[masternodeId]
+      if (mn === undefined) {
+        throw new Error('should not reach here')
+      }
+      expect(mn.state).toStrictEqual('TRANSFERRING')
+      expect(mn.ownerAuthAddress).toStrictEqual(initialAddress)
+    }
+
+    await container.generate(45)
+
+    {
+      const masternodes = await client.masternode.listMasternodes()
+      const mn = masternodes[masternodeId]
+      if (mn === undefined) {
+        throw new Error('should not reach here')
+      }
+      expect(mn.state).toStrictEqual('ENABLED')
+      expect(mn.ownerAuthAddress).toStrictEqual(ownerAddress)
+    }
+  })
+
+  it('should fail with empty argument', async () => {
+    const initialAddress = await client.wallet.getNewAddress()
+    const masternodeId = await client.masternode.createMasternode(initialAddress)
+
+    await container.generate(20)
+
+    const promise = client.masternode.updateMasternode(masternodeId, {})
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow("RpcApiError: 'Test UpdateMasternodeTx execution failed:\nNo update arguments provided', code: -32600, method: updatemasternode")
+  })
+
+  it('should fail to update owner address with same address', async () => {
+    const initialAddress = await client.wallet.getNewAddress()
+    const masternodeId = await client.masternode.createMasternode(initialAddress)
+
+    await container.generate(20)
+
+    const promise = client.masternode.updateMasternode(masternodeId, {
+      ownerAddress: initialAddress
+    })
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow("RpcApiError: 'Test UpdateMasternodeTx execution failed:\nMasternode with collateral address as operator or owner already exists', code: -32600, method: updatemasternode")
+  })
+
+  it('should fail to update another node with operator address that already exists', async () => {
+    const address1 = await client.wallet.getNewAddress()
+    await client.masternode.createMasternode(address1)
+    const address2 = await client.wallet.getNewAddress()
+    const masternode2Id = await client.masternode.createMasternode(address2)
+
+    await container.generate(20)
+
+    const promise = client.masternode.updateMasternode(masternode2Id, {
+      operatorAddress: address1
+    })
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow("RpcApiError: 'Test UpdateMasternodeTx execution failed:\nMasternode with that operator address already exists', code: -32600, method: updatemasternode")
   })
 })
