@@ -60,4 +60,10 @@ export interface Masternode extends Model {
     time: number
     medianTime: number
   }
+
+  updateRecords?: Array<{
+    height: number
+    ownerAddress: string
+    operatorAddress: string
+  }>
 }
