@@ -39,14 +39,15 @@ export class UpdateMasternodeIndexer extends DfTxIndexer<UpdateMasternode> {
     let operatorAddress = null
     for (const update of data.updates) {
       /**
-       * // No need to handle reward address because no rewardAddress in index
+       * // No need to handle reward address
+       * // because no rewardAddress in index
        * 0x01 = OwnerAddress
        * 0x02 = OperatorAddress
        * 0x03 = SetRewardAddress
        * 0x04 = RemRewardAddress
        */
       if (update.address !== undefined && update.updateType === 1) {
-        ownerAddress = this.convertAddress(update.address)
+        ownerAddress = txn.vout[1].scriptPubKey.addresses[0]
       }
       if (update.address !== undefined && update.updateType === 2) {
         operatorAddress = this.convertAddress(update.address)

@@ -52,23 +52,23 @@ describe('Update masternode', () => {
 
     await client.masternode.updateMasternode(masternodeId, {
       operatorAddress: addressDest.utf8String,
-      rewardAddress: addressDest.utf8String
-      // ownerAddress: addressDest.utf8String // @TODO(kvenho) Blockchain is not fix yet
+      rewardAddress: addressDest.utf8String,
+      ownerAddress: addressDest.utf8String
     })
 
-    await container.generate(1)
+    await container.generate(70)
     const updateHeight = await client.blockchain.getBlockCount()
     await container.generate(1)
     await waitForIndexedHeight(app, updateHeight)
 
     const gotMasternodeForReward = await client.masternode.getMasternode(masternodeId)
-    // expect(gotMasternodeForReward[masternodeId]?.ownerAuthAddress).toStrictEqual(addressDest.utf8String) // @TODO(kvenho) Blockchain is not fix yet
+    expect(gotMasternodeForReward[masternodeId]?.ownerAuthAddress).toStrictEqual(addressDest.utf8String)
     expect(gotMasternodeForReward[masternodeId]?.operatorAuthAddress).toStrictEqual(addressDest.utf8String)
     expect(gotMasternodeForReward[masternodeId]?.rewardAddress).toStrictEqual(addressDest.utf8String)
 
     const updatedMasternode = await masternodeMapper.get(masternodeId)
     expect(updatedMasternode?.operatorAddress).toStrictEqual(addressDest.utf8String)
-    // expect(updatedMasternode?.ownerAddress).toStrictEqual(addressDest.utf8String) // @TODO(kvenho) Blockchain is not fix yet
+    expect(updatedMasternode?.ownerAddress).toStrictEqual(addressDest.utf8String)
 
     const masternodeStatsMapper = app.get(MasternodeStatsMapper)
     const masternodeStats = await masternodeStatsMapper.getLatest()
