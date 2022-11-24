@@ -110,7 +110,7 @@ describe('Governance with multiple masternodes voting', () => {
       }
       const proposalId = await testing.rpc.governance.createGovVoc(data)
 
-      const votes = [VoteDecision.YES, VoteDecision.YES, VoteDecision.YES, VoteDecision.NO] // abpve threshold
+      const votes = [VoteDecision.YES, VoteDecision.YES, VoteDecision.YES, VoteDecision.NO] // above threshold
 
       let index = 0
       for (const [id, data] of Object.entries(masternodes)) {
