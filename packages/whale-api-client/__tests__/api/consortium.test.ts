@@ -244,4 +244,70 @@ describe('getTransactionHistory', () => {
     expect(info.transactions.length).toStrictEqual(0)
     expect(info.total).toStrictEqual(0)
   })
+
+  it('should paginate properly', async () => {
+    const page1 = await client.consortium.getTransactionHistory(2, undefined, -1)
+
+    expect(page1).toStrictEqual({
+      transactions: [
+        {
+          type: 'Burn',
+          member: 'bob',
+          tokenAmounts: [{ token: 'dBTC', amount: '-2.00000000' }],
+          txId: txIdMatcher,
+          address: accountBob,
+          block: 129
+        },
+        {
+          type: 'Mint',
+          member: 'bob',
+          tokenAmounts: [{ token: 'dBTC', amount: '4.00000000' }],
+          txId: txIdMatcher,
+          address: accountBob,
+          block: 124
+        }
+      ],
+      total: 5
+    })
+
+    const page2 = await client.consortium.getTransactionHistory(2, undefined, page1.transactions[page1.transactions.length - 1].block - 1)
+
+    expect(page2).toStrictEqual({
+      transactions: [
+        {
+          type: 'Burn',
+          member: 'alice',
+          tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }],
+          txId: txIdMatcher,
+          address: accountAlice,
+          block: 119
+        },
+        {
+          type: 'Mint',
+          member: 'alice',
+          tokenAmounts: [{ token: 'dETH', amount: '2.00000000' }],
+          txId: txIdMatcher,
+          address: accountAlice,
+          block: 114
+        }
+      ],
+      total: 5
+    })
+
+    const page3 = await client.consortium.getTransactionHistory(2, undefined, page2.transactions[page2.transactions.length - 1].block - 1)
+
+    expect(page3).toStrictEqual({
+      transactions: [
+        {
+          type: 'Mint',
+          member: 'alice',
+          tokenAmounts: [{ token: 'dBTC', amount: '1.00000000' }],
+          txId: txIdMatcher,
+          address: accountAlice,
+          block: 109
+        }
+      ],
+      total: 5
+    })
+  })
 })
