@@ -56,23 +56,36 @@ describe('Update masternode', () => {
       ownerAddress: addressDest.utf8String
     })
 
-    await container.generate(70)
-    const updateHeight = await client.blockchain.getBlockCount()
+    await container.generate(20)
+    const updateHeight1 = await client.blockchain.getBlockCount()
     await container.generate(1)
-    await waitForIndexedHeight(app, updateHeight)
+    await waitForIndexedHeight(app, updateHeight1)
+
+    const mnResultExpectTransferring = await client.masternode.getMasternode(masternodeId)
+    expect(mnResultExpectTransferring[masternodeId].state).toStrictEqual('TRANSFERRING')
+
+    await container.generate(30)
+    const updateHeight2 = await client.blockchain.getBlockCount()
+    await container.generate(1)
+    await waitForIndexedHeight(app, updateHeight2)
+
+    const mnResultExpectPreEnable = await client.masternode.getMasternode(masternodeId)
+    expect(mnResultExpectPreEnable[masternodeId].state).toStrictEqual('PRE_ENABLED')
+
+    await container.generate(20)
+    const updateHeight3 = await client.blockchain.getBlockCount()
+    await container.generate(1)
+    await waitForIndexedHeight(app, updateHeight3)
 
     const mnResult = await client.masternode.getMasternode(masternodeId)
-    expect(mnResult[masternodeId]).toStrictEqual({
-      ownerAuthAddress: addressDest.utf8String,
-      operatorAuthAddress: addressDest.utf8String,
-      rewardAddress: addressDest.utf8String
-    })
+    expect(mnResult[masternodeId].ownerAuthAddress).toStrictEqual(addressDest.utf8String)
+    expect(mnResult[masternodeId].operatorAuthAddress).toStrictEqual(addressDest.utf8String)
+    expect(mnResult[masternodeId].rewardAddress).toStrictEqual(addressDest.utf8String)
+    expect(mnResult[masternodeId].state).toStrictEqual('ENABLED')
 
     const updatedMasternode = await masternodeMapper.get(masternodeId)
-    expect(updatedMasternode).toStrictEqual({
-      operatorAddress: addressDest.utf8String,
-      ownerAddress: addressDest.utf8String
-    })
+    expect(updatedMasternode?.operatorAddress).toStrictEqual(addressDest.utf8String)
+    expect(updatedMasternode?.ownerAddress).toStrictEqual(addressDest.utf8String)
 
     const masternodeStatsMapper = app.get(MasternodeStatsMapper)
     const masternodeStats = await masternodeStatsMapper.getLatest()
