@@ -11,6 +11,7 @@ describe('Update masternode', () => {
   let app: NestFastifyApplication
   let client: JsonRpcClient
   let masternodeId: string
+  let ownerAddress: string
 
   beforeAll(async () => {
     await container.start()
@@ -21,7 +22,7 @@ describe('Update masternode', () => {
 
     await container.generate(1)
 
-    const ownerAddress = await client.wallet.getNewAddress()
+    ownerAddress = await client.wallet.getNewAddress()
     masternodeId = await client.masternode.createMasternode(ownerAddress)
     await container.generate(20)
 
@@ -78,14 +79,52 @@ describe('Update masternode', () => {
     await waitForIndexedHeight(app, updateHeight3)
 
     const mnResult = await client.masternode.getMasternode(masternodeId)
-    expect(mnResult[masternodeId].ownerAuthAddress).toStrictEqual(addressDest.utf8String)
-    expect(mnResult[masternodeId].operatorAuthAddress).toStrictEqual(addressDest.utf8String)
-    expect(mnResult[masternodeId].rewardAddress).toStrictEqual(addressDest.utf8String)
-    expect(mnResult[masternodeId].state).toStrictEqual('ENABLED')
+    expect(mnResult[masternodeId]).toStrictEqual({
+      ownerAuthAddress: addressDest.utf8String,
+      operatorAuthAddress: addressDest.utf8String,
+      rewardAddress: addressDest.utf8String,
+      creationHeight: 103,
+      resignHeight: -1,
+      resignTx: expect.stringMatching(/[0-f]{64}/),
+      collateralTx: expect.stringMatching(/[0-f]{64}/),
+      state: 'ENABLED',
+      mintedBlocks: 0,
+      ownerIsMine: true,
+      operatorIsMine: true,
+      localMasternode: false,
+      targetMultipliers: [1, 1]
+    })
 
     const updatedMasternode = await masternodeMapper.get(masternodeId)
-    expect(updatedMasternode?.operatorAddress).toStrictEqual(addressDest.utf8String)
-    expect(updatedMasternode?.ownerAddress).toStrictEqual(addressDest.utf8String)
+    expect(updatedMasternode).toStrictEqual({
+      id: expect.stringMatching(/[0-f]{64}/),
+      sort: expect.stringMatching(/[0-f]{72}/),
+      ownerAddress: addressDest.utf8String,
+      operatorAddress: addressDest.utf8String,
+      creationHeight: 193,
+      resignHeight: -1,
+      mintedBlocks: 0,
+      timelock: 0,
+      block: {
+        hash: expect.stringMatching(/[0-f]{64}/),
+        height: 193,
+        medianTime: expect.any(Number),
+        time: expect.any(Number)
+      },
+      collateral: '2.00000000',
+      updateRecords: [
+        {
+          height: 193,
+          ownerAddress: addressDest.utf8String,
+          operatorAddress: addressDest.utf8String
+        },
+        {
+          height: 103,
+          ownerAddress: ownerAddress,
+          operatorAddress: ownerAddress
+        }
+      ]
+    })
 
     const masternodeStatsMapper = app.get(MasternodeStatsMapper)
     const masternodeStats = await masternodeStatsMapper.getLatest()
