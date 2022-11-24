@@ -47,8 +47,8 @@ describe('UpdateMasternode', () => {
     expect(balance >= 2).toBeTruthy()
   })
 
-  // todo: unskip after https://github.com/DeFiCh/ain/pull/1584 is in prerelease to use image
-  it.skip('should update owner address with P2WPKH address', async () => {
+  // todo: need to fix
+  it('should update owner address with P2WPKH address', async () => {
     const pubKey = await providers.ellipticPair.publicKey()
     const collateralAddress = Bech32.fromPubKey(pubKey, 'bcrt')
     const txid = await jsonRpc.masternode.createMasternode(collateralAddress)
@@ -177,7 +177,7 @@ describe('UpdateMasternode', () => {
     expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
   })
 
-  it('should update multiple addresses with P2WPKH address', async () => {
+  it('should update multiple addresses simultaneously with P2WPKH address', async () => {
     const pubKey = await providers.ellipticPair.publicKey()
     const collateralAddress = Bech32.fromPubKey(pubKey, 'bcrt')
     const txid = await jsonRpc.masternode.createMasternode(collateralAddress)
@@ -228,7 +228,7 @@ describe('UpdateMasternode', () => {
     expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
   })
 
-  it('should update multiple address with P2PKH address', async () => {
+  it('should update multiple addresses simultaneously with P2PKH address', async () => {
     const pubKey = await providers.ellipticPair.publicKey()
     const collateralAddress = Bech32.fromPubKey(pubKey, 'bcrt')
     const txid = await jsonRpc.masternode.createMasternode(collateralAddress)
@@ -238,9 +238,9 @@ describe('UpdateMasternode', () => {
     const operatorAddressDest: P2PKH = P2PKH.fromAddress(RegTest, operatorAddress, P2PKH)
     const operatorAddressDestHex = operatorAddressDest.hex
 
-    const rewardAddress = await container.getNewAddress('', 'bech32')
-    const rewardAddressDest: P2WPKH = P2WPKH.fromAddress(RegTest, rewardAddress, P2WPKH)
-    const rewardAddressDestHex = rewardAddressDest.pubKeyHash
+    const rewardAddress = await container.getNewAddress('', 'legacy')
+    const rewardAddressDest: P2PKH = P2PKH.fromAddress(RegTest, rewardAddress, P2PKH)
+    const rewardAddressDestHex = rewardAddressDest.hex
 
     const updateMasternode: UpdateMasternode = {
       nodeId: txid,
@@ -337,8 +337,7 @@ describe('UpdateMasternode', () => {
     expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
   })
 
-  // todo: unskip after https://github.com/DeFiCh/ain/pull/1584 is in prerelease to use image
-  it.skip('should be failed if owner address is P2SH', async () => {
+  it('should fail if address is P2SH', async () => {
     const pubKey = await providers.ellipticPair.publicKey()
     const collateralAddress = Bech32.fromPubKey(pubKey, 'bcrt')
     const txid = await jsonRpc.masternode.createMasternode(collateralAddress)
@@ -347,78 +346,145 @@ describe('UpdateMasternode', () => {
     const address = await container.getNewAddress('', 'p2sh-segwit')
     const addressDest: P2SH = P2SH.fromAddress(RegTest, address, P2SH)
     const addressDestHex = addressDest.hex
+
+    const script = await providers.elliptic.script()
+
+    // todo: need to fix
+    {
+      const updateMasternode: UpdateMasternode = {
+        nodeId: txid,
+        updates: [{ updateType: 0x01, address: { addressType: 0x02, addressPubKeyHash: addressDestHex } }]
+      }
+      const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script)
+      const promise = sendTransaction(container, txn)
+      await expect(promise).rejects.toThrow(DeFiDRpcError)
+      await expect(promise).rejects.toThrow("DeFiDRpcError: 'bad-txns-customtx, UpdateMasternodeTx: Owner address must be P2PKH or P2WPKH type (code 16)', code: -26")
+    }
+    {
+      const updateMasternode: UpdateMasternode = {
+        nodeId: txid,
+        updates: [{ updateType: 0x02, address: { addressType: 0x02, addressPubKeyHash: addressDestHex } }]
+      }
+      const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script)
+      const promise = sendTransaction(container, txn)
+      await expect(promise).rejects.toThrow(DeFiDRpcError)
+      await expect(promise).rejects.toThrow("DeFiDRpcError: 'bad-txns-customtx, UpdateMasternodeTx: Operator address must be P2PKH or P2WPKH type (code 16)', code: -26")
+    }
+    {
+      const updateMasternode: UpdateMasternode = {
+        nodeId: txid,
+        updates: [{ updateType: 0x03, address: { addressType: 0x02, addressPubKeyHash: addressDestHex } }]
+      }
+      const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script)
+      const promise = sendTransaction(container, txn)
+      await expect(promise).rejects.toThrow(DeFiDRpcError)
+      await expect(promise).rejects.toThrow("DeFiDRpcError: 'bad-txns-customtx, UpdateMasternodeTx: Reward address must be P2PKH or P2WPKH type (code 16)', code: -26")
+    }
+  })
+
+  it('should be failed as invalid address is not allowed', async () => {
+    const pubKey = await providers.ellipticPair.publicKey()
+    const collateralAddress = Bech32.fromPubKey(pubKey, 'bcrt')
+    const masternodeId = await jsonRpc.masternode.createMasternode(collateralAddress)
+
+    await container.generate(20)
+
+    const script = await providers.elliptic.script()
+
+    // todo: need to fix
+    {
+      const invalidAddress = 'INVALID_ADDRESS'
+      const updateMasternode: UpdateMasternode = {
+        nodeId: masternodeId,
+        updates: [{ updateType: 0x02, address: { addressType: 0x02, addressPubKeyHash: invalidAddress } }]
+      }
+      const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script)
+      const promise = sendTransaction(container, txn)
+      await expect(promise).rejects.toThrow(DeFiDRpcError)
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'bad-txns-customtx, UpdateMasternodeTx: Owner address must be P2PKH or P2WPKH type (code 16)\', code: -26')
+    }
+
+    {
+      const invalidAddress = 'INVALID_ADDRESS'
+      const updateMasternode: UpdateMasternode = {
+        nodeId: masternodeId,
+        updates: [{ updateType: 0x02, address: { addressType: 0x02, addressPubKeyHash: invalidAddress } }]
+      }
+      const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script)
+      const promise = sendTransaction(container, txn)
+      await expect(promise).rejects.toThrow(DeFiDRpcError)
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'bad-txns-customtx, UpdateMasternodeTx: Operator address must be P2PKH or P2WPKH type (code 16)\', code: -26')
+    }
+
+    {
+      const invalidAddress = 'INVALID_ADDRESS'
+      const updateMasternode: UpdateMasternode = {
+        nodeId: masternodeId,
+        updates: [{ updateType: 0x03, address: { addressType: 0x02, addressPubKeyHash: invalidAddress } }]
+      }
+      const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script)
+      const promise = sendTransaction(container, txn)
+      await expect(promise).rejects.toThrow(DeFiDRpcError)
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'bad-txns-customtx, UpdateMasternodeTx: Reward address must be P2PKH or P2WPKH type (code 16)\', code: -26')
+    }
+  })
+
+  // todo: need to fix
+  it('should fail to update owner address with same address', async () => {
+    const pubKey = await providers.ellipticPair.publicKey()
+    const collateralAddress = Bech32.fromPubKey(pubKey, 'bcrt')
+    const txid = await jsonRpc.masternode.createMasternode(collateralAddress)
+    await container.generate(20)
+
+    const addressDest: P2WPKH = P2WPKH.fromAddress(RegTest, collateralAddress, P2WPKH)
+    const addressDestKeyHash = addressDest.pubKeyHash
 
     const updateMasternode: UpdateMasternode = {
       nodeId: txid,
       updates: [
         {
           updateType: 0x01,
-          address: { addressType: 0x02, addressPubKeyHash: addressDestHex }
+          address: { addressType: 0x04, addressPubKeyHash: addressDestKeyHash }
         }
       ]
     }
 
     const script = await providers.elliptic.script()
     const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script)
-
     const promise = sendTransaction(container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow("DeFiDRpcError: 'bad-txns-customtx, UpdateMasternodeTx: Owner address must be P2PKH or P2WPKH type (code 16)', code: -26")
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'Test UpdateMasternodeTx execution failed:\nMasternode with collateral address as operator or owner already exists', code: -32600, method: updatemasternode")
   })
 
-  it('should be failed if operator address is P2SH', async () => {
-    const pubKey = await providers.ellipticPair.publicKey()
-    const collateralAddress = Bech32.fromPubKey(pubKey, 'bcrt')
-    const txid = await jsonRpc.masternode.createMasternode(collateralAddress)
+  it('should fail to update another node with operator address that is already used', async () => {
+    const pubKey1 = await providers.ellipticPair.publicKey()
+    const collateralAddress1 = Bech32.fromPubKey(pubKey1, 'bcrt')
+    await jsonRpc.masternode.createMasternode(collateralAddress1)
+    const addressDest1: P2WPKH = P2WPKH.fromAddress(RegTest, collateralAddress1, P2WPKH)
+    const addressDestKeyHash1 = addressDest1.pubKeyHash
+
+    await providers.randomizeEllipticPair()
+    await providers.setupMocks()
+    const pubKey2 = await providers.ellipticPair.publicKey()
+    const collateralAddress2 = Bech32.fromPubKey(pubKey2, 'bcrt')
+    const masternodeId2 = await jsonRpc.masternode.createMasternode(collateralAddress2)
+
     await container.generate(20)
 
-    const address = await container.getNewAddress('', 'p2sh-segwit')
-    const addressDest: P2SH = P2SH.fromAddress(RegTest, address, P2SH)
-    const addressDestHex = addressDest.hex
-
     const updateMasternode: UpdateMasternode = {
-      nodeId: txid,
+      nodeId: masternodeId2,
       updates: [
         {
           updateType: 0x02,
-          address: { addressType: 0x02, addressPubKeyHash: addressDestHex }
+          address: { addressType: 0x04, addressPubKeyHash: addressDestKeyHash1 }
         }
       ]
     }
 
     const script = await providers.elliptic.script()
     const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script)
-
     const promise = sendTransaction(container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow("DeFiDRpcError: 'bad-txns-customtx, UpdateMasternodeTx: Operator address must be P2PKH or P2WPKH type (code 16)', code: -26")
-  })
-
-  it('should be failed if reward address is P2SH', async () => {
-    const pubKey = await providers.ellipticPair.publicKey()
-    const collateralAddress = Bech32.fromPubKey(pubKey, 'bcrt')
-    const txid = await jsonRpc.masternode.createMasternode(collateralAddress)
-    await container.generate(20)
-
-    const address = await container.getNewAddress('', 'p2sh-segwit')
-    const addressDest: P2SH = P2SH.fromAddress(RegTest, address, P2SH)
-    const addressDestHex = addressDest.hex
-
-    const updateMasternode: UpdateMasternode = {
-      nodeId: txid,
-      updates: [
-        {
-          updateType: 0x03,
-          address: { addressType: 0x02, addressPubKeyHash: addressDestHex }
-        }
-      ]
-    }
-
-    const script = await providers.elliptic.script()
-    const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script)
-
-    const promise = sendTransaction(container, txn)
-    await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow("DeFiDRpcError: 'bad-txns-customtx, UpdateMasternodeTx: Reward address must be P2PKH or P2WPKH type (code 16)', code: -26")
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'bad-txns-customtx, UpdateMasternodeTx: Masternode with that operator address already exists (code 16)', code: -26")
   })
 })
