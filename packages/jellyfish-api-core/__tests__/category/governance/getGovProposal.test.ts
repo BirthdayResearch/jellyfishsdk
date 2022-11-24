@@ -1,13 +1,16 @@
 import BigNumber from 'bignumber.js'
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { MasterNodeRegTestContainer, StartOptions } from '@defichain/testcontainers'
 import { RpcApiError } from '../../../src'
-import { ProposalStatus, ProposalType } from '../../../src/category/governance'
+import { ProposalStatus, ProposalType, VoteDecision } from '../../../src/category/governance'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-
-const container = new MasterNodeRegTestContainer()
-const client = new ContainerAdapterClient(container)
+import { Testing } from '@defichain/jellyfish-testing'
+import { masternode } from '@defichain/jellyfish-api-core'
+import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
 describe('Governance', () => {
+  const container = new MasterNodeRegTestContainer()
+  const client = new ContainerAdapterClient(container)
+
   beforeAll(async () => {
     await container.start()
     await container.waitForWalletCoinbaseMaturity()
@@ -55,5 +58,200 @@ describe('Governance', () => {
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow(`RpcApiError: 'Proposal <${proposalId}> does not exist', code: -8, method: getgovproposal`)
+  })
+})
+
+describe('Governance with multiple masternodes voting', () => {
+  class MultiOperatorGovernanceMasterNodeRegTestContainer extends MasterNodeRegTestContainer {
+    protected getCmd (opts: StartOptions): string[] {
+      return [
+        ...super.getCmd(opts),
+        `-masternode_operator=${RegTestFoundationKeys[1].operator.address}`,
+        `-masternode_operator=${RegTestFoundationKeys[2].operator.address}`,
+        `-masternode_operator=${RegTestFoundationKeys[3].operator.address}`
+      ]
+    }
+  }
+
+  const testing = Testing.create(new MultiOperatorGovernanceMasterNodeRegTestContainer())
+
+  let masternodes: masternode.MasternodeResult<masternode.MasternodeInfo>
+
+  beforeAll(async () => {
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/gov': 'true' } })
+    await testing.container.generate(1)
+
+    /**
+     * Import the private keys of the masternode_operator in order to be able to mint blocks and vote on proposals.
+     * This setup uses the default masternode + three additional masternodes for a total of 4 masternodes.
+     */
+    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[1].owner.privKey)
+    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[1].operator.privKey)
+    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[2].owner.privKey)
+    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[2].operator.privKey)
+    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[3].owner.privKey)
+    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[3].operator.privKey)
+
+    masternodes = await testing.rpc.masternode.listMasternodes()
+  })
+
+  afterAll(async () => {
+    await testing.container.stop()
+  })
+
+  it('should getGovProposal', async () => {
+    // VOC with votes above threshold
+    {
+      const data = {
+        title: 'A vote of confidence',
+        context: '<Git issue url>'
+      }
+      const proposalId = await testing.rpc.governance.createGovVoc(data)
+
+      const votes = [VoteDecision.YES, VoteDecision.YES, VoteDecision.YES, VoteDecision.NO] // abpve threshold
+
+      let index = 0
+      for (const [id, data] of Object.entries(masternodes)) {
+        if (data.operatorIsMine) {
+          await testing.container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
+          await testing.rpc.governance.voteGov({ proposalId, masternodeId: id, decision: votes[index] })
+          index++
+        }
+      }
+      await testing.container.generate(1)
+
+      const proposal = await testing.rpc.governance.getGovProposal(proposalId)
+      expect(proposal).toStrictEqual({
+        title: data.title,
+        context: data.context,
+        contextHash: '',
+        type: ProposalType.VOTE_OF_CONFIDENCE,
+        status: 'Approved',
+        cycleEndHeight: expect.any(Number),
+        proposalEndHeight: expect.any(Number),
+        currentCycle: 1,
+        totalCycles: 2,
+        payoutAddress: '',
+        proposalId: proposalId,
+        votes: '75.00 of 66.67%',
+        votingPercent: '100.00 of 1.00%'
+      })
+    }
+
+    // VOC with votes below threshold
+    {
+      const data = {
+        title: 'A vote of confidence 2',
+        context: '<Git issue url>'
+      }
+      const proposalId = await testing.rpc.governance.createGovVoc(data)
+      await testing.container.generate(1)
+
+      const votes = [VoteDecision.YES, VoteDecision.YES, VoteDecision.NO, VoteDecision.NO] // below threshold
+
+      let index = 0
+      for (const [id, data] of Object.entries(masternodes)) {
+        if (data.operatorIsMine) {
+          await testing.container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
+          await testing.rpc.governance.voteGov({ proposalId, masternodeId: id, decision: votes[index] })
+          index++
+        }
+      }
+      await testing.container.generate(1)
+
+      const proposal = await testing.rpc.governance.getGovProposal(proposalId)
+      expect(proposal).toStrictEqual({
+        title: data.title,
+        context: data.context,
+        contextHash: '',
+        type: ProposalType.VOTE_OF_CONFIDENCE,
+        status: ProposalStatus.REJECTED,
+        cycleEndHeight: expect.any(Number),
+        proposalEndHeight: expect.any(Number),
+        currentCycle: 1,
+        totalCycles: 2,
+        payoutAddress: '',
+        proposalId: proposalId,
+        votes: '50.00 of 66.67%',
+        votingPercent: '100.00 of 1.00%'
+      })
+    }
+
+    // Cfp with votes in 2nd cycle
+    {
+      const address = await testing.container.getNewAddress()
+      const data = {
+        title: 'Testing community fund proposal',
+        amount: new BigNumber(100),
+        context: '<Git issue url>',
+        payoutAddress: address,
+        cycles: 2
+      }
+      const proposalId = await testing.rpc.governance.createGovCfp(data)
+      await testing.container.generate(1)
+
+      const creationHeight = await testing.container.getBlockCount()
+      const votingPeriod = 70
+      const cycle1 = creationHeight + (votingPeriod - creationHeight % votingPeriod) + votingPeriod
+
+      // cycle 1 vote
+      for (const [id, data] of Object.entries(masternodes)) {
+        if (data.operatorIsMine) {
+          await testing.container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
+          await testing.rpc.governance.voteGov({ proposalId, masternodeId: id, decision: VoteDecision.YES })
+        }
+      }
+      await testing.container.generate(1)
+
+      const proposal = await testing.rpc.governance.getGovProposal(proposalId)
+      expect(proposal).toStrictEqual({
+        title: data.title,
+        context: data.context,
+        contextHash: '',
+        type: ProposalType.COMMUNITY_FUND_PROPOSAL,
+        status: 'Approved',
+        cycleEndHeight: expect.any(Number),
+        proposalEndHeight: expect.any(Number),
+        currentCycle: 1,
+        totalCycles: 2,
+        payoutAddress: address,
+        proposalId: proposalId,
+        votes: '100.00 of 50.00%',
+        votingPercent: '100.00 of 1.00%'
+      })
+
+      // cycle 2 votes
+      await testing.container.generate(cycle1 - await testing.container.getBlockCount())
+
+      const votes = [VoteDecision.YES, VoteDecision.NO, VoteDecision.NO, VoteDecision.NO] // below threshold
+
+      let index = 0
+      for (const [id, data] of Object.entries(masternodes)) {
+        if (data.operatorIsMine) {
+          await testing.rpc.governance.voteGov({ proposalId, masternodeId: id, decision: votes[index] })
+          index++
+        }
+      }
+      await testing.container.generate(1)
+
+      const proposal2 = await testing.rpc.governance.getGovProposal(proposalId)
+      expect(proposal2).toStrictEqual({
+        title: data.title,
+        context: data.context,
+        contextHash: '',
+        type: ProposalType.COMMUNITY_FUND_PROPOSAL,
+        status: ProposalStatus.REJECTED,
+        cycleEndHeight: expect.any(Number),
+        proposalEndHeight: expect.any(Number),
+        currentCycle: 2,
+        totalCycles: 2,
+        payoutAddress: address,
+        proposalId: proposalId,
+        votes: '25.00 of 50.00%',
+        votingPercent: '100.00 of 1.00%'
+      })
+    }
   })
 })
