@@ -69,8 +69,10 @@ describe('Update masternode', () => {
     })
 
     const updatedMasternode = await masternodeMapper.get(masternodeId)
-    expect(updatedMasternode?.operatorAddress).toStrictEqual(addressDest.utf8String)
-    expect(updatedMasternode?.ownerAddress).toStrictEqual(addressDest.utf8String)
+    expect(updatedMasternode).toStrictEqual({
+      operatorAddress: addressDest.utf8String,
+      ownerAddress: addressDest.utf8String
+    })
 
     const masternodeStatsMapper = app.get(MasternodeStatsMapper)
     const masternodeStats = await masternodeStatsMapper.getLatest()
