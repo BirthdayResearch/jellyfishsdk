@@ -61,10 +61,12 @@ describe('Update masternode', () => {
     await container.generate(1)
     await waitForIndexedHeight(app, updateHeight)
 
-    const gotMasternodeForReward = await client.masternode.getMasternode(masternodeId)
-    expect(gotMasternodeForReward[masternodeId]?.ownerAuthAddress).toStrictEqual(addressDest.utf8String)
-    expect(gotMasternodeForReward[masternodeId]?.operatorAuthAddress).toStrictEqual(addressDest.utf8String)
-    expect(gotMasternodeForReward[masternodeId]?.rewardAddress).toStrictEqual(addressDest.utf8String)
+    const mnResult = await client.masternode.getMasternode(masternodeId)
+    expect(mnResult[masternodeId]).toStrictEqual({
+      ownerAuthAddress: addressDest.utf8String,
+      operatorAuthAddress: addressDest.utf8String,
+      rewardAddress: addressDest.utf8String
+    })
 
     const updatedMasternode = await masternodeMapper.get(masternodeId)
     expect(updatedMasternode?.operatorAddress).toStrictEqual(addressDest.utf8String)
