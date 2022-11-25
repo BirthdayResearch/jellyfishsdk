@@ -97,6 +97,7 @@ describe('On-chain governance enabled', () => {
       currentCycle: expect.any(Number),
       totalCycles: expect.any(Number),
       payoutAddress: '',
+      proposalId: proposalTx,
       approvalThreshold: expect.any(String),
       fee: expect.any(Number),
       feeBurnAmount: expect.any(Number),
