@@ -48,7 +48,12 @@ describe('Governance', () => {
       currentCycle: 1,
       totalCycles: data.cycles,
       payoutAddress: data.payoutAddress,
-      proposalId: proposalId
+      proposalId: proposalId,
+      approvalThreshold: expect.any(String),
+      fee: expect.any(Number),
+      feeBurnAmount: expect.any(Number),
+      quorum: expect.any(String),
+      votingPeriod: expect.any(Number)
     })
   })
 
@@ -136,7 +141,12 @@ describe('Governance with multiple masternodes voting', () => {
         payoutAddress: '',
         proposalId: proposalId,
         votes: '75.00 of 66.67%',
-        votingPercent: '100.00 of 1.00%'
+        votingPercent: '100.00 of 1.00%',
+        approvalThreshold: '66.67%',
+        quorum: '1.00%',
+        fee: expect.any(Number),
+        feeBurnAmount: expect.any(Number),
+        votingPeriod: expect.any(Number)
       })
     }
 
@@ -175,7 +185,12 @@ describe('Governance with multiple masternodes voting', () => {
         payoutAddress: '',
         proposalId: proposalId,
         votes: '50.00 of 66.67%',
-        votingPercent: '100.00 of 1.00%'
+        votingPercent: '100.00 of 1.00%',
+        approvalThreshold: '66.67%',
+        quorum: '1.00%',
+        fee: expect.any(Number),
+        feeBurnAmount: expect.any(Number),
+        votingPeriod: expect.any(Number)
       })
     }
 
@@ -219,7 +234,12 @@ describe('Governance with multiple masternodes voting', () => {
         payoutAddress: address,
         proposalId: proposalId,
         votes: '100.00 of 50.00%',
-        votingPercent: '100.00 of 1.00%'
+        votingPercent: '100.00 of 1.00%',
+        approvalThreshold: '50.00%',
+        quorum: '1.00%',
+        fee: expect.any(Number),
+        feeBurnAmount: expect.any(Number),
+        votingPeriod: expect.any(Number)
       })
 
       // cycle 2 votes
@@ -250,7 +270,12 @@ describe('Governance with multiple masternodes voting', () => {
         payoutAddress: address,
         proposalId: proposalId,
         votes: '25.00 of 50.00%',
-        votingPercent: '100.00 of 1.00%'
+        votingPercent: '100.00 of 1.00%',
+        approvalThreshold: '50.00%',
+        quorum: '1.00%',
+        fee: expect.any(Number),
+        feeBurnAmount: expect.any(Number),
+        votingPeriod: expect.any(Number)
       })
     }
   })

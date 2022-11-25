@@ -76,7 +76,12 @@ describe('On-chain governance enabled', () => {
         currentCycle: 1,
         totalCycles: data.cycles,
         payoutAddress: data.payoutAddress,
-        proposalId: proposalTx
+        proposalId: proposalTx,
+        approvalThreshold: expect.any(String),
+        fee: expect.any(Number),
+        feeBurnAmount: expect.any(Number),
+        quorum: expect.any(String),
+        votingPeriod: expect.any(Number)
       })
 
       const burnInfo = await client.account.getBurnInfo()
@@ -108,7 +113,12 @@ describe('On-chain governance enabled', () => {
         currentCycle: 1,
         totalCycles: data.cycles,
         payoutAddress: data.payoutAddress,
-        proposalId: proposalTx
+        proposalId: proposalTx,
+        approvalThreshold: expect.any(String),
+        fee: expect.any(Number),
+        feeBurnAmount: expect.any(Number),
+        quorum: expect.any(String),
+        votingPeriod: expect.any(Number)
       })
 
       const burnInfo = await client.account.getBurnInfo()
@@ -140,7 +150,12 @@ describe('On-chain governance enabled', () => {
         currentCycle: 1,
         totalCycles: data.cycles,
         payoutAddress: data.payoutAddress,
-        proposalId: proposalTx
+        proposalId: proposalTx,
+        approvalThreshold: expect.any(String),
+        fee: expect.any(Number),
+        feeBurnAmount: expect.any(Number),
+        quorum: expect.any(String),
+        votingPeriod: expect.any(Number)
       })
 
       const burnInfo = await client.account.getBurnInfo()

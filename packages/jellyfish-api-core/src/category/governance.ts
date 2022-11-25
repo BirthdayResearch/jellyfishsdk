@@ -133,10 +133,11 @@ export class Governance {
    *
    * @param {string} proposalId Proposal id
    * @param {MasternodeType | string} [masternode=MasternodeType.MINE] masternode id or reserved words 'mine' to list votes for all owned accounts or 'all' to list all votes
+   * @param {number} [cycle=0] cycle: 0 (show current), cycle: N (show cycle N), cycle: -1 (show all)
    * @return {Promise<ListVotesResult[]>} Proposal vote information
    */
-  async listGovVotes (proposalId: string, masternode: MasternodeType | string = MasternodeType.MINE): Promise<ListVotesResult[]> {
-    return await this.client.call('listgovvotes', [proposalId, masternode], 'number')
+  async listGovProposalVotes (proposalId: string, masternode: MasternodeType | string = MasternodeType.MINE, cycle: number = 0): Promise<ListVotesResult[]> {
+    return await this.client.call('listgovproposalvotes', [proposalId, masternode, cycle], 'number')
   }
 }
 
@@ -177,6 +178,11 @@ export interface ProposalInfo {
   cycleEndHeight: number
   proposalEndHeight: number
   payoutAddress: string
+  votingPeriod: number
+  approvalThreshold: string
+  quorum: string
+  fee: number
+  feeBurnAmount: number
   options?: string[]
 }
 

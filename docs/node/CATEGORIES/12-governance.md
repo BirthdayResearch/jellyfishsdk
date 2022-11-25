@@ -71,6 +71,11 @@ interface ProposalInfo {
   cycleEndHeight: number
   proposalEndHeight: number
   payoutAddress: string
+  votingPeriod: number
+  approvalThreshold: string
+  quorum: string
+  fee: number
+  feeBurnAmount: number
   options?: string[]
 }
  ```
@@ -148,6 +153,11 @@ interface ProposalInfo {
   cycleEndHeight: number
   proposalEndHeight: number
   payoutAddress: string
+  votingPeriod: number
+  approvalThreshold: string
+  quorum: string
+  fee: number
+  feeBurnAmount: number
   options?: string[]
 }
 ```
@@ -179,13 +189,13 @@ interface UTXO {
 }
 ```
 
-## listGovVotes
+## listGovProposalVotes
 
 Returns information about proposal votes.
 
-```ts title="client.governance.listGovVotes()"
+```ts title="client.governance.listGovProposalVotes()"
 interface governance {
-  async listGovVotes (proposalId: string, masternode: MasternodeType | string = MasternodeType.MINE): Promise<ListVotesResult[]>
+  async listGovProposalVotes (proposalId: string, masternode: MasternodeType | string = MasternodeType.MINE, cycle: number = 0): Promise<ListVotesResult[]>
 }
 
 enum MasternodeType {

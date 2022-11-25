@@ -63,7 +63,12 @@ describe('On-chain governance enabled', () => {
       currentCycle: expect.any(Number),
       totalCycles: expect.any(Number),
       payoutAddress: '',
-      proposalId: proposalTx
+      proposalId: proposalTx,
+      approvalThreshold: expect.any(String),
+      fee: expect.any(Number),
+      feeBurnAmount: expect.any(Number),
+      quorum: expect.any(String),
+      votingPeriod: expect.any(Number)
     })
   })
 
@@ -92,7 +97,11 @@ describe('On-chain governance enabled', () => {
       currentCycle: expect.any(Number),
       totalCycles: expect.any(Number),
       payoutAddress: '',
-      proposalId: proposalTx
+      approvalThreshold: expect.any(String),
+      fee: expect.any(Number),
+      feeBurnAmount: expect.any(Number),
+      quorum: expect.any(String),
+      votingPeriod: expect.any(Number)
     })
   })
 
@@ -123,6 +132,11 @@ describe('On-chain governance enabled', () => {
       totalCycles: expect.any(Number),
       payoutAddress: '',
       proposalId: proposalTx,
+      approvalThreshold: expect.any(String),
+      fee: expect.any(Number),
+      feeBurnAmount: expect.any(Number),
+      quorum: expect.any(String),
+      votingPeriod: expect.any(Number),
       options: ['emergency']
     })
   })

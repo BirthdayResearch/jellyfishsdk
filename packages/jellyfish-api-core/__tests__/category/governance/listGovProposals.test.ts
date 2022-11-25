@@ -64,7 +64,12 @@ describe('Governance', () => {
         currentCycle: expect.any(Number),
         totalCycles: expect.any(Number),
         payoutAddress: expect.any(String),
-        proposalId: expect.any(String)
+        proposalId: expect.any(String),
+        approvalThreshold: expect.any(String),
+        quorum: expect.any(String),
+        fee: expect.any(Number),
+        feeBurnAmount: expect.any(Number),
+        votingPeriod: expect.any(Number)
       })
     }
   })
