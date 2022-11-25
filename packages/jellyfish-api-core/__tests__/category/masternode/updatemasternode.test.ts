@@ -451,28 +451,41 @@ describe('Update Masternode', () => {
   })
 
   it('Test updating several MNs owners in the same block', async () => {
+    const oldOwnerAddressA = await client.wallet.getNewAddress()
+    const masternodeIdA = await client.masternode.createMasternode(oldOwnerAddressA)
+
+    const oldOwnerAddressB = await client.wallet.getNewAddress()
+    const masternodeIdB = await client.masternode.createMasternode(oldOwnerAddressB)
+
+    const oldOwnerAddressC = await client.wallet.getNewAddress()
+    const masternodeIdC = await client.masternode.createMasternode(oldOwnerAddressC)
+
+    await container.generate(40)
+
     const masternodesBefore = await client.masternode.listMasternodes()
-    const masternodesLengthBefore = Object.keys(masternodesBefore).length
-    expect(masternodesLengthBefore).toStrictEqual(8)
+    expect(masternodesBefore[masternodeIdA].state).toStrictEqual('ENABLED')
+    expect(masternodesBefore[masternodeIdA].ownerAuthAddress).toStrictEqual(oldOwnerAddressA)
+    expect(masternodesBefore[masternodeIdB].state).toStrictEqual('ENABLED')
+    expect(masternodesBefore[masternodeIdB].ownerAuthAddress).toStrictEqual(oldOwnerAddressB)
+    expect(masternodesBefore[masternodeIdC].state).toStrictEqual('ENABLED')
+    expect(masternodesBefore[masternodeIdC].ownerAuthAddress).toStrictEqual(oldOwnerAddressC)
 
-    const addressA = await client.wallet.getNewAddress()
-    const masternodeIdA = await client.masternode.createMasternode(addressA)
+    const newOwnerAddressA = await client.wallet.getNewAddress()
+    const newOwnerAddressB = await client.wallet.getNewAddress()
+    const newOwnerAddressC = await client.wallet.getNewAddress()
 
-    const addressB = await client.wallet.getNewAddress()
-    const masternodeIdB = await client.masternode.createMasternode(addressB)
-
-    const addressC = await client.wallet.getNewAddress()
-    const masternodeIdC = await client.masternode.createMasternode(addressC)
+    await client.masternode.updateMasternode(masternodeIdA, { ownerAddress: newOwnerAddressA })
+    await client.masternode.updateMasternode(masternodeIdB, { ownerAddress: newOwnerAddressB })
+    await client.masternode.updateMasternode(masternodeIdC, { ownerAddress: newOwnerAddressC })
 
     await container.generate(1)
 
     const masternodesAfter = await client.masternode.listMasternodes()
-    const masternodesLengthAfter = Object.keys(masternodesAfter).length
-    expect(masternodesLengthAfter).toStrictEqual(11)
-
-    expect(masternodesAfter[masternodeIdA]).toBeTruthy()
-    expect(masternodesAfter[masternodeIdB]).toBeTruthy()
-    expect(masternodesAfter[masternodeIdC]).toBeTruthy()
-    expect(Object.keys(masternodesAfter)).not.toContain('never-exists-masternode-id')
+    expect(masternodesAfter[masternodeIdA].state).toStrictEqual('TRANSFERRING')
+    expect(masternodesAfter[masternodeIdA].ownerAuthAddress).toStrictEqual(oldOwnerAddressA)
+    expect(masternodesAfter[masternodeIdB].state).toStrictEqual('TRANSFERRING')
+    expect(masternodesAfter[masternodeIdB].ownerAuthAddress).toStrictEqual(oldOwnerAddressB)
+    expect(masternodesAfter[masternodeIdC].state).toStrictEqual('TRANSFERRING')
+    expect(masternodesAfter[masternodeIdC].ownerAuthAddress).toStrictEqual(oldOwnerAddressC)
   })
 })
