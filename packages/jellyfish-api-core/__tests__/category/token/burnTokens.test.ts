@@ -1,9 +1,10 @@
 import { TestingGroup } from '@defichain/jellyfish-testing'
+import { BigNumber } from '../../../src'
 
 describe('burnTokens', () => {
-  const tGroup = TestingGroup.create(2)
+  const tGroup = TestingGroup.create(3)
   const symbolDBTC = 'DBTC'
-  let account0: string, account1: string
+  let account0: string, account1: string, account2: string
   let idBTC: string
 
   beforeEach(async () => {
@@ -11,6 +12,7 @@ describe('burnTokens', () => {
 
     account0 = await tGroup.get(0).generateAddress()
     account1 = await tGroup.get(1).generateAddress()
+    account2 = await tGroup.get(1).generateAddress()
 
     await tGroup.get(0).token.create({
       symbol: symbolDBTC,
@@ -38,6 +40,13 @@ describe('burnTokens', () => {
         '02': {
           name: 'account2BTC',
           ownerAddress: account0,
+          dailyMintLimit: 5,
+          mintLimit: 10,
+          backingId: 'backing2'
+        },
+        '03': {
+          name: 'account3BTC',
+          ownerAddress: account2,
           dailyMintLimit: 5,
           mintLimit: 10,
           backingId: 'backing2'
@@ -103,6 +112,9 @@ describe('burnTokens', () => {
 
     const tokensAfterBurn = await tGroup.get(0).rpc.account.getAccount(account0)
     expect(tokensAfterBurn[0]).toStrictEqual(`9.00000000@${symbolDBTC}`)
+
+    const attr = (await tGroup.get(2).rpc.masternode.getGov('ATTRIBUTES')).ATTRIBUTES
+    expect(attr['v0/live/economy/consortium/1/burnt']).toStrictEqual(new BigNumber(1))
   })
 
   it('should burn tokens with utxos', async () => {
