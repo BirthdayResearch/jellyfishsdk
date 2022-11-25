@@ -174,7 +174,7 @@ interface UTXO {
 
 ## updatemasternode
 
-Creates (and submits to local node and network) a masternode update transaction which update the masternode operator addresses, spending the given inputs..
+Creates a transaction to update masternode operator address, owner address, and/or reward address.
 The last optional argument (may be empty array) is an array of specific UTXOs to spend.
 
 ```ts title="client.masternode.updatemasternode()"
