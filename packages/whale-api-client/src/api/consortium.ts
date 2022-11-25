@@ -36,5 +36,6 @@ export interface MemberWithTokenInfo extends MemberInfo {
 
 export interface AssetBreakdownInfo {
   tokenSymbol: string
+  tokenDisplaySymbol: string
   memberInfo: MemberWithTokenInfo[]
 }

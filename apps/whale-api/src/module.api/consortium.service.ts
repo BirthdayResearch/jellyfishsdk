@@ -3,6 +3,7 @@ import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { DeFiDCache, TokenInfoWithId } from './cache/defid.cache'
 import { AssetBreakdownInfo, MemberDetail, MemberWithTokenInfo } from '@defichain/whale-api-client/dist/api/consortium'
 import BigNumber from 'bignumber.js'
+import { parseDisplaySymbol } from './token.controller'
 
 @Injectable()
 export class ConsortiumService {
@@ -55,6 +56,7 @@ export class ConsortiumService {
     if (existingABI === undefined) {
       assetBreakdownInfo.push({
         tokenSymbol: token.symbol,
+        tokenDisplaySymbol: parseDisplaySymbol(token),
         memberInfo: [member]
       })
       return

@@ -7,8 +7,8 @@ describe('getAssetBreakdown', () => {
   const tGroup = TestingGroup.create(2)
   const alice = tGroup.get(0)
   const bob = tGroup.get(1)
-  const symbolBTC = 'dBTC'
-  const symbolETH = 'dETH'
+  const symbolBTC = 'BTC'
+  const symbolETH = 'ETH'
   let accountAlice: string, accountBob: string
   let idBTC: string
   let idETH: string
@@ -128,12 +128,14 @@ describe('getAssetBreakdown', () => {
     const info = await controller.getAssetBreakdown()
     expect(info).toStrictEqual([{
       tokenSymbol: symbolBTC,
+      tokenDisplaySymbol: `d${symbolBTC}`,
       memberInfo: [
         { id: '01', name: 'alice', minted: '0.00000000', burned: '0.00000000', backingAddresses: ['abc'], tokenId: idBTC },
         { id: '02', name: 'bob', minted: '0.00000000', burned: '0.00000000', backingAddresses: ['def', 'hij'], tokenId: idBTC }
       ]
     }, {
       tokenSymbol: symbolETH,
+      tokenDisplaySymbol: `d${symbolETH}`,
       memberInfo: [
         { id: '01', name: 'alice', minted: '0.00000000', burned: '0.00000000', backingAddresses: [], tokenId: idETH },
         { id: '02', name: 'bob', minted: '0.00000000', burned: '0.00000000', backingAddresses: ['lmn', 'opq'], tokenId: idETH }
@@ -162,12 +164,14 @@ describe('getAssetBreakdown', () => {
     const info = await controller.getAssetBreakdown()
     expect(info).toStrictEqual([{
       tokenSymbol: symbolBTC,
+      tokenDisplaySymbol: `d${symbolBTC}`,
       memberInfo: [
         { id: '01', name: 'alice', minted: '1.00000000', burned: '0.00000000', backingAddresses: ['abc'], tokenId: idBTC },
         { id: '02', name: 'bob', minted: '4.00000000', burned: '2.00000000', backingAddresses: ['def', 'hij'], tokenId: idBTC }
       ]
     }, {
       tokenSymbol: symbolETH,
+      tokenDisplaySymbol: `d${symbolETH}`,
       memberInfo: [
         { id: '01', name: 'alice', minted: '2.00000000', burned: '1.00000000', backingAddresses: [], tokenId: idETH },
         { id: '02', name: 'bob', minted: '0.00000000', burned: '0.00000000', backingAddresses: ['lmn', 'opq'], tokenId: idETH }
