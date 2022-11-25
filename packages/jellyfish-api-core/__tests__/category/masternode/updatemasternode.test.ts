@@ -40,7 +40,28 @@ describe('Update Masternode', () => {
       ownerAddress: newAddress
     })
 
-    await container.generate(65) // wait for masternode to be enabled
+    // wait for masternode to be enabled
+    await container.generate(20)
+
+    // Test update masternode again during TRANSFERRING
+    const expectTransferringMN = await client.masternode.getMasternode(masternodeId)
+    expect(expectTransferringMN[masternodeId].state).toStrictEqual('TRANSFERRING')
+
+    const anotherNewAddress = await client.wallet.getNewAddress()
+    try {
+      await client.masternode.updateMasternode(masternodeId, {
+        ownerAddress: anotherNewAddress
+      })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (e: any) {
+      expect(e.payload).toStrictEqual({
+        code: -32600,
+        message: expect.stringContaining(`Masternode ${masternodeId} is not in 'ENABLED' state`),
+        method: 'updatemasternode'
+      })
+    }
+
+    await container.generate(45)
 
     const masternodesAfter = await client.masternode.listMasternodes()
     const masternodesLengthAfter = Object.keys(masternodesAfter).length
