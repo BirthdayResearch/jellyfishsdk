@@ -71,6 +71,11 @@ describe('createVoc', () => {
       totalCycles: createVoc.nCycles,
       cycleEndHeight: expect.any(Number),
       proposalEndHeight: expect.any(Number),
+      approvalThreshold: expect.any(String),
+      fee: expect.any(Number),
+      feeBurnAmount: expect.any(Number),
+      quorum: expect.any(String),
+      votingPeriod: expect.any(Number),
       payoutAddress: ''
     })
   })
@@ -114,6 +119,11 @@ describe('createVoc', () => {
       cycleEndHeight: expect.any(Number),
       proposalEndHeight: expect.any(Number),
       payoutAddress: '',
+      approvalThreshold: expect.any(String),
+      fee: expect.any(Number),
+      feeBurnAmount: expect.any(Number),
+      quorum: expect.any(String),
+      votingPeriod: expect.any(Number),
       options: ['emergency']
     })
   })
