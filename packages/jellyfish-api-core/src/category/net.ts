@@ -55,6 +55,15 @@ export class Net {
   async setNetworkActive (state: boolean): Promise<boolean> {
     return await this.client.call('setnetworkactive', [state], 'number')
   }
+
+  /**
+   * Return known addresses which can potentially be used to find new nodes in the network.
+   *
+   * @return {Promise<AddressesInfo[]>}
+   */
+  async getNodeAddresses (count: number): Promise<AddressInfo[]> {
+    return await this.client.call('getnodeaddresses', [count], 'number')
+  }
 }
 
 export interface PeerInfo {
@@ -107,6 +116,13 @@ export interface NetworkInfo {
   incrementalfee: number
   localaddresses: LocalAddress[]
   warnings: string
+}
+
+export interface AddressInfo {
+  time: number
+  services: number
+  address: string
+  port: number
 }
 
 export interface Network {
