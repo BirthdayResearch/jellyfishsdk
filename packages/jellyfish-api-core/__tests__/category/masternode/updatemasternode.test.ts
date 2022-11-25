@@ -489,4 +489,30 @@ describe('Update Masternode', () => {
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow("RpcApiError: 'Test UpdateMasternodeTx execution failed:\nMasternode with that operator address already exists', code: -32600, method: updatemasternode")
   })
+
+  it('Test updating several MNs owners in the same block', async () => {
+    const masternodesBefore = await client.masternode.listMasternodes()
+    const masternodesLengthBefore = Object.keys(masternodesBefore).length
+    expect(masternodesLengthBefore).toStrictEqual(8)
+
+    const addressA = await client.wallet.getNewAddress()
+    const masternodeIdA = await client.masternode.createMasternode(addressA)
+
+    const addressB = await client.wallet.getNewAddress()
+    const masternodeIdB = await client.masternode.createMasternode(addressB)
+
+    const addressC = await client.wallet.getNewAddress()
+    const masternodeIdC = await client.masternode.createMasternode(addressC)
+
+    await container.generate(1)
+
+    const masternodesAfter = await client.masternode.listMasternodes()
+    const masternodesLengthAfter = Object.keys(masternodesAfter).length
+    expect(masternodesLengthAfter).toStrictEqual(11)
+
+    expect(masternodesAfter[masternodeIdA]).not.toStrictEqual(undefined)
+    expect(masternodesAfter[masternodeIdB]).not.toStrictEqual(undefined)
+    expect(masternodesAfter[masternodeIdC]).not.toStrictEqual(undefined)
+    expect(masternodesAfter['never-exists-masternode-id']).toStrictEqual(undefined)
+  })
 })
