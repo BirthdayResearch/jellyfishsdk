@@ -48,31 +48,20 @@ describe('Update Masternode', () => {
     expect(expectTransferringMN[masternodeId].state).toStrictEqual('TRANSFERRING')
 
     const anotherNewAddress = await client.wallet.getNewAddress()
-    try {
-      await client.masternode.updateMasternode(masternodeId, {
-        ownerAddress: anotherNewAddress
-      })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (e: any) {
-      expect(e.payload).toStrictEqual({
-        code: -32600,
-        message: expect.stringContaining(`Masternode ${masternodeId} is not in 'ENABLED' state`),
-        method: 'updatemasternode'
-      })
-    }
+    const promise = client.masternode.updateMasternode(masternodeId, {
+      ownerAddress: anotherNewAddress
+    })
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow(`Masternode ${masternodeId} is not in 'ENABLED' state`)
 
     await container.generate(45)
 
     const masternodesAfter = await client.masternode.listMasternodes()
     const masternodesLengthAfter = Object.keys(masternodesAfter).length
+
     expect(masternodesLengthAfter).toStrictEqual(masternodesLengthBefore)
-
-    const mn = masternodesAfter[masternodeId]
-    if (mn === undefined) {
-      throw new Error('should not reach here')
-    }
-
-    expect(mn).toStrictEqual({
+    expect(masternodesAfter[masternodeId]).toBeTruthy()
+    expect(masternodesAfter[masternodeId]).toStrictEqual({
       ownerAuthAddress: newAddress,
       operatorAuthAddress: initialAddress,
       rewardAddress: '',
@@ -107,14 +96,10 @@ describe('Update Masternode', () => {
 
     const masternodesAfter = await client.masternode.listMasternodes()
     const masternodesLengthAfter = Object.keys(masternodesAfter).length
+
     expect(masternodesLengthAfter).toStrictEqual(masternodesLengthBefore)
-
-    const mn = masternodesAfter[masternodeId]
-    if (mn === undefined) {
-      throw new Error('should not reach here')
-    }
-
-    expect(mn).toStrictEqual({
+    expect(masternodesAfter[masternodeId]).toBeTruthy()
+    expect(masternodesAfter[masternodeId]).toStrictEqual({
       ownerAuthAddress: initialAddress,
       operatorAuthAddress: newAddress,
       rewardAddress: '',
@@ -149,14 +134,10 @@ describe('Update Masternode', () => {
 
     const masternodesAfter = await client.masternode.listMasternodes()
     const masternodesLengthAfter = Object.keys(masternodesAfter).length
+
     expect(masternodesLengthAfter).toStrictEqual(masternodesLengthBefore)
-
-    const mn = masternodesAfter[masternodeId]
-    if (mn === undefined) {
-      throw new Error('should not reach here')
-    }
-
-    expect(mn).toStrictEqual({
+    expect(masternodesAfter[masternodeId]).toBeTruthy()
+    expect(masternodesAfter[masternodeId]).toStrictEqual({
       ownerAuthAddress: initialAddress,
       operatorAuthAddress: initialAddress,
       rewardAddress: newAddress,
@@ -191,12 +172,9 @@ describe('Update Masternode', () => {
     await container.generate(65)
 
     const masternodes = await client.masternode.listMasternodes()
-    const mn = masternodes[masternodeId]
-    if (mn === undefined) {
-      throw new Error('should not reach here')
-    }
 
-    expect(mn).toStrictEqual({
+    expect(masternodes[masternodeId]).toBeTruthy()
+    expect(masternodes[masternodeId]).toStrictEqual({
       operatorAuthAddress: operatorAddress,
       ownerAuthAddress: ownerAddress,
       rewardAddress: rewardAddress,
@@ -231,12 +209,9 @@ describe('Update Masternode', () => {
     await container.generate(65)
 
     const masternodes = await client.masternode.listMasternodes()
-    const mn = masternodes[masternodeId]
-    if (mn === undefined) {
-      throw new Error('should not reach here')
-    }
 
-    expect(mn).toStrictEqual({
+    expect(masternodes[masternodeId]).toBeTruthy()
+    expect(masternodes[masternodeId]).toStrictEqual({
       operatorAuthAddress: operatorAddress,
       ownerAuthAddress: ownerAddress,
       rewardAddress: rewardAddress,
@@ -295,11 +270,8 @@ describe('Update Masternode', () => {
     await container.generate(50)
 
     const masternodesBefore = await client.masternode.listMasternodes()
-    const mnBefore = masternodesBefore[masternodeId]
-    if (mnBefore === undefined) {
-      throw new Error('should not reach here')
-    }
-    expect(mnBefore.rewardAddress).toStrictEqual(rewardAddress)
+    expect(masternodesBefore[masternodeId]).toBeTruthy()
+    expect(masternodesBefore[masternodeId].rewardAddress).toStrictEqual(rewardAddress)
 
     await client.masternode.updateMasternode(masternodeId, {
       rewardAddress: ''
@@ -307,11 +279,8 @@ describe('Update Masternode', () => {
     await container.generate(50)
 
     const masternodesAfter = await client.masternode.listMasternodes()
-    const mnAfter = masternodesAfter[masternodeId]
-    if (mnAfter === undefined) {
-      throw new Error('should not reach here')
-    }
-    expect(mnAfter.rewardAddress).toStrictEqual('')
+    expect(masternodesAfter[masternodeId]).toBeTruthy()
+    expect(masternodesAfter[masternodeId].rewardAddress).toStrictEqual('')
   })
 
   it('should be failed as p2sh address is not allowed', async () => {
@@ -411,12 +380,9 @@ describe('Update Masternode', () => {
 
     {
       const masternodes = await client.masternode.listMasternodes()
-      const mn = masternodes[masternodeId]
-      if (mn === undefined) {
-        throw new Error('should not reach here')
-      }
-      expect(mn.state).toStrictEqual('PRE_ENABLED')
-      expect(mn.ownerAuthAddress).toStrictEqual(initialAddress)
+      expect(masternodes[masternodeId]).toBeTruthy()
+      expect(masternodes[masternodeId].state).toStrictEqual('PRE_ENABLED')
+      expect(masternodes[masternodeId].ownerAuthAddress).toStrictEqual(initialAddress)
     }
 
     await container.generate(20)
@@ -430,24 +396,18 @@ describe('Update Masternode', () => {
 
     {
       const masternodes = await client.masternode.listMasternodes()
-      const mn = masternodes[masternodeId]
-      if (mn === undefined) {
-        throw new Error('should not reach here')
-      }
-      expect(mn.state).toStrictEqual('TRANSFERRING')
-      expect(mn.ownerAuthAddress).toStrictEqual(initialAddress)
+      expect(masternodes[masternodeId]).toBeTruthy()
+      expect(masternodes[masternodeId].state).toStrictEqual('TRANSFERRING')
+      expect(masternodes[masternodeId].ownerAuthAddress).toStrictEqual(initialAddress)
     }
 
     await container.generate(45)
 
     {
       const masternodes = await client.masternode.listMasternodes()
-      const mn = masternodes[masternodeId]
-      if (mn === undefined) {
-        throw new Error('should not reach here')
-      }
-      expect(mn.state).toStrictEqual('ENABLED')
-      expect(mn.ownerAuthAddress).toStrictEqual(ownerAddress)
+      expect(masternodes[masternodeId]).toBeTruthy()
+      expect(masternodes[masternodeId].state).toStrictEqual('ENABLED')
+      expect(masternodes[masternodeId].ownerAuthAddress).toStrictEqual(ownerAddress)
     }
   })
 
@@ -510,9 +470,9 @@ describe('Update Masternode', () => {
     const masternodesLengthAfter = Object.keys(masternodesAfter).length
     expect(masternodesLengthAfter).toStrictEqual(11)
 
-    expect(masternodesAfter[masternodeIdA]).not.toStrictEqual(undefined)
-    expect(masternodesAfter[masternodeIdB]).not.toStrictEqual(undefined)
-    expect(masternodesAfter[masternodeIdC]).not.toStrictEqual(undefined)
+    expect(masternodesAfter[masternodeIdA]).toBeTruthy()
+    expect(masternodesAfter[masternodeIdB]).toBeTruthy()
+    expect(masternodesAfter[masternodeIdC]).toBeTruthy()
     expect(masternodesAfter['never-exists-masternode-id']).toStrictEqual(undefined)
   })
 })
