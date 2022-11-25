@@ -102,10 +102,14 @@ export abstract class P2WPKHTxnBuilder {
   async createDeFiTx (
     opDeFiTx: OP_DEFI_TX,
     changeScript: Script,
-    outValue: BigNumber = new BigNumber('0')
+    outValue: BigNumber = new BigNumber('0'),
+    additionalVinData: Array<{ vin: Vin, prevout: Prevout }> = []
   ): Promise<TransactionSegWit> {
     const minFee = outValue.plus(0.001) // see JSDoc above
     const { prevouts, vin, total } = await this.collectPrevouts(minFee)
+
+    const manualVins = additionalVinData.map(({ vin }) => vin)
+    const manualPrevouts = additionalVinData.map(({ prevout }) => prevout)
 
     const deFiOut: Vout = {
       value: outValue,
@@ -123,7 +127,7 @@ export abstract class P2WPKHTxnBuilder {
 
     const txn: Transaction = {
       version: DeFiTransactionConstants.Version,
-      vin: vin,
+      vin: [...vin, ...manualVins],
       vout: [deFiOut, change],
       lockTime: 0x00000000
     }
@@ -131,7 +135,7 @@ export abstract class P2WPKHTxnBuilder {
     const fee = await this.calculateFee(txn)
     change.value = total.minus(outValue).minus(fee)
 
-    return await this.sign(txn, prevouts)
+    return await this.sign(txn, [...prevouts, ...manualPrevouts])
   }
 
   /**

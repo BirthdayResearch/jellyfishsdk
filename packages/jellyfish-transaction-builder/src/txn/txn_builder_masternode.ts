@@ -5,8 +5,10 @@ import {
   ResignMasternode,
   Script,
   TransactionSegWit,
-  UpdateMasternode
+  UpdateMasternode,
+  Vin
 } from '@defichain/jellyfish-transaction'
+import { Prevout } from '..'
 import { P2WPKHTxnBuilder } from './txn_builder'
 
 export class TxnBuilderMasternode extends P2WPKHTxnBuilder {
@@ -50,10 +52,16 @@ export class TxnBuilderMasternode extends P2WPKHTxnBuilder {
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @return {Promise<TransactionSegWit>}
    */
-  async update (updateMasternode: UpdateMasternode, changeScript: Script): Promise<TransactionSegWit> {
+  async update (
+    updateMasternode: UpdateMasternode,
+    changeScript: Script,
+    additionalVinData?: Array<{ vin: Vin, prevout: Prevout }>
+  ): Promise<TransactionSegWit> {
     return await this.createDeFiTx(
       OP_CODES.OP_DEFI_TX_UPDATE_MASTER_NODE(updateMasternode),
-      changeScript
+      changeScript,
+      undefined,
+      additionalVinData
     )
   }
 }
