@@ -145,6 +145,24 @@ export class Masternode {
   }
 
   /**
+     * Creates (and submits to local node and network) a masternode update transaction which update the masternode operator addresses, spending the given inputs..
+     * The last optional argument (may be empty array) is an array of specific UTXOs to spend.
+     *
+     * @param {string} masternodeId The masternode's id.
+     * @param {UpdateMasternodeValues} values
+     * @param {string} [values.ownerAddress] The new masternode owner address, requires masternode collateral fee (P2PKH or P2WPKH).
+     * @param {string} [values.operatorAddress] The new masternode operator address (P2PKH or P2WPKH).
+     * @param {string} [values.rewardAddress] Masternode`s new reward address, empty "" to remove reward address.
+     * @param {UTXO[]} [utxos = []] Array of specified utxos to spend.
+     * @param {string} [utxos.txid] The transaction id.
+     * @param {number} [utxos.vout] The output number.
+     * @return {Promise<string>} The hex-encoded hash of broadcasted transaction.
+     */
+  async updateMasternode (masternodeId: string, values: UpdateMasternodeValues, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('updatemasternode', [masternodeId, values, utxos], 'number')
+  }
+
+  /**
    * Set special governance variables
    *
    * @param {Record<string, any>} input json object
@@ -321,4 +339,10 @@ export interface AnchorTeamResult {
 
 export interface MasternodeResult<T> {
   [id: string]: T
+}
+
+export interface UpdateMasternodeValues {
+  ownerAddress?: string
+  operatorAddress?: string
+  rewardAddress?: string
 }
