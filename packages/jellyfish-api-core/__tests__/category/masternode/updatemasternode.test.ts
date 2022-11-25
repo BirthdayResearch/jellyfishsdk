@@ -473,6 +473,6 @@ describe('Update Masternode', () => {
     expect(masternodesAfter[masternodeIdA]).toBeTruthy()
     expect(masternodesAfter[masternodeIdB]).toBeTruthy()
     expect(masternodesAfter[masternodeIdC]).toBeTruthy()
-    expect(masternodesAfter['never-exists-masternode-id']).toStrictEqual(undefined)
+    expect(Object.keys(masternodesAfter)).not.toContain('never-exists-masternode-id')
   })
 })
