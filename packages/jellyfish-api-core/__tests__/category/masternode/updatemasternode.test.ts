@@ -488,4 +488,35 @@ describe('Update Masternode', () => {
     expect(masternodesAfter[masternodeIdC].state).toStrictEqual('TRANSFERRING')
     expect(masternodesAfter[masternodeIdC].ownerAuthAddress).toStrictEqual(oldOwnerAddressC)
   })
+
+  it('Node 1 try to update node 0 which should be rejected', async () => {
+    // @TODO Need eyes on it
+    const container1 = new MasterNodeRegTestContainer()
+    const client1 = new ContainerAdapterClient(container1)
+
+    await container1.start()
+    await container1.waitForWalletCoinbaseMaturity()
+
+    // enable updating
+    await client1.masternode.setGov({
+      ATTRIBUTES: {
+        'v0/params/feature/mn-setowneraddress': 'true',
+        'v0/params/feature/mn-setoperatoraddress': 'true',
+        'v0/params/feature/mn-setrewardaddress': 'true'
+      }
+    })
+    await container1.generate(1)
+
+    const ownerAddress = await client.wallet.getNewAddress()
+    const newOperatorAddress = await client.wallet.getNewAddress()
+    const masternodeId = await client.masternode.createMasternode(ownerAddress)
+
+    await container.generate(40)
+
+    const promise = client1.masternode.updateMasternode(masternodeId, { operatorAddress: newOperatorAddress })
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow(`RpcApiError: 'The masternode ${masternodeId} does not exist', code: -8, method: updatemasternode`)
+
+    await container1.stop()
+  })
 })
