@@ -1,4 +1,4 @@
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { DeFiDRpcError, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { AddressType } from '../../../src/category/wallet'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
@@ -518,5 +518,45 @@ describe('Update Masternode', () => {
     await expect(promise).rejects.toThrow(`RpcApiError: 'The masternode ${masternodeId} does not exist', code: -8, method: updatemasternode`)
 
     await container1.stop()
+  })
+
+  it('Test incorrect new collateral amount', async () => {
+    const masternodeOwnerAddress = await client.wallet.getNewAddress()
+    const ownerAddress = await client.wallet.getNewAddress()
+    const masternodeId = await client.masternode.createMasternode(masternodeOwnerAddress)
+
+    await container.generate(20)
+
+    const { txid: missingAuthTx, vout: missingInputVout } = await container.fundAddress(masternodeOwnerAddress, 0.1)
+    const { txid: ownerAuthTx, vout: ownerAuthVout } = await container.fundAddress(ownerAddress, 0.1)
+
+    const missingTx = await client.masternode.updateMasternode(masternodeId, { ownerAddress: ownerAddress })
+    const missingRawTx = await container.call('getrawtransaction', [missingTx, true])
+
+    const keyedTx: { [key: string]: number } = {}
+    keyedTx[ownerAddress] = 10.1
+
+    await client.masternode.clearMempool()
+
+    const rawTx = await container.call('createrawtransaction', [
+      [
+        { txid: masternodeId, vout: 1 },
+        { txid: missingAuthTx, vout: missingInputVout },
+        { txid: ownerAuthTx, vout: ownerAuthVout }
+      ],
+      [
+        {
+          data: missingRawTx.vout[0].scriptPubKey.hex
+        },
+        keyedTx
+      ]
+    ])
+
+    const signedTx = await container.call('signrawtransactionwithwallet', [rawTx])
+    expect(signedTx.complete).toBeTruthy()
+
+    const promise = container.call('sendrawtransaction', [signedTx.hex])
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'bad-txns-collateral-locked, tried to spend locked collateral for ${masternodeId} (code 16)', code: -26`)
   })
 })
