@@ -609,6 +609,14 @@ describe('Update Masternode', () => {
   })
 
   it.skip('Node 1 try to update node 0 which should be rejected', async () => {
+    // @TODO Can't get the corret error
+    // mn_owner = self.nodes[0].getnewaddress("", "legacy")
+    // mn_id = self.nodes[0].createmasternode(mn_owner)
+    // self.nodes[0].generate(1)
+    // operator_address = self.nodes[0].getnewaddress("", "legacy")
+    // self.nodes[0].generate(4)
+    // assert_raises_rpc_error(-5, "Incorrect authorization for {}".format(mn_owner), self.nodes[1].updatemasternode, mn_id, {'operatorAddress':operator_address})
+
     // @TODO Need eyes on it
     const container1 = new MasterNodeRegTestContainer()
     const client1 = new ContainerAdapterClient(container1)
@@ -626,13 +634,14 @@ describe('Update Masternode', () => {
     })
     await container1.generate(1)
 
-    const ownerAddress = await client.wallet.getNewAddress()
-    const newOperatorAddress = await client.wallet.getNewAddress()
-    const masternodeId = await client.masternode.createMasternode(ownerAddress)
+    const masternodeOwnerAddress = await client.wallet.getNewAddress()
+    const masternodeId = await client.masternode.createMasternode(masternodeOwnerAddress)
+    await container.generate(1)
 
-    await container.generate(40)
+    const operatorAddress = await client.wallet.getNewAddress()
+    await container.generate(4)
 
-    const promise = client1.masternode.updateMasternode(masternodeId, { operatorAddress: newOperatorAddress })
+    const promise = client1.masternode.updateMasternode(masternodeId, { operatorAddress: operatorAddress })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow(`RpcApiError: 'The masternode ${masternodeId} does not exist', code: -8, method: updatemasternode`)
 
