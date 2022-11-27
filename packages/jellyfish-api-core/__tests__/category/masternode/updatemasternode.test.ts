@@ -489,6 +489,125 @@ describe('Update Masternode', () => {
     expect(masternodesAfter[masternodeIdC].ownerAuthAddress).toStrictEqual(oldOwnerAddressC)
   })
 
+  it.skip('Test owner update without collateral input', async () => {
+    // mn_owner = self.nodes[0].getnewaddress("", "legacy")
+    // mn_id = self.nodes[0].createmasternode(mn_owner)
+
+    // not_collateral = self.nodes[0].getnewaddress("", "legacy")
+    // owner_address = self.nodes[0].getnewaddress("", "legacy")
+
+    // [missing_auth_tx, missing_input_vout] = self.fund_tx(mn_owner, 0.1)
+    // [not_collateral_tx, not_collateral_vout] = self.fund_tx(not_collateral, 10)
+
+    // missing_tx = self.nodes[0].updatemasternode(mn_id, {'ownerAddress':owner_address})
+    // missing_rawtx = self.nodes[0].getrawtransaction(missing_tx, 1)
+    // self.nodes[0].clearmempool()
+
+    // rawtx = self.nodes[0].createrawtransaction(
+    //   [
+    //     {
+    //       "txid":missing_auth_tx,
+    //       "vout":missing_input_vout
+    //     },
+    //     {
+    //       "txid":not_collateral_tx,
+    //       "vout":not_collateral_vout
+    //     }
+    //   ],
+    //   [
+    //     {
+    //       "data":missing_rawtx['vout'][0]['scriptPubKey']['hex'][4:]
+    //     },
+    //     {
+    //       owner_address:10
+    //     }
+    //   ]
+    // )
+    // signed_rawtx = self.nodes[0].signrawtransactionwithwallet(rawtx)
+    // assert_raises_rpc_error(-26, "Missing previous collateral from transaction inputs", self.nodes[0].sendrawtransaction, signed_rawtx['hex'])
+
+    const masternodeOwnerAddress = await client.wallet.getNewAddress()
+    const masternodeId = await client.masternode.createMasternode(masternodeOwnerAddress)
+
+    await container.generate(20)
+
+    const notCollateralAddress = await client.wallet.getNewAddress()
+    const ownerAddress = await client.wallet.getNewAddress()
+    const { txid: missingAuthTx, vout: missingInputVout } = await container.fundAddress(masternodeOwnerAddress, 0.1)
+    const { txid: notCollateralTx, vout: notCollateralVout } = await container.fundAddress(notCollateralAddress, 10)
+
+    const missingTx = await client.masternode.updateMasternode(masternodeId, { ownerAddress: ownerAddress })
+    await container.generate(30)
+
+    const missingRawTx = await container.call('getrawtransaction', [missingTx, true])
+    await client.masternode.clearMempool()
+
+    const keyedTx: { [key: string]: number } = {}
+    keyedTx[ownerAddress] = 10
+
+    const rawTx = await container.call('createrawtransaction', [
+      [
+        { txid: missingAuthTx, vout: missingInputVout },
+        { txid: notCollateralTx, vout: notCollateralVout }
+      ],
+      [
+        {
+          data: missingRawTx.vout[0].scriptPubKey.hex
+        },
+        keyedTx
+      ]
+    ])
+
+    const signedTx = await container.call('signrawtransactionwithwallet', [rawTx])
+    console.log('signedTx', signedTx)
+    expect(signedTx.complete).toBeTruthy()
+
+    const promise = container.call('sendrawtransaction', [signedTx.hex])
+    // @TODO Expected error but got resolved
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'Missing previous collateral from transaction inputs\'')
+  })
+
+  it('Test incorrect new collateral amount', async () => {
+    const masternodeOwnerAddress = await client.wallet.getNewAddress()
+    const ownerAddress = await client.wallet.getNewAddress()
+    const masternodeId = await client.masternode.createMasternode(masternodeOwnerAddress)
+
+    await container.generate(20)
+
+    const { txid: missingAuthTx, vout: missingInputVout } = await container.fundAddress(masternodeOwnerAddress, 0.1)
+    const { txid: ownerAuthTx, vout: ownerAuthVout } = await container.fundAddress(ownerAddress, 0.1)
+
+    const missingTx = await client.masternode.updateMasternode(masternodeId, { ownerAddress: ownerAddress })
+    const missingRawTx = await container.call('getrawtransaction', [missingTx, true])
+
+    await client.masternode.clearMempool()
+
+    const keyedTx: { [key: string]: number } = {}
+    keyedTx[ownerAddress] = 10.1
+
+    const rawTx = await container.call('createrawtransaction', [
+      [
+        { txid: masternodeId, vout: 1 },
+        { txid: missingAuthTx, vout: missingInputVout },
+        { txid: ownerAuthTx, vout: ownerAuthVout }
+      ],
+      [
+        {
+          data: missingRawTx.vout[0].scriptPubKey.hex
+        },
+        keyedTx
+      ]
+    ])
+
+    const signedTx = await container.call('signrawtransactionwithwallet', [rawTx])
+    expect(signedTx.complete).toBeTruthy()
+
+    const promise = container.call('sendrawtransaction', [signedTx.hex])
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'bad-txns-collateral-locked, tried to spend locked collateral for ${masternodeId} (code 16)', code: -26`)
+  })
+
   it.skip('Node 1 try to update node 0 which should be rejected', async () => {
     // @TODO Need eyes on it
     const container1 = new MasterNodeRegTestContainer()
@@ -518,45 +637,5 @@ describe('Update Masternode', () => {
     await expect(promise).rejects.toThrow(`RpcApiError: 'The masternode ${masternodeId} does not exist', code: -8, method: updatemasternode`)
 
     await container1.stop()
-  })
-
-  it('Test incorrect new collateral amount', async () => {
-    const masternodeOwnerAddress = await client.wallet.getNewAddress()
-    const ownerAddress = await client.wallet.getNewAddress()
-    const masternodeId = await client.masternode.createMasternode(masternodeOwnerAddress)
-
-    await container.generate(20)
-
-    const { txid: missingAuthTx, vout: missingInputVout } = await container.fundAddress(masternodeOwnerAddress, 0.1)
-    const { txid: ownerAuthTx, vout: ownerAuthVout } = await container.fundAddress(ownerAddress, 0.1)
-
-    const missingTx = await client.masternode.updateMasternode(masternodeId, { ownerAddress: ownerAddress })
-    const missingRawTx = await container.call('getrawtransaction', [missingTx, true])
-
-    const keyedTx: { [key: string]: number } = {}
-    keyedTx[ownerAddress] = 10.1
-
-    await client.masternode.clearMempool()
-
-    const rawTx = await container.call('createrawtransaction', [
-      [
-        { txid: masternodeId, vout: 1 },
-        { txid: missingAuthTx, vout: missingInputVout },
-        { txid: ownerAuthTx, vout: ownerAuthVout }
-      ],
-      [
-        {
-          data: missingRawTx.vout[0].scriptPubKey.hex
-        },
-        keyedTx
-      ]
-    ])
-
-    const signedTx = await container.call('signrawtransactionwithwallet', [rawTx])
-    expect(signedTx.complete).toBeTruthy()
-
-    const promise = container.call('sendrawtransaction', [signedTx.hex])
-    await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'bad-txns-collateral-locked, tried to spend locked collateral for ${masternodeId} (code 16)', code: -26`)
   })
 })
