@@ -2,6 +2,8 @@ import { DeFiDRpcError, MasterNodeRegTestContainer } from '@defichain/testcontai
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { AddressType } from '../../../src/category/wallet'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
+import { TestingGroup } from '@defichain/jellyfish-testing'
+import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
 describe('Update Masternode', () => {
   const container = new MasterNodeRegTestContainer()
@@ -608,24 +610,19 @@ describe('Update Masternode', () => {
     await expect(promise).rejects.toThrow(`DeFiDRpcError: 'bad-txns-collateral-locked, tried to spend locked collateral for ${masternodeId} (code 16)', code: -26`)
   })
 
-  it.skip('Node 1 try to update node 0 which should be rejected', async () => {
-    // @TODO Can't get the corret error
-    // mn_owner = self.nodes[0].getnewaddress("", "legacy")
-    // mn_id = self.nodes[0].createmasternode(mn_owner)
-    // self.nodes[0].generate(1)
-    // operator_address = self.nodes[0].getnewaddress("", "legacy")
-    // self.nodes[0].generate(4)
-    // assert_raises_rpc_error(-5, "Incorrect authorization for {}".format(mn_owner), self.nodes[1].updatemasternode, mn_id, {'operatorAddress':operator_address})
+  it('should throw error if incorrect authorization is provided', async () => {
+    // @TODO: refactor file to use testing group across the board, or move this test to a separate describe() block
+    const tGroup = TestingGroup.create(2, i => new MasterNodeRegTestContainer(RegTestFoundationKeys[i]))
+    await tGroup.start()
 
-    // @TODO Need eyes on it
-    const container1 = new MasterNodeRegTestContainer()
-    const client1 = new ContainerAdapterClient(container1)
+    const container1 = tGroup.get(0)
+    const container2 = tGroup.get(1)
 
-    await container1.start()
-    await container1.waitForWalletCoinbaseMaturity()
+    await container1.container.waitForWalletCoinbaseMaturity()
+    await container2.container.waitForWalletCoinbaseMaturity()
 
     // enable updating
-    await client1.masternode.setGov({
+    await container1.rpc.masternode.setGov({
       ATTRIBUTES: {
         'v0/params/feature/mn-setowneraddress': 'true',
         'v0/params/feature/mn-setoperatoraddress': 'true',
@@ -634,17 +631,16 @@ describe('Update Masternode', () => {
     })
     await container1.generate(1)
 
-    const masternodeOwnerAddress = await client.wallet.getNewAddress()
-    const masternodeId = await client.masternode.createMasternode(masternodeOwnerAddress)
-    await container.generate(1)
+    const masternodeOwnerAddress = await container1.rpc.wallet.getNewAddress('', AddressType.LEGACY)
+    const masternodeId = await container1.rpc.masternode.createMasternode(masternodeOwnerAddress)
+    await container1.generate(100) // create masternode and wait for it to be enabled
 
-    const operatorAddress = await client.wallet.getNewAddress()
-    await container.generate(4)
+    const operatorAddress = await container1.rpc.wallet.getNewAddress('', AddressType.LEGACY)
+    await container1.generate(4)
+    await tGroup.waitForSync() // container2 should know about the new masternode
 
-    const promise = client1.masternode.updateMasternode(masternodeId, { operatorAddress: operatorAddress })
+    const promise = container2.rpc.masternode.updateMasternode(masternodeId, { operatorAddress: operatorAddress })
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow(`RpcApiError: 'The masternode ${masternodeId} does not exist', code: -8, method: updatemasternode`)
-
-    await container1.stop()
+    await expect(promise).rejects.toThrow(`RpcApiError: 'Incorrect authorization for ${masternodeOwnerAddress}', code: -5, method: updatemasternode`)
   })
 })
