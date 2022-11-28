@@ -43,6 +43,7 @@ describe('Governance', () => {
       type: ProposalType.COMMUNITY_FUND_PROPOSAL,
       status: ProposalStatus.VOTING,
       amount: new BigNumber(data.amount),
+      creationHeight: expect.any(Number),
       cycleEndHeight: expect.any(Number),
       proposalEndHeight: expect.any(Number),
       currentCycle: 1,
@@ -51,7 +52,6 @@ describe('Governance', () => {
       proposalId: proposalId,
       approvalThreshold: expect.any(String),
       fee: expect.any(Number),
-      feeBurnAmount: expect.any(Number),
       quorum: expect.any(String),
       votingPeriod: expect.any(Number)
     })
@@ -106,7 +106,7 @@ describe('Governance with multiple masternodes voting', () => {
     await testing.container.stop()
   })
 
-  it('should getGovProposal', async () => {
+  it('should getGovProposal with vote information', async () => {
     // VOC with votes above threshold
     {
       const data = {
@@ -133,20 +133,22 @@ describe('Governance with multiple masternodes voting', () => {
         context: data.context,
         contextHash: '',
         type: ProposalType.VOTE_OF_CONFIDENCE,
-        status: 'Approved',
+        status: ProposalStatus.COMPLETED,
+        creationHeight: expect.any(Number),
         cycleEndHeight: expect.any(Number),
         proposalEndHeight: expect.any(Number),
         currentCycle: 1,
-        totalCycles: 2,
-        payoutAddress: '',
+        totalCycles: 1,
         proposalId: proposalId,
-        votes: '75.00 of 66.67%',
-        votingPercent: '100.00 of 1.00%',
         approvalThreshold: '66.67%',
         quorum: '1.00%',
         fee: expect.any(Number),
-        feeBurnAmount: expect.any(Number),
-        votingPeriod: expect.any(Number)
+        votingPeriod: expect.any(Number),
+        votesPossible: 4,
+        votesPresent: 4,
+        votesPresentPct: '100.00%',
+        votesYes: 3,
+        votesYesPct: '75.00%'
       })
     }
 
@@ -178,19 +180,21 @@ describe('Governance with multiple masternodes voting', () => {
         contextHash: '',
         type: ProposalType.VOTE_OF_CONFIDENCE,
         status: ProposalStatus.REJECTED,
+        creationHeight: expect.any(Number),
         cycleEndHeight: expect.any(Number),
         proposalEndHeight: expect.any(Number),
         currentCycle: 1,
-        totalCycles: 2,
-        payoutAddress: '',
+        totalCycles: 1,
         proposalId: proposalId,
-        votes: '50.00 of 66.67%',
-        votingPercent: '100.00 of 1.00%',
         approvalThreshold: '66.67%',
         quorum: '1.00%',
         fee: expect.any(Number),
-        feeBurnAmount: expect.any(Number),
-        votingPeriod: expect.any(Number)
+        votingPeriod: expect.any(Number),
+        votesPossible: 4,
+        votesPresent: 4,
+        votesPresentPct: '100.00%',
+        votesYes: 2,
+        votesYesPct: '50.00%'
       })
     }
 
@@ -226,20 +230,24 @@ describe('Governance with multiple masternodes voting', () => {
         context: data.context,
         contextHash: '',
         type: ProposalType.COMMUNITY_FUND_PROPOSAL,
-        status: 'Approved',
+        status: ProposalStatus.COMPLETED,
+        amount: new BigNumber(data.amount),
+        creationHeight: expect.any(Number),
         cycleEndHeight: expect.any(Number),
         proposalEndHeight: expect.any(Number),
         currentCycle: 1,
         totalCycles: 2,
         payoutAddress: address,
         proposalId: proposalId,
-        votes: '100.00 of 50.00%',
-        votingPercent: '100.00 of 1.00%',
         approvalThreshold: '50.00%',
         quorum: '1.00%',
         fee: expect.any(Number),
-        feeBurnAmount: expect.any(Number),
-        votingPeriod: expect.any(Number)
+        votingPeriod: expect.any(Number),
+        votesPossible: 4,
+        votesPresent: 4,
+        votesPresentPct: '100.00%',
+        votesYes: 4,
+        votesYesPct: '100.00%'
       })
 
       // cycle 2 votes
@@ -263,19 +271,23 @@ describe('Governance with multiple masternodes voting', () => {
         contextHash: '',
         type: ProposalType.COMMUNITY_FUND_PROPOSAL,
         status: ProposalStatus.REJECTED,
+        amount: new BigNumber(data.amount),
+        creationHeight: expect.any(Number),
         cycleEndHeight: expect.any(Number),
         proposalEndHeight: expect.any(Number),
         currentCycle: 2,
         totalCycles: 2,
         payoutAddress: address,
         proposalId: proposalId,
-        votes: '25.00 of 50.00%',
-        votingPercent: '100.00 of 1.00%',
         approvalThreshold: '50.00%',
         quorum: '1.00%',
         fee: expect.any(Number),
-        feeBurnAmount: expect.any(Number),
-        votingPeriod: expect.any(Number)
+        votingPeriod: expect.any(Number),
+        votesPossible: 4,
+        votesPresent: 4,
+        votesPresentPct: '100.00%',
+        votesYes: 1,
+        votesYesPct: '25.00%'
       })
     }
   })

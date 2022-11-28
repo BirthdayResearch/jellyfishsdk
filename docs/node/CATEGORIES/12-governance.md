@@ -65,17 +65,22 @@ interface ProposalInfo {
   contextHash: string
   type: ProposalType
   status: ProposalStatus
-  amount: BigNumber
+  amount?: BigNumber
   currentCycle: number
   totalCycles: number
+  creationHeight: number
   cycleEndHeight: number
   proposalEndHeight: number
-  payoutAddress: string
+  payoutAddress?: string
   votingPeriod: number
   approvalThreshold: string
   quorum: string
+  votesPossible?: number
+  votesPresent?: number
+  votesPresentPct?: string
+  votesYes?: number
+  votesYesPct?: string
   fee: number
-  feeBurnAmount: number
   options?: string[]
 }
  ```
@@ -147,17 +152,22 @@ interface ProposalInfo {
   contextHash: string
   type: ProposalType
   status: ProposalStatus
-  amount: BigNumber
+  amount?: BigNumber
   currentCycle: number
   totalCycles: number
+  creationHeight: number
   cycleEndHeight: number
   proposalEndHeight: number
-  payoutAddress: string
+  payoutAddress?: string
   votingPeriod: number
   approvalThreshold: string
   quorum: string
+  votesPossible?: number
+  votesPresent?: number
+  votesPresentPct?: string
+  votesYes?: number
+  votesYesPct?: string
   fee: number
-  feeBurnAmount: number
   options?: string[]
 }
 ```

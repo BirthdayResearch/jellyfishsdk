@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js'
 import { StartOptions, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { MasternodeType, VoteDecision } from '../../../src/category/governance'
 import { Testing } from '@defichain/jellyfish-testing'
@@ -120,10 +121,14 @@ describe('Governance', () => {
 
   it('should listGovProposalVotes with a given number of cycles', async () => {
     const data = {
-      title: 'A vote of confidence',
-      context: '<Git issue url>'
+      title: 'Testing a community fund proposal',
+      amount: new BigNumber(100),
+      context: '<Git issue url>',
+      payoutAddress: await testing.container.getNewAddress(),
+      cycles: 2
     }
-    const proposalId = await testing.rpc.governance.createGovVoc(data) // Creates a vote of confidence on which to vote
+    const proposalId = await testing.rpc.governance.createGovCfp(data) // Creates a cfp on which to vote
+
     let masternodeId = ''
 
     await testing.container.generate(1)

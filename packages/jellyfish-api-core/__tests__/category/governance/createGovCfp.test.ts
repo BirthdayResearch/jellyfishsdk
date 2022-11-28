@@ -71,6 +71,7 @@ describe('On-chain governance enabled', () => {
         type: ProposalType.COMMUNITY_FUND_PROPOSAL,
         status: ProposalStatus.VOTING,
         amount: data.amount.toNumber(),
+        creationHeight: expect.any(Number),
         cycleEndHeight: expect.any(Number),
         proposalEndHeight: expect.any(Number),
         currentCycle: 1,
@@ -79,7 +80,6 @@ describe('On-chain governance enabled', () => {
         proposalId: proposalTx,
         approvalThreshold: expect.any(String),
         fee: expect.any(Number),
-        feeBurnAmount: expect.any(Number),
         quorum: expect.any(String),
         votingPeriod: expect.any(Number)
       })
@@ -108,6 +108,7 @@ describe('On-chain governance enabled', () => {
         type: ProposalType.COMMUNITY_FUND_PROPOSAL,
         status: ProposalStatus.VOTING,
         amount: data.amount.toNumber(),
+        creationHeight: expect.any(Number),
         cycleEndHeight: expect.any(Number),
         proposalEndHeight: expect.any(Number),
         currentCycle: 1,
@@ -116,7 +117,6 @@ describe('On-chain governance enabled', () => {
         proposalId: proposalTx,
         approvalThreshold: expect.any(String),
         fee: expect.any(Number),
-        feeBurnAmount: expect.any(Number),
         quorum: expect.any(String),
         votingPeriod: expect.any(Number)
       })
@@ -145,6 +145,7 @@ describe('On-chain governance enabled', () => {
         type: ProposalType.COMMUNITY_FUND_PROPOSAL,
         status: ProposalStatus.VOTING,
         amount: data.amount.toNumber(),
+        creationHeight: expect.any(Number),
         cycleEndHeight: expect.any(Number),
         proposalEndHeight: expect.any(Number),
         currentCycle: 1,
@@ -153,7 +154,6 @@ describe('On-chain governance enabled', () => {
         proposalId: proposalTx,
         approvalThreshold: expect.any(String),
         fee: expect.any(Number),
-        feeBurnAmount: expect.any(Number),
         quorum: expect.any(String),
         votingPeriod: expect.any(Number)
       })
