@@ -164,7 +164,7 @@ describe('Consortium', () => {
         '02': {
           name: 'account2BTC',
           ownerAddress: account2,
-          dailyMintLimit: 5,
+          mintLimitDaily: 5,
           mintLimit: 10,
           backingId: 'backing2'
         }
@@ -183,7 +183,7 @@ describe('Consortium', () => {
         '02': {
           name: 'account2BTC',
           ownerAddress: account2,
-          dailyMintLimit: 5,
+          mintLimitDaily: 5,
           mintLimit: 10,
           backingId: 'backing2'
         }
@@ -201,7 +201,7 @@ describe('Consortium', () => {
         '02': {
           name: 'account2BTC',
           ownerAddress: account2,
-          dailyMintLimit: 5,
+          mintLimitDaily: 5,
           mintLimit: 10,
           backingId: 'backing2'
         }
@@ -220,14 +220,14 @@ describe('Consortium', () => {
           id: '01',
           name: 'account1BTC',
           ownerAddress: account1,
-          dailyMintLimit: 5,
+          mintLimitDaily: 5,
           mintLimit: 10,
           backingId: 'backing1'
         },
         '03': {
           name: 'account3BTC',
           ownerAddress: account3,
-          dailyMintLimit: 5,
+          mintLimitDaily: 5,
           mintLimit: 10,
           backingId: 'backing3'
         }
@@ -251,14 +251,14 @@ describe('Consortium', () => {
           id: '01',
           name: 'account1BTC',
           ownerAddress: account1,
-          dailyMintLimit: 5,
+          mintLimitDaily: 5,
           mintLimit: 8,
           backingId: 'backing1'
         },
         '03': {
           name: 'account3BTC',
           ownerAddress: account3,
-          dailyMintLimit: 5,
+          mintLimitDaily: 5,
           mintLimit: 8,
           backingId: 'backing3'
         }
@@ -282,7 +282,7 @@ describe('Consortium', () => {
           name: 'account1DOGE',
           ownerAddress: account1,
           backingId: 'backing1',
-          dailyMintLimit: 2.00000000,
+          mintLimitDaily: 2.00000000,
           mintLimit: 5.00000000,
           status: 1
         }
@@ -301,7 +301,7 @@ describe('Consortium', () => {
           name: 'account2BTC',
           ownerAddress: account2,
           mintLimit: 10,
-          dailyMintLimit: 5,
+          mintLimitDaily: 5,
           backingId: 'backing2'
         }
       }
@@ -328,21 +328,21 @@ describe('Consortium', () => {
           id: '01',
           name: 'account1BTC',
           ownerAddress: account1,
-          dailyMintLimit: 10000000,
+          mintLimitDaily: 10000000,
           mintLimit: 10000000,
           backingId: 'backing1'
         },
         '02': {
           name: 'account2BTC',
           ownerAddress: account2,
-          dailyMintLimit: 50000000,
+          mintLimitDaily: 50000000,
           mintLimit: 50000000,
           backingId: 'backing2'
         },
         '03': {
           name: 'account3BTC',
           ownerAddress: account3,
-          dailyMintLimit: 50000000,
+          mintLimitDaily: 50000000,
           mintLimit: 50000000,
           backingId: 'backing3'
         }
@@ -361,14 +361,14 @@ describe('Consortium', () => {
           name: 'account1BTC',
           ownerAddress: account1,
           backingId: 'backing1',
-          dailyMintLimit: 5.00000000,
+          mintLimitDaily: 5.00000000,
           mintLimit: 10.00000000
         },
         '02': {
           name: 'account2BTC',
           ownerAddress: account2,
           backingId: 'backing2',
-          dailyMintLimit: 5.00000000,
+          mintLimitDaily: 5.00000000,
           mintLimit: 10.00000000
         }
       },
@@ -377,14 +377,14 @@ describe('Consortium', () => {
           name: 'account1DOGE',
           ownerAddress: account1,
           backingId: 'backing1',
-          dailyMintLimit: 5.00000000,
+          mintLimitDaily: 5.00000000,
           mintLimit: 10.00000000
         },
         '02': {
           name: 'account2DOGE',
           ownerAddress: account2,
           backingId: 'backing2',
-          dailyMintLimit: 5.00000000,
+          mintLimitDaily: 5.00000000,
           mintLimit: 10.00000000
         }
       }
@@ -397,7 +397,7 @@ describe('Consortium', () => {
         ownerAddress: account1,
         backingId: 'backing1',
         mintLimit: new BigNumber(10),
-        dailyMintLimit: new BigNumber(5),
+        mintLimitDaily: new BigNumber(5),
         status: new BigNumber(0)
       },
       '02': {
@@ -405,7 +405,7 @@ describe('Consortium', () => {
         ownerAddress: account2,
         backingId: 'backing2',
         mintLimit: new BigNumber(10),
-        dailyMintLimit: new BigNumber(5),
+        mintLimitDaily: new BigNumber(5),
         status: new BigNumber(0)
       }
     })
@@ -418,7 +418,7 @@ describe('Consortium', () => {
         ownerAddress: account1,
         backingId: 'backing1',
         mintLimit: new BigNumber(10),
-        dailyMintLimit: new BigNumber(5),
+        mintLimitDaily: new BigNumber(5),
         status: new BigNumber(0)
       },
       '02': {
@@ -426,7 +426,7 @@ describe('Consortium', () => {
         ownerAddress: account2,
         backingId: 'backing2',
         mintLimit: new BigNumber(10),
-        dailyMintLimit: new BigNumber(5),
+        mintLimitDaily: new BigNumber(5),
         status: new BigNumber(0)
       }
     })

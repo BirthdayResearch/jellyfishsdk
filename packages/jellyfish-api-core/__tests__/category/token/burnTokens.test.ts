@@ -40,14 +40,14 @@ describe('burnTokens', () => {
         '02': {
           name: 'account2BTC',
           ownerAddress: account0,
-          dailyMintLimit: 5,
+          mintLimitDaily: 5,
           mintLimit: 10,
           backingId: 'backing2'
         },
         '03': {
           name: 'account3BTC',
           ownerAddress: account2,
-          dailyMintLimit: 5,
+          mintLimitDaily: 5,
           mintLimit: 10,
           backingId: 'backing2'
         }
@@ -86,7 +86,7 @@ describe('burnTokens', () => {
 
   it('should throw an error if not enough tokens are available to burn', async () => {
     const promise = tGroup.get(0).rpc.token.burnTokens(`11@${symbolDBTC}`, account0)
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test BurnTokenTx execution failed:\nnot enough tokens exist to subtract this amount\', code: -32600, method: burntokens')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test BurnTokenTx execution failed:\namount 10.00000000 is less than 11.00000000\', code: -32600, method: burntokens')
   })
 
   it('should throw an error if tried to burn tokens under another masternode', async () => {

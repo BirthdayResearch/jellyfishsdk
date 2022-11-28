@@ -661,7 +661,7 @@ describe('setGov consortium ATTRIBUTES', () => {
           ownerAddress: account1,
           backingId: 'blablabla',
           mintLimit: 10.00000000,
-          dailyMintLimit: -10.00000000
+          mintLimitDaily: -10.00000000
         }
       }
     })
@@ -684,7 +684,7 @@ describe('setGov consortium ATTRIBUTES', () => {
           ownerAddress: account1,
           backingId: 'blablabla',
           mintLimit: 10.00000000,
-          dailyMintLimit: 1.00000000,
+          mintLimitDaily: 1.00000000,
           status: -1
         }
       }
@@ -706,7 +706,7 @@ describe('setGov consortium ATTRIBUTES', () => {
           ownerAddress: account1,
           backingId: 'blablabla',
           mintLimit: 10.00000000,
-          dailyMintLimit: 1.00000000,
+          mintLimitDaily: 1.00000000,
           status: 2
         }
       }
@@ -738,7 +738,7 @@ describe('setGov consortium ATTRIBUTES', () => {
           ownerAddress: account1,
           backingId: 'blablabla',
           mintLimit: 9.00000000,
-          dailyMintLimit: 1.00000000,
+          mintLimitDaily: 1.00000000,
           status: 1
         }
       }
@@ -750,7 +750,7 @@ describe('setGov consortium ATTRIBUTES', () => {
         name: 'test',
         ownerAddress: account1,
         backingId: 'blablabla',
-        dailyMintLimit: new BigNumber(1),
+        mintLimitDaily: new BigNumber(1),
         mintLimit: new BigNumber(9),
         status: new BigNumber(1)
       }
