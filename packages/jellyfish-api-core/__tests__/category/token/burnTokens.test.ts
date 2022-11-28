@@ -12,7 +12,7 @@ describe('burnTokens', () => {
 
     account0 = await tGroup.get(0).generateAddress()
     account1 = await tGroup.get(1).generateAddress()
-    account2 = await tGroup.get(1).generateAddress()
+    account2 = await tGroup.get(2).generateAddress()
 
     await tGroup.get(0).token.create({
       symbol: symbolDBTC,
