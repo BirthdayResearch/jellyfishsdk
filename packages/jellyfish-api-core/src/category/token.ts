@@ -113,6 +113,17 @@ export class Token {
   async burnTokens (amounts: string, from: string, context?: string, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('burntokens', [{ amounts, from, context }, utxos], 'number')
   }
+
+  /**
+   * Get detailed information about any custom transaction.
+   *
+   * @param {string} txid Transaction hash
+   * @param {string} [blockhash] (for confirmed transactions) Hash of the block of the  transaction
+   * @return {Promise<GetCustomTxResult>} The hex-encoded hash of broadcasted transaction
+   */
+  async getCustomTx (txid: string, blockhash?: string): Promise<GetCustomTxResult> {
+    return await this.client.call('getcustomtx', [txid, blockhash], 'number')
+  }
 }
 
 export interface TokenResult {
@@ -166,4 +177,13 @@ export interface TokenPagination {
 export interface UTXO {
   txid: string
   vout: number
+}
+
+export interface GetCustomTxResult {
+  type: string
+  valid: boolean
+  results: object
+  blockHeight: string
+  blockhash: string
+  confirmations: number
 }
