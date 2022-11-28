@@ -48,7 +48,6 @@ interface governance {
 
 enum ProposalType {
   COMMUNITY_FUND_PROPOSAL = 'CommunityFundProposal',
-  BLOCK_REWARD_RELLOCATION = 'BlockRewardRellocation',
   VOTE_OF_CONFIDENCE = 'VoteOfConfidence'
 }
 
@@ -121,7 +120,6 @@ interface governance {
 
 enum ListProposalsType {
   CFP = 'cfp',
-  BRP = 'brp',
   VOC = 'voc',
   ALL = 'all'
 }
@@ -135,7 +133,6 @@ enum ListProposalsStatus {
 
 enum ProposalType {
   COMMUNITY_FUND_PROPOSAL = 'CommunityFundProposal',
-  BLOCK_REWARD_RELLOCATION = 'BlockRewardRellocation',
   VOTE_OF_CONFIDENCE = 'VoteOfConfidence'
 }
 
