@@ -2,7 +2,7 @@ import { DeFiDRpcError, MasterNodeRegTestContainer } from '@defichain/testcontai
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { AddressType } from '../../../src/category/wallet'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
-import { TestingGroup } from '@defichain/jellyfish-testing'
+import { Testing, TestingGroup } from '@defichain/jellyfish-testing'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
 describe('Update Masternode', () => {
@@ -491,85 +491,6 @@ describe('Update Masternode', () => {
     expect(masternodesAfter[masternodeIdC].ownerAuthAddress).toStrictEqual(oldOwnerAddressC)
   })
 
-  it.skip('Test owner update without collateral input', async () => {
-    // mn_owner = self.nodes[0].getnewaddress("", "legacy")
-    // mn_id = self.nodes[0].createmasternode(mn_owner)
-
-    // not_collateral = self.nodes[0].getnewaddress("", "legacy")
-    // owner_address = self.nodes[0].getnewaddress("", "legacy")
-
-    // [missing_auth_tx, missing_input_vout] = self.fund_tx(mn_owner, 0.1)
-    // [not_collateral_tx, not_collateral_vout] = self.fund_tx(not_collateral, 10)
-
-    // missing_tx = self.nodes[0].updatemasternode(mn_id, {'ownerAddress':owner_address})
-    // missing_rawtx = self.nodes[0].getrawtransaction(missing_tx, 1)
-    // self.nodes[0].clearmempool()
-
-    // rawtx = self.nodes[0].createrawtransaction(
-    //   [
-    //     {
-    //       "txid":missing_auth_tx,
-    //       "vout":missing_input_vout
-    //     },
-    //     {
-    //       "txid":not_collateral_tx,
-    //       "vout":not_collateral_vout
-    //     }
-    //   ],
-    //   [
-    //     {
-    //       "data":missing_rawtx['vout'][0]['scriptPubKey']['hex'][4:]
-    //     },
-    //     {
-    //       owner_address:10
-    //     }
-    //   ]
-    // )
-    // signed_rawtx = self.nodes[0].signrawtransactionwithwallet(rawtx)
-    // assert_raises_rpc_error(-26, "Missing previous collateral from transaction inputs", self.nodes[0].sendrawtransaction, signed_rawtx['hex'])
-
-    const masternodeOwnerAddress = await client.wallet.getNewAddress()
-    const masternodeId = await client.masternode.createMasternode(masternodeOwnerAddress)
-
-    await container.generate(20)
-
-    const notCollateralAddress = await client.wallet.getNewAddress()
-    const ownerAddress = await client.wallet.getNewAddress()
-    const { txid: missingAuthTx, vout: missingInputVout } = await container.fundAddress(masternodeOwnerAddress, 0.1)
-    const { txid: notCollateralTx, vout: notCollateralVout } = await container.fundAddress(notCollateralAddress, 10)
-
-    const missingTx = await client.masternode.updateMasternode(masternodeId, { ownerAddress: ownerAddress })
-    await container.generate(30)
-
-    const missingRawTx = await container.call('getrawtransaction', [missingTx, true])
-    await client.masternode.clearMempool()
-
-    const keyedTx: { [key: string]: number } = {}
-    keyedTx[ownerAddress] = 10
-
-    const rawTx = await container.call('createrawtransaction', [
-      [
-        { txid: missingAuthTx, vout: missingInputVout },
-        { txid: notCollateralTx, vout: notCollateralVout }
-      ],
-      [
-        {
-          data: missingRawTx.vout[0].scriptPubKey.hex
-        },
-        keyedTx
-      ]
-    ])
-
-    const signedTx = await container.call('signrawtransactionwithwallet', [rawTx])
-    console.log('signedTx', signedTx)
-    expect(signedTx.complete).toBeTruthy()
-
-    const promise = container.call('sendrawtransaction', [signedTx.hex])
-    // @TODO Expected error but got resolved
-    await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'Missing previous collateral from transaction inputs\'')
-  })
-
   it('Test incorrect new collateral amount', async () => {
     const masternodeOwnerAddress = await client.wallet.getNewAddress()
     const ownerAddress = await client.wallet.getNewAddress()
@@ -609,37 +530,46 @@ describe('Update Masternode', () => {
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow(`DeFiDRpcError: 'bad-txns-collateral-locked, tried to spend locked collateral for ${masternodeId} (code 16)', code: -26`)
   })
+})
+
+describe('Update Masternode (Multi-containers)', () => {
+  let tGroup: TestingGroup
+  const node: Testing[] = []
+
+  beforeAll(async () => {
+    tGroup = TestingGroup.create(2, i => new MasterNodeRegTestContainer(RegTestFoundationKeys[i]))
+    await tGroup.start()
+    node.push(tGroup.get(0))
+    node.push(tGroup.get(1))
+  })
+
+  afterAll(async () => {
+    await tGroup.stop()
+  })
 
   it('should throw error if incorrect authorization is provided', async () => {
-    // @TODO: refactor file to use testing group across the board, or move this test to a separate describe() block
-    const tGroup = TestingGroup.create(2, i => new MasterNodeRegTestContainer(RegTestFoundationKeys[i]))
-    await tGroup.start()
-
-    const container1 = tGroup.get(0)
-    const container2 = tGroup.get(1)
-
-    await container1.container.waitForWalletCoinbaseMaturity()
-    await container2.container.waitForWalletCoinbaseMaturity()
+    await node[0].container.waitForWalletCoinbaseMaturity()
+    await node[1].container.waitForWalletCoinbaseMaturity()
 
     // enable updating
-    await container1.rpc.masternode.setGov({
+    await node[0].rpc.masternode.setGov({
       ATTRIBUTES: {
         'v0/params/feature/mn-setowneraddress': 'true',
         'v0/params/feature/mn-setoperatoraddress': 'true',
         'v0/params/feature/mn-setrewardaddress': 'true'
       }
     })
-    await container1.generate(1)
+    await node[0].generate(1)
 
-    const masternodeOwnerAddress = await container1.rpc.wallet.getNewAddress('', AddressType.LEGACY)
-    const masternodeId = await container1.rpc.masternode.createMasternode(masternodeOwnerAddress)
-    await container1.generate(100) // create masternode and wait for it to be enabled
+    const masternodeOwnerAddress = await node[0].rpc.wallet.getNewAddress('', AddressType.LEGACY)
+    const masternodeId = await node[0].rpc.masternode.createMasternode(masternodeOwnerAddress)
+    await node[0].generate(100) // create masternode and wait for it to be enabled
 
-    const operatorAddress = await container1.rpc.wallet.getNewAddress('', AddressType.LEGACY)
-    await container1.generate(4)
+    const operatorAddress = await node[0].rpc.wallet.getNewAddress('', AddressType.LEGACY)
+    await node[0].generate(4)
     await tGroup.waitForSync() // container2 should know about the new masternode
 
-    const promise = container2.rpc.masternode.updateMasternode(masternodeId, { operatorAddress: operatorAddress })
+    const promise = node[1].rpc.masternode.updateMasternode(masternodeId, { operatorAddress: operatorAddress })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow(`RpcApiError: 'Incorrect authorization for ${masternodeOwnerAddress}', code: -5, method: updatemasternode`)
   })
