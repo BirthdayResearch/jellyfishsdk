@@ -170,3 +170,20 @@ interface GetCustomTxResult {
   confirmations: number
 }
 ```
+
+## decodeCustomTx
+
+Get detailed information about any custom transaction from the raw transaction.
+
+```ts title="client.token.decodeCustomTx()"
+interface token {
+  decodeCustomTx (hexstring: string, iswitness?: boolean): Promise<DecodeCustomTxResult>
+}
+
+interface DecodeCustomTxResult {
+  txid: string
+  type: string
+  valid: boolean
+  results: object
+}
+```

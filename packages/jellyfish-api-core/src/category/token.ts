@@ -119,10 +119,24 @@ export class Token {
    *
    * @param {string} txid Transaction hash
    * @param {string} [blockhash] (for confirmed transactions) Hash of the block of the  transaction
-   * @return {Promise<GetCustomTxResult>} The hex-encoded hash of broadcasted transaction
+   * @return {Promise<GetCustomTxResult>} Inferred custom transaction data
    */
   async getCustomTx (txid: string, blockhash?: string): Promise<GetCustomTxResult> {
     return await this.client.call('getcustomtx', [txid, blockhash], 'number')
+  }
+
+  /**
+   * Get detailed information about any custom transaction from the raw transaction.
+   *
+   * @param {string} hexstring Serialised custom transaction data
+   * @param {boolean} [iswitness] is the transaction a serialised witness transaction
+   * @return {Promise<DecodeCustomTxResult | string>} Inferred custom transaction data, or error message
+   */
+  async decodeCustomTx (hexstring: string, iswitness?: boolean): Promise<DecodeCustomTxResult | string> {
+    if (iswitness === undefined) {
+      return await this.client.call('decodecustomtx', [hexstring], 'number')
+    }
+    return await this.client.call('decodecustomtx', [hexstring, iswitness], 'number')
   }
 }
 
@@ -186,4 +200,11 @@ export interface GetCustomTxResult {
   blockHeight: string
   blockhash: string
   confirmations: number
+}
+
+export interface DecodeCustomTxResult {
+  txid: string
+  type: string
+  valid: boolean
+  results: object
 }
