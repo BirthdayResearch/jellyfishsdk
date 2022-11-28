@@ -1,6 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
+import BigNumber from 'bignumber.js'
 
 describe('Get Custom TX', () => {
   const container = new MasterNodeRegTestContainer()
@@ -79,6 +80,31 @@ describe('Get Custom TX', () => {
         mintable: true,
         tradeable: true,
         finalized: false
+      },
+      blockHeight: await client.blockchain.getBlockCount(),
+      blockhash: await client.blockchain.getBestBlockHash(),
+      confirmations: 1
+    })
+  })
+
+  it('should return custom transaction details - createLoanScheme', async () => {
+    const txid = await client.loan.createLoanScheme({
+      minColRatio: 105,
+      interestRate: new BigNumber(5),
+      id: 'LOAN105'
+    })
+    await container.generate(1)
+
+    const result = await client.token.getCustomTx(txid, await container.getBestBlockHash())
+
+    expect(result).toMatchObject({
+      type: 'LoanScheme',
+      valid: true,
+      results: {
+        id: 'LOAN105',
+        interestrate: 5,
+        mincolratio: 105,
+        updateHeight: 0
       },
       blockHeight: await client.blockchain.getBlockCount(),
       blockhash: await client.blockchain.getBestBlockHash(),
