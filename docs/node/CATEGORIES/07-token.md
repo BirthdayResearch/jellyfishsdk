@@ -158,7 +158,7 @@ Get detailed information about any custom transaction.
 
 ```ts title="client.token.getCustomTx()"
 interface token {
-  getCustomTx (txid: string, blockhash?: string): Promise<GetCustomTxResult>
+  getCustomTx (txid: string, blockhash?: string): Promise<GetCustomTxResult | string>
 }
 
 interface GetCustomTxResult {
@@ -177,7 +177,7 @@ Get detailed information about any custom transaction from the raw transaction.
 
 ```ts title="client.token.decodeCustomTx()"
 interface token {
-  decodeCustomTx (hexstring: string, iswitness?: boolean): Promise<DecodeCustomTxResult>
+  decodeCustomTx (hexstring: string, iswitness?: boolean): Promise<DecodeCustomTxResult | string>
 }
 
 interface DecodeCustomTxResult {
