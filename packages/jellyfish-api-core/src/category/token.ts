@@ -119,9 +119,9 @@ export class Token {
    *
    * @param {string} txid Transaction hash
    * @param {string} [blockhash] (for confirmed transactions) Hash of the block of the  transaction
-   * @return {Promise<GetCustomTxResult>} Inferred custom transaction data
+   * @return {Promise<GetCustomTxResult | string>} Inferred custom transaction data, or error message
    */
-  async getCustomTx (txid: string, blockhash?: string): Promise<GetCustomTxResult> {
+  async getCustomTx (txid: string, blockhash?: string): Promise<GetCustomTxResult | string> {
     return await this.client.call('getcustomtx', [txid, blockhash], 'number')
   }
 

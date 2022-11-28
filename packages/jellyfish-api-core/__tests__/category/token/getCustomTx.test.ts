@@ -56,6 +56,17 @@ describe('Get Custom TX', () => {
     })
   })
 
+  it('should throw error if not custom tx', async () => {
+    const UTXO = (await client.wallet.listUnspent())[0]
+    const fromAddress = UTXO.address
+    const amount = UTXO.amount.toNumber()
+
+    const txid = await container.call('sendutxosfrom', [fromAddress, await container.getNewAddress(), amount])
+    const promise = await client.token.getCustomTx(txid, await container.getBestBlockHash())
+
+    expect(promise).toStrictEqual('Not a custom transaction')
+  })
+
   it('should return custom transaction details - createToken', async () => {
     const txid = await client.token.createToken({
       symbol: 'TEST',
