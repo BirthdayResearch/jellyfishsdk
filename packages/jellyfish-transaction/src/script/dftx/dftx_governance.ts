@@ -176,7 +176,7 @@ export interface CreateCfp extends CreateProposal {
 }
 export interface CreateVoc extends CreateProposal {
   type: 0x02
-  nCycles: 0x01 | 0x02
+  nCycles: 0x01
 }
 
 /**

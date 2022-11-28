@@ -68,12 +68,12 @@ describe('createCfp', () => {
       amount: createCfp.nAmount.toNumber(),
       currentCycle: 1,
       totalCycles: createCfp.nCycles,
+      creationHeight: expect.any(Number),
       cycleEndHeight: expect.any(Number),
       proposalEndHeight: expect.any(Number),
       payoutAddress: expect.any(String),
       approvalThreshold: expect.any(String),
       fee: expect.any(Number),
-      feeBurnAmount: expect.any(Number),
       quorum: expect.any(String),
       votingPeriod: expect.any(Number)
     })

@@ -43,7 +43,13 @@ export class TxnBuilderGovernance extends P2WPKHTxnBuilder {
         'CreateVoc address stack should be empty'
       )
     }
-    let creationFee = this.network.name === 'regtest' || this.network.name === 'devnet' ? new BigNumber('5') : new BigNumber('50')
+    let creationFee = new BigNumber('5')
+    if (this.network.name === 'mainnet') {
+      creationFee = new BigNumber('100')
+    }
+    if (this.network.name === 'testnet') {
+      creationFee = new BigNumber('50')
+    }
     if (createVoc.options === 1) {
       creationFee = new BigNumber('10000')
     }

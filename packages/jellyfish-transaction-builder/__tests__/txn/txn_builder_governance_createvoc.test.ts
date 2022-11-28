@@ -44,7 +44,7 @@ describe('createVoc', () => {
       address: {
         stack: []
       },
-      nCycles: 2,
+      nCycles: 1,
       options: 0x00
     }
     const txn = await builder.governance.createVoc(createVoc, script)
@@ -66,17 +66,15 @@ describe('createVoc', () => {
       contextHash: createVoc.contexthash,
       type: governance.ProposalType.VOTE_OF_CONFIDENCE,
       status: governance.ProposalStatus.VOTING,
-      amount: createVoc.nAmount.toNumber(),
       currentCycle: 1,
       totalCycles: createVoc.nCycles,
+      creationHeight: expect.any(Number),
       cycleEndHeight: expect.any(Number),
       proposalEndHeight: expect.any(Number),
       approvalThreshold: expect.any(String),
       fee: expect.any(Number),
-      feeBurnAmount: expect.any(Number),
       quorum: expect.any(String),
-      votingPeriod: expect.any(Number),
-      payoutAddress: ''
+      votingPeriod: expect.any(Number)
     })
   })
 
@@ -113,15 +111,13 @@ describe('createVoc', () => {
       contextHash: createVoc.contexthash,
       type: governance.ProposalType.VOTE_OF_CONFIDENCE,
       status: governance.ProposalStatus.VOTING,
-      amount: createVoc.nAmount.toNumber(),
       currentCycle: 1,
       totalCycles: createVoc.nCycles,
+      creationHeight: expect.any(Number),
       cycleEndHeight: expect.any(Number),
       proposalEndHeight: expect.any(Number),
-      payoutAddress: '',
       approvalThreshold: expect.any(String),
       fee: expect.any(Number),
-      feeBurnAmount: expect.any(Number),
       quorum: expect.any(String),
       votingPeriod: expect.any(Number),
       options: ['emergency']
@@ -139,7 +135,7 @@ describe('createVoc', () => {
       address: {
         stack: []
       },
-      nCycles: 2,
+      nCycles: 1,
       options: 0x00
     }, script)
 
@@ -162,7 +158,7 @@ describe('createVoc', () => {
           OP_CODES.OP_EQUAL
         ]
       },
-      nCycles: 2,
+      nCycles: 1,
       options: 0x00
     }, script)
 
@@ -181,7 +177,7 @@ describe('createVoc', () => {
       address: {
         stack: []
       },
-      nCycles: 2,
+      nCycles: 1,
       options: 0x00
     }, script)
     const promise = sendTransaction(testing.container, txn)
@@ -201,7 +197,7 @@ describe('createVoc', () => {
       address: {
         stack: []
       },
-      nCycles: 2,
+      nCycles: 1,
       options: 0x00
     }, script)
     const promise = sendTransaction(testing.container, txn)
@@ -221,7 +217,7 @@ describe('createVoc', () => {
       address: {
         stack: []
       },
-      nCycles: 2,
+      nCycles: 1,
       options: 0x00
     }, script)
     const promise = sendTransaction(testing.container, txn)
@@ -241,7 +237,7 @@ describe('createVoc', () => {
       address: {
         stack: []
       },
-      nCycles: 2,
+      nCycles: 1,
       options: 0x00
     }, script)
     const promise = sendTransaction(testing.container, txn)
@@ -261,52 +257,12 @@ describe('createVoc', () => {
       address: {
         stack: []
       },
-      nCycles: 2,
-      options: 0x00
-    }, script)
-    const promise = sendTransaction(testing.container, txn)
-
-    await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateVocTx: proposal context hash cannot be more than 512 bytes (code 16)', code: -26")
-  })
-
-  it('should reject with invalid cycles', async () => {
-    const script = await providers.elliptic.script()
-    const txn = await builder.governance.createVoc({
-      type: 0x02,
-      title: 'vote of confidence',
-      nAmount: new BigNumber(0),
-      context: 'https://github.com/DeFiCh/dfips',
-      contexthash: '',
-      address: {
-        stack: []
-      },
       nCycles: 1,
       options: 0x00
     }, script)
     const promise = sendTransaction(testing.container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateVocTx: proposal cycles should be 2 (code 16)', code: -26")
-  })
-
-  it('should reject with invalid cycles for emergency voc', async () => {
-    const script = await providers.elliptic.script()
-    const txn = await builder.governance.createVoc({
-      type: 0x02,
-      title: 'vote of confidence',
-      nAmount: new BigNumber(0),
-      context: 'https://github.com/DeFiCh/dfips',
-      contexthash: '',
-      address: {
-        stack: []
-      },
-      nCycles: 2,
-      options: 0x01 // emergency voc
-    }, script)
-    const promise = sendTransaction(testing.container, txn)
-
-    await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateVocTx: emergency proposal cycles must be 1 (code 16)', code: -26")
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateVocTx: proposal context hash cannot be more than 512 bytes (code 16)', code: -26")
   })
 })

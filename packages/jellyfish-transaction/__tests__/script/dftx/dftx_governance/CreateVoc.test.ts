@@ -9,7 +9,7 @@ import BigNumber from 'bignumber.js'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
-    '6a4c5744665478450200000000000000000002166e657720766f7465206f6620636f6e666964656e63651f68747470733a2f2f6769746875622e636f6d2f4465466943682f64666970730e3c636f6e7465787420686173683e00'
+    '6a4c5744665478450200000000000000000001166e657720766f7465206f6620636f6e666964656e63651f68747470733a2f2f6769746875622e636f6d2f4465466943682f64666970730e3c636f6e7465787420686173683e00'
   ]
 
   fixtures.forEach(hex => {
@@ -25,7 +25,7 @@ it('should bi-directional buffer-object-buffer', () => {
 
 describe('createVoc', () => {
   const header = '6a4c574466547845' // OP_RETURN(0x6a) OP_PUSHDATA1(0x4c) (length 87 = 0x57) CDfTx.SIGNATURE(0x44665478) CreateProposal.OP_CODE(0x45)
-  const data = '0200000000000000000002166e657720766f7465206f6620636f6e666964656e63651f68747470733a2f2f6769746875622e636f6d2f4465466943682f64666970730e3c636f6e7465787420686173683e00' // CreateProposal.type(0x02) CreateProposal.address (0x00) CreateProposal.amount(0x0000000000000000) CreateProposal.cycles(0x02) CreateProposal.title[BE](0x166e657720766f7465206f6620636f6e666964656e6365) CreateProposal.context[BE](0x1f68747470733a2f2f6769746875622e636f6d2f4465466943682f6466697073) CreateProposal.contexthash[BE](0x0e3c636f6e7465787420686173683e) CreateProposal.options(0x00)
+  const data = '0200000000000000000001166e657720766f7465206f6620636f6e666964656e63651f68747470733a2f2f6769746875622e636f6d2f4465466943682f64666970730e3c636f6e7465787420686173683e00' // CreateProposal.type(0x02) CreateProposal.address (0x00) CreateProposal.nAmount(0x0000000000000000) CreateProposal.nCycles(0x01) CreateProposal.title[BE](0x166e657720766f7465206f6620636f6e666964656e6365) CreateProposal.context[BE](0x1f68747470733a2f2f6769746875622e636f6d2f4465466943682f6466697073) CreateProposal.contexthash[BE](0x0e3c636f6e7465787420686173683e) CreateProposal.options(0x00)
   const CreateProposal: CreateVoc = {
     type: 0x02,
     title: 'new vote of confidence',
@@ -35,7 +35,7 @@ describe('createVoc', () => {
     address: {
       stack: []
     },
-    nCycles: 2,
+    nCycles: 1,
     options: 0x00
   }
 
