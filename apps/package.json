@@ -62,7 +62,6 @@
     "reflect-metadata": "0.1.13",
     "rimraf": "3.0.2",
     "rxjs": "7.5.7",
-    "sinon": "^14.0.2",
     "subleveldown": "^6.0.1",
     "typeorm": "0.2.45"
   },
@@ -79,7 +78,6 @@
     "@types/lossless-json": "1.0.1",
     "@types/memdown": "3.0.0",
     "@types/node": "16.11.58",
-    "@types/sinon": "^10.0.13",
     "@types/subleveldown": "^4.1.1",
     "@types/supertest": "2.0.12",
     "@types/validator": "13.7.8",
