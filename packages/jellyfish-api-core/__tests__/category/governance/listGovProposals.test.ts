@@ -52,25 +52,33 @@ describe('Governance', () => {
 
     expect(proposals.length).toStrictEqual(4)
     for (const proposal of proposals) {
-      expect(proposal).toStrictEqual({
+      const vocExpectedResponse = {
         title: expect.any(String),
         context: expect.any(String),
         contextHash: expect.any(String),
         type: expect.any(String),
         status: expect.any(String),
-        amount: expect.any(BigNumber),
+        creationHeight: expect.any(Number),
         cycleEndHeight: expect.any(Number),
         proposalEndHeight: expect.any(Number),
         currentCycle: expect.any(Number),
         totalCycles: expect.any(Number),
-        payoutAddress: expect.any(String),
         proposalId: expect.any(String),
         approvalThreshold: expect.any(String),
         quorum: expect.any(String),
         fee: expect.any(Number),
-        feeBurnAmount: expect.any(Number),
         votingPeriod: expect.any(Number)
-      })
+      }
+      if (proposal.type === ProposalType.VOTE_OF_CONFIDENCE) {
+        expect(proposal).toStrictEqual(vocExpectedResponse)
+      } else {
+        const cfpExpectedResponse = {
+          ...vocExpectedResponse,
+          amount: expect.any(BigNumber),
+          payoutAddress: expect.any(String)
+        }
+        expect(proposal).toStrictEqual(cfpExpectedResponse)
+      }
     }
   })
 
