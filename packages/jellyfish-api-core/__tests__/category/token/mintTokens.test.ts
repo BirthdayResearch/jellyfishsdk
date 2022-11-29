@@ -145,6 +145,7 @@ describe('Consortium', () => {
     const hash = await tGroup.get(0).rpc.masternode.setGov({ ATTRIBUTES })
     expect(hash).toBeTruthy()
     await tGroup.get(0).generate(1)
+    await tGroup.waitForSync()
   }
 
   it('should throw an error if foundation or consortium member authorization is not present', async () => {
