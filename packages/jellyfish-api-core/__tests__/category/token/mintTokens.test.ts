@@ -96,7 +96,7 @@ describe('Consortium', () => {
   const startFlags: StartFlags[] = [{ name: 'regtest-minttoken-simulate-mainnet', value: 1 }]
 
   beforeEach(async () => {
-    await tGroup.start({ startFlags: startFlags })
+    await tGroup.start({ startFlags })
 
     account0 = await tGroup.get(0).generateAddress()
     account1 = await tGroup.get(1).generateAddress()

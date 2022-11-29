@@ -2,6 +2,7 @@ import { ConsortiumController } from './consortium.controller'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { createTestingApp, stopTestingApp } from '../e2e.module'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
+import { StartFlags } from '@defichain/testcontainers/dist/index'
 
 describe('getAssetBreakdown', () => {
   const tGroup = TestingGroup.create(2)
@@ -14,9 +15,10 @@ describe('getAssetBreakdown', () => {
   let idETH: string
   let app: NestFastifyApplication
   let controller: ConsortiumController
+  const startFlags: StartFlags[] = [{ name: 'regtest-minttoken-simulate-mainnet', value: 1 }]
 
   beforeEach(async () => {
-    await tGroup.start()
+    await tGroup.start({ startFlags })
     await alice.container.waitForWalletCoinbaseMaturity()
 
     app = await createTestingApp(alice.container)
@@ -34,17 +36,19 @@ describe('getAssetBreakdown', () => {
   }
 
   async function setMemberInfo (tokenId: string, memberInfo: Array<{ id: string, name: string, backingId: string, ownerAddress: string, mintLimit: string, dailyMintLimit: string }>): Promise<void> {
-    const infoObjs = memberInfo.map(mi => `
-      "${mi.id}":{
-        "name":"${mi.name}", 
-        "ownerAddress":"${mi.ownerAddress}",
-        "backingId":"${mi.backingId}",
-        "dailyMintLimit":${mi.dailyMintLimit},
-        "mintLimit":${mi.mintLimit}
-      }`
-    )
+    const members: any = {}
 
-    return await setGovAttr({ [`v0/consortium/${tokenId}/members`]: `{${infoObjs.join(',')}}` })
+    memberInfo.forEach(mi => {
+      members[mi.id] = {
+        name: mi.name,
+        ownerAddress: mi.ownerAddress,
+        backingId: mi.backingId,
+        mintLimitDaily: mi.dailyMintLimit,
+        mintLimit: mi.mintLimit
+      }
+    })
+
+    return await setGovAttr({ [`v0/consortium/${tokenId}/members`]: members })
   }
 
   async function setup (): Promise<void> {

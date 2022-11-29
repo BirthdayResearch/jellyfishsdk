@@ -1,4 +1,5 @@
 import { TestingGroup } from '@defichain/jellyfish-testing'
+import { StartFlags } from '@defichain/testcontainers/dist/index'
 import { StubWhaleApiClient } from '../stub.client'
 import { StubService } from '../stub.service'
 
@@ -11,12 +12,13 @@ describe('getAssetBreakdown', () => {
   let accountAlice: string, accountBob: string
   let idBTC: string
   let idETH: string
+  const startFlags: StartFlags[] = [{ name: 'regtest-minttoken-simulate-mainnet', value: 1 }]
 
   const service = new StubService(alice.container)
   const client = new StubWhaleApiClient(service)
 
   beforeEach(async () => {
-    await tGroup.start()
+    await tGroup.start({ startFlags })
     await service.start()
     await alice.container.waitForWalletCoinbaseMaturity()
   })
@@ -36,17 +38,19 @@ describe('getAssetBreakdown', () => {
   }
 
   async function setMemberInfo (tokenId: string, memberInfo: Array<{ id: string, name: string, backingId: string, ownerAddress: string, mintLimit: string, dailyMintLimit: string }>): Promise<void> {
-    const infoObjs = memberInfo.map(mi => `
-        "${mi.id}":{
-          "name":"${mi.name}", 
-          "ownerAddress":"${mi.ownerAddress}",
-          "backingId":"${mi.backingId}",
-          "dailyMintLimit":${mi.dailyMintLimit},
-          "mintLimit":${mi.mintLimit}
-        }`
-    )
+    const members: any = {}
 
-    return await setGovAttr({ [`v0/consortium/${tokenId}/members`]: `{${infoObjs.join(',')}}` })
+    memberInfo.forEach(mi => {
+      members[mi.id] = {
+        name: mi.name,
+        ownerAddress: mi.ownerAddress,
+        backingId: mi.backingId,
+        mintLimitDaily: mi.dailyMintLimit,
+        mintLimit: mi.mintLimit
+      }
+    })
+
+    return await setGovAttr({ [`v0/consortium/${tokenId}/members`]: members })
   }
 
   async function setup (): Promise<void> {

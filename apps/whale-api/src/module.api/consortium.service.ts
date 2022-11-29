@@ -74,7 +74,7 @@ export class ConsortiumService {
     const attrs = (await this.rpcClient.masternode.getGov('ATTRIBUTES')).ATTRIBUTES
 
     const keys: string[] = Object.keys(attrs)
-    const values: string[] = Object.values(attrs)
+    const values: any[] = Object.values(attrs)
     const assetBreakdownInfo: AssetBreakdownInfo[] = []
     const membersKeyRegex = /^v0\/consortium\/\d+\/members$/
     const mintedKeyRegex = /^v0\/live\/economy\/consortium_members\/\d+\/\d+\/minted$/
@@ -85,7 +85,7 @@ export class ConsortiumService {
     keys.forEach((key, i) => {
       if (membersKeyRegex.exec(key) !== null) {
         const tokenId: string = key.split('/')[2]
-        const membersPerToken: object = JSON.parse(values[i])
+        const membersPerToken: object = values[i]
         const memberIds: string[] = Object.keys(membersPerToken)
         const memberDetails: MemberDetail[] = Object.values(membersPerToken)
 
