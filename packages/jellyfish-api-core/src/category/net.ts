@@ -61,7 +61,7 @@ export class Net {
    *
    * @return {Promise<AddressesInfo[]>}
    */
-  async getNodeAddresses (count: number): Promise<AddressInfo[]> {
+  async getNodeAddresses (count?: number): Promise<AddressInfo[]> {
     return await this.client.call('getnodeaddresses', [count], 'number')
   }
 }

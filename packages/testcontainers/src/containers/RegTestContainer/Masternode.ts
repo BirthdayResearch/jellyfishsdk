@@ -69,11 +69,13 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   /**
    * This will automatically import the necessary private key for master to mint tokens
    */
-  async start (startOptions: StartOptions = {}): Promise<void> {
+  async start (startOptions: StartOptions = {}, importKeys: boolean = true): Promise<void> {
     await super.start(startOptions)
 
-    await this.call('importprivkey', [this.masternodeKey.operator.privKey, 'operator', true])
-    await this.call('importprivkey', [this.masternodeKey.owner.privKey, 'owner', true])
+    if (importKeys) {
+      await this.call('importprivkey', [this.masternodeKey.operator.privKey, 'operator', true])
+      await this.call('importprivkey', [this.masternodeKey.owner.privKey, 'owner', true])
+    }
   }
 
   /**

@@ -85,6 +85,7 @@ export abstract class DeFiDContainer extends DockerContainer {
       Image: this.image,
       Tty: true,
       Cmd: this.getCmd(this.startOptions),
+      ExposedPorts: { '18555/tcp': {} },
       HostConfig: {
         PublishAllPorts: true
       }
