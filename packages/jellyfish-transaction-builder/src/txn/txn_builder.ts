@@ -102,14 +102,10 @@ export abstract class P2WPKHTxnBuilder {
   async createDeFiTx (
     opDeFiTx: OP_DEFI_TX,
     changeScript: Script,
-    outValue: BigNumber = new BigNumber('0'),
-    additionalVinData: Array<{ vin: Vin, prevout: Prevout }> = []
+    outValue: BigNumber = new BigNumber('0')
   ): Promise<TransactionSegWit> {
     const minFee = outValue.plus(0.001) // see JSDoc above
     const { prevouts, vin, total } = await this.collectPrevouts(minFee)
-
-    const manualVins = additionalVinData.map(({ vin }) => vin)
-    const manualPrevouts = additionalVinData.map(({ prevout }) => prevout)
 
     const deFiOut: Vout = {
       value: outValue,
@@ -127,7 +123,7 @@ export abstract class P2WPKHTxnBuilder {
 
     const txn: Transaction = {
       version: DeFiTransactionConstants.Version,
-      vin: [...vin, ...manualVins],
+      vin: vin,
       vout: [deFiOut, change],
       lockTime: 0x00000000
     }
@@ -135,7 +131,47 @@ export abstract class P2WPKHTxnBuilder {
     const fee = await this.calculateFee(txn)
     change.value = total.minus(outValue).minus(fee)
 
-    return await this.sign(txn, [...prevouts, ...manualPrevouts])
+    return await this.sign(txn, prevouts)
+  }
+
+  async createDeFiTxWithCustomVinVout (
+    opDeFiTx: OP_DEFI_TX,
+    changeScript: Script,
+    outValue: BigNumber = new BigNumber('0'),
+    customVinVout: Array<{ vin: Vin, vout: Vout, prevout: Prevout }> = []
+  ): Promise<TransactionSegWit> {
+    const minFee = outValue.plus(0.001) // see JSDoc above
+    const { prevouts, vin, total } = await this.collectPrevouts(minFee)
+
+    const customVins = customVinVout.map(({ vin }) => vin)
+    const customPrevouts = customVinVout.map(({ prevout }) => prevout)
+    const customVouts = customVinVout.map(({ vout }) => vout)
+
+    const deFiOut: Vout = {
+      value: outValue,
+      script: {
+        stack: [OP_CODES.OP_RETURN, opDeFiTx]
+      },
+      tokenId: 0x00
+    }
+
+    // const change: Vout = {
+    //   value: total,
+    //   script: changeScript,
+    //   tokenId: 0x00
+    // }
+
+    const txn: Transaction = {
+      version: DeFiTransactionConstants.Version,
+      vin: [...vin, ...customVins],
+      vout: [deFiOut, ...customVouts],
+      lockTime: 0x00000000
+    }
+
+    // const fee = await this.calculateFee(txn)
+    // change.value = total.minus(outValue).minus(fee)
+
+    return await this.sign(txn, [...prevouts, ...customPrevouts])
   }
 
   /**

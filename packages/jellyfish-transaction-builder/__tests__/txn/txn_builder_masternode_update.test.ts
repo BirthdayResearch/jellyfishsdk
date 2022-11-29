@@ -1,6 +1,6 @@
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { RegTest } from '@defichain/jellyfish-network'
-import { OP_CODES, TransactionSegWit, UpdateMasternode, Vin } from '@defichain/jellyfish-transaction'
+import { OP_CODES, TransactionSegWit, UpdateMasternode, Vin, Vout } from '@defichain/jellyfish-transaction'
 import { P2PKH, P2SH, P2WPKH } from '@defichain/jellyfish-address'
 import { DeFiDRpcError, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
@@ -55,16 +55,21 @@ describe('UpdateMasternode', () => {
     const masternodeId = await jsonRpc.masternode.createMasternode(collateralAddress)
     await container.generate(20)
 
-    const newAddress = await container.getNewAddress()
-    await jsonRpc.masternode.updateMasternode(masternodeId, {
-      ownerAddress: newAddress
-    })
+    // const newAddress = await container.getNewAddress()
+    // const firstUpdateTx = await jsonRpc.masternode.updateMasternode(masternodeId, {
+    //   ownerAddress: newAddress
+    // })
 
-    await container.generate(65)
+    // await container.generate(65)
 
-    const mnInfo = await jsonRpc.masternode.getMasternode(masternodeId)
+    // const newAddress2 = await container.getNewAddress()
+    // const secondUpdateTx = await jsonRpc.masternode.updateMasternode(masternodeId, {
+    //   ownerAddress: newAddress2
+    // })
 
-    const address = await container.getNewAddress()
+    // await container.generate(65)
+
+    const address = await container.getNewAddress('', 'bech32')
     const addressDest: P2WPKH = P2WPKH.fromAddress(RegTest, address, P2WPKH)
     const addressDestKeyHash = addressDest.pubKeyHash
 
@@ -79,29 +84,51 @@ describe('UpdateMasternode', () => {
     }
 
     const script = await providers.elliptic.script()
-    const collateralTxId = mnInfo[masternodeId].collateralTx as unknown as string;
+    const mnInfo = await jsonRpc.masternode.getMasternode(masternodeId)
 
-    const rawTx = await jsonRpc.rawtx.getRawTransaction(collateralTxId, true);
+    // const rawFirstUpdate = await jsonRpc.rawtx.getRawTransaction(firstUpdateTx, true)
+    // const rawSecondUpdate = await jsonRpc.rawtx.getRawTransaction(secondUpdateTx, true)
+    const rawCollateral = await jsonRpc.rawtx.getRawTransaction(masternodeId, true)
+
+    const collateralTxId = mnInfo[masternodeId].collateralTx as unknown as string;
+    // const collateralTxId = rawCollateral.vin[1].txid
+    // const collateralTxId = masternodeId
+
+    const collateralPrevout: Prevout = {
+      txid: masternodeId,
+      vout: 1,
+      script: script,
+      value: new BigNumber(rawCollateral.vout[1].value),
+      tokenId: rawCollateral.vout[1].tokenId
+    }
+
+    const collateralVout: Vout = {
+      script: script,
+      value: new BigNumber(rawCollateral.vout[1].value),
+      tokenId: rawCollateral.vout[1].tokenId
+    }
 
     const collateralVin: Vin = {
-      txid: collateralTxId,
+      txid: masternodeId,
       index: 1,
-      script: script,
+      script: { stack: [] },
       sequence: 0xffffffff,
     }
 
-    const collateralPrevout: Prevout = {
-      txid: collateralTxId,
-      vout: 1,
-      script: script,
-      value: new BigNumber(rawTx.vout[1].value),
-      tokenId: rawTx.vout[1].tokenId
+    const additionalVinData = {
+      prevout: collateralPrevout,
+      vin: collateralVin,
+      vout: collateralVout
     }
 
-    const additionalVinData = {
-      vin: collateralVin,
-      prevout: collateralPrevout
-    }
+    console.log({
+      pubKey,
+      collateralAddress,
+      masternodeId,
+      // newAddress,
+      // newAddress2,
+      collateralTxId,
+    })
 
     // const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script)
     const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script, [additionalVinData])
