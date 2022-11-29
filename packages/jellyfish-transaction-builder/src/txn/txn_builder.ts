@@ -134,6 +134,15 @@ export abstract class P2WPKHTxnBuilder {
     return await this.sign(txn, prevouts)
   }
 
+  /**
+   * Similar to createDeFiTx, craft a transaction with OP_DEFI_TX from the output of OP_CODES.OP_DEFI_TX_
+   * and allow custom input for vin and vout.
+   *
+   * @param {OP_DEFI_TX} opDeFiTx to create
+   * @param {Script} changeScript to send unspent to after deducting the fees
+   * @param {BigNumber} [outValue=0] for the opDeFiTx, usually always be 0.
+   * @param {Array<{ vin: Vin, vout: Vout, prevout: Prevout }>} [customVinVout = []] for custom vin and vout
+   */
   async createDeFiTxWithCustomVinVout (
     opDeFiTx: OP_DEFI_TX,
     changeScript: Script,
@@ -155,21 +164,21 @@ export abstract class P2WPKHTxnBuilder {
       tokenId: 0x00
     }
 
-    // const change: Vout = {
-    //   value: total,
-    //   script: changeScript,
-    //   tokenId: 0x00
-    // }
+    const change: Vout = {
+      value: total,
+      script: changeScript,
+      tokenId: 0x00
+    }
 
     const txn: Transaction = {
       version: DeFiTransactionConstants.Version,
       vin: [...vin, ...customVins],
-      vout: [deFiOut, ...customVouts],
+      vout: [deFiOut, ...customVouts, change],
       lockTime: 0x00000000
     }
 
-    // const fee = await this.calculateFee(txn)
-    // change.value = total.minus(outValue).minus(fee)
+    const fee = await this.calculateFee(txn)
+    change.value = total.minus(outValue).minus(fee)
 
     return await this.sign(txn, [...prevouts, ...customPrevouts])
   }

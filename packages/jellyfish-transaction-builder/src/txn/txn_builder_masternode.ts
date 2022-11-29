@@ -56,13 +56,13 @@ export class TxnBuilderMasternode extends P2WPKHTxnBuilder {
   async update (
     updateMasternode: UpdateMasternode,
     changeScript: Script,
-    additionalVinData?: Array<{ vin: Vin, vout: Vout, prevout: Prevout }>
+    customVinVout?: Array<{ vin: Vin, vout: Vout, prevout: Prevout }>
   ): Promise<TransactionSegWit> {
     return await this.createDeFiTxWithCustomVinVout(
       OP_CODES.OP_DEFI_TX_UPDATE_MASTER_NODE(updateMasternode),
       changeScript,
       undefined,
-      additionalVinData
+      customVinVout
     )
   }
 }
