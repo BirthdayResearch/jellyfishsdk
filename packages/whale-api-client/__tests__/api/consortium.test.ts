@@ -1,5 +1,5 @@
 import { TestingGroup } from '@defichain/jellyfish-testing'
-import { StartFlags } from '@defichain/testcontainers/dist/index'
+import { StartFlags } from '@defichain/testcontainers'
 import { StubWhaleApiClient } from '../stub.client'
 import { StubService } from '../stub.service'
 

@@ -2,7 +2,7 @@ import { ConsortiumController } from './consortium.controller'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { createTestingApp, stopTestingApp } from '../e2e.module'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { StartFlags } from '@defichain/testcontainers/dist/index'
+import { StartFlags } from '@defichain/testcontainers'
 
 describe('getAssetBreakdown', () => {
   const tGroup = TestingGroup.create(2)
