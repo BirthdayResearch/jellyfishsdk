@@ -59,7 +59,8 @@ export class Net {
   /**
    * Return known addresses which can potentially be used to find new nodes in the network.
    *
-   * @return {Promise<AddressesInfo[]>}
+   * @param [count] Number of entries to return
+   * @return {Promise<AddressInfo[]>}
    */
   async getNodeAddresses (count?: number): Promise<AddressInfo[]> {
     return await this.client.call('getnodeaddresses', [count], 'number')
