@@ -172,6 +172,23 @@ interface UTXO {
 }
 ```
 
+## updatemasternode
+
+Creates (and submits to local node and network) a masternode update transaction which update the masternode operator addresses, spending the given inputs..
+The last optional argument (may be empty array) is an array of specific UTXOs to spend.
+
+```ts title="client.masternode.updatemasternode()"
+interface masternode {
+  updateMasternode(masternodeId: string, values: UpdateMasternodeValues, utxos: UTXO[] = []): Promise<string>
+}
+
+interface UpdateMasternodeValues {
+  ownerAddress?: string
+  operatorAddress?: string
+  rewardAddress?: string
+}
+```
+
 ## setGov
 
 Set special governance variables
