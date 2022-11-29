@@ -33,6 +33,7 @@ describe('getAssetBreakdown', () => {
     const hash = await alice.rpc.masternode.setGov({ ATTRIBUTES })
     expect(hash).toBeTruthy()
     await alice.generate(1)
+    await tGroup.waitForSync()
   }
 
   async function setMemberInfo (tokenId: string, memberInfo: Array<{ id: string, name: string, backingId: string, ownerAddress: string, mintLimit: string, dailyMintLimit: string }>): Promise<void> {
@@ -164,6 +165,8 @@ describe('getAssetBreakdown', () => {
 
     await bob.rpc.token.burnTokens(`2@${symbolBTC}`, accountBob)
     await bob.generate(1)
+
+    await tGroup.waitForSync()
 
     const info = await controller.getAssetBreakdown()
     expect(info).toStrictEqual([{
