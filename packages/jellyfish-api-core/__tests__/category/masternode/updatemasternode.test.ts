@@ -6,6 +6,15 @@ import { Testing, TestingGroup } from '@defichain/jellyfish-testing'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
 describe('Update Masternode', () => {
+  const masternodeState = [
+    'PRE_ENABLED',
+    'ENABLED',
+    'PRE_RESIGNED',
+    'RESIGNED',
+    'PRE_BANNED',
+    'BANNED',
+    'UNKNOWN'
+  ]
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -78,6 +87,7 @@ describe('Update Masternode', () => {
       operatorIsMine: expect.any(Boolean),
       targetMultipliers: expect.any(Object)
     })
+    expect(masternodeState).toContain(masternodesAfter[masternodeId].state)
   })
 
   it('should updateMasternode operatorAddress with bech32 address', async () => {
@@ -116,6 +126,7 @@ describe('Update Masternode', () => {
       operatorIsMine: expect.any(Boolean),
       targetMultipliers: expect.any(Object)
     })
+    expect(masternodeState).toContain(masternodesAfter[masternodeId].state)
   })
 
   it('should updateMasternode rewardAddress with bech32 address', async () => {
@@ -154,6 +165,7 @@ describe('Update Masternode', () => {
       operatorIsMine: expect.any(Boolean),
       targetMultipliers: expect.any(Object)
     })
+    expect(masternodeState).toContain(masternodesAfter[masternodeId].state)
   })
 
   it('should update multiple address simultaneously with bech32 address', async () => {
@@ -191,6 +203,7 @@ describe('Update Masternode', () => {
       operatorIsMine: expect.any(Boolean),
       targetMultipliers: expect.any(Object)
     })
+    expect(masternodeState).toContain(masternodes[masternodeId].state)
   })
 
   it('should update multiple address simultaneously with legacy address', async () => {
@@ -228,6 +241,7 @@ describe('Update Masternode', () => {
       operatorIsMine: expect.any(Boolean),
       targetMultipliers: expect.any(Object)
     })
+    expect(masternodeState).toContain(masternodes[masternodeId].state)
   })
 
   it('should updateMasternode with utxos', async () => {
