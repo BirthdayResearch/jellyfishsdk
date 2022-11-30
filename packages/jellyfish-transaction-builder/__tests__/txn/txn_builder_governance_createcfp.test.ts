@@ -57,7 +57,7 @@ describe('createCfp', () => {
     const listProposals = await testing.rpc.governance.listGovProposals()
     const txid = calculateTxid(txn)
 
-    const proposal = listProposals.find((el: governance.ProposalInfo) => el.proposalId === txid)
+    const proposal = listProposals.find(el => el.proposalId === txid)
     expect(proposal).toStrictEqual({
       proposalId: txid,
       title: createCfp.title,
@@ -65,7 +65,7 @@ describe('createCfp', () => {
       contextHash: createCfp.contexthash,
       type: governance.ProposalType.COMMUNITY_FUND_PROPOSAL,
       status: governance.ProposalStatus.VOTING,
-      amount: createCfp.nAmount.toNumber(),
+      amount: createCfp.nAmount,
       currentCycle: 1,
       totalCycles: createCfp.nCycles,
       creationHeight: expect.any(Number),
