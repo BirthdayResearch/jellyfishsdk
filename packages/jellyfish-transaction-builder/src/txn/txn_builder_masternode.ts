@@ -58,7 +58,7 @@ export class TxnBuilderMasternode extends P2WPKHTxnBuilder {
     changeScript: Script,
     customVinVout?: Array<{ vin: Vin, vout: Vout, prevout: Prevout }>
   ): Promise<TransactionSegWit> {
-    return await this.createDeFiTxWithCustomVinVout(
+    return await this.createDeFiTx(
       OP_CODES.OP_DEFI_TX_UPDATE_MASTER_NODE(updateMasternode),
       changeScript,
       undefined,
