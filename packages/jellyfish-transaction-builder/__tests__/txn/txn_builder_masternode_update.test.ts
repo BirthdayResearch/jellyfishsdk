@@ -103,26 +103,44 @@ describe('UpdateMasternode', () => {
     const expectedRedeemScript = `6a${encoded}`
 
     expect(outs.length).toStrictEqual(3)
-    expect(outs[0].value).toStrictEqual(0)
-    expect(outs[0].n).toStrictEqual(0)
-    expect(outs[0].tokenId).toStrictEqual(0)
+    expect(outs[0]).toStrictEqual({
+      n: 0,
+      tokenId: 0,
+      value: 0,
+      scriptPubKey: {
+        asm: expect.any(String),
+        hex: expectedRedeemScript,
+        type: 'nulldata'
+      }
+    })
     expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 446654786d')).toBeTruthy()
-    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
-    expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
 
-    expect(outs[1].value).toStrictEqual(2)
-    expect(outs[1].n).toStrictEqual(1)
-    expect(outs[1].tokenId).toStrictEqual(0)
-    expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
-    expect(outs[1].scriptPubKey.reqSigs).toStrictEqual(1)
-    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(newAddress)
+    expect(outs[1]).toStrictEqual({
+      n: 1,
+      tokenId: 0,
+      value: 2,
+      scriptPubKey: {
+        addresses: [newAddress],
+        asm: expect.any(String),
+        hex: expect.any(String),
+        reqSigs: 1,
+        type: 'witness_v0_keyhash'
+      }
+    })
 
+    expect(outs[2]).toStrictEqual({
+      n: 2,
+      tokenId: 0,
+      value: expect.any(Number),
+      scriptPubKey: {
+        addresses: [await providers.getAddress()],
+        asm: expect.any(String),
+        hex: expect.any(String),
+        reqSigs: 1,
+        type: 'witness_v0_keyhash'
+      }
+    })
     expect(outs[2].value).toBeGreaterThan(72)
-    expect(outs[2].n).toStrictEqual(2)
-    expect(outs[2].tokenId).toStrictEqual(0)
-    expect(outs[2].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
-    expect(outs[2].scriptPubKey.reqSigs).toStrictEqual(1)
-    expect(outs[2].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
   })
 
   it('should update operator address with P2WPKH address', async () => {
@@ -153,19 +171,31 @@ describe('UpdateMasternode', () => {
     const expectedRedeemScript = `6a${encoded}`
 
     expect(outs.length).toStrictEqual(2)
-    expect(outs[0].value).toStrictEqual(0)
-    expect(outs[0].n).toStrictEqual(0)
-    expect(outs[0].tokenId).toStrictEqual(0)
+    expect(outs[0]).toStrictEqual({
+      n: 0,
+      tokenId: 0,
+      value: 0,
+      scriptPubKey: {
+        asm: expect.any(String),
+        hex: expectedRedeemScript,
+        type: 'nulldata'
+      }
+    })
     expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 446654786d')).toBeTruthy()
-    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
-    expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
 
+    expect(outs[1]).toStrictEqual({
+      n: 1,
+      tokenId: 0,
+      value: expect.any(Number),
+      scriptPubKey: {
+        addresses: [await providers.getAddress()],
+        asm: expect.any(String),
+        hex: expect.any(String),
+        reqSigs: 1,
+        type: 'witness_v0_keyhash'
+      }
+    })
     expect(outs[1].value).toBeGreaterThan(6)
-    expect(outs[1].n).toStrictEqual(1)
-    expect(outs[1].tokenId).toStrictEqual(0)
-    expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
-    expect(outs[1].scriptPubKey.reqSigs).toStrictEqual(1)
-    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
   })
 
   it('should update reward address with P2WPKH address', async () => {
@@ -196,19 +226,31 @@ describe('UpdateMasternode', () => {
     const expectedRedeemScript = `6a${encoded}`
 
     expect(outs.length).toStrictEqual(2)
-    expect(outs[0].value).toStrictEqual(0)
-    expect(outs[0].n).toStrictEqual(0)
-    expect(outs[0].tokenId).toStrictEqual(0)
+    expect(outs[0]).toStrictEqual({
+      n: 0,
+      tokenId: 0,
+      value: 0,
+      scriptPubKey: {
+        asm: expect.any(String),
+        hex: expectedRedeemScript,
+        type: 'nulldata'
+      }
+    })
     expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 446654786d')).toBeTruthy()
-    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
-    expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
 
+    expect(outs[1]).toStrictEqual({
+      n: 1,
+      tokenId: 0,
+      value: expect.any(Number),
+      scriptPubKey: {
+        addresses: [await providers.getAddress()],
+        asm: expect.any(String),
+        hex: expect.any(String),
+        reqSigs: 1,
+        type: 'witness_v0_keyhash'
+      }
+    })
     expect(outs[1].value).toBeGreaterThan(6)
-    expect(outs[1].n).toStrictEqual(1)
-    expect(outs[1].tokenId).toStrictEqual(0)
-    expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
-    expect(outs[1].scriptPubKey.reqSigs).toStrictEqual(1)
-    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
   })
 
   it('should update multiple addresses simultaneously with P2WPKH address', async () => {
@@ -282,26 +324,44 @@ describe('UpdateMasternode', () => {
     const expectedRedeemScript = `6a${encoded}`
 
     expect(outs.length).toStrictEqual(3)
-    expect(outs[0].value).toStrictEqual(0)
-    expect(outs[0].n).toStrictEqual(0)
-    expect(outs[0].tokenId).toStrictEqual(0)
+    expect(outs[0]).toStrictEqual({
+      n: 0,
+      tokenId: 0,
+      value: 0,
+      scriptPubKey: {
+        asm: expect.any(String),
+        hex: expectedRedeemScript,
+        type: 'nulldata'
+      }
+    })
     expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 446654786d')).toBeTruthy()
-    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
-    expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
 
-    expect(outs[1].value).toStrictEqual(2)
-    expect(outs[1].n).toStrictEqual(1)
-    expect(outs[1].tokenId).toStrictEqual(0)
-    expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
-    expect(outs[1].scriptPubKey.reqSigs).toStrictEqual(1)
-    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(ownerAddress)
+    expect(outs[1]).toStrictEqual({
+      n: 1,
+      tokenId: 0,
+      value: 2,
+      scriptPubKey: {
+        addresses: [ownerAddress],
+        asm: expect.any(String),
+        hex: expect.any(String),
+        reqSigs: 1,
+        type: 'witness_v0_keyhash'
+      }
+    })
 
+    expect(outs[2]).toStrictEqual({
+      n: 2,
+      tokenId: 0,
+      value: expect.any(Number),
+      scriptPubKey: {
+        addresses: [await providers.getAddress()],
+        asm: expect.any(String),
+        hex: expect.any(String),
+        reqSigs: 1,
+        type: 'witness_v0_keyhash'
+      }
+    })
     expect(outs[2].value).toBeGreaterThan(72)
-    expect(outs[2].n).toStrictEqual(2)
-    expect(outs[2].tokenId).toStrictEqual(0)
-    expect(outs[2].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
-    expect(outs[2].scriptPubKey.reqSigs).toStrictEqual(1)
-    expect(outs[2].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
   })
 
   it('should update multiple addresses simultaneously with P2PKH address', async () => {
@@ -375,26 +435,43 @@ describe('UpdateMasternode', () => {
     const expectedRedeemScript = `6a${encoded}`
 
     expect(outs.length).toStrictEqual(3)
-    expect(outs[0].value).toStrictEqual(0)
-    expect(outs[0].n).toStrictEqual(0)
-    expect(outs[0].tokenId).toStrictEqual(0)
+    expect(outs[0]).toStrictEqual({
+      n: 0,
+      tokenId: 0,
+      value: 0,
+      scriptPubKey: {
+        asm: expect.any(String),
+        hex: expectedRedeemScript,
+        type: 'nulldata'
+      }
+    })
     expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 446654786d')).toBeTruthy()
-    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
-    expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
 
-    expect(outs[1].value).toStrictEqual(2)
-    expect(outs[1].n).toStrictEqual(1)
-    expect(outs[1].tokenId).toStrictEqual(0)
-    expect(outs[1].scriptPubKey.type).toStrictEqual('pubkeyhash')
-    expect(outs[1].scriptPubKey.reqSigs).toStrictEqual(1)
-    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(ownerAddress)
+    expect(outs[1]).toStrictEqual({
+      n: 1,
+      tokenId: 0,
+      value: 2,
+      scriptPubKey: {
+        addresses: [ownerAddress],
+        asm: expect.any(String),
+        hex: expect.any(String),
+        reqSigs: 1,
+        type: 'pubkeyhash'
+      }
+    })
 
-    expect(outs[2].value).toBeGreaterThan(72)
-    expect(outs[2].n).toStrictEqual(2)
-    expect(outs[2].tokenId).toStrictEqual(0)
-    expect(outs[2].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
-    expect(outs[2].scriptPubKey.reqSigs).toStrictEqual(1)
-    expect(outs[2].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
+    expect(outs[2]).toStrictEqual({
+      n: 2,
+      tokenId: 0,
+      value: expect.any(Number),
+      scriptPubKey: {
+        addresses: [await providers.getAddress()],
+        asm: expect.any(String),
+        hex: expect.any(String),
+        reqSigs: 1,
+        type: 'witness_v0_keyhash'
+      }
+    })
   })
 
   it('should update remove reward address', async () => {
@@ -440,19 +517,31 @@ describe('UpdateMasternode', () => {
     const expectedRedeemScript = `6a${encoded}`
 
     expect(outs.length).toStrictEqual(2)
-    expect(outs[0].value).toStrictEqual(0)
-    expect(outs[0].n).toStrictEqual(0)
-    expect(outs[0].tokenId).toStrictEqual(0)
+    expect(outs[0]).toStrictEqual({
+      n: 0,
+      tokenId: 0,
+      value: 0,
+      scriptPubKey: {
+        asm: expect.any(String),
+        hex: expectedRedeemScript,
+        type: 'nulldata'
+      }
+    })
     expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 446654786d')).toBeTruthy()
-    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
-    expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
 
+    expect(outs[1]).toStrictEqual({
+      n: 1,
+      tokenId: 0,
+      value: expect.any(Number),
+      scriptPubKey: {
+        addresses: [await providers.getAddress()],
+        asm: expect.any(String),
+        hex: expect.any(String),
+        reqSigs: 1,
+        type: 'witness_v0_keyhash'
+      }
+    })
     expect(outs[1].value).toBeGreaterThan(6)
-    expect(outs[1].n).toStrictEqual(1)
-    expect(outs[1].tokenId).toStrictEqual(0)
-    expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
-    expect(outs[1].scriptPubKey.reqSigs).toStrictEqual(1)
-    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
   })
 
   it('should fail if address is P2SH', async () => {
