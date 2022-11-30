@@ -62,8 +62,8 @@ describe('burnTokens', () => {
     await tGroup.stop()
   })
 
-  async function setGovAttr (ATTRIBUTES: object): Promise<void> {
-    const hash = await tGroup.get(0).rpc.masternode.setGov({ ATTRIBUTES })
+  async function setGovAttr (attributes: object): Promise<void> {
+    const hash = await tGroup.get(0).rpc.masternode.setGov({ ATTRIBUTES: attributes })
     expect(hash).toBeTruthy()
     await tGroup.get(0).generate(1)
   }

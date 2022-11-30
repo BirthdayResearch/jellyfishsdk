@@ -31,8 +31,8 @@ describe('getAssetBreakdown', () => {
     }
   })
 
-  async function setGovAttr (ATTRIBUTES: object): Promise<void> {
-    const hash = await alice.rpc.masternode.setGov({ ATTRIBUTES })
+  async function setGovAttr (attributes: object): Promise<void> {
+    const hash = await alice.rpc.masternode.setGov({ ATTRIBUTES: attributes })
     expect(hash).toBeTruthy()
     await alice.generate(1)
     await tGroup.waitForSync()
