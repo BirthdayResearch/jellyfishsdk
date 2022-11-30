@@ -108,13 +108,11 @@ describe('UpdateMasternode', () => {
       tokenId: 0,
       value: 0,
       scriptPubKey: {
-        asm: expect.any(String),
+        asm: expect.stringContaining('OP_RETURN 446654786d'),
         hex: expectedRedeemScript,
         type: 'nulldata'
       }
     })
-    expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 446654786d')).toBeTruthy()
-
     expect(outs[1]).toStrictEqual({
       n: 1,
       tokenId: 0,
@@ -127,7 +125,6 @@ describe('UpdateMasternode', () => {
         type: 'witness_v0_keyhash'
       }
     })
-
     expect(outs[2]).toStrictEqual({
       n: 2,
       tokenId: 0,
@@ -176,13 +173,11 @@ describe('UpdateMasternode', () => {
       tokenId: 0,
       value: 0,
       scriptPubKey: {
-        asm: expect.any(String),
+        asm: expect.stringContaining('OP_RETURN 446654786d'),
         hex: expectedRedeemScript,
         type: 'nulldata'
       }
     })
-    expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 446654786d')).toBeTruthy()
-
     expect(outs[1]).toStrictEqual({
       n: 1,
       tokenId: 0,
@@ -231,13 +226,11 @@ describe('UpdateMasternode', () => {
       tokenId: 0,
       value: 0,
       scriptPubKey: {
-        asm: expect.any(String),
+        asm: expect.stringContaining('OP_RETURN 446654786d'),
         hex: expectedRedeemScript,
         type: 'nulldata'
       }
     })
-    expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 446654786d')).toBeTruthy()
-
     expect(outs[1]).toStrictEqual({
       n: 1,
       tokenId: 0,
@@ -329,13 +322,11 @@ describe('UpdateMasternode', () => {
       tokenId: 0,
       value: 0,
       scriptPubKey: {
-        asm: expect.any(String),
+        asm: expect.stringContaining('OP_RETURN 446654786d'),
         hex: expectedRedeemScript,
         type: 'nulldata'
       }
     })
-    expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 446654786d')).toBeTruthy()
-
     expect(outs[1]).toStrictEqual({
       n: 1,
       tokenId: 0,
@@ -348,7 +339,6 @@ describe('UpdateMasternode', () => {
         type: 'witness_v0_keyhash'
       }
     })
-
     expect(outs[2]).toStrictEqual({
       n: 2,
       tokenId: 0,
@@ -361,7 +351,6 @@ describe('UpdateMasternode', () => {
         type: 'witness_v0_keyhash'
       }
     })
-    expect(outs[2].value).toBeGreaterThan(72)
   })
 
   it('should update multiple addresses simultaneously with P2PKH address', async () => {
@@ -440,13 +429,11 @@ describe('UpdateMasternode', () => {
       tokenId: 0,
       value: 0,
       scriptPubKey: {
-        asm: expect.any(String),
+        asm: expect.stringContaining('OP_RETURN 446654786d'),
         hex: expectedRedeemScript,
         type: 'nulldata'
       }
     })
-    expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 446654786d')).toBeTruthy()
-
     expect(outs[1]).toStrictEqual({
       n: 1,
       tokenId: 0,
@@ -459,7 +446,6 @@ describe('UpdateMasternode', () => {
         type: 'pubkeyhash'
       }
     })
-
     expect(outs[2]).toStrictEqual({
       n: 2,
       tokenId: 0,
@@ -522,13 +508,11 @@ describe('UpdateMasternode', () => {
       tokenId: 0,
       value: 0,
       scriptPubKey: {
-        asm: expect.any(String),
+        asm: expect.stringContaining('OP_RETURN 446654786d'),
         hex: expectedRedeemScript,
         type: 'nulldata'
       }
     })
-    expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 446654786d')).toBeTruthy()
-
     expect(outs[1]).toStrictEqual({
       n: 1,
       tokenId: 0,
