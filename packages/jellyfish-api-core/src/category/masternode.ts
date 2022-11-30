@@ -156,7 +156,7 @@ export class Masternode {
    * @param {UTXO[]} [utxos = []] Array of specified utxos to spend.
    * @param {string} [utxos.txid] The transaction id.
    * @param {number} [utxos.vout] The output number.
-   * @return {Promise<string>} Transaction hash
+   * @return {Promise<string>} The hex-encoded hash of broadcasted transaction.
    */
   async updateMasternode (masternodeId: string, values: UpdateMasternodeValues, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('updatemasternode', [masternodeId, values, utxos], 'number')
