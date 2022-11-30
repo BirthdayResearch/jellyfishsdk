@@ -437,10 +437,12 @@ describe('Consortium', () => {
     await tGroup.get(1).rpc.token.mintTokens(`3@${symbolBTC}`)
     await tGroup.get(1).rpc.token.mintTokens(`4@${symbolDOGE}`)
     await tGroup.get(1).generate(1)
+    await tGroup.waitForSync()
 
     await tGroup.get(2).rpc.token.mintTokens(`1@${symbolBTC}`)
     await tGroup.get(2).rpc.token.mintTokens(`2@${symbolDOGE}`)
     await tGroup.get(2).generate(1)
+    await tGroup.waitForSync()
 
     expect((await tGroup.get(1).rpc.account.getAccount(account1))).toStrictEqual([
       `3.00000000@${symbolBTC}`,

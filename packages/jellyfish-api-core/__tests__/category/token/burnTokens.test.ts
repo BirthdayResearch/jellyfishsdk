@@ -109,6 +109,7 @@ describe('burnTokens', () => {
     expect(burnTxId).toBeTruthy()
 
     await tGroup.get(0).generate(1)
+    await tGroup.waitForSync()
 
     const tokensAfterBurn = await tGroup.get(0).rpc.account.getAccount(account0)
     expect(tokensAfterBurn[0]).toStrictEqual(`9.00000000@${symbolDBTC}`)
