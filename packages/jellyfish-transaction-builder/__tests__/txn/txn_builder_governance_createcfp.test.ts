@@ -54,7 +54,7 @@ describe('createCfp', () => {
     expect(outs[0].value).toStrictEqual(10)
     expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
 
-    const listProposals = await testing.rpc.container.call('listgovproposals')
+    const listProposals = await testing.rpc.governance.listGovProposals()
     const txid = calculateTxid(txn)
 
     const proposal = listProposals.find((el: governance.ProposalInfo) => el.proposalId === txid)
@@ -63,7 +63,7 @@ describe('createCfp', () => {
       title: createCfp.title,
       context: createCfp.context,
       contextHash: createCfp.contexthash,
-      type: 'CommunityFundProposal',
+      type: governance.ProposalType.COMMUNITY_FUND_PROPOSAL,
       status: governance.ProposalStatus.VOTING,
       amount: createCfp.nAmount.toNumber(),
       currentCycle: 1,

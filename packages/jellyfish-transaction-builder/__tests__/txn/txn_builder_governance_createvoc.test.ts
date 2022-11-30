@@ -55,7 +55,7 @@ describe('createVoc', () => {
     expect(outs[0].value).toStrictEqual(5)
     expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
 
-    const listProposals = await testing.rpc.container.call('listgovproposals')
+    const listProposals = await testing.rpc.governance.listGovProposals()
     const txid = calculateTxid(txn)
 
     const proposal = listProposals.find((el: governance.ProposalInfo) => el.proposalId === txid)
