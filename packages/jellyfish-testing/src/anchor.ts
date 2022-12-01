@@ -1,9 +1,8 @@
 import { TestingGroup } from './testing'
-import { NativeChainTestingGroup } from './nativechaintesting'
 
 export class TestingGroupAnchor {
   constructor (
-    private readonly testingGroup: TestingGroup | NativeChainTestingGroup
+    private readonly testingGroup: TestingGroup
   ) {
   }
 

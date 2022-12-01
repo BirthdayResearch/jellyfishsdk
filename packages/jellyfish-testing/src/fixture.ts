@@ -1,4 +1,4 @@
-import { NativeChainTesting, Testing } from './index'
+import { Testing } from './index'
 import { poolpair } from '@defichain/jellyfish-api-core'
 
 /**
@@ -6,7 +6,7 @@ import { poolpair } from '@defichain/jellyfish-api-core'
  */
 export class TestingFixture {
   constructor (
-    private readonly testing: Testing | NativeChainTesting
+    private readonly testing: Testing
   ) {
   }
 
