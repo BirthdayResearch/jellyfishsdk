@@ -829,6 +829,14 @@ describe('UpdateMasternode', () => {
     const masternodeId = await jsonRpc.masternode.createMasternode(collateralAddress)
     await container.generate(1)
 
+    {
+      const masternodes = await jsonRpc.masternode.listMasternodes()
+      expect(masternodes[masternodeId]).toStrictEqual(expect.objectContaining({
+        state: 'PRE_ENABLED',
+        ownerAuthAddress: collateralAddress
+      }))
+    }
+
     const address = await container.getNewAddress('', 'bech32')
     const addressDest: P2WPKH = P2WPKH.fromAddress(RegTest, address, P2WPKH)
     const addressDestKeyHash = addressDest.pubKeyHash
@@ -850,15 +858,15 @@ describe('UpdateMasternode', () => {
       await expect(promise).rejects.toThrow(`DeFiDRpcError: 'bad-txns-customtx, UpdateMasternodeTx: Masternode ${masternodeId} is not in 'ENABLED' state (code 16)', code: -26`)
     }
 
+    await container.generate(20)
+
     {
       const masternodes = await jsonRpc.masternode.listMasternodes()
       expect(masternodes[masternodeId]).toStrictEqual(expect.objectContaining({
-        state: 'PRE_ENABLED',
+        state: 'ENABLED',
         ownerAuthAddress: collateralAddress
       }))
     }
-
-    await container.generate(20)
 
     {
       const updateMasternode: UpdateMasternode = {
@@ -879,8 +887,6 @@ describe('UpdateMasternode', () => {
       expect(outs.length).toStrictEqual(2)
       expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
     }
-
-    await container.generate(20)
 
     {
       const masternodes = await jsonRpc.masternode.listMasternodes()
@@ -944,27 +950,27 @@ describe('Update Masternode (Multi-containers)', () => {
     })
     await node[0].generate(1)
 
-    const masternodeOwnerAddress = await node[0].rpc.wallet.getNewAddress()
-    const masternodeId = await node[0].rpc.masternode.createMasternode(masternodeOwnerAddress)
+    const masternodeOwnerAddress0 = await node[0].rpc.wallet.getNewAddress()
+    const masternodeId0 = await node[0].rpc.masternode.createMasternode(masternodeOwnerAddress0)
     await node[0].generate(100) // create masternode and wait for it to be enabled
 
-    const operatorAddress = await node[0].rpc.wallet.getNewAddress()
-    const operatorAddressDest: P2WPKH = P2WPKH.fromAddress(RegTest, operatorAddress, P2WPKH)
-    const operatorAddressDestKeyHash = operatorAddressDest.pubKeyHash
-    const operatorScript = await fromAddress(operatorAddress, 'regtest')?.script as Script
+    const operatorAddress0 = await node[0].rpc.wallet.getNewAddress()
+    const operatorAddressDest0: P2WPKH = P2WPKH.fromAddress(RegTest, operatorAddress0, P2WPKH)
+    const operatorAddressDestKeyHash0 = operatorAddressDest0.pubKeyHash
+    const operatorScript = await fromAddress(operatorAddress0, 'regtest')?.script as Script
     await node[0].generate(4)
     await tGroup.waitForSync() // container2 should know about the new masternode
 
-    const updateMasternode: UpdateMasternode = {
-      nodeId: masternodeId,
+    const updateMasternode0: UpdateMasternode = {
+      nodeId: masternodeId0,
       updates: [
         {
           updateType: 0x02,
-          address: { addressType: 0x04, addressPubKeyHash: operatorAddressDestKeyHash }
+          address: { addressType: 0x04, addressPubKeyHash: operatorAddressDestKeyHash0 }
         }
       ]
     }
-    const txn: TransactionSegWit = await builderNode1.masternode.update(updateMasternode, operatorScript)
+    const txn: TransactionSegWit = await builderNode1.masternode.update(updateMasternode0, operatorScript)
     const promise = sendTransaction(node[1].container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)

@@ -51,6 +51,7 @@ export class TxnBuilderMasternode extends P2WPKHTxnBuilder {
    *
    * @param {UpdateMasternode} updateMasternode transaction to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
+   * @param {Array<{ vin: Vin, vout: Vout, prevout: Prevout }>} [customVinVout = []] for custom vin and vout when updating owner address
    * @return {Promise<TransactionSegWit>}
    */
   async update (
