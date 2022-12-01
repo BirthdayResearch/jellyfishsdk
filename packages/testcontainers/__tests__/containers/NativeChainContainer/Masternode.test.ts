@@ -11,14 +11,14 @@ describe('nativechain masternode', () => {
       .withPreconfiguredRegtestMasternode()
       .withStartupTimeout(180_000)
       .start()
-    await container.generate(4)
   })
 
   afterAll(async () => {
     await container.stop()
   })
 
-  it('should wait for block', async () => {
+  it('should generate and wait for block', async () => {
+    await container.generate(4)
     const count = await container.getBlockCount()
     expect(count).toBeGreaterThan(3)
   })
@@ -27,5 +27,11 @@ describe('nativechain masternode', () => {
     await container.waitForGenerate(100)
     const count = await container.getBlockCount()
     expect(count).toBeGreaterThanOrEqual(100)
+  })
+
+  it('should getBestBlockHash', async () => {
+    await container.waitForGenerate(100)
+    const hash = await container.getBestBlockHash()
+    expect(hash.length).toStrictEqual(64)
   })
 })

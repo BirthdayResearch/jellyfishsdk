@@ -2,6 +2,27 @@ import { Network } from 'testcontainers'
 import { NativeChainContainer, StartedNativeChainContainer } from '../../../src'
 import waitForExpect from 'wait-for-expect'
 
+describe('coinbase maturity faster by time travel', () => {
+  let container: StartedNativeChainContainer
+
+  beforeAll(async () => {
+    const startedNetwork = await new Network().start()
+    container = await new NativeChainContainer()
+      .withNetworkMode((startedNetwork).getName())
+      .withPreconfiguredRegtestMasternode()
+      .withStartupTimeout(180_000)
+      .start()
+  })
+
+  afterAll(async () => {
+    await container.stop()
+  })
+
+  it('should speed up coinbase maturity', async () => {
+    await container.waitForWalletCoinbaseMaturity()
+  })
+})
+
 describe('nativechain coinbase maturity', () => {
   let container: StartedNativeChainContainer
 
@@ -95,20 +116,3 @@ describe('nativechain coinbase maturity', () => {
     })
   })
 })
-
-// Isaac: Unsure what's this test for?
-// describe('coinbase maturity faster by time travel', () => {
-//   const container = new MasterNodeRegTestContainer()
-
-//   beforeAll(async () => {
-//     await container.start()
-//   })
-
-//   afterAll(async () => {
-//     await container.stop()
-//   })
-
-//   it('should speed up coinbase maturity', async () => {
-//     await container.waitForWalletCoinbaseMaturity()
-//   })
-// })
