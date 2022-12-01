@@ -173,8 +173,7 @@ export class NativeChainContainer extends GenericContainer {
     } = this
     const startedContainer = new StartedNativeChainContainer(
       await super.start(),
-      { rpcUser, rpcPassword, blockchainNetwork, masterNodeKey }
-    )
+      { rpcUser, rpcPassword, blockchainNetwork, masterNodeKey })
 
     if (masterNodeKey != null) {
       await startedContainer.call('importprivkey', [masterNodeKey.operator.privKey, 'operator', true])
@@ -195,7 +194,7 @@ export interface StartedContainerConfig {
 export class StartedNativeChainContainer extends AbstractStartedContainer {
   private assumedSpvHeight: number = 0
   static SPV_EXPIRATION = 10
-  private rpcUrl: string
+  protected rpcUrl: string
 
   constructor (
     startedTestContainer: StartedTestContainer,
@@ -212,12 +211,7 @@ export class StartedNativeChainContainer extends AbstractStartedContainer {
       blockchainNetwork
     } = this.config
     const port = this.getMappedPort(blockchainNetwork.ports.rpc)
-    // TODO: hardcoded to 127.0.0.1 -- might wanna change this to use this.getIpAddress(networkName)? How to get networkName?
     return `http://${rpcUser}:${rpcPassword}@127.0.0.1:${port}/`
-  }
-
-  public getRpcUrl (): string {
-    return this.rpcUrl
   }
 
   async restart (options?: Partial<RestartOptions> | undefined): Promise<void> {

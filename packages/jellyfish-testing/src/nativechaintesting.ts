@@ -8,12 +8,13 @@ import { TestingICX } from './icxorderbook'
 import { TestingMisc } from './misc'
 import { TestingGroupAnchor } from './anchor'
 import {
+  ContainerGroup,
   NativeChainContainer,
   StartedNativeChainContainer,
-  NativeChainContainerGroup
+  StartOptions
 } from '@defichain/testcontainers'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { NetworkName, RegTestFoundationKeys } from '@defichain/jellyfish-network'
+import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
 export class NativeChainTesting {
   public readonly fixture = new TestingFixture(this)
@@ -69,7 +70,7 @@ export class NativeChainTestingGroup {
   public readonly anchor = new TestingGroupAnchor(this)
 
   private constructor (
-    public readonly group: NativeChainContainerGroup,
+    public readonly group: ContainerGroup,
     public readonly testings: NativeChainTesting[]
   ) {
   }
@@ -80,26 +81,25 @@ export class NativeChainTestingGroup {
    */
   static async create (
     n: number,
-    init = async (startedNetwork: StartedNetwork, index: number) => new NativeChainContainer()
+    init = async (startedNetwork: StartedNetwork, index: number) => await new NativeChainContainer()
       .withNetworkMode((startedNetwork).getName())
       .withPreconfiguredRegtestMasternode(RegTestFoundationKeys[index])
       .withStartupTimeout(180_000)
+      .start()
   ): Promise<NativeChainTestingGroup> {
-    const containers: NativeChainContainer[] = []
+    const containers: StartedNativeChainContainer[] = []
     const testings: NativeChainTesting[] = []
 
     const startedNetwork = await new Network().start()
     for (let i = 0; i < n; i += 1) {
       const container = init(startedNetwork, i)
       containers.push(await container)
+
+      const testing = NativeChainTesting.create(await container)
+      testings.push(testing)
     }
 
-    const group = await new NativeChainContainerGroup(containers).start()
-    const startedContainers = group.list()
-    for (let i = 0; i < startedContainers.length; i += 1) {
-      testings.push(NativeChainTesting.create(await startedContainers[i]))
-    }
-
+    const group = new ContainerGroup(containers)
     return new NativeChainTestingGroup(group, testings)
   }
 
@@ -117,21 +117,16 @@ export class NativeChainTestingGroup {
     this.testings.push(testing)
   }
 
-  async start (blockchainNetwork: NetworkName = 'regtest'): Promise<NativeChainContainerGroup> {
-    return await this.group.start(blockchainNetwork)
+  async start (opts?: StartOptions): Promise<void> {
+    return await this.group.start(opts)
   }
 
-  async stop (): Promise<NativeChainContainerGroup> {
+  async stop (): Promise<void> {
     return await this.group.stop()
   }
 
-  async discover (): Promise<void> {
-    return await this.group.discover()
-  }
-
-  // [DEPRECATED] Please call `discover()` instead.
   async link (): Promise<void> {
-    return await this.group.discover()
+    return await this.group.link()
   }
 
   async exec (runner: (testing: NativeChainTesting) => Promise<void>): Promise<void> {
@@ -159,7 +154,7 @@ class TestingJsonRpcClient extends JsonRpcClient {
   }
 
   protected async fetch (body: string, controller: any): Promise<Response> {
-    const url = this.container.getRpcUrl()
+    const url = await this.container.getCachedRpcUrl()
     return await fetch(url, {
       method: 'POST',
       body: body,
