@@ -56,14 +56,14 @@ describe.skip('createCfp', () => {
     expect(outs[0].value).toStrictEqual(1)
     expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
 
-    const listProposals = await testing.rpc.governance.listProposals()
+    const listProposals = await testing.rpc.governance.listGovProposals()
     const txid = calculateTxid(txn)
 
     const proposal = listProposals.find(el => el.proposalId === txid)
     expect(proposal).toStrictEqual({
       proposalId: txid,
       title: createCfp.title,
-      type: governance.ProposalType.COMMUNITY_FUND_REQUEST,
+      type: governance.ProposalType.COMMUNITY_FUND_PROPOSAL,
       status: governance.ProposalStatus.VOTING,
       amount: createCfp.amount,
       cyclesPaid: 1,
