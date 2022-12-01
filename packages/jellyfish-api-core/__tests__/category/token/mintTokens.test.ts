@@ -96,7 +96,7 @@ describe('Consortium', () => {
   const startFlags: StartFlags[] = [{ name: 'regtest-minttoken-simulate-mainnet', value: 1 }]
 
   beforeEach(async () => {
-    await tGroup.start({ startFlags: startFlags })
+    await tGroup.start({ startFlags })
 
     account0 = await tGroup.get(0).generateAddress()
     account1 = await tGroup.get(1).generateAddress()
@@ -141,8 +141,8 @@ describe('Consortium', () => {
     await tGroup.stop()
   })
 
-  async function setGovAttr (ATTRIBUTES: object): Promise<void> {
-    const hash = await tGroup.get(0).rpc.masternode.setGov({ ATTRIBUTES })
+  async function setGovAttr (attributes: object): Promise<void> {
+    const hash = await tGroup.get(0).rpc.masternode.setGov({ ATTRIBUTES: attributes })
     expect(hash).toBeTruthy()
     await tGroup.get(0).generate(1)
     await tGroup.waitForSync()
@@ -437,10 +437,12 @@ describe('Consortium', () => {
     await tGroup.get(1).rpc.token.mintTokens(`3@${symbolBTC}`)
     await tGroup.get(1).rpc.token.mintTokens(`4@${symbolDOGE}`)
     await tGroup.get(1).generate(1)
+    await tGroup.waitForSync()
 
     await tGroup.get(2).rpc.token.mintTokens(`1@${symbolBTC}`)
     await tGroup.get(2).rpc.token.mintTokens(`2@${symbolDOGE}`)
     await tGroup.get(2).generate(1)
+    await tGroup.waitForSync()
 
     expect((await tGroup.get(1).rpc.account.getAccount(account1))).toStrictEqual([
       `3.00000000@${symbolBTC}`,

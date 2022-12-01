@@ -14,6 +14,7 @@ import { Stats } from './api/stats'
 import { Rawtx } from './api/rawtx'
 import { Fee } from './api/fee'
 import { Loan } from './api/loan'
+import { Consortium } from './api/consortium'
 import { ApiPagedResponse, WhaleApiResponse } from './whale.api.response'
 import { raiseIfError, WhaleApiException, WhaleClientException, WhaleClientTimeoutException } from './errors'
 import { NetworkName } from '@defichain/jellyfish-network'
@@ -76,6 +77,7 @@ export class WhaleApiClient {
   public readonly rawtx = new Rawtx(this)
   public readonly fee = new Fee(this)
   public readonly loan = new Loan(this)
+  public readonly consortium = new Consortium(this)
 
   constructor (
     protected readonly options: WhaleApiClientOptions
