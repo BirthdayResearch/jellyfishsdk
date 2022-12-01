@@ -85,8 +85,8 @@ describe('Update masternode', () => {
       rewardAddress: addressDest.utf8String,
       creationHeight: 103,
       resignHeight: -1,
-      resignTx: expect.stringMatching(/[0-9A-Fa-f]{64}/),
-      collateralTx: expect.stringMatching(/[0-9A-Fa-f]{64}/),
+      resignTx: expect.stringMatching(/[0-9a-f]{64}/),
+      collateralTx: expect.stringMatching(/[0-9a-f]{64}/),
       state: 'ENABLED',
       mintedBlocks: 0,
       ownerIsMine: true,
@@ -97,8 +97,8 @@ describe('Update masternode', () => {
 
     const updatedMasternode = await masternodeMapper.get(masternodeId)
     expect(updatedMasternode).toStrictEqual({
-      id: expect.stringMatching(/[0-9A-Fa-f]{64}/),
-      sort: expect.stringMatching(/[0-9A-Fa-f]{72}/),
+      id: expect.stringMatching(/[0-9a-f]{64}/),
+      sort: expect.stringMatching(/[0-9a-f]{72}/),
       ownerAddress: addressDest.utf8String,
       operatorAddress: addressDest.utf8String,
       creationHeight: 193,
@@ -106,7 +106,7 @@ describe('Update masternode', () => {
       mintedBlocks: 0,
       timelock: 0,
       block: {
-        hash: expect.stringMatching(/[0-9A-Fa-f]{64}/),
+        hash: expect.stringMatching(/[0-9a-f]{64}/),
         height: 193,
         medianTime: expect.any(Number),
         time: expect.any(Number)
