@@ -404,7 +404,7 @@ describe('UpdateMasternode', () => {
   it('should update remove reward address', async () => {
     const pubKey = await providers.ellipticPair.publicKey()
     const collateralAddress = Bech32.fromPubKey(pubKey, 'bcrt')
-    const txid = await jsonRpc.masternode.createMasternode(collateralAddress)
+    const masternodeId = await jsonRpc.masternode.createMasternode(collateralAddress)
     await container.generate(20)
 
     const rewardAddress = await container.getNewAddress('', 'bech32')
@@ -412,7 +412,7 @@ describe('UpdateMasternode', () => {
     const rewardAddressDestKeyHash = rewardAddressDest.pubKeyHash
 
     const setRewardAddressUpdate: UpdateMasternode = {
-      nodeId: txid,
+      nodeId: masternodeId,
       updates: [
         {
           updateType: 0x03,
@@ -427,8 +427,14 @@ describe('UpdateMasternode', () => {
 
     await container.generate(50)
 
+    {
+      const masternodes = await jsonRpc.masternode.listMasternodes()
+      const mn = masternodes[masternodeId]
+      expect(mn.rewardAddress).toStrictEqual(rewardAddress)
+    }
+
     const updateMasternode: UpdateMasternode = {
-      nodeId: txid,
+      nodeId: masternodeId,
       updates: [
         {
           updateType: 0x04,
@@ -468,6 +474,14 @@ describe('UpdateMasternode', () => {
     })
     expect(outs[1].value).toBeGreaterThan(6.99)
     expect(outs[1].value).toBeLessThan(7)
+
+    await container.generate(50)
+
+    {
+      const masternodes = await jsonRpc.masternode.listMasternodes()
+      const mn = masternodes[masternodeId]
+      expect(mn.rewardAddress).toStrictEqual('')
+    }
   })
 
   it('should fail if address is P2SH', async () => {
