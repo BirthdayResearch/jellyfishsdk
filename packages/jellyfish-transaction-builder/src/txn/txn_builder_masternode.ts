@@ -41,4 +41,25 @@ export class TxnBuilderMasternode extends P2WPKHTxnBuilder {
       changeScript
     )
   }
+
+  /**
+   * Build update masternode transaction
+   *
+   * @param {UpdateMasternode} updateMasternode transaction to create
+   * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
+   * @param {Array<{ vin: Vin, vout: Vout, prevout: Prevout }>} [customVinVout = []] for custom vin and vout when updating owner address
+   * @return {Promise<TransactionSegWit>} 
+   */
+  async update (
+    updateMasternode: UpdateMasternode,
+    changeScript: Script,
+    customVinVout?: Array<{ vin: Vin, vout: Vout, prevout: Prevout }>
+  ): Promise<TransactionSegWit> {
+    return await this.createDeFiTx(
+      OP_CODES.OP_DEFI_TX_UPDATE_MASTER_NODE(updateMasternode),
+      changeScript,
+      undefined,
+      customVinVout
+    )
+  }
 }
