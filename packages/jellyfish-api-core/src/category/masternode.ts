@@ -240,6 +240,14 @@ export class Masternode {
   async listAnchors (): Promise<MasternodeResult<MasternodeAnchor>> {
     return await this.client.call('listanchors', [], 'number')
   }
+
+  /**
+   * Clears the memory pool and returns a list of the removed transaction ids.
+   * @return {Promise<string[]>} Array of removed transaction ids
+   */
+  async clearMempool (): Promise<string[]> {
+    return await this.client.call('clearmempool', [], 'number')
+  }
 }
 
 export interface UTXO {

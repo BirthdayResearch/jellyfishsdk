@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   defi-blockchain:
-    image: defi/defichain:HEAD-02ef6a1b3
+    image: defi/defichain:HEAD-49fba65ce
     ports:
       - "19554:19554"
     command: >
@@ -36,6 +36,7 @@ services:
       -fortcanningspringheight=13
       -fortcanninggreatworldheight=14
       -fortcanningepilogueheight=15
+      -regtest-skip-loan-collateral-validation
 
   defi-whale:
     build:

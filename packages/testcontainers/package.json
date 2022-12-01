@@ -18,7 +18,7 @@
     "cross-fetch": "^3.1.5",
     "dockerode": "^3.3.4",
     "tar-fs": "^2.1.1",
-    "uuid": "^8.3.2",
+    "uuid": "^9.0.0",
     "testcontainers": "^9.0.0"
   },
   "peerDependencies": {
@@ -26,7 +26,7 @@
     "defichain": "^0.0.0"
   },
   "devDependencies": {
-    "@types/dockerode": "3.3.9",
+    "@types/dockerode": "3.3.11",
     "@types/uuid": "8.3.4"
   }
 }

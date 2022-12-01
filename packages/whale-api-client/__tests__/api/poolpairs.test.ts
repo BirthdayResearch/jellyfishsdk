@@ -34,7 +34,7 @@ afterEach(async () => {
 })
 
 async function setup (): Promise<void> {
-  const tokens = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+  const tokens = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
 
   for (const token of tokens) {
     await container.waitForWalletBalanceGTE(110)
@@ -53,6 +53,7 @@ async function setup (): Promise<void> {
   await createPoolPair(container, 'F', 'DFI')
   await createPoolPair(container, 'G', 'DFI')
   await createPoolPair(container, 'H', 'DFI')
+  await createPoolPair(container, 'H', 'I')
 
   await addPoolLiquidity(container, {
     tokenA: 'A',
@@ -73,6 +74,21 @@ async function setup (): Promise<void> {
     amountA: 90,
     tokenB: 'DFI',
     amountB: 360,
+    shareAddress: await getNewAddress(container)
+  })
+  await addPoolLiquidity(container, {
+    tokenA: 'H',
+    amountA: 200,
+    tokenB: 'DFI',
+    amountB: 550,
+    shareAddress: await getNewAddress(container)
+  })
+
+  await addPoolLiquidity(container, {
+    tokenA: 'H',
+    amountA: 100,
+    tokenB: 'I',
+    amountB: 300,
     shareAddress: await getNewAddress(container)
   })
 
@@ -137,11 +153,11 @@ describe('poolpair info', () => {
   it('should list', async () => {
     const response: ApiPagedResponse<PoolPairData> = await client.poolpairs.list(30)
 
-    expect(response.length).toStrictEqual(11)
+    expect(response.length).toStrictEqual(12)
     expect(response.hasNext).toStrictEqual(false)
 
     expect(response[1]).toStrictEqual({
-      id: '10',
+      id: '11',
       symbol: 'B-DFI',
       displaySymbol: 'dB-DFI',
       name: 'B-Default Defi token',
@@ -195,7 +211,7 @@ describe('poolpair info', () => {
     const first = await client.poolpairs.list(5)
     expect(first.length).toStrictEqual(5)
     expect(first.hasNext).toStrictEqual(true)
-    expect(first.nextToken).toStrictEqual('13')
+    expect(first.nextToken).toStrictEqual('14')
 
     expect(first[0].symbol).toStrictEqual('A-DFI')
     expect(first[1].symbol).toStrictEqual('B-DFI')
@@ -211,22 +227,22 @@ describe('poolpair info', () => {
     expect(next[0].symbol).toStrictEqual('F-DFI')
     expect(next[1].symbol).toStrictEqual('G-DFI')
     expect(next[2].symbol).toStrictEqual('H-DFI')
-    expect(next[3].symbol).toStrictEqual('USDT-DFI')
-    expect(next[4].symbol).toStrictEqual('USDC-H')
+    expect(next[3].symbol).toStrictEqual('H-I')
+    expect(next[4].symbol).toStrictEqual('USDT-DFI')
 
     const last = await client.paginate(next)
-    expect(last.length).toStrictEqual(1)
+    expect(last.length).toStrictEqual(2)
     expect(last.hasNext).toStrictEqual(false)
     expect(last.nextToken).toBeUndefined()
 
-    expect(last[0].symbol).toStrictEqual('TEST-DUSD')
+    expect(last[0].symbol).toStrictEqual('USDC-H')
   })
 
-  it('should get 9', async () => {
-    const response: PoolPairData = await client.poolpairs.get('9')
+  it('should get 10', async () => {
+    const response: PoolPairData = await client.poolpairs.get('10')
 
     expect(response).toStrictEqual({
-      id: '9',
+      id: '10',
       symbol: 'A-DFI',
       displaySymbol: 'dA-DFI',
       name: 'A-Default Defi token',
@@ -276,11 +292,11 @@ describe('poolpair info', () => {
     })
   })
 
-  it('should get 20', async () => {
-    const response: PoolPairData = await client.poolpairs.get('20')
+  it('should get 22', async () => {
+    const response: PoolPairData = await client.poolpairs.get('22')
 
     expect(response).toStrictEqual({
-      id: '20',
+      id: '22',
       symbol: 'USDC-H',
       name: 'USDC-H',
       displaySymbol: 'dUSDC-dH',
@@ -401,14 +417,14 @@ describe('poolswap', () => {
     await container.generate(1)
     await service.waitForIndexedHeight(height)
 
-    const response: ApiPagedResponse<PoolSwapData> = await client.poolpairs.listPoolSwaps('9')
+    const response: ApiPagedResponse<PoolSwapData> = await client.poolpairs.listPoolSwaps('10')
     expect(response.hasNext).toStrictEqual(false)
     expect([...response]).toStrictEqual([
       {
         id: expect.any(String),
         txid: expect.stringMatching(/[0-f]{64}/),
         txno: expect.any(Number),
-        poolPairId: '9',
+        poolPairId: '10',
         sort: expect.any(String),
         fromAmount: '123.00000000',
         fromTokenId: 1,
@@ -423,7 +439,7 @@ describe('poolswap', () => {
         id: expect.any(String),
         txid: expect.stringMatching(/[0-f]{64}/),
         txno: expect.any(Number),
-        poolPairId: '9',
+        poolPairId: '10',
         sort: expect.any(String),
         fromAmount: '50.00000000',
         fromTokenId: 1,
@@ -438,7 +454,7 @@ describe('poolswap', () => {
         id: expect.any(String),
         txid: expect.stringMatching(/[0-f]{64}/),
         txno: expect.any(Number),
-        poolPairId: '9',
+        poolPairId: '10',
         sort: expect.any(String),
         fromAmount: '25.00000000',
         fromTokenId: 1,
@@ -451,14 +467,14 @@ describe('poolswap', () => {
       }
     ])
 
-    const verbose: ApiPagedResponse<PoolSwapData> = await client.poolpairs.listPoolSwapsVerbose('9')
+    const verbose: ApiPagedResponse<PoolSwapData> = await client.poolpairs.listPoolSwapsVerbose('10')
     expect(verbose.hasNext).toStrictEqual(false)
     expect([...verbose]).toStrictEqual([
       {
         id: expect.any(String),
         txid: expect.stringMatching(/[0-f]{64}/),
         txno: expect.any(Number),
-        poolPairId: '9',
+        poolPairId: '10',
         sort: expect.any(String),
         fromAmount: '123.00000000',
         fromTokenId: 1,
@@ -486,7 +502,7 @@ describe('poolswap', () => {
         id: expect.any(String),
         txid: expect.stringMatching(/[0-f]{64}/),
         txno: expect.any(Number),
-        poolPairId: '9',
+        poolPairId: '10',
         sort: expect.any(String),
         fromAmount: '50.00000000',
         fromTokenId: 1,
@@ -514,7 +530,7 @@ describe('poolswap', () => {
         id: expect.any(String),
         txid: expect.stringMatching(/[0-f]{64}/),
         txno: expect.any(Number),
-        poolPairId: '9',
+        poolPairId: '10',
         sort: expect.any(String),
         fromAmount: '25.00000000',
         fromTokenId: 1,
@@ -540,9 +556,9 @@ describe('poolswap', () => {
       }
     ])
 
-    const poolPair: PoolPairData = await client.poolpairs.get('9')
+    const poolPair: PoolPairData = await client.poolpairs.get('10')
     expect(poolPair).toStrictEqual({
-      id: '9',
+      id: '10',
       symbol: 'A-DFI',
       displaySymbol: 'dA-DFI',
       name: 'A-Default Defi token',
@@ -591,9 +607,9 @@ describe('poolswap', () => {
       }
     })
 
-    const dusdPoolPair: PoolPairData = await client.poolpairs.get('23')
+    const dusdPoolPair: PoolPairData = await client.poolpairs.get('25')
     expect(dusdPoolPair).toStrictEqual({
-      id: '23',
+      id: '25',
       symbol: 'TEST-DUSD',
       displaySymbol: 'dTEST-DUSD',
       name: 'TEST-DUSD',
@@ -641,6 +657,57 @@ describe('poolswap', () => {
         h24: 22.25188151100734
       }
     })
+
+    const hToIPair: PoolPairData = await client.poolpairs.get('18')
+    expect(hToIPair).toStrictEqual({
+      apr: {
+        commission: 0,
+        reward: 0,
+        total: 0
+      },
+      commission: '0',
+      creation: {
+        tx: expect.any(String),
+        height: expect.any(Number)
+      },
+      displaySymbol: 'dH-dI',
+      id: '18',
+      name: 'H-I',
+      ownerAddress: expect.any(String),
+      priceRatio: {
+        ab: '0.33333333',
+        ba: '3'
+      },
+      rewardLoanPct: '0',
+      rewardPct: '0',
+      status: true,
+      symbol: 'H-I',
+      tokenA: {
+        id: expect.any(String),
+        name: 'H',
+        symbol: 'H',
+        reserve: '100',
+        blockCommission: '0',
+        displaySymbol: 'dH'
+      },
+      tokenB: {
+        id: expect.any(String),
+        name: 'I',
+        symbol: 'I',
+        reserve: '300',
+        blockCommission: '0',
+        displaySymbol: 'dI'
+      },
+      totalLiquidity: {
+        token: '173.20508075',
+        usd: '1274.585351'
+      },
+      tradeEnabled: true,
+      volume: {
+        d30: 0,
+        h24: 0
+      }
+    })
   })
 })
 
@@ -677,9 +744,9 @@ describe('poolswap 24h', () => {
       await testing.generate(1)
     }
 
-    const poolPair: PoolPairData = await client.poolpairs.get('9')
+    const poolPair: PoolPairData = await client.poolpairs.get('10')
     expect(poolPair).toStrictEqual({
-      id: '9',
+      id: '10',
       symbol: 'A-DFI',
       displaySymbol: 'dA-DFI',
       name: 'A-Default Defi token',
@@ -764,7 +831,7 @@ describe('poolswap aggregated', () => {
       await service.waitForIndexedHeight(height)
     }
 
-    const dayAggregated: ApiPagedResponse<PoolSwapAggregatedData> = await client.poolpairs.listPoolSwapAggregates('10', PoolSwapAggregatedInterval.ONE_DAY, 10)
+    const dayAggregated: ApiPagedResponse<PoolSwapAggregatedData> = await client.poolpairs.listPoolSwapAggregates('11', PoolSwapAggregatedInterval.ONE_DAY, 10)
     expect([...dayAggregated]).toStrictEqual([
       {
         aggregated: {
@@ -774,7 +841,7 @@ describe('poolswap aggregated', () => {
         block: expect.any(Object),
         bucket: expect.any(Number),
         id: expect.any(String),
-        key: '10-86400'
+        key: '11-86400'
       },
       {
         aggregated: {
@@ -786,7 +853,7 @@ describe('poolswap aggregated', () => {
         block: expect.any(Object),
         bucket: expect.any(Number),
         id: expect.any(String),
-        key: '10-86400'
+        key: '11-86400'
       },
       {
         aggregated: {
@@ -796,11 +863,11 @@ describe('poolswap aggregated', () => {
         block: expect.any(Object),
         bucket: expect.any(Number),
         id: expect.any(String),
-        key: '10-86400'
+        key: '11-86400'
       }
     ])
 
-    const hourAggregated: ApiPagedResponse<PoolSwapAggregatedData> = await client.poolpairs.listPoolSwapAggregates('10', PoolSwapAggregatedInterval.ONE_HOUR, 3)
+    const hourAggregated: ApiPagedResponse<PoolSwapAggregatedData> = await client.poolpairs.listPoolSwapAggregates('11', PoolSwapAggregatedInterval.ONE_HOUR, 3)
     expect([...hourAggregated]).toStrictEqual([
       {
         aggregated: {
@@ -810,7 +877,7 @@ describe('poolswap aggregated', () => {
         block: expect.any(Object),
         bucket: expect.any(Number),
         id: expect.any(String),
-        key: '10-3600'
+        key: '11-3600'
       },
       {
         aggregated: {
@@ -820,7 +887,7 @@ describe('poolswap aggregated', () => {
         block: expect.any(Object),
         bucket: expect.any(Number),
         id: expect.any(String),
-        key: '10-3600'
+        key: '11-3600'
       },
       {
         aggregated: {
@@ -830,7 +897,7 @@ describe('poolswap aggregated', () => {
         block: expect.any(Object),
         bucket: expect.any(Number),
         id: expect.any(String),
-        key: '10-3600'
+        key: '11-3600'
       }
     ])
   })
@@ -854,9 +921,10 @@ describe('poolpair - swappable tokens', () => {
         },
         swappableTokens: [
           { id: '0', name: 'Default Defi token', symbol: 'DFI', displaySymbol: 'DFI' },
-          { id: '17', name: 'USDT', symbol: 'USDT', displaySymbol: 'dUSDT' },
+          { id: '19', name: 'USDT', symbol: 'USDT', displaySymbol: 'dUSDT' },
           { id: '8', name: 'H', symbol: 'H', displaySymbol: 'dH' },
-          { id: '19', name: 'USDC', symbol: 'USDC', displaySymbol: 'dUSDC' },
+          { id: '21', name: 'USDC', symbol: 'USDC', displaySymbol: 'dUSDC' },
+          { id: '9', name: 'I', symbol: 'I', displaySymbol: 'dI' },
           { id: '7', name: 'G', symbol: 'G', displaySymbol: 'dG' },
           { id: '6', name: 'F', symbol: 'F', displaySymbol: 'dF' },
           { id: '5', name: 'E', symbol: 'E', displaySymbol: 'dE' },
@@ -909,7 +977,7 @@ describe('poolpair - best swap path', () => {
         },
         bestPath: [
           {
-            poolPairId: '9',
+            poolPairId: '10',
             priceRatio: {
               ab: '0.50000000',
               ba: '2.00000000'
@@ -926,10 +994,12 @@ describe('poolpair - best swap path', () => {
               id: '0',
               name: 'Default Defi token',
               symbol: 'DFI'
-            }
+            },
+            commissionFeeInPct: '0'
+
           },
           {
-            poolPairId: '10',
+            poolPairId: '11',
             priceRatio: {
               ab: '0.16666666',
               ba: '6.00000000'
@@ -946,7 +1016,8 @@ describe('poolpair - best swap path', () => {
               id: '0',
               name: 'Default Defi token',
               symbol: 'DFI'
-            }
+            },
+            commissionFeeInPct: '0'
           }
         ],
         estimatedReturn: '0.33333332',
@@ -988,17 +1059,19 @@ describe('poolpair - all swap paths', () => {
           [
             {
               symbol: 'A-DFI',
-              poolPairId: '9',
+              poolPairId: '10',
               priceRatio: { ab: '0.50000000', ba: '2.00000000' },
               tokenA: { displaySymbol: 'dA', id: '1', name: 'A', symbol: 'A' },
-              tokenB: { displaySymbol: 'DFI', id: '0', name: 'Default Defi token', symbol: 'DFI' }
+              tokenB: { displaySymbol: 'DFI', id: '0', name: 'Default Defi token', symbol: 'DFI' },
+              commissionFeeInPct: '0'
             },
             {
               symbol: 'B-DFI',
-              poolPairId: '10',
+              poolPairId: '11',
               priceRatio: { ab: '0.16666666', ba: '6.00000000' },
               tokenA: { displaySymbol: 'dB', id: '2', name: 'B', symbol: 'B' },
-              tokenB: { displaySymbol: 'DFI', id: '0', name: 'Default Defi token', symbol: 'DFI' }
+              tokenB: { displaySymbol: 'DFI', id: '0', name: 'Default Defi token', symbol: 'DFI' },
+              commissionFeeInPct: '0'
             }
           ]
         ]
@@ -1060,15 +1133,15 @@ describe('poolpair - get dex prices', () => {
           },
           USDT: {
             denominationPrice: '0.43151288',
-            token: { displaySymbol: 'dUSDT', id: '17', name: 'USDT', symbol: 'USDT' }
+            token: { displaySymbol: 'dUSDT', id: '19', name: 'USDT', symbol: 'USDT' }
           },
           DUSD: {
             denominationPrice: '0',
-            token: { displaySymbol: 'DUSD', id: '21', name: 'DUSD', symbol: 'DUSD' }
+            token: { displaySymbol: 'DUSD', id: '23', name: 'DUSD', symbol: 'DUSD' }
           },
           USDC: {
-            denominationPrice: '0',
-            token: { displaySymbol: 'dUSDC', id: '19', name: 'USDC', symbol: 'USDC' }
+            denominationPrice: '0.17332084',
+            token: { displaySymbol: 'dUSDC', id: '21', name: 'USDC', symbol: 'USDC' }
           },
           F: {
             denominationPrice: '0',
@@ -1079,12 +1152,16 @@ describe('poolpair - get dex prices', () => {
             token: { displaySymbol: 'dG', id: '7', name: 'G', symbol: 'G' }
           },
           H: {
-            denominationPrice: '0',
+            denominationPrice: '2.75000000',
             token: { displaySymbol: 'dH', id: '8', name: 'H', symbol: 'H' }
+          },
+          I: {
+            denominationPrice: '0.91666666',
+            token: { displaySymbol: 'dI', id: '9', name: 'I', symbol: 'I' }
           },
           TEST: {
             denominationPrice: '0',
-            token: { displaySymbol: 'dTEST', id: '22', name: 'TEST', symbol: 'TEST' }
+            token: { displaySymbol: 'dTEST', id: '24', name: 'TEST', symbol: 'TEST' }
           }
         }
       })

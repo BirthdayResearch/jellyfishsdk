@@ -177,6 +177,36 @@ export class Blockchain {
   }
 
   /**
+   * Get all in-mempool ancestors for a given transaction as string[]
+   *
+   * @param {string} txId the transaction id
+   * @param {boolean} verbose false
+   * @return {Promise<string[]>}
+   */
+  getMempoolAncestors (txId: string, verbose?: false): Promise<string[]>
+
+  /**
+   * Get all in-mempool ancestors for a given transaction as json object
+   *
+   * @param {string} txId the transaction id
+   * @param {boolean} verbose true
+   * @return {Promise<MempoolTx>}
+   */
+  getMempoolAncestors (txId: string, verbose?: true): Promise<MempoolTx>
+
+  /**
+   * Get all in-mempool ancestors if txId is in mempool as string[] if verbose is false
+   * else as json object
+   *
+   * @param {string} txId the transaction id
+   * @param {boolean} verbose default = false, true for json object, false for array of transaction ids
+   * @return {Promise<string[] | MempoolTx>}
+   */
+  async getMempoolAncestors (txId: string, verbose: boolean = false): Promise<string[] | MempoolTx> {
+    return await this.client.call('getmempoolancestors', [txId, verbose], 'bignumber')
+  }
+
+  /**
    * Get mempool data for the given transaction
    * @param {string} txId the transaction id
    * @return {Promise<MempoolTx>}
@@ -222,6 +252,17 @@ export class Blockchain {
    */
   async waitForNewBlock (timeout: number = 30000): Promise<WaitBlockResult> {
     return await this.client.call('waitfornewblock', [timeout], 'number')
+  }
+
+  /**
+   * Waits for a specific new block and returns useful info about it.
+   *
+   * @param {string} blockhash Block hash to wait for.
+   * @param {number} [timeout=30000] in millis
+   * @return Promise<WaitBlockResult> the current block on timeout or exit
+   */
+  async waitForBlock (blockhash: string, timeout: number = 30000): Promise<WaitBlockResult> {
+    return await this.client.call('waitforblock', [blockhash, timeout], 'number')
   }
 
   /**

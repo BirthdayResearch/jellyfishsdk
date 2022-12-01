@@ -29,11 +29,13 @@ import { AccountHistory } from '@defichain/jellyfish-api-core/dist/category/acco
 import { DeFiDCache } from './cache/defid.cache'
 import { parseDisplaySymbol } from './token.controller'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
+import { PoolSwapPathFindingService } from './poolswap.pathfinding.service'
 
 @Injectable()
 export class PoolPairService {
   constructor (
     @Inject('NETWORK') protected readonly network: NetworkName,
+    private readonly poolSwapPathfindingService: PoolSwapPathFindingService,
     protected readonly rpcClient: JsonRpcClient,
     protected readonly deFiDCache: DeFiDCache,
     protected readonly cache: SemaphoreCache,
@@ -96,6 +98,36 @@ export class PoolPairService {
     if (b === 'DFI') {
       return info.reserveB.multipliedBy(2).multipliedBy(USDT_PER_DFI)
     }
+
+    return await this.getTotalLiquidityUsdByBestPath(info)
+  }
+
+  /**
+   * Graph based matrix resolution
+   * Returns the total liquidity of the poolpair by finding its best path to USDT
+   */
+  async getTotalLiquidityUsdByBestPath (info: PoolPairInfo): Promise<BigNumber | undefined> {
+    const usdtToken = await this.deFiDCache.getTokenInfoBySymbol('USDT')
+
+    if (usdtToken === undefined) {
+      return undefined
+    }
+
+    const usdtTokenId = Object.keys(usdtToken)[0]
+    let tokenARate = new BigNumber(1)
+    let tokenBRate = new BigNumber(1)
+
+    if (info.idTokenA !== usdtTokenId) {
+      const { estimatedReturn: estimatedReturnTokenA } = await this.poolSwapPathfindingService.getBestPath(info.idTokenA, usdtTokenId)
+      tokenARate = new BigNumber(estimatedReturnTokenA)
+    }
+
+    if (info.idTokenB !== usdtTokenId) {
+      const { estimatedReturn: estimatedReturnTokenB } = await this.poolSwapPathfindingService.getBestPath(info.idTokenB, usdtTokenId)
+      tokenBRate = new BigNumber(estimatedReturnTokenB)
+    }
+
+    return (tokenARate.multipliedBy(info.reserveA)).plus(tokenBRate.multipliedBy(info.reserveB))
   }
 
   async getUSD_PER_DFI (): Promise<BigNumber | undefined> {
