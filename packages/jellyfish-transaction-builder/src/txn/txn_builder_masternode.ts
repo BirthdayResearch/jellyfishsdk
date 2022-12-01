@@ -1,11 +1,18 @@
+import { RawTransaction } from '@defichain/jellyfish-api-core/dist/category/rawtx'
 import { BigNumber } from '@defichain/jellyfish-json'
 import {
   CreateMasternode,
+  DeFiTransactionConstants,
   OP_CODES,
   ResignMasternode,
   Script,
-  TransactionSegWit
+  Transaction,
+  TransactionSegWit,
+  UpdateMasternode,
+  Vin,
+  Vout
 } from '@defichain/jellyfish-transaction'
+import { Prevout } from '../provider'
 import { P2WPKHTxnBuilder } from './txn_builder'
 
 export class TxnBuilderMasternode extends P2WPKHTxnBuilder {
@@ -47,19 +54,81 @@ export class TxnBuilderMasternode extends P2WPKHTxnBuilder {
    *
    * @param {UpdateMasternode} updateMasternode transaction to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
-   * @param {Array<{ vin: Vin, vout: Vout, prevout: Prevout }>} [customVinVout = []] for custom vin and vout when updating owner address
-   * @return {Promise<TransactionSegWit>} 
+   * @param {Object} [collateralInfo] needed when updating owner address
+   * @param {RawTransaction} collateralInfo.rawCollateralTx to get relevant data needed for collateral vin and vout
+   * @param {Script} collateralInfo.newOwnerScript for new owner address
+   * @return {Promise<TransactionSegWit>}
    */
   async update (
     updateMasternode: UpdateMasternode,
     changeScript: Script,
-    customVinVout?: Array<{ vin: Vin, vout: Vout, prevout: Prevout }>
+    collateralInfo?: {
+      rawCollateralTx: RawTransaction
+      newOwnerScript: Script
+    }
   ): Promise<TransactionSegWit> {
-    return await this.createDeFiTx(
-      OP_CODES.OP_DEFI_TX_UPDATE_MASTER_NODE(updateMasternode),
-      changeScript,
-      undefined,
-      customVinVout
-    )
+    const minFee = new BigNumber(0.001)
+    const { prevouts, vin, total } = await this.collectPrevouts(minFee)
+
+    const deFiOut: Vout = {
+      value: new BigNumber(0),
+      script: {
+        stack: [
+          OP_CODES.OP_RETURN,
+          OP_CODES.OP_DEFI_TX_UPDATE_MASTER_NODE(updateMasternode)
+        ]
+      },
+      tokenId: 0x00
+    }
+
+    const change: Vout = {
+      value: total,
+      script: changeScript,
+      tokenId: 0x00
+    }
+
+    const mergedVin = [...vin]
+    const mergedVout = [deFiOut, change]
+    const mergedPrevouts = [...prevouts]
+
+    if (collateralInfo != null) {
+      const { rawCollateralTx, newOwnerScript } = collateralInfo
+      const { txid } = rawCollateralTx
+
+      const collateralPrevout: Prevout = {
+        txid: txid,
+        vout: 1,
+        script: changeScript,
+        value: new BigNumber(rawCollateralTx.vout[1].value),
+        tokenId: rawCollateralTx.vout[1].tokenId
+      }
+      const collateralVout: Vout = {
+        script: newOwnerScript,
+        value: new BigNumber(rawCollateralTx.vout[1].value),
+        tokenId: rawCollateralTx.vout[1].tokenId
+      }
+      const collateralVin: Vin = {
+        txid: txid,
+        index: 1,
+        script: { stack: [] },
+        sequence: 0xffffffff
+      }
+
+      mergedVin.push(collateralVin)
+      mergedVout.splice(1, 0, collateralVout)
+      mergedPrevouts.push(collateralPrevout)
+    }
+
+    const txn: Transaction = {
+      version: DeFiTransactionConstants.Version,
+      vin: mergedVin,
+      vout: mergedVout,
+      lockTime: 0x00000000
+    }
+
+    const fee = await this.calculateFee(txn)
+    change.value = total.minus(fee)
+
+    return await this.sign(txn, mergedPrevouts)
   }
 }

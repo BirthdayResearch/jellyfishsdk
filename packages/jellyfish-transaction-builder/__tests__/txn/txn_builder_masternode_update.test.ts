@@ -1,13 +1,12 @@
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { RegTest, RegTestFoundationKeys } from '@defichain/jellyfish-network'
-import { OP_CODES, Script, TransactionSegWit, UpdateMasternode, Vin, Vout } from '@defichain/jellyfish-transaction'
+import { OP_CODES, Script, TransactionSegWit, UpdateMasternode } from '@defichain/jellyfish-transaction'
 import { fromAddress, P2PKH, P2SH, P2WPKH } from '@defichain/jellyfish-address'
 import { DeFiDRpcError, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
-import { P2WPKHTransactionBuilder, Prevout } from '../../src'
+import { P2WPKHTransactionBuilder } from '../../src'
 import { fundEllipticPair, sendTransaction } from '../test.utils'
 import { Bech32 } from '@defichain/jellyfish-crypto'
-import { BigNumber } from '@defichain/jellyfish-json'
 import { Testing, TestingGroup } from '@defichain/jellyfish-testing'
 
 describe('UpdateMasternode', () => {
@@ -70,31 +69,10 @@ describe('UpdateMasternode', () => {
     }
 
     const rawCollateralTx = await jsonRpc.rawtx.getRawTransaction(masternodeId, true)
-    const collateralPrevout: Prevout = {
-      txid: masternodeId,
-      vout: 1,
-      script: script1,
-      value: new BigNumber(rawCollateralTx.vout[1].value),
-      tokenId: rawCollateralTx.vout[1].tokenId
-    }
-    const collateralVout: Vout = {
-      script: script2,
-      value: new BigNumber(rawCollateralTx.vout[1].value),
-      tokenId: rawCollateralTx.vout[1].tokenId
-    }
-    const collateralVin: Vin = {
-      txid: masternodeId,
-      index: 1,
-      script: { stack: [] },
-      sequence: 0xffffffff
-    }
-    const customVinVout = {
-      prevout: collateralPrevout,
-      vin: collateralVin,
-      vout: collateralVout
-    }
-
-    const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script1, [customVinVout])
+    const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script1, {
+      rawCollateralTx: rawCollateralTx,
+      newOwnerScript: script2
+    })
     const outs = await sendTransaction(container, txn)
 
     const encoded: string = OP_CODES.OP_DEFI_TX_UPDATE_MASTER_NODE(updateMasternode).asBuffer().toString('hex')
@@ -287,31 +265,10 @@ describe('UpdateMasternode', () => {
     }
 
     const rawCollateralTx = await jsonRpc.rawtx.getRawTransaction(masternodeId, true)
-    const collateralPrevout: Prevout = {
-      txid: masternodeId,
-      vout: 1,
-      script: script1,
-      value: new BigNumber(rawCollateralTx.vout[1].value),
-      tokenId: rawCollateralTx.vout[1].tokenId
-    }
-    const collateralVout: Vout = {
-      script: script2,
-      value: new BigNumber(rawCollateralTx.vout[1].value),
-      tokenId: rawCollateralTx.vout[1].tokenId
-    }
-    const collateralVin: Vin = {
-      txid: masternodeId,
-      index: 1,
-      script: { stack: [] },
-      sequence: 0xffffffff
-    }
-    const customVinVout = {
-      prevout: collateralPrevout,
-      vin: collateralVin,
-      vout: collateralVout
-    }
-
-    const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script1, [customVinVout])
+    const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script1, {
+      rawCollateralTx: rawCollateralTx,
+      newOwnerScript: script2
+    })
     const outs = await sendTransaction(container, txn)
 
     const encoded: string = OP_CODES.OP_DEFI_TX_UPDATE_MASTER_NODE(updateMasternode).asBuffer().toString('hex')
@@ -396,31 +353,10 @@ describe('UpdateMasternode', () => {
     }
 
     const rawCollateralTx = await jsonRpc.rawtx.getRawTransaction(masternodeId, true)
-    const collateralPrevout: Prevout = {
-      txid: masternodeId,
-      vout: 1,
-      script: script1,
-      value: new BigNumber(rawCollateralTx.vout[1].value),
-      tokenId: rawCollateralTx.vout[1].tokenId
-    }
-    const collateralVout: Vout = {
-      script: script2,
-      value: new BigNumber(rawCollateralTx.vout[1].value),
-      tokenId: rawCollateralTx.vout[1].tokenId
-    }
-    const collateralVin: Vin = {
-      txid: masternodeId,
-      index: 1,
-      script: { stack: [] },
-      sequence: 0xffffffff
-    }
-    const customVinVout = {
-      prevout: collateralPrevout,
-      vin: collateralVin,
-      vout: collateralVout
-    }
-
-    const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script1, [customVinVout])
+    const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script1, {
+      rawCollateralTx: rawCollateralTx,
+      newOwnerScript: script2
+    })
     const outs = await sendTransaction(container, txn)
 
     const encoded: string = OP_CODES.OP_DEFI_TX_UPDATE_MASTER_NODE(updateMasternode).asBuffer().toString('hex')
@@ -554,31 +490,10 @@ describe('UpdateMasternode', () => {
       }
 
       const rawCollateralTx = await jsonRpc.rawtx.getRawTransaction(masternodeId, true)
-      const collateralPrevout: Prevout = {
-        txid: masternodeId,
-        vout: 1,
-        script: script,
-        value: new BigNumber(rawCollateralTx.vout[1].value),
-        tokenId: rawCollateralTx.vout[1].tokenId
-      }
-      const collateralVout: Vout = {
-        script: script2,
-        value: new BigNumber(rawCollateralTx.vout[1].value),
-        tokenId: rawCollateralTx.vout[1].tokenId
-      }
-      const collateralVin: Vin = {
-        txid: masternodeId,
-        index: 1,
-        script: { stack: [] },
-        sequence: 0xffffffff
-      }
-      const customVinVout = {
-        prevout: collateralPrevout,
-        vin: collateralVin,
-        vout: collateralVout
-      }
-
-      const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script, [customVinVout])
+      const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script, {
+        rawCollateralTx: rawCollateralTx,
+        newOwnerScript: script2
+      })
       const promise = sendTransaction(container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
       await expect(promise).rejects.toThrow("DeFiDRpcError: 'bad-txns-customtx, UpdateMasternodeTx: Owner address must be P2PKH or P2WPKH type (code 16)', code: -26")
@@ -699,31 +614,10 @@ describe('UpdateMasternode', () => {
     }
 
     const rawCollateralTx = await jsonRpc.rawtx.getRawTransaction(masternodeId, true)
-    const collateralPrevout: Prevout = {
-      txid: masternodeId,
-      vout: 1,
-      script: script1,
-      value: new BigNumber(rawCollateralTx.vout[1].value),
-      tokenId: rawCollateralTx.vout[1].tokenId
-    }
-    const collateralVout: Vout = {
-      script: script1,
-      value: new BigNumber(rawCollateralTx.vout[1].value),
-      tokenId: rawCollateralTx.vout[1].tokenId
-    }
-    const collateralVin: Vin = {
-      txid: masternodeId,
-      index: 1,
-      script: { stack: [] },
-      sequence: 0xffffffff
-    }
-    const customVinVout = {
-      prevout: collateralPrevout,
-      vin: collateralVin,
-      vout: collateralVout
-    }
-
-    const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script1, [customVinVout])
+    const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script1, {
+      rawCollateralTx: rawCollateralTx,
+      newOwnerScript: script1
+    })
     const promise = sendTransaction(container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)
@@ -762,61 +656,6 @@ describe('UpdateMasternode', () => {
     const promise = sendTransaction(container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow("DeFiDRpcError: 'bad-txns-customtx, UpdateMasternodeTx: Masternode with that operator address already exists (code 16)', code: -26")
-  })
-
-  it('should fail with incorrect collateral amount', async () => {
-    const pubKey = await providers.ellipticPair.publicKey()
-    const script1 = await providers.elliptic.script()
-
-    const initialAddress = Bech32.fromPubKey(pubKey, 'bcrt')
-    const masternodeId = await jsonRpc.masternode.createMasternode(initialAddress)
-    await container.generate(20)
-
-    const newAddress = await container.getNewAddress('', 'bech32')
-    const addressDest: P2WPKH = P2WPKH.fromAddress(RegTest, newAddress, P2WPKH)
-    const addressDestKeyHash = addressDest.pubKeyHash
-    const script2 = await fromAddress(newAddress, 'regtest')?.script as Script
-
-    const updateMasternode: UpdateMasternode = {
-      nodeId: masternodeId,
-      updates: [
-        {
-          updateType: 0x01,
-          address: { addressType: 0x04, addressPubKeyHash: addressDestKeyHash }
-        }
-      ]
-    }
-
-    const rawCollateralTx = await jsonRpc.rawtx.getRawTransaction(masternodeId, true)
-    const collateralPrevout: Prevout = {
-      txid: masternodeId,
-      vout: 1,
-      script: script1,
-      value: new BigNumber(5),
-      tokenId: rawCollateralTx.vout[1].tokenId
-    }
-    const collateralVout: Vout = {
-      script: script2,
-      value: new BigNumber(5),
-      tokenId: rawCollateralTx.vout[1].tokenId
-    }
-    const collateralVin: Vin = {
-      txid: masternodeId,
-      index: 1,
-      script: { stack: [] },
-      sequence: 0xffffffff
-    }
-    const customVinVout = {
-      prevout: collateralPrevout,
-      vin: collateralVin,
-      vout: collateralVout
-    }
-
-    const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script1, [customVinVout])
-    const promise = sendTransaction(container, txn)
-
-    await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'bad-txns-customtx, UpdateMasternodeTx: Incorrect collateral amount (code 16)\', code: -26')
   })
 
   it('should not update masternode while in PRE_ENABLED or TRANSFERRING state', async () => {
