@@ -204,6 +204,14 @@ export class StartedNativeChainContainer extends AbstractStartedContainer {
     this.rpcUrl = this.generateRpcUrl()
   }
 
+  get rpcPassword (): string {
+    return this.config.rpcPassword
+  }
+
+  get rpcUser (): string {
+    return this.config.rpcUser
+  }
+
   private generateRpcUrl (): string {
     const {
       rpcUser,

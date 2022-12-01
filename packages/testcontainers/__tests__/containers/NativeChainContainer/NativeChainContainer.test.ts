@@ -1,4 +1,4 @@
-import { Network } from 'testcontainers'
+import { Network, StartedNetwork } from 'testcontainers'
 import { NativeChainContainer, StartedNativeChainContainer } from '../../../src'
 
 describe('nativechain mainnet', () => {
@@ -90,26 +90,45 @@ describe('nativechain regtest', () => {
 })
 
 describe('nativechain fluency', () => {
-  let container: StartedNativeChainContainer
+  let container: NativeChainContainer
+  let startedContainer: StartedNativeChainContainer
+  let startedNetwork: StartedNetwork
 
-  const containerName = 'fluent-name'
-
-  beforeAll(async () => {
-    const startedNetwork = await new Network().start()
+  beforeEach(async () => {
+    startedNetwork = await new Network().start()
     container = await new NativeChainContainer()
       .withNetworkMode((startedNetwork).getName())
       .withBlockchainNetwork('regtest')
-      .withName(containerName)
       .withStartupTimeout(60_000)
-      .start()
   })
 
-  afterAll(async () => {
-    await container.stop()
+  afterEach(async () => {
+    await startedContainer.stop()
+    await startedNetwork.stop()
   })
 
   it('should return custom container name', async () => {
-    const name = container.getName()
+    const containerName = 'fluent-name'
+    startedContainer = await container.withName(containerName).start()
+    const name = startedContainer.getName()
     expect(name).toStrictEqual(`/${containerName}`)
+  })
+
+  it('should set rpcUser', async () => {
+    const rpcUserStr = 'testRpcUser'
+    startedContainer = await container.withRpcUser(rpcUserStr).start()
+    expect(startedContainer.rpcUser).toStrictEqual(rpcUserStr)
+  })
+
+  it('should set rpcPassword', async () => {
+    const rpcUserPwd = 'testRpcPassword'
+    startedContainer = await container.withRpcPassword(rpcUserPwd).start()
+    expect(startedContainer.rpcPassword).toStrictEqual(rpcUserPwd)
+  })
+})
+
+describe('nativechain static functions', () => {
+  it('should return image', () => {
+    expect(typeof NativeChainContainer.image).toStrictEqual('string')
   })
 })
