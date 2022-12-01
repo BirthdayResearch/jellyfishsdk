@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   defi-blockchain:
-    image: defi/defichain:master-1d169a751
+    image: defi/defichain:3.0.1
     ports:
       - "19554:19554"
     command: >
@@ -38,6 +38,7 @@ services:
       -fortcanningepilogueheight=15
       -grandcentralheight=16
       -regtest-skip-loan-collateral-validation
+      -regtest-minttoken-simulate-mainnet=0
 
   defi-whale:
     build:

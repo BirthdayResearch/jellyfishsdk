@@ -1,7 +1,9 @@
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { DeFiDRpcError, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { AddressType } from '../../../src/category/wallet'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
+import { Testing, TestingGroup } from '@defichain/jellyfish-testing'
+import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
 describe('Update Masternode', () => {
   const container = new MasterNodeRegTestContainer()
@@ -40,18 +42,28 @@ describe('Update Masternode', () => {
       ownerAddress: newAddress
     })
 
-    await container.generate(65) // wait for masternode to be enabled
+    // wait for masternode to be enabled
+    await container.generate(20)
+
+    // Test update masternode again during TRANSFERRING
+    const expectTransferringMN = await client.masternode.getMasternode(masternodeId)
+    expect(expectTransferringMN[masternodeId].state).toStrictEqual('TRANSFERRING')
+
+    const anotherNewAddress = await client.wallet.getNewAddress()
+    const promise = client.masternode.updateMasternode(masternodeId, {
+      ownerAddress: anotherNewAddress
+    })
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow(`Masternode ${masternodeId} is not in 'ENABLED' state`)
+
+    await container.generate(45)
 
     const masternodesAfter = await client.masternode.listMasternodes()
     const masternodesLengthAfter = Object.keys(masternodesAfter).length
+
     expect(masternodesLengthAfter).toStrictEqual(masternodesLengthBefore)
-
-    const mn = masternodesAfter[masternodeId]
-    if (mn === undefined) {
-      throw new Error('should not reach here')
-    }
-
-    expect(mn).toStrictEqual({
+    expect(masternodesAfter[masternodeId]).toBeTruthy()
+    expect(masternodesAfter[masternodeId]).toStrictEqual({
       ownerAuthAddress: newAddress,
       operatorAuthAddress: initialAddress,
       rewardAddress: '',
@@ -59,7 +71,7 @@ describe('Update Masternode', () => {
       resignHeight: expect.any(Number),
       resignTx: expect.any(String),
       collateralTx: expect.any(String),
-      state: expect.any(String),
+      state: 'ENABLED',
       mintedBlocks: expect.any(Number),
       ownerIsMine: expect.any(Boolean),
       localMasternode: expect.any(Boolean),
@@ -86,14 +98,10 @@ describe('Update Masternode', () => {
 
     const masternodesAfter = await client.masternode.listMasternodes()
     const masternodesLengthAfter = Object.keys(masternodesAfter).length
+
     expect(masternodesLengthAfter).toStrictEqual(masternodesLengthBefore)
-
-    const mn = masternodesAfter[masternodeId]
-    if (mn === undefined) {
-      throw new Error('should not reach here')
-    }
-
-    expect(mn).toStrictEqual({
+    expect(masternodesAfter[masternodeId]).toBeTruthy()
+    expect(masternodesAfter[masternodeId]).toStrictEqual({
       ownerAuthAddress: initialAddress,
       operatorAuthAddress: newAddress,
       rewardAddress: '',
@@ -101,7 +109,7 @@ describe('Update Masternode', () => {
       resignHeight: expect.any(Number),
       resignTx: expect.any(String),
       collateralTx: expect.any(String),
-      state: expect.any(String),
+      state: 'ENABLED',
       mintedBlocks: expect.any(Number),
       ownerIsMine: expect.any(Boolean),
       localMasternode: expect.any(Boolean),
@@ -128,14 +136,10 @@ describe('Update Masternode', () => {
 
     const masternodesAfter = await client.masternode.listMasternodes()
     const masternodesLengthAfter = Object.keys(masternodesAfter).length
+
     expect(masternodesLengthAfter).toStrictEqual(masternodesLengthBefore)
-
-    const mn = masternodesAfter[masternodeId]
-    if (mn === undefined) {
-      throw new Error('should not reach here')
-    }
-
-    expect(mn).toStrictEqual({
+    expect(masternodesAfter[masternodeId]).toBeTruthy()
+    expect(masternodesAfter[masternodeId]).toStrictEqual({
       ownerAuthAddress: initialAddress,
       operatorAuthAddress: initialAddress,
       rewardAddress: newAddress,
@@ -143,7 +147,7 @@ describe('Update Masternode', () => {
       resignHeight: expect.any(Number),
       resignTx: expect.any(String),
       collateralTx: expect.any(String),
-      state: expect.any(String),
+      state: 'ENABLED',
       mintedBlocks: expect.any(Number),
       ownerIsMine: expect.any(Boolean),
       localMasternode: expect.any(Boolean),
@@ -170,12 +174,9 @@ describe('Update Masternode', () => {
     await container.generate(65)
 
     const masternodes = await client.masternode.listMasternodes()
-    const mn = masternodes[masternodeId]
-    if (mn === undefined) {
-      throw new Error('should not reach here')
-    }
 
-    expect(mn).toStrictEqual({
+    expect(masternodes[masternodeId]).toBeTruthy()
+    expect(masternodes[masternodeId]).toStrictEqual({
       operatorAuthAddress: operatorAddress,
       ownerAuthAddress: ownerAddress,
       rewardAddress: rewardAddress,
@@ -183,7 +184,7 @@ describe('Update Masternode', () => {
       resignHeight: expect.any(Number),
       resignTx: expect.any(String),
       collateralTx: expect.any(String),
-      state: expect.any(String),
+      state: 'ENABLED',
       mintedBlocks: expect.any(Number),
       ownerIsMine: expect.any(Boolean),
       localMasternode: expect.any(Boolean),
@@ -210,12 +211,9 @@ describe('Update Masternode', () => {
     await container.generate(65)
 
     const masternodes = await client.masternode.listMasternodes()
-    const mn = masternodes[masternodeId]
-    if (mn === undefined) {
-      throw new Error('should not reach here')
-    }
 
-    expect(mn).toStrictEqual({
+    expect(masternodes[masternodeId]).toBeTruthy()
+    expect(masternodes[masternodeId]).toStrictEqual({
       operatorAuthAddress: operatorAddress,
       ownerAuthAddress: ownerAddress,
       rewardAddress: rewardAddress,
@@ -223,7 +221,7 @@ describe('Update Masternode', () => {
       resignHeight: expect.any(Number),
       resignTx: expect.any(String),
       collateralTx: expect.any(String),
-      state: expect.any(String),
+      state: 'ENABLED',
       mintedBlocks: expect.any(Number),
       ownerIsMine: expect.any(Boolean),
       localMasternode: expect.any(Boolean),
@@ -274,11 +272,8 @@ describe('Update Masternode', () => {
     await container.generate(50)
 
     const masternodesBefore = await client.masternode.listMasternodes()
-    const mnBefore = masternodesBefore[masternodeId]
-    if (mnBefore === undefined) {
-      throw new Error('should not reach here')
-    }
-    expect(mnBefore.rewardAddress).toStrictEqual(rewardAddress)
+    expect(masternodesBefore[masternodeId]).toBeTruthy()
+    expect(masternodesBefore[masternodeId].rewardAddress).toStrictEqual(rewardAddress)
 
     await client.masternode.updateMasternode(masternodeId, {
       rewardAddress: ''
@@ -286,11 +281,8 @@ describe('Update Masternode', () => {
     await container.generate(50)
 
     const masternodesAfter = await client.masternode.listMasternodes()
-    const mnAfter = masternodesAfter[masternodeId]
-    if (mnAfter === undefined) {
-      throw new Error('should not reach here')
-    }
-    expect(mnAfter.rewardAddress).toStrictEqual('')
+    expect(masternodesAfter[masternodeId]).toBeTruthy()
+    expect(masternodesAfter[masternodeId].rewardAddress).toStrictEqual('')
   })
 
   it('should be failed as p2sh address is not allowed', async () => {
@@ -390,12 +382,9 @@ describe('Update Masternode', () => {
 
     {
       const masternodes = await client.masternode.listMasternodes()
-      const mn = masternodes[masternodeId]
-      if (mn === undefined) {
-        throw new Error('should not reach here')
-      }
-      expect(mn.state).toStrictEqual('PRE_ENABLED')
-      expect(mn.ownerAuthAddress).toStrictEqual(initialAddress)
+      expect(masternodes[masternodeId]).toBeTruthy()
+      expect(masternodes[masternodeId].state).toStrictEqual('PRE_ENABLED')
+      expect(masternodes[masternodeId].ownerAuthAddress).toStrictEqual(initialAddress)
     }
 
     await container.generate(20)
@@ -409,24 +398,18 @@ describe('Update Masternode', () => {
 
     {
       const masternodes = await client.masternode.listMasternodes()
-      const mn = masternodes[masternodeId]
-      if (mn === undefined) {
-        throw new Error('should not reach here')
-      }
-      expect(mn.state).toStrictEqual('TRANSFERRING')
-      expect(mn.ownerAuthAddress).toStrictEqual(initialAddress)
+      expect(masternodes[masternodeId]).toBeTruthy()
+      expect(masternodes[masternodeId].state).toStrictEqual('TRANSFERRING')
+      expect(masternodes[masternodeId].ownerAuthAddress).toStrictEqual(initialAddress)
     }
 
     await container.generate(45)
 
     {
       const masternodes = await client.masternode.listMasternodes()
-      const mn = masternodes[masternodeId]
-      if (mn === undefined) {
-        throw new Error('should not reach here')
-      }
-      expect(mn.state).toStrictEqual('ENABLED')
-      expect(mn.ownerAuthAddress).toStrictEqual(ownerAddress)
+      expect(masternodes[masternodeId]).toBeTruthy()
+      expect(masternodes[masternodeId].state).toStrictEqual('ENABLED')
+      expect(masternodes[masternodeId].ownerAuthAddress).toStrictEqual(ownerAddress)
     }
   })
 
@@ -467,5 +450,127 @@ describe('Update Masternode', () => {
     })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow("RpcApiError: 'Test UpdateMasternodeTx execution failed:\nMasternode with that operator address already exists', code: -32600, method: updatemasternode")
+  })
+
+  it('Test updating several MNs owners in the same block', async () => {
+    const oldOwnerAddressA = await client.wallet.getNewAddress()
+    const masternodeIdA = await client.masternode.createMasternode(oldOwnerAddressA)
+
+    const oldOwnerAddressB = await client.wallet.getNewAddress()
+    const masternodeIdB = await client.masternode.createMasternode(oldOwnerAddressB)
+
+    const oldOwnerAddressC = await client.wallet.getNewAddress()
+    const masternodeIdC = await client.masternode.createMasternode(oldOwnerAddressC)
+
+    await container.generate(40)
+
+    const masternodesBefore = await client.masternode.listMasternodes()
+    expect(masternodesBefore[masternodeIdA].state).toStrictEqual('ENABLED')
+    expect(masternodesBefore[masternodeIdA].ownerAuthAddress).toStrictEqual(oldOwnerAddressA)
+    expect(masternodesBefore[masternodeIdB].state).toStrictEqual('ENABLED')
+    expect(masternodesBefore[masternodeIdB].ownerAuthAddress).toStrictEqual(oldOwnerAddressB)
+    expect(masternodesBefore[masternodeIdC].state).toStrictEqual('ENABLED')
+    expect(masternodesBefore[masternodeIdC].ownerAuthAddress).toStrictEqual(oldOwnerAddressC)
+
+    const newOwnerAddressA = await client.wallet.getNewAddress()
+    const newOwnerAddressB = await client.wallet.getNewAddress()
+    const newOwnerAddressC = await client.wallet.getNewAddress()
+
+    await client.masternode.updateMasternode(masternodeIdA, { ownerAddress: newOwnerAddressA })
+    await client.masternode.updateMasternode(masternodeIdB, { ownerAddress: newOwnerAddressB })
+    await client.masternode.updateMasternode(masternodeIdC, { ownerAddress: newOwnerAddressC })
+
+    await container.generate(1)
+
+    const masternodesAfter = await client.masternode.listMasternodes()
+    expect(masternodesAfter[masternodeIdA].state).toStrictEqual('TRANSFERRING')
+    expect(masternodesAfter[masternodeIdA].ownerAuthAddress).toStrictEqual(oldOwnerAddressA)
+    expect(masternodesAfter[masternodeIdB].state).toStrictEqual('TRANSFERRING')
+    expect(masternodesAfter[masternodeIdB].ownerAuthAddress).toStrictEqual(oldOwnerAddressB)
+    expect(masternodesAfter[masternodeIdC].state).toStrictEqual('TRANSFERRING')
+    expect(masternodesAfter[masternodeIdC].ownerAuthAddress).toStrictEqual(oldOwnerAddressC)
+  })
+
+  it('Test incorrect new collateral amount', async () => {
+    const masternodeOwnerAddress = await client.wallet.getNewAddress()
+    const ownerAddress = await client.wallet.getNewAddress()
+    const masternodeId = await client.masternode.createMasternode(masternodeOwnerAddress)
+
+    await container.generate(20)
+
+    const { txid: missingAuthTx, vout: missingInputVout } = await container.fundAddress(masternodeOwnerAddress, 0.1)
+    const { txid: ownerAuthTx, vout: ownerAuthVout } = await container.fundAddress(ownerAddress, 0.1)
+
+    const missingTx = await client.masternode.updateMasternode(masternodeId, { ownerAddress: ownerAddress })
+    const missingRawTx = await container.call('getrawtransaction', [missingTx, true])
+
+    await client.masternode.clearMempool()
+
+    const keyedTx: { [key: string]: number } = {}
+    keyedTx[ownerAddress] = 10.1
+
+    const rawTx = await container.call('createrawtransaction', [
+      [
+        { txid: masternodeId, vout: 1 },
+        { txid: missingAuthTx, vout: missingInputVout },
+        { txid: ownerAuthTx, vout: ownerAuthVout }
+      ],
+      [
+        {
+          data: missingRawTx.vout[0].scriptPubKey.hex
+        },
+        keyedTx
+      ]
+    ])
+
+    const signedTx = await container.call('signrawtransactionwithwallet', [rawTx])
+    expect(signedTx.complete).toBeTruthy()
+
+    const promise = container.call('sendrawtransaction', [signedTx.hex])
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'bad-txns-collateral-locked, tried to spend locked collateral for ${masternodeId} (code 16)', code: -26`)
+  })
+})
+
+describe('Update Masternode (Multi-containers)', () => {
+  let tGroup: TestingGroup
+  const node: Testing[] = []
+
+  beforeAll(async () => {
+    tGroup = TestingGroup.create(2, i => new MasterNodeRegTestContainer(RegTestFoundationKeys[i]))
+    await tGroup.start()
+    node.push(tGroup.get(0))
+    node.push(tGroup.get(1))
+  })
+
+  afterAll(async () => {
+    await tGroup.stop()
+  })
+
+  it('should throw error if incorrect authorization is provided', async () => {
+    await node[0].container.waitForWalletCoinbaseMaturity()
+    await node[1].container.waitForWalletCoinbaseMaturity()
+
+    // enable updating
+    await node[0].rpc.masternode.setGov({
+      ATTRIBUTES: {
+        'v0/params/feature/mn-setowneraddress': 'true',
+        'v0/params/feature/mn-setoperatoraddress': 'true',
+        'v0/params/feature/mn-setrewardaddress': 'true'
+      }
+    })
+    await node[0].generate(1)
+
+    const masternodeOwnerAddress = await node[0].rpc.wallet.getNewAddress('', AddressType.LEGACY)
+    const masternodeId = await node[0].rpc.masternode.createMasternode(masternodeOwnerAddress)
+    await node[0].generate(100) // create masternode and wait for it to be enabled
+
+    const operatorAddress = await node[0].rpc.wallet.getNewAddress('', AddressType.LEGACY)
+    await node[0].generate(4)
+    await tGroup.waitForSync() // container2 should know about the new masternode
+
+    const promise = node[1].rpc.masternode.updateMasternode(masternodeId, { operatorAddress: operatorAddress })
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow(`RpcApiError: 'Incorrect authorization for ${masternodeOwnerAddress}', code: -5, method: updatemasternode`)
   })
 })
