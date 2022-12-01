@@ -34,7 +34,7 @@ describe('Network', () => {
   it('should have available nodes', async () => {
     await tGroup.link()
     await new Promise((resolve) => {
-      setTimeout(() => resolve(0), 10000)
+      setTimeout(() => resolve(0), 30000)
     }) // give enough time to find new nodes
 
     const res = await tGroup.get(0).rpc.net.getNodeAddresses(1)
