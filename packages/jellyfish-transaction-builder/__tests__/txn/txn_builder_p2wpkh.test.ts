@@ -1,9 +1,9 @@
 import BigNumber from 'bignumber.js'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
-import { P2WPKHTxnBuilder, Prevout } from '../../src'
+import { P2WPKHTxnBuilder } from '../../src'
 import { fundEllipticPair } from '../test.utils'
-import { CDfTx, DeFiOpUnmapped, OP_CODES, OP_DEFI_TX, Vin, Vout } from '@defichain/jellyfish-transaction'
+import { CDfTx, DeFiOpUnmapped, OP_CODES, OP_DEFI_TX } from '@defichain/jellyfish-transaction'
 import { RegTest } from '@defichain/jellyfish-network'
 
 // P2WPKHTxnBuilder is abstract and not instantiable
@@ -91,47 +91,5 @@ describe('createDeFiTx()', () => {
     expect(result.vout[1].script).toStrictEqual(change)
     expect(result.vout[1].value.gt(new BigNumber(99.999).minus(spendAmount))).toBeTruthy()
     expect(result.vout[1].value.lt(new BigNumber(100).minus(spendAmount))).toBeTruthy()
-  })
-
-  it('should create DfTx stack correctly with custom vin and vout', async () => {
-    const script = await providers.elliptic.script()
-
-    const collateralPrevout: Prevout = {
-      txid: '1111111122222222333333334444444455555555666666667777777788888888',
-      vout: 0,
-      script: script,
-      value: new BigNumber(15),
-      tokenId: 0
-    }
-    const collateralVout: Vout = {
-      script: script,
-      value: new BigNumber(15),
-      tokenId: 0
-    }
-    const collateralVin: Vin = {
-      txid: '1111111122222222333333334444444455555555666666667777777788888888',
-      index: 1,
-      script: { stack: [] },
-      sequence: 0xffffffff
-    }
-    const customVinVout = {
-      prevout: collateralPrevout,
-      vin: collateralVin,
-      vout: collateralVout
-    }
-
-    const result = await builder.createDeFiTx(dummyDfTx, script, undefined, [customVinVout])
-
-    expect(result.vin.length).toStrictEqual(8)
-    expect(result.vout.length).toStrictEqual(3)
-
-    expect(result.vout[0].value).toStrictEqual(new BigNumber(0))
-    expect(result.vout[1]).toStrictEqual(expect.objectContaining({
-      value: new BigNumber(15),
-      script: script
-    }))
-    expect(result.vout[2].value.gt(99.999)).toBeTruthy()
-    expect(result.vout[2].value.lt(100)).toBeTruthy()
-    expect(result.vout[2].script).toStrictEqual(script)
   })
 })
