@@ -32,7 +32,7 @@ describe('UpdateMasternode', () => {
   beforeEach(async () => {
     await providers.randomizeEllipticPair()
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
-    await fundEllipticPair(container, providers.ellipticPair, 3 + 0.00000755)
+    await fundEllipticPair(container, providers.ellipticPair, 10)
     await providers.setupMocks()
 
     // enable updating
@@ -138,7 +138,8 @@ describe('UpdateMasternode', () => {
         type: 'witness_v0_keyhash'
       }
     })
-    expect(outs[2].value).toBeGreaterThan(72)
+    expect(outs[2].value).toBeGreaterThan(6.99)
+    expect(outs[2].value).toBeLessThan(7)
   })
 
   it('should update operator address with P2WPKH address', async () => {
@@ -191,7 +192,8 @@ describe('UpdateMasternode', () => {
         type: 'witness_v0_keyhash'
       }
     })
-    expect(outs[1].value).toBeGreaterThan(6)
+    expect(outs[1].value).toBeGreaterThan(6.99)
+    expect(outs[1].value).toBeLessThan(7)
   })
 
   it('should update reward address with P2WPKH address', async () => {
@@ -244,7 +246,8 @@ describe('UpdateMasternode', () => {
         type: 'witness_v0_keyhash'
       }
     })
-    expect(outs[1].value).toBeGreaterThan(6)
+    expect(outs[1].value).toBeGreaterThan(6.99)
+    expect(outs[1].value).toBeLessThan(7)
   })
 
   it('should update multiple addresses simultaneously with P2WPKH address', async () => {
@@ -352,6 +355,8 @@ describe('UpdateMasternode', () => {
         type: 'witness_v0_keyhash'
       }
     })
+    expect(outs[2].value).toBeGreaterThan(6.99)
+    expect(outs[2].value).toBeLessThan(7)
   })
 
   it('should update multiple addresses simultaneously with P2PKH address', async () => {
@@ -459,6 +464,8 @@ describe('UpdateMasternode', () => {
         type: 'witness_v0_keyhash'
       }
     })
+    expect(outs[2].value).toBeGreaterThan(6.99)
+    expect(outs[2].value).toBeLessThan(7)
   })
 
   it('should update remove reward address', async () => {
@@ -526,7 +533,8 @@ describe('UpdateMasternode', () => {
         type: 'witness_v0_keyhash'
       }
     })
-    expect(outs[1].value).toBeGreaterThan(6)
+    expect(outs[1].value).toBeGreaterThan(6.99)
+    expect(outs[1].value).toBeLessThan(7)
   })
 
   it('should fail if address is P2SH', async () => {
