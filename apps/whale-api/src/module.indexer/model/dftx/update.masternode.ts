@@ -4,10 +4,9 @@ import { P2PKH, P2WPKH } from '@defichain/jellyfish-address'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { RawBlock } from '../_abstract'
 import { Inject, Injectable } from '@nestjs/common'
-import { Masternode, MasternodeMapper } from '../../../module.model/masternode'
-import { MasternodeStatsMapper, TimelockStats } from '../../../module.model/masternode.stats'
+import { MasternodeMapper } from '../../../module.model/masternode'
+import { MasternodeStatsMapper } from '../../../module.model/masternode.stats'
 import { HexEncoder } from '../../../module.model/_hex.encoder'
-import BigNumber from 'bignumber.js'
 
 @Injectable()
 export class UpdateMasternodeIndexer extends DfTxIndexer<UpdateMasternode> {
@@ -88,35 +87,7 @@ export class UpdateMasternodeIndexer extends DfTxIndexer<UpdateMasternode> {
         collateral: txn.vout[1].value.toFixed(8),
         updateRecords
       })
-
-      await this.indexStats(block, mn)
     }
-  }
-
-  async indexStats (block: RawBlock, data: Masternode): Promise<void> {
-    const latest = await this.masternodeStatsMapper.getLatest()
-
-    await this.masternodeStatsMapper.put({
-      id: HexEncoder.encodeHeight(block.height),
-      stats: {
-        count: (latest?.stats?.count ?? 0) - 1,
-        tvl: new BigNumber(latest?.stats?.tvl ?? 0).minus(data.collateral).toFixed(8),
-        locked: this.mapTimelockStats(latest?.stats?.locked ?? [], {
-          weeks: data.timelock ?? 0,
-          count: 1,
-          tvl: data.collateral
-        })
-      },
-      block: { hash: block.hash, height: block.height, medianTime: block.mediantime, time: block.time }
-    })
-  }
-
-  mapTimelockStats (latest: TimelockStats[], lockStats: TimelockStats): TimelockStats[] {
-    return latest.map(x => ({
-      ...x,
-      count: x.weeks === lockStats.weeks ? (x.count - lockStats.count) : x.count,
-      tvl: x.weeks === lockStats.weeks ? new BigNumber(x.tvl).minus(lockStats.tvl).toFixed(8) : x.tvl
-    }))
   }
 
   async invalidateTransaction (block: RawBlock, transaction: DfTxTransaction<UpdateMasternode>): Promise<void> {
@@ -141,8 +112,6 @@ export class UpdateMasternodeIndexer extends DfTxIndexer<UpdateMasternode> {
         collateral: txn.vout[1].value.toFixed(8),
         updateRecords
       })
-
-      await this.indexStats(block, mn)
     }
   }
 
