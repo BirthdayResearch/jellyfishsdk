@@ -63,7 +63,7 @@
     "subleveldown": "^6.0.1"
   },
   "devDependencies": {
-    "@nestjs/cli": "9.1.2",
+    "@nestjs/cli": "9.1.5",
     "@nestjs/schematics": "9.0.3",
     "@nestjs/testing": "8.4.7",
     "@types/cache-manager": "4.0.1",
