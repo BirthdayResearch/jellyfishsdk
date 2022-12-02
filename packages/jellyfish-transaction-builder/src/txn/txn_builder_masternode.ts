@@ -91,7 +91,7 @@ export class TxnBuilderMasternode extends P2WPKHTxnBuilder {
     const mergedVout = [deFiOut, change]
     const mergedPrevouts = [...prevouts]
 
-    if (collateralInfo != null) {
+    if (collateralInfo !== null && collateralInfo !== undefined) {
       const { rawCollateralTx, newOwnerScript } = collateralInfo
       const { txid } = rawCollateralTx
 
