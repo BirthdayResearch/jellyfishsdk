@@ -114,10 +114,6 @@ export class UpdateMasternodeIndexer extends DfTxIndexer<UpdateMasternode> {
       })
     }
   }
-
-  async invalidateBlockStart (block: RawBlock): Promise<void> {
-    await this.masternodeStatsMapper.delete(block.height)
-  }
 }
 
 enum MasternodeKeyType {
