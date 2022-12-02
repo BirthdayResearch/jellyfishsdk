@@ -412,3 +412,13 @@ interface UTXO {
   vout: number
 }
 ```
+
+## paybackWithCollateral
+
+Return loan with vault's collaterals.
+
+```ts title="client.loan.paybackWithCollateral()"
+interface loan {
+  paybackWithCollateral (vaultId: string): Promise<string>
+}
+```

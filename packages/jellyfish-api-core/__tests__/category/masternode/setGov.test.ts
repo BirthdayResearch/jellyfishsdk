@@ -2,7 +2,7 @@ import { BigNumber, RpcApiError } from '@defichain/jellyfish-api-core'
 import { GenesisKeys, MasterNodeRegTestContainer, StartFlags } from '@defichain/testcontainers'
 import { createPoolPair, createToken } from '@defichain/testing'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { Testing } from '@defichain/jellyfish-testing'
+import { Testing, TestingGroup } from '@defichain/jellyfish-testing'
 import { UTXO } from '@defichain/jellyfish-api-core/dist/category/masternode'
 
 describe('Masternode', () => {
@@ -514,5 +514,261 @@ describe('setGov ATTRIBUTES loan dusd burn keys', () => {
       const promise = testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2206a/dusd_loan_burn': 'INVALID' } })
       await expect(promise).rejects.toThrow('RpcApiError: \'Boolean value must be either "true" or "false"\', code: -5, method: setgov')
     }
+  })
+})
+
+describe('setGov consortium ATTRIBUTES', () => {
+  const tGroup = TestingGroup.create(2)
+  let account0: string, account1: string
+  let idBTC: string
+  const symbolBTC = 'BTC'
+
+  beforeAll(async () => {
+    await tGroup.start()
+    await setup()
+  })
+
+  afterAll(async () => {
+    await tGroup.stop()
+  })
+
+  async function setup (): Promise<void> {
+    account0 = await tGroup.get(0).generateAddress()
+    account1 = await tGroup.get(1).generateAddress()
+
+    await tGroup.get(0).token.create({
+      symbol: symbolBTC,
+      name: symbolBTC,
+      isDAT: true,
+      mintable: true,
+      tradeable: true,
+      collateralAddress: account0
+    })
+
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).container.fundAddress(account1, 10)
+
+    idBTC = await tGroup.get(0).token.getTokenId(symbolBTC)
+  }
+
+  async function setGovAttr (ATTRIBUTES: object): Promise<string> {
+    const hash = await tGroup.get(0).rpc.masternode.setGov({ ATTRIBUTES })
+    await tGroup.get(0).generate(1)
+    return hash
+  }
+
+  it('should throw an error if \'v0/params/feature/consortium\' is not assigned a boolean', async () => {
+    const promise = tGroup.get(0).rpc.masternode.setGov({
+      ATTRIBUTES: { 'v0/params/feature/consortium': '1' }
+    })
+    await expect(promise).rejects.toThrow('RpcApiError: \'Boolean value must be either "true" or "false"\', code: -5, method: setgov')
+  })
+
+  it('should throw an error if the member owner address is empty', async () => {
+    const promise = setGovAttr({
+      [`v0/consortium/${idBTC}/members`]: {
+        '01': {
+          name: 'test',
+          ownerAddress: '',
+          backingId: 'blablabla',
+          mintLimit: 10.00000000
+        }
+      }
+    })
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -5,
+        message: 'Invalid ownerAddress in consortium member data',
+        method: 'setgov'
+      }
+    })
+  })
+
+  it('should throw an error if the member owner address is invalid', async () => {
+    const promise = setGovAttr({
+      [`v0/consortium/${idBTC}/members`]: {
+        '01': {
+          name: 'test',
+          ownerAddress: 'abc',
+          backingId: 'blablabla',
+          mintLimit: 10.00000000
+        }
+      }
+    })
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -5,
+        message: 'Invalid ownerAddress in consortium member data',
+        method: 'setgov'
+      }
+    })
+  })
+
+  it('should throw an error if the consortium member name length is less than 3', async () => {
+    const promise = setGovAttr({
+      [`v0/consortium/${idBTC}/members`]: {
+        '01': {
+          name: 'ab',
+          ownerAddress: account1,
+          backingId: 'blablabla',
+          mintLimit: 10.00000000
+        }
+      }
+    })
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -5,
+        message: 'Member name too short, must be at least 3 chars long',
+        method: 'setgov'
+      }
+    })
+  })
+
+  it('should throw an error if the member mint limit is invalid', async () => {
+    const promise = setGovAttr({
+      [`v0/consortium/${idBTC}/members`]: {
+        '01': {
+          name: 'test',
+          ownerAddress: account1,
+          backingId: 'blablabla',
+          mintLimit: -10.00000000
+        }
+      }
+    })
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -5,
+        message: 'Mint limit is an invalid amount',
+        method: 'setgov'
+      }
+    })
+  })
+
+  it('should throw an error if the member daily mint limit is invalid', async () => {
+    const promise = setGovAttr({
+      [`v0/consortium/${idBTC}/members`]: {
+        '01': {
+          name: 'test',
+          ownerAddress: account1,
+          backingId: 'blablabla',
+          mintLimit: 10.00000000,
+          mintLimitDaily: -10.00000000
+        }
+      }
+    })
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -5,
+        message: 'Daily mint limit is an invalid amount',
+        method: 'setgov'
+      }
+    })
+  })
+
+  it('should throw an error if the member status is invalid', async () => {
+    const p1 = setGovAttr({
+      [`v0/consortium/${idBTC}/members`]: {
+        '01': {
+          name: 'test',
+          ownerAddress: account1,
+          backingId: 'blablabla',
+          mintLimit: 10.00000000,
+          mintLimitDaily: 1.00000000,
+          status: -1
+        }
+      }
+    })
+
+    await expect(p1).rejects.toThrow(RpcApiError)
+    await expect(p1).rejects.toMatchObject({
+      payload: {
+        code: -5,
+        message: 'Status must be a positive number!',
+        method: 'setgov'
+      }
+    })
+
+    const p2 = setGovAttr({
+      [`v0/consortium/${idBTC}/members`]: {
+        '01': {
+          name: 'test',
+          ownerAddress: account1,
+          backingId: 'blablabla',
+          mintLimit: 10.00000000,
+          mintLimitDaily: 1.00000000,
+          status: 2
+        }
+      }
+    })
+
+    await expect(p2).rejects.toThrow(RpcApiError)
+    await expect(p2).rejects.toMatchObject({
+      payload: {
+        code: -5,
+        message: 'Status can be either 0 or 1',
+        method: 'setgov'
+      }
+    })
+  })
+
+  it('should allow global limit to be 0', async () => {
+    expect(await setGovAttr({
+      [`v0/consortium/${idBTC}/mint_limit`]: '0'
+    })).toBeTruthy()
+  })
+
+  it('should set member information', async () => {
+    expect(await setGovAttr({
+      [`v0/consortium/${idBTC}/mint_limit`]: '10',
+      [`v0/consortium/${idBTC}/mint_limit_daily`]: '2',
+      [`v0/consortium/${idBTC}/members`]: {
+        '01': {
+          name: 'test',
+          ownerAddress: account1,
+          backingId: 'blablabla',
+          mintLimit: 9.00000000,
+          mintLimitDaily: 1.00000000,
+          status: 1
+        }
+      }
+    })).toBeTruthy()
+
+    const attr = (await tGroup.get(0).rpc.masternode.getGov('ATTRIBUTES')).ATTRIBUTES
+    expect(attr['v0/consortium/1/members']).toStrictEqual({
+      '01': {
+        name: 'test',
+        ownerAddress: account1,
+        backingId: 'blablabla',
+        mintLimitDaily: new BigNumber(1),
+        mintLimit: new BigNumber(9),
+        status: new BigNumber(1)
+      }
+    })
+  })
+
+  it('should throw an error if global limit is set to negative value other than -1', async () => {
+    const promise = setGovAttr({
+      [`v0/consortium/${idBTC}/mint_limit`]: '-2'
+    })
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -5,
+        message: 'Amount must be positive or -1',
+        method: 'setgov'
+      }
+    })
   })
 })
