@@ -1,6 +1,5 @@
 import { Network, StartedNetwork } from 'testcontainers'
 import { NativeChainContainer, StartedNativeChainContainer } from '../../../src'
-import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 describe('nativechain mainnet', () => {
   let container: StartedNativeChainContainer
@@ -87,11 +86,6 @@ describe('nativechain regtest', () => {
   it('should be able to getmininginfo and chain should be regtest', async () => {
     const { chain } = await container.getMiningInfo()
     expect(chain).toStrictEqual('regtest')
-  })
-
-  it('should be able to get JsonRpcClient', async () => {
-    const client = await container.getJsonRpcClient()
-    expect(typeof client).toStrictEqual(JsonRpcClient)
   })
 
   it('should throw error on invalid method call', async () => {

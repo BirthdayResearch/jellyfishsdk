@@ -5,7 +5,6 @@ import {
 import fetch from 'cross-fetch'
 import { AbstractStartedContainer } from 'testcontainers/dist/modules/abstract-started-container'
 import { getNetwork, MasterNodeKey, Network as BlockchainNetwork, NetworkName, RegTestFoundationKeys } from '@defichain/jellyfish-network'
-import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { waitForCondition } from '..'
 import { RestartOptions } from 'testcontainers/dist/test-container'
 
@@ -236,10 +235,6 @@ export class StartedNativeChainContainer extends AbstractStartedContainer {
       const fileContents = `${options.join('\n')}\n`
       await this.exec(['bash', '-c', `echo "${fileContents}" > ~/.defi/defi.conf`])
     }
-  }
-
-  async getJsonRpcClient (): Promise<JsonRpcClient> {
-    return new JsonRpcClient(this.rpcUrl)
   }
 
   /**
