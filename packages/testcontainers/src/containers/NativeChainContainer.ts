@@ -1,12 +1,16 @@
-import {
-  GenericContainer,
-  StartedTestContainer
-} from 'testcontainers'
+import { GenericContainer, StartedTestContainer } from 'testcontainers'
 import fetch from 'cross-fetch'
 import { AbstractStartedContainer } from 'testcontainers/dist/modules/abstract-started-container'
-import { getNetwork, MasterNodeKey, Network as BlockchainNetwork, NetworkName, RegTestFoundationKeys } from '@defichain/jellyfish-network'
+import {
+  getNetwork,
+  MasterNodeKey,
+  Network as BlockchainNetwork,
+  NetworkName,
+  RegTestFoundationKeys
+} from '@defichain/jellyfish-network'
 import { waitForCondition } from '..'
 import { RestartOptions } from 'testcontainers/dist/test-container'
+import { ExecResult } from 'testcontainers/dist/docker/types'
 
 /**
  * DeFiChain NativeChain node managed in docker
@@ -218,7 +222,7 @@ export class StartedNativeChainContainer extends AbstractStartedContainer {
       blockchainNetwork
     } = this.config
     const port = this.getMappedPort(blockchainNetwork.ports.rpc)
-    return `http://${rpcUser}:${rpcPassword}@127.0.0.1:${port}/`
+    return `http://${rpcUser}:${rpcPassword}@${this.getHost()}:${port}/`
   }
 
   async restart (options?: Partial<RestartOptions> | undefined): Promise<void> {
@@ -230,11 +234,12 @@ export class StartedNativeChainContainer extends AbstractStartedContainer {
    * Set contents of ~/.defi/defi.conf
    * @param {string[]} options to set
    */
-  async setDeFiConf (options: string[]): Promise<void> {
-    if (options.length > 0) {
-      const fileContents = `${options.join('\n')}\n`
-      await this.exec(['bash', '-c', `echo "${fileContents}" > ~/.defi/defi.conf`])
+  async setDeFiConf (options: string[]): Promise<ExecResult> {
+    if (options.length <= 0) {
+      throw new Error('No options specified. Please specify an option to set.')
     }
+    const fileContents = `${options.join('\n')}\n`
+    return await this.exec(['bash', '-c', `echo "${fileContents}" > ~/.defi/defi.conf`])
   }
 
   /**
