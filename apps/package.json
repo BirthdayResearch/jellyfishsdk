@@ -10,7 +10,6 @@
     "start:legacy-api": "nest start legacy-api",
     "start:ocean-api": "nest start ocean-api",
     "start:playground-api": "nest start playground-api",
-    "start:rich-list-api": "nest start rich-list-api",
     "start:status-api": "nest start status-api",
     "start:whale-api": "nest start whale-api",
     "clean": "rm -rf dist"
@@ -39,7 +38,6 @@
     "@nestjs/platform-fastify": "8.4.7",
     "@nestjs/schedule": "2.1.0",
     "@nestjs/terminus": "8.1.1",
-    "@nestjs/typeorm": "8.0.4",
     "async-mutex": "0.4.0",
     "bignumber.js": "9.0.2",
     "cache-manager": "4.1.0",
@@ -62,8 +60,7 @@
     "reflect-metadata": "0.1.13",
     "rimraf": "3.0.2",
     "rxjs": "7.5.7",
-    "subleveldown": "^6.0.1",
-    "typeorm": "0.2.45"
+    "subleveldown": "^6.0.1"
   },
   "devDependencies": {
     "@nestjs/cli": "9.1.2",
