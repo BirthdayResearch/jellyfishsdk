@@ -756,6 +756,95 @@ describe('UpdateMasternode', () => {
       }))
     }
   })
+
+  it.only('should update owner address twice', async () => {
+    const pubKey = await providers.ellipticPair.publicKey()
+    const script1 = await providers.elliptic.script()
+
+    const address1 = Bech32.fromPubKey(pubKey, 'bcrt')
+    const masternodeId = await jsonRpc.masternode.createMasternode(address1)
+    await container.generate(20)
+
+    const address2 = await container.getNewAddress('', 'bech32')
+    const addressDestKeyHash2 = P2WPKH.fromAddress(RegTest, address2, P2WPKH).pubKeyHash
+    const script2 = await fromAddress(address2, 'regtest')?.script as Script
+
+    const updateMasternode2: UpdateMasternode = {
+      nodeId: masternodeId,
+      updates: [{ updateType: 0x01, address: { addressType: 0x04, addressPubKeyHash: addressDestKeyHash2 }}]
+    }
+
+    const rawCollateralTx2 = await jsonRpc.rawtx.getRawTransaction(masternodeId, true)
+    const txn2: TransactionSegWit = await builder.masternode.update(updateMasternode2, script1, { 
+      rawCollateralTx: rawCollateralTx2,
+      newOwnerScript: script2,
+    })
+    const outs2 = await sendTransaction(container, txn2)
+
+    await container.generate(70)
+
+    const address3 = await container.getNewAddress('', 'bech32')
+    const addressDestKeyHash3 = P2WPKH.fromAddress(RegTest, address3, P2WPKH).pubKeyHash
+    const script3 = await fromAddress(address3, 'regtest')?.script as Script
+
+    const updateMasternode: UpdateMasternode = {
+      nodeId: masternodeId,
+      updates: [{ updateType: 0x01, address: { addressType: 0x04, addressPubKeyHash: addressDestKeyHash3 }}]
+    }
+
+    const masternodes = await jsonRpc.masternode.listMasternodes()
+    const mn = masternodes[masternodeId]
+    const rawCollateralTx3 = await jsonRpc.rawtx.getRawTransaction(mn.collateralTx, true)
+
+    // fails here because collateralPrevout needs to use script1?
+    // after that a new error will appear non-mandatory-script-verify-flag (Script failed an OP_EQUALVERIFY operation)
+    const txn3: TransactionSegWit = await builder.masternode.update(updateMasternode, script2, { 
+      rawCollateralTx: rawCollateralTx3,
+      newOwnerScript: script3,
+    })
+    const outs3 = await sendTransaction(container, txn3)
+
+    const encoded: string = OP_CODES.OP_DEFI_TX_UPDATE_MASTER_NODE(updateMasternode).asBuffer().toString('hex')
+    const expectedRedeemScript = `6a${encoded}`
+
+    // expect(outs.length).toStrictEqual(3)
+    // expect(outs[0]).toStrictEqual({
+    //   n: 0,
+    //   tokenId: 0,
+    //   value: 0,
+    //   scriptPubKey: {
+    //     asm: expect.stringContaining('OP_RETURN 446654786d'),
+    //     hex: expectedRedeemScript,
+    //     type: 'nulldata'
+    //   }
+    // })
+    // expect(outs[1]).toStrictEqual({
+    //   n: 1,
+    //   tokenId: 0,
+    //   value: 2,
+    //   scriptPubKey: {
+    //     addresses: [newAddress],
+    //     asm: expect.any(String),
+    //     hex: expect.any(String),
+    //     reqSigs: 1,
+    //     type: 'witness_v0_keyhash'
+    //   }
+    // })
+    // expect(outs[2]).toStrictEqual({
+    //   n: 2,
+    //   tokenId: 0,
+    //   value: expect.any(Number),
+    //   scriptPubKey: {
+    //     addresses: [await providers.getAddress()],
+    //     asm: expect.any(String),
+    //     hex: expect.any(String),
+    //     reqSigs: 1,
+    //     type: 'witness_v0_keyhash'
+    //   }
+    // })
+    // expect(outs[2].value).toBeGreaterThan(6.99)
+    // expect(outs[2].value).toBeLessThan(7)
+  })
 })
 
 describe('Update Masternode (Multi-containers)', () => {
