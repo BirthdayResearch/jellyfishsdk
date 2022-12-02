@@ -4,7 +4,6 @@ import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { RegTest } from '@defichain/jellyfish-network'
 import { P2WPKH } from '@defichain/jellyfish-address'
 import { MasternodeMapper } from '../../../module.model/masternode'
-import { MasternodeStatsMapper } from '../../../module.model/masternode.stats'
 
 describe('Update masternode', () => {
   const container = new DelayedEunosPayaTestContainer()
@@ -101,13 +100,13 @@ describe('Update masternode', () => {
       sort: expect.stringMatching(/[0-9a-f]{72}/),
       ownerAddress: addressDest.utf8String,
       operatorAddress: addressDest.utf8String,
-      creationHeight: 193,
+      creationHeight: 103,
       resignHeight: -1,
       mintedBlocks: 0,
       timelock: 0,
       block: {
         hash: expect.stringMatching(/[0-9a-f]{64}/),
-        height: 193,
+        height: 103,
         medianTime: expect.any(Number),
         time: expect.any(Number)
       },
@@ -122,20 +121,6 @@ describe('Update masternode', () => {
           height: 103,
           ownerAddress: ownerAddress,
           operatorAddress: ownerAddress
-        }
-      ]
-    })
-
-    const masternodeStatsMapper = app.get(MasternodeStatsMapper)
-    const masternodeStats = await masternodeStatsMapper.getLatest()
-    expect(masternodeStats?.stats).toStrictEqual({
-      count: 8,
-      tvl: '80.00000000',
-      locked: [
-        {
-          weeks: 0,
-          count: 8,
-          tvl: '80.00000000'
         }
       ]
     })
