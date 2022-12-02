@@ -12,7 +12,12 @@ export class TxnBuilderGovernance extends P2WPKHTxnBuilder {
    * @returns {Promise<TransactionSegWit>}
    */
   async createCfp (createCfp: CreateCfp, changeScript: Script): Promise<TransactionSegWit> {
-    const creationFee = this.network.name === 'regtest' ? new BigNumber('1') : new BigNumber('10')
+    if (createCfp.nCycles > 100) {
+      throw new TxnBuilderError(TxnBuilderErrorType.INVALID_CFP_CYCLE,
+        'CreateCfp cycles should be between 0 and 100'
+      )
+    }
+    const creationFee = BigNumber.maximum(10, createCfp.nAmount.multipliedBy(0.01))
     return await this.createDeFiTx(
       OP_CODES.OP_DEFI_TX_CREATE_CFP(createCfp),
       changeScript,
@@ -28,7 +33,7 @@ export class TxnBuilderGovernance extends P2WPKHTxnBuilder {
    * @returns {Promise<TransactionSegWit>}
    */
   async createVoc (createVoc: CreateVoc, changeScript: Script): Promise<TransactionSegWit> {
-    if (!createVoc.amount.isEqualTo(new BigNumber(0))) {
+    if (!createVoc.nAmount.isEqualTo(new BigNumber(0))) {
       throw new TxnBuilderError(TxnBuilderErrorType.INVALID_VOC_AMOUNT,
         'CreateVoc amount should be 0'
       )
@@ -38,7 +43,16 @@ export class TxnBuilderGovernance extends P2WPKHTxnBuilder {
         'CreateVoc address stack should be empty'
       )
     }
-    const creationFee = this.network.name === 'regtest' ? new BigNumber('5') : new BigNumber('50')
+    let creationFee = new BigNumber('5')
+    if (this.network.name === 'mainnet') {
+      creationFee = new BigNumber('100')
+    }
+    if (this.network.name === 'testnet') {
+      creationFee = new BigNumber('50')
+    }
+    if (createVoc.options === 1) {
+      creationFee = new BigNumber('10000')
+    }
     return await this.createDeFiTx(
       OP_CODES.OP_DEFI_TX_CREATE_VOC(createVoc),
       changeScript,
