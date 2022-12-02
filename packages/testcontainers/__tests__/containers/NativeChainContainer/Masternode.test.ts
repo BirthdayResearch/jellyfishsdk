@@ -37,7 +37,7 @@ describe('nativechain masternode', () => {
 
   it('should waitForBlockHeight', async () => {
     const bc1 = await container.getBlockCount()
-    await container.waitForBlockHeight(100)
+    await container.waitForBlockHeight(bc1 + 100)
     const bc2 = await container.getBlockCount()
     expect(bc2).toStrictEqual(bc1 + 101)
   })
