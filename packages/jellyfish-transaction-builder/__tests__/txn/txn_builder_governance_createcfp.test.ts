@@ -1,4 +1,4 @@
-import { DeFiDRpcError, GenesisKeys } from '@defichain/testcontainers'
+import { DeFiDRpcError, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { Testing } from '@defichain/jellyfish-testing'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
@@ -6,25 +6,26 @@ import { calculateTxid, fundEllipticPair, sendTransaction } from '../test.utils'
 import { CreateCfp, OP_CODES } from '@defichain/jellyfish-transaction'
 import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
-import { GovernanceMasterNodeRegTestContainer } from '../../../jellyfish-api-core/__tests__/category/governance/governance_container'
 import { governance } from '@defichain/jellyfish-api-core'
-import { RegTest } from '@defichain/jellyfish-network'
+import { RegTest, RegTestFoundationKeys } from '@defichain/jellyfish-network'
+import { TxnBuilderError } from '../../src/txn/txn_builder_error'
 
-describe.skip('createCfp', () => {
+describe('createCfp', () => {
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
-  const testing = Testing.create(new GovernanceMasterNodeRegTestContainer())
+  const testing = Testing.create(new MasterNodeRegTestContainer())
 
   beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/gov': 'true' } })
 
     providers = await getProviders(testing.container)
-    providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[0].owner.privKey)) // set it to container default
+    providers.setEllipticPair(WIF.asEllipticPair(RegTestFoundationKeys[0].owner.privKey)) // set it to container default
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     await testing.container.waitForWalletBalanceGTE(11)
-    await fundEllipticPair(testing.container, providers.ellipticPair, 3) // Amount needed for two cfp creation + fees
+    await fundEllipticPair(testing.container, providers.ellipticPair, 12000100)
     await providers.setupMocks()
   })
 
@@ -37,15 +38,12 @@ describe.skip('createCfp', () => {
     const createCfp: CreateCfp = {
       type: 0x01,
       title: 'Testing new community fund proposal',
-      amount: new BigNumber(100),
-      address: {
-        stack: [
-          OP_CODES.OP_HASH160,
-          OP_CODES.OP_PUSHDATA_HEX_LE('8b5401d88a3d4e54fc701663dd99a5ab792af0a4'),
-          OP_CODES.OP_EQUAL
-        ]
-      },
-      cycles: 2
+      context: 'https://github.com/DeFiCh/dfips',
+      contexthash: '<context hash>',
+      nAmount: new BigNumber(10),
+      address: script,
+      nCycles: 2,
+      options: 0x00
     }
     const txn = await builder.governance.createCfp(createCfp, script)
 
@@ -53,7 +51,7 @@ describe.skip('createCfp', () => {
     const expectedRedeemScript = `6a${encoded}`
 
     const outs = await sendTransaction(testing.container, txn)
-    expect(outs[0].value).toStrictEqual(1)
+    expect(outs[0].value).toStrictEqual(10)
     expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
 
     const listProposals = await testing.rpc.governance.listGovProposals()
@@ -63,14 +61,58 @@ describe.skip('createCfp', () => {
     expect(proposal).toStrictEqual({
       proposalId: txid,
       title: createCfp.title,
+      context: createCfp.context,
+      contextHash: createCfp.contexthash,
       type: governance.ProposalType.COMMUNITY_FUND_PROPOSAL,
       status: governance.ProposalStatus.VOTING,
-      amount: createCfp.amount,
-      cyclesPaid: 1,
-      totalCycles: createCfp.cycles,
-      finalizeAfter: expect.any(Number),
-      payoutAddress: '2N5wvYsWcAWQUed5vfPxopxZtjkqoT8dFM3'
+      amount: createCfp.nAmount,
+      currentCycle: 1,
+      totalCycles: createCfp.nCycles,
+      creationHeight: expect.any(Number),
+      cycleEndHeight: expect.any(Number),
+      proposalEndHeight: expect.any(Number),
+      payoutAddress: expect.any(String),
+      approvalThreshold: expect.any(String),
+      fee: expect.any(Number),
+      quorum: expect.any(String),
+      votingPeriod: expect.any(Number)
     })
+  })
+
+  it('should reject if proposal cycles > 100', async () => {
+    const script = await providers.elliptic.script()
+    const promise = builder.governance.createCfp({
+      type: 0x01,
+      title: 'Testing new community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
+      contexthash: '<context hash>',
+      nAmount: new BigNumber(100),
+      address: script,
+      nCycles: 101,
+      options: 0x00
+    }, script)
+
+    await expect(promise).rejects.toThrow(TxnBuilderError)
+    await expect(promise).rejects.toThrow('CreateCfp cycles should be between 0 and 100')
+  })
+
+  it('should reject with empty title', async () => {
+    const script = await providers.elliptic.script()
+    const txn = await builder.governance.createCfp({
+      type: 0x01,
+      title: '',
+      context: 'https://github.com/DeFiCh/dfips',
+      contexthash: '<context hash>',
+      nAmount: new BigNumber(100),
+      address: script,
+      nCycles: 2,
+      options: 0x00
+    }, script)
+
+    const promise = sendTransaction(testing.container, txn)
+
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateCfpTx: proposal title must not be empty (code 16)', code: -26")
   })
 
   it('should reject with invalid title length', async () => {
@@ -78,20 +120,94 @@ describe.skip('createCfp', () => {
     const txn = await builder.governance.createCfp({
       type: 0x01,
       title: 'X'.repeat(150),
-      amount: new BigNumber(100),
-      address: {
-        stack: [
-          OP_CODES.OP_HASH160,
-          OP_CODES.OP_PUSHDATA_HEX_LE('8b5401d88a3d4e54fc701663dd99a5ab792af0a4'),
-          OP_CODES.OP_EQUAL
-        ]
-      },
-      cycles: 2
+      context: 'https://github.com/DeFiCh/dfips',
+      contexthash: '<context hash>',
+      nAmount: new BigNumber(100),
+      address: script,
+      nCycles: 2,
+      options: 0x00
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateCfpTx: proposal title cannot be more than 128 bytes (code 16)', code: -26")
+  })
+
+  it('should reject with empty context', async () => {
+    const script = await providers.elliptic.script()
+    const txn = await builder.governance.createCfp({
+      type: 0x01,
+      title: 'Testing new community fund proposal',
+      context: '',
+      contexthash: '<context hash>',
+      nAmount: new BigNumber(100),
+      address: script,
+      nCycles: 2,
+      options: 0x00
+    }, script)
+
+    const promise = sendTransaction(testing.container, txn)
+
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateCfpTx: proposal context must not be empty (code 16)', code: -26")
+  })
+
+  it('should reject with invalid context length', async () => {
+    const script = await providers.elliptic.script()
+    const txn = await builder.governance.createCfp({
+      type: 0x01,
+      title: 'Testing new community fund proposal',
+      context: 'X'.repeat(513),
+      contexthash: '<context hash>',
+      nAmount: new BigNumber(100),
+      address: script,
+      nCycles: 2,
+      options: 0x00
+    }, script)
+
+    const promise = sendTransaction(testing.container, txn)
+
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateCfpTx: proposal context cannot be more than 512 bytes (code 16)', code: -26")
+  })
+
+  it('should reject with invalid context hash length', async () => {
+    const script = await providers.elliptic.script()
+    const txn = await builder.governance.createCfp({
+      type: 0x01,
+      title: 'Testing new community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
+      contexthash: 'X'.repeat(513),
+      nAmount: new BigNumber(100),
+      address: script,
+      nCycles: 2,
+      options: 0x00
+    }, script)
+
+    const promise = sendTransaction(testing.container, txn)
+
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateCfpTx: proposal context hash cannot be more than 512 bytes (code 16)', code: -26")
+  })
+
+  it('should reject if proposal wants to gain all money (amount exceeds 1.2B DFI)', async () => {
+    const MAX_MONEY = 1200000000
+    const script = await providers.elliptic.script()
+    const txn = await builder.governance.createCfp({
+      type: 0x01,
+      title: 'Testing new community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
+      contexthash: 'X'.repeat(513),
+      nAmount: new BigNumber(MAX_MONEY),
+      address: script,
+      nCycles: 2,
+      options: 0x00
+    }, script)
+
+    const promise = sendTransaction(testing.container, txn)
+
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateCfpTx: proposal wants to gain all money (code 16)', code: -26")
   })
 })
