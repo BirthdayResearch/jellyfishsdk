@@ -39,7 +39,7 @@ describe('Retrieve a BIP 157 content filter for a particular block', () => {
       const promise = client.blockchain.getBlockFilter(blockhash)
 
       expect(await promise).toStrictEqual({
-        filter: expect.stringMatching(/^[0-f]{1,}$/),
+        filter: expect.stringMatching(/^[0-9a-f]+$/),
         header: expect.stringMatching(/^[0-f]{64}$/)
       })
 
