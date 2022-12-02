@@ -1,13 +1,14 @@
 import { WIF } from '@defichain/jellyfish-crypto'
 import { BigNumber } from 'bignumber.js'
-import { GenesisKeys } from '@defichain/testcontainers'
+import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { WalletClassic } from '../src'
 
 describe('WalletClassic', () => {
   let wallet: WalletClassic
 
   beforeAll(() => {
-    wallet = new WalletClassic(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
+    const privKey = RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.privKey
+    wallet = new WalletClassic(WIF.asEllipticPair(privKey))
   })
 
   it('should get public key', async () => {
