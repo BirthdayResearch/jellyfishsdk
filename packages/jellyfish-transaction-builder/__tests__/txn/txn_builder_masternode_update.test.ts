@@ -6,7 +6,7 @@ import { DeFiDRpcError, MasterNodeRegTestContainer } from '@defichain/testcontai
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { fundEllipticPair, sendTransaction } from '../test.utils'
-import { Bech32 } from '@defichain/jellyfish-crypto'
+import { Bech32, Elliptic, WIF } from '@defichain/jellyfish-crypto'
 import { Testing, TestingGroup } from '@defichain/jellyfish-testing'
 
 describe('UpdateMasternode', () => {
@@ -757,31 +757,45 @@ describe('UpdateMasternode', () => {
     }
   })
 
-  it.only('should update owner address twice', async () => {
+  it('should update owner address twice', async () => {
     const pubKey = await providers.ellipticPair.publicKey()
     const script1 = await providers.elliptic.script()
 
     const address1 = Bech32.fromPubKey(pubKey, 'bcrt')
     const masternodeId = await jsonRpc.masternode.createMasternode(address1)
+
     await container.generate(20)
 
-    const address2 = await container.getNewAddress('', 'bech32')
+    // create new elliptic pair for address, script and for updating provider's pair for signing later
+    const ellipticPair2 = Elliptic.fromPrivKey(Buffer.alloc(32, Math.random().toString(), 'ascii'))
+    const address2 = Bech32.fromPubKey(await ellipticPair2.publicKey(), 'bcrt')
     const addressDestKeyHash2 = P2WPKH.fromAddress(RegTest, address2, P2WPKH).pubKeyHash
     const script2 = await fromAddress(address2, 'regtest')?.script as Script
 
+    // add private key to container
+    const wif2 = WIF.encode(0xef, await ellipticPair2.privateKey())
+    await container.call('importprivkey', [wif2])
+
     const updateMasternode2: UpdateMasternode = {
       nodeId: masternodeId,
-      updates: [{ updateType: 0x01, address: { addressType: 0x04, addressPubKeyHash: addressDestKeyHash2 }}]
+      updates: [{ updateType: 0x01, address: { addressType: 0x04, addressPubKeyHash: addressDestKeyHash2 } }]
     }
 
+    // masternodeId is used as collateral transaction id because collateralTx is empty after creating masternode
     const rawCollateralTx2 = await jsonRpc.rawtx.getRawTransaction(masternodeId, true)
-    const txn2: TransactionSegWit = await builder.masternode.update(updateMasternode2, script1, { 
+    const txn2: TransactionSegWit = await builder.masternode.update(updateMasternode2, script1, {
       rawCollateralTx: rawCollateralTx2,
-      newOwnerScript: script2,
+      newOwnerScript: script2
     })
-    const outs2 = await sendTransaction(container, txn2)
+    await sendTransaction(container, txn2)
 
     await container.generate(70)
+
+    // update provider's elliptic pair for signing next transaction with address2
+    await providers.setEllipticPair(ellipticPair2)
+    await fundEllipticPair(container, providers.ellipticPair, 10)
+
+    await container.generate(1)
 
     const address3 = await container.getNewAddress('', 'bech32')
     const addressDestKeyHash3 = P2WPKH.fromAddress(RegTest, address3, P2WPKH).pubKeyHash
@@ -789,61 +803,60 @@ describe('UpdateMasternode', () => {
 
     const updateMasternode: UpdateMasternode = {
       nodeId: masternodeId,
-      updates: [{ updateType: 0x01, address: { addressType: 0x04, addressPubKeyHash: addressDestKeyHash3 }}]
+      updates: [{ updateType: 0x01, address: { addressType: 0x04, addressPubKeyHash: addressDestKeyHash3 } }]
     }
 
+    // collateral transaction has id, search in listMasternodes
     const masternodes = await jsonRpc.masternode.listMasternodes()
     const mn = masternodes[masternodeId]
     const rawCollateralTx3 = await jsonRpc.rawtx.getRawTransaction(mn.collateralTx, true)
 
-    // fails here because collateralPrevout needs to use script1?
-    // after that a new error will appear non-mandatory-script-verify-flag (Script failed an OP_EQUALVERIFY operation)
-    const txn3: TransactionSegWit = await builder.masternode.update(updateMasternode, script2, { 
+    const txn3: TransactionSegWit = await builder.masternode.update(updateMasternode, script2, {
       rawCollateralTx: rawCollateralTx3,
-      newOwnerScript: script3,
+      newOwnerScript: script3
     })
     const outs3 = await sendTransaction(container, txn3)
 
     const encoded: string = OP_CODES.OP_DEFI_TX_UPDATE_MASTER_NODE(updateMasternode).asBuffer().toString('hex')
     const expectedRedeemScript = `6a${encoded}`
 
-    // expect(outs.length).toStrictEqual(3)
-    // expect(outs[0]).toStrictEqual({
-    //   n: 0,
-    //   tokenId: 0,
-    //   value: 0,
-    //   scriptPubKey: {
-    //     asm: expect.stringContaining('OP_RETURN 446654786d'),
-    //     hex: expectedRedeemScript,
-    //     type: 'nulldata'
-    //   }
-    // })
-    // expect(outs[1]).toStrictEqual({
-    //   n: 1,
-    //   tokenId: 0,
-    //   value: 2,
-    //   scriptPubKey: {
-    //     addresses: [newAddress],
-    //     asm: expect.any(String),
-    //     hex: expect.any(String),
-    //     reqSigs: 1,
-    //     type: 'witness_v0_keyhash'
-    //   }
-    // })
-    // expect(outs[2]).toStrictEqual({
-    //   n: 2,
-    //   tokenId: 0,
-    //   value: expect.any(Number),
-    //   scriptPubKey: {
-    //     addresses: [await providers.getAddress()],
-    //     asm: expect.any(String),
-    //     hex: expect.any(String),
-    //     reqSigs: 1,
-    //     type: 'witness_v0_keyhash'
-    //   }
-    // })
-    // expect(outs[2].value).toBeGreaterThan(6.99)
-    // expect(outs[2].value).toBeLessThan(7)
+    expect(outs3.length).toStrictEqual(3)
+    expect(outs3[0]).toStrictEqual({
+      n: 0,
+      tokenId: 0,
+      value: 0,
+      scriptPubKey: {
+        asm: expect.stringContaining('OP_RETURN 446654786d'),
+        hex: expectedRedeemScript,
+        type: 'nulldata'
+      }
+    })
+    expect(outs3[1]).toStrictEqual({
+      n: 1,
+      tokenId: 0,
+      value: 2,
+      scriptPubKey: {
+        addresses: [address3],
+        asm: expect.any(String),
+        hex: expect.any(String),
+        reqSigs: 1,
+        type: 'witness_v0_keyhash'
+      }
+    })
+    expect(outs3[2]).toStrictEqual({
+      n: 2,
+      tokenId: 0,
+      value: expect.any(Number),
+      scriptPubKey: {
+        addresses: [await providers.getAddress()],
+        asm: expect.any(String),
+        hex: expect.any(String),
+        reqSigs: 1,
+        type: 'witness_v0_keyhash'
+      }
+    })
+    expect(outs3[2].value).toBeGreaterThan(9.99)
+    expect(outs3[2].value).toBeLessThan(10)
   })
 })
 
