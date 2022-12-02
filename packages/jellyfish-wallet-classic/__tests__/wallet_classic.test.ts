@@ -1,6 +1,6 @@
-import { WIF } from '@defichain/jellyfish-crypto'
+import { Bech32, Elliptic, WIF } from '@defichain/jellyfish-crypto'
 import { BigNumber } from 'bignumber.js'
-import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
+import { RegTestFoundationKeys, MainNet } from '@defichain/jellyfish-network'
 import { WalletClassic } from '../src'
 
 describe('WalletClassic', () => {
@@ -45,5 +45,28 @@ describe('WalletClassic', () => {
       tokenId: 0
     }])
     ).rejects.toThrow()
+  })
+})
+
+describe('WalletClassic: Random on MainNet', () => {
+  let wallet: WalletClassic
+
+  beforeAll(() => {
+    wallet = new WalletClassic(Elliptic.random())
+  })
+
+  it('should get bech32 address', async function () {
+    const pubKey = await wallet.publicKey()
+    expect(pubKey.length).toStrictEqual(33)
+
+    const bech32Address = Bech32.fromPubKey(pubKey, MainNet.bech32.hrp)
+    console.log(bech32Address)
+  })
+
+  it('should get WIF', async function () {
+    const privKey = await wallet.privateKey()
+    expect(privKey.length).toStrictEqual(32)
+
+    console.log(WIF.encode(MainNet.wifPrefix, privKey))
   })
 })
