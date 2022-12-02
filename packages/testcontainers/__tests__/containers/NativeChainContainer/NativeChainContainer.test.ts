@@ -91,6 +91,11 @@ describe('nativechain regtest', () => {
   it('should throw error on invalid method call', async () => {
     await expect(container.call('invalidcall')).rejects.toThrow('NativeChainRpcError: \'Method not found\', code: -32601')
   })
+
+  it('should be able to getNewAddress', async () => {
+    const address = await container.getNewAddress()
+    expect(address.length).toStrictEqual(44)
+  })
 })
 
 describe('nativechain fluency', () => {
