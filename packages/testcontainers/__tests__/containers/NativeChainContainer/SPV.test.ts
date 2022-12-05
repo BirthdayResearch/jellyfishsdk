@@ -18,19 +18,19 @@ describe('nativechain spv regtest', () => {
   })
 
   it('should fundAddress', async () => {
-    const address = await container.call('spv_getnewaddress')
-    const txid = await container.spvFundAddress(address)
+    const address = await container.rpc.call('spv_getnewaddress')
+    const txid = await container.rpc.spvFundAddress(address)
     expect(typeof txid).toStrictEqual('string')
 
-    const addressBalance = await container.call('spv_getbalance')
+    const addressBalance = await container.rpc.call('spv_getbalance')
     expect(addressBalance).toStrictEqual(1)
   })
 
   it('should setLastHeight', async () => {
     const blockHeight = 10
-    await container.spvSetLastHeight(blockHeight)
+    await container.rpc.spvSetLastHeight(blockHeight)
 
-    const status = await container.call('spv_syncstatus')
+    const status = await container.rpc.call('spv_syncstatus')
     expect(status.current).toStrictEqual(blockHeight)
   })
 })

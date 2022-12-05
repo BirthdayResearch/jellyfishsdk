@@ -19,7 +19,7 @@ describe('coinbase maturity faster by time travel', () => {
   })
 
   it('should speed up coinbase maturity', async () => {
-    await container.waitForWalletCoinbaseMaturity()
+    await container.waitFor.walletCoinbaseMaturity()
   })
 })
 
@@ -34,7 +34,7 @@ describe('nativechain coinbase maturity', () => {
       .withStartupTimeout(180_000)
       .start()
 
-    await container.waitForWalletCoinbaseMaturity()
+    await container.waitFor.walletCoinbaseMaturity()
   })
 
   afterAll(async () => {
@@ -43,43 +43,43 @@ describe('nativechain coinbase maturity', () => {
 
   it('should wait until coinbase maturity with spendable balance', async () => {
     await waitForExpect(async () => {
-      const info = await container.getMiningInfo()
+      const info = await container.rpc.getMiningInfo()
       expect(info.blocks).toBeGreaterThan(100)
     })
 
-    await container.generate(3)
+    await container.rpc.generate(3)
 
     await waitForExpect(async () => {
-      const balance = await container.call('getbalance')
+      const balance = await container.rpc.call('getbalance')
       expect(balance).toBeGreaterThan(100)
     })
   })
 
   it('should be able to perform amk rpc feature', async () => {
-    await container.generate(5)
+    await container.rpc.generate(5)
 
-    const address = await container.getNewAddress()
+    const address = await container.rpc.getNewAddress()
     const payload: { [key: string]: string } = {}
     payload[address] = '100@0'
-    await container.call('utxostoaccount', [payload])
+    await container.rpc.call('utxostoaccount', [payload])
   })
 
   it('should be able to wait for balance to be gte 200', async () => {
-    await container.waitForWalletBalanceGTE(200)
+    await container.waitFor.walletBalanceGTE(200)
 
-    const balance = await container.call('getbalance')
+    const balance = await container.rpc.call('getbalance')
     expect(balance).toBeGreaterThanOrEqual(200)
   })
 
   it('should be able to fund an address for testing', async () => {
     const address = 'bcrt1ql0ys2ahu4e9uhjn2l0mehhh4e0mmh7npyhx0re'
     const privKey = 'cPuytfxySwc9RVrFpqQ9xheZ6jCmJD6pEe3XUPvev5hBwheivH5C'
-    await container.waitForWalletBalanceGTE(100)
+    await container.waitFor.walletBalanceGTE(100)
 
-    const { txid, vout } = await container.fundAddress(address, 10)
-    await container.call('importprivkey', [privKey])
+    const { txid, vout } = await container.rpc.fundAddress(address, 10)
+    await container.rpc.call('importprivkey', [privKey])
     return await waitForExpect(async () => {
-      const unspent = await container.call('listunspent', [
+      const unspent = await container.rpc.call('listunspent', [
         0, 9999999, [address]
       ])
 
@@ -98,18 +98,18 @@ describe('nativechain coinbase maturity', () => {
       address,
       privKey,
       pubKey
-    } = await container.newAddressKeys()
-    await container.waitForWalletBalanceGTE(10)
-    const { txid } = await container.fundAddress(address, 1)
+    } = await container.rpc.newAddressKeys()
+    await container.waitFor.walletBalanceGTE(10)
+    const { txid } = await container.rpc.fundAddress(address, 1)
 
-    const dumpprivkey = await container.call('dumpprivkey', [address])
+    const dumpprivkey = await container.rpc.call('dumpprivkey', [address])
     expect(dumpprivkey).toStrictEqual(privKey)
 
-    const getaddressinfo = await container.call('getaddressinfo', [address])
+    const getaddressinfo = await container.rpc.call('getaddressinfo', [address])
     expect(getaddressinfo.pubkey).toStrictEqual(pubKey)
 
     return await waitForExpect(async () => {
-      const unspent = await container.call('listunspent', [
+      const unspent = await container.rpc.call('listunspent', [
         0, 9999999, [address]
       ])
       expect(unspent[0].txid).toStrictEqual(txid)
