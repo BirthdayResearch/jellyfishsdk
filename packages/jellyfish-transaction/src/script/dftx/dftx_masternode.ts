@@ -59,3 +59,63 @@ export class CResignMasternode extends ComposableBuffer<ResignMasternode> {
     ]
   }
 }
+
+export interface UpdateMasternodeAddress {
+  addressType: number // --------------------------| 1 byte, 0x01 = p2pkh, 0x04 = p2wpkh, 0x00 to remove reward address
+  addressPubKeyHash?: string // -------------------| VarUInt{20 bytes}, set undefined to remove reward address
+}
+
+/**
+ * Composable UpdateMasternodeAddress, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CUpdateMasternodeAddress extends ComposableBuffer<UpdateMasternodeAddress> {
+  composers (umn: UpdateMasternodeAddress): BufferComposer[] {
+    return [
+      ComposableBuffer.uInt8(() => umn.addressType, v => umn.addressType = v),
+      ComposableBuffer.compactSizeOptionalHex(() => umn.addressPubKeyHash, v => umn.addressPubKeyHash = v)
+    ]
+  }
+}
+
+interface UpdateMasternodeData {
+  updateType: number // ----| 1 byte, 0x01 = OwnerAddress, 0x02 = OperatorAddress, 0x03 = SetRewardAddress, 0x04 = RemRewardAddress
+  address: UpdateMasternodeAddress
+}
+
+/**
+ * Composable UpdateMasternodeData, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CUpdateMasternodeData extends ComposableBuffer<UpdateMasternodeData> {
+  composers (umn: UpdateMasternodeData): BufferComposer[] {
+    return [
+      ComposableBuffer.uInt8(() => umn.updateType, v => umn.updateType = v),
+      ComposableBuffer.single<UpdateMasternodeAddress>(() => umn.address, v => umn.address = v, v => new CUpdateMasternodeAddress(v))
+    ]
+  }
+}
+
+/**
+ * UpdateMasternode DeFi Transaction
+ */
+export interface UpdateMasternode {
+  nodeId: string // --------------------------------| VarUInt{32 bytes}
+  updates: UpdateMasternodeData[]
+}
+
+/**
+ * Composable UpdateMasternode, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CUpdateMasternode extends ComposableBuffer<UpdateMasternode> {
+  static OP_CODE = 0x6d // 'm'
+  static OP_NAME = 'OP_DEFI_TX_UPDATE_MASTER_NODE'
+
+  composers (umn: UpdateMasternode): BufferComposer[] {
+    return [
+      ComposableBuffer.hexBEBufferLE(32, () => umn.nodeId, v => umn.nodeId = v),
+      ComposableBuffer.compactSizeArray(() => umn.updates, v => umn.updates = v, v => new CUpdateMasternodeData(v))
+    ]
+  }
+}

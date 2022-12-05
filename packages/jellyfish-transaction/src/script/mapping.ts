@@ -123,7 +123,14 @@ import {
   CICXClaimDFCHTLC,
   ICXClaimDFCHTLC
 } from './dftx/dftx_icxorderbook'
-import { CCreateMasternode, CreateMasternode, CResignMasternode, ResignMasternode } from './dftx/dftx_masternode'
+import {
+  CCreateMasternode,
+  CreateMasternode,
+  CResignMasternode,
+  ResignMasternode,
+  CUpdateMasternode,
+  UpdateMasternode
+} from './dftx/dftx_masternode'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -387,6 +394,14 @@ export const OP_CODES = {
       type: CResignMasternode.OP_CODE,
       name: CResignMasternode.OP_NAME,
       data: resignMasternode
+    })
+  },
+  OP_DEFI_TX_UPDATE_MASTER_NODE: (updateMasternode: UpdateMasternode): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CUpdateMasternode.OP_CODE,
+      name: CUpdateMasternode.OP_NAME,
+      data: updateMasternode
     })
   },
   OP_DEFI_TX_SET_GOVERNANCE: (setGovernance: SetGovernance) => {
