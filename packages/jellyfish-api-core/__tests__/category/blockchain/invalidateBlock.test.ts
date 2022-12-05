@@ -52,6 +52,19 @@ describe('Invalidate block', () => {
     })
   })
 
+  it('should throw error if block is not found', async () => {
+    const promise = testing.rpc.blockchain.reconsiderBlock('a9b5faec3324361a842df4302ce987f5fe1c5ce9ba53650f3a54397a36fea3b2')
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -5,
+        message: 'Block not found',
+        method: 'reconsiderblock'
+      }
+    })
+  })
+
   it('should invalidate block', async () => {
     await testing.generate(1) // generate some blocks to have a chain history
     const blockToInvalidate = await testing.rpc.blockchain.getBestBlockHash()
