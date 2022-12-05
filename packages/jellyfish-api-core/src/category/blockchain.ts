@@ -297,6 +297,17 @@ export class Blockchain {
   async invalidateBlock (blockHash: string): Promise<void> {
     return await this.client.call('invalidateblock', [blockHash], 'number')
   }
+
+  /**
+   * Removes invalidity status of a block, its ancestors and its descendants, reconsider them for activation.
+   * This can be used to undo the effects of invalidateBlock.
+   *
+   * @param {string} blockHash the hash of the block to invalidate
+   * @return {Promise<void>}
+   */
+  async reconsiderBlock (blockHash: string): Promise<void> {
+    return await this.client.call('reconsiderblock', [blockHash], 'number')
+  }
 }
 
 /**

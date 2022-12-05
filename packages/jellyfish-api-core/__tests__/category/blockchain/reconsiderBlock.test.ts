@@ -2,7 +2,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { Testing } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 
-describe('Invalidate block', () => {
+describe('Reconsider block', () => {
   const testing = Testing.create(new MasterNodeRegTestContainer())
 
   beforeAll(async () => {
@@ -14,52 +14,55 @@ describe('Invalidate block', () => {
   })
 
   it('should throw error if no blockhash provided', async () => {
-    const promise = testing.rpc.blockchain.invalidateBlock('')
+    const promise = testing.rpc.blockchain.reconsiderBlock('')
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toMatchObject({
       payload: {
         code: -8,
         message: 'blockhash must be of length 64 (not 0, for \'\')',
-        method: 'invalidateblock'
+        method: 'reconsiderblock'
       }
     })
   })
 
   it('should throw error if invalid blockhash provided - invalid length', async () => {
-    const promise = testing.rpc.blockchain.invalidateBlock('invalidblockhash')
+    const promise = testing.rpc.blockchain.reconsiderBlock('invalidblockhash')
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toMatchObject({
       payload: {
         code: -8,
         message: 'blockhash must be of length 64 (not 16, for \'invalidblockhash\')',
-        method: 'invalidateblock'
+        method: 'reconsiderblock'
       }
     })
   })
 
   it('should throw error if invalid blockhash provided - invalid hex string', async () => {
-    const promise = testing.rpc.blockchain.invalidateBlock('d744db74fb70ed42767aj028a129365fb4d7de54ba1b6575fb047490554f8a7b')
+    const promise = testing.rpc.blockchain.reconsiderBlock('d744db74fb70ed42767aj028a129365fb4d7de54ba1b6575fb047490554f8a7b')
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toMatchObject({
       payload: {
         code: -8,
         message: 'blockhash must be hexadecimal string (not \'d744db74fb70ed42767aj028a129365fb4d7de54ba1b6575fb047490554f8a7b\')',
-        method: 'invalidateblock'
+        method: 'reconsiderblock'
       }
     })
   })
 
-  it('should invalidate block', async () => {
+  it('should reconsider block', async () => {
     await testing.generate(1) // generate some blocks to have a chain history
     const blockToInvalidate = await testing.rpc.blockchain.getBestBlockHash()
 
     await testing.generate(2) // generate new blocks
-    await expect(testing.rpc.blockchain.getBestBlockHash()).not.toStrictEqual(blockToInvalidate) // confirm that new blocks were generated
-    const promise = testing.rpc.blockchain.invalidateBlock(blockToInvalidate)
+    const bestBlockHash = await testing.rpc.blockchain.getBestBlockHash()
 
+    await expect(bestBlockHash).not.toStrictEqual(blockToInvalidate) // confirm that new blocks were generated
+    await testing.rpc.blockchain.invalidateBlock(blockToInvalidate)
+
+    const promise = testing.rpc.blockchain.reconsiderBlock(blockToInvalidate)
     await expect(promise).toBeTruthy()
   })
 })
