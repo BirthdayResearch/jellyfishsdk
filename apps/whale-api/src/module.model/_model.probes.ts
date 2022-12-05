@@ -19,7 +19,10 @@ export class ModelProbeIndicator extends ProbeIndicator {
    */
   async liveness (): Promise<HealthIndicatorResult> {
     try {
-      await this.block.getHighest()
+      await Promise.race([
+        this.block.getHighest(),
+        new Promise((resolve, reject) => setTimeout(() => reject(new Error('model.timeout')), 15000))
+      ])
     } catch (err) {
       return this.withDead('model', 'unable to get the latest block')
     }
