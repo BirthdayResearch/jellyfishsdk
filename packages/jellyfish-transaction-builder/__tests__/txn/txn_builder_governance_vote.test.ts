@@ -1,37 +1,37 @@
-import { DeFiDRpcError, GenesisKeys, StartOptions } from '@defichain/testcontainers'
+import { DeFiDRpcError, StartOptions, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { Testing } from '@defichain/jellyfish-testing'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { calculateTxid, fundEllipticPair, sendTransaction } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
-import { GovernanceMasterNodeRegTestContainer } from '../../../jellyfish-api-core/__tests__/category/governance/governance_container'
 import { OP_CODES, Vote } from '@defichain/jellyfish-transaction'
-import { RegTest } from '@defichain/jellyfish-network'
+import { RegTest, RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
-class CustomOperatorGovernanceMasterNodeRegTestContainer extends GovernanceMasterNodeRegTestContainer {
+class CustomOperatorGovernanceMasterNodeRegTestContainer extends MasterNodeRegTestContainer {
   protected getCmd (opts: StartOptions): string[] {
     return [
       ...super.getCmd(opts),
-      `-masternode_operator=${GenesisKeys[GenesisKeys.length - 1].operator.address}` // Uses masternode_operator with bech32 address to be able to craft vote transaction
+      `-masternode_operator=${RegTestFoundationKeys[RegTestFoundationKeys.length - 1].operator.address}` // Uses masternode_operator with bech32 address to be able to craft vote transaction
     ]
   }
 }
 
-describe.skip('vote', () => {
+describe('vote', () => {
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
   const testing = Testing.create(new CustomOperatorGovernanceMasterNodeRegTestContainer())
 
-  const masternodeOperatorAddress = GenesisKeys[GenesisKeys.length - 1].operator.address
+  const masternodeOperatorAddress = RegTestFoundationKeys[RegTestFoundationKeys.length - 1].operator.address
   let masternodeId: string
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/gov': 'true' } })
 
-    await testing.container.call('importprivkey', [GenesisKeys[GenesisKeys.length - 1].operator.privKey, 'operator', true])
-    await testing.container.call('importprivkey', [GenesisKeys[GenesisKeys.length - 1].owner.privKey, 'owner', true])
+    await testing.container.call('importprivkey', [RegTestFoundationKeys[RegTestFoundationKeys.length - 1].operator.privKey, 'operator', true])
+    await testing.container.call('importprivkey', [RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.privKey, 'owner', true])
 
     const masternodeList = await testing.rpc.masternode.listMasternodes()
     for (const id in masternodeList) {
@@ -42,15 +42,15 @@ describe.skip('vote', () => {
     }
 
     providers = await getProviders(testing.container)
-    providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
+    providers.setEllipticPair(WIF.asEllipticPair(RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.privKey))
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     await testing.container.waitForWalletBalanceGTE(12)
-    await fundEllipticPair(testing.container, providers.ellipticPair, 50)
+    await fundEllipticPair(testing.container, providers.ellipticPair, 100)
     await providers.setupMocks()
   })
 
-  afterAll(async () => {
+  afterEach(async () => {
     await testing.container.stop()
   })
 
@@ -59,9 +59,12 @@ describe.skip('vote', () => {
     const createVocTxn = await builder.governance.createCfp({
       type: 0x01,
       title: 'community fund proposal',
-      amount: new BigNumber(10),
+      context: 'https://github.com/DeFiCh/dfips',
+      contexthash: '<context hash>',
+      nAmount: new BigNumber(10),
       address: script,
-      cycles: 2
+      nCycles: 2,
+      options: 0x00
     }, script)
 
     const proposalId = calculateTxid(createVocTxn)
@@ -83,12 +86,135 @@ describe.skip('vote', () => {
     expect(outs[0].value).toStrictEqual(0)
     expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
   })
+
+  it('should not vote on a proposal with a masternode that does not exist', async () => {
+    const script = await providers.elliptic.script()
+    const createVocTxn = await builder.governance.createCfp({
+      type: 0x01,
+      title: 'community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
+      contexthash: '<context hash>',
+      nAmount: new BigNumber(10),
+      address: script,
+      nCycles: 2,
+      options: 0x00
+    }, script)
+
+    const proposalId = calculateTxid(createVocTxn)
+    await sendTransaction(testing.container, createVocTxn)
+
+    await testing.container.generate(1, masternodeOperatorAddress) // Mint one block to be able to vote on proposal
+    const invalidMasternodeId = '2b830a4c5673402fca8066847344a189844f5446cf2b5dfb0a6a4bb537f4a4b1'
+
+    const vote: Vote = {
+      voteDecision: 0x01,
+      proposalId,
+      masternodeId: invalidMasternodeId
+    }
+    const txn = await builder.governance.vote(vote, script)
+
+    const promise = sendTransaction(testing.container, txn)
+
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'VoteTx: masternode <${invalidMasternodeId}> does not exist (code 16)', code: -26`)
+  })
+
+  it('should not vote on a proposal that does not exist', async () => {
+    const script = await providers.elliptic.script()
+    const createVocTxn = await builder.governance.createCfp({
+      type: 0x01,
+      title: 'community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
+      contexthash: '<context hash>',
+      nAmount: new BigNumber(10),
+      address: script,
+      nCycles: 2,
+      options: 0x00
+    }, script)
+
+    const proposalId = calculateTxid(createVocTxn)
+
+    await testing.container.generate(1, masternodeOperatorAddress) // Mint one block to be able to vote on proposal
+
+    const vote: Vote = {
+      voteDecision: 0x01,
+      proposalId,
+      masternodeId
+    }
+    const txn = await builder.governance.vote(vote, script)
+
+    const promise = sendTransaction(testing.container, txn)
+
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'VoteTx: proposal <${proposalId}> does not exist (code 16)', code: -26`)
+  })
+
+  it('should not vote on a proposal with a masternode that did not mint at least one block', async () => {
+    const script = await providers.elliptic.script()
+    const createVocTxn = await builder.governance.createCfp({
+      type: 0x01,
+      title: 'community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
+      contexthash: '<context hash>',
+      nAmount: new BigNumber(10),
+      address: script,
+      nCycles: 2,
+      options: 0x00
+    }, script)
+
+    const proposalId = calculateTxid(createVocTxn)
+    await sendTransaction(testing.container, createVocTxn)
+
+    const vote: Vote = {
+      voteDecision: 0x01,
+      proposalId,
+      masternodeId
+    }
+    const txn = await builder.governance.vote(vote, script)
+
+    const promise = sendTransaction(testing.container, txn)
+
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'VoteTx: masternode <${masternodeId}> does not mine at least one block (code 16)', code: -26`)
+  })
+
+  it('should not vote on a proposal not in voting period', async () => {
+    const script = await providers.elliptic.script()
+    const createVocTxn = await builder.governance.createCfp({
+      type: 0x01,
+      title: 'community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
+      contexthash: '<context hash>',
+      nAmount: new BigNumber(10),
+      address: script,
+      nCycles: 2,
+      options: 0x00
+    }, script)
+
+    const proposalId = calculateTxid(createVocTxn)
+    await sendTransaction(testing.container, createVocTxn)
+
+    await testing.container.generate(1, masternodeOperatorAddress) // Mint one block to be able to vote on proposal
+    await testing.container.generate(150) // expires proposal
+
+    const vote: Vote = {
+      voteDecision: 0x01,
+      proposalId,
+      masternodeId
+    }
+    const txn = await builder.governance.vote(vote, script)
+
+    const promise = sendTransaction(testing.container, txn)
+
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'VoteTx: proposal <${proposalId}> is not in voting period (code 16)', code: -26`)
+  })
 })
 
-describe.skip('vote with masternode operator with legacy address', () => {
+describe('vote with masternode operator with legacy address', () => {
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
-  const testing = Testing.create(new GovernanceMasterNodeRegTestContainer())
+  const testing = Testing.create(new MasterNodeRegTestContainer())
 
   let masternodeId: string
   let masternodeOperatorAddress: string
@@ -96,6 +222,7 @@ describe.skip('vote with masternode operator with legacy address', () => {
   beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/gov': 'true' } })
 
     const masternodeList = await testing.rpc.masternode.listMasternodes()
     for (const id in masternodeList) {
@@ -107,7 +234,7 @@ describe.skip('vote with masternode operator with legacy address', () => {
     }
 
     providers = await getProviders(testing.container)
-    providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[0].owner.privKey))
+    providers.setEllipticPair(WIF.asEllipticPair(RegTestFoundationKeys[0].owner.privKey))
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     await testing.container.waitForWalletBalanceGTE(12)
@@ -124,9 +251,12 @@ describe.skip('vote with masternode operator with legacy address', () => {
     const createVocTxn = await builder.governance.createCfp({
       type: 0x01,
       title: 'community fund proposal',
-      amount: new BigNumber(10),
+      context: 'https://github.com/DeFiCh/dfips',
+      contexthash: '<context hash>',
+      nAmount: new BigNumber(10),
       address: script,
-      cycles: 2
+      nCycles: 2,
+      options: 0x00
     }, script)
 
     const proposalId = calculateTxid(createVocTxn)

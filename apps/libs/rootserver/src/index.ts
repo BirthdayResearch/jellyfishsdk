@@ -15,7 +15,7 @@ export abstract class RootServer {
       maxAge: 60 * 24 * 7
     })
 
-    // for ocean-api & rich-list-api
+    // for ocean-api
     // avoid duplication for now due to small
     // TODO(canonbrother): move to its own class while wide variety of configuration
     const version = config.get<string>('API_VERSION') as string
