@@ -4,9 +4,9 @@
 export type NetworkName = Network['name']
 
 /**
- * Network specific DeFi configuration.
- * They can be found in DeFiCh/ain project in file chainparams.cpp, under base58Prefixes
- */
+  * Network specific DeFi configuration.
+  * They can be found in DeFiCh/ain project in file chainparams.cpp, under base58Prefixes
+  */
 export interface Network {
   name: 'mainnet' | 'testnet' | 'regtest' | 'devnet'
   bech32: {
@@ -27,12 +27,18 @@ export interface Network {
   scriptHashPrefix: 0x5a | 0x80 | 0xc4
   /** For message signing. */
   messagePrefix: '\x15Defi Signed Message:\n'
+
+  /** [HYDRA] */
+  ports: {
+    rpc: number
+    p2p: number
+  }
 }
 
 /**
- * @param network name
- * @return Network specific DeFi configuration
- */
+  * @param network name
+  * @return Network specific DeFi configuration
+  */
 export function getNetwork (network: NetworkName): Network {
   switch (network) {
     case 'mainnet':
@@ -47,8 +53,8 @@ export function getNetwork (network: NetworkName): Network {
 }
 
 /**
- * MainNet specific DeFi configuration.
- */
+  * MainNet specific DeFi configuration.
+  */
 export const MainNet: Network = {
   name: 'mainnet',
   bech32: {
@@ -61,12 +67,16 @@ export const MainNet: Network = {
   wifPrefix: 0x80,
   pubKeyHashPrefix: 0x12,
   scriptHashPrefix: 0x5a,
-  messagePrefix: '\x15Defi Signed Message:\n'
+  messagePrefix: '\x15Defi Signed Message:\n',
+  ports: {
+    rpc: 8554,
+    p2p: 8555
+  }
 }
 
 /**
- * TestNet specific DeFi configuration.
- */
+  * TestNet specific DeFi configuration.
+  */
 export const TestNet: Network = {
   name: 'testnet',
   bech32: {
@@ -79,12 +89,16 @@ export const TestNet: Network = {
   wifPrefix: 0xef,
   pubKeyHashPrefix: 0xf,
   scriptHashPrefix: 0x80,
-  messagePrefix: '\x15Defi Signed Message:\n'
+  messagePrefix: '\x15Defi Signed Message:\n',
+  ports: {
+    rpc: 18554,
+    p2p: 18555
+  }
 }
 
 /**
- * RegTest specific DeFi configuration.
- */
+  * RegTest specific DeFi configuration.
+  */
 export const RegTest: Network = {
   name: 'regtest',
   bech32: {
@@ -97,5 +111,9 @@ export const RegTest: Network = {
   wifPrefix: 0xef,
   pubKeyHashPrefix: 0x6f,
   scriptHashPrefix: 0xc4,
-  messagePrefix: '\x15Defi Signed Message:\n'
+  messagePrefix: '\x15Defi Signed Message:\n',
+  ports: {
+    rpc: 19554,
+    p2p: 19555
+  }
 }
