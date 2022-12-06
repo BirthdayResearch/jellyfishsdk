@@ -53,7 +53,55 @@ export class SetupGov extends PlaygroundSetup<Record<string, any>> {
 
           // CU10 pay TU10
           'v0/token/13/loan_payback/6': 'true',
-          'v0/token/13/loan_payback_fee_pct/6': '0.01'
+          'v0/token/13/loan_payback_fee_pct/6': '0.01',
+
+          // Unloop mechanism for DUSD
+          'v0/token/12/loan_payback_collateral': 'true',
+
+          // Enable consortium
+          'v0/params/feature/consortium': 'true',
+
+          // Set a consortium global limit for dBTC
+          'v0/consortium/1/mint_limit': '10',
+          'v0/consortium/1/mint_limit_daily': '5',
+
+          // Set a consortium member for dBTC
+          'v0/consortium/1/members': setMemberInfo([{
+            id: '01',
+            name: 'Cake',
+            ownerAddress: 'bcrt1qc2g87p4pehe0pnfsmph63m00f38gh76tjpuuf9',
+            backingId: 'backing_address_btc_1_c',
+            dailyMintLimit: '5.00000000',
+            mintLimit: '10.00000000'
+          }, {
+            id: '02',
+            name: 'Birthday Research',
+            ownerAddress: 'bcrt1qwg4n6520y64ajkl9nhul9jc0dpqhhrunwnmt4t',
+            backingId: 'backing_address_btc_1_br, backing_address_btc_2_br',
+            dailyMintLimit: '5.00000000',
+            mintLimit: '10.00000000'
+          }]),
+
+          // Consortium global limit for dETH
+          'v0/consortium/2/mint_limit': '20',
+          'v0/consortium/2/mint_limit_daily': '10',
+
+          // Set a consortium member for dETH
+          'v0/consortium/2/members': setMemberInfo([{
+            id: '01',
+            name: 'Cake',
+            ownerAddress: 'bcrt1qc2g87p4pehe0pnfsmph63m00f38gh76tjpuuf9',
+            backingId: 'backing_address_eth_1_c',
+            dailyMintLimit: '5.00000000',
+            mintLimit: '10.00000000'
+          }, {
+            id: '02',
+            name: 'Birthday Research',
+            ownerAddress: 'bcrt1qwg4n6520y64ajkl9nhul9jc0dpqhhrunwnmt4t',
+            backingId: 'backing_address_eth_1_br, backing_address_eth_2_br',
+            dailyMintLimit: '5.00000000',
+            mintLimit: '10.00000000'
+          }])
         }
       }
     ]
@@ -88,4 +136,18 @@ export class SetupGov extends PlaygroundSetup<Record<string, any>> {
     })
     await this.generate(1)
   }
+}
+
+function setMemberInfo (memberInfo: Array<{ id: string, name: string, backingId: string, ownerAddress: string, mintLimit: string, dailyMintLimit: string }>): string {
+  const infoObjs = memberInfo.map(mi => `
+        "${mi.id}":{
+          "name":"${mi.name}",
+          "ownerAddress":"${mi.ownerAddress}",
+          "backingId":"${mi.backingId}",
+          "dailyMintLimit":${mi.dailyMintLimit},
+          "mintLimit":${mi.mintLimit}
+        }`
+  )
+
+  return `{${infoObjs.join(',')}}`
 }

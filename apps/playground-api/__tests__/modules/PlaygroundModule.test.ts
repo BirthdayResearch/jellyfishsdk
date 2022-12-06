@@ -61,9 +61,17 @@ it('should have gov set', async () => {
   const gov = await testing.container.call('getgov', ['ATTRIBUTES'])
   expect(gov).toStrictEqual({
     ATTRIBUTES: expect.objectContaining({
+      'v0/consortium/1/members': '{"01":{"name":"Cake","ownerAddress":"bcrt1qc2g87p4pehe0pnfsmph63m00f38gh76tjpuuf9","backingId":"backing_address_btc_1_c","mintLimit":10.00000000,"dailyMintLimit":5.00000000,"status":0},"02":{"name":"Birthday Research","ownerAddress":"bcrt1qwg4n6520y64ajkl9nhul9jc0dpqhhrunwnmt4t","backingId":"backing_address_btc_1_br, backing_address_btc_2_br","mintLimit":10.00000000,"dailyMintLimit":5.00000000,"status":0}}',
+      'v0/consortium/2/members': '{"01":{"name":"Cake","ownerAddress":"bcrt1qc2g87p4pehe0pnfsmph63m00f38gh76tjpuuf9","backingId":"backing_address_eth_1_c","mintLimit":10.00000000,"dailyMintLimit":5.00000000,"status":0},"02":{"name":"Birthday Research","ownerAddress":"bcrt1qwg4n6520y64ajkl9nhul9jc0dpqhhrunwnmt4t","backingId":"backing_address_eth_1_br, backing_address_eth_2_br","mintLimit":10.00000000,"dailyMintLimit":5.00000000,"status":0}}',
+      'v0/consortium/1/mint_limit': '10',
+      'v0/consortium/1/mint_limit_daily': '5',
+      'v0/consortium/2/mint_limit': '20',
+      'v0/consortium/2/mint_limit_daily': '10',
       'v0/params/dfip2203/active': 'true',
       'v0/params/dfip2203/reward_pct': '0.05',
       'v0/params/dfip2203/block_period': '20',
+      'v0/params/feature/consortium': 'true',
+      'v0/params/foundation/members': '["bcrt1qyrfrpadwgw7p5eh3e9h3jmu4kwlz4prx73cqny","bcrt1qyeuu9rvq8a67j86pzvh5897afdmdjpyankp4mu","msER9bmJjyEemRpQoS8YYVL21VyZZrSgQ7","mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU"]',
       'v0/token/0/fixed_interval_price_id': 'DFI/USD',
       'v0/token/0/loan_collateral_enabled': 'true',
       'v0/token/0/loan_collateral_factor': '1',
