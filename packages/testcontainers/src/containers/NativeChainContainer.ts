@@ -201,27 +201,31 @@ export class StartedNativeChainContainer extends AbstractStartedContainer {
 
   constructor (
     startedTestContainer: StartedTestContainer,
-    protected readonly config: StartedContainerConfig
+    private readonly config: StartedContainerConfig
   ) {
     super(startedTestContainer)
-  }
-
-  get startedContainerConfig (): StartedContainerConfig {
-    return this.config
-  }
-
-  get rpcPassword (): string {
-    return this.config.rpcPassword
   }
 
   get rpcUser (): string {
     return this.config.rpcUser
   }
 
+  get rpcPassword (): string {
+    return this.config.rpcPassword
+  }
+
+  get blockchainNetwork (): BlockchainNetwork {
+    return this.config.blockchainNetwork
+  }
+
+  get masterNodeKey (): MasterNodeKey | undefined {
+    return this.config.masterNodeKey
+  }
+
   public async importPrivateKeys (): Promise<void> {
-    if (this.config.masterNodeKey != null) {
-      await this.rpc.call('importprivkey', [this.config.masterNodeKey.operator.privKey, 'operator', true])
-      await this.rpc.call('importprivkey', [this.config.masterNodeKey.owner.privKey, 'owner', true])
+    if (this.masterNodeKey != null) {
+      await this.rpc.call('importprivkey', [this.masterNodeKey.operator.privKey, 'operator', true])
+      await this.rpc.call('importprivkey', [this.masterNodeKey.owner.privKey, 'owner', true])
     }
   }
 

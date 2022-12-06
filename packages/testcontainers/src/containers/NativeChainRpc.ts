@@ -1,6 +1,5 @@
 import { ExecResult } from 'testcontainers/dist/docker/types'
 import { StartedNativeChainContainer } from './NativeChainContainer'
-
 import fetch from 'cross-fetch'
 
 export class NativeChainRpc {
@@ -17,7 +16,8 @@ export class NativeChainRpc {
       rpcUser,
       rpcPassword,
       blockchainNetwork
-    } = this.sncc.startedContainerConfig
+    } = this.sncc
+
     const port = this.sncc.getMappedPort(blockchainNetwork.ports.rpc)
     return `http://${rpcUser}:${rpcPassword}@${this.sncc.getHost()}:${port}/`
   }
@@ -77,7 +77,7 @@ export class NativeChainRpc {
    * @param {string} address to generate to
    * @param {number} maxTries
    */
-  async generate (nblocks: number, address: string | undefined = this.sncc.startedContainerConfig.masterNodeKey?.operator.address, maxTries: number = 1000000): Promise<void> {
+  async generate (nblocks: number, address: string | undefined = this.sncc.masterNodeKey?.operator.address, maxTries: number = 1000000): Promise<void> {
     if (address == null) {
       throw new Error('Undefined address to generate to. Please specify an address or initialize the container with a MasterNodeKey.')
     }

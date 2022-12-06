@@ -10,7 +10,7 @@ export class NativeChainWaitFor {
    * @param {number} timeout
    * @param {string} address
    */
-  async generate (nblocks: number, timeout: number = 590000, address: string | undefined = this.sncc.startedContainerConfig.masterNodeKey?.operator.address): Promise<void> {
+  async generate (nblocks: number, timeout: number = 590000, address: string | undefined = this.sncc.masterNodeKey?.operator.address): Promise<void> {
     const target = await this.sncc.rpc.getBlockCount() + nblocks
 
     return await waitForCondition(async () => {
