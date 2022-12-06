@@ -272,7 +272,7 @@ export interface VaultActive extends Vault {
   collateralRatio: number
   informativeRatio: BigNumber
   nextCollateralRatio?: BigNumber
-  interestPerBlockValue?: BigNumber
+  interestPerBlockValue?: string
   interestsPerBlock?: string[]
 }
 

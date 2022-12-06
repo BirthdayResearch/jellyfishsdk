@@ -229,8 +229,13 @@ Create a test pool swap transaction to check pool swap's return result
 
 ```ts title="client.poolpair.testPoolSwap()"
 interface poolpair {
-  testPoolSwap (metadata: PoolSwapMetadata): Promise<string>
-}
+  testPoolSwap (metadata: PoolSwapMetadata, path?: 'auto' | 'direct' | 'composite' | string[], verbose?: true): Promise<TestPoolSwapVerboseResult>
+  testPoolSwap (metadata: PoolSwapMetadata, path?: 'auto' | 'direct' | 'composite' | string[], verbose?: false): Promise<string>
+  testPoolSwap (
+    metadata: PoolSwapMetadata,
+    path: 'auto' | 'direct' | 'composite' | string[] = 'auto',
+    verbose: boolean = false
+  ): Promise<string | TestPoolSwapVerboseResult>}
 
 interface PoolSwapMetadata {
   from: string

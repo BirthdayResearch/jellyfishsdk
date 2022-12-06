@@ -34,6 +34,7 @@ import { VaultAuctionHistoryMapper, VaultAuctionBatchHistory } from '../module.m
 import { ActivePrice } from '@defichain/whale-api-client/dist/api/prices'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { HexEncoder } from '../module.model/_hex.encoder'
+import { fromScriptHex } from '@defichain/jellyfish-address'
 
 @Controller('/loans')
 export class LoanController {
@@ -202,7 +203,12 @@ export class LoanController {
   ): Promise<ApiPagedResponse<VaultAuctionBatchHistory>> {
     const lt = query.next ?? `${HexEncoder.encodeHeight(height)}-${'f'.repeat(64)}`
     const gt = `${HexEncoder.encodeHeight(height - this.liqBlockExpiry)}-${'0'.repeat(64)}`
-    const list = await this.vaultAuctionHistoryMapper.query(`${id}-${batchIndex}`, query.size, lt, gt)
+    const list = (await this.vaultAuctionHistoryMapper.query(`${id}-${batchIndex}`, query.size, lt, gt)).map(history => {
+      return {
+        ...history,
+        address: fromScriptHex(history.from, this.network)?.address as string
+      }
+    })
 
     return ApiPagedResponse.of(list, query.size, item => {
       return item.sort

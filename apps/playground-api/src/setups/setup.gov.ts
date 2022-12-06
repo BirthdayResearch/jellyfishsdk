@@ -135,6 +135,13 @@ export class SetupGov extends PlaygroundSetup<Record<string, any>> {
       }
     })
     await this.generate(1)
+
+    await this.client.masternode.setGov({
+      ATTRIBUTES: {
+        'v0/params/dfip2203/active': 'true'
+      }
+    })
+    await this.generate(1)
   }
 }
 

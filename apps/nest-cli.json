@@ -24,12 +24,6 @@
       "entryFile": "apps/playground-api/src/index",
       "sourceRoot": "playground-api/src"
     },
-    "rich-list-api": {
-      "type": "application",
-      "root": "rich-list-api",
-      "entryFile": "apps/rich-list-api/src/index",
-      "sourceRoot": "rich-list-api/src"
-    },
     "status-api": {
       "type": "application",
       "root": "status-api",

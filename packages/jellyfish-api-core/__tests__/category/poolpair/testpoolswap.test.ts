@@ -13,6 +13,39 @@ describe('Poolpair', () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
+
+    await createToken(container, 'BAT')
+    await createToken(container, 'BTC')
+
+    await createPoolPair(container, 'BAT', 'DFI')
+    await createPoolPair(container, 'BTC', 'DFI')
+
+    await createToken(container, 'T1')
+    await createToken(container, 'T2')
+    await createToken(container, 'T3')
+
+    await mintTokens(container, 'T1')
+    await mintTokens(container, 'T2')
+    await mintTokens(container, 'T3')
+
+    await createPoolPair(container, 'T1', 'T2')
+    await createPoolPair(container, 'T2', 'T3')
+
+    const poolLiquidityAddress = await getNewAddress(container)
+    await addPoolLiquidity(container, {
+      tokenA: 'T1',
+      amountA: 500,
+      tokenB: 'T2',
+      amountB: 500,
+      shareAddress: poolLiquidityAddress
+    })
+    await addPoolLiquidity(container, {
+      tokenA: 'T2',
+      amountA: 500,
+      tokenB: 'T3',
+      amountB: 500,
+      shareAddress: poolLiquidityAddress
+    })
   })
 
   afterAll(async () => {
@@ -56,6 +89,8 @@ describe('Poolpair', () => {
       to: await getNewAddress(container),
       tokenTo: 'DFI'
     }) // 199.99999729@0
+
+    expect(typeof result).toStrictEqual('string')
 
     const testPoolSwapResultAmount = new BigNumber(result.split('@')[0]) // 199.99999729
     const swapped = new BigNumber(poolpair.reserveB).minus(reserveBAfter) // 199.87995198635029880408
@@ -125,7 +160,13 @@ describe('Poolpair', () => {
       maxPrice: 0.4
     })
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('Price is higher than indicated')
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -32600,
+        message: 'Cannot find usable pool pair. Details: Price is higher than indicated.',
+        method: 'testpoolswap'
+      }
+    })
   })
 
   it('testpoolswap should not affect the ori poolpair data', async () => {
@@ -163,9 +204,7 @@ describe('Poolpair', () => {
 
   it('should be failed as lack of liquidity', async () => {
     const tokenBatAddress = await getNewAddress(container)
-    await createToken(container, 'BAT')
     await mintTokens(container, 'BAT')
-    await createPoolPair(container, 'BAT', 'DFI')
 
     const promise = client.poolpair.testPoolSwap({
       from: tokenBatAddress,
@@ -175,6 +214,177 @@ describe('Poolpair', () => {
       tokenTo: 'DFI'
     })
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('Lack of liquidity')
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -32600,
+        message: 'Cannot find usable pool pair. Details: Lack of liquidity.',
+        method: 'testpoolswap'
+      }
+    })
+  })
+
+  it('should throw error when no tokenFrom', async () => {
+    const promise = client.poolpair.testPoolSwap({
+      from: await getNewAddress(container),
+      tokenFrom: '',
+      amountFrom: 13,
+      to: await getNewAddress(container),
+      tokenTo: 'DFI'
+    })
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -8,
+        message: 'tokenFrom is empty',
+        method: 'testpoolswap'
+      }
+    })
+  })
+
+  it('should throw error when no tokenTo', async () => {
+    const promise = client.poolpair.testPoolSwap({
+      from: await getNewAddress(container),
+      tokenFrom: 'DFI',
+      amountFrom: 13,
+      to: await getNewAddress(container),
+      tokenTo: ''
+    })
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -8,
+        message: 'tokenTo is empty',
+        method: 'testpoolswap'
+      }
+    })
+  })
+
+  it('should fail if wrong path option is used', async () => {
+    const tokenBatAddress = await getNewAddress(container)
+    const poolLiquidityAddress = await getNewAddress(container)
+
+    await mintTokens(container, 'BAT')
+    await mintTokens(container, 'BTC')
+    await addPoolLiquidity(container, {
+      tokenA: 'BAT',
+      amountA: 1000,
+      tokenB: 'DFI',
+      amountB: 500,
+      shareAddress: poolLiquidityAddress
+    })
+    await addPoolLiquidity(container, {
+      tokenA: 'BTC',
+      amountA: 1000,
+      tokenB: 'DFI',
+      amountB: 500,
+      shareAddress: poolLiquidityAddress
+    })
+
+    const promise = client.poolpair.testPoolSwap({
+      from: tokenBatAddress,
+      tokenFrom: 'BAT',
+      amountFrom: 13,
+      to: await getNewAddress(container),
+      tokenTo: 'BTC'
+    }, 'direct')
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -32600,
+        message: 'Direct pool pair not found. Use \'auto\' mode to use composite swap.',
+        method: 'testpoolswap'
+      }
+    })
+  })
+
+  it('should return verbose output', async () => {
+    const tokenBatAddress = await getNewAddress(container)
+    const poolLiquidityAddress = await getNewAddress(container)
+
+    await mintTokens(container, 'BAT')
+    await mintTokens(container, 'BTC')
+    await addPoolLiquidity(container, {
+      tokenA: 'BAT',
+      amountA: 1000,
+      tokenB: 'DFI',
+      amountB: 500,
+      shareAddress: poolLiquidityAddress
+    })
+    await addPoolLiquidity(container, {
+      tokenA: 'BTC',
+      amountA: 1000,
+      tokenB: 'DFI',
+      amountB: 500,
+      shareAddress: poolLiquidityAddress
+    })
+
+    const promise = await client.poolpair.testPoolSwap({
+      from: tokenBatAddress,
+      tokenFrom: 'BAT',
+      amountFrom: 13,
+      to: await getNewAddress(container),
+      tokenTo: 'BTC'
+    }, 'auto', true)
+
+    expect(promise).toStrictEqual({
+      path: 'auto',
+      pools: ['3', '4'],
+      amount: '12.83316880@2'
+    })
+  })
+
+  it('should testpoolswap in composite mode', async () => {
+    expect(await client.poolpair.testPoolSwap({
+      from: await getNewAddress(container),
+      tokenFrom: 'T1',
+      amountFrom: 13,
+      to: await getNewAddress(container),
+      tokenTo: 'T3'
+    }, 'composite')).toBeTruthy()
+  })
+
+  it('should testpoolswap in direct mode', async () => {
+    expect(await client.poolpair.testPoolSwap({
+      from: await getNewAddress(container),
+      tokenFrom: 'T1',
+      amountFrom: 13,
+      to: await getNewAddress(container),
+      tokenTo: 'T2'
+    }, 'direct')).toBeTruthy()
+  })
+
+  it('should testpoolswap in custom mode', async () => {
+    const path: string[] = []
+    path.push(Object.keys(await client.poolpair.getPoolPair('T1-T2'))[0])
+    path.push(Object.keys(await client.poolpair.getPoolPair('T2-T3'))[0])
+
+    expect(await client.poolpair.testPoolSwap({
+      from: await getNewAddress(container),
+      tokenFrom: 'T1',
+      amountFrom: 13,
+      to: await getNewAddress(container),
+      tokenTo: 'T3'
+    }, path)).toBeTruthy()
+  })
+
+  it('should testpoolswap in auto mode', async () => {
+    expect(await client.poolpair.testPoolSwap({
+      from: await getNewAddress(container),
+      tokenFrom: 'T1',
+      amountFrom: 13,
+      to: await getNewAddress(container),
+      tokenTo: 'T2'
+    }, 'auto')).toBeTruthy()
+
+    expect(await client.poolpair.testPoolSwap({
+      from: await getNewAddress(container),
+      tokenFrom: 'T1',
+      amountFrom: 13,
+      to: await getNewAddress(container),
+      tokenTo: 'T3'
+    }, 'auto')).toBeTruthy()
   })
 })

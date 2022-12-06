@@ -172,6 +172,23 @@ interface UTXO {
 }
 ```
 
+## updatemasternode
+
+Creates (and submits to local node and network) a masternode update transaction which update the masternode operator addresses, spending the given inputs..
+The last optional argument (may be empty array) is an array of specific UTXOs to spend.
+
+```ts title="client.masternode.updatemasternode()"
+interface masternode {
+  updateMasternode(masternodeId: string, values: UpdateMasternodeValues, utxos: UTXO[] = []): Promise<string>
+}
+
+interface UpdateMasternodeValues {
+  ownerAddress?: string
+  operatorAddress?: string
+  rewardAddress?: string
+}
+```
+
 ## setGov
 
 Set special governance variables
@@ -209,6 +226,16 @@ List all governance variables together if any with activation height
 ```ts title="client.masternode.listGovs()"
 interface masternode {
   listGovs (): Promise<Array<Array<Record<string, any>>>>
+}
+```
+
+## unsetGov
+
+Unset governance variables
+
+```ts title="client.masternode.unsetGov()"
+interface masternode {
+  unsetGov (variables: Record<string, number | string | string[]>, utxos: UTXO[] = []): Promise<string>
 }
 ```
 
@@ -267,5 +294,14 @@ interface MasternodeAnchor {
 
 interface MasternodeResult<T> {
   [id: string]: T
+}
+```
+
+## clearMempool
+Clears the memory pool and returns a list of the removed transaction ids.
+
+```ts title="client.masternode.clearMempool"
+interface masternode {
+  clearMempool (): Promise<string[]> 
 }
 ```

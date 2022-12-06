@@ -96,6 +96,7 @@ export class PoolPairPricesService {
 function mapToTokenIdentifier (token: TokenInfoWithId): TokenIdentifier {
   return {
     id: token.id,
+    name: token.name,
     symbol: token.symbol,
     displaySymbol: parseDisplaySymbol(token)
   }

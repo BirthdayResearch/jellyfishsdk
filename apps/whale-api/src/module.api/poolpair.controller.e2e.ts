@@ -32,7 +32,7 @@ beforeAll(async () => {
   }
 
   // ensure precache is working
-  const tkey = `${CachePrefix.TOKEN_INFO} 27`
+  const tkey = `${CachePrefix.TOKEN_INFO} 31`
   const token = await cache.get<TokenInfo>(tkey)
   expect(token?.symbolKey).toStrictEqual('USDT-DFI')
 })
@@ -48,7 +48,7 @@ async function setup (): Promise<void> {
     // For testing swap paths
     'G', // bridged via A to the rest
     'H', // isolated - no associated poolpair
-    'I', 'J', 'K', 'L' // isolated from the rest - only swappable with one another
+    'I', 'J', 'K', 'L', 'M', 'N' // isolated from the rest - only swappable with one another
   ]
 
   for (const token of tokens) {
@@ -61,8 +61,8 @@ async function setup (): Promise<void> {
   // rpc call 'gettoken' with symbol, but will fail for non-DAT tokens
   await container.waitForWalletBalanceGTE(110)
   await container.call('createtoken', [{
-    symbol: 'M',
-    name: 'M',
+    symbol: 'O',
+    name: 'O',
     isDAT: false,
     mintable: true,
     tradeable: true,
@@ -79,9 +79,11 @@ async function setup (): Promise<void> {
 
   await createPoolPair(container, 'G', 'A')
   await createPoolPair(container, 'I', 'J')
-  await createPoolPair(container, 'J', 'K')
-  await createPoolPair(container, 'J', 'L')
+  await createPoolPair(container, 'J', 'K', { commission: 0.25 })
+  await createPoolPair(container, 'J', 'L', { commission: 0.1 })
   await createPoolPair(container, 'L', 'K')
+  await createPoolPair(container, 'L', 'M', { commission: 0.50 })
+  await createPoolPair(container, 'M', 'N')
 
   await addPoolLiquidity(container, {
     tokenA: 'A',
@@ -139,6 +141,21 @@ async function setup (): Promise<void> {
     shareAddress: await getNewAddress(container)
   })
 
+  await addPoolLiquidity(container, {
+    tokenA: 'L',
+    amountA: 6,
+    tokenB: 'M',
+    amountB: 48,
+    shareAddress: await getNewAddress(container)
+  })
+  await addPoolLiquidity(container, {
+    tokenA: 'M',
+    amountA: 7,
+    tokenB: 'N',
+    amountB: 70,
+    shareAddress: await getNewAddress(container)
+  })
+
   // BURN should not be listed as swappable
   await createToken(container, 'BURN')
   await createPoolPair(container, 'BURN', 'DFI', { status: false })
@@ -163,14 +180,16 @@ async function setup (): Promise<void> {
     shareAddress: await getNewAddress(container)
   })
 
-  await container.call('setgov', [{ LP_SPLITS: { 14: 1.0 } }])
+  await container.call('setgov', [{ LP_SPLITS: { 16: 1.0 } }])
   await container.generate(1)
 
   // dex fee set up
   await container.call('setgov', [{
     ATTRIBUTES: {
-      'v0/poolpairs/14/token_a_fee_pct': '0.05',
-      'v0/poolpairs/14/token_b_fee_pct': '0.08'
+      'v0/poolpairs/16/token_a_fee_pct': '0.05',
+      'v0/poolpairs/16/token_b_fee_pct': '0.08',
+      'v0/poolpairs/26/token_a_fee_pct': '0.07',
+      'v0/poolpairs/26/token_b_fee_pct': '0.09'
     }
   }])
   await container.generate(1)
@@ -182,17 +201,18 @@ describe('list', () => {
       size: 30
     })
 
-    expect(response.data.length).toStrictEqual(12)
+    expect(response.data.length).toStrictEqual(14)
     expect(response.page).toBeUndefined()
 
     expect(response.data[1]).toStrictEqual({
-      id: '14',
+      id: '16',
       symbol: 'B-DFI',
       displaySymbol: 'dB-DFI',
       name: 'B-Default Defi token',
       status: true,
       tokenA: {
         id: '2',
+        name: 'B',
         symbol: 'B',
         reserve: '50',
         blockCommission: '0',
@@ -205,6 +225,7 @@ describe('list', () => {
       },
       tokenB: {
         id: '0',
+        name: 'Default Defi token',
         symbol: 'DFI',
         reserve: '300',
         blockCommission: '0',
@@ -250,16 +271,16 @@ describe('list', () => {
       size: 2
     })
     expect(first.data.length).toStrictEqual(2)
-    expect(first.page?.next).toStrictEqual('14')
+    expect(first.page?.next).toStrictEqual('16')
     expect(first.data[0].symbol).toStrictEqual('A-DFI')
     expect(first.data[1].symbol).toStrictEqual('B-DFI')
 
     const next = await controller.list({
-      size: 12,
+      size: 14,
       next: first.page?.next
     })
 
-    expect(next.data.length).toStrictEqual(10)
+    expect(next.data.length).toStrictEqual(12)
     expect(next.page?.next).toBeUndefined()
     expect(next.data[0].symbol).toStrictEqual('C-DFI')
     expect(next.data[1].symbol).toStrictEqual('D-DFI')
@@ -274,22 +295,23 @@ describe('list', () => {
     })
 
     expect(first.data.length).toStrictEqual(2)
-    expect(first.page?.next).toStrictEqual('14')
+    expect(first.page?.next).toStrictEqual('16')
   })
 })
 
 describe('get', () => {
   it('should get', async () => {
-    const response = await controller.get('13')
+    const response = await controller.get('15')
 
     expect(response).toStrictEqual({
-      id: '13',
+      id: '15',
       symbol: 'A-DFI',
       displaySymbol: 'dA-DFI',
       name: 'A-Default Defi token',
       status: true,
       tokenA: {
         id: expect.any(String),
+        name: 'A',
         symbol: 'A',
         reserve: '100',
         blockCommission: '0',
@@ -298,6 +320,7 @@ describe('get', () => {
       },
       tokenB: {
         id: '0',
+        name: 'Default Defi token',
         symbol: 'DFI',
         reserve: '200',
         blockCommission: '0',
@@ -355,21 +378,24 @@ describe('get best path', () => {
     expect(paths1).toStrictEqual({
       fromToken: {
         id: '1',
+        name: 'A',
         symbol: 'A',
         displaySymbol: 'dA'
       },
       toToken: {
         id: '0',
+        name: 'Default Defi token',
         symbol: 'DFI',
         displaySymbol: 'DFI'
       },
       bestPath: [
         {
           symbol: 'A-DFI',
-          poolPairId: '13',
+          poolPairId: '15',
           priceRatio: { ab: '0.50000000', ba: '2.00000000' },
-          tokenA: { id: '1', symbol: 'A', displaySymbol: 'dA' },
-          tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
+          tokenA: { id: '1', name: 'A', symbol: 'A', displaySymbol: 'dA' },
+          tokenB: { id: '0', name: 'Default Defi token', symbol: 'DFI', displaySymbol: 'DFI' },
+          commissionFeeInPct: '0'
         }
       ],
       estimatedReturn: '2.00000000',
@@ -382,28 +408,32 @@ describe('get best path', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '1',
+        name: 'A',
         symbol: 'A',
         displaySymbol: 'dA'
       },
       toToken: {
         id: '3',
+        name: 'C',
         symbol: 'C',
         displaySymbol: 'dC'
       },
       bestPath: [
         {
           symbol: 'A-DFI',
-          poolPairId: '13',
+          poolPairId: '15',
           priceRatio: { ab: '0.50000000', ba: '2.00000000' },
-          tokenA: { id: '1', symbol: 'A', displaySymbol: 'dA' },
-          tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
+          tokenA: { id: '1', name: 'A', symbol: 'A', displaySymbol: 'dA' },
+          tokenB: { id: '0', name: 'Default Defi token', symbol: 'DFI', displaySymbol: 'DFI' },
+          commissionFeeInPct: '0'
         },
         {
           symbol: 'C-DFI',
-          poolPairId: '15',
+          poolPairId: '17',
           priceRatio: { ab: '0.25000000', ba: '4.00000000' },
-          tokenA: { id: '3', symbol: 'C', displaySymbol: 'dC' },
-          tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
+          tokenA: { id: '3', name: 'C', symbol: 'C', displaySymbol: 'dC' },
+          tokenB: { id: '0', name: 'Default Defi token', symbol: 'DFI', displaySymbol: 'DFI' },
+          commissionFeeInPct: '0'
         }
       ],
       estimatedReturn: '0.50000000',
@@ -416,39 +446,69 @@ describe('get best path', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '7',
+        name: 'G',
         symbol: 'G',
         displaySymbol: 'dG'
       },
       toToken: {
         id: '3',
+        name: 'C',
         symbol: 'C',
         displaySymbol: 'dC'
       },
       bestPath: [
         {
           symbol: 'G-A',
-          poolPairId: '19',
+          poolPairId: '21',
           priceRatio: { ab: '0.20000000', ba: '5.00000000' },
-          tokenA: { id: '7', symbol: 'G', displaySymbol: 'dG' },
-          tokenB: { id: '1', symbol: 'A', displaySymbol: 'dA' }
+          tokenA: { id: '7', name: 'G', symbol: 'G', displaySymbol: 'dG' },
+          tokenB: { id: '1', name: 'A', symbol: 'A', displaySymbol: 'dA' },
+          commissionFeeInPct: '0'
         },
         {
           symbol: 'A-DFI',
-          poolPairId: '13',
+          poolPairId: '15',
           priceRatio: { ab: '0.50000000', ba: '2.00000000' },
-          tokenA: { id: '1', symbol: 'A', displaySymbol: 'dA' },
-          tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
+          tokenA: { id: '1', name: 'A', symbol: 'A', displaySymbol: 'dA' },
+          tokenB: { id: '0', name: 'Default Defi token', symbol: 'DFI', displaySymbol: 'DFI' },
+          commissionFeeInPct: '0'
         },
         {
           symbol: 'C-DFI',
-          poolPairId: '15',
+          poolPairId: '17',
           priceRatio: { ab: '0.25000000', ba: '4.00000000' },
-          tokenA: { id: '3', symbol: 'C', displaySymbol: 'dC' },
-          tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
+          tokenA: { id: '3', name: 'C', symbol: 'C', displaySymbol: 'dC' },
+          tokenB: { id: '0', name: 'Default Defi token', symbol: 'DFI', displaySymbol: 'DFI' },
+          commissionFeeInPct: '0'
         }
       ],
       estimatedReturn: '2.50000000',
       estimatedReturnLessDexFees: '2.50000000'
+    })
+  })
+
+  it('should ignore correct swap path > 3 legs', async () => {
+    const response = await controller.getBestPath('9', '14') // I to N
+    /* paths available
+      (4 legs) Swap I through -> I-J -> J-L -> L-M -> M-N to get N
+      (5 legs) Swap I through -> I-J -> J-K -> K-L -> L-M -> M-N to get N
+    */
+    expect(response).toStrictEqual({
+      fromToken: {
+        id: '9',
+        name: 'I',
+        symbol: 'I',
+        displaySymbol: 'dI'
+      },
+      toToken: {
+        id: '14',
+        name: 'N',
+        symbol: 'N',
+        displaySymbol: 'dN'
+      },
+      bestPath: [],
+      estimatedReturn: '0',
+      estimatedReturnLessDexFees: '0'
     })
   })
 
@@ -459,25 +519,119 @@ describe('get best path', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '10',
+        name: 'J',
         symbol: 'J',
         displaySymbol: 'dJ'
       },
       toToken: {
         id: '11',
+        name: 'K',
         symbol: 'K',
         displaySymbol: 'dK'
       },
       bestPath: [
         {
           symbol: 'J-K',
-          poolPairId: '21',
+          poolPairId: '23',
           priceRatio: { ab: '0.14285714', ba: '7.00000000' },
-          tokenA: { id: '10', symbol: 'J', displaySymbol: 'dJ' },
-          tokenB: { id: '11', symbol: 'K', displaySymbol: 'dK' }
+          tokenA: { id: '10', name: 'J', symbol: 'J', displaySymbol: 'dJ' },
+          tokenB: { id: '11', name: 'K', symbol: 'K', displaySymbol: 'dK' },
+          commissionFeeInPct: '0.25000000'
         }
       ],
       estimatedReturn: '7.00000000',
-      estimatedReturnLessDexFees: '7.00000000'
+      estimatedReturnLessDexFees: '5.25000000'
+    })
+  })
+
+  it('should deduct commission fee - 1 leg', async () => {
+    const response = await controller.getBestPath('10', '12')
+    expect(response).toStrictEqual({
+      fromToken: {
+        id: '10',
+        name: 'J',
+        symbol: 'J',
+        displaySymbol: 'dJ'
+      },
+      toToken: {
+        id: '12',
+        name: 'L',
+        symbol: 'L',
+        displaySymbol: 'dL'
+      },
+      bestPath: [
+        {
+          symbol: 'J-L',
+          poolPairId: '24',
+          priceRatio: { ab: '0.50000000', ba: '2.00000000' },
+          tokenA: { id: '10', name: 'J', symbol: 'J', displaySymbol: 'dJ' },
+          tokenB: { id: '12', name: 'L', symbol: 'L', displaySymbol: 'dL' },
+          commissionFeeInPct: '0.10000000'
+        }
+      ],
+      estimatedReturn: '2.00000000',
+      estimatedReturnLessDexFees: '1.80000000'
+    })
+  })
+
+  it('should deduct commission and dex fees - 2 legs', async () => {
+    const response = await controller.getBestPath('10', '13')
+    expect(response).toStrictEqual({
+      fromToken: {
+        id: '10',
+        name: 'J',
+        symbol: 'J',
+        displaySymbol: 'dJ'
+      },
+      toToken: {
+        id: '13',
+        name: 'M',
+        symbol: 'M',
+        displaySymbol: 'dM'
+      },
+      bestPath: [
+        {
+          symbol: 'J-L',
+          poolPairId: '24',
+          priceRatio: { ab: '0.50000000', ba: '2.00000000' },
+          tokenA: { id: '10', name: 'J', symbol: 'J', displaySymbol: 'dJ' },
+          tokenB: { id: '12', name: 'L', symbol: 'L', displaySymbol: 'dL' },
+          commissionFeeInPct: '0.10000000'
+        },
+        {
+          symbol: 'L-M',
+          poolPairId: '26',
+          priceRatio: { ab: '0.12500000', ba: '8.00000000' },
+          tokenA: { id: '12', name: 'L', symbol: 'L', displaySymbol: 'dL' },
+          tokenB: { id: '13', name: 'M', symbol: 'M', displaySymbol: 'dM' },
+          commissionFeeInPct: '0.50000000',
+          estimatedDexFeesInPct: {
+            ab: '0.09000000',
+            ba: '0.07000000'
+          }
+        }
+      ],
+      estimatedReturn: '16.00000000',
+      /*
+        Swap through first leg -- J -> L (No DEX fees)
+          Deduct commission fee: 1 * 0.1
+            = 1 - (1 * 0.1)
+          Convert fromToken -> toToken by price ratio
+            = 0.9 * 2
+        Swap through second leg -- L -> M  (With DEX fees)
+          Deduct commission fee: 1.8 * 0.5
+            = 1.8 - 0.9
+          Deduct dex fees fromToken: estLessDexFees * 0.07
+            = 0.9 - 0.063
+          Convert fromToken -> toToken by price ratio
+            = 0.837 * 8
+          Deduct dex fees toToken: estLessDexFees * 0.09
+            = 6.696 - 0.60264
+
+        Estimated return less commission and dex fees
+          = 6.09336
+      */
+      estimatedReturnLessDexFees: '6.09336000'
     })
   })
 
@@ -486,11 +640,13 @@ describe('get best path', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '8',
+        name: 'H',
         symbol: 'H',
         displaySymbol: 'dH'
       },
       toToken: {
         id: '1',
+        name: 'A',
         symbol: 'A',
         displaySymbol: 'dA'
       },
@@ -515,11 +671,13 @@ describe('get all paths', () => {
     expect(paths1).toStrictEqual({
       fromToken: {
         id: '1',
+        name: 'A',
         symbol: 'A',
         displaySymbol: 'dA'
       },
       toToken: {
         id: '0',
+        name: 'Default Defi token',
         symbol: 'DFI',
         displaySymbol: 'DFI'
       },
@@ -527,10 +685,11 @@ describe('get all paths', () => {
         [
           {
             symbol: 'A-DFI',
-            poolPairId: '13',
-            tokenA: { id: '1', symbol: 'A', displaySymbol: 'dA' },
-            tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' },
-            priceRatio: { ab: '0.50000000', ba: '2.00000000' }
+            poolPairId: '15',
+            tokenA: { id: '1', name: 'A', symbol: 'A', displaySymbol: 'dA' },
+            tokenB: { id: '0', name: 'Default Defi token', symbol: 'DFI', displaySymbol: 'DFI' },
+            priceRatio: { ab: '0.50000000', ba: '2.00000000' },
+            commissionFeeInPct: '0'
           }
         ]
       ]
@@ -542,11 +701,13 @@ describe('get all paths', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '1',
+        name: 'A',
         symbol: 'A',
         displaySymbol: 'dA'
       },
       toToken: {
         id: '3',
+        name: 'C',
         symbol: 'C',
         displaySymbol: 'dC'
       },
@@ -554,17 +715,19 @@ describe('get all paths', () => {
         [
           {
             symbol: 'A-DFI',
-            poolPairId: '13',
+            poolPairId: '15',
             priceRatio: { ab: '0.50000000', ba: '2.00000000' },
-            tokenA: { id: '1', symbol: 'A', displaySymbol: 'dA' },
-            tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
+            tokenA: { id: '1', name: 'A', symbol: 'A', displaySymbol: 'dA' },
+            tokenB: { id: '0', name: 'Default Defi token', symbol: 'DFI', displaySymbol: 'DFI' },
+            commissionFeeInPct: '0'
           },
           {
             symbol: 'C-DFI',
-            poolPairId: '15',
+            poolPairId: '17',
             priceRatio: { ab: '0.25000000', ba: '4.00000000' },
-            tokenA: { id: '3', symbol: 'C', displaySymbol: 'dC' },
-            tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
+            tokenA: { id: '3', name: 'C', symbol: 'C', displaySymbol: 'dC' },
+            tokenB: { id: '0', name: 'Default Defi token', symbol: 'DFI', displaySymbol: 'DFI' },
+            commissionFeeInPct: '0'
           }
         ]
       ]
@@ -576,11 +739,13 @@ describe('get all paths', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '7',
+        name: 'G',
         symbol: 'G',
         displaySymbol: 'dG'
       },
       toToken: {
         id: '3',
+        name: 'C',
         symbol: 'C',
         displaySymbol: 'dC'
       },
@@ -588,27 +753,54 @@ describe('get all paths', () => {
         [
           {
             symbol: 'G-A',
-            poolPairId: '19',
+            poolPairId: '21',
             priceRatio: { ab: '0.20000000', ba: '5.00000000' },
-            tokenA: { id: '7', symbol: 'G', displaySymbol: 'dG' },
-            tokenB: { id: '1', symbol: 'A', displaySymbol: 'dA' }
+            tokenA: { id: '7', name: 'G', symbol: 'G', displaySymbol: 'dG' },
+            tokenB: { id: '1', name: 'A', symbol: 'A', displaySymbol: 'dA' },
+            commissionFeeInPct: '0'
           },
           {
             symbol: 'A-DFI',
-            poolPairId: '13',
+            poolPairId: '15',
             priceRatio: { ab: '0.50000000', ba: '2.00000000' },
-            tokenA: { id: '1', symbol: 'A', displaySymbol: 'dA' },
-            tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
+            tokenA: { id: '1', name: 'A', symbol: 'A', displaySymbol: 'dA' },
+            tokenB: { id: '0', name: 'Default Defi token', symbol: 'DFI', displaySymbol: 'DFI' },
+            commissionFeeInPct: '0'
           },
           {
             symbol: 'C-DFI',
-            poolPairId: '15',
+            poolPairId: '17',
             priceRatio: { ab: '0.25000000', ba: '4.00000000' },
-            tokenA: { id: '3', symbol: 'C', displaySymbol: 'dC' },
-            tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
+            tokenA: { id: '3', name: 'C', symbol: 'C', displaySymbol: 'dC' },
+            tokenB: { id: '0', name: 'Default Defi token', symbol: 'DFI', displaySymbol: 'DFI' },
+            commissionFeeInPct: '0'
           }
         ]
       ]
+    })
+  })
+
+  it('should ignore correct swap paths > 3 legs', async () => {
+    const response = await controller.listPaths('9', '14') // I to N
+
+    /* paths available
+      (4 legs) Swap I through -> I-J -> J-L -> L-M -> M-N to get N
+      (5 legs) Swap I through -> I-J -> J-K -> K-L -> L-M -> M-N to get N
+    */
+    expect(response).toStrictEqual({
+      fromToken: {
+        id: '9',
+        name: 'I',
+        symbol: 'I',
+        displaySymbol: 'dI'
+      },
+      toToken: {
+        id: '14',
+        name: 'N',
+        symbol: 'N',
+        displaySymbol: 'dN'
+      },
+      paths: []
     })
   })
 
@@ -617,11 +809,13 @@ describe('get all paths', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '9',
+        name: 'I',
         symbol: 'I',
         displaySymbol: 'dI'
       },
       toToken: {
         id: '11',
+        name: 'K',
         symbol: 'K',
         displaySymbol: 'dK'
       },
@@ -629,40 +823,45 @@ describe('get all paths', () => {
         [
           {
             symbol: 'I-J',
-            poolPairId: '20',
+            poolPairId: '22',
             priceRatio: { ab: '0', ba: '0' },
-            tokenA: { id: '9', symbol: 'I', displaySymbol: 'dI' },
-            tokenB: { id: '10', symbol: 'J', displaySymbol: 'dJ' }
+            tokenA: { id: '9', name: 'I', symbol: 'I', displaySymbol: 'dI' },
+            tokenB: { id: '10', name: 'J', symbol: 'J', displaySymbol: 'dJ' },
+            commissionFeeInPct: '0'
           },
           {
             symbol: 'J-L',
-            poolPairId: '22',
+            poolPairId: '24',
             priceRatio: { ab: '0.50000000', ba: '2.00000000' },
-            tokenA: { id: '10', symbol: 'J', displaySymbol: 'dJ' },
-            tokenB: { id: '12', symbol: 'L', displaySymbol: 'dL' }
+            tokenA: { id: '10', name: 'J', symbol: 'J', displaySymbol: 'dJ' },
+            tokenB: { id: '12', name: 'L', symbol: 'L', displaySymbol: 'dL' },
+            commissionFeeInPct: '0.10000000'
           },
           {
             symbol: 'L-K',
-            poolPairId: '23',
+            poolPairId: '25',
             priceRatio: { ab: '0.25000000', ba: '4.00000000' },
-            tokenA: { id: '12', symbol: 'L', displaySymbol: 'dL' },
-            tokenB: { id: '11', symbol: 'K', displaySymbol: 'dK' }
+            tokenA: { id: '12', name: 'L', symbol: 'L', displaySymbol: 'dL' },
+            tokenB: { id: '11', name: 'K', symbol: 'K', displaySymbol: 'dK' },
+            commissionFeeInPct: '0'
           }
         ],
         [
           {
             symbol: 'I-J',
-            poolPairId: '20',
+            poolPairId: '22',
             priceRatio: { ab: '0', ba: '0' },
-            tokenA: { id: '9', symbol: 'I', displaySymbol: 'dI' },
-            tokenB: { id: '10', symbol: 'J', displaySymbol: 'dJ' }
+            tokenA: { id: '9', name: 'I', symbol: 'I', displaySymbol: 'dI' },
+            tokenB: { id: '10', name: 'J', symbol: 'J', displaySymbol: 'dJ' },
+            commissionFeeInPct: '0'
           },
           {
             symbol: 'J-K',
-            poolPairId: '21',
+            poolPairId: '23',
             priceRatio: { ab: '0.14285714', ba: '7.00000000' },
-            tokenA: { id: '10', symbol: 'J', displaySymbol: 'dJ' },
-            tokenB: { id: '11', symbol: 'K', displaySymbol: 'dK' }
+            tokenA: { id: '10', name: 'J', symbol: 'J', displaySymbol: 'dJ' },
+            tokenB: { id: '11', name: 'K', symbol: 'K', displaySymbol: 'dK' },
+            commissionFeeInPct: '0.25000000'
           }
         ]
       ]
@@ -674,11 +873,13 @@ describe('get all paths', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '10',
+        name: 'J',
         symbol: 'J',
         displaySymbol: 'dJ'
       },
       toToken: {
         id: '11',
+        name: 'K',
         symbol: 'K',
         displaySymbol: 'dK'
       },
@@ -686,26 +887,29 @@ describe('get all paths', () => {
         [
           {
             symbol: 'J-L',
-            poolPairId: '22',
+            poolPairId: '24',
             priceRatio: { ab: '0.50000000', ba: '2.00000000' },
-            tokenA: { id: '10', symbol: 'J', displaySymbol: 'dJ' },
-            tokenB: { id: '12', symbol: 'L', displaySymbol: 'dL' }
+            tokenA: { id: '10', name: 'J', symbol: 'J', displaySymbol: 'dJ' },
+            tokenB: { id: '12', name: 'L', symbol: 'L', displaySymbol: 'dL' },
+            commissionFeeInPct: '0.10000000'
           },
           {
             symbol: 'L-K',
-            poolPairId: '23',
+            poolPairId: '25',
             priceRatio: { ab: '0.25000000', ba: '4.00000000' },
-            tokenA: { id: '12', symbol: 'L', displaySymbol: 'dL' },
-            tokenB: { id: '11', symbol: 'K', displaySymbol: 'dK' }
+            tokenA: { id: '12', name: 'L', symbol: 'L', displaySymbol: 'dL' },
+            tokenB: { id: '11', name: 'K', symbol: 'K', displaySymbol: 'dK' },
+            commissionFeeInPct: '0'
           }
         ],
         [
           {
             symbol: 'J-K',
-            poolPairId: '21',
+            poolPairId: '23',
             priceRatio: { ab: '0.14285714', ba: '7.00000000' },
-            tokenA: { id: '10', symbol: 'J', displaySymbol: 'dJ' },
-            tokenB: { id: '11', symbol: 'K', displaySymbol: 'dK' }
+            tokenA: { id: '10', name: 'J', symbol: 'J', displaySymbol: 'dJ' },
+            tokenB: { id: '11', name: 'K', symbol: 'K', displaySymbol: 'dK' },
+            commissionFeeInPct: '0.25000000'
           }
         ]
       ]
@@ -717,11 +921,13 @@ describe('get all paths', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '8',
+        name: 'H',
         symbol: 'H',
         displaySymbol: 'dH'
       },
       toToken: {
         id: '1',
+        name: 'A',
         symbol: 'A',
         displaySymbol: 'dA'
       },
@@ -750,16 +956,16 @@ describe('get list swappable tokens', () => {
   it('should list correct swappable tokens', async () => {
     const result = await controller.listSwappableTokens('1') // A
     expect(result).toStrictEqual({
-      fromToken: { id: '1', symbol: 'A', displaySymbol: 'dA' },
+      fromToken: { id: '1', name: 'A', symbol: 'A', displaySymbol: 'dA' },
       swappableTokens: [
-        { id: '7', symbol: 'G', displaySymbol: 'dG' },
-        { id: '0', symbol: 'DFI', displaySymbol: 'DFI' },
-        { id: '26', symbol: 'USDT', displaySymbol: 'dUSDT' },
-        { id: '6', symbol: 'F', displaySymbol: 'dF' },
-        { id: '5', symbol: 'E', displaySymbol: 'dE' },
-        { id: '4', symbol: 'D', displaySymbol: 'dD' },
-        { id: '3', symbol: 'C', displaySymbol: 'dC' },
-        { id: '2', symbol: 'B', displaySymbol: 'dB' }
+        { id: '7', name: 'G', symbol: 'G', displaySymbol: 'dG' },
+        { id: '0', name: 'Default Defi token', symbol: 'DFI', displaySymbol: 'DFI' },
+        { id: '30', name: 'USDT', symbol: 'USDT', displaySymbol: 'dUSDT' },
+        { id: '6', name: 'F', symbol: 'F', displaySymbol: 'dF' },
+        { id: '5', name: 'E', symbol: 'E', displaySymbol: 'dE' },
+        { id: '4', name: 'D', symbol: 'D', displaySymbol: 'dD' },
+        { id: '3', name: 'C', symbol: 'C', displaySymbol: 'dC' },
+        { id: '2', name: 'B', symbol: 'B', displaySymbol: 'dB' }
       ]
     })
   })
@@ -773,7 +979,7 @@ describe('get list swappable tokens', () => {
   it('should list no tokens for token that is not swappable with any', async () => {
     const result = await controller.listSwappableTokens('8') // H
     expect(result).toStrictEqual({
-      fromToken: { id: '8', symbol: 'H', displaySymbol: 'dH' },
+      fromToken: { id: '8', name: 'H', symbol: 'H', displaySymbol: 'dH' },
       swappableTokens: []
     })
   })
@@ -789,58 +995,66 @@ describe('latest dex prices', () => {
   it('should get latest dex prices - denomination: DFI', async () => {
     const result = await controller.listDexPrices('DFI')
     expect(result).toStrictEqual({
-      denomination: { displaySymbol: 'DFI', id: '0', symbol: 'DFI' },
+      denomination: { displaySymbol: 'DFI', id: '0', name: 'Default Defi token', symbol: 'DFI' },
       dexPrices: {
         USDT: {
-          token: { displaySymbol: 'dUSDT', id: '26', symbol: 'USDT' },
+          token: { displaySymbol: 'dUSDT', id: '30', name: 'USDT', symbol: 'USDT' },
           denominationPrice: '0.43151288'
         },
+        N: {
+          token: { displaySymbol: 'dN', id: '14', name: 'N', symbol: 'N' },
+          denominationPrice: '0'
+        },
+        M: {
+          token: { displaySymbol: 'dM', id: '13', name: 'M', symbol: 'M' },
+          denominationPrice: '0'
+        },
         L: {
-          token: { displaySymbol: 'dL', id: '12', symbol: 'L' },
+          token: { displaySymbol: 'dL', id: '12', name: 'L', symbol: 'L' },
           denominationPrice: '0'
         },
         K: {
-          token: { displaySymbol: 'dK', id: '11', symbol: 'K' },
+          token: { displaySymbol: 'dK', id: '11', name: 'K', symbol: 'K' },
           denominationPrice: '0'
         },
         J: {
-          token: { displaySymbol: 'dJ', id: '10', symbol: 'J' },
+          token: { displaySymbol: 'dJ', id: '10', name: 'J', symbol: 'J' },
           denominationPrice: '0'
         },
         I: {
-          token: { displaySymbol: 'dI', id: '9', symbol: 'I' },
+          token: { displaySymbol: 'dI', id: '9', name: 'I', symbol: 'I' },
           denominationPrice: '0'
         },
         H: {
-          token: { displaySymbol: 'dH', id: '8', symbol: 'H' },
+          token: { displaySymbol: 'dH', id: '8', name: 'H', symbol: 'H' },
           denominationPrice: '0'
         },
         G: {
-          token: { displaySymbol: 'dG', id: '7', symbol: 'G' },
+          token: { displaySymbol: 'dG', id: '7', name: 'G', symbol: 'G' },
           denominationPrice: '10.00000000'
         },
         F: {
-          token: { displaySymbol: 'dF', id: '6', symbol: 'F' },
+          token: { displaySymbol: 'dF', id: '6', name: 'F', symbol: 'F' },
           denominationPrice: '0'
         },
         E: {
-          token: { displaySymbol: 'dE', id: '5', symbol: 'E' },
+          token: { displaySymbol: 'dE', id: '5', name: 'E', symbol: 'E' },
           denominationPrice: '0'
         },
         D: {
-          token: { displaySymbol: 'dD', id: '4', symbol: 'D' },
+          token: { displaySymbol: 'dD', id: '4', name: 'D', symbol: 'D' },
           denominationPrice: '0'
         },
         C: {
-          token: { displaySymbol: 'dC', id: '3', symbol: 'C' },
+          token: { displaySymbol: 'dC', id: '3', name: 'C', symbol: 'C' },
           denominationPrice: '4.00000000'
         },
         B: {
-          token: { displaySymbol: 'dB', id: '2', symbol: 'B' },
+          token: { displaySymbol: 'dB', id: '2', name: 'B', symbol: 'B' },
           denominationPrice: '6.00000000'
         },
         A: {
-          token: { displaySymbol: 'dA', id: '1', symbol: 'A' },
+          token: { displaySymbol: 'dA', id: '1', name: 'A', symbol: 'A' },
           denominationPrice: '2.00000000'
         }
       }
@@ -850,58 +1064,66 @@ describe('latest dex prices', () => {
   it('should get latest dex prices - denomination: USDT', async () => {
     const result = await controller.listDexPrices('USDT')
     expect(result).toStrictEqual({
-      denomination: { displaySymbol: 'dUSDT', id: '26', symbol: 'USDT' },
+      denomination: { displaySymbol: 'dUSDT', id: '30', name: 'USDT', symbol: 'USDT' },
       dexPrices: {
         DFI: {
-          token: { displaySymbol: 'DFI', id: '0', symbol: 'DFI' },
+          token: { displaySymbol: 'DFI', id: '0', name: 'Default Defi token', symbol: 'DFI' },
           denominationPrice: '2.31742792' // 1 DFI = 2.31 USDT
         },
         A: {
-          token: { displaySymbol: 'dA', id: '1', symbol: 'A' },
+          token: { displaySymbol: 'dA', id: '1', name: 'A', symbol: 'A' },
           denominationPrice: '4.63485584' // 1 A = 4.63 USDT
         },
         G: {
-          token: { displaySymbol: 'dG', id: '7', symbol: 'G' },
+          token: { displaySymbol: 'dG', id: '7', name: 'G', symbol: 'G' },
           denominationPrice: '23.17427920' // 1 G = 5 A = 10 DFI = 23 USDT
         },
         B: {
-          token: { displaySymbol: 'dB', id: '2', symbol: 'B' },
+          token: { displaySymbol: 'dB', id: '2', name: 'B', symbol: 'B' },
           denominationPrice: '13.90456752'
         },
         C: {
-          token: { displaySymbol: 'dC', id: '3', symbol: 'C' },
+          token: { displaySymbol: 'dC', id: '3', name: 'C', symbol: 'C' },
           denominationPrice: '9.26971168'
         },
+        N: {
+          token: { displaySymbol: 'dN', id: '14', name: 'N', symbol: 'N' },
+          denominationPrice: '0'
+        },
+        M: {
+          token: { displaySymbol: 'dM', id: '13', name: 'M', symbol: 'M' },
+          denominationPrice: '0'
+        },
         L: {
-          token: { displaySymbol: 'dL', id: '12', symbol: 'L' },
+          token: { displaySymbol: 'dL', id: '12', name: 'L', symbol: 'L' },
           denominationPrice: '0'
         },
         K: {
-          token: { displaySymbol: 'dK', id: '11', symbol: 'K' },
+          token: { displaySymbol: 'dK', id: '11', name: 'K', symbol: 'K' },
           denominationPrice: '0'
         },
         J: {
-          token: { displaySymbol: 'dJ', id: '10', symbol: 'J' },
+          token: { displaySymbol: 'dJ', id: '10', name: 'J', symbol: 'J' },
           denominationPrice: '0'
         },
         I: {
-          token: { displaySymbol: 'dI', id: '9', symbol: 'I' },
+          token: { displaySymbol: 'dI', id: '9', name: 'I', symbol: 'I' },
           denominationPrice: '0'
         },
         H: {
-          token: { displaySymbol: 'dH', id: '8', symbol: 'H' },
+          token: { displaySymbol: 'dH', id: '8', name: 'H', symbol: 'H' },
           denominationPrice: '0'
         },
         F: {
-          token: { displaySymbol: 'dF', id: '6', symbol: 'F' },
+          token: { displaySymbol: 'dF', id: '6', name: 'F', symbol: 'F' },
           denominationPrice: '0'
         },
         E: {
-          token: { displaySymbol: 'dE', id: '5', symbol: 'E' },
+          token: { displaySymbol: 'dE', id: '5', name: 'E', symbol: 'E' },
           denominationPrice: '0'
         },
         D: {
-          token: { displaySymbol: 'dD', id: '4', symbol: 'D' },
+          token: { displaySymbol: 'dD', id: '4', name: 'D', symbol: 'D' },
           denominationPrice: '0'
         }
       }
@@ -964,15 +1186,15 @@ describe('latest dex prices', () => {
     expect(pricesInB.dexPrices.A.denominationPrice).toStrictEqual('0.33333332')
   })
 
-  it('should list DAT tokens only - M (non-DAT token) is not included in result', async () => {
-    // M not included in any denominated dex prices
+  it('should list DAT tokens only - O (non-DAT token) is not included in result', async () => {
+    // O not included in any denominated dex prices
     const result = await controller.listDexPrices('DFI')
-    expect(result.dexPrices.M).toBeUndefined()
+    expect(result.dexPrices.O).toBeUndefined()
 
-    // M is not a valid 'denomination' token
-    await expect(controller.listDexPrices('M'))
+    // O is not a valid 'denomination' token
+    await expect(controller.listDexPrices('O'))
       .rejects
-      .toThrowError('Could not find token with symbol \'M\'')
+      .toThrowError('Could not find token with symbol \'O\'')
   })
 
   it('should list DAT tokens only - status:false tokens are excluded', async () => {

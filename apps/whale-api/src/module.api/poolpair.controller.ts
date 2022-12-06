@@ -15,6 +15,7 @@ import { PoolPairService } from './poolpair.service'
 import { PoolSwapPathFindingService } from './poolswap.pathfinding.service'
 import BigNumber from 'bignumber.js'
 import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
+import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
 import { parseDATSymbol } from './token.controller'
 import { PoolSwapMapper } from '../module.model/pool.swap'
 import { PoolSwapAggregatedMapper } from '../module.model/pool.swap.aggregated'
@@ -55,14 +56,15 @@ export class PoolPairController {
       const totalLiquidityUsd = await this.poolPairService.getTotalLiquidityUsd(info)
       const apr = await this.poolPairService.getAPR(id, info)
       const volume = await this.poolPairService.getUSDVolume(id)
-      items.push(mapPoolPair(id, info, totalLiquidityUsd, apr, volume))
+      const poolPairData = await this.mapPoolPair(id, info, totalLiquidityUsd, apr, volume)
+      items.push(poolPairData)
     }
 
     const response = ApiPagedResponse.of(items, query.size, item => {
       return item.id
     })
     response.data = response.data.filter(value => {
-      return value.symbol !== 'BURN-DFI'
+      return !value.symbol.startsWith('BURN-')
     })
     return response
   }
@@ -81,7 +83,7 @@ export class PoolPairController {
     const totalLiquidityUsd = await this.poolPairService.getTotalLiquidityUsd(info)
     const apr = await this.poolPairService.getAPR(id, info)
     const volume = await this.poolPairService.getUSDVolume(id)
-    return mapPoolPair(String(id), info, totalLiquidityUsd, apr, volume)
+    return await this.mapPoolPair(String(id), info, totalLiquidityUsd, apr, volume)
   }
 
   /**
@@ -193,70 +195,74 @@ export class PoolPairController {
   ): Promise<DexPricesResult> {
     return await this.poolPairPricesService.listDexPrices(denomination)
   }
-}
 
-function mapPoolPair (
-  id: string,
-  info: PoolPairInfo,
-  totalLiquidityUsd?: BigNumber,
-  apr?: PoolPairData['apr'],
-  volume?: PoolPairData['volume']
-): PoolPairData {
-  const [symbolA, symbolB] = info.symbol.split('-')
+  async mapPoolPair (
+    id: string,
+    info: PoolPairInfo,
+    totalLiquidityUsd?: BigNumber,
+    apr?: PoolPairData['apr'],
+    volume?: PoolPairData['volume']
+  ): Promise<PoolPairData> {
+    const [symbolA, symbolB] = info.symbol.split('-')
+    const nameTokenA = (await this.deFiDCache.getTokenInfo(info.idTokenA) as TokenInfo).name
+    const nameTokenB = (await this.deFiDCache.getTokenInfo(info.idTokenB) as TokenInfo).name
 
-  return {
-    id: id,
-    symbol: info.symbol,
-    displaySymbol: `${parseDATSymbol(symbolA)}-${parseDATSymbol(symbolB)}`,
-    name: info.name,
-    status: info.status,
-    tokenA: {
-      symbol: symbolA,
-      displaySymbol: parseDATSymbol(symbolA),
-      id: info.idTokenA,
-      reserve: info.reserveA.toFixed(),
-      blockCommission: info.blockCommissionA.toFixed(),
-      fee: info.dexFeePctTokenA !== undefined
-        ? {
-            pct: info.dexFeePctTokenA?.toFixed(),
-            inPct: info.dexFeeInPctTokenA?.toFixed(),
-            outPct: info.dexFeeOutPctTokenA?.toFixed()
-          }
-        : undefined
-    },
-    tokenB: {
-      symbol: symbolB,
-      displaySymbol: parseDATSymbol(symbolB),
-      id: info.idTokenB,
-      reserve: info.reserveB.toFixed(),
-      blockCommission: info.blockCommissionB.toFixed(),
-      fee: info.dexFeePctTokenB !== undefined
-        ? {
-            pct: info.dexFeePctTokenB?.toFixed(),
-            inPct: info.dexFeeInPctTokenB?.toFixed(),
-            outPct: info.dexFeeOutPctTokenB?.toFixed()
-          }
-        : undefined
-    },
-    priceRatio: {
-      ab: info['reserveA/reserveB'] instanceof BigNumber ? info['reserveA/reserveB'].toFixed() : info['reserveA/reserveB'],
-      ba: info['reserveB/reserveA'] instanceof BigNumber ? info['reserveB/reserveA'].toFixed() : info['reserveB/reserveA']
-    },
-    commission: info.commission.toFixed(),
-    totalLiquidity: {
-      token: info.totalLiquidity.toFixed(),
-      usd: totalLiquidityUsd?.toFixed()
-    },
-    tradeEnabled: info.tradeEnabled,
-    ownerAddress: info.ownerAddress,
-    rewardPct: info.rewardPct.toFixed(),
-    rewardLoanPct: info.rewardLoanPct.toFixed(),
-    customRewards: info.customRewards,
-    creation: {
-      tx: info.creationTx,
-      height: info.creationHeight.toNumber()
-    },
-    apr: apr,
-    volume: volume
+    return {
+      id: id,
+      symbol: info.symbol,
+      displaySymbol: `${parseDATSymbol(symbolA)}-${parseDATSymbol(symbolB)}`,
+      name: info.name,
+      status: info.status,
+      tokenA: {
+        symbol: symbolA,
+        displaySymbol: parseDATSymbol(symbolA),
+        id: info.idTokenA,
+        name: nameTokenA,
+        reserve: info.reserveA.toFixed(),
+        blockCommission: info.blockCommissionA.toFixed(),
+        fee: info.dexFeePctTokenA !== undefined
+          ? {
+              pct: info.dexFeePctTokenA?.toFixed(),
+              inPct: info.dexFeeInPctTokenA?.toFixed(),
+              outPct: info.dexFeeOutPctTokenA?.toFixed()
+            }
+          : undefined
+      },
+      tokenB: {
+        symbol: symbolB,
+        displaySymbol: parseDATSymbol(symbolB),
+        id: info.idTokenB,
+        name: nameTokenB,
+        reserve: info.reserveB.toFixed(),
+        blockCommission: info.blockCommissionB.toFixed(),
+        fee: info.dexFeePctTokenB !== undefined
+          ? {
+              pct: info.dexFeePctTokenB?.toFixed(),
+              inPct: info.dexFeeInPctTokenB?.toFixed(),
+              outPct: info.dexFeeOutPctTokenB?.toFixed()
+            }
+          : undefined
+      },
+      priceRatio: {
+        ab: info['reserveA/reserveB'] instanceof BigNumber ? info['reserveA/reserveB'].toFixed() : info['reserveA/reserveB'],
+        ba: info['reserveB/reserveA'] instanceof BigNumber ? info['reserveB/reserveA'].toFixed() : info['reserveB/reserveA']
+      },
+      commission: info.commission.toFixed(),
+      totalLiquidity: {
+        token: info.totalLiquidity.toFixed(),
+        usd: totalLiquidityUsd?.toFixed()
+      },
+      tradeEnabled: info.tradeEnabled,
+      ownerAddress: info.ownerAddress,
+      rewardPct: info.rewardPct.toFixed(),
+      rewardLoanPct: info.rewardLoanPct.toFixed(),
+      customRewards: info.customRewards,
+      creation: {
+        tx: info.creationTx,
+        height: info.creationHeight.toNumber()
+      },
+      apr: apr,
+      volume: volume
+    }
   }
 }

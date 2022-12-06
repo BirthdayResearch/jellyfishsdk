@@ -17,30 +17,30 @@ env:
 
 jobs:
   build:
-    if: github.repository == 'JellyfishSDK/jellyfish' && github.actor != 'dependabot[bot]'
+    if: github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]')
     name: Publish
     runs-on: ubuntu-latest
     strategy:
       matrix:
         app: [ legacy-api, ocean-api, playground-api, status-api, whale-api ]
     steps:
-      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@8b122486cedac8393e77aa9734c3528886e4a1a8
+        uses: docker/setup-qemu-action@e81a89b1732b9c48d79cd809d8d81d79c4647a18
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@dc7b9719a96d48369863986a06765841d7ea23f6
+        uses: docker/setup-buildx-action@8c0edbc76e98fa90f69d9a2c020dcb50019dc325
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@49ed152c8eca782a232dede0303416e8f356c37b
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Resolve Tags
-        uses: actions/github-script@d50f485531ba88479582bc2da03ff424389af5c1
+        uses: actions/github-script@d556feaca394842dc55e4734bf3bb9f685482fa0
         id: tags
         env:
           APP: ${{ matrix.app }}
@@ -49,7 +49,7 @@ jobs:
           result-encoding: string
 
       - name: Build & Publish
-        uses: docker/build-push-action@c84f38281176d4c9cdb1626ffafcd6b3911b5d94
+        uses: docker/build-push-action@c56af957549030174b10d6867f20e78cfd7debc5
         with:
           push: true
           build-args: APP=${{ matrix.app }}
@@ -61,22 +61,22 @@ jobs:
           cache-to: type=registry,ref=ghcr.io/jellyfishsdk/jellyfish:buildcache,mode=max
 
   report:
-    if: github.repository == 'JellyfishSDK/jellyfish' && github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]'
     name: Report
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
 
       - name: Create Report
-        uses: actions/github-script@d50f485531ba88479582bc2da03ff424389af5c1
+        uses: actions/github-script@d556feaca394842dc55e4734bf3bb9f685482fa0
         id: report
         with:
           script: return require('./.github/scripts/release-report.js')({ context })
           result-encoding: string
 
       - name: Post Report
-        uses: marocchino/sticky-pull-request-comment@39c5b5dc7717447d0cba270cd115037d32d28443
+        uses: marocchino/sticky-pull-request-comment@fcf6fe9e4a0409cd9316a5011435be0f3327f1e1
         with:
           header: release
           message: ${{ steps.report.outputs.result }}

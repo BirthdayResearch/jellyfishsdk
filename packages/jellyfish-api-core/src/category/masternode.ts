@@ -145,6 +145,24 @@ export class Masternode {
   }
 
   /**
+   * Creates (and submits to local node and network) a masternode update transaction which update the masternode operator addresses, spending the given inputs..
+   * The last optional argument (may be empty array) is an array of specific UTXOs to spend.
+   *
+   * @param {string} masternodeId The masternode's id.
+   * @param {UpdateMasternodeValues} values
+   * @param {string} [values.ownerAddress] The new masternode owner address, requires masternode collateral fee (P2PKH or P2WPKH).
+   * @param {string} [values.operatorAddress] The new masternode operator address (P2PKH or P2WPKH).
+   * @param {string} [values.rewardAddress] Masternode`s new reward address, empty "" to remove reward address.
+   * @param {UTXO[]} [utxos = []] Array of specified utxos to spend.
+   * @param {string} [utxos.txid] The transaction id.
+   * @param {number} [utxos.vout] The output number.
+   * @return {Promise<string>} The hex-encoded hash of broadcasted transaction.
+   */
+  async updateMasternode (masternodeId: string, values: UpdateMasternodeValues, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('updatemasternode', [masternodeId, values, utxos], 'number')
+  }
+
+  /**
    * Set special governance variables
    *
    * @param {Record<string, any>} input json object
@@ -176,10 +194,24 @@ export class Masternode {
   }
 
   /**
+   * Unset special governance variables
+   *
+   * @param {Record<string, number | string | string[]>} variables json object
+   * @param {UTXO[]} [utxos = []] Specific utxos to spend
+   * @param {string} [utxos.txid] The transaction id
+   * @param {string} [utxos.vout] The output number
+   * @return {Promise<string>} hash
+   *
+   */
+  async unsetGov (variables: Record<string, number | string | string[]>, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('unsetgov', [variables, utxos], 'number')
+  }
+
+  /**
    * Get information about governance variable
    *
    * @param {string} name governance name
-   * @return {Promise<Record<string, any>} governance information as json object
+   * @return {Promise<Record<string, any>>} governance information as json object
    */
   /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   async getGov (name: string): Promise<Record<string, any>> {
@@ -240,6 +272,14 @@ export class Masternode {
   async listAnchors (): Promise<MasternodeResult<MasternodeAnchor>> {
     return await this.client.call('listanchors', [], 'number')
   }
+
+  /**
+   * Clears the memory pool and returns a list of the removed transaction ids.
+   * @return {Promise<string[]>} Array of removed transaction ids
+   */
+  async clearMempool (): Promise<string[]> {
+    return await this.client.call('clearmempool', [], 'number')
+  }
 }
 
 export interface UTXO {
@@ -299,4 +339,10 @@ export interface AnchorTeamResult {
 
 export interface MasternodeResult<T> {
   [id: string]: T
+}
+
+export interface UpdateMasternodeValues {
+  ownerAddress?: string
+  operatorAddress?: string
+  rewardAddress?: string
 }

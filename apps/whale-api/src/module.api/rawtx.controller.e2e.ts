@@ -6,6 +6,7 @@ import { BadRequestApiException } from './_core/api.error'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, stopTestingApp } from '../e2e.module'
 import { RawtxController } from './rawtx.controller'
+import { NotFoundException } from '@nestjs/common'
 
 const container = new MasterNodeRegTestContainer()
 let app: NestFastifyApplication
@@ -143,6 +144,28 @@ describe('send', () => {
         at: expect.any(Number),
         message: 'Absurdly high fee'
       })
+    }
+  })
+})
+
+describe('get', () => {
+  it('should accept valid txn and return hex', async () => {
+    const hex = await createSignedTxnHex(container, 10, 9.9999)
+    const txid = await controller.send({
+      hex: hex
+    })
+
+    const getResult = await controller.get(txid, false)
+
+    expect(hex).toStrictEqual(getResult)
+  })
+
+  it('should throw NotFoundException due to tx id not found', async () => {
+    try {
+      await controller.get('4f9f92b4b2cade30393ecfcd0656db06e57f6edb0a176452b2fecf361dd3a061', false)
+    } catch (err) {
+      expect(err).toBeInstanceOf(NotFoundException)
+      expect(err.response.error).toStrictEqual('Not Found')
     }
   })
 })

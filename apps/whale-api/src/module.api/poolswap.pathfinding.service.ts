@@ -135,6 +135,11 @@ export class PoolSwapPathFindingService {
     const poolPairPaths: SwapPathPoolPair[][] = []
 
     for (const path of allSimplePaths(this.tokenGraph, fromTokenId, toTokenId)) {
+      // Max 3 hops, e.g. A --> B --> C --> D
+      if (path.length > 4) {
+        continue
+      }
+
       const poolPairs: SwapPathPoolPair[] = []
 
       // Iterate over the path pairwise; ( tokenA )---< poolPairId >---( tokenB )
@@ -163,6 +168,7 @@ export class PoolSwapPathFindingService {
             ab: formatNumber(new BigNumber(poolPair['reserveA/reserveB'])),
             ba: formatNumber(new BigNumber(poolPair['reserveB/reserveA']))
           },
+          commissionFeeInPct: formatNumber(new BigNumber(poolPair.commission)),
           ...((estimatedDexFeesInPct != null) && { estimatedDexFeesInPct })
         })
       }
@@ -221,6 +227,7 @@ export class PoolSwapPathFindingService {
     }
     return {
       id: tokenId,
+      name: tokenInfo.name,
       symbol: tokenInfo.symbol,
       displaySymbol: parseDisplaySymbol(tokenInfo)
     }
@@ -287,6 +294,10 @@ function computeReturnLessDexFeesInDestinationToken (path: SwapPathPoolPair[], f
     }
 
     estimatedReturn = estimatedReturn.multipliedBy(priceRatio)
+
+    // less commission fee
+    const commissionFee = estimatedReturnLessDexFees.multipliedBy(poolPair.commissionFeeInPct)
+    estimatedReturnLessDexFees = estimatedReturnLessDexFees.minus(commissionFee)
 
     // less dex fee fromToken
     const fromTokenEstimatedDexFee = new BigNumber(fromTokenFeePct ?? 0).multipliedBy(estimatedReturnLessDexFees)

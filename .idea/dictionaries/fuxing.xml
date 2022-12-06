@@ -182,6 +182,7 @@
       <w>mediantime</w>
       <w>mempool</w>
       <w>merkleroot</w>
+      <w>micnncim</w>
       <w>mincolratio</w>
       <w>mintable</w>
       <w>mintedblocks</w>
@@ -258,6 +259,7 @@
       <w>tenyeartimelock</w>
       <w>testcontainers</w>
       <w>testmempoolaccept</w>
+      <w>testpoolswap</w>
       <w>thedoublejay</w>
       <w>timelock</w>
       <w>toaltstack</w>

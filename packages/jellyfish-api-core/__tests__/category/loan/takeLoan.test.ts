@@ -780,7 +780,8 @@ describe('takeloan failed', () => {
       amounts: '1000@TSLA'
     })
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('At least 50% of the minimum required collateral must be in DFI or DUSD when taking a loan.')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test TakeLoanTx execution failed:\n' +
+      'At least 50% of the minimum required collateral must be in DFI or DUSD\', code: -32600, method: takeloan')
 
     {
       // revert DFI value changes
@@ -1216,7 +1217,8 @@ describe('takeLoan with 50% DUSD or DFI collaterals', () => {
       amounts: `${tslaLoanAmount}@TSLA`
     })
     await expect(txid).rejects.toThrow(RpcApiError)
-    await expect(txid).rejects.toThrow('At least 50% of the minimum required collateral must be in DFI when taking a loan.')
+    await expect(txid).rejects.toThrow('RpcApiError: \'Test TakeLoanTx execution failed:\n' +
+      'At least 50% of the minimum required collateral must be in DFI or DUSD\', code: -32600, method: takeloan')
   })
 
   it('should not takeLoan with DUSD sole collateral before reaching fort canning road height', async () => {
@@ -1245,7 +1247,8 @@ describe('takeLoan with 50% DUSD or DFI collaterals', () => {
       amounts: `${tslaLoanAmount}@TSLA`
     })
     await expect(txid).rejects.toThrow(RpcApiError)
-    await expect(txid).rejects.toThrow('At least 50% of the minimum required collateral must be in DFI when taking a loan.')
+    await expect(txid).rejects.toThrow('RpcApiError: \'Test TakeLoanTx execution failed:\n' +
+      'At least 50% of the minimum required collateral must be in DFI or DUSD\', code: -32600, method: takeloan')
   })
 
   it('should not takeLoan with 25% DFI + 25% DUSD collateral before reaching fort canning road height', async () => {
@@ -1271,7 +1274,8 @@ describe('takeLoan with 50% DUSD or DFI collaterals', () => {
       amounts: `${tslaLoanAmount}@TSLA`
     })
     await expect(txid).rejects.toThrow(RpcApiError)
-    await expect(txid).rejects.toThrow('At least 50% of the minimum required collateral must be in DFI when taking a loan.')
+    await expect(txid).rejects.toThrow('RpcApiError: \'Test TakeLoanTx execution failed:\n' +
+      'At least 50% of the minimum required collateral must be in DFI or DUSD\', code: -32600, method: takeloan')
   })
 
   it('should not takeLoan with 33.33% DUSD collateral', async () => {
@@ -1301,7 +1305,8 @@ describe('takeLoan with 50% DUSD or DFI collaterals', () => {
       amounts: `${tslaLoanAmount}@TSLA`
     })
     await expect(txid).rejects.toThrow(RpcApiError)
-    await expect(txid).rejects.toThrow('At least 50% of the minimum required collateral must be in DFI or DUSD when taking a loan.')
+    await expect(txid).rejects.toThrow('RpcApiError: \'Test TakeLoanTx execution failed:\n' +
+      'At least 50% of the minimum required collateral must be in DFI or DUSD\', code: -32600, method: takeloan')
   })
 
   it('should not takeLoan with 24.9975% DFI + 24.9975% DUSD of minimum required collateral', async () => {
@@ -1326,6 +1331,7 @@ describe('takeLoan with 50% DUSD or DFI collaterals', () => {
       amounts: `${tslaLoanAmount}@TSLA`
     })
     await expect(txid).rejects.toThrow(RpcApiError)
-    await expect(txid).rejects.toThrow('At least 50% of the minimum required collateral must be in DFI or DUSD when taking a loan.')
+    await expect(txid).rejects.toThrow('RpcApiError: \'Test TakeLoanTx execution failed:\n' +
+      'At least 50% of the minimum required collateral must be in DFI or DUSD\', code: -32600, method: takeloan')
   })
 })
