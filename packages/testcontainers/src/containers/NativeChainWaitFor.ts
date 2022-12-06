@@ -2,7 +2,7 @@ import { waitForCondition } from '../utils'
 import { StartedNativeChainContainer } from './NativeChainContainer'
 
 export class NativeChainWaitFor {
-  constructor (protected readonly sncc: StartedNativeChainContainer) {
+  constructor (private readonly sncc: StartedNativeChainContainer) {
   }
 
   /**

@@ -4,11 +4,11 @@ import { StartedNativeChainContainer } from './NativeChainContainer'
 import fetch from 'cross-fetch'
 
 export class NativeChainRpc {
-  protected rpcUrl: string
+  private readonly rpcUrl: string
   private assumedSpvHeight: number = 0
   static SPV_EXPIRATION = 10
 
-  constructor (protected readonly sncc: StartedNativeChainContainer) {
+  constructor (private readonly sncc: StartedNativeChainContainer) {
     this.rpcUrl = this.generateRpcUrl()
   }
 
@@ -64,7 +64,7 @@ export class NativeChainRpc {
    * For convenience’s sake, HTTP POST to the RPC URL for the current node.
    * Not error checked, returns the raw JSON as string.
    */
-  async post (body: string): Promise<string> {
+  private async post (body: string): Promise<string> {
     const response = await fetch(this.rpcUrl, {
       method: 'POST',
       body: body
