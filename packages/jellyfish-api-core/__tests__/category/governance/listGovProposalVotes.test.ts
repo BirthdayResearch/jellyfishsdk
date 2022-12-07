@@ -170,7 +170,7 @@ describe('Governance', () => {
     await testing.container.generate(1)
 
     // check total votes for current cycle
-    proposalVotes = await testing.rpc.governance.listGovProposalVotes({ proposalId: proposalId, masternode: 'all' })
+    proposalVotes = await testing.rpc.governance.listGovProposalVotes({ proposalId: proposalId, masternode: 'all', cycle: 2 })
     expect(proposalVotes.length).toStrictEqual(3)
     expect(proposalVotes[0].cycle).toStrictEqual(2)
 
