@@ -4,9 +4,9 @@
 export type NetworkName = Network['name']
 
 /**
- * Network specific DeFi configuration.
- * They can be found in DeFiCh/ain project in file chainparams.cpp, under base58Prefixes
- */
+  * Network specific DeFi configuration.
+  * They can be found in DeFiCh/ain project in file chainparams.cpp, under base58Prefixes
+  */
 export interface Network {
   name: 'mainnet' | 'testnet' | 'regtest' | 'devnet'
   bech32: {
@@ -36,9 +36,9 @@ export interface Network {
 }
 
 /**
- * @param network name
- * @return Network specific DeFi configuration
- */
+  * @param network name
+  * @return Network specific DeFi configuration
+  */
 export function getNetwork (network: NetworkName): Network {
   switch (network) {
     case 'mainnet':
@@ -53,8 +53,8 @@ export function getNetwork (network: NetworkName): Network {
 }
 
 /**
- * MainNet specific DeFi configuration.
- */
+  * MainNet specific DeFi configuration.
+  */
 export const MainNet: Network = {
   name: 'mainnet',
   bech32: {
@@ -75,8 +75,8 @@ export const MainNet: Network = {
 }
 
 /**
- * TestNet specific DeFi configuration.
- */
+  * TestNet specific DeFi configuration.
+  */
 export const TestNet: Network = {
   name: 'testnet',
   bech32: {
@@ -97,8 +97,8 @@ export const TestNet: Network = {
 }
 
 /**
- * RegTest specific DeFi configuration.
- */
+  * RegTest specific DeFi configuration.
+  */
 export const RegTest: Network = {
   name: 'regtest',
   bech32: {
