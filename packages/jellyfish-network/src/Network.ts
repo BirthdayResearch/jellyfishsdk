@@ -4,9 +4,9 @@
 export type NetworkName = Network['name']
 
 /**
-  * Network specific DeFi configuration.
-  * They can be found in DeFiCh/ain project in file chainparams.cpp, under base58Prefixes
-  */
+ * Network specific DeFi configuration.
+ * They can be found in DeFiCh/ain project in file chainparams.cpp, under base58Prefixes
+ */
 export interface Network {
   name: 'mainnet' | 'testnet' | 'regtest' | 'devnet'
   bech32: {
@@ -27,8 +27,6 @@ export interface Network {
   scriptHashPrefix: 0x5a | 0x80 | 0xc4
   /** For message signing. */
   messagePrefix: '\x15Defi Signed Message:\n'
-
-  /** [HYDRA] */
   ports: {
     rpc: number
     p2p: number
@@ -36,9 +34,9 @@ export interface Network {
 }
 
 /**
-  * @param network name
-  * @return Network specific DeFi configuration
-  */
+ * @param network name
+ * @return Network specific DeFi configuration
+ */
 export function getNetwork (network: NetworkName): Network {
   switch (network) {
     case 'mainnet':
@@ -53,8 +51,8 @@ export function getNetwork (network: NetworkName): Network {
 }
 
 /**
-  * MainNet specific DeFi configuration.
-  */
+ * MainNet specific DeFi configuration.
+ */
 export const MainNet: Network = {
   name: 'mainnet',
   bech32: {
