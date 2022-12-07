@@ -18,7 +18,7 @@ describe('nativechain mainnet', () => {
   })
 
   it('should be able to getmininginfo and chain should be main', async () => {
-    const { chain } = await container.getMiningInfo()
+    const { chain } = await container.rpc.getMiningInfo()
     expect(chain).toStrictEqual('main')
   })
 })
@@ -40,7 +40,7 @@ describe('nativechain testnet', () => {
   })
 
   it('should be able to getmininginfo and chain should be test', async () => {
-    const { chain } = await container.getMiningInfo()
+    const { chain } = await container.rpc.getMiningInfo()
     expect(chain).toStrictEqual('test')
   })
 })
@@ -62,7 +62,7 @@ describe('nativechain testnet: override docker image', () => {
   })
 
   it('should be able to getmininginfo and chain should be test', async () => {
-    const { chain } = await container.getMiningInfo()
+    const { chain } = await container.rpc.getMiningInfo()
     expect(chain).toStrictEqual('test')
   })
 })
@@ -84,16 +84,16 @@ describe('nativechain regtest', () => {
   })
 
   it('should be able to getmininginfo and chain should be regtest', async () => {
-    const { chain } = await container.getMiningInfo()
+    const { chain } = await container.rpc.getMiningInfo()
     expect(chain).toStrictEqual('regtest')
   })
 
   it('should throw error on invalid method call', async () => {
-    await expect(container.call('invalidcall')).rejects.toThrow('NativeChainRpcError: \'Method not found\', code: -32601')
+    await expect(container.rpc.call('invalidcall')).rejects.toThrow('NativeChainRpcError: \'Method not found\', code: -32601')
   })
 
   it('should be able to getNewAddress', async () => {
-    const address = await container.getNewAddress()
+    const address = await container.rpc.getNewAddress()
     expect(address.length).toStrictEqual(44)
   })
 })
