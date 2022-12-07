@@ -32,7 +32,7 @@ describe('loan.paybackWithCollateral()', () => {
 
     await setup()
 
-    // Fund 10 DFI UTXO
+    // Fund 100 DFI UTXO
     await fundEllipticPair(testing.container, providers.ellipticPair, 100)
     await providers.setupMocks() // Required to move utxos
   })
