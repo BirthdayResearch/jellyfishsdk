@@ -177,14 +177,15 @@ export class NativeChainContainer extends GenericContainer {
       masterNodeKey
     } = this
 
-    const startedContainer = new StartedNativeChainContainer(
+    return await new StartedNativeChainContainer(
       await super.start(),
-      { rpcUser, rpcPassword, blockchainNetwork, masterNodeKey }
-    )
-
-    await startedContainer.importPrivateKeys()
-
-    return startedContainer
+      {
+        rpcUser,
+        rpcPassword,
+        blockchainNetwork,
+        masterNodeKey
+      }
+    ).withPrivateKeys()
   }
 }
 
@@ -222,11 +223,12 @@ export class StartedNativeChainContainer extends AbstractStartedContainer {
     return this.config.masterNodeKey
   }
 
-  public async importPrivateKeys (): Promise<void> {
+  public async withPrivateKeys (): Promise<this> {
     if (this.masterNodeKey != null) {
       await this.rpc.call('importprivkey', [this.masterNodeKey.operator.privKey, 'operator', true])
       await this.rpc.call('importprivkey', [this.masterNodeKey.owner.privKey, 'owner', true])
     }
+    return this
   }
 
   async restart (options?: Partial<RestartOptions> | undefined): Promise<void> {
