@@ -129,13 +129,25 @@ export class Governance {
   /**
    * Returns information about proposal votes.
    *
-   * @param {string} proposalId Proposal id
-   * @param {MasternodeType | string} [masternode=MasternodeType.MINE] masternode id or reserved words 'mine' to list votes for all owned accounts or 'all' to list all votes
-   * @param {number} [cycle=0] cycle: 0 (show current), cycle: N (show cycle N), cycle: -1 (show all)
+   * @param {ListGovProposalVotesOptions} options
+   * @param {string} options.proposalId Proposal id
+   * @param {MasternodeType | string} [options.masternode=MasternodeType.MINE] masternode id or reserved words 'mine' to list votes for all owned accounts or 'all' to list all votes
+   * @param {number} [options.cycle=-1] cycle: 0 (show current), cycle: N (show cycle N), cycle: -1 (show all)
+   * @param {ListGovProposalVotesPagination} [pagination]
+   * @param {number} [pagination.start] default is 0
+   * @param {boolean} [pagination.including_start] default = true
+   * @param {number} [pagination.limit] to limit number of records
    * @return {Promise<ListVotesResult[]>} Proposal vote information
    */
-  async listGovProposalVotes (proposalId: string, masternode: MasternodeType | string = MasternodeType.MINE, cycle: number = 0): Promise<ListVotesResult[]> {
-    return await this.client.call('listgovproposalvotes', [proposalId, masternode, cycle], 'number')
+  async listGovProposalVotes (
+    options: ListGovProposalVotesOptions,
+    pagination: ListGovProposalVotesPagination = {
+      start: 0,
+      including_start: true,
+      limit: 100
+    }
+  ): Promise<ListVotesResult[]> {
+    return await this.client.call('listgovproposalvotes', [options, pagination], 'number')
   }
 }
 
@@ -200,4 +212,16 @@ export interface ListVotesResult {
   masternodeId: string
   cycle: number
   vote: string
+}
+
+export interface ListGovProposalVotesOptions {
+  proposalId: string
+  masternode?: MasternodeType | string
+  cycle?: number
+}
+
+export interface ListGovProposalVotesPagination {
+  start: number
+  including_start: boolean
+  limit: number
 }

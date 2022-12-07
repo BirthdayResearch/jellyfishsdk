@@ -58,7 +58,7 @@ describe('Governance', () => {
     }
     await testing.container.generate(1)
 
-    const votes = await testing.rpc.governance.listGovProposalVotes(proposalId)
+    const votes = await testing.rpc.governance.listGovProposalVotes({ proposalId: proposalId })
     expect(votes.length).toStrictEqual(3) // The three masternodes should have voted on the proposal
     expect(typeof votes[0].masternodeId).toStrictEqual('string')
     expect(votes[0].masternodeId.length).toStrictEqual(64)
@@ -83,7 +83,7 @@ describe('Governance', () => {
     }
     await testing.container.generate(1)
 
-    const votes = await testing.rpc.governance.listGovProposalVotes(proposalId, MasternodeType.ALL)
+    const votes = await testing.rpc.governance.listGovProposalVotes({ proposalId: proposalId, masternode: MasternodeType.ALL })
     expect(votes.length).toStrictEqual(3) // The three masternodes should have voted on the proposal
     expect(typeof votes[0].masternodeId).toStrictEqual('string')
     expect(votes[0].masternodeId.length).toStrictEqual(64)
@@ -111,7 +111,7 @@ describe('Governance', () => {
     }
     await testing.container.generate(1)
 
-    const votes = await testing.rpc.governance.listGovProposalVotes(proposalId, masternodeId)
+    const votes = await testing.rpc.governance.listGovProposalVotes({ proposalId: proposalId, masternode: masternodeId })
     expect(votes.length).toStrictEqual(1)
     expect(votes[0].masternodeId).toStrictEqual(masternodeId)
     expect(votes[0].proposalId).toStrictEqual(proposalId)
@@ -149,7 +149,7 @@ describe('Governance', () => {
     await testing.container.generate(1)
 
     // check total votes for current cycle
-    let proposalVotes = await testing.rpc.governance.listGovProposalVotes(proposalId, 'all')
+    let proposalVotes = await testing.rpc.governance.listGovProposalVotes({ proposalId: proposalId, masternode: 'all' })
     expect(proposalVotes.length).toStrictEqual(1)
     expect(proposalVotes[0].cycle).toStrictEqual(1)
     expect(proposalVotes[0].vote).toStrictEqual('YES')
@@ -170,25 +170,25 @@ describe('Governance', () => {
     await testing.container.generate(1)
 
     // check total votes for current cycle
-    proposalVotes = await testing.rpc.governance.listGovProposalVotes(proposalId, 'all')
+    proposalVotes = await testing.rpc.governance.listGovProposalVotes({ proposalId: proposalId, masternode: 'all' })
     expect(proposalVotes.length).toStrictEqual(3)
     expect(proposalVotes[0].cycle).toStrictEqual(2)
 
     // check total votes for a given cycle
-    proposalVotes = await testing.rpc.governance.listGovProposalVotes(proposalId, 'all', 1)
+    proposalVotes = await testing.rpc.governance.listGovProposalVotes({ proposalId: proposalId, masternode: 'all', cycle: 1 })
     expect(proposalVotes.length).toStrictEqual(1)
     expect(proposalVotes[0].cycle).toStrictEqual(1)
 
     // check total votes for all cycles
-    proposalVotes = await testing.rpc.governance.listGovProposalVotes(proposalId, 'all', -1)
+    proposalVotes = await testing.rpc.governance.listGovProposalVotes({ proposalId: proposalId, masternode: 'all', cycle: -1 })
     expect(proposalVotes.length).toStrictEqual(4)
 
     // check total votes for specific masternode for all cycles
-    proposalVotes = await testing.rpc.governance.listGovProposalVotes(proposalId, masternodeId, -1)
+    proposalVotes = await testing.rpc.governance.listGovProposalVotes({ proposalId: proposalId, masternode: masternodeId, cycle: -1 })
     expect(proposalVotes.length).toStrictEqual(2)
 
     // check votes for specific masternode for a given cycle
-    proposalVotes = await testing.rpc.governance.listGovProposalVotes(proposalId, masternodeId, 2)
+    proposalVotes = await testing.rpc.governance.listGovProposalVotes({ proposalId: proposalId, masternode: masternodeId, cycle: 2 })
     expect(proposalVotes.length).toStrictEqual(1)
   })
 })
