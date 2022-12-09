@@ -93,10 +93,13 @@ export class TxnBuilderMasternode extends P2WPKHTxnBuilder {
 
     if (collateralInfo !== null && collateralInfo !== undefined) {
       const { rawCollateralTx, newOwnerScript } = collateralInfo
-      const { txid } = rawCollateralTx
+
+      if (rawCollateralTx.vout?.length < 2) {
+        throw new Error('Invalid collateral tx, no vout for collateral')
+      }
 
       const collateralPrevout: Prevout = {
-        txid: txid,
+        txid: rawCollateralTx.txid,
         vout: 1,
         script: changeScript,
         value: new BigNumber(rawCollateralTx.vout[1].value),
@@ -108,7 +111,7 @@ export class TxnBuilderMasternode extends P2WPKHTxnBuilder {
         tokenId: rawCollateralTx.vout[1].tokenId
       }
       const collateralVin: Vin = {
-        txid: txid,
+        txid: rawCollateralTx.txid,
         index: 1,
         script: { stack: [] },
         sequence: 0xffffffff
