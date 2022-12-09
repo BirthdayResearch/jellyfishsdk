@@ -115,12 +115,20 @@ describe('UpdateMasternode', () => {
     })
     expect(outs[2].value).toBeGreaterThan(6.99)
     expect(outs[2].value).toBeLessThan(7)
+
+    await container.generate(60)
+
+    const masternodes = await jsonRpc.masternode.listMasternodes()
+    expect(masternodes[masternodeId]).toStrictEqual(expect.objectContaining({
+      state: 'ENABLED',
+      ownerAuthAddress: newAddress
+    }))
   })
 
   it('should update operator address with P2WPKH address', async () => {
     const pubKey = await providers.ellipticPair.publicKey()
     const collateralAddress = Bech32.fromPubKey(pubKey, 'bcrt')
-    const txid = await jsonRpc.masternode.createMasternode(collateralAddress)
+    const masternodeId = await jsonRpc.masternode.createMasternode(collateralAddress)
     await container.generate(20)
 
     const address = await container.getNewAddress('', 'bech32')
@@ -128,7 +136,7 @@ describe('UpdateMasternode', () => {
     const addressDestKeyHash = addressDest.pubKeyHash
 
     const updateMasternode: UpdateMasternode = {
-      nodeId: txid,
+      nodeId: masternodeId,
       updates: [
         {
           updateType: 0x02,
@@ -169,12 +177,20 @@ describe('UpdateMasternode', () => {
     })
     expect(outs[1].value).toBeGreaterThan(6.99)
     expect(outs[1].value).toBeLessThan(7)
+
+    await container.generate(40)
+
+    const masternodes = await jsonRpc.masternode.listMasternodes()
+    expect(masternodes[masternodeId]).toStrictEqual(expect.objectContaining({
+      state: 'ENABLED',
+      operatorAuthAddress: address
+    }))
   })
 
   it('should update reward address with P2WPKH address', async () => {
     const pubKey = await providers.ellipticPair.publicKey()
     const collateralAddress = Bech32.fromPubKey(pubKey, 'bcrt')
-    const txid = await jsonRpc.masternode.createMasternode(collateralAddress)
+    const masternodeId = await jsonRpc.masternode.createMasternode(collateralAddress)
     await container.generate(20)
 
     const address = await container.getNewAddress('', 'bech32')
@@ -182,7 +198,7 @@ describe('UpdateMasternode', () => {
     const addressDestKeyHash = addressDest.pubKeyHash
 
     const updateMasternode: UpdateMasternode = {
-      nodeId: txid,
+      nodeId: masternodeId,
       updates: [
         {
           updateType: 0x03,
@@ -223,6 +239,14 @@ describe('UpdateMasternode', () => {
     })
     expect(outs[1].value).toBeGreaterThan(6.99)
     expect(outs[1].value).toBeLessThan(7)
+
+    await container.generate(40)
+
+    const masternodes = await jsonRpc.masternode.listMasternodes()
+    expect(masternodes[masternodeId]).toStrictEqual(expect.objectContaining({
+      state: 'ENABLED',
+      rewardAddress: address
+    }))
   })
 
   it('should update multiple addresses simultaneously with P2WPKH address', async () => {
@@ -311,6 +335,16 @@ describe('UpdateMasternode', () => {
     })
     expect(outs[2].value).toBeGreaterThan(6.99)
     expect(outs[2].value).toBeLessThan(7)
+
+    await container.generate(60)
+
+    const masternodes = await jsonRpc.masternode.listMasternodes()
+    expect(masternodes[masternodeId]).toStrictEqual(expect.objectContaining({
+      state: 'ENABLED',
+      ownerAuthAddress: ownerAddress,
+      operatorAuthAddress: operatorAddress,
+      rewardAddress: rewardAddress
+    }))
   })
 
   it('should update multiple addresses simultaneously with P2PKH address', async () => {
@@ -399,6 +433,16 @@ describe('UpdateMasternode', () => {
     })
     expect(outs[2].value).toBeGreaterThan(6.99)
     expect(outs[2].value).toBeLessThan(7)
+
+    await container.generate(60)
+
+    const masternodes = await jsonRpc.masternode.listMasternodes()
+    expect(masternodes[masternodeId]).toStrictEqual(expect.objectContaining({
+      state: 'ENABLED',
+      ownerAuthAddress: ownerAddress,
+      operatorAuthAddress: operatorAddress,
+      rewardAddress: rewardAddress
+    }))
   })
 
   it('should update remove reward address', async () => {
@@ -789,7 +833,15 @@ describe('UpdateMasternode', () => {
     })
     await sendTransaction(container, txn2)
 
-    await container.generate(70)
+    await container.generate(60)
+
+    {
+      const masternodes = await jsonRpc.masternode.listMasternodes()
+      expect(masternodes[masternodeId]).toStrictEqual(expect.objectContaining({
+        state: 'ENABLED',
+        ownerAuthAddress: address2
+      }))
+    }
 
     // update provider's elliptic pair for signing next transaction with address2
     await providers.setEllipticPair(ellipticPair2)
@@ -857,6 +909,16 @@ describe('UpdateMasternode', () => {
     })
     expect(outs3[2].value).toBeGreaterThan(9.99)
     expect(outs3[2].value).toBeLessThan(10)
+
+    await container.generate(60)
+
+    {
+      const masternodes = await jsonRpc.masternode.listMasternodes()
+      expect(masternodes[masternodeId]).toStrictEqual(expect.objectContaining({
+        state: 'ENABLED',
+        ownerAuthAddress: address3
+      }))
+    }
   })
 })
 
