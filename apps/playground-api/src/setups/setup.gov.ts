@@ -56,7 +56,10 @@ export class SetupGov extends PlaygroundSetup<Record<string, any>> {
           'v0/token/13/loan_payback_fee_pct/6': '0.01',
 
           // Unloop mechanism for DUSD
-          'v0/token/12/loan_payback_collateral': 'true'
+          'v0/token/12/loan_payback_collateral': 'true',
+
+          // On-chain governance
+          'v0/params/feature/gov': 'true'
         }
       }
     ]
