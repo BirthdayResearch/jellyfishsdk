@@ -30,11 +30,7 @@ export class CreateMasternodeIndexer extends DfTxIndexer<CreateMasternode> {
 
     // This is actually the operatorPubKeyHash but jellyfish deserializes like so
     if (data.operatorPubKeyHash !== undefined) {
-      if (data.operatorType === MasternodeKeyType.PKHashType) {
-        operatorAddress = P2PKH.to(this.network, data.operatorPubKeyHash).utf8String
-      } else { // WitV0KeyHashType
-        operatorAddress = P2WPKH.to(this.network, data.operatorPubKeyHash).utf8String
-      }
+      operatorAddress = CreateMasternodeIndexer.getAddress(this.network, data.operatorType, data.operatorPubKeyHash) ?? ''
     }
 
     await this.masternodeMapper.put({
@@ -92,6 +88,17 @@ export class CreateMasternodeIndexer extends DfTxIndexer<CreateMasternode> {
 
   async invalidateBlockStart (block: RawBlock): Promise<void> {
     await this.masternodeStatsMapper.delete(block.height)
+  }
+
+  public static getAddress (network: NetworkName, type: MasternodeKeyType, addressPubKeyHash: string): string | undefined {
+    if (type === MasternodeKeyType.PKHashType) {
+      return P2PKH.to(network, addressPubKeyHash).utf8String
+    }
+
+    if (type === MasternodeKeyType.WitV0KeyHashType) {
+      return P2WPKH.to(network, addressPubKeyHash).utf8String
+    }
+    return undefined
   }
 }
 
