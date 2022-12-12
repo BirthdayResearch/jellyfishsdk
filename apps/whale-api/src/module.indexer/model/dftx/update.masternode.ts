@@ -5,7 +5,6 @@ import { NetworkName } from '@defichain/jellyfish-network'
 import { RawBlock } from '../_abstract'
 import { Inject, Injectable } from '@nestjs/common'
 import { MasternodeMapper } from '../../../module.model/masternode'
-import { MasternodeStatsMapper } from '../../../module.model/masternode.stats'
 
 @Injectable()
 export class UpdateMasternodeIndexer extends DfTxIndexer<UpdateMasternode> {
