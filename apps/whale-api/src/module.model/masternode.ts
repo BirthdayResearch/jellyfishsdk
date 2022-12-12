@@ -61,8 +61,8 @@ export interface Masternode extends Model {
     medianTime: number
   }
 
-  updateRecords?: Array<{
-    height: number
+  history?: Array<{
+    txid: string
     ownerAddress: string
     operatorAddress: string
   }>
