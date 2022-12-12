@@ -1,7 +1,7 @@
 import Dockerode, { ContainerInfo, DockerOptions } from 'dockerode'
-import fetch from 'cross-fetch'
 import { DockerContainer } from './DockerContainer'
 import { waitForCondition } from '../utils'
+import { NativeChainRpc } from '@defichain/testcontainers/dist/containers/NativeChainRpc'
 
 /**
  * Types of network as per https://github.com/DeFiCh/ain/blob/bc231241/src/chainparams.cpp#L825-L836
@@ -28,6 +28,7 @@ export interface StartFlags {
  * DeFiChain defid node managed in docker
  */
 export abstract class DeFiDContainer extends DockerContainer {
+  rpc = new NativeChainRpc(this)
   /* eslint-disable @typescript-eslint/no-non-null-assertion, no-void */
   public static readonly PREFIX = 'defichain-testcontainers-'
 
@@ -90,6 +91,7 @@ export abstract class DeFiDContainer extends DockerContainer {
       }
     })
     await this.container.start()
+    this.rpc = new NativeChainRpc(this, await this.getCachedRpcUrl())
     await this.waitForRpc(startOptions.timeout)
   }
 
@@ -140,24 +142,7 @@ export abstract class DeFiDContainer extends DockerContainer {
    * @throws DeFiDRpcError is raised for RPC errors
    */
   async call (method: string, params: any = []): Promise<any> {
-    const body = JSON.stringify({
-      jsonrpc: '1.0',
-      id: Math.floor(Math.random() * 100000000000000),
-      method: method,
-      params: params
-    })
-
-    const text = await this.post(body)
-    const {
-      result,
-      error
-    } = JSON.parse(text)
-
-    if (error !== undefined && error !== null) {
-      throw new DeFiDRpcError(error)
-    }
-
-    return result
+    return await this.rpc.call(method, params)
   }
 
   /**
@@ -165,33 +150,28 @@ export abstract class DeFiDContainer extends DockerContainer {
    * Not error checked, returns the raw JSON as string.
    */
   async post (body: string): Promise<string> {
-    const url = await this.getCachedRpcUrl()
-    const response = await fetch(url, {
-      method: 'POST',
-      body: body
-    })
-    return await response.text()
+    return await this.rpc.post(body)
   }
 
   /**
    * Convenience method to getmininginfo, typing mapping is non-exhaustive
    */
   async getMiningInfo (): Promise<{ blocks: number, chain: string }> {
-    return await this.call('getmininginfo', [])
+    return await this.rpc.getMiningInfo()
   }
 
   /**
    * Convenience method to getblockcount, typing mapping is non exhaustive
    */
   async getBlockCount (): Promise<number> {
-    return await this.call('getblockcount', [])
+    return await this.rpc.getBlockCount()
   }
 
   /**
    * Convenience method to getbestblockhash, typing mapping is non-exhaustive
    */
   async getBestBlockHash (): Promise<string> {
-    return await this.call('getbestblockhash', [])
+    return await this.rpc.getBestBlockHash()
   }
 
   /**
@@ -200,7 +180,7 @@ export abstract class DeFiDContainer extends DockerContainer {
    * @return {Promise<void>}
    */
   async addNode (ip: string): Promise<void> {
-    return await this.call('addnode', [ip, 'onetry'])
+    return await this.rpc.addNode(ip)
   }
 
   /**

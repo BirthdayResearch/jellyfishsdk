@@ -6,7 +6,7 @@ import { RegTestContainer } from './'
 export class SPV {
   static EXPIRATION = 10
   private readonly client: RegTestContainer
-  private assummedSpvHeight: number
+  private readonly assummedSpvHeight: number
 
   constructor (client: RegTestContainer) {
     this.client = client
@@ -20,7 +20,7 @@ export class SPV {
    * @return {string} txid
    */
   async fundAddress (address: string): Promise<string> {
-    return await this.client.call('spv_fundaddress', [address])
+    return await this.client.rpc.spvFundAddress(address)
   }
 
   /**
@@ -29,11 +29,10 @@ export class SPV {
    * @param {number} height BTC chain height
    */
   async setLastHeight (height: number): Promise<void> {
-    this.assummedSpvHeight = height
-    return await this.client.call('spv_setlastheight', [height])
+    return await this.client.rpc.spvSetLastHeight(height)
   }
 
   async increaseSpvHeight (height: number = SPV.EXPIRATION): Promise<void> {
-    return await this.setLastHeight(this.assummedSpvHeight + height)
+    return await this.client.rpc.increaseSpvHeight(height)
   }
 }

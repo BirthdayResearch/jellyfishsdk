@@ -1,14 +1,19 @@
 import { MasterNodeKey, RegTestFoundationKeys } from '@defichain/jellyfish-network'
-import { waitForCondition } from '../../utils'
 import { DockerOptions } from 'dockerode'
 import { DeFiDContainer, StartOptions } from '../DeFiDContainer'
 import { RegTestContainer } from './index'
+import { NativeChainWaitFor } from '@defichain/testcontainers/dist/containers/NativeChainWaitFor'
 
 /**
  * RegTest with MasterNode preconfigured
  */
 export class MasterNodeRegTestContainer extends RegTestContainer {
-  private readonly masternodeKey: MasterNodeKey
+  waitFor = new NativeChainWaitFor(this)
+  private readonly _masternodeKey: MasterNodeKey
+
+  get masternodeKey (): MasterNodeKey {
+    return this._masternodeKey
+  }
 
   /**
    * @param {string} [masternodeKey=RegTestFoundationKeys[0]] pair to use for minting
@@ -17,7 +22,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    */
   constructor (masternodeKey: MasterNodeKey = RegTestFoundationKeys[0], image: string = DeFiDContainer.image, options?: DockerOptions) {
     super(image, options)
-    this.masternodeKey = masternodeKey
+    this._masternodeKey = masternodeKey
   }
 
   /**
@@ -39,13 +44,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @param {number} maxTries
    */
   async generate (nblocks: number, address: string = this.masternodeKey.operator.address, maxTries: number = 1000000): Promise<void> {
-    for (let minted = 0, tries = 0; minted < nblocks && tries < maxTries; tries++) {
-      const result = await this.call('generatetoaddress', [1, address, 1])
-
-      if (result === 1) {
-        minted += 1
-      }
-    }
+    return await this.rpc.generate(nblocks, address, maxTries)
   }
 
   /**
@@ -54,16 +53,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @param {string} address
    */
   async waitForGenerate (nblocks: number, timeout: number = 590000, address: string = this.masternodeKey.operator.address): Promise<void> {
-    const target = await this.getBlockCount() + nblocks
-
-    return await waitForCondition(async () => {
-      const count = await this.getBlockCount()
-      if (count > target) {
-        return true
-      }
-      await this.generate(1)
-      return false
-    }, timeout, 100, 'waitForGenerate')
+    return await this.waitFor.generate(nblocks, timeout, address)
   }
 
   /**
@@ -72,8 +62,8 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   async start (startOptions: StartOptions = {}): Promise<void> {
     await super.start(startOptions)
 
-    await this.call('importprivkey', [this.masternodeKey.operator.privKey, 'operator', true])
-    await this.call('importprivkey', [this.masternodeKey.owner.privKey, 'owner', true])
+    await this.rpc.call('importprivkey', [this.masternodeKey.operator.privKey, 'operator', true])
+    await this.rpc.call('importprivkey', [this.masternodeKey.owner.privKey, 'owner', true])
   }
 
   /**
@@ -83,14 +73,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @param {number} [timeout=590000] in ms
    */
   async waitForBlockHeight (height: number, timeout = 590000): Promise<void> {
-    return await waitForCondition(async () => {
-      const count = await this.getBlockCount()
-      if (count > height) {
-        return true
-      }
-      await this.generate(1)
-      return false
-    }, timeout, 100, 'waitForBlockHeight')
+    return await this.waitFor.blockHeight(height, timeout)
   }
 
   /**
@@ -104,22 +87,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @param {boolean} [mockTime=true] to generate blocks faster
    */
   async waitForWalletCoinbaseMaturity (timeout: number = 180000, mockTime: boolean = true): Promise<void> {
-    if (!mockTime) {
-      return await this.waitForBlockHeight(100, timeout)
-    }
-
-    let fakeTime: number = 1579045065
-    await this.call('setmocktime', [fakeTime])
-
-    const intervalId = setInterval(() => {
-      fakeTime += 3
-      void this.call('setmocktime', [fakeTime])
-    }, 200)
-
-    await this.waitForBlockHeight(100, timeout)
-
-    clearInterval(intervalId)
-    await this.call('setmocktime', [0])
+    return await this.waitFor.walletCoinbaseMaturity(timeout, mockTime)
   }
 
   /**
@@ -133,14 +101,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @see waitForWalletCoinbaseMaturity
    */
   async waitForWalletBalanceGTE (balance: number, timeout = 300000): Promise<void> {
-    return await waitForCondition(async () => {
-      const getbalance = await this.call('getbalance')
-      if (getbalance >= balance) {
-        return true
-      }
-      await this.generate(1)
-      return false
-    }, timeout, 100, 'waitForWalletBalanceGTE')
+    return await this.waitFor.walletBalanceGTE(balance, timeout)
   }
 
   /**
@@ -153,13 +114,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
 
   /* istanbul ignore next, TODO(canonbrother) */
   async waitForAnchorTeams (nodesLength: number, timeout = 30000): Promise<void> {
-    return await waitForCondition(async () => {
-      const anchorTeams = await this.call('getanchorteams')
-      if (anchorTeams.auth.length === nodesLength && anchorTeams.confirm.length === nodesLength) {
-        return true
-      }
-      return false
-    }, timeout, 100, 'waitForAnchorTeams')
+    return await this.waitFor.anchorTeams(nodesLength, timeout)
   }
 
   /**
@@ -172,13 +127,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
 
   /* istanbul ignore next, TODO(canonbrother) */
   async waitForAnchorAuths (nodesLength: number, timeout = 30000): Promise<void> {
-    return await waitForCondition(async () => {
-      const auths = await this.call('spv_listanchorauths')
-      if (auths.length > 0 && auths[0].signers === nodesLength) {
-        return true
-      }
-      return false
-    }, timeout, 100, 'waitForAnchorAuths')
+    return await this.waitFor.anchorAuths(nodesLength, timeout)
   }
 
   /**
@@ -188,17 +137,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @return {Promise<void>}
    */
   async waitForAnchorRewardConfirms (timeout = 30000): Promise<void> {
-    // extra info here
-    // max signers in regtest is 3, others are 5
-    // majority is defined as 66% above
-    const majority = 2
-    return await waitForCondition(async () => {
-      const confirms = await this.call('spv_listanchorrewardconfirms')
-      if (confirms.length === 1 && confirms[0].signers >= majority) {
-        return true
-      }
-      return false
-    }, timeout, 100, 'waitForAnchorRewardConfrims')
+    return await this.waitFor.anchorRewardConfirms(timeout)
   }
 
   /**
@@ -209,15 +148,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @return {Promise<void>}
    */
   async waitForPriceValid (fixedIntervalPriceId: string, timeout = 30000): Promise<void> {
-    return await waitForCondition(async () => {
-      const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
-      // eslint-disable-next-line
-      if (!data.isLive) {
-        await this.generate(1)
-        return false
-      }
-      return true
-    }, timeout, 100, 'waitForPriceValid')
+    return await this.waitFor.priceValid(fixedIntervalPriceId, timeout)
   }
 
   /**
@@ -228,15 +159,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @return {Promise<void>}
    */
   async waitForPriceInvalid (fixedIntervalPriceId: string, timeout = 30000): Promise<void> {
-    return await waitForCondition(async () => {
-      const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
-      // eslint-disable-next-line
-      if (data.isLive) {
-        await this.generate(1)
-        return false
-      }
-      return true
-    }, timeout, 100, 'waitForPriceInvalid')
+    return await this.waitFor.priceInvalid(fixedIntervalPriceId, timeout)
   }
 
   /**
@@ -248,14 +171,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @return {Promise<void>}
    */
   async waitForVaultState (vaultId: string, state: string, timeout = 30000): Promise<void> {
-    return await waitForCondition(async () => {
-      const vault = await this.call('getvault', [vaultId])
-      if (vault.state !== state) {
-        await this.generate(1)
-        return false
-      }
-      return true
-    }, timeout, 100, 'waitForVaultState')
+    return await this.waitFor.vaultState(vaultId, state, timeout)
   }
 
   /**
@@ -266,12 +182,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @return {Promise<number>}
    */
   async getImmediatePriceBlockBeforeBlock (fixedIntervalPriceId: string, targetBlock: number): Promise<number> {
-    const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
-    let nextPriceBlock = data.nextPriceBlock as number
-    while (nextPriceBlock < targetBlock) {
-      nextPriceBlock += 6 // 1 hour in regtest is 6 blocks
-    }
-    return nextPriceBlock
+    return await this.rpc.getImmediatePriceBlockBeforeBlock(fixedIntervalPriceId, targetBlock)
   }
 
   /**
@@ -283,15 +194,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @return {Promise<void>}
    */
   async waitForActivePrice (fixedIntervalPriceId: string, activePrice: string, timeout = 30000): Promise<void> {
-    return await waitForCondition(async () => {
-      const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
-      // eslint-disable-next-line
-      if (data.activePrice.toString() !== activePrice) {
-        await this.generate(1)
-        return false
-      }
-      return true
-    }, timeout, 100, 'waitForActivePrice')
+    return await this.waitFor.activePrice(fixedIntervalPriceId, activePrice, timeout)
   }
 
   /**
@@ -303,15 +206,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @return {Promise<void>}
    */
   async waitForNextPrice (fixedIntervalPriceId: string, nextPrice: string, timeout = 30000): Promise<void> {
-    return await waitForCondition(async () => {
-      const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
-      // eslint-disable-next-line
-      if (data.nextPrice.toString() !== nextPrice) {
-        await this.generate(1)
-        return false
-      }
-      return true
-    }, timeout, 100, 'waitForNextPrice')
+    return await this.waitFor.nextPrice(fixedIntervalPriceId, nextPrice, timeout)
   }
 
   /**
@@ -326,27 +221,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @see waitForWalletBalanceGTE
    */
   async fundAddress (address: string, amount: number): Promise<{ txid: string, vout: number }> {
-    const txid = await this.call('sendtoaddress', [address, amount])
-    await this.generate(1)
-
-    const { vout }: {
-      vout: Array<{
-        n: number
-        scriptPubKey: {
-          addresses: string[]
-        }
-      }>
-    } = await this.call('getrawtransaction', [txid, true])
-    for (const out of vout) {
-      if (out.scriptPubKey.addresses.includes(address)) {
-        return {
-          txid,
-          vout: out.n
-        }
-      }
-    }
-
-    throw new Error('getrawtransaction will always return the required vout')
+    return await this.rpc.fundAddress(address, amount)
   }
 
   /**
@@ -360,13 +235,6 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @return {Promise<{ address: string, privKey: string, pubKey: string }>} a new address and it's associated privKey
    */
   async newAddressKeys (): Promise<{ address: string, privKey: string, pubKey: string }> {
-    const address = await this.call('getnewaddress', ['', 'bech32'])
-    const privKey = await this.call('dumpprivkey', [address])
-    const getaddressinfo = await this.call('getaddressinfo', [address])
-    return {
-      address,
-      privKey,
-      pubKey: getaddressinfo.pubkey
-    }
+    return await this.rpc.newAddressKeys()
   }
 }

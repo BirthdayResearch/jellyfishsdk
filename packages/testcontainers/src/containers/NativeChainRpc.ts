@@ -1,37 +1,31 @@
-import { ExecResult } from 'testcontainers/dist/docker/types'
 import { StartedNativeChainContainer } from './NativeChainContainer'
 import fetch from 'cross-fetch'
+import { DeFiDContainer, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 
 export class NativeChainRpc {
   private readonly rpcUrl: string
   private assumedSpvHeight: number = 0
   static SPV_EXPIRATION = 10
 
-  constructor (private readonly sncc: StartedNativeChainContainer) {
-    this.rpcUrl = this.generateRpcUrl()
+  constructor (private readonly sncc: StartedNativeChainContainer | DeFiDContainer | MasterNodeRegTestContainer, cachedRpcUrl?: string) {
+    if (sncc instanceof StartedNativeChainContainer) {
+      this.rpcUrl = NativeChainRpc.generateRpcUrl(sncc)
+    } else {
+      this.rpcUrl = cachedRpcUrl ?? ''
+    }
   }
 
-  private generateRpcUrl (): string {
+  public static generateRpcUrl (sncc: StartedNativeChainContainer): string {
     const {
       rpcUser,
       rpcPassword,
-      blockchainNetwork
-    } = this.sncc
+      blockchainNetwork,
+      getMappedPort,
+      getHost
+    } = sncc
 
-    const port = this.sncc.getMappedPort(blockchainNetwork.ports.rpc)
-    return `http://${rpcUser}:${rpcPassword}@${this.sncc.getHost()}:${port}/`
-  }
-
-  /**
-   * Set contents of ~/.defi/defi.conf
-   * @param {string[]} options to set
-   */
-  async setDeFiConf (options: string[]): Promise<ExecResult> {
-    if (options.length <= 0) {
-      throw new Error('No options specified. Please specify an option to set.')
-    }
-    const fileContents = `${options.join('\n')}\n`
-    return await this.sncc.exec(['bash', '-c', `echo "${fileContents}" > ~/.defi/defi.conf`])
+    const port = getMappedPort(blockchainNetwork.ports.rpc)
+    return `http://${rpcUser}:${rpcPassword}@${getHost()}:${port}/`
   }
 
   /**
@@ -64,7 +58,7 @@ export class NativeChainRpc {
    * For convenience’s sake, HTTP POST to the RPC URL for the current node.
    * Not error checked, returns the raw JSON as string.
    */
-  private async post (body: string): Promise<string> {
+  async post (body: string): Promise<string> {
     const response = await fetch(this.rpcUrl, {
       method: 'POST',
       body: body
@@ -77,7 +71,13 @@ export class NativeChainRpc {
    * @param {string} address to generate to
    * @param {number} maxTries
    */
-  async generate (nblocks: number, address: string | undefined = this.sncc.masterNodeKey?.operator.address, maxTries: number = 1000000): Promise<void> {
+  async generate (nblocks: number, address?: string | undefined, maxTries: number = 1000000): Promise<void> {
+    if (address == null && this.sncc instanceof StartedNativeChainContainer) {
+      address = this.sncc.masterNodeKey?.operator.address
+    }
+    if (address == null && this.sncc instanceof MasterNodeRegTestContainer) {
+      address = this.sncc.masternodeKey?.operator.address
+    } // legacy support
     if (address == null) {
       throw new Error('Undefined address to generate to. Please specify an address or initialize the container with a MasterNodeKey.')
     }

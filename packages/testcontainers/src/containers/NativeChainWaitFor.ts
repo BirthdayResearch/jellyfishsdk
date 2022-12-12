@@ -1,16 +1,16 @@
 import { waitForCondition } from '../utils'
 import { StartedNativeChainContainer } from './NativeChainContainer'
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 
 export class NativeChainWaitFor {
-  constructor (private readonly sncc: StartedNativeChainContainer) {
-  }
+  constructor (private readonly sncc: StartedNativeChainContainer | MasterNodeRegTestContainer) {}
 
   /**
    * @param {number} nblocks to generate
    * @param {number} timeout
    * @param {string} address
    */
-  async generate (nblocks: number, timeout: number = 590000, address: string | undefined = this.sncc.masterNodeKey?.operator.address): Promise<void> {
+  async generate (nblocks: number, timeout: number = 590000, address: string | undefined): Promise<void> {
     const target = await this.sncc.rpc.getBlockCount() + nblocks
 
     return await waitForCondition(async () => {

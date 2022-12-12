@@ -10,6 +10,7 @@ import {
 import { RestartOptions } from 'testcontainers/dist/test-container'
 import { NativeChainRpc } from './NativeChainRpc'
 import { NativeChainWaitFor } from './NativeChainWaitFor'
+import { ExecResult } from 'testcontainers/dist/docker/types'
 
 /**
  * DeFiChain NativeChain node managed in docker
@@ -233,5 +234,17 @@ export class StartedNativeChainContainer extends AbstractStartedContainer {
   async restart (options?: Partial<RestartOptions> | undefined): Promise<void> {
     await super.restart(options)
     this.rpc = new NativeChainRpc(this)
+  }
+
+  /**
+   * Set contents of ~/.defi/defi.conf
+   * @param {string[]} options to set
+   */
+  async setDeFiConf (options: string[]): Promise<ExecResult> {
+    if (options.length <= 0) {
+      throw new Error('No options specified. Please specify an option to set.')
+    }
+    const fileContents = `${options.join('\n')}\n`
+    return await this.exec(['bash', '-c', `echo "${fileContents}" > ~/.defi/defi.conf`])
   }
 }
