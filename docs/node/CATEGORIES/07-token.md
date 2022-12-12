@@ -151,3 +151,39 @@ interface UTXO {
   vout: number
 }
 ```
+
+## getCustomTx
+
+Get detailed information about any custom transaction.
+
+```ts title="client.token.getCustomTx()"
+interface token {
+  getCustomTx (txid: string, blockhash?: string): Promise<GetCustomTxResult | string>
+}
+
+interface GetCustomTxResult {
+  type: string
+  valid: boolean
+  results: object
+  block_height: string
+  blockhash: string
+  confirmations: number
+}
+```
+
+## decodeCustomTx
+
+Get detailed information about any custom transaction from the raw transaction.
+
+```ts title="client.token.decodeCustomTx()"
+interface token {
+  decodeCustomTx (hexstring: string, iswitness?: boolean): Promise<DecodeCustomTxResult | string>
+}
+
+interface DecodeCustomTxResult {
+  txid: string
+  type: string
+  valid: boolean
+  results: object
+}
+```

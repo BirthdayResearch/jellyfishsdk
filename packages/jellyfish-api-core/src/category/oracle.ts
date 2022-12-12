@@ -124,9 +124,9 @@ export class Oracle {
   /**
    * List all aggregated prices.
    *
-   * @param {string} startIndex Optional first key to iterate from, in lexicographical order.
-   * @param {string} includingStart If true, then iterate including starting position. False by default
-   * @param {string} limit Maximum number of orders to return, 100 by default
+   * @param {string} [startIndex] Optional first key to iterate from, in lexicographical order.
+   * @param {string} [includingStart] If true, then iterate including starting position. False by default
+   * @param {string} [limit] Maximum number of orders to return, 100 by default
    * @return {Promise<ListPricesData[]>} Array of list price data objects
    */
   async listPrices (startIndex?: number, includingStart?: boolean, limit?: number): Promise<ListPricesData[]> {

@@ -52,3 +52,26 @@ export interface ConsortiumMember {
   name: string
   address: string
 }
+
+export interface MemberDetail {
+  backingId: string
+  name: string
+}
+
+export interface MemberInfo {
+  tokenId: string
+  id: string
+  name: string
+  backingAddresses: string[]
+}
+
+export interface MemberWithTokenInfo extends MemberInfo {
+  minted: string
+  burned: string
+}
+
+export interface AssetBreakdownInfo {
+  tokenSymbol: string
+  tokenDisplaySymbol: string
+  memberInfo: MemberWithTokenInfo[]
+}

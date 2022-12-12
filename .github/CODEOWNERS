@@ -51,9 +51,6 @@
 /packages/jellyfish-wallet-encrypted/           @fuxingloh @ivan-zynesis
 /packages/jellyfish-wallet-mnemonic/            @fuxingloh @ivan-zynesis
 
-/apps/rich-list-api/                            @ivan-zynesis @cwkang1998
-/packages/rich-list-api-client/                 @ivan-zynesis @cwkang1998
-
 # Chore
 /.github/                                       @fuxingloh
 /.husky/                                        @fuxingloh

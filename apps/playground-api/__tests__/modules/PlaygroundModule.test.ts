@@ -64,6 +64,7 @@ it('should have gov set', async () => {
       'v0/params/dfip2203/active': 'true',
       'v0/params/dfip2203/reward_pct': '0.05',
       'v0/params/dfip2203/block_period': '20',
+      'v0/params/feature/gov': 'true',
       'v0/token/0/fixed_interval_price_id': 'DFI/USD',
       'v0/token/0/loan_collateral_enabled': 'true',
       'v0/token/0/loan_collateral_factor': '1',
