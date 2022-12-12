@@ -301,7 +301,10 @@ export class Account {
    * @param {boolean} [options.no_rewards] Filter out rewards
    * @param {string} [options.token] Filter by token
    * @param {DfTxType} [options.txtype] Filter by transaction type. See DfTxType.
+   * @param {DfTxType[]} [options.txtypes] Filter multiple transaction types, supported letter from {CustomTxType}.
    * @param {number} [options.limit=100] Maximum number of records to return, 100 by default
+   * @param {number} [options.start] Number of entries to skip
+   * @param {boolean} [options.including_start=false] If true, then iterate including starting position. False by default
    * @param {number} [options.txn] Order in block, unlimited by default
    * @param {Format} [options.format] Set the return amount format, Format.SYMBOL by default
    * @return {Promise<AccountHistory[]>}
@@ -540,7 +543,10 @@ export interface AccountHistoryOptions {
   no_rewards?: boolean
   token?: string
   txtype?: DfTxType
+  txtypes?: DfTxType[]
   limit?: number
+  start?: number
+  including_start?: boolean
   txn?: number
   format?: Format
 }
