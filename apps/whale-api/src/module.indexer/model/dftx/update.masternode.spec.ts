@@ -1,9 +1,16 @@
-import { createTestingApp, DelayedEunosPayaTestContainer, invalidateFromHeight, stopTestingApp, waitForIndexedHeight } from '../../../e2e.module'
+import {
+  createTestingApp,
+  DelayedEunosPayaTestContainer,
+  invalidateFromHeight,
+  stopTestingApp,
+  waitForIndexedHeight
+} from '../../../e2e.module'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { RegTest } from '@defichain/jellyfish-network'
 import { P2WPKH } from '@defichain/jellyfish-address'
 import { MasternodeMapper } from '../../../module.model/masternode'
+import { AddressType } from '@defichain/jellyfish-api-core/dist/category/wallet'
 
 describe('Update masternode', () => {
   const container = new DelayedEunosPayaTestContainer()
@@ -156,28 +163,16 @@ describe('invalidate', () => {
   const container = new DelayedEunosPayaTestContainer()
   let app: NestFastifyApplication
   let client: JsonRpcClient
+  let masternodeMapper: MasternodeMapper
 
   beforeAll(async () => {
     await container.start()
     await container.waitForWalletCoinbaseMaturity()
 
     app = await createTestingApp(container)
+    masternodeMapper = app.get(MasternodeMapper)
     client = new JsonRpcClient(await container.getCachedRpcUrl())
-  })
 
-  afterAll(async () => {
-    await stopTestingApp(container, app)
-  })
-
-  it('should update masternode and invalidate', async () => {
-    await container.generate(1)
-
-    const ownerAddress = await client.wallet.getNewAddress()
-    const masternodeId = await client.masternode.createMasternode(ownerAddress)
-    await container.generate(20)
-
-    const height = await client.blockchain.getBlockCount()
-    // enable updating
     await client.masternode.setGov({
       ATTRIBUTES: {
         'v0/params/feature/mn-setowneraddress': 'true',
@@ -185,14 +180,27 @@ describe('invalidate', () => {
         'v0/params/feature/mn-setrewardaddress': 'true'
       }
     })
+
+    await container.generate(1)
+  })
+
+  afterAll(async () => {
+    await stopTestingApp(container, app)
+  })
+
+  it('should update masternode and invalidate', async () => {
+    const ownerAddress = await client.wallet.getNewAddress()
+    const masternodeId = await client.masternode.createMasternode(ownerAddress)
+    await container.generate(20)
+
+    const height = await client.blockchain.getBlockCount()
     await container.generate(1)
     await waitForIndexedHeight(app, height)
 
-    const masternodeMapper = app.get(MasternodeMapper)
     const masternode = await masternodeMapper.get(masternodeId)
 
     expect(masternode).not.toStrictEqual(undefined)
-    expect(masternode?.history?.length).toStrictEqual(0)
+    expect(masternode?.history?.length).toStrictEqual(undefined)
 
     const address = await container.getNewAddress('', 'bech32')
     const addressDest: P2WPKH = P2WPKH.fromAddress(RegTest, address, P2WPKH)
@@ -221,6 +229,94 @@ describe('invalidate', () => {
       expect(invalidatedMasternode?.ownerAddress).toStrictEqual(initialAddressDestHex)
       expect(invalidatedMasternode?.operatorAddress).toStrictEqual(initialAddressDestHex)
       expect(invalidatedMasternode?.history?.length).toStrictEqual(1)
+    }
+  })
+
+  it('should update masternode and invalidate and update again', async () => {
+    const initialOwnerAddress = await client.wallet.getNewAddress('', AddressType.BECH32)
+    const masternodeId = await client.masternode.createMasternode(initialOwnerAddress)
+    await container.generate(20)
+
+    const height = await client.blockchain.getBlockCount()
+    await container.generate(1)
+    await waitForIndexedHeight(app, height)
+
+    const newAddress = await container.getNewAddress('', 'bech32')
+
+    const updatedTxId = await client.masternode.updateMasternode(masternodeId, {
+      operatorAddress: P2WPKH.fromAddress(RegTest, newAddress, P2WPKH)?.utf8String
+    })
+
+    await container.generate(1)
+    const updateHeight = await client.blockchain.getBlockCount()
+    await container.generate(1)
+    await waitForIndexedHeight(app, updateHeight)
+
+    { // Validate Updated
+      const updateMasternode = await masternodeMapper.get(masternodeId)
+      expect(updateMasternode).toStrictEqual(expect.objectContaining({
+        operatorAddress: newAddress,
+        history: [
+          {
+            txid: updatedTxId,
+            ownerAddress: initialOwnerAddress,
+            operatorAddress: newAddress
+          },
+          {
+            txid: masternodeId,
+            ownerAddress: initialOwnerAddress,
+            operatorAddress: initialOwnerAddress
+          }
+        ]
+      }))
+    }
+
+    await invalidateFromHeight(app, container, updateHeight)
+    await container.generate(2)
+    await waitForIndexedHeight(app, updateHeight)
+
+    { // Validate Invalided
+      const invalidatedMasternode = await masternodeMapper.get(masternodeId)
+      expect(invalidatedMasternode).toStrictEqual(expect.objectContaining({
+        operatorAddress: initialOwnerAddress,
+        ownerAddress: initialOwnerAddress,
+        history: [
+          {
+            txid: masternodeId,
+            ownerAddress: initialOwnerAddress,
+            operatorAddress: initialOwnerAddress
+          }
+        ]
+      }))
+    }
+
+    const updated2TxId = await client.masternode.updateMasternode(masternodeId, {
+      ownerAddress: P2WPKH.fromAddress(RegTest, newAddress, P2WPKH)?.utf8String
+    })
+
+    await container.generate(1)
+    const updateHeight2 = await client.blockchain.getBlockCount()
+    await container.generate(1)
+    await waitForIndexedHeight(app, updateHeight2)
+
+    { // Validate Updated
+      const updateMasternode = await masternodeMapper.get(masternodeId)
+      expect(updateMasternode).toStrictEqual(expect.objectContaining({
+        ownerAddress: newAddress,
+        operatorAddress: initialOwnerAddress,
+        history: [
+          {
+            txid: updated2TxId,
+            ownerAddress: newAddress,
+            operatorAddress: initialOwnerAddress
+          },
+          {
+            txid: masternodeId,
+            ownerAddress: initialOwnerAddress,
+            operatorAddress: initialOwnerAddress
+          }
+        ]
+      }))
     }
   })
 })

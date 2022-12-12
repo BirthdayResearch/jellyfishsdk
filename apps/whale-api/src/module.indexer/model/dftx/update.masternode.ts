@@ -56,7 +56,7 @@ export class UpdateMasternodeIndexer extends DfTxIndexer<UpdateMasternode> {
         ...masternode,
         ownerAddress: history[1].ownerAddress ?? masternode.ownerAddress,
         operatorAddress: history[1].operatorAddress ?? masternode.operatorAddress,
-        history: history.slice(0, 1)
+        history: history.slice(1)
       })
     }
   }
