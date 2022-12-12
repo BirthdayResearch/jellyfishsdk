@@ -6,6 +6,7 @@ import { SetOracleDataIndexer } from './set.oracle.data'
 import { SetOracleDataIntervalIndexer } from './set.oracle.data.interval'
 import { CreateMasternodeIndexer } from './create.masternode'
 import { ResignMasternodeIndexer } from './resign.masternode'
+import { UpdateMasternodeIndexer } from './update.masternode'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { ConfigService } from '@nestjs/config'
 import { PoolSwapIndexer } from './pool.swap'
@@ -23,6 +24,7 @@ const indexers = [
   UpdateOracleIndexer,
   CreateMasternodeIndexer,
   ResignMasternodeIndexer,
+  UpdateMasternodeIndexer,
   PoolSwapIndexer,
   PoolSwapAggregatedIndexer,
   CompositeSwapIndexer,
