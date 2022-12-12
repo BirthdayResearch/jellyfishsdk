@@ -9,6 +9,7 @@ import { SetOracleDataIndexer } from './dftx/set.oracle.data'
 import { SetOracleDataIntervalIndexer } from './dftx/set.oracle.data.interval'
 import { CreateMasternodeIndexer } from './dftx/create.masternode'
 import { ResignMasternodeIndexer } from './dftx/resign.masternode'
+import { UpdateMasternodeIndexer } from './dftx/update.masternode'
 import { Injectable, Logger } from '@nestjs/common'
 import { DfTxIndexer, DfTxTransaction } from './dftx/_abstract'
 import { PoolSwapIndexer } from './dftx/pool.swap'
@@ -30,6 +31,7 @@ export class MainDfTxIndexer extends Indexer {
     setOracleDataInterval: SetOracleDataIntervalIndexer,
     createMasternode: CreateMasternodeIndexer,
     resignMasternode: ResignMasternodeIndexer,
+    updateMasternode: UpdateMasternodeIndexer,
     poolSwapIndexer: PoolSwapIndexer,
     compositeSwapIndexer: CompositeSwapIndexer,
     poolSwapIntervalIndexer: PoolSwapAggregatedIndexer,
@@ -45,6 +47,7 @@ export class MainDfTxIndexer extends Indexer {
       setOracleDataInterval,
       createMasternode,
       resignMasternode,
+      updateMasternode,
       poolSwapIndexer,
       compositeSwapIndexer,
       poolSwapIntervalIndexer,
