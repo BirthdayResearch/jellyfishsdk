@@ -177,15 +177,15 @@ export class NativeChainContainer extends GenericContainer {
       masterNodeKey
     } = this
 
-    return await new StartedNativeChainContainer(
+    const sncc = new StartedNativeChainContainer(
       await super.start(),
       {
         rpcUser,
         rpcPassword,
-        blockchainNetwork,
-        masterNodeKey
+        blockchainNetwork
       }
-    ).withPrivateKeys()
+    )
+    return (masterNodeKey != null) ? await sncc.withMasterNode(masterNodeKey) : sncc
   }
 }
 
@@ -193,12 +193,12 @@ export interface StartedContainerConfig {
   rpcUser: string
   rpcPassword: string
   blockchainNetwork: BlockchainNetwork
-  masterNodeKey?: MasterNodeKey
 }
 
 export class StartedNativeChainContainer extends AbstractStartedContainer {
   rpc = new NativeChainRpc(this)
   waitFor = new NativeChainWaitFor(this)
+  private _masterNodeKey?: MasterNodeKey
 
   constructor (
     startedTestContainer: StartedTestContainer,
@@ -220,14 +220,13 @@ export class StartedNativeChainContainer extends AbstractStartedContainer {
   }
 
   get masterNodeKey (): MasterNodeKey | undefined {
-    return this.config.masterNodeKey
+    return this._masterNodeKey
   }
 
-  public async withPrivateKeys (): Promise<this> {
-    if (this.masterNodeKey != null) {
-      await this.rpc.call('importprivkey', [this.masterNodeKey.operator.privKey, 'operator', true])
-      await this.rpc.call('importprivkey', [this.masterNodeKey.owner.privKey, 'owner', true])
-    }
+  public async withMasterNode (key: MasterNodeKey): Promise<this> {
+    await this.rpc.call('importprivkey', [key.operator.privKey, 'operator', true])
+    await this.rpc.call('importprivkey', [key.owner.privKey, 'owner', true])
+    this._masterNodeKey = key
     return this
   }
 
