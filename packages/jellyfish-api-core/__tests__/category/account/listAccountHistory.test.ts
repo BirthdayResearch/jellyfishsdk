@@ -21,7 +21,7 @@ function createTokenForContainer (container: MasterNodeRegTestContainer) {
   }
 }
 
-describe.only('Account', () => {
+describe('Account', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
   const createToken = createTokenForContainer(container)
