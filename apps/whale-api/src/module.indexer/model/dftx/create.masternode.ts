@@ -43,8 +43,7 @@ export class CreateMasternodeIndexer extends DfTxIndexer<CreateMasternode> {
       mintedBlocks: 0,
       timelock: data.timelock ?? 0,
       block: { hash: block.hash, height: block.height, medianTime: block.mediantime, time: block.time },
-      collateral: txn.vout[1].value.toFixed(8),
-      history: [{ txid: txn.txid, ownerAddress, operatorAddress }]
+      collateral: txn.vout[1].value.toFixed(8)
     })
 
     await this.indexStats(block, data, txn.vout[1].value)

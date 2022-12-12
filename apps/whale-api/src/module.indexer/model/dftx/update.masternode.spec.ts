@@ -111,14 +111,14 @@ describe('Update masternode', () => {
         time: expect.any(Number)
       },
       collateral: '2.00000000',
-      updateRecords: [
+      history: [
         {
-          height: 193,
+          txid: expect.stringMatching(/[0-9a-f]{64}/),
           ownerAddress: addressDest.utf8String,
           operatorAddress: addressDest.utf8String
         },
         {
-          height: 103,
+          txid: expect.stringMatching(/[0-9a-f]{64}/),
           ownerAddress: ownerAddress,
           operatorAddress: ownerAddress
         }
@@ -192,6 +192,7 @@ describe('invalidate', () => {
     const masternode = await masternodeMapper.get(masternodeId)
 
     expect(masternode).not.toStrictEqual(undefined)
+    expect(masternode?.history?.length).toStrictEqual(0)
 
     const address = await container.getNewAddress('', 'bech32')
     const addressDest: P2WPKH = P2WPKH.fromAddress(RegTest, address, P2WPKH)
@@ -206,7 +207,7 @@ describe('invalidate', () => {
 
     const updateMasternode = await masternodeMapper.get(masternodeId)
     expect(updateMasternode?.operatorAddress).toStrictEqual(addressDestHex)
-    expect(updateMasternode?.updateRecords?.length).toStrictEqual(2)
+    expect(updateMasternode?.history?.length).toStrictEqual(2)
 
     await invalidateFromHeight(app, container, updateHeight)
     await container.generate(2)
@@ -219,7 +220,7 @@ describe('invalidate', () => {
 
       expect(invalidatedMasternode?.ownerAddress).toStrictEqual(initialAddressDestHex)
       expect(invalidatedMasternode?.operatorAddress).toStrictEqual(initialAddressDestHex)
-      expect(invalidatedMasternode?.updateRecords?.length).toStrictEqual(1)
+      expect(invalidatedMasternode?.history?.length).toStrictEqual(1)
     }
   })
 })
