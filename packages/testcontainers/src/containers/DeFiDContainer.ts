@@ -1,7 +1,7 @@
 import Dockerode, { ContainerInfo, DockerOptions } from 'dockerode'
 import { DockerContainer } from './DockerContainer'
 import { waitForCondition } from '../utils'
-import { NativeChainRpc } from '@defichain/testcontainers/dist/containers/NativeChainRpc'
+import { NativeChainRpc } from '../index'
 
 /**
  * Types of network as per https://github.com/DeFiCh/ain/blob/bc231241/src/chainparams.cpp#L825-L836

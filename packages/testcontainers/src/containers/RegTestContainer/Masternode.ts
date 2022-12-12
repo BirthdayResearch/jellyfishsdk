@@ -2,7 +2,7 @@ import { MasterNodeKey, RegTestFoundationKeys } from '@defichain/jellyfish-netwo
 import { DockerOptions } from 'dockerode'
 import { DeFiDContainer, StartOptions } from '../DeFiDContainer'
 import { RegTestContainer } from './index'
-import { NativeChainWaitFor } from '@defichain/testcontainers/dist/containers/NativeChainWaitFor'
+import { NativeChainWaitFor } from '../../index'
 
 /**
  * RegTest with MasterNode preconfigured

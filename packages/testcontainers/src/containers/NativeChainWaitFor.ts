@@ -1,6 +1,6 @@
 import { waitForCondition } from '../utils'
 import { StartedNativeChainContainer } from './NativeChainContainer'
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { MasterNodeRegTestContainer } from '../index'
 
 export class NativeChainWaitFor {
   constructor (private readonly sncc: StartedNativeChainContainer | MasterNodeRegTestContainer) {}

@@ -1,6 +1,6 @@
 import { StartedNativeChainContainer } from './NativeChainContainer'
 import fetch from 'cross-fetch'
-import { DeFiDContainer, MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { DeFiDContainer, MasterNodeRegTestContainer } from '../index'
 
 export class NativeChainRpc {
   private readonly rpcUrl: string
