@@ -13,7 +13,6 @@ export class UpdateMasternodeIndexer extends DfTxIndexer<UpdateMasternode> {
 
   constructor (
     private readonly masternodeMapper: MasternodeMapper,
-    private readonly masternodeStatsMapper: MasternodeStatsMapper,
     @Inject('NETWORK') protected readonly network: NetworkName
   ) {
     super()
