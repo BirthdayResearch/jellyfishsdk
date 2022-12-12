@@ -21,17 +21,24 @@ function createTokenForContainer (container: MasterNodeRegTestContainer) {
   }
 }
 
-describe('Account', () => {
+describe.only('Account', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
   const createToken = createTokenForContainer(container)
 
+  let addr: string
+
   beforeAll(async () => {
     await container.start()
-    await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
     await container.waitForWalletBalanceGTE(100)
-    await createToken(await container.getNewAddress(), 'DBTC', 200)
+
+    addr = await container.getNewAddress()
+    await createToken(addr, 'DBTC', 201)
+    await container.generate(1)
+
+    await client.token.burnTokens('1@DBTC', addr)
+    await container.generate(1)
   })
 
   afterAll(async () => {
@@ -223,8 +230,8 @@ describe('Account', () => {
     const accountHistories = await client.account.listAccountHistory('mine', options)
     expect(accountHistories.length).toBeGreaterThan(0)
     accountHistories.forEach(accountHistory => {
-      expect(accountHistory.blockHeight).toBeLessThanOrEqual(103)
-      if (accountHistory.blockHeight === 103) {
+      expect(accountHistory.blockHeight).toBeLessThanOrEqual(105)
+      if (accountHistory.blockHeight === 105) {
         expect(accountHistory.txn).toBeLessThanOrEqual(options.txn)
       }
     })
@@ -357,6 +364,48 @@ describe('Account', () => {
         }
       }
     }
+  })
+
+  it('should listAccountHistory with option txtypes', async () => {
+    const accountHistory = await client.account.listAccountHistory('all', { txtypes: [DfTxType.MINT_TOKEN, DfTxType.BURN_TOKEN] })
+    expect(accountHistory.length).toStrictEqual(3)
+
+    const expectedOutputs = [{
+      blockHeight: 103,
+      type: 'MintToken',
+      amounts: ['201.00000000@DBTC']
+    }, {
+      blockHeight: 105,
+      type: 'BurnToken',
+      amounts: ['1.00000000@DBTC']
+    }, {
+      blockHeight: 105,
+      type: 'BurnToken',
+      amounts: ['-1.00000000@DBTC']
+    }]
+
+    for (let i = 0; i < 3; i++) {
+      const output = expectedOutputs.pop()!
+      expect(accountHistory[i].type).toStrictEqual(output.type)
+      expect(accountHistory[i].blockHeight).toStrictEqual(output.blockHeight)
+      expect(accountHistory[i].amounts).toStrictEqual(output.amounts)
+    }
+
+    expect(expectedOutputs.length).toStrictEqual(0)
+  })
+
+  it('should listAccountHistory with options start, including_start and limit', async () => {
+    const accountHistoryAll = await client.account.listAccountHistory('all')
+
+    const accountHistory1 = await client.account.listAccountHistory('all', { start: 50 })
+    expect(accountHistoryAll[49].txid).toStrictEqual(accountHistory1[0].txid)
+
+    const accountHistory2 = await client.account.listAccountHistory('all', { start: 50, including_start: true })
+    expect(accountHistoryAll[48].txid).toStrictEqual(accountHistory2[0].txid)
+
+    const accountHistory3 = await client.account.listAccountHistory('all', { start: 50, including_start: true, limit: 3 })
+    expect(accountHistoryAll[48].txid).toStrictEqual(accountHistory3[0].txid)
+    expect(accountHistory3.length).toBe(3)
   })
 })
 
