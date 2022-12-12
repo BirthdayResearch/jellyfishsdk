@@ -28,3 +28,5 @@ export * from './containers/RegTestContainer/LoanContainer'
 export * from './containers/AppContainer/WhaleSanityContainer'
 
 export * from './containers/NativeChainContainer'
+export * from './containers/NativeChainRpc'
+export * from './containers/NativeChainWaitFor'
