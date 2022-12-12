@@ -27,6 +27,7 @@ export interface Network {
   scriptHashPrefix: 0x5a | 0x80 | 0xc4
   /** For message signing. */
   messagePrefix: '\x15Defi Signed Message:\n'
+
   ports: {
     rpc: number
     p2p: number
