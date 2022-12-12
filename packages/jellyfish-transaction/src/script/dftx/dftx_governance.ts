@@ -155,23 +155,28 @@ export class CSetGovernanceHeight extends ComposableBuffer<SetGovernanceHeight> 
   }
 }
 
-export type ProposalType = 0x01 | 0x03 // 0x01 (CommunityFundRequest) | 0x03 (VoteOfConfidence)
-export type ProposalCycles = 0x01 | 0x02 | 0x03
+export type ProposalType = 0x01 | 0x02 // 0x01 (CommunityFundProposal) | 0x02 (VoteOfConfidence)
+export type Options = 0x00 | 0x01
 
 export interface CreateProposal {
   type: ProposalType // ---------| 1 byte unsigned int
   address: Script // ------------| n = VarUInt{1-9 bytes}, + n bytes
-  amount: BigNumber // ----------| 8 bytes unsigned
-  cycles: ProposalCycles // -----| 1 byte unsigned int
+  nAmount: BigNumber // ---------| 8 bytes unsigned
+  nCycles: number // ------------| 1 byte unsigned int
   title: string // --------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
+  context: string // ------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
+  contexthash: string // --------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
+  options: Options // -----------| 1 byte unsigned int
+
 }
 
 export interface CreateCfp extends CreateProposal {
   type: 0x01
+  options: 0x00
 }
 export interface CreateVoc extends CreateProposal {
-  type: 0x03
-  cycles: 0x02
+  type: 0x02
+  nCycles: 0x01
 }
 
 /**
@@ -183,15 +188,19 @@ export class CCreateProposal extends ComposableBuffer<CreateProposal> {
     return [
       ComposableBuffer.uInt8(() => ccp.type, v => ccp.type = v as ProposalType),
       ComposableBuffer.single<Script>(() => ccp.address, v => ccp.address = v, v => new CScript(v)),
-      ComposableBuffer.satoshiAsBigNumber(() => ccp.amount, v => ccp.amount = v),
-      ComposableBuffer.uInt8(() => ccp.cycles, v => ccp.cycles = v as ProposalCycles),
-      ComposableBuffer.compactSizeUtf8BE(() => ccp.title, v => ccp.title = v)
+      ComposableBuffer.satoshiAsBigNumber(() => ccp.nAmount, v => ccp.nAmount = v),
+      ComposableBuffer.uInt8(() => ccp.nCycles, v => ccp.nCycles = v),
+      ComposableBuffer.compactSizeUtf8BE(() => ccp.title, v => ccp.title = v),
+      ComposableBuffer.compactSizeUtf8BE(() => ccp.context, v => ccp.context = v),
+      ComposableBuffer.compactSizeUtf8BE(() => ccp.contexthash, v => ccp.contexthash = v),
+      ComposableBuffer.uInt8(() => ccp.options, v => ccp.options = v as Options)
+
     ]
   }
 }
 
 export class CCreateCfp extends CCreateProposal {
-  static OP_CODE = 0x50 // 'P'
+  static OP_CODE = 0x7a // 'z'
   static OP_NAME = 'OP_DEFI_TX_CREATE_CFP'
 }
 
@@ -214,7 +223,7 @@ export interface Vote {
  */
 export class CVote extends ComposableBuffer<Vote> {
   static OP_CODE = 0x4f // 'O'
-  static OP_NAME = 'OP_DEFI_TX_CREATE_CFP'
+  static OP_NAME = 'OP_DEFI_TX_VOTE'
   composers (vote: Vote): BufferComposer[] {
     return [
       ComposableBuffer.hexBEBufferLE(32, () => vote.proposalId, v => vote.proposalId = v),
