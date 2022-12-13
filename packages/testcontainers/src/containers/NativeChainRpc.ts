@@ -19,13 +19,11 @@ export class NativeChainRpc {
     const {
       rpcUser,
       rpcPassword,
-      blockchainNetwork,
-      getMappedPort,
-      getHost
+      blockchainNetwork
     } = sncc
 
-    const port = getMappedPort(blockchainNetwork.ports.rpc)
-    return `http://${rpcUser}:${rpcPassword}@${getHost()}:${port}/`
+    const port = sncc.getMappedPort(blockchainNetwork.ports.rpc)
+    return `http://${rpcUser}:${rpcPassword}@${sncc.getHost()}:${port}/`
   }
 
   /**

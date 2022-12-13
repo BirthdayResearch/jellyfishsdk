@@ -142,7 +142,24 @@ export abstract class DeFiDContainer extends DockerContainer {
    * @throws DeFiDRpcError is raised for RPC errors
    */
   async call (method: string, params: any = []): Promise<any> {
-    return await this.rpc.call(method, params)
+    const body = JSON.stringify({
+      jsonrpc: '1.0',
+      id: Math.floor(Math.random() * 100000000000000),
+      method: method,
+      params: params
+    })
+
+    const text = await this.post(body)
+    const {
+      result,
+      error
+    } = JSON.parse(text)
+
+    if (error !== undefined && error !== null) {
+      throw new DeFiDRpcError(error)
+    }
+
+    return result
   }
 
   /**
