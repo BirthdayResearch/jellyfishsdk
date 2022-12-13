@@ -1,7 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
-import { DfTxType, BalanceTransferPayload, AccountResult, AccountOwner, Format } from '../../../src/category/account'
+import { AccountOwner, AccountResult, BalanceTransferPayload, DfTxType, Format } from '../../../src/category/account'
 
 function createTokenForContainer (container: MasterNodeRegTestContainer) {
   return async (address: string, symbol: string, amount: number) => {
@@ -35,10 +35,12 @@ describe('Account', () => {
 
     addr = await container.getNewAddress()
     await createToken(addr, 'DBTC', 201)
-    await container.generate(1)
 
-    await client.token.burnTokens('1@DBTC', addr)
-    await container.generate(1)
+    // Add many transactions to test pagination
+    for (let i = 1; i <= 10; i++) {
+      await client.token.burnTokens(`${0.01 * i}@DBTC`, addr)
+      await container.generate(1)
+    }
   })
 
   afterAll(async () => {
@@ -230,8 +232,8 @@ describe('Account', () => {
     const accountHistories = await client.account.listAccountHistory('mine', options)
     expect(accountHistories.length).toBeGreaterThan(0)
     accountHistories.forEach(accountHistory => {
-      expect(accountHistory.blockHeight).toBeLessThanOrEqual(105)
-      if (accountHistory.blockHeight === 105) {
+      expect(accountHistory.blockHeight).toBeLessThanOrEqual(113)
+      if (accountHistory.blockHeight === 113) {
         expect(accountHistory.txn).toBeLessThanOrEqual(options.txn)
       }
     })
@@ -366,46 +368,24 @@ describe('Account', () => {
     }
   })
 
-  it('should listAccountHistory with option txtypes', async () => {
-    const accountHistory = await client.account.listAccountHistory('all', { txtypes: [DfTxType.MINT_TOKEN, DfTxType.BURN_TOKEN] })
-    expect(accountHistory.length).toStrictEqual(3)
+  it('should listAccountHistory with options start, including_start, limit and txtypes', async () => {
+    const txtypes = [DfTxType.BURN_TOKEN, DfTxType.MINT_TOKEN]
 
-    const expectedOutputs = [{
-      blockHeight: 103,
-      type: 'MintToken',
-      amounts: ['201.00000000@DBTC']
-    }, {
-      blockHeight: 105,
-      type: 'BurnToken',
-      amounts: ['1.00000000@DBTC']
-    }, {
-      blockHeight: 105,
-      type: 'BurnToken',
-      amounts: ['-1.00000000@DBTC']
-    }]
+    const accountHistoryAll = await client.account.listAccountHistory('mine', { txtypes })
+    expect(accountHistoryAll.length).toStrictEqual(11)
 
-    for (let i = 0; i < 3; i++) {
-      const output = expectedOutputs.pop()!
-      expect(accountHistory[i].type).toStrictEqual(output.type)
-      expect(accountHistory[i].blockHeight).toStrictEqual(output.blockHeight)
-      expect(accountHistory[i].amounts).toStrictEqual(output.amounts)
-    }
+    const accountHistory1 = await client.account.listAccountHistory('mine', { start: 2, txtypes })
+    expect(accountHistoryAll[3].txid).toStrictEqual(accountHistory1[0].txid)
+    expect(accountHistory1.length).toStrictEqual(8)
 
-    expect(expectedOutputs.length).toStrictEqual(0)
-  })
+    const accountHistory2 = await client.account.listAccountHistory('mine', { start: 2, including_start: true, txtypes })
+    expect(accountHistoryAll[2].txid).toStrictEqual(accountHistory2[0].txid)
+    expect(accountHistory2.length).toStrictEqual(9)
 
-  it('should listAccountHistory with options start, including_start and limit', async () => {
-    const accountHistoryAll = await client.account.listAccountHistory('all')
-
-    const accountHistory1 = await client.account.listAccountHistory('all', { start: 50 })
-    expect(accountHistoryAll[49].txid).toStrictEqual(accountHistory1[0].txid)
-
-    const accountHistory2 = await client.account.listAccountHistory('all', { start: 50, including_start: true })
-    expect(accountHistoryAll[48].txid).toStrictEqual(accountHistory2[0].txid)
-
-    const accountHistory3 = await client.account.listAccountHistory('all', { start: 50, including_start: true, limit: 3 })
-    expect(accountHistoryAll[48].txid).toStrictEqual(accountHistory3[0].txid)
-    expect(accountHistory3.length).toBe(3)
+    const accountHistory3 = await client.account.listAccountHistory('mine', { start: 2, including_start: true, limit: 3, txtypes })
+    expect(accountHistory3[0].txid).toStrictEqual(accountHistoryAll[2].txid)
+    expect(accountHistory3[2].txid).toStrictEqual(accountHistoryAll[4].txid)
+    expect(accountHistory3.length).toStrictEqual(3)
   })
 })
 
