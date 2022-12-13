@@ -66,7 +66,7 @@ it('should have gov set', async () => {
           backingId: 'backing_address_btc_1_c',
           mintLimit: 50,
           mintLimitDaily: 5,
-          name: 'Cake',
+          name: 'Waves HQ',
           ownerAddress: 'bcrt1qc2g87p4pehe0pnfsmph63m00f38gh76tjpuuf9',
           status: 0
         },
@@ -74,7 +74,7 @@ it('should have gov set', async () => {
           backingId: 'backing_address_btc_1_br, backing_address_btc_2_br',
           mintLimit: 50,
           mintLimitDaily: 5,
-          name: 'Birthday Research',
+          name: 'Alexandria',
           ownerAddress: 'bcrt1qwg4n6520y64ajkl9nhul9jc0dpqhhrunwnmt4t',
           status: 0
         }
@@ -84,7 +84,7 @@ it('should have gov set', async () => {
           backingId: 'backing_address_eth_1_c',
           mintLimit: 10,
           mintLimitDaily: 5,
-          name: 'Cake',
+          name: 'Waves HQ',
           ownerAddress: 'bcrt1qc2g87p4pehe0pnfsmph63m00f38gh76tjpuuf9',
           status: 0
         },
@@ -92,7 +92,7 @@ it('should have gov set', async () => {
           backingId: 'backing_address_eth_1_br, backing_address_eth_2_br',
           mintLimit: 10,
           mintLimitDaily: 5,
-          name: 'Birthday Research',
+          name: 'Alexandria',
           ownerAddress: 'bcrt1qwg4n6520y64ajkl9nhul9jc0dpqhhrunwnmt4t',
           status: 0
         }

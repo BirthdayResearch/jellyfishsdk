@@ -71,14 +71,14 @@ export class SetupGov extends PlaygroundSetup<Record<string, any>> {
           // // Set a consortium member for dBTC
           'v0/consortium/1/members': {
             '01': {
-              name: 'Cake',
+              name: 'Waves HQ',
               ownerAddress: 'bcrt1qc2g87p4pehe0pnfsmph63m00f38gh76tjpuuf9',
               backingId: 'backing_address_btc_1_c',
               mintLimitDaily: '5.00000000',
               mintLimit: '50.00000000'
             },
             '02': {
-              name: 'Birthday Research',
+              name: 'Alexandria',
               ownerAddress: 'bcrt1qwg4n6520y64ajkl9nhul9jc0dpqhhrunwnmt4t',
               backingId: 'backing_address_btc_1_br, backing_address_btc_2_br',
               mintLimitDaily: '5.00000000',
@@ -93,15 +93,14 @@ export class SetupGov extends PlaygroundSetup<Record<string, any>> {
           // Set a consortium member for dETH
           'v0/consortium/2/members': {
             '01': {
-              name: 'Cake',
+              name: 'Waves HQ',
               ownerAddress: 'bcrt1qc2g87p4pehe0pnfsmph63m00f38gh76tjpuuf9',
               backingId: 'backing_address_eth_1_c',
               mintLimitDaily: '5.00000000',
               mintLimit: '10.00000000'
             },
             '02': {
-
-              name: 'Birthday Research',
+              name: 'Alexandria',
               ownerAddress: 'bcrt1qwg4n6520y64ajkl9nhul9jc0dpqhhrunwnmt4t',
               backingId: 'backing_address_eth_1_br, backing_address_eth_2_br',
               mintLimitDaily: '5.00000000',
