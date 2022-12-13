@@ -61,6 +61,46 @@ it('should have gov set', async () => {
   const gov = await testing.container.call('getgov', ['ATTRIBUTES'])
   expect(gov).toStrictEqual({
     ATTRIBUTES: expect.objectContaining({
+      'v0/consortium/1/members': {
+        '01': {
+          backingId: 'backing_address_btc_1_c',
+          mintLimit: 50,
+          mintLimitDaily: 5,
+          name: 'Cake',
+          ownerAddress: 'bcrt1qc2g87p4pehe0pnfsmph63m00f38gh76tjpuuf9',
+          status: 0
+        },
+        '02': {
+          backingId: 'backing_address_btc_1_br, backing_address_btc_2_br',
+          mintLimit: 50,
+          mintLimitDaily: 5,
+          name: 'Birthday Research',
+          ownerAddress: 'bcrt1qwg4n6520y64ajkl9nhul9jc0dpqhhrunwnmt4t',
+          status: 0
+        }
+      },
+      'v0/consortium/2/members': {
+        '01': {
+          backingId: 'backing_address_eth_1_c',
+          mintLimit: 10,
+          mintLimitDaily: 5,
+          name: 'Cake',
+          ownerAddress: 'bcrt1qc2g87p4pehe0pnfsmph63m00f38gh76tjpuuf9',
+          status: 0
+        },
+        '02': {
+          backingId: 'backing_address_eth_1_br, backing_address_eth_2_br',
+          mintLimit: 10,
+          mintLimitDaily: 5,
+          name: 'Birthday Research',
+          ownerAddress: 'bcrt1qwg4n6520y64ajkl9nhul9jc0dpqhhrunwnmt4t',
+          status: 0
+        }
+      },
+      'v0/consortium/1/mint_limit': '50',
+      'v0/consortium/1/mint_limit_daily': '5',
+      'v0/consortium/2/mint_limit': '20',
+      'v0/consortium/2/mint_limit_daily': '10',
       'v0/params/dfip2203/active': 'true',
       'v0/params/dfip2203/reward_pct': '0.05',
       'v0/params/dfip2203/block_period': '20',
