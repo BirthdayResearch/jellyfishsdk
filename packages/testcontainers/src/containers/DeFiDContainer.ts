@@ -91,6 +91,7 @@ export abstract class DeFiDContainer extends DockerContainer {
       }
     })
     await this.container.start()
+    this.cachedRpcUrl = undefined
     this.rpc = new NativeChainRpc(this, await this.getCachedRpcUrl())
     await this.waitForRpc(startOptions.timeout)
   }
