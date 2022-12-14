@@ -1,5 +1,7 @@
 import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
 import { CTokenBalance, TokenBalanceUInt32 } from './dftx_balance'
+import { Script } from '../../tx'
+import { CScript } from '../../tx_composer'
 import BigNumber from 'bignumber.js'
 
 /**
@@ -7,6 +9,16 @@ import BigNumber from 'bignumber.js'
  */
 export interface TokenMint {
   balances: TokenBalanceUInt32[] // ----------| c = VarUInt{1-9 bytes}, + c x TokenBalance
+}
+
+/**
+ * TokenBurn DeFi Transaction
+ */
+export interface TokenBurn {
+  amounts: TokenBalanceUInt32[]
+  from: Script
+  burnType: number
+  context: Script
 }
 
 /**
@@ -114,6 +126,24 @@ export class CTokenUpdateAny extends ComposableBuffer<TokenUpdateAny> {
         tua.tradeable = v[1]
         tua.mintable = v[2]
       })
+    ]
+  }
+}
+
+/**
+ * Composable TokenBurn, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CTokenBurn extends ComposableBuffer<TokenBurn> {
+  static OP_CODE = 0x46 // 'F'
+  static OP_NAME = 'OP_DEFI_TX_BURN_TOKEN'
+
+  composers (tb: TokenBurn): BufferComposer[] {
+    return [
+      ComposableBuffer.compactSizeArray(() => tb.amounts, v => tb.amounts = v, v => new CTokenBalance(v)),
+      ComposableBuffer.single<Script>(() => tb.from, v => tb.from = v, v => new CScript(v)),
+      ComposableBuffer.uInt8(() => tb.burnType, v => tb.burnType = v),
+      ComposableBuffer.single<Script>(() => tb.context, v => tb.context = v, v => new CScript(v))
     ]
   }
 }
