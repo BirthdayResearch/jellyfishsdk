@@ -91,8 +91,6 @@ export abstract class DeFiDContainer extends DockerContainer {
       }
     })
     await this.container.start()
-    this.cachedRpcUrl = undefined
-    this.rpc = new NativeChainRpc(this, await this.getCachedRpcUrl())
     await this.waitForRpc(startOptions.timeout)
   }
 
@@ -208,6 +206,7 @@ export abstract class DeFiDContainer extends DockerContainer {
   private async waitForRpc (timeout = 40000): Promise<void> {
     await waitForCondition(async () => {
       this.cachedRpcUrl = undefined
+      this.rpc = new NativeChainRpc(this, await this.getCachedRpcUrl())
       await this.getMiningInfo()
       return true
     }, timeout, 500, 'waitForRpc')
