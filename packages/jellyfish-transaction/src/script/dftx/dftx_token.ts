@@ -134,7 +134,7 @@ interface VariantScript {
  * Composable TokenBurnVarInt, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
-class CTokenBurnVarInt extends ComposableBuffer<VariantScript> {
+class CVariantScript extends ComposableBuffer<VariantScript> {
   composers (tb: VariantScript): BufferComposer[] {
     return [
       ComposableBuffer.uInt32(() => tb.variant, v => tb.variant = v),
@@ -166,7 +166,7 @@ export class CTokenBurn extends ComposableBuffer<TokenBurn> {
       ComposableBuffer.compactSizeArray(() => tb.amounts, v => tb.amounts = v, v => new CTokenBalance(v)),
       ComposableBuffer.single<Script>(() => tb.from, v => tb.from = v, v => new CScript(v)),
       ComposableBuffer.uInt8(() => tb.burnType, v => tb.burnType = v),
-      ComposableBuffer.single<VariantScript>(() => tb.variantContext, v => tb.variantContext = v, v => new CTokenBurnVarInt(v))
+      ComposableBuffer.single<VariantScript>(() => tb.variantContext, v => tb.variantContext = v, v => new CVariantScript(v))
     ]
   }
 }
