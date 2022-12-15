@@ -178,7 +178,10 @@ export class NativeChainContainer extends GenericContainer {
     }
 
     const sncc = new StartedNativeChainContainer(await super.start(), config)
-    return (masterNodeKey != null) ? await sncc.withMasterNode(masterNodeKey) : sncc
+    if (this.masterNodeKey != null) {
+      await sncc.withMasterNode(this.masterNodeKey)
+    }
+    return sncc;
   }
 }
 
