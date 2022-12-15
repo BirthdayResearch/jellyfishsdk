@@ -60,4 +60,10 @@ export interface Masternode extends Model {
     time: number
     medianTime: number
   }
+
+  history?: Array<{
+    txid: string
+    ownerAddress: string
+    operatorAddress: string
+  }>
 }
