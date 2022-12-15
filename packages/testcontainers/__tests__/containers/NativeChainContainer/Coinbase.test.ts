@@ -6,9 +6,9 @@ describe('coinbase maturity faster by time travel', () => {
   let container: StartedNativeChainContainer
 
   beforeAll(async () => {
-    const startedNetwork = await new Network().start()
+    const network = await new Network().start()
     container = await new NativeChainContainer()
-      .withNetworkMode((startedNetwork).getName())
+      .withNetwork(network)
       .withPreconfiguredRegtestMasternode()
       .withStartupTimeout(180_000)
       .start()

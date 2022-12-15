@@ -6,7 +6,6 @@ import { RegTestContainer } from './'
 export class SPV {
   static EXPIRATION = 10
   private readonly client: RegTestContainer
-  private readonly assummedSpvHeight: number
 
   constructor (client: RegTestContainer) {
     this.client = client
