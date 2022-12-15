@@ -18,6 +18,7 @@ export interface TokenBurn {
   amounts: TokenBalanceUInt32[]
   from: Script
   burnType: number
+  variant: number
   context: Script
 }
 
@@ -136,13 +137,14 @@ export class CTokenUpdateAny extends ComposableBuffer<TokenUpdateAny> {
  */
 export class CTokenBurn extends ComposableBuffer<TokenBurn> {
   static OP_CODE = 0x46 // 'F'
-  static OP_NAME = 'OP_DEFI_TX_BURN_TOKEN'
+  static OP_NAME = 'OP_DEFI_TX_TOKEN_BURN'
 
   composers (tb: TokenBurn): BufferComposer[] {
     return [
       ComposableBuffer.compactSizeArray(() => tb.amounts, v => tb.amounts = v, v => new CTokenBalance(v)),
       ComposableBuffer.single<Script>(() => tb.from, v => tb.from = v, v => new CScript(v)),
       ComposableBuffer.uInt8(() => tb.burnType, v => tb.burnType = v),
+      ComposableBuffer.uInt32(() => tb.variant, v => tb.variant = v),
       ComposableBuffer.single<Script>(() => tb.context, v => tb.context = v, v => new CScript(v))
     ]
   }
