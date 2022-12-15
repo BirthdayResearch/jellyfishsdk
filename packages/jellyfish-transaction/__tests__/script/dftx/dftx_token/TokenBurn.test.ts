@@ -19,9 +19,11 @@ const tokenBurnData = [
         ]
       },
       burnType: 0,
-      variant: 0,
-      context: {
-        stack: []
+      variantContext: {
+        variant: 0,
+        context: {
+          stack: []
+        }
       }
     }
   },
@@ -38,15 +40,18 @@ const tokenBurnData = [
         ]
       },
       burnType: 0,
-      variant: 0,
-      context: {
-        stack: [
-          OP_CODES.OP_0,
-          OP_CODES.OP_PUSHDATA_HEX_LE('ad54d71e8681e0c990349070cbd17a5c567a9b9e')
-        ]
+      variantContext: {
+        variant: 0,
+        context: {
+          stack: [
+            OP_CODES.OP_0,
+            OP_CODES.OP_PUSHDATA_HEX_LE('ad54d71e8681e0c990349070cbd17a5c567a9b9e')
+          ]
+        }
       }
     }
-  }]
+  }
+]
 
 tokenBurnData.forEach(({ header, tokenBurn, data }) => {
   it('should craft dftx with OP_CODES._() for burning tokens', () => {
