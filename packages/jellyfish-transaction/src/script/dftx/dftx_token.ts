@@ -19,8 +19,6 @@ export interface TokenBurn {
   from: Script
   burnType: number
   variantContext: TokenBurnVarInt
-  // variant: number
-  // context: Script
 }
 
 /**
