@@ -23,6 +23,7 @@ export class NativeChainContainer extends GenericContainer {
     image: string = NativeChainContainer.image
   ) {
     super(image)
+    this.name = this.generateName()
   }
 
   static get image (): string {
@@ -168,20 +169,19 @@ export class NativeChainContainer extends GenericContainer {
    */
   public async start (): Promise<StartedNativeChainContainer> {
     this.withExposedPorts(...(this.hasExposedPorts ? this.ports : Object.values(this.blockchainNetwork.ports)))
-      .withName(this.name ?? this.generateName())
       .withCommand(this.command.length > 0 ? this.command.concat(this.addedCmds) : this.generateCmd())
 
     const config = {
       rpcUser: this.rpcUser,
       rpcPassword: this.rpcPassword,
-      blockchainNetwork: this.blockchainNetwork,
+      blockchainNetwork: this.blockchainNetwork
     }
 
     const sncc = new StartedNativeChainContainer(await super.start(), config)
     if (this.masterNodeKey != null) {
       await sncc.withMasterNode(this.masterNodeKey)
     }
-    return sncc;
+    return sncc
   }
 }
 

@@ -9,7 +9,6 @@ export class SPV {
 
   constructor (client: RegTestContainer) {
     this.client = client
-    this.assummedSpvHeight = 0
   }
 
   /**

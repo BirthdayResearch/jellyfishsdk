@@ -9,20 +9,14 @@ import { NativeChainWaitFor } from '../../index'
  */
 export class MasterNodeRegTestContainer extends RegTestContainer {
   waitFor = new NativeChainWaitFor(this)
-  private readonly _masternodeKey: MasterNodeKey
-
-  get masternodeKey (): MasterNodeKey {
-    return this._masternodeKey
-  }
 
   /**
    * @param {string} [masternodeKey=RegTestFoundationKeys[0]] pair to use for minting
    * @param {string} [image=DeFiDContainer.image] docker image name
    * @param {DockerOptions} [options]
    */
-  constructor (masternodeKey: MasterNodeKey = RegTestFoundationKeys[0], image: string = DeFiDContainer.image, options?: DockerOptions) {
+  constructor (readonly masternodeKey: MasterNodeKey = RegTestFoundationKeys[0], image: string = DeFiDContainer.image, options?: DockerOptions) {
     super(image, options)
-    this._masternodeKey = masternodeKey
   }
 
   /**
