@@ -324,6 +324,16 @@ export class Wallet {
   async listWallets (): Promise<string[]> {
     return await this.client.call('listwallets', [], 'number')
   }
+
+  /**
+   * Loads a wallet from a wallet file or directory.
+   *
+   * @param {string} fileName The wallet directory or .dat file
+   * @return {Promise<LoadWalletResult>}
+   */
+  async loadWallet (fileName: string): Promise<LoadWalletResult> {
+    return await this.client.call('loadwallet', [fileName], 'number')
+  }
 }
 
 export interface UTXO {
@@ -508,4 +518,9 @@ export interface WalletWatchOnlyBalances {
   trusted: BigNumber
   untrusted_pending: BigNumber
   immature: BigNumber
+}
+
+export interface LoadWalletResult {
+  walletname: string
+  warning: string
 }
