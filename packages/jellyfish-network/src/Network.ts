@@ -74,8 +74,8 @@ export const MainNet: Network = {
 }
 
 /**
-  * TestNet specific DeFi configuration.
-  */
+ * TestNet specific DeFi configuration.
+ */
 export const TestNet: Network = {
   name: 'testnet',
   bech32: {
@@ -96,8 +96,8 @@ export const TestNet: Network = {
 }
 
 /**
-  * RegTest specific DeFi configuration.
-  */
+ * RegTest specific DeFi configuration.
+ */
 export const RegTest: Network = {
   name: 'regtest',
   bech32: {
