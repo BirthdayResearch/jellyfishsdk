@@ -45,8 +45,12 @@ it('should bi-directional buffer-object-buffer', () => {
 const tokenBurnData = [
   {
     // data without context
-    header: '6a2f4466547846',
-    data: '01010000000065cd1d00000000160014850e5938570fa2752353e211ab3d880b3ebfe58b000000000000',
+    header: '6a2f4466547846', // OP_RETURN(0x6a) (length 47 = 0x2f) CDfTx.SIGNATURE(0x44665478) CTokenBurn.OP_CODE(0x46)
+    // TokenBurn.amounts(0x01010000000065cd1d00000000)
+    // TokenBurn.from[LE](0x160014850e5938570fa2752353e211ab3d880b3ebfe58b)
+    // TokenBurn.BurnType(0x00)
+    // TokenBurn.variantContext(0x00000000)
+    data: '01010000000065cd1d00000000160014850e5938570fa2752353e211ab3d880b3ebfe58b0000000000',
     tokenBurn: {
       amounts: [{ token: 1, amount: new BigNumber(5) }],
       from: {
@@ -66,7 +70,11 @@ const tokenBurnData = [
   },
   {
     // data with context
-    header: '6a454466547846',
+    header: '6a454466547846', // OP_RETURN(0x6a) (length 69 = 0x45) CDfTx.SIGNATURE(0x44665478) CTokenBurn.OP_CODE(0x46)
+    // TokenBurn.amounts(0x010100000000e1f50500000000)
+    // TokenBurn.from[LE](0x160014ad54d71e8681e0c990349070cbd17a5c567a9b9e)
+    // TokenBurn.BurnType(0x00)
+    // TokenBurn.variantContext(0x00000000160014ad54d71e8681e0c990349070cbd17a5c567a9b9e)
     data: '010100000000e1f50500000000160014ad54d71e8681e0c990349070cbd17a5c567a9b9e0000000000160014ad54d71e8681e0c990349070cbd17a5c567a9b9e',
     tokenBurn: {
       amounts: [{ token: 1, amount: new BigNumber(1) }] as TokenBalanceUInt32[],

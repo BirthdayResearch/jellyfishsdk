@@ -131,7 +131,7 @@ interface VariantScript {
 /**
  * Known as "std::variant<CScript>" in cpp.
  *
- * Composable TokenBurnVarInt, C stands for Composable.
+ * Composable VariantScript, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
 class CVariantScript extends ComposableBuffer<VariantScript> {
