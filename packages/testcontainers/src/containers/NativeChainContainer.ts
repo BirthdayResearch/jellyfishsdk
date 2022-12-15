@@ -77,12 +77,9 @@ export class NativeChainContainer extends GenericContainer {
     return this
   }
 
-  protected hasPreconfiguredMasternode: boolean = false
-
   public withPreconfiguredRegtestMasternode (masterNodeKey = RegTestFoundationKeys[0]): this {
     this.withMasterNodeKey(masterNodeKey)
     this.withBlockchainNetwork('regtest')
-    this.hasPreconfiguredMasternode = true
     return this
   }
 
@@ -152,7 +149,7 @@ export class NativeChainContainer extends GenericContainer {
       ...defaultCmd.prepend,
       ...authCmd,
       ...defaultCmd[this.blockchainNetwork.name],
-      ...this.hasPreconfiguredMasternode ? defaultCmd.masternode : [],
+      ...(this.masterNodeKey != null) ? defaultCmd.masternode : [],
       ...masterNodeOperator,
       ...this.addedCmds
     ]
