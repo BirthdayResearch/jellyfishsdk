@@ -7,8 +7,29 @@ import BigNumber from 'bignumber.js'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
-    '6a2f446654784601010000000065cd1d00000000160014850e5938570fa2752353e211ab3d880b3ebfe58b000000000000',
-    '6a454466547846010100000000e1f50500000000160014ad54d71e8681e0c990349070cbd17a5c567a9b9e0000000000160014ad54d71e8681e0c990349070cbd17a5c567a9b9e'
+    /**
+      * TokenBurn : {
+        amounts: [{'token': 1, 'amount': new BigNumber(1)}],
+        from: "bcrt1q9t4j95j0whjd4n40frg4csdk73kxuwmygjal4q",
+        context: "bcrt1q9t4j95j0whjd4n40frg4csdk73kxuwmygjal4q"
+      }
+     */
+    '6a454466547846010100000000e1f505000000001600142aeb22d24f75e4daceaf48d15c41b6f46c6e3b6400000000001600142aeb22d24f75e4daceaf48d15c41b6f46c6e3b64',
+    /**
+      * TokenBurn : {
+        amounts: [{'token': 1, 'amount': new BigNumber(9)}],
+        from: "bcrt1qpqphr5kca5urfcqyslk2jyqyh4ljgvp89s6lhn",
+        context: "bcrt1qpqphr5kca5urfcqyslk2jyqyh4ljgvp89s6lhn"
+      }
+     */
+    '6a454466547846010100000000e9a43500000000160014080371d2d8ed3834e00487eca91004bd7f2430270000000000160014080371d2d8ed3834e00487eca91004bd7f243027',
+    /**
+      * TokenBurn : {
+        amounts: [{'token': 1, 'amount': new BigNumber(5)}],
+        from: "bcrt1qeefwuhumyrvsjup0w9xu25kwys3rxlva6pqha0"
+      }
+     */
+    '6a2f446654784601010000000065cd1d00000000160014ce52ee5f9b20d909702f714dc552ce2422337d9d000000000000'
   ]
 
   fixtures.forEach(hex => {
@@ -27,7 +48,7 @@ const tokenBurnData = [
     header: '6a2f4466547846',
     data: '01010000000065cd1d00000000160014850e5938570fa2752353e211ab3d880b3ebfe58b000000000000',
     tokenBurn: {
-      amounts: [{ token: 1, amount: new BigNumber(5) }] as TokenBalanceUInt32[],
+      amounts: [{ token: 1, amount: new BigNumber(5) }],
       from: {
         stack: [
           OP_CODES.OP_0,
