@@ -12,16 +12,6 @@ export interface TokenMint {
 }
 
 /**
- * TokenBurn DeFi Transaction
- */
-export interface TokenBurn {
-  amounts: TokenBalanceUInt32[]
-  from: Script
-  burnType: number
-  variantContext: TokenBurnVarInt
-}
-
-/**
  * Composable TokenMint, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
@@ -131,6 +121,39 @@ export class CTokenUpdateAny extends ComposableBuffer<TokenUpdateAny> {
 }
 
 /**
+ * Known as "std::variant<CScript>" in cpp.
+ */
+interface VariantScript {
+  variant: number
+  context: Script
+}
+
+/**
+ * Known as "std::variant<CScript>" in cpp.
+ *
+ * Composable TokenBurnVarInt, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+class CTokenBurnVarInt extends ComposableBuffer<VariantScript> {
+  composers (tb: VariantScript): BufferComposer[] {
+    return [
+      ComposableBuffer.uInt32(() => tb.variant, v => tb.variant = v),
+      ComposableBuffer.single<Script>(() => tb.context, v => tb.context = v, v => new CScript(v))
+    ]
+  }
+}
+
+/**
+ * TokenBurn DeFi Transaction
+ */
+export interface TokenBurn {
+  amounts: TokenBalanceUInt32[]
+  from: Script
+  burnType: number
+  variantContext: VariantScript
+}
+
+/**
  * Composable TokenBurn, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
@@ -143,30 +166,7 @@ export class CTokenBurn extends ComposableBuffer<TokenBurn> {
       ComposableBuffer.compactSizeArray(() => tb.amounts, v => tb.amounts = v, v => new CTokenBalance(v)),
       ComposableBuffer.single<Script>(() => tb.from, v => tb.from = v, v => new CScript(v)),
       ComposableBuffer.uInt8(() => tb.burnType, v => tb.burnType = v),
-      ComposableBuffer.single<TokenBurnVarInt>(() => tb.variantContext, v => tb.variantContext = v, v => new CTokenBurnVarInt(v))
-    ]
-  }
-}
-
-/**
- * Known as "std::variant<CScript>" in cpp.
- */
-interface TokenBurnVarInt {
-  variant: number
-  context: Script
-}
-
-/**
- * Known as "std::variant<CScript>" in cpp.
- *
- * Composable TokenBurnVarInt, C stands for Composable.
- * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
- */
-class CTokenBurnVarInt extends ComposableBuffer<TokenBurnVarInt> {
-  composers (tb: TokenBurnVarInt): BufferComposer[] {
-    return [
-      ComposableBuffer.uInt32(() => tb.variant, v => tb.variant = v),
-      ComposableBuffer.single<Script>(() => tb.context, v => tb.context = v, v => new CScript(v))
+      ComposableBuffer.single<VariantScript>(() => tb.variantContext, v => tb.variantContext = v, v => new CTokenBurnVarInt(v))
     ]
   }
 }
