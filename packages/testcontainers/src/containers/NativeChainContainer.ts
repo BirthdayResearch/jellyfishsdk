@@ -42,7 +42,7 @@ export class NativeChainContainer extends GenericContainer {
     return `${NativeChainContainer.PREFIX}-${this.blockchainNetwork.name}-${rand}`
   }
 
-  protected blockchainNetwork: BlockchainNetwork = getNetwork('testnet')
+  protected blockchainNetwork: BlockchainNetwork = getNetwork('regtest')
 
   /**
    * @param networkName Blockchain network name (e.g. 'testnet')
