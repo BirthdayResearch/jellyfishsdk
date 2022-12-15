@@ -171,21 +171,13 @@ export class NativeChainContainer extends GenericContainer {
       .withName(this.name ?? this.generateName())
       .withCommand(this.command.length > 0 ? this.command.concat(this.addedCmds) : this.generateCmd())
 
-    const {
-      rpcUser,
-      rpcPassword,
-      blockchainNetwork,
-      masterNodeKey
-    } = this
+    const config = {
+      rpcUser: this.rpcUser,
+      rpcPassword: this.rpcPassword,
+      blockchainNetwork: this.blockchainNetwork,
+    }
 
-    const sncc = new StartedNativeChainContainer(
-      await super.start(),
-      {
-        rpcUser,
-        rpcPassword,
-        blockchainNetwork
-      }
-    )
+    const sncc = new StartedNativeChainContainer(await super.start(), config)
     return (masterNodeKey != null) ? await sncc.withMasterNode(masterNodeKey) : sncc
   }
 }
