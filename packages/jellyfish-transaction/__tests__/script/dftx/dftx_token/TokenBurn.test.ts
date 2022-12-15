@@ -1,9 +1,25 @@
 import { SmartBuffer } from 'smart-buffer'
-import { TokenBalanceUInt32 } from '../../../../src/script/dftx'
+import { OP_DEFI_TX, TokenBalanceUInt32 } from '../../../../src/script/dftx'
 import { CTokenBurn } from '../../../../src/script/dftx/dftx_token'
 import { OP_CODES } from '../../../../src/script'
-import { toBuffer } from '../../../../src/script/_buffer'
+import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
 import BigNumber from 'bignumber.js'
+
+it('should bi-directional buffer-object-buffer', () => {
+  const fixtures = [
+    '6a2f446654784601010000000065cd1d00000000160014850e5938570fa2752353e211ab3d880b3ebfe58b000000000000',
+    '6a454466547846010100000000e1f50500000000160014ad54d71e8681e0c990349070cbd17a5c567a9b9e0000000000160014ad54d71e8681e0c990349070cbd17a5c567a9b9e'
+  ]
+
+  fixtures.forEach(hex => {
+    const stack = toOPCodes(
+      SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
+    )
+    const buffer = toBuffer(stack)
+    expect(buffer.toString('hex')).toStrictEqual(hex)
+    expect((stack[1] as OP_DEFI_TX).tx.type).toStrictEqual(0x46)
+  })
+})
 
 const tokenBurnData = [
   {
