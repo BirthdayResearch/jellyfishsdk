@@ -38,15 +38,15 @@ describe('createCfp', () => {
     const expectedAmounts = [{
       nAmount: 999,
       creationFee: 10,
-      changeRange: [fundAmount - 10, fundAmount - 10.001]
+      changeRange: [fundAmount - 10.001, fundAmount - 10]
     }, {
       nAmount: 1000,
       creationFee: 10,
-      changeRange: [fundAmount - 20, fundAmount - 20.001]
+      changeRange: [fundAmount - 20.001, fundAmount - 20]
     }, {
       nAmount: 1001,
       creationFee: 10.01,
-      changeRange: [fundAmount - 30.01, fundAmount - 30.011]
+      changeRange: [fundAmount - 30.011, fundAmount - 30.01]
     }]
 
     const address = await providers.getAddress()
@@ -72,14 +72,14 @@ describe('createCfp', () => {
       const outs = await sendTransaction(testing.container, txn)
       expect(outs[0].value).toStrictEqual(expectedAmounts[i].creationFee)
       expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
-      expect(outs[1].value).toBeLessThan(expectedAmounts[i].changeRange[0])
-      expect(outs[1].value).toBeGreaterThan(expectedAmounts[i].changeRange[1])
+      expect(outs[1].value).toBeGreaterThan(expectedAmounts[i].changeRange[0])
+      expect(outs[1].value).toBeLessThan(expectedAmounts[i].changeRange[1])
       expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(address)
 
       // Ensure balance is deducted properly
       const prevouts = await providers.prevout.all()
-      expect(prevouts[0].value.toNumber()).toBeLessThan(expectedAmounts[i].changeRange[0])
-      expect(prevouts[0].value.toNumber()).toBeGreaterThan(expectedAmounts[i].changeRange[1])
+      expect(prevouts[0].value.toNumber()).toBeGreaterThan(expectedAmounts[i].changeRange[0])
+      expect(prevouts[0].value.toNumber()).toBeLessThan(expectedAmounts[i].changeRange[1])
 
       const listProposals = await testing.rpc.governance.listGovProposals()
       const txid = calculateTxid(txn)
