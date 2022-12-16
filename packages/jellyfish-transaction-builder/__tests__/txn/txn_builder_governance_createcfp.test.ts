@@ -49,6 +49,8 @@ describe('createCfp', () => {
       changeRange: [fundAmount - 30.01, fundAmount - 30.011]
     }]
 
+    const address = await providers.getAddress()
+
     for (let i = 0; i < expectedAmounts.length; i++) {
       const script = await providers.elliptic.script()
       const createCfp: CreateCfp = {
@@ -66,11 +68,18 @@ describe('createCfp', () => {
       const encoded: string = OP_CODES.OP_DEFI_TX_CREATE_CFP(createCfp).asBuffer().toString('hex')
       const expectedRedeemScript = `6a${encoded}`
 
+      // Ensure the created txn is correct
       const outs = await sendTransaction(testing.container, txn)
       expect(outs[0].value).toStrictEqual(expectedAmounts[i].creationFee)
       expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
       expect(outs[1].value).toBeLessThan(expectedAmounts[i].changeRange[0])
       expect(outs[1].value).toBeGreaterThan(expectedAmounts[i].changeRange[1])
+      expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(address)
+
+      // Ensure balance is deducted properly
+      const prevouts = await providers.prevout.all()
+      expect(prevouts[0].value.toNumber()).toBeLessThan(expectedAmounts[i].changeRange[0])
+      expect(prevouts[0].value.toNumber()).toBeGreaterThan(expectedAmounts[i].changeRange[1])
 
       const listProposals = await testing.rpc.governance.listGovProposals()
       const txid = calculateTxid(txn)
