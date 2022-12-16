@@ -324,6 +324,18 @@ export class Wallet {
   async listWallets (): Promise<string[]> {
     return await this.client.call('listwallets', [], 'number')
   }
+
+  /**
+   * Sign a message with the private key of an address
+   * Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
+   *
+   * @param {string} address The DeFi address to use for the private key.
+   * @param {string} message The message to create a signature of.
+   * @return {Promise<string>}
+   */
+  async signMessage (address: string, message: string): Promise<string> {
+    return await this.client.call('signmessage', [address, message], 'number')
+  }
 }
 
 export interface UTXO {
