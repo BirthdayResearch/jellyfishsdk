@@ -34,77 +34,71 @@ describe('createCfp', () => {
     await testing.container.stop()
   })
 
-  it('should createCfp', async () => {
-    const expectedAmounts = [{
-      nAmount: 999,
-      creationFee: 10,
-      changeRange: [fundAmount - 10.001, fundAmount - 10]
-    }, {
-      nAmount: 1000,
-      creationFee: 10,
-      changeRange: [fundAmount - 20.001, fundAmount - 20]
-    }, {
-      nAmount: 1001,
-      creationFee: 10.01,
-      changeRange: [fundAmount - 30.011, fundAmount - 30.01]
-    }]
-
-    const address = await providers.getAddress()
-
-    for (let i = 0; i < expectedAmounts.length; i++) {
-      const script = await providers.elliptic.script()
-      const createCfp: CreateCfp = {
-        type: 0x01,
-        title: 'Testing new community fund proposal',
-        context: 'https://github.com/DeFiCh/dfips',
-        contexthash: '<context hash>',
-        nAmount: new BigNumber(expectedAmounts[i].nAmount),
-        address: script,
-        nCycles: 2,
-        options: 0x00
-      }
-      const txn = await builder.governance.createCfp(createCfp, script)
-
-      const encoded: string = OP_CODES.OP_DEFI_TX_CREATE_CFP(createCfp).asBuffer().toString('hex')
-      const expectedRedeemScript = `6a${encoded}`
-
-      // Ensure the created txn is correct
-      const outs = await sendTransaction(testing.container, txn)
-      expect(outs[0].value).toStrictEqual(expectedAmounts[i].creationFee)
-      expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
-      expect(outs[1].value).toBeGreaterThan(expectedAmounts[i].changeRange[0])
-      expect(outs[1].value).toBeLessThan(expectedAmounts[i].changeRange[1])
-      expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(address)
-
-      // Ensure balance is deducted properly
-      const prevouts = await providers.prevout.all()
-      expect(prevouts[0].value.toNumber()).toBeGreaterThan(expectedAmounts[i].changeRange[0])
-      expect(prevouts[0].value.toNumber()).toBeLessThan(expectedAmounts[i].changeRange[1])
-
-      const listProposals = await testing.rpc.governance.listGovProposals()
-      const txid = calculateTxid(txn)
-
-      const proposal = listProposals.find(el => el.proposalId === txid)
-      expect(proposal).toStrictEqual({
-        proposalId: txid,
-        title: createCfp.title,
-        context: createCfp.context,
-        contextHash: createCfp.contexthash,
-        type: governance.ProposalType.COMMUNITY_FUND_PROPOSAL,
-        status: governance.ProposalStatus.VOTING,
-        amount: createCfp.nAmount,
-        currentCycle: 1,
-        totalCycles: createCfp.nCycles,
-        fee: expectedAmounts[i].creationFee,
-        creationHeight: expect.any(Number),
-        cycleEndHeight: expect.any(Number),
-        proposalEndHeight: expect.any(Number),
-        payoutAddress: expect.any(String),
-        approvalThreshold: expect.any(String),
-        quorum: expect.any(String),
-        votingPeriod: expect.any(Number)
-      })
+  it.each([{
+    nAmount: 999,
+    creationFee: 10,
+    changeRange: [fundAmount - 10.001, fundAmount - 10]
+  }, {
+    nAmount: 1000,
+    creationFee: 10,
+    changeRange: [fundAmount - 20.001, fundAmount - 20]
+  }, {
+    nAmount: 1001,
+    creationFee: 10.01,
+    changeRange: [fundAmount - 30.011, fundAmount - 30.01]
+  }])('should createCfp', async (expectedAmounts) => {
+    const script = await providers.elliptic.script()
+    const createCfp: CreateCfp = {
+      type: 0x01,
+      title: 'Testing new community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
+      contexthash: '<context hash>',
+      nAmount: new BigNumber(expectedAmounts.nAmount),
+      address: script,
+      nCycles: 2,
+      options: 0x00
     }
+    const txn = await builder.governance.createCfp(createCfp, script)
+
+    const encoded: string = OP_CODES.OP_DEFI_TX_CREATE_CFP(createCfp).asBuffer().toString('hex')
+    const expectedRedeemScript = `6a${encoded}`
+
+    // Ensure the created txn is correct
+    const outs = await sendTransaction(testing.container, txn)
+    expect(outs[0].value).toStrictEqual(expectedAmounts.creationFee)
+    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
+    expect(outs[1].value).toBeGreaterThan(expectedAmounts.changeRange[0])
+    expect(outs[1].value).toBeLessThan(expectedAmounts.changeRange[1])
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
+
+    // Ensure balance is deducted properly
+    const prevouts = await providers.prevout.all()
+    expect(prevouts[0].value.toNumber()).toBeGreaterThan(expectedAmounts.changeRange[0])
+    expect(prevouts[0].value.toNumber()).toBeLessThan(expectedAmounts.changeRange[1])
+
+    const listProposals = await testing.rpc.governance.listGovProposals()
+    const txid = calculateTxid(txn)
+
+    const proposal = listProposals.find(el => el.proposalId === txid)
+    expect(proposal).toStrictEqual({
+      proposalId: txid,
+      title: createCfp.title,
+      context: createCfp.context,
+      contextHash: createCfp.contexthash,
+      type: governance.ProposalType.COMMUNITY_FUND_PROPOSAL,
+      status: governance.ProposalStatus.VOTING,
+      amount: createCfp.nAmount,
+      currentCycle: 1,
+      totalCycles: createCfp.nCycles,
+      fee: expectedAmounts.creationFee,
+      creationHeight: expect.any(Number),
+      cycleEndHeight: expect.any(Number),
+      proposalEndHeight: expect.any(Number),
+      payoutAddress: expect.any(String),
+      approvalThreshold: expect.any(String),
+      quorum: expect.any(String),
+      votingPeriod: expect.any(Number)
+    })
   })
 
   it('should reject if proposal cycles > 100', async () => {
