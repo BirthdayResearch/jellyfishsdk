@@ -14,6 +14,7 @@ describe('createCfp', () => {
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
   const testing = Testing.create(new MasterNodeRegTestContainer())
+  const fundAmount = 12000100
 
   beforeAll(async () => {
     await testing.container.start()
@@ -25,7 +26,7 @@ describe('createCfp', () => {
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     await testing.container.waitForWalletBalanceGTE(11)
-    await fundEllipticPair(testing.container, providers.ellipticPair, 12000100)
+    await fundEllipticPair(testing.container, providers.ellipticPair, fundAmount)
     await providers.setupMocks()
   })
 
@@ -34,25 +35,28 @@ describe('createCfp', () => {
   })
 
   it('should createCfp', async () => {
-    const amounts = [{
+    const expectedAmounts = [{
       nAmount: 999,
-      creationFee: 10
+      creationFee: 10,
+      changeRange: [fundAmount - 10, fundAmount - 10.001]
     }, {
       nAmount: 1000,
-      creationFee: 10
+      creationFee: 10,
+      changeRange: [fundAmount - 20, fundAmount - 20.001]
     }, {
       nAmount: 1001,
-      creationFee: 10.01
+      creationFee: 10.01,
+      changeRange: [fundAmount - 30.01, fundAmount - 30.011]
     }]
 
-    for (let i = 0; i < amounts.length; i++) {
+    for (let i = 0; i < expectedAmounts.length; i++) {
       const script = await providers.elliptic.script()
       const createCfp: CreateCfp = {
         type: 0x01,
         title: 'Testing new community fund proposal',
         context: 'https://github.com/DeFiCh/dfips',
         contexthash: '<context hash>',
-        nAmount: new BigNumber(amounts[i].nAmount),
+        nAmount: new BigNumber(expectedAmounts[i].nAmount),
         address: script,
         nCycles: 2,
         options: 0x00
@@ -63,8 +67,10 @@ describe('createCfp', () => {
       const expectedRedeemScript = `6a${encoded}`
 
       const outs = await sendTransaction(testing.container, txn)
-      expect(outs[0].value).toStrictEqual(amounts[i].creationFee)
+      expect(outs[0].value).toStrictEqual(expectedAmounts[i].creationFee)
       expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
+      expect(outs[1].value).toBeLessThan(expectedAmounts[i].changeRange[0])
+      expect(outs[1].value).toBeGreaterThan(expectedAmounts[i].changeRange[1])
 
       const listProposals = await testing.rpc.governance.listGovProposals()
       const txid = calculateTxid(txn)
@@ -80,7 +86,7 @@ describe('createCfp', () => {
         amount: createCfp.nAmount,
         currentCycle: 1,
         totalCycles: createCfp.nCycles,
-        fee: amounts[i].creationFee,
+        fee: expectedAmounts[i].creationFee,
         creationHeight: expect.any(Number),
         cycleEndHeight: expect.any(Number),
         proposalEndHeight: expect.any(Number),
