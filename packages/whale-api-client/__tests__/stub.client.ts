@@ -49,7 +49,7 @@ export class StubWhaleRpcClient extends WhaleRpcClient {
 
     // @ts-expect-error
     return {
-      url: res.raw.req.url,
+      url: res.raw.req.url ?? '',
       ok: res.statusCode === 200,
       redirected: false,
       status: res.statusCode,
