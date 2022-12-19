@@ -397,3 +397,13 @@ interface wallet {
   listWallets (): Promise<string[]>
 }
 ```
+
+## signMessage
+
+Sign a message with the private key of an address. Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
+
+```ts title="client.wallet.signMessage()"
+interface wallet {
+  signMessage (address: string, message: string): Promise<string>
+}
+```
