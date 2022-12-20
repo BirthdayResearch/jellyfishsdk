@@ -109,16 +109,6 @@ tokenBurnData.forEach(({ header, tokenBurn, data }) => {
     expect(buffer.toString('hex')).toStrictEqual(header + data)
   })
 
-  it('should craft dftx with OP_CODES._() for burning tokens', () => {
-    const stack = [
-      OP_CODES.OP_RETURN,
-      OP_CODES.OP_DEFI_TX_TOKEN_BURN(tokenBurn)
-    ]
-
-    const buffer = toBuffer(stack)
-    expect(buffer.toString('hex')).toStrictEqual(header + data)
-  })
-
   describe('Composable', () => {
     it('should compose from buffer to composable', () => {
       const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
