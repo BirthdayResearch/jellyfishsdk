@@ -2,6 +2,7 @@ import { ConsortiumController } from './consortium.controller'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../e2e.module'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
+import { StartFlags } from '@defichain/testcontainers'
 
 describe('getTransactionHistory', () => {
   const tGroup = TestingGroup.create(2)
@@ -15,9 +16,10 @@ describe('getTransactionHistory', () => {
   let app: NestFastifyApplication
   let controller: ConsortiumController
   const txIdMatcher = expect.stringMatching(/[0-f]{64}/)
+  const startFlags: StartFlags[] = [{ name: 'regtest-minttoken-simulate-mainnet', value: 1 }]
 
   beforeAll(async () => {
-    await tGroup.start()
+    await tGroup.start({ startFlags })
     await alice.container.waitForWalletCoinbaseMaturity()
 
     app = await createTestingApp(alice.container)
@@ -34,20 +36,23 @@ describe('getTransactionHistory', () => {
     const hash = await alice.rpc.masternode.setGov({ ATTRIBUTES })
     expect(hash).toBeTruthy()
     await alice.generate(1)
+    await tGroup.waitForSync()
   }
 
-  async function setMemberInfo (tokenId: string, memberInfo: Array<{ id: string, name: string, backingId: string, ownerAddress: string, mintLimit: string, dailyMintLimit: string }>): Promise<void> {
-    const infoObjs = memberInfo.map(mi => `
-      "${mi.id}":{
-        "name":"${mi.name}", 
-        "ownerAddress":"${mi.ownerAddress}",
-        "backingId":"${mi.backingId}",
-        "dailyMintLimit":${mi.dailyMintLimit},
-        "mintLimit":${mi.mintLimit}
-      }`
-    )
+  async function setMemberInfo (tokenId: string, memberInfo: Array<{ id: string, name: string, backingId: string, ownerAddress: string, mintLimit: string, mintLimitDaily: string }>): Promise<void> {
+    const infoObjs: { [key: string]: object } = {}
 
-    return await setGovAttr({ [`v0/consortium/${tokenId}/members`]: `{${infoObjs.join(',')}}` })
+    memberInfo.forEach(mi => {
+      infoObjs[mi.id] = {
+        name: mi.name,
+        ownerAddress: mi.ownerAddress,
+        backingId: mi.backingId,
+        mintLimitDaily: mi.mintLimitDaily,
+        mintLimit: mi.mintLimit
+      }
+    })
+
+    return await setGovAttr({ [`v0/consortium/${tokenId}/members`]: infoObjs })
   }
 
   async function setup (): Promise<void> {
@@ -92,15 +97,15 @@ describe('getTransactionHistory', () => {
       name: 'alice',
       ownerAddress: accountAlice,
       backingId: 'abc',
-      dailyMintLimit: '5.00000000',
-      mintLimit: '10.00000000'
+      mintLimitDaily: '5',
+      mintLimit: '10'
     }, {
       id: '02',
       name: 'bob',
       ownerAddress: accountBob,
       backingId: 'def,hij',
-      dailyMintLimit: '5.00000000',
-      mintLimit: '10.00000000'
+      mintLimitDaily: '5',
+      mintLimit: '10'
     }])
 
     await setMemberInfo(idETH, [{
@@ -108,34 +113,37 @@ describe('getTransactionHistory', () => {
       name: 'alice',
       ownerAddress: accountAlice,
       backingId: '',
-      dailyMintLimit: '10.00000000',
+      mintLimitDaily: '10.00000000',
       mintLimit: '20.00000000'
     }, {
       id: '02',
       name: 'bob',
       ownerAddress: accountBob,
       backingId: 'lmn,opq',
-      dailyMintLimit: '10.00000000',
+      mintLimitDaily: '10.00000000',
       mintLimit: '20.00000000'
     }])
 
     await alice.rpc.token.mintTokens(`1@${symbolBTC}`)
-    await alice.generate(5)
+    await alice.generate(1)
 
     await alice.rpc.token.mintTokens(`2@${symbolETH}`)
-    await alice.generate(5)
+    await alice.generate(1)
 
     await alice.rpc.token.burnTokens(`1@${symbolETH}`, accountAlice)
-    await alice.generate(5)
+    await alice.generate(1)
+    await tGroup.waitForSync()
 
     await bob.rpc.token.mintTokens(`4@${symbolBTC}`)
-    await bob.generate(5)
+    await bob.generate(1)
 
     await bob.rpc.token.burnTokens(`2@${symbolBTC}`, accountBob)
-    await bob.generate(5)
+    await bob.generate(1)
+    await tGroup.waitForSync()
 
     const height = await alice.container.getBlockCount()
     await alice.generate(1)
+    await tGroup.waitForSync()
     await waitForIndexedHeight(app, height)
   }
 
@@ -149,17 +157,17 @@ describe('getTransactionHistory', () => {
     await expect(controller.getTransactionHistory({ search: 'a'.repeat(65), limit: 1 })).rejects.toThrow('InvalidSearchTerm')
   })
 
-  it('should throw an error if the max block height is invalid', async () => {
-    await expect(controller.getTransactionHistory({ maxBlockHeight: -2, limit: 1 })).rejects.toThrow('InvalidMaxBlockHeight')
+  it('should throw an error if the start index is invalid', async () => {
+    await expect(controller.getTransactionHistory({ start: -2, limit: 1 })).rejects.toThrow('InvalidStart')
   })
 
   it('should filter transactions with search term (member name)', async () => {
-    const info = await controller.getTransactionHistory({ search: 'alice', limit: 20 })
+    const info = await controller.getTransactionHistory({ search: 'alice' })
 
     expect(info.transactions.length).toStrictEqual(3)
     expect(info.transactions).toStrictEqual([
-      { txId: txIdMatcher, type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 119 },
-      { txId: txIdMatcher, type: 'Mint', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '2.00000000' }], address: accountAlice, block: 114 },
+      { txId: txIdMatcher, type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 111 },
+      { txId: txIdMatcher, type: 'Mint', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '2.00000000' }], address: accountAlice, block: 110 },
       { txId: txIdMatcher, type: 'Mint', member: 'alice', tokenAmounts: [{ token: 'dBTC', amount: '1.00000000' }], address: accountAlice, block: 109 }
     ])
     expect(info.total).toStrictEqual(3)
@@ -170,8 +178,8 @@ describe('getTransactionHistory', () => {
 
     expect(info.transactions.length).toStrictEqual(3)
     expect(info.transactions).toStrictEqual([
-      { txId: txIdMatcher, type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 119 },
-      { txId: txIdMatcher, type: 'Mint', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '2.00000000' }], address: accountAlice, block: 114 },
+      { txId: txIdMatcher, type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 111 },
+      { txId: txIdMatcher, type: 'Mint', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '2.00000000' }], address: accountAlice, block: 110 },
       { txId: txIdMatcher, type: 'Mint', member: 'alice', tokenAmounts: [{ token: 'dBTC', amount: '1.00000000' }], address: accountAlice, block: 109 }
     ])
     expect(info.total).toStrictEqual(3)
@@ -184,7 +192,7 @@ describe('getTransactionHistory', () => {
 
     expect(info.transactions.length).toStrictEqual(1)
     expect(info.transactions).toStrictEqual([
-      { txId: tx.txid, type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 119 }
+      { txId: tx.txid, type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 111 }
     ])
     expect(info.total).toStrictEqual(1)
   })
@@ -194,9 +202,9 @@ describe('getTransactionHistory', () => {
 
     expect(info.transactions.length).toStrictEqual(3)
     expect(info.transactions).toStrictEqual([
-      { txId: txIdMatcher, type: 'Burn', member: 'bob', tokenAmounts: [{ token: 'dBTC', amount: '-2.00000000' }], address: accountBob, block: 129 },
-      { txId: txIdMatcher, type: 'Mint', member: 'bob', tokenAmounts: [{ token: 'dBTC', amount: '4.00000000' }], address: accountBob, block: 124 },
-      { txId: txIdMatcher, type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 119 }
+      { txId: txIdMatcher, type: 'Burn', member: 'bob', tokenAmounts: [{ token: 'dBTC', amount: '-2.00000000' }], address: accountBob, block: 113 },
+      { txId: txIdMatcher, type: 'Mint', member: 'bob', tokenAmounts: [{ token: 'dBTC', amount: '4.00000000' }], address: accountBob, block: 112 },
+      { txId: txIdMatcher, type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 111 }
     ])
     expect(info.total).toStrictEqual(5)
   })
@@ -206,26 +214,14 @@ describe('getTransactionHistory', () => {
 
     expect(info.transactions.length).toStrictEqual(2)
     expect(info.transactions).toStrictEqual([
-      { txId: txIdMatcher, type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 119 },
-      { txId: txIdMatcher, type: 'Mint', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '2.00000000' }], address: accountAlice, block: 114 }
+      { txId: txIdMatcher, type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 111 },
+      { txId: txIdMatcher, type: 'Mint', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '2.00000000' }], address: accountAlice, block: 110 }
     ])
     expect(info.total).toStrictEqual(3)
   })
 
-  it('should get transactions upto a specific block height with a limit', async () => {
-    const info = await controller.getTransactionHistory({ limit: 3, maxBlockHeight: 124 })
-
-    expect(info.transactions.length).toStrictEqual(3)
-    expect(info.transactions).toStrictEqual([
-      { txId: txIdMatcher, type: 'Mint', member: 'bob', tokenAmounts: [{ token: 'dBTC', amount: '4.00000000' }], address: accountBob, block: 124 },
-      { txId: txIdMatcher, type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 119 },
-      { txId: txIdMatcher, type: 'Mint', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '2.00000000' }], address: accountAlice, block: 114 }
-    ])
-    expect(info.total).toStrictEqual(5)
-  })
-
-  it('should return empty list of transactions for invalid search term', async () => {
-    const info = await controller.getTransactionHistory({ search: 'invalid-term', limit: 20 })
+  it('should return empty list of transactions for not-found search term', async () => {
+    const info = await controller.getTransactionHistory({ search: 'not-found-term', limit: 20 })
 
     expect(info.transactions.length).toStrictEqual(0)
     expect(info.total).toStrictEqual(0)
@@ -241,7 +237,7 @@ describe('getTransactionHistory', () => {
   })
 
   it('should paginate properly', async () => {
-    const page1 = await controller.getTransactionHistory({ limit: 2 })
+    const page1 = await controller.getTransactionHistory({ start: 0, limit: 2 })
 
     expect(page1).toStrictEqual({
       transactions: [
@@ -251,7 +247,7 @@ describe('getTransactionHistory', () => {
           tokenAmounts: [{ token: 'dBTC', amount: '-2.00000000' }],
           txId: txIdMatcher,
           address: accountBob,
-          block: 129
+          block: 113
         },
         {
           type: 'Mint',
@@ -259,13 +255,13 @@ describe('getTransactionHistory', () => {
           tokenAmounts: [{ token: 'dBTC', amount: '4.00000000' }],
           txId: txIdMatcher,
           address: accountBob,
-          block: 124
+          block: 112
         }
       ],
       total: 5
     })
 
-    const page2 = await controller.getTransactionHistory({ limit: 2, maxBlockHeight: page1.transactions[page1.transactions.length - 1].block - 1 })
+    const page2 = await controller.getTransactionHistory({ start: 1, limit: 2 })
 
     expect(page2).toStrictEqual({
       transactions: [
@@ -275,7 +271,7 @@ describe('getTransactionHistory', () => {
           tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }],
           txId: txIdMatcher,
           address: accountAlice,
-          block: 119
+          block: 111
         },
         {
           type: 'Mint',
@@ -283,13 +279,13 @@ describe('getTransactionHistory', () => {
           tokenAmounts: [{ token: 'dETH', amount: '2.00000000' }],
           txId: txIdMatcher,
           address: accountAlice,
-          block: 114
+          block: 110
         }
       ],
       total: 5
     })
 
-    const page3 = await controller.getTransactionHistory({ limit: 2, maxBlockHeight: page2.transactions[page2.transactions.length - 1].block - 1 })
+    const page3 = await controller.getTransactionHistory({ start: 2, limit: 2 })
 
     expect(page3).toStrictEqual({
       transactions: [

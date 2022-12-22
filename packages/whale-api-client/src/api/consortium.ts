@@ -8,14 +8,28 @@ export class Consortium {
   }
 
   /**
+   *  Gets the asset breakdown information of consortium members.
+   *
+   * @return {Promise<AssetBreakdownInfo[]>}
+    */
+  async getAssetBreakdown (): Promise<AssetBreakdownInfo[]> {
+    return await this.client.requestData('GET', 'consortium/assetbreakdown')
+  }
+
+  /**
    *  Gets the transaction history of consortium members.
-   * @param {number} limit how many transactions to fetch
-   * @param {string} [search] search term, can be a transaction id, member/owner address or member name
-   * @param {number} [maxBlockHeight] the maximum block height to look for, -1 for current tip by default
+   *
+   * @param {number} start The starting index for pagination
+   * @param {number} [limit] How many transactions to fetch
+   * @param {string} [search] Search term, can be a transaction id, member/owner address or member name
    * @return {Promise<ConsortiumTransactionResponse[]>}
     */
-  async getTransactionHistory (limit: number, search?: string, maxBlockHeight?: number): Promise<ConsortiumTransactionResponse> {
+  async getTransactionHistory (start: number, limit: number, search?: string): Promise<ConsortiumTransactionResponse> {
     const query = []
+
+    if (start !== undefined) {
+      query.push(`start=${start}`)
+    }
 
     if (limit !== undefined) {
       query.push(`limit=${limit}`)
@@ -23,10 +37,6 @@ export class Consortium {
 
     if (search !== undefined) {
       query.push(`search=${search}`)
-    }
-
-    if (maxBlockHeight !== undefined) {
-      query.push(`maxBlockHeight=${maxBlockHeight}`)
     }
 
     return await this.client.requestData('GET', `consortium/transactions?${query.join('&')}`)

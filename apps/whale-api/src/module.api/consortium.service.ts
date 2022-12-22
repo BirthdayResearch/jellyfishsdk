@@ -38,26 +38,28 @@ export class ConsortiumService {
     }
   }
 
-  async getTransactionHistory (limit: number, maxBlockHeight: number, search: string): Promise<ConsortiumTransactionResponse> {
+  async getTransactionHistory (start: number, limit: number, search: string): Promise<ConsortiumTransactionResponse> {
     const attrs = (await this.rpcClient.masternode.getGov('ATTRIBUTES')).ATTRIBUTES
     const members: ConsortiumMember[] = []
     const searching: boolean = search !== ''
     const keys: string[] = Object.keys(attrs)
-    const values: string[] = Object.values(attrs)
+    const values: object[] = Object.values(attrs)
     const membersKeyRegex: RegExp = /^v0\/consortium\/\d+\/members$/
     let totalTxCount: number = 0
     let searchFound: boolean = false
 
     keys.forEach((key: string, i: number) => {
       if (membersKeyRegex.exec(key) !== null) {
-        const membersPerToken: object = JSON.parse(values[i])
+        const membersPerToken = values[i]
         const memberIds: string[] = Object.keys(membersPerToken)
         let memberDetails: Array<{ ownerAddress: string, name: string }> = Object.values(membersPerToken)
 
-        const foundMembers: Array<{ ownerAddress: string, name: string }> = memberDetails.filter(m => m.ownerAddress === search || m.name.toLowerCase().includes(search))
-        if (foundMembers.length > 0) {
-          memberDetails = foundMembers
-          searchFound = true
+        if (searching) {
+          const foundMembers = memberDetails.filter(m => m.ownerAddress === search || m.name.toLowerCase().includes(search))
+          if (foundMembers.length > 0) {
+            memberDetails = foundMembers
+            searchFound = true
+          }
         }
 
         for (let j = 0; j < memberDetails.length; j++) {
@@ -98,36 +100,25 @@ export class ConsortiumService {
       }
     }
 
-    let txs: AccountHistory[] = []
+    const transactions: AccountHistory[] = await this.rpcClient.account.listAccountHistory(members.map(m => m.address), {
+      txtypes: [DfTxType.MINT_TOKEN, DfTxType.BURN_TOKEN],
+      including_start: true,
+      start: start * limit,
+      limit
+    })
 
+    const promises = []
     for (let i = 0; i < members.length; i++) {
-      const member = members[i]
-
-      const mintTxsPromise = this.rpcClient.account.listAccountHistory(member.address, {
-        txtype: DfTxType.MINT_TOKEN,
-        maxBlockHeight: maxBlockHeight,
-        limit
-      })
-
-      const burnTxsPromise = this.rpcClient.account.listAccountHistory(member.address, {
-        txtype: DfTxType.BURN_TOKEN,
-        maxBlockHeight: maxBlockHeight,
-        limit
-      })
-
-      const burnTxCountPromise = this.rpcClient.account.historyCount(member.address, { txtype: DfTxType.BURN_TOKEN })
-      const mintTxCountPromise = this.rpcClient.account.historyCount(member.address, { txtype: DfTxType.MINT_TOKEN })
-
-      const [mintTxs, burnTxs, burnTxCount, mintTxCount] = await Promise.all([mintTxsPromise, burnTxsPromise, burnTxCountPromise, mintTxCountPromise])
-
-      totalTxCount += burnTxCount + mintTxCount
-      txs.push(...mintTxs, ...burnTxs)
+      promises.push(this.rpcClient.account.historyCount(members[i].address, { txtype: DfTxType.BURN_TOKEN }))
+      promises.push(this.rpcClient.account.historyCount(members[i].address, { txtype: DfTxType.MINT_TOKEN }))
     }
-
-    txs = txs.sort((a: any, b: any) => b.blockTime - a.blockTime).slice(0, limit)
+    const counts = await Promise.all(promises)
+    totalTxCount = counts.reduce((prev, curr) => {
+      return prev + curr
+    }, 0)
 
     return {
-      transactions: txs.map(tx => {
+      transactions: transactions.map(tx => {
         return this.formatTransactionResponse(tx, members)
       }),
       total: totalTxCount
