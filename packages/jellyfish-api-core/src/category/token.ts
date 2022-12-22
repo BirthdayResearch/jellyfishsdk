@@ -98,6 +98,46 @@ export class Token {
   async mintTokens (amountToken: string, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('minttokens', [amountToken, utxos], 'number')
   }
+
+  /**
+   * Creates a transaction to burn tokens.
+   *
+   * @param {string} amounts Amount as json string, or array. Example: '[ \"amount@token\" ]'
+   * @param {string} from Address containing tokens to be burned
+   * @param {string} context Additional data necessary for specific burn type
+   * @param {UTXO[]} [utxos = []] A json array of json objects. Provide it if you want to spent specific UTXOs
+   * @param {string} [utxos.txid] The transaction id
+   * @param {number} [utxos.vout] The output number
+   * @return {Promise<string>} The hex-encoded hash of broadcasted transaction
+   */
+  async burnTokens (amounts: string, from: string, context?: string, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('burntokens', [{ amounts, from, context }, utxos], 'number')
+  }
+
+  /**
+   * Get detailed information about any custom transaction.
+   *
+   * @param {string} txid Transaction hash
+   * @param {string} [blockhash] (for confirmed transactions) Hash of the block of the  transaction
+   * @return {Promise<GetCustomTxResult | string>} Inferred custom transaction data, or error message
+   */
+  async getCustomTx (txid: string, blockhash?: string): Promise<GetCustomTxResult | string> {
+    return await this.client.call('getcustomtx', [txid, blockhash], 'number')
+  }
+
+  /**
+   * Get detailed information about any custom transaction from the raw transaction.
+   *
+   * @param {string} hexstring Serialised custom transaction data
+   * @param {boolean} [iswitness] is the transaction a serialised witness transaction
+   * @return {Promise<DecodeCustomTxResult | string>} Inferred custom transaction data, or error message
+   */
+  async decodeCustomTx (hexstring: string, iswitness?: boolean): Promise<DecodeCustomTxResult | string> {
+    if (iswitness === undefined) {
+      return await this.client.call('decodecustomtx', [hexstring], 'number')
+    }
+    return await this.client.call('decodecustomtx', [hexstring, iswitness], 'number')
+  }
 }
 
 export interface TokenResult {
@@ -151,4 +191,20 @@ export interface TokenPagination {
 export interface UTXO {
   txid: string
   vout: number
+}
+
+export interface GetCustomTxResult {
+  type: string
+  valid: boolean
+  results: object
+  blockHeight: string
+  blockhash: string
+  confirmations: number
+}
+
+export interface DecodeCustomTxResult {
+  txid: string
+  type: string
+  valid: boolean
+  results: object
 }

@@ -1,4 +1,10 @@
-import { createTestingApp, DelayedEunosPayaTestContainer, invalidateFromHeight, stopTestingApp, waitForIndexedHeight } from '../../../e2e.module'
+import {
+  createTestingApp,
+  DelayedEunosPayaTestContainer,
+  invalidateFromHeight,
+  stopTestingApp,
+  waitForIndexedHeight
+} from '../../../e2e.module'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasternodeMapper } from '../../../module.model/masternode'
@@ -120,6 +126,79 @@ describe('invalidate', () => {
       const invalidatedMasternode = await masternodeMapper.get(masternodeId)
       expect(invalidatedMasternode?.resignHeight).toStrictEqual(-1)
       expect(invalidatedMasternode?.resignTx).toStrictEqual(undefined)
+    }
+  })
+})
+
+describe('updated masternode', () => {
+  const container = new DelayedEunosPayaTestContainer()
+  let app: NestFastifyApplication
+  let client: JsonRpcClient
+  let mapper: MasternodeMapper
+
+  beforeAll(async () => {
+    await container.start()
+    await container.waitForWalletCoinbaseMaturity()
+
+    app = await createTestingApp(container)
+    mapper = app.get(MasternodeMapper)
+    client = new JsonRpcClient(await container.getCachedRpcUrl())
+
+    await client.masternode.setGov({
+      ATTRIBUTES: {
+        'v0/params/feature/mn-setowneraddress': 'true'
+      }
+    })
+    await container.generate(1)
+  })
+
+  afterAll(async () => {
+    await stopTestingApp(container, app)
+  })
+
+  it('should resign masternode and invalidate', async () => {
+    await container.generate(1)
+
+    const ownerAddress = await client.wallet.getNewAddress()
+    const masternodeId = await client.masternode.createMasternode(ownerAddress)
+
+    await container.generate(1)
+    const height = await client.blockchain.getBlockCount()
+    await container.generate(20)
+    await waitForIndexedHeight(app, height)
+
+    const masternode = await mapper.get(masternodeId)
+    expect(masternode).not.toBeUndefined()
+
+    await client.masternode.updateMasternode(masternodeId, {
+      ownerAddress: await client.wallet.getNewAddress()
+    })
+    await container.generate(50)
+
+    const resignTx = await client.masternode.resignMasternode(masternodeId)
+    await container.generate(1)
+    const resignHeight = await client.blockchain.getBlockCount()
+
+    {
+      await container.generate(1)
+      await waitForIndexedHeight(app, resignHeight)
+
+      const resignedMasternode = await mapper.get(masternodeId)
+      expect(resignedMasternode).toStrictEqual(expect.objectContaining({
+        resignHeight: resignHeight,
+        resignTx: resignTx
+      }))
+    }
+
+    {
+      await invalidateFromHeight(app, container, resignHeight)
+      await container.generate(2)
+      await waitForIndexedHeight(app, resignHeight)
+
+      const invalidatedMasternode = await mapper.get(masternodeId)
+      expect(invalidatedMasternode).toStrictEqual(expect.objectContaining({
+        resignHeight: -1
+      }))
     }
   })
 })

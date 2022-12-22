@@ -13,6 +13,7 @@ export * as stats from './api/stats'
 export * as rawtx from './api/rawtx'
 export * as fee from './api/fee'
 export * as loan from './api/loan'
+export * as consortium from './api/consortium'
 
 export * from './whale.api.client'
 export * from './whale.api.response'

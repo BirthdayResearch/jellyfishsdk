@@ -13,7 +13,8 @@
   "rangeStrategy": "bump",
   "packageRules": [
     {
-      "matchManagers": ["github-actions"],
+      "matchPackageNames": ["node", "npm", "pnpm", "yarn", "@types/node", "typescript"],
+      "groupName": "engines",
       "enabled": false
     },
     {
