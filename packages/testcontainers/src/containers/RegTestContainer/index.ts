@@ -54,7 +54,7 @@ export class RegTestContainer extends DeFiDContainer {
   }
 
   async getNewAddress (label: string = '', addressType: 'legacy' | 'p2sh-segwit' | 'bech32' | string = 'bech32'): Promise<string> {
-    return await this.call('getnewaddress', [label, addressType])
+    return await this.rpc.getNewAddress(label, addressType)
   }
 
   async getRpcPort (): Promise<string> {
