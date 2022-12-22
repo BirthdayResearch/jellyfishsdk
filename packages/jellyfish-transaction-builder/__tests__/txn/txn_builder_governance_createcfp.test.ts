@@ -14,7 +14,7 @@ describe('createCfp', () => {
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
   const testing = Testing.create(new MasterNodeRegTestContainer())
-  const fundAmount = 12000100
+  const fundAmount = 12101110
 
   beforeAll(async () => {
     await testing.container.start()
@@ -35,7 +35,7 @@ describe('createCfp', () => {
   })
 
   it.each([{
-    nAmount: 999,
+    nAmount: 10,
     creationFee: 10,
     changeRange: [fundAmount - 10.001, fundAmount - 10]
   }, {
@@ -43,9 +43,9 @@ describe('createCfp', () => {
     creationFee: 10,
     changeRange: [fundAmount - 20.001, fundAmount - 20]
   }, {
-    nAmount: 1001,
-    creationFee: 10.01,
-    changeRange: [fundAmount - 30.011, fundAmount - 30.01]
+    nAmount: 100000,
+    creationFee: 1000,
+    changeRange: [fundAmount - 1020.001, fundAmount - 30.01]
   }])('should createCfp', async (expectedAmounts) => {
     const script = await providers.elliptic.script()
     const createCfp: CreateCfp = {
@@ -99,6 +99,22 @@ describe('createCfp', () => {
       quorum: expect.any(String),
       votingPeriod: expect.any(Number)
     })
+  })
+
+  it('should reject if the amount is negative', async () => {
+    const script = await providers.elliptic.script()
+    const promise = builder.governance.createCfp({
+      type: 0x01,
+      title: 'Testing new community fund proposal',
+      context: 'https://github.com/DeFiCh/dfips',
+      contexthash: '<context hash>',
+      nAmount: new BigNumber(-100),
+      address: script,
+      nCycles: 5,
+      options: 0x00
+    }, script)
+
+    await expect(promise).rejects.toThrow('The value of "value" is out of range. It must be >= 0 and <= 4294967295. Received -1410065408')
   })
 
   it('should reject if proposal cycles > 100', async () => {
