@@ -294,7 +294,7 @@ export class Account {
   /**
    * Returns information about account history
    *
-   * @param {OwnerType | string} [owner=OwnerType.MINE] single account ID (CScript or address) or reserved words 'mine' to list history for all owned accounts or 'all' to list whole DB
+   * @param {OwnerType | string | string[]} [owner=OwnerType.MINE] Single/multiple account ID(s) (CScript or address) or reserved words 'mine' to list history for all owned accounts or 'all' to list whole DB
    * @param {AccountHistoryOptions} [options]
    * @param {number} [options.maxBlockHeight] Optional height to iterate from (down to genesis block), (default = chaintip).
    * @param {number} [options.depth] Maximum depth, from the genesis block is the default
@@ -310,7 +310,7 @@ export class Account {
    * @return {Promise<AccountHistory[]>}
    */
   async listAccountHistory (
-    owner: OwnerType | string = OwnerType.MINE,
+    owner: OwnerType | string | string[] = OwnerType.MINE,
     options: AccountHistoryOptions = {
       limit: 100
     }
