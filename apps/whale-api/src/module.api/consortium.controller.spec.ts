@@ -340,8 +340,8 @@ describe('getTransactionHistory', () => {
     await expect(controller.getTransactionHistory({ search: 'a'.repeat(65), limit: 1 })).rejects.toThrow('InvalidSearchTerm')
   })
 
-  it('should throw an error if the start index is invalid', async () => {
-    await expect(controller.getTransactionHistory({ start: -2, limit: 1 })).rejects.toThrow('InvalidStart')
+  it('should throw an error if the pageIndex is invalid', async () => {
+    await expect(controller.getTransactionHistory({ pageIndex: -1, limit: 1 })).rejects.toThrow('InvalidPageIndex')
   })
 
   it('should filter transactions with search term (member name)', async () => {
@@ -420,7 +420,7 @@ describe('getTransactionHistory', () => {
   })
 
   it('should paginate properly', async () => {
-    const page1 = await controller.getTransactionHistory({ start: 0, limit: 2 })
+    const page1 = await controller.getTransactionHistory({ pageIndex: 0, limit: 2 })
 
     expect(page1).toStrictEqual({
       transactions: [
@@ -444,7 +444,7 @@ describe('getTransactionHistory', () => {
       total: 5
     })
 
-    const page2 = await controller.getTransactionHistory({ start: 1, limit: 2 })
+    const page2 = await controller.getTransactionHistory({ pageIndex: 1, limit: 2 })
 
     expect(page2).toStrictEqual({
       transactions: [
@@ -468,7 +468,7 @@ describe('getTransactionHistory', () => {
       total: 5
     })
 
-    const page3 = await controller.getTransactionHistory({ start: 2, limit: 2 })
+    const page3 = await controller.getTransactionHistory({ pageIndex: 2, limit: 2 })
 
     expect(page3).toStrictEqual({
       transactions: [

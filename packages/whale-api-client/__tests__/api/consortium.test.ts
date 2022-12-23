@@ -349,8 +349,8 @@ describe('getTransactionHistory', () => {
     await expect(client.consortium.getTransactionHistory(1, 10, 'a'.repeat(65))).rejects.toThrow('InvalidSearchTerm')
   })
 
-  it('should throw an error if the max block height is invalid', async () => {
-    await expect(client.consortium.getTransactionHistory(-1, 10)).rejects.toThrow('InvalidStart')
+  it('should throw an error if the pageIndex is invalid', async () => {
+    await expect(client.consortium.getTransactionHistory(-1, 10)).rejects.toThrow('InvalidPageIndex')
   })
 
   it('should filter transactions with search term (member name)', async () => {

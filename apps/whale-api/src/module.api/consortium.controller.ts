@@ -17,9 +17,9 @@ export class ConsortiumController {
     */
   @Get('/transactions')
   async getTransactionHistory (
-    @Query() query: { start?: number, limit?: number, search?: string }
+    @Query() query: { pageIndex?: number, limit?: number, search?: string }
   ): Promise<ConsortiumTransactionResponse> {
-    const { start = 0, limit = 20, search = undefined } = query
+    const { pageIndex = 0, limit = 20, search = undefined } = query
 
     if (limit > 50 || limit < 1) {
       throw new ForbiddenException('InvalidLimit')
@@ -29,12 +29,12 @@ export class ConsortiumController {
       throw new ForbiddenException('InvalidSearchTerm')
     }
 
-    if (start < 0) {
-      throw new ForbiddenException('InvalidStart')
+    if (pageIndex < 0) {
+      throw new ForbiddenException('InvalidPageIndex')
     }
 
-    return await this.cache.get<ConsortiumTransactionResponse>(`CONSORTIUM_TRANSACTIONS_${JSON.stringify({ start, limit, search })}`, async () => {
-      return await this.consortiumService.getTransactionHistory(+start, +limit, typeof search === 'string' ? search : '')
+    return await this.cache.get<ConsortiumTransactionResponse>(`CONSORTIUM_TRANSACTIONS_${JSON.stringify({ pageIndex, limit, search })}`, async () => {
+      return await this.consortiumService.getTransactionHistory(+pageIndex, +limit, typeof search === 'string' ? search : '')
     }, {
       ttl: 600 // 10 mins
     }) as ConsortiumTransactionResponse

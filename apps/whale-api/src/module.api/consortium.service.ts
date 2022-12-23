@@ -38,7 +38,7 @@ export class ConsortiumService {
     }
   }
 
-  async getTransactionHistory (start: number, limit: number, search: string): Promise<ConsortiumTransactionResponse> {
+  async getTransactionHistory (pageIndex: number, limit: number, search: string): Promise<ConsortiumTransactionResponse> {
     const attrs = (await this.rpcClient.masternode.getGov('ATTRIBUTES')).ATTRIBUTES
     const members: ConsortiumMember[] = []
     const searching: boolean = search !== ''
@@ -103,7 +103,7 @@ export class ConsortiumService {
     const transactions: AccountHistory[] = await this.rpcClient.account.listAccountHistory(members.map(m => m.address), {
       txtypes: [DfTxType.MINT_TOKEN, DfTxType.BURN_TOKEN],
       including_start: true,
-      start: start * limit,
+      start: pageIndex * limit,
       limit
     })
 
