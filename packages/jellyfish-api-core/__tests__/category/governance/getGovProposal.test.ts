@@ -106,189 +106,275 @@ describe('Governance with multiple masternodes voting', () => {
     await testing.container.stop()
   })
 
-  it('should getGovProposal with vote information', async () => {
-    // VOC with votes above threshold
-    {
-      const data = {
-        title: 'A vote of confidence',
-        context: '<Git issue url>'
-      }
-      const proposalId = await testing.rpc.governance.createGovVoc(data)
+  it('should getGovProposal with vote information - above threshold', async () => {
+    const creationHeight = await testing.container.getBlockCount()
+    const votingPeriod = 70
+    const cycle1 = creationHeight + (votingPeriod - creationHeight % votingPeriod) + votingPeriod
 
-      const votes = [VoteDecision.YES, VoteDecision.YES, VoteDecision.YES, VoteDecision.NO] // above threshold
-
-      let index = 0
-      for (const [id, data] of Object.entries(masternodes)) {
-        if (data.operatorIsMine) {
-          await testing.container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
-          await testing.rpc.governance.voteGov({ proposalId, masternodeId: id, decision: votes[index] })
-          index++
-        }
-      }
-      await testing.container.generate(1)
-
-      const proposal = await testing.rpc.governance.getGovProposal(proposalId)
-      expect(proposal).toStrictEqual({
-        title: data.title,
-        context: data.context,
-        contextHash: '',
-        type: ProposalType.VOTE_OF_CONFIDENCE,
-        status: ProposalStatus.VOTING,
-        creationHeight: expect.any(Number),
-        cycleEndHeight: expect.any(Number),
-        proposalEndHeight: expect.any(Number),
-        currentCycle: 1,
-        totalCycles: 1,
-        proposalId: proposalId,
-        approvalThreshold: '66.67%',
-        quorum: '1.00%',
-        fee: expect.any(Number),
-        votingPeriod: expect.any(Number),
-        votesPossible: 4,
-        votesPresent: 4,
-        votesPresentPct: '100.00%',
-        votesYes: 3,
-        votesYesPct: '75.00%'
-      })
+    const data = {
+      title: 'A vote of confidence',
+      context: '<Git issue url>'
     }
+    const proposalId = await testing.rpc.governance.createGovVoc(data)
 
-    // VOC with votes below threshold
-    {
-      const data = {
-        title: 'A vote of confidence 2',
-        context: '<Git issue url>'
+    const votes = [VoteDecision.YES, VoteDecision.YES, VoteDecision.YES, VoteDecision.NO] // above threshold
+
+    let index = 0
+    for (const [id, data] of Object.entries(masternodes)) {
+      if (data.operatorIsMine) {
+        await testing.container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
+        await testing.rpc.governance.voteGov({ proposalId, masternodeId: id, decision: votes[index] })
+        index++
       }
-      const proposalId = await testing.rpc.governance.createGovVoc(data)
-      await testing.container.generate(1)
-
-      const votes = [VoteDecision.YES, VoteDecision.YES, VoteDecision.NO, VoteDecision.NO] // below threshold
-
-      let index = 0
-      for (const [id, data] of Object.entries(masternodes)) {
-        if (data.operatorIsMine) {
-          await testing.container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
-          await testing.rpc.governance.voteGov({ proposalId, masternodeId: id, decision: votes[index] })
-          index++
-        }
-      }
-      await testing.container.generate(1)
-
-      const proposal = await testing.rpc.governance.getGovProposal(proposalId)
-      expect(proposal).toStrictEqual({
-        title: data.title,
-        context: data.context,
-        contextHash: '',
-        type: ProposalType.VOTE_OF_CONFIDENCE,
-        status: ProposalStatus.VOTING,
-        creationHeight: expect.any(Number),
-        cycleEndHeight: expect.any(Number),
-        proposalEndHeight: expect.any(Number),
-        currentCycle: 1,
-        totalCycles: 1,
-        proposalId: proposalId,
-        approvalThreshold: '66.67%',
-        quorum: '1.00%',
-        fee: expect.any(Number),
-        votingPeriod: expect.any(Number),
-        votesPossible: 4,
-        votesPresent: 4,
-        votesPresentPct: '100.00%',
-        votesYes: 2,
-        votesYesPct: '50.00%'
-      })
     }
+    await testing.container.generate(1)
 
-    // Cfp with votes in 2nd cycle
-    {
-      const address = await testing.container.getNewAddress()
-      const data = {
-        title: 'Testing community fund proposal',
-        amount: new BigNumber(100),
-        context: '<Git issue url>',
-        payoutAddress: address,
-        cycles: 2
-      }
-      const proposalId = await testing.rpc.governance.createGovCfp(data)
-      await testing.container.generate(1)
+    const proposal = await testing.rpc.governance.getGovProposal(proposalId)
+    expect(proposal).toStrictEqual({
+      title: data.title,
+      context: data.context,
+      contextHash: '',
+      type: ProposalType.VOTE_OF_CONFIDENCE,
+      status: ProposalStatus.VOTING,
+      creationHeight: expect.any(Number),
+      cycleEndHeight: expect.any(Number),
+      proposalEndHeight: expect.any(Number),
+      currentCycle: 1,
+      totalCycles: 1,
+      proposalId: proposalId,
+      approvalThreshold: '66.67%',
+      quorum: '1.00%',
+      fee: expect.any(Number),
+      votingPeriod: expect.any(Number),
+      votesPossible: 4,
+      votesPresent: 4,
+      votesPresentPct: '100.00%',
+      votesYes: 3,
+      votesYesPct: '75.00%'
+    })
 
-      const creationHeight = await testing.container.getBlockCount()
-      const votingPeriod = 70
-      const cycle1 = creationHeight + (votingPeriod - creationHeight % votingPeriod) + votingPeriod
+    await testing.container.generate(cycle1 - await testing.container.getBlockCount())
+    const proposalAfter = await testing.rpc.governance.getGovProposal(proposalId)
+    expect(proposalAfter).toStrictEqual({
+      title: data.title,
+      context: data.context,
+      contextHash: '',
+      type: ProposalType.VOTE_OF_CONFIDENCE,
+      status: ProposalStatus.COMPLETED,
+      creationHeight: expect.any(Number),
+      cycleEndHeight: expect.any(Number),
+      proposalEndHeight: expect.any(Number),
+      currentCycle: 1,
+      totalCycles: 1,
+      proposalId: proposalId,
+      approvalThreshold: '66.67%',
+      quorum: '1.00%',
+      fee: expect.any(Number),
+      votingPeriod: expect.any(Number),
+      votesPossible: 4,
+      votesPresent: 4,
+      votesPresentPct: '100.00%',
+      votesYes: 3,
+      votesYesPct: '75.00%'
+    })
+  })
 
-      // cycle 1 vote
-      for (const [id, data] of Object.entries(masternodes)) {
-        if (data.operatorIsMine) {
-          await testing.container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
-          await testing.rpc.governance.voteGov({ proposalId, masternodeId: id, decision: VoteDecision.YES })
-        }
-      }
-      await testing.container.generate(1)
+  it('should getGovProposal with vote information - below threshold', async () => {
+    const creationHeight = await testing.container.getBlockCount()
+    const votingPeriod = 70
+    const cycle1 = creationHeight + (votingPeriod - creationHeight % votingPeriod) + votingPeriod
 
-      const proposal = await testing.rpc.governance.getGovProposal(proposalId)
-      expect(proposal).toStrictEqual({
-        title: data.title,
-        context: data.context,
-        contextHash: '',
-        type: ProposalType.COMMUNITY_FUND_PROPOSAL,
-        status: ProposalStatus.VOTING,
-        amount: new BigNumber(data.amount),
-        creationHeight: expect.any(Number),
-        cycleEndHeight: expect.any(Number),
-        proposalEndHeight: expect.any(Number),
-        currentCycle: 1,
-        totalCycles: 2,
-        payoutAddress: address,
-        proposalId: proposalId,
-        approvalThreshold: '50.00%',
-        quorum: '1.00%',
-        fee: expect.any(Number),
-        votingPeriod: expect.any(Number),
-        votesPossible: 4,
-        votesPresent: 4,
-        votesPresentPct: '100.00%',
-        votesYes: 4,
-        votesYesPct: '100.00%'
-      })
-
-      // cycle 2 votes
-      await testing.container.generate(cycle1 - await testing.container.getBlockCount())
-
-      const votes = [VoteDecision.YES, VoteDecision.NO, VoteDecision.NO, VoteDecision.NO] // below threshold
-
-      let index = 0
-      for (const [id, data] of Object.entries(masternodes)) {
-        if (data.operatorIsMine) {
-          await testing.rpc.governance.voteGov({ proposalId, masternodeId: id, decision: votes[index] })
-          index++
-        }
-      }
-      await testing.container.generate(1)
-
-      const proposal2 = await testing.rpc.governance.getGovProposal(proposalId)
-      expect(proposal2).toStrictEqual({
-        title: data.title,
-        context: data.context,
-        contextHash: '',
-        type: ProposalType.COMMUNITY_FUND_PROPOSAL,
-        status: ProposalStatus.VOTING,
-        amount: new BigNumber(data.amount),
-        creationHeight: expect.any(Number),
-        cycleEndHeight: expect.any(Number),
-        proposalEndHeight: expect.any(Number),
-        currentCycle: 2,
-        totalCycles: 2,
-        payoutAddress: address,
-        proposalId: proposalId,
-        approvalThreshold: '50.00%',
-        quorum: '1.00%',
-        fee: expect.any(Number),
-        votingPeriod: expect.any(Number),
-        votesPossible: 4,
-        votesPresent: 4,
-        votesPresentPct: '100.00%',
-        votesYes: 1,
-        votesYesPct: '25.00%'
-      })
+    const data = {
+      title: 'A vote of confidence 2',
+      context: '<Git issue url>'
     }
+    const proposalId = await testing.rpc.governance.createGovVoc(data)
+    await testing.container.generate(1)
+
+    const votes = [VoteDecision.YES, VoteDecision.YES, VoteDecision.NO, VoteDecision.NO] // below threshold
+
+    let index = 0
+    for (const [id, data] of Object.entries(masternodes)) {
+      if (data.operatorIsMine) {
+        await testing.container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
+        await testing.rpc.governance.voteGov({ proposalId, masternodeId: id, decision: votes[index] })
+        index++
+      }
+    }
+    await testing.container.generate(1)
+
+    const proposal = await testing.rpc.governance.getGovProposal(proposalId)
+    expect(proposal).toStrictEqual({
+      title: data.title,
+      context: data.context,
+      contextHash: '',
+      type: ProposalType.VOTE_OF_CONFIDENCE,
+      status: ProposalStatus.VOTING,
+      creationHeight: expect.any(Number),
+      cycleEndHeight: expect.any(Number),
+      proposalEndHeight: expect.any(Number),
+      currentCycle: 1,
+      totalCycles: 1,
+      proposalId: proposalId,
+      approvalThreshold: '66.67%',
+      quorum: '1.00%',
+      fee: expect.any(Number),
+      votingPeriod: expect.any(Number),
+      votesPossible: 4,
+      votesPresent: 4,
+      votesPresentPct: '100.00%',
+      votesYes: 2,
+      votesYesPct: '50.00%'
+    })
+
+    await testing.container.generate(cycle1 - await testing.container.getBlockCount())
+    const proposalAfter = await testing.rpc.governance.getGovProposal(proposalId)
+    expect(proposalAfter).toStrictEqual({
+      title: data.title,
+      context: data.context,
+      contextHash: '',
+      type: ProposalType.VOTE_OF_CONFIDENCE,
+      status: ProposalStatus.REJECTED,
+      creationHeight: expect.any(Number),
+      cycleEndHeight: expect.any(Number),
+      proposalEndHeight: expect.any(Number),
+      currentCycle: 1,
+      totalCycles: 1,
+      proposalId: proposalId,
+      approvalThreshold: '66.67%',
+      quorum: '1.00%',
+      fee: expect.any(Number),
+      votingPeriod: expect.any(Number),
+      votesPossible: 4,
+      votesPresent: 4,
+      votesPresentPct: '100.00%',
+      votesYes: 2,
+      votesYesPct: '50.00%'
+    })
+  })
+
+  it('should getGovProposal with vote information - multi cycle', async () => {
+    const address = await testing.container.getNewAddress()
+    const data = {
+      title: 'Testing community fund proposal',
+      amount: new BigNumber(100),
+      context: '<Git issue url>',
+      payoutAddress: address,
+      cycles: 2
+    }
+    const proposalId = await testing.rpc.governance.createGovCfp(data)
+    await testing.container.generate(1)
+
+    const creationHeight = await testing.container.getBlockCount()
+    const votingPeriod = 70
+    const cycle1 = creationHeight + (votingPeriod - creationHeight % votingPeriod) + votingPeriod
+
+    // cycle 1 vote
+    for (const [id, data] of Object.entries(masternodes)) {
+      if (data.operatorIsMine) {
+        await testing.container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
+        await testing.rpc.governance.voteGov({ proposalId, masternodeId: id, decision: VoteDecision.YES })
+      }
+    }
+    await testing.container.generate(1)
+
+    const proposal = await testing.rpc.governance.getGovProposal(proposalId)
+    expect(proposal).toStrictEqual({
+      title: data.title,
+      context: data.context,
+      contextHash: '',
+      type: ProposalType.COMMUNITY_FUND_PROPOSAL,
+      status: ProposalStatus.VOTING,
+      amount: new BigNumber(data.amount),
+      creationHeight: expect.any(Number),
+      cycleEndHeight: expect.any(Number),
+      proposalEndHeight: expect.any(Number),
+      currentCycle: 1,
+      totalCycles: 2,
+      payoutAddress: address,
+      proposalId: proposalId,
+      approvalThreshold: '50.00%',
+      quorum: '1.00%',
+      fee: expect.any(Number),
+      votingPeriod: expect.any(Number),
+      votesPossible: 4,
+      votesPresent: 4,
+      votesPresentPct: '100.00%',
+      votesYes: 4,
+      votesYesPct: '100.00%'
+    })
+
+    // cycle 2 votes
+    await testing.container.generate(cycle1 - await testing.container.getBlockCount())
+    const c2creationHeight = await testing.container.getBlockCount()
+    const cycle2 = c2creationHeight + (votingPeriod - c2creationHeight % votingPeriod) + votingPeriod
+
+    const votes = [VoteDecision.YES, VoteDecision.NO, VoteDecision.NO, VoteDecision.NO] // below threshold
+
+    let index = 0
+    for (const [id, data] of Object.entries(masternodes)) {
+      if (data.operatorIsMine) {
+        await testing.rpc.governance.voteGov({
+          proposalId,
+          masternodeId: id,
+          decision: votes[index]
+        })
+        index++
+      }
+    }
+    await testing.container.generate(1)
+
+    const proposal2 = await testing.rpc.governance.getGovProposal(proposalId)
+    expect(proposal2).toStrictEqual({
+      title: data.title,
+      context: data.context,
+      contextHash: '',
+      type: ProposalType.COMMUNITY_FUND_PROPOSAL,
+      status: ProposalStatus.VOTING,
+      amount: new BigNumber(data.amount),
+      creationHeight: expect.any(Number),
+      cycleEndHeight: expect.any(Number),
+      proposalEndHeight: expect.any(Number),
+      currentCycle: 2,
+      totalCycles: 2,
+      payoutAddress: address,
+      proposalId: proposalId,
+      approvalThreshold: '50.00%',
+      quorum: '1.00%',
+      fee: expect.any(Number),
+      votingPeriod: expect.any(Number),
+      votesPossible: 4,
+      votesPresent: 4,
+      votesPresentPct: '100.00%',
+      votesYes: 1,
+      votesYesPct: '25.00%'
+    })
+
+    await testing.container.generate(cycle2 - await testing.container.getBlockCount())
+    const proposal2After = await testing.rpc.governance.getGovProposal(proposalId)
+    expect(proposal2After).toStrictEqual({
+      title: data.title,
+      context: data.context,
+      contextHash: '',
+      type: ProposalType.COMMUNITY_FUND_PROPOSAL,
+      status: ProposalStatus.REJECTED,
+      amount: new BigNumber(data.amount),
+      creationHeight: expect.any(Number),
+      cycleEndHeight: expect.any(Number),
+      proposalEndHeight: expect.any(Number),
+      currentCycle: 2,
+      totalCycles: 2,
+      payoutAddress: address,
+      proposalId: proposalId,
+      approvalThreshold: '50.00%',
+      quorum: '1.00%',
+      fee: expect.any(Number),
+      votingPeriod: expect.any(Number),
+      votesPossible: 4,
+      votesPresent: 4,
+      votesPresentPct: '100.00%',
+      votesYes: 1,
+      votesYesPct: '25.00%'
+    })
   })
 })
