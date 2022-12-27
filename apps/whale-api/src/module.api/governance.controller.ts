@@ -3,22 +3,14 @@ import {
   ProposalMasternodeType,
   ProposalVotesResult
 } from '@defichain/whale-api-client/dist/api/governance'
-import {
-  Controller,
-  Get,
-  Param,
-  ParseIntPipe,
-  Query
-} from '@nestjs/common'
+import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common'
 import { GovernanceService } from './governance.service'
 import { ApiPagedResponse } from './_core/api.paged.response'
 import { PaginationQuery } from './_core/api.query'
 
 @Controller('/governance')
 export class GovernanceController {
-  constructor (
-    private readonly governanceService: GovernanceService
-  ) {}
+  constructor (private readonly governanceService: GovernanceService) {}
 
   /**
    * Paginate governance proposals.
@@ -54,11 +46,11 @@ export class GovernanceController {
    */
   @Get('/proposals/:id/votes')
   async listProposalVotes (
-    @Param('id') id: string,
-      @Query('masternode') masternode: string | ProposalMasternodeType,
-      @Query('cycle', ParseIntPipe) cycle: number,
-      @Query() query: PaginationQuery
+    @Param('proposalId') proposalId: string,
+      @Query('masternode')
+      masternode: string | ProposalMasternodeType = ProposalMasternodeType.MINE,
+      @Query('cycle', ParseIntPipe) cycle: number = 0
   ): Promise<ProposalVotesResult[]> {
-    return await this.governanceService.getProposalVotes(id, masternode, cycle)
+    return await this.governanceService.getProposalVotes(proposalId, masternode, cycle)
   }
 }

@@ -11,13 +11,18 @@ import { BadRequestException, Injectable } from '@nestjs/common'
 import { ApiPagedResponse } from './_core/api.paged.response'
 import { PaginationQuery } from './_core/api.query'
 import { NotFoundApiException } from './_core/api.error'
-import { GovernanceProposal, GovernanceProposalStatus, GovernanceProposalType, ProposalMasternodeType, ProposalVotesResult } from '@defichain/whale-api-client/dist/api/governance'
+import {
+  GovernanceProposal,
+  GovernanceProposalStatus,
+  GovernanceProposalType,
+  ProposalMasternodeType,
+  ProposalVoteResultType,
+  ProposalVotesResult
+} from '@defichain/whale-api-client/dist/api/governance'
 
 @Injectable()
 export class GovernanceService {
-  constructor (
-    private readonly client: JsonRpcClient
-  ) {}
+  constructor (private readonly client: JsonRpcClient) {}
 
   async list (
     query: PaginationQuery,
@@ -46,10 +51,10 @@ export class GovernanceService {
       return this.mapGovernanceProposal(proposal)
     } catch (err) {
       if (
-        err instanceof RpcApiError && (
-          err?.payload?.message === `Proposal <${id}> not found` ||
-          err?.payload?.message === 'proposalId must be of length 64 (not 3, for \'999\')'
-        )
+        err instanceof RpcApiError &&
+        (err?.payload?.message === `Proposal <${id}> not found` ||
+          err?.payload?.message ===
+            "proposalId must be of length 64 (not 3, for '999')")
       ) {
         throw new NotFoundApiException('Unable to find proposal')
       } else {
@@ -58,16 +63,27 @@ export class GovernanceService {
     }
   }
 
-  async getProposalVotes (id: string, masternode: string | ProposalMasternodeType, cycle: number): Promise<ProposalVotesResult[]> {
+  async getProposalVotes (
+    id: string,
+    masternode: string | ProposalMasternodeType,
+    cycle: number
+  ): Promise<ProposalVotesResult[]> {
     try {
-      const votes = await this.client.governance.listGovProposalVotes(id, masternode, cycle)
-      return votes as ProposalVotesResult[]
+      const votes = await this.client.governance.listGovProposalVotes(
+        id,
+        masternode,
+        cycle
+      )
+      return votes.map((v) => ({
+        ...v,
+        vote: mapGovernanceProposalVoteResult(v.vote)
+      }))
     } catch (err) {
       if (
-        err instanceof RpcApiError && (
-          err?.payload?.message === `Proposal <${id}> not found` ||
-          err?.payload?.message === 'proposalId must be of length 64 (not 3, for \'999\')'
-        )
+        err instanceof RpcApiError &&
+        (err?.payload?.message === `Proposal <${id}> not found` ||
+          err?.payload?.message ===
+            "proposalId must be of length 64 (not 3, for '999')")
       ) {
         throw new NotFoundApiException('Unable to find proposal')
       } else {
@@ -81,7 +97,7 @@ export class GovernanceService {
       ...data,
       type: mapGovernanceProposalType(data.type),
       status: mapGovernanceProposalStatus(data.status),
-      amount: data.amount?.toFixed()
+      amount: data.amount?.toFixed(8)
     }
   }
 }
@@ -105,5 +121,18 @@ function mapGovernanceProposalStatus (
       return GovernanceProposalStatus.REJECTED
     case ProposalStatus.VOTING:
       return GovernanceProposalStatus.VOTING
+  }
+}
+
+function mapGovernanceProposalVoteResult (type: string): ProposalVoteResultType {
+  switch (type) {
+    case 'yes':
+      return ProposalVoteResultType.YES
+    case 'no':
+      return ProposalVoteResultType.NO
+    case 'neutral':
+      return ProposalVoteResultType.NEUTRAL
+    default:
+      return ProposalVoteResultType.Unknown
   }
 }

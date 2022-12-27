@@ -47,7 +47,7 @@ export class Governance {
    */
   async listGovProposalVotes (
     id: string,
-    masternode: string | ProposalMasternodeType = ProposalMasternodeType.ALL,
+    masternode: string | ProposalMasternodeType = ProposalMasternodeType.MINE,
     cycle: number = 0
   ): Promise<ProposalVotesResult> {
     return await this.client.requestData(
@@ -116,5 +116,12 @@ export interface ProposalVotesResult {
   proposalId: string
   masternodeId: string
   cycle: number
-  vote: string
+  vote: ProposalVoteResultType
+}
+
+export enum ProposalVoteResultType {
+  YES = 'YES',
+  NO = 'NO',
+  NEUTRAL = 'NEUTRAL',
+  Unknown = 'Unknown'
 }
