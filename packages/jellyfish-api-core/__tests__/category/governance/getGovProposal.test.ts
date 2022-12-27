@@ -376,5 +376,5 @@ describe('Governance with multiple masternodes voting', () => {
       votesYes: 1,
       votesYesPct: '25.00%'
     })
-  })
+  }, 1200000)
 })
