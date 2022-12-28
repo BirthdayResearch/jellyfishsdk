@@ -3,7 +3,8 @@ import {
   ListProposalsType,
   ProposalInfo,
   ProposalStatus,
-  ProposalType
+  ProposalType,
+  VoteResult
 } from '@defichain/jellyfish-api-core/dist/category/governance'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
@@ -124,13 +125,13 @@ function mapGovernanceProposalStatus (
   }
 }
 
-function mapGovernanceProposalVoteResult (type: string): ProposalVoteResultType {
+function mapGovernanceProposalVoteResult (type: VoteResult): ProposalVoteResultType {
   switch (type) {
-    case 'yes':
+    case VoteResult.YES:
       return ProposalVoteResultType.YES
-    case 'no':
+    case VoteResult.NO:
       return ProposalVoteResultType.NO
-    case 'neutral':
+    case VoteResult.NEUTRAL:
       return ProposalVoteResultType.NEUTRAL
     default:
       return ProposalVoteResultType.Unknown

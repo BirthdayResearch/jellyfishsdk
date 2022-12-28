@@ -103,30 +103,80 @@ describe('governance proposals', () => {
     })
   })
 
-  it('should get proposal votes', async () => {
-    const masternodes = await testing.rpc.masternode.listMasternodes()
-    let masternodeId = ''
-    for (const id in masternodes) {
-      const masternode = masternodes[id]
-      if (masternode.mintedBlocks > 0) {
-        // Find masternode that mined at least one block to vote on proposal
-        masternodeId = id
-      }
-    }
-
+  it('should get CFP proposal votes', async () => {
+    const masternodeId = await getVotableMasternodeId()
     await testing.rpc.governance.voteGov({
       proposalId: cfpProposalId,
       masternodeId: masternodeId,
       decision: VoteDecision.YES
     })
     await container.generate(1)
-
-    const result = await controller.listProposalVotes(cfpProposalId)
-    expect(result).toStrictEqual([{
+    await testing.rpc.governance.voteGov({
       proposalId: cfpProposalId,
       masternodeId: masternodeId,
-      cycle: 1,
-      vote: ProposalVoteResultType.YES
-    }])
+      decision: VoteDecision.NO
+    })
+    await container.generate(1)
+    await testing.rpc.governance.voteGov({
+      proposalId: cfpProposalId,
+      masternodeId: masternodeId,
+      decision: VoteDecision.NEUTRAL
+    })
+    await container.generate(1)
+    const result = await controller.listProposalVotes(cfpProposalId)
+    expect(result).toStrictEqual([
+      {
+        proposalId: cfpProposalId,
+        masternodeId: masternodeId,
+        cycle: 1,
+        vote: ProposalVoteResultType.NEUTRAL
+      }
+    ])
+  })
+
+  it('should get DFIP proposal votes', async () => {
+    const masternodeId = await getVotableMasternodeId()
+    await testing.rpc.governance.voteGov({
+      proposalId: dfipProposalId,
+      masternodeId: masternodeId,
+      decision: VoteDecision.NEUTRAL
+    })
+    await container.generate(1)
+    await testing.rpc.governance.voteGov({
+      proposalId: dfipProposalId,
+      masternodeId: masternodeId,
+      decision: VoteDecision.NO
+    })
+    await container.generate(1)
+    await testing.rpc.governance.voteGov({
+      proposalId: dfipProposalId,
+      masternodeId: masternodeId,
+      decision: VoteDecision.YES
+    })
+    await container.generate(1)
+    const result = await controller.listProposalVotes(dfipProposalId)
+    expect(result).toStrictEqual([
+      {
+        proposalId: dfipProposalId,
+        masternodeId: masternodeId,
+        cycle: 1,
+        vote: ProposalVoteResultType.YES
+      }
+    ])
   })
 })
+
+/**
+ * Return masternode that mined at least one block to vote on proposal
+ */
+async function getVotableMasternodeId (): Promise<string> {
+  const masternodes = await testing.rpc.masternode.listMasternodes()
+  let masternodeId = ''
+  for (const id in masternodes) {
+    const masternode = masternodes[id]
+    if (masternode.mintedBlocks > 0) {
+      masternodeId = id
+    }
+  }
+  return masternodeId
+}
