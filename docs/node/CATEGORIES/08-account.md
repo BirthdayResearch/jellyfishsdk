@@ -183,7 +183,7 @@ Returns information about account history
 ```ts title="client.account.listAccountHistory()"
 interface account {
   listAccountHistory (
-    owner: OwnerType | string = OwnerType.MINE,
+    owner: OwnerType | string | string[] = OwnerType.MINE,
     options: AccountHistoryOptions = {
       limit: 100
     }
@@ -238,7 +238,10 @@ interface AccountHistoryOptions {
   no_rewards?: boolean
   token?: string
   txtype?: DfTxType
+  txtypes?: DfTxType[]
   limit?: number
+  start?: number
+  including_start?: boolean
   txn?: number
   format?: Format
 }
