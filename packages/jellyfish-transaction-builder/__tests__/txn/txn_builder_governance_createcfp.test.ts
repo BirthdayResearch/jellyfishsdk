@@ -45,7 +45,7 @@ describe('createCfp', () => {
   }, {
     nAmount: 100000,
     creationFee: 1000,
-    changeRange: [fundAmount - 1020.001, fundAmount - 30.01]
+    changeRange: [fundAmount - 1020.001, fundAmount - 1020]
   }])('should createCfp', async (expectedAmounts) => {
     const script = await providers.elliptic.script()
     const createCfp: CreateCfp = {
