@@ -197,6 +197,7 @@ enum OwnerType {
 
 enum DfTxType {
   MINT_TOKEN = 'M',
+  BURN_TOKEN = 'F',
   POOL_SWAP = 's',
   ADD_POOL_LIQUIDITY = 'l',
   REMOVE_POOL_LIQUIDITY = 'r',
@@ -291,6 +292,7 @@ enum OwnerType {
 
 enum DfTxType {
   MINT_TOKEN = 'M',
+  BURN_TOKEN = 'F',
   POOL_SWAP = 's',
   ADD_POOL_LIQUIDITY = 'l',
   REMOVE_POOL_LIQUIDITY = 'r',
@@ -379,6 +381,7 @@ interface account {
 
 enum DfTxType {
   MINT_TOKEN = 'M',
+  BURN_TOKEN = 'F',
   POOL_SWAP = 's',
   ADD_POOL_LIQUIDITY = 'l',
   REMOVE_POOL_LIQUIDITY = 'r',
