@@ -276,7 +276,7 @@ Returns count of account history
 ```ts title="client.account.historyCount()"
 interface account {
   historyCount (
-    owner: OwnerType | string = OwnerType.MINE,
+    owner: OwnerType | string | string[] = OwnerType.MINE,
     options: AccountHistoryCountOptions = {}
   ): Promise<number>
 }
@@ -310,6 +310,7 @@ enum DfTxType {
 interface AccountHistoryCountOptions {
   token?: string
   txtype?: DfTxType
+  txtypes?: DfTxType[]
   no_rewards?: boolean
 }
 ```
