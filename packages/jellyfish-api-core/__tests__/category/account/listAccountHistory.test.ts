@@ -43,10 +43,6 @@ describe('Account', () => {
 
     for (let i = 1; i <= 10; i++) {
       await client.token.burnTokens(`${0.01 * i}@dBTC`, addr1)
-      await container.generate(1)
-    }
-
-    for (let i = 1; i <= 10; i++) {
       await client.token.burnTokens(`${0.01 * i}@dETH`, addr2)
       await container.generate(1)
     }
