@@ -78,8 +78,12 @@ export class ConsortiumService {
     if (searching && !searchFound) {
       const foundTx = await this.transactionMapper.get(search)
       if (foundTx !== undefined) {
-        const transactionsOnBlock = await this.rpcClient.account.listAccountHistory('all', { maxBlockHeight: foundTx.block.height, depth: 0 })
-        const transaction = transactionsOnBlock.find(tx => tx.txid === foundTx.txid)
+        const relevantTxsOnBlock = await this.rpcClient.account.listAccountHistory(members.map(m => m.address), {
+          maxBlockHeight: foundTx.block.height,
+          depth: 0,
+          txtypes: [DfTxType.MINT_TOKEN, DfTxType.BURN_TOKEN]
+        })
+        const transaction = relevantTxsOnBlock.find(tx => tx.txid === foundTx.txid)
 
         if (transaction === undefined) {
           return {
