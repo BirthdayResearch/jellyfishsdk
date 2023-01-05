@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { SemaphoreCache } from '@defichain-apps/libs/caches'
 import {
-  ConsortiumMember,
   ConsortiumTransactionResponse,
   Transaction,
   AssetBreakdownInfo,
@@ -24,10 +23,10 @@ export class ConsortiumService {
     protected readonly transactionMapper: TransactionMapper
   ) {}
 
-  private formatTransactionResponse (tx: AccountHistory, members: ConsortiumMember[]): Transaction {
+  private formatTransactionResponse (tx: AccountHistory, members: MemberDetail[]): Transaction {
     return {
       type: tx.type === 'MintToken' ? 'Mint' : 'Burn',
-      member: members.find(m => m.address === tx.owner)?.name ?? '',
+      member: members.find(m => m.ownerAddress === tx.owner)?.name ?? '',
       tokenAmounts: tx.amounts.map((a: any) => {
         const splits = a.split('@')
         return { token: splits[1], amount: splits[0] }
@@ -38,47 +37,58 @@ export class ConsortiumService {
     }
   }
 
-  async getTransactionHistory (pageIndex: number, limit: number, search: string): Promise<ConsortiumTransactionResponse> {
+  async getTransactionHistory (pageIndex: number, limit: number, searchTerm: string): Promise<ConsortiumTransactionResponse> {
     const attrs = (await this.rpcClient.masternode.getGov('ATTRIBUTES')).ATTRIBUTES
-    const members: ConsortiumMember[] = []
-    const searching: boolean = search !== ''
-    const keys: string[] = Object.keys(attrs)
-    const values: object[] = Object.values(attrs)
+    const searching: boolean = searchTerm !== ''
     const membersKeyRegex: RegExp = /^v0\/consortium\/\d+\/members$/
+    const txIdFormatRegex: RegExp = /^[a-z0-9]{64}$/
+    let members: MemberDetail[] = []
     let totalTxCount: number = 0
     let searchFound: boolean = false
 
-    keys.forEach((key: string, i: number) => {
-      if (membersKeyRegex.exec(key) !== null) {
-        const membersPerToken = values[i]
-        const memberIds: string[] = Object.keys(membersPerToken)
-        let memberDetails: Array<{ ownerAddress: string, name: string }> = Object.values(membersPerToken)
+    for (const [key, value] of Object.entries(attrs)) {
+      if (membersKeyRegex.exec(key) === null) {
+        continue
+      }
 
-        if (searching) {
-          const foundMembers = memberDetails.filter(m => m.ownerAddress === search || m.name.toLowerCase().includes(search))
-          if (foundMembers.length > 0) {
-            memberDetails = foundMembers
-            searchFound = true
-          }
-        }
+      const memberIds: string[] = Object.keys(value as object)
+      let memberDetails: MemberDetail[] = Object.values(value as object)
 
-        for (let j = 0; j < memberDetails.length; j++) {
-          const memberId = memberIds[j]
-          if (members.find(m => m.id === memberId) === undefined) {
-            members.push({
-              id: memberId,
-              name: memberDetails[j].name,
-              address: memberDetails[j].ownerAddress
-            })
-          }
+      // Filter members list considering the search term is a member address or a name
+      if (searching) {
+        const matchingMembers = memberDetails.filter(m => m.ownerAddress === searchTerm || m.name.toLowerCase().includes(searchTerm))
+        if (matchingMembers.length > 0) {
+          memberDetails = matchingMembers
+          searchFound = true
         }
       }
-    })
+
+      // Filter unique members
+      members = memberDetails.reduce<MemberDetail[]>((prev, curr, index) => {
+        const memberId = memberIds[index]
+        if (prev.find(m => m.id === memberId) === undefined) {
+          prev.push({
+            id: memberId,
+            name: curr.name,
+            ownerAddress: curr.ownerAddress
+          })
+        }
+        return prev
+      }, [])
+    }
 
     if (searching && !searchFound) {
-      const foundTx = await this.transactionMapper.get(search)
+      // Evaluating if the search term is a valid txid format
+      if (txIdFormatRegex.exec(searchTerm) === null) {
+        return {
+          total: 0,
+          transactions: []
+        }
+      }
+
+      const foundTx = await this.transactionMapper.get(searchTerm)
       if (foundTx !== undefined) {
-        const relevantTxsOnBlock = await this.rpcClient.account.listAccountHistory(members.map(m => m.address), {
+        const relevantTxsOnBlock = await this.rpcClient.account.listAccountHistory(members.map(m => m.ownerAddress), {
           maxBlockHeight: foundTx.block.height,
           depth: 0,
           txtypes: [DfTxType.MINT_TOKEN, DfTxType.BURN_TOKEN]
@@ -97,24 +107,20 @@ export class ConsortiumService {
           transactions: [this.formatTransactionResponse(transaction, members)]
         }
       }
-
-      return {
-        total: 0,
-        transactions: []
-      }
     }
 
-    const transactions: AccountHistory[] = await this.rpcClient.account.listAccountHistory(members.map(m => m.address), {
+    const transactions: AccountHistory[] = await this.rpcClient.account.listAccountHistory(members.map(m => m.ownerAddress), {
       txtypes: [DfTxType.MINT_TOKEN, DfTxType.BURN_TOKEN],
       including_start: true,
       start: pageIndex * limit,
       limit
     })
 
+    // Calculate total transaction counts
     const promises = []
     for (let i = 0; i < members.length; i++) {
-      promises.push(this.rpcClient.account.historyCount(members[i].address, { txtype: DfTxType.BURN_TOKEN }))
-      promises.push(this.rpcClient.account.historyCount(members[i].address, { txtype: DfTxType.MINT_TOKEN }))
+      promises.push(this.rpcClient.account.historyCount(members[i].ownerAddress, { txtype: DfTxType.BURN_TOKEN }))
+      promises.push(this.rpcClient.account.historyCount(members[i].ownerAddress, { txtype: DfTxType.MINT_TOKEN }))
     }
     const counts = await Promise.all(promises)
     totalTxCount = counts.reduce((prev, curr) => {
@@ -153,7 +159,7 @@ export class ConsortiumService {
   }
 
   private pushToAssetBreakdownInfo (assetBreakdownInfo: AssetBreakdownInfo[], memberId: string, memberDetail: MemberDetail, tokenId: string, tokens: TokenInfoWithId[]): void {
-    const backingAddresses: string[] = memberDetail.backingId.length > 0 ? memberDetail.backingId.split(',').map(a => a.trim()) : []
+    const backingAddresses: string[] = memberDetail.backingId !== undefined && memberDetail.backingId.length > 0 ? memberDetail.backingId.split(',').map(a => a.trim()) : []
 
     const member: MemberWithTokenInfo = {
       id: memberId,

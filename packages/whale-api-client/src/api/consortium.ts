@@ -57,14 +57,10 @@ export interface Transaction {
   block: number
 }
 
-export interface ConsortiumMember {
-  id: string
-  name: string
-  address: string
-}
-
 export interface MemberDetail {
-  backingId: string
+  id: string
+  backingId?: string
+  ownerAddress: string
   name: string
 }
 
