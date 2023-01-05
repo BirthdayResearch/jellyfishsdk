@@ -133,20 +133,16 @@ describe('Account', () => {
   it('should get accountHistoryCount for multiple txtypes at once', async () => {
     const mintCount = await client.account.historyCount('mine', { txtype: DfTxType.MINT_TOKEN })
     const poolSwapCount = await client.account.historyCount('mine', { txtype: DfTxType.POOL_SWAP })
+    const combinedCount = await client.account.historyCount('mine', { txtypes: [DfTxType.MINT_TOKEN, DfTxType.POOL_SWAP] })
 
-    await waitForExpect(async () => {
-      const combinedCount = await client.account.historyCount('mine', { txtypes: [DfTxType.MINT_TOKEN, DfTxType.POOL_SWAP] })
-      expect(combinedCount).toStrictEqual(mintCount + poolSwapCount)
-    })
+    expect(combinedCount).toStrictEqual(mintCount + poolSwapCount)
   })
 
   it('should get accountHistoryCount for multiple addresses at once', async () => {
     const fromCount = await client.account.historyCount(from)
     const toCount = await client.account.historyCount(to)
+    const combinedCount = await client.account.historyCount([from, to])
 
-    await waitForExpect(async () => {
-      const combinedCount = await client.account.historyCount([from, to])
-      expect(combinedCount).toStrictEqual(fromCount + toCount)
-    })
+    expect(combinedCount).toStrictEqual(fromCount + toCount)
   })
 })
