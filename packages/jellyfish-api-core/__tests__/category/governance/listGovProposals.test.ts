@@ -108,6 +108,15 @@ describe('Governance', () => {
     expect(proposals[0].type).toStrictEqual(ProposalType.COMMUNITY_FUND_PROPOSAL)
     expect(proposals[0].status).toStrictEqual(ProposalStatus.REJECTED)
   })
+
+  it('should listGovProposals with type ListProposalsType.CFP with previous cycle', async () => {
+    const proposals = await client.governance.listGovProposals({
+      type: ListProposalsType.CFP,
+      cycle: -1
+    })
+    expect(proposals.length).toStrictEqual(1)
+    expect(proposals[0].type).toStrictEqual(ProposalType.COMMUNITY_FUND_PROPOSAL)
+  })
 })
 
 describe('Governance without proposals', () => {
