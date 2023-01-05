@@ -40,52 +40,37 @@ export class ConsortiumService {
   async getTransactionHistory (pageIndex: number, limit: number, searchTerm: string): Promise<ConsortiumTransactionResponse> {
     const attrs = (await this.rpcClient.masternode.getGov('ATTRIBUTES')).ATTRIBUTES
     const searching: boolean = searchTerm !== ''
-    const membersKeyRegex: RegExp = /^v0\/consortium\/\d+\/members$/
     const txIdFormatRegex: RegExp = /^[a-z0-9]{64}$/
-    let members: MemberDetail[] = []
+    const membersKeyRegex: RegExp = /^v0\/consortium\/\d+\/members$/
+    const searchForTxId = searching && txIdFormatRegex.exec(searchTerm) !== null
+    const searchForMemberDetail = searching && txIdFormatRegex.exec(searchTerm) === null
     let totalTxCount: number = 0
-    let searchFound: boolean = false
 
-    for (const [key, value] of Object.entries(attrs)) {
+    const members = (Object.entries(attrs) as [[string, object]]).reduce((prev: MemberDetail[], [key, value]) => {
       if (membersKeyRegex.exec(key) === null) {
-        continue
+        return prev
       }
 
-      const memberIds: string[] = Object.keys(value as object)
-      let memberDetails: MemberDetail[] = Object.values(value as object)
-
-      // Filter members list considering the search term is a member address or a name
-      if (searching) {
-        const matchingMembers = memberDetails.filter(m => m.ownerAddress === searchTerm || m.name.toLowerCase().includes(searchTerm))
-        if (matchingMembers.length > 0) {
-          memberDetails = matchingMembers
-          searchFound = true
+      (Object.entries(value) as [[string, MemberDetail]]).forEach(([memberId, memberDetail]) => {
+        if (searchForMemberDetail) {
+          if (!(memberDetail.ownerAddress === searchTerm || memberDetail.name.toLowerCase().includes(searchTerm))) {
+            return prev
+          }
         }
-      }
 
-      // Filter unique members
-      members = memberDetails.reduce<MemberDetail[]>((prev, curr, index) => {
-        const memberId = memberIds[index]
-        if (prev.find(m => m.id === memberId) === undefined) {
+        if (!prev.some(m => m.id === memberId)) {
           prev.push({
             id: memberId,
-            name: curr.name,
-            ownerAddress: curr.ownerAddress
+            name: memberDetail.name,
+            ownerAddress: memberDetail.ownerAddress
           })
         }
-        return prev
-      }, [])
-    }
+      })
 
-    if (searching && !searchFound) {
-      // Evaluating if the search term is a valid txid format
-      if (txIdFormatRegex.exec(searchTerm) === null) {
-        return {
-          total: 0,
-          transactions: []
-        }
-      }
+      return prev
+    }, [])
 
+    if (searchForTxId) {
       const foundTx = await this.transactionMapper.get(searchTerm)
       if (foundTx !== undefined) {
         const relevantTxsOnBlock = await this.rpcClient.account.listAccountHistory(members.map(m => m.ownerAddress), {
@@ -107,6 +92,11 @@ export class ConsortiumService {
           transactions: [this.formatTransactionResponse(transaction, members)]
         }
       }
+
+      return {
+        total: 0,
+        transactions: []
+      }
     }
 
     const transactions: AccountHistory[] = await this.rpcClient.account.listAccountHistory(members.map(m => m.ownerAddress), {
@@ -116,7 +106,6 @@ export class ConsortiumService {
       limit
     })
 
-    // Calculate total transaction counts
     const promises = []
     for (let i = 0; i < members.length; i++) {
       promises.push(this.rpcClient.account.historyCount(members[i].ownerAddress, { txtype: DfTxType.BURN_TOKEN }))
