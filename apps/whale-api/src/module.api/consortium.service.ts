@@ -37,16 +37,16 @@ export class ConsortiumService {
     }
   }
 
-  async getTransactionHistory (pageIndex: number, limit: number, searchTerm: string): Promise<ConsortiumTransactionResponse> {
-    const attrs = (await this.rpcClient.masternode.getGov('ATTRIBUTES')).ATTRIBUTES
-    const searching: boolean = searchTerm !== ''
-    const txIdFormatRegex: RegExp = /^[0-9a-f]{64}$/
-    const membersKeyRegex: RegExp = /^v0\/consortium\/\d+\/members$/
-    const searchForTxId = searching && txIdFormatRegex.exec(searchTerm) !== null
-    const searchForMemberDetail = searching && txIdFormatRegex.exec(searchTerm) === null
-    let totalTxCount: number = 0
+  private isValidTxIdFormat (value: string): boolean {
+    return /^[0-9a-f]{64}$/.exec(value) !== null
+  }
 
-    const members = (Object.entries(attrs) as [[string, object]]).reduce((prev: MemberDetail[], [key, value]) => {
+  private async getFilteredUniqueMembers (searchTerm: string): Promise<MemberDetail[]> {
+    const attrs = (await this.rpcClient.masternode.getGov('ATTRIBUTES')).ATTRIBUTES
+    const membersKeyRegex: RegExp = /^v0\/consortium\/\d+\/members$/
+    const searchForMemberDetail = searchTerm !== '' && !this.isValidTxIdFormat(searchTerm)
+
+    return (Object.entries(attrs) as [[string, object]]).reduce((prev: MemberDetail[], [key, value]) => {
       if (membersKeyRegex.exec(key) === null) {
         return prev
       }
@@ -69,36 +69,37 @@ export class ConsortiumService {
 
       return prev
     }, [])
+  }
 
-    if (searchForTxId) {
-      const foundTx = await this.transactionMapper.get(searchTerm)
-      if (foundTx !== undefined) {
-        const relevantTxsOnBlock = await this.rpcClient.account.listAccountHistory(members.map(m => m.ownerAddress), {
-          maxBlockHeight: foundTx.block.height,
-          depth: 0,
-          txtypes: [DfTxType.MINT_TOKEN, DfTxType.BURN_TOKEN]
-        })
-        const transaction = relevantTxsOnBlock.find(tx => tx.txid === foundTx.txid)
-
-        if (transaction === undefined) {
-          return {
-            total: 0,
-            transactions: []
-          }
-        }
-
-        return {
-          total: 1,
-          transactions: [this.formatTransactionResponse(transaction, members)]
-        }
-      }
-
+  private async getSingleHistoryTransactionResponse (searchTerm: string, members: MemberDetail[]): Promise<ConsortiumTransactionResponse> {
+    const foundTx = await this.transactionMapper.get(searchTerm)
+    if (foundTx === undefined) {
       return {
-        total: 0,
-        transactions: []
+        transactions: [],
+        total: 0
       }
     }
 
+    const relevantTxsOnBlock = await this.rpcClient.account.listAccountHistory(members.map(m => m.ownerAddress), {
+      maxBlockHeight: foundTx.block.height,
+      depth: 0,
+      txtypes: [DfTxType.MINT_TOKEN, DfTxType.BURN_TOKEN]
+    })
+    const transaction = relevantTxsOnBlock.find(tx => tx.txid === foundTx.txid)
+    if (transaction === undefined) {
+      return {
+        transactions: [],
+        total: 0
+      }
+    }
+
+    return {
+      transactions: [this.formatTransactionResponse(transaction, members)],
+      total: 1
+    }
+  }
+
+  private async getPaginatedHistoryTransactionsResponse (pageIndex: number, limit: number, members: MemberDetail[]): Promise<ConsortiumTransactionResponse> {
     const transactions: AccountHistory[] = await this.rpcClient.account.listAccountHistory(members.map(m => m.ownerAddress), {
       txtypes: [DfTxType.MINT_TOKEN, DfTxType.BURN_TOKEN],
       including_start: true,
@@ -112,7 +113,7 @@ export class ConsortiumService {
       promises.push(this.rpcClient.account.historyCount(members[i].ownerAddress, { txtype: DfTxType.MINT_TOKEN }))
     }
     const counts = await Promise.all(promises)
-    totalTxCount = counts.reduce((prev, curr) => {
+    const totalTxCount = counts.reduce((prev, curr) => {
       return prev + curr
     }, 0)
 
@@ -122,6 +123,17 @@ export class ConsortiumService {
       }),
       total: totalTxCount
     }
+  }
+
+  async getTransactionHistory (pageIndex: number, limit: number, searchTerm: string): Promise<ConsortiumTransactionResponse> {
+    const members = await this.getFilteredUniqueMembers(searchTerm)
+
+    const searchForTxId = searchTerm !== '' && this.isValidTxIdFormat(searchTerm)
+    if (searchForTxId) {
+      return await this.getSingleHistoryTransactionResponse(searchTerm, members)
+    }
+
+    return await this.getPaginatedHistoryTransactionsResponse(pageIndex, limit, members)
   }
 
   private updateBurnMintAmounts (assetBreakdownInfo: AssetBreakdownInfo[], tokens: TokenInfoWithId[], key: string, value: string): void {
