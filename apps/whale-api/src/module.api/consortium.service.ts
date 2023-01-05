@@ -40,7 +40,7 @@ export class ConsortiumService {
   async getTransactionHistory (pageIndex: number, limit: number, searchTerm: string): Promise<ConsortiumTransactionResponse> {
     const attrs = (await this.rpcClient.masternode.getGov('ATTRIBUTES')).ATTRIBUTES
     const searching: boolean = searchTerm !== ''
-    const txIdFormatRegex: RegExp = /^[a-z0-9]{64}$/
+    const txIdFormatRegex: RegExp = /^[0-9a-f]{64}$/
     const membersKeyRegex: RegExp = /^v0\/consortium\/\d+\/members$/
     const searchForTxId = searching && txIdFormatRegex.exec(searchTerm) !== null
     const searchForMemberDetail = searching && txIdFormatRegex.exec(searchTerm) === null

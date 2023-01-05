@@ -203,7 +203,7 @@ describe('getTransactionHistory', () => {
   let idETH: string
   const service = new StubService(alice.container)
   const client = new StubWhaleApiClient(service)
-  const txIdMatcher = expect.stringMatching(/[0-f]{64}/)
+  const txIdMatcher = expect.stringMatching(/^[0-9a-f]{64}$/)
   const startFlags: StartFlags[] = [{ name: 'regtest-minttoken-simulate-mainnet', value: 1 }]
   const txIds: string[] = []
 
