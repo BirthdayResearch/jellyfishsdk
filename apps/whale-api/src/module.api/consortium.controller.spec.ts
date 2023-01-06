@@ -349,8 +349,8 @@ describe('getTransactionHistory', () => {
   })
 
   it('should throw an error if the search term is invalid', async () => {
-    await expect(controller.getTransactionHistory({ search: 'a', limit: 1 })).rejects.toThrow('InvalidSearchTerm')
-    await expect(controller.getTransactionHistory({ search: 'a'.repeat(65), limit: 1 })).rejects.toThrow('InvalidSearchTerm')
+    await expect(controller.getTransactionHistory({ searchTerm: 'a', limit: 1 })).rejects.toThrow('InvalidSearchTerm')
+    await expect(controller.getTransactionHistory({ searchTerm: 'a'.repeat(65), limit: 1 })).rejects.toThrow('InvalidSearchTerm')
   })
 
   it('should throw an error if the pageIndex is invalid', async () => {
@@ -358,7 +358,7 @@ describe('getTransactionHistory', () => {
   })
 
   it('should filter transactions with search term (member name)', async () => {
-    const info = await controller.getTransactionHistory({ search: 'alice', limit: 3 })
+    const info = await controller.getTransactionHistory({ searchTerm: 'alice', limit: 3 })
 
     expect(info.transactions.length).toStrictEqual(3)
     expect(info.transactions).toStrictEqual([
@@ -370,7 +370,7 @@ describe('getTransactionHistory', () => {
   })
 
   it('should filter transactions with search term (owner address)', async () => {
-    const info = await controller.getTransactionHistory({ search: accountAlice, limit: 3 })
+    const info = await controller.getTransactionHistory({ searchTerm: accountAlice, limit: 3 })
 
     expect(info.transactions.length).toStrictEqual(3)
     expect(info.transactions).toStrictEqual([
@@ -384,7 +384,7 @@ describe('getTransactionHistory', () => {
   it('should filter transactions with search term (transaction id)', async () => {
     const tx = (await alice.rpc.account.listAccountHistory(accountAlice))[0]
 
-    const info = await controller.getTransactionHistory({ search: tx.txid, limit: 20 })
+    const info = await controller.getTransactionHistory({ searchTerm: tx.txid, limit: 20 })
 
     expect(info.transactions.length).toStrictEqual(1)
     expect(info.transactions).toStrictEqual([
@@ -406,7 +406,7 @@ describe('getTransactionHistory', () => {
   })
 
   it('should filter and limit transactions at the same time', async () => {
-    const info = await controller.getTransactionHistory({ search: accountAlice, limit: 2 })
+    const info = await controller.getTransactionHistory({ searchTerm: accountAlice, limit: 2 })
 
     expect(info.transactions.length).toStrictEqual(2)
     expect(info.transactions).toStrictEqual([
@@ -417,7 +417,7 @@ describe('getTransactionHistory', () => {
   })
 
   it('should return empty list of transactions for not-found search term', async () => {
-    const info = await controller.getTransactionHistory({ search: 'not-found-term', limit: 20 })
+    const info = await controller.getTransactionHistory({ searchTerm: 'not-found-term', limit: 20 })
 
     expect(info.transactions.length).toStrictEqual(0)
     expect(info.total).toStrictEqual(0)
@@ -430,7 +430,7 @@ describe('getTransactionHistory', () => {
     await alice.generate(1)
     await waitForIndexedHeight(app, height)
 
-    const info = await controller.getTransactionHistory({ search: txid, limit: 20 })
+    const info = await controller.getTransactionHistory({ searchTerm: txid, limit: 20 })
 
     expect(info.transactions.length).toStrictEqual(0)
     expect(info.total).toStrictEqual(0)

@@ -19,12 +19,12 @@ export class Consortium {
   /**
    *  Gets the transaction history of consortium members.
    *
-   * @param {number} start The starting index for pagination
+   * @param {number} [pageIndex] The starting index for pagination
    * @param {number} [limit] How many transactions to fetch
-   * @param {string} [search] Search term, can be a transaction id, member/owner address or member name
+   * @param {string} [searchTerm] Search term, can be a transaction id, member/owner address or name
    * @return {Promise<ConsortiumTransactionResponse[]>}
     */
-  async getTransactionHistory (pageIndex: number, limit: number, search?: string): Promise<ConsortiumTransactionResponse> {
+  async getTransactionHistory (pageIndex?: number, limit?: number, searchTerm?: string): Promise<ConsortiumTransactionResponse> {
     const query = []
 
     if (pageIndex !== undefined) {
@@ -35,8 +35,8 @@ export class Consortium {
       query.push(`limit=${limit}`)
     }
 
-    if (search !== undefined) {
-      query.push(`search=${search}`)
+    if (searchTerm !== undefined) {
+      query.push(`searchTerm=${searchTerm}`)
     }
 
     return await this.client.requestData('GET', `consortium/transactions?${query.join('&')}`)
