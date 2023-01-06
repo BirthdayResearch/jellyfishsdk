@@ -67,6 +67,52 @@ describe('Governance', () => {
     expect(votes[0].vote).toStrictEqual('YES')
   })
 
+  it('should paginate', async () => {
+    const data = {
+      title: 'A vote of confidence',
+      context: '<Git issue url>'
+    }
+    const proposalId = await testing.rpc.governance.createGovVoc(data) // Creates a vote of confidence on which to vote
+    await testing.container.generate(1)
+
+    for (const [id, data] of Object.entries(masternodes)) {
+      if (data.operatorIsMine) {
+        await testing.container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
+        await testing.rpc.governance.voteGov({
+          proposalId,
+          masternodeId: id,
+          decision: VoteDecision.YES
+        })
+      }
+    }
+    await testing.container.generate(1)
+
+    const votes = await testing.rpc.governance.listGovProposalVotes({ proposalId: proposalId })
+    const votes1 = await testing.rpc.governance.listGovProposalVotes({
+      proposalId: proposalId,
+      pagination: {
+        start: 0,
+        including_start: true,
+        limit: 2
+      }
+    })
+    const votes2 = await testing.rpc.governance.listGovProposalVotes({
+      proposalId: proposalId,
+      pagination: {
+        start: 2,
+        including_start: true,
+        limit: 2
+      }
+    })
+
+    votes1.push(...votes2)
+    expect(votes.length).toStrictEqual(votes1.length)
+    expect(votes).toStrictEqual(votes1)
+    expect(votes[0]).toStrictEqual(votes1[0])
+    expect(votes[1]).toStrictEqual(votes1[1])
+    expect(votes[2]).toStrictEqual(votes2[0])
+  })
+
   it('should listGovProposalVotes with filter masternode=MasternodeType.ALL', async () => {
     const data = {
       title: 'A vote of confidence',

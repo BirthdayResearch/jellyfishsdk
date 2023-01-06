@@ -133,21 +133,16 @@ export class Governance {
    * @param {string} options.proposalId Proposal id
    * @param {MasternodeType | string} [options.masternode=MasternodeType.MINE] masternode id or reserved words 'mine' to list votes for all owned accounts or 'all' to list all votes
    * @param {number} [options.cycle=-1] cycle: 0 (show current), cycle: N (show cycle N), cycle: -1 (show all)
-   * @param {ListGovProposalVotesPagination} [pagination]
-   * @param {number} [pagination.start] default is 0
-   * @param {boolean} [pagination.including_start] default = true
-   * @param {number} [pagination.limit] to limit number of records
+   * @param {ListGovProposalVotesPagination} [options.pagination]
+   * @param {number} [options.pagination.start] default is 0
+   * @param {boolean} [options.pagination.including_start] default = true
+   * @param {number} [options.pagination.limit] to limit number of records
    * @return {Promise<ListVotesResult[]>} Proposal vote information
    */
   async listGovProposalVotes (
-    options: ListGovProposalVotesOptions,
-    pagination: ListGovProposalVotesPagination = {
-      start: 0,
-      including_start: true,
-      limit: 100
-    }
+    options: ListGovProposalVotesOptions
   ): Promise<ListVotesResult[]> {
-    return await this.client.call('listgovproposalvotes', [options, pagination], 'number')
+    return await this.client.call('listgovproposalvotes', [options], 'number')
   }
 }
 
@@ -218,10 +213,11 @@ export interface ListGovProposalVotesOptions {
   proposalId: string
   masternode?: MasternodeType | string
   cycle?: number
+  pagination?: ListGovProposalVotesPagination
 }
 
 export interface ListGovProposalVotesPagination {
-  start: number
-  including_start: boolean
-  limit: number
+  start?: number
+  including_start?: boolean
+  limit?: number
 }
