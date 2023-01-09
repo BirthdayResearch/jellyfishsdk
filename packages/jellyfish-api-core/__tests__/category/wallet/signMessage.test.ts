@@ -15,10 +15,13 @@ describe('Sign Message', () => {
     await container.stop()
   })
 
-  it('should throw error if address provided does not to refer to key (BECH32)', async () => {
-    // getNewAddress generates a BECH32 address by default
+  it('should throw error if BECH32 address is provided', async () => {
+    // getNewAddress() generates a BECH32 address by default
+    // signMessage() is not compatible with BECH32 address
     const address = await client.wallet.getNewAddress()
-    const promise = client.wallet.signMessage(address, 'This is a test message')
+    const message = 'This is a test message'
+
+    const promise = client.wallet.signMessage(address, message)
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toMatchObject({
@@ -30,10 +33,12 @@ describe('Sign Message', () => {
     })
   })
 
-  it('should throw error if address provided does not to refer to key (P2SH)', async () => {
+  it('should throw error if P2SH address is provided', async () => {
+    // signMessage() is not compatible with P2SH address
     const address = await client.wallet.getNewAddress('', wallet.AddressType.P2SH_SEGWIT)
+    const message = 'This is a test message'
 
-    const promise = client.wallet.signMessage(address, 'This is a test message')
+    const promise = client.wallet.signMessage(address, message)
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toMatchObject({
@@ -45,8 +50,9 @@ describe('Sign Message', () => {
     })
   })
 
-  it('should throw error if invalid address is provided', async () => {
-    const promise = client.wallet.signMessage('', 'This is a test message')
+  it('should throw error if invalid/no address is provided', async () => {
+    const message = 'This is a test message'
+    const promise = client.wallet.signMessage('', message)
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toMatchObject({
@@ -58,13 +64,13 @@ describe('Sign Message', () => {
     })
   })
 
-  it('should be verifiable', async () => {
+  it('should be verifiable using verifyMessage()', async () => {
     const address = await client.wallet.getNewAddress('', wallet.AddressType.LEGACY)
     const message = 'This is a test message'
 
     const signature = await client.wallet.signMessage(address, message)
 
-    const verify = await client.call('verifymessage', [address, signature, 'This is a test message'], 'number')
+    const verify = await client.call('verifymessage', [address, signature, message], 'number')
     expect(verify).toStrictEqual(true)
   })
 })
