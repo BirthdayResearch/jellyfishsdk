@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { ListProposalsStatus, ListProposalsType, ProposalStatus, ProposalType } from '../../../src/category/governance'
+import { Testing } from '@defichain/jellyfish-testing'
 
 describe('Governance', () => {
   const container = new MasterNodeRegTestContainer()
@@ -108,14 +109,189 @@ describe('Governance', () => {
     expect(proposals[0].type).toStrictEqual(ProposalType.COMMUNITY_FUND_PROPOSAL)
     expect(proposals[0].status).toStrictEqual(ProposalStatus.REJECTED)
   })
+})
 
-  it('should listGovProposals with type ListProposalsType.CFP with previous cycle', async () => {
-    const proposals = await client.governance.listGovProposals({
+describe('Governance proposals with cycle and pagination', () => {
+  const container = new MasterNodeRegTestContainer()
+  const testing = Testing.create(container)
+
+  beforeAll(async () => {
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/gov': 'true' } })
+    await testing.container.generate(1)
+  })
+
+  afterAll(async () => {
+    await testing.container.stop()
+  })
+
+  it('should listGovProposals with past cycle', async () => {
+    const data = {
+      title: 'A vote of confidence',
+      context: '<Git issue url>'
+    }
+    await testing.rpc.governance.createGovVoc(data)
+    await testing.container.generate(200) // Expires proposal
+
+    // Filter by cycle
+    const allProposals = await testing.rpc.governance.listGovProposals({
+      cycle: -1
+    })
+    expect(allProposals.length).toStrictEqual(1)
+    expect(allProposals[0].type).toStrictEqual(ProposalType.VOTE_OF_CONFIDENCE)
+    expect(allProposals[0].title).toStrictEqual(data.title)
+    expect(allProposals[0].context).toStrictEqual(data.context)
+
+    // Filter by type and cycle
+    const cfpProposals = await testing.rpc.governance.listGovProposals({
       type: ListProposalsType.CFP,
       cycle: -1
     })
-    expect(proposals.length).toStrictEqual(1)
-    expect(proposals[0].type).toStrictEqual(ProposalType.COMMUNITY_FUND_PROPOSAL)
+    expect(cfpProposals.length).toStrictEqual(0)
+
+    // Filter by status and cycle
+    const completedProposals = await testing.rpc.governance.listGovProposals({
+      status: ListProposalsStatus.COMPLETED,
+      cycle: -1
+    })
+    expect(completedProposals.length).toStrictEqual(0)
+
+    // Filter by status, type and cycle
+    const cfpRejectedProposals = await testing.rpc.governance.listGovProposals({
+      status: ListProposalsStatus.REJECTED,
+      type: ListProposalsType.CFP,
+      cycle: -1
+    })
+    expect(cfpRejectedProposals.length).toStrictEqual(0)
+  })
+
+  it('should listGovProposals with specific voting cycle', async () => {
+    const cfpData1 = {
+      title: 'Community fund proposal #1',
+      amount: new BigNumber(100),
+      context: '<Git issue url>',
+      payoutAddress: await testing.container.getNewAddress(),
+      cycles: 1
+    }
+    const cfpData2 = {
+      title: 'Community fund proposal #2',
+      amount: new BigNumber(100),
+      context: '<Git issue url>',
+      payoutAddress: await testing.container.getNewAddress(),
+      cycles: 1
+    }
+    await testing.rpc.governance.createGovCfp(cfpData1) // Create voting cycle 1 proposal
+    await testing.container.generate(1)
+    const creationHeight = await testing.container.getBlockCount()
+    const votingPeriod = 70
+    const cycle1 = creationHeight + (votingPeriod - creationHeight % votingPeriod) + votingPeriod
+    await testing.container.generate(cycle1 - await testing.container.getBlockCount() + 1) // Allow voting cycle 1 to expires
+    await testing.rpc.governance.createGovCfp(cfpData2) // Create voting cycle 2 proposal
+    await testing.container.generate(1)
+
+    // Filter by cycle
+    const allProposals = await testing.rpc.governance.listGovProposals({
+      cycle: 2
+    })
+    expect(allProposals.length).toStrictEqual(1)
+    expect(allProposals[0].type).toStrictEqual(ProposalType.COMMUNITY_FUND_PROPOSAL)
+    expect(allProposals[0].title).toStrictEqual(cfpData2.title)
+    expect(allProposals[0].context).toStrictEqual(cfpData2.context)
+
+    // Filter by type and cycle
+    const vocProposals = await testing.rpc.governance.listGovProposals({
+      type: ListProposalsType.VOC,
+      cycle: 2
+    })
+    expect(vocProposals.length).toStrictEqual(0)
+
+    // Filter by status and cycle
+    const rejectedProposals = await testing.rpc.governance.listGovProposals({
+      status: ListProposalsStatus.REJECTED,
+      cycle: 2
+    })
+    expect(rejectedProposals.length).toStrictEqual(0)
+
+    // Filter by status, type and cycle
+    const vocRejectedProposals = await testing.rpc.governance.listGovProposals({
+      status: ListProposalsStatus.REJECTED,
+      type: ListProposalsType.VOC,
+      cycle: 2
+    })
+    expect(vocRejectedProposals.length).toStrictEqual(0)
+  })
+
+  it('should listGovProposals with pagination', async () => {
+    const data1 = {
+      title: 'Vote of confidence #1',
+      context: '<Git issue url>'
+    }
+    const data2 = {
+      title: 'Vote of confidence #2',
+      context: '<Git issue url>'
+    }
+    const data3 = {
+      title: 'Vote of confidence #3',
+      context: '<Git issue url>'
+    }
+    // Create 3 VOC proposals
+    const voc1 = await testing.rpc.governance.createGovVoc(data1)
+    await testing.container.generate(1)
+    const voc2 = await testing.rpc.governance.createGovVoc(data2)
+    await testing.container.generate(1)
+    const voc3 = await testing.rpc.governance.createGovVoc(data3)
+    await testing.container.generate(1)
+    console.log('voc1', voc1)
+    console.log('voc2', voc2)
+    console.log('voc3', voc3)
+
+    // List all proposals
+    const allProposals = await testing.rpc.governance.listGovProposals()
+    console.log('All proposals', allProposals)
+
+    // List with pagination
+    const proposals1 = await testing.rpc.governance.listGovProposals({
+      pagination: {
+        start: voc3,
+        including_start: true,
+        limit: 1
+      }
+    })
+    console.log('Paginated proposal', proposals1)
+
+    // All records
+    // const proposals1 = await testing.rpc.governance.listGovProposals({
+    //   pagination: {
+    //     limit: 0
+    //   }
+    // })
+    // expect(proposals1.length).toStrictEqual(3)
+
+    // Filter for limit
+    const proposals2 = await testing.rpc.governance.listGovProposals({
+      pagination: {
+        limit: 2
+      }
+    })
+    expect(proposals2.length).toStrictEqual(2)
+
+    // Filter with including_start
+    const proposals3 = await testing.rpc.governance.listGovProposals({
+      pagination: {
+        including_start: false,
+        limit: 2
+      }
+    })
+    expect(proposals3).toStrictEqual(allProposals.slice(1))
+
+    const proposals4 = await testing.rpc.governance.listGovProposals({
+      pagination: {
+        including_start: true,
+        limit: 2
+      }
+    })
+    expect(proposals4).toStrictEqual(allProposals.slice(0, 2))
   })
 })
 
