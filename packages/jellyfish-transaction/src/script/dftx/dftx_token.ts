@@ -146,10 +146,11 @@ class CVariantScript extends ComposableBuffer<VariantScript> {
 /**
  * TokenBurn DeFi Transaction
  */
+export type BurnType = 0
 export interface TokenBurn {
   amounts: TokenBalanceUInt32[]
   from: Script
-  burnType: number
+  burnType: BurnType
   variantContext: VariantScript
 }
 
@@ -165,7 +166,7 @@ export class CTokenBurn extends ComposableBuffer<TokenBurn> {
     return [
       ComposableBuffer.compactSizeArray(() => tb.amounts, v => tb.amounts = v, v => new CTokenBalance(v)),
       ComposableBuffer.single<Script>(() => tb.from, v => tb.from = v, v => new CScript(v)),
-      ComposableBuffer.uInt8(() => tb.burnType, v => tb.burnType = v),
+      ComposableBuffer.uInt8(() => tb.burnType, v => tb.burnType = v as BurnType),
       ComposableBuffer.single<VariantScript>(() => tb.variantContext, v => tb.variantContext = v, v => new CVariantScript(v))
     ]
   }
