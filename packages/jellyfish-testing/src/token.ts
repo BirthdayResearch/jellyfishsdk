@@ -48,6 +48,12 @@ export class TestingToken {
     const tokenInfo = await this.rpc.token.getToken(symbol)
     return Object.keys(tokenInfo)[0]
   }
+
+  async burn (options: TestingTokenBurn): Promise<string> {
+    const { amount, symbol, from, context } = options
+    const account = `${new BigNumber(amount).toFixed(8)}@${symbol}`
+    return await this.rpc.token.burnTokens(account, from, context)
+  }
 }
 
 interface TestingTokenCreate {
@@ -73,4 +79,11 @@ interface TestingTokenSend {
   address: string
   amount: number | string
   symbol: string
+}
+
+interface TestingTokenBurn {
+  amount: number | string
+  symbol: string
+  from: string
+  context?: string
 }
