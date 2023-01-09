@@ -1,6 +1,6 @@
 import { SmartBuffer } from 'smart-buffer'
 import { OP_DEFI_TX } from '../../../../src/script/dftx'
-import { BurnType, CTokenBurn } from '../../../../src/script/dftx/dftx_token'
+import { BurnType, CTokenBurn, VariantType } from '../../../../src/script/dftx/dftx_token'
 import { OP_CODES } from '../../../../src/script'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
 import BigNumber from 'bignumber.js'
@@ -61,7 +61,7 @@ const tokenBurnData = [
       },
       burnType: 0 as BurnType,
       variantContext: {
-        variant: 0,
+        variant: 0 as VariantType,
         context: {
           stack: []
         }
@@ -86,7 +86,7 @@ const tokenBurnData = [
       },
       burnType: 0 as BurnType,
       variantContext: {
-        variant: 0,
+        variant: 0 as VariantType,
         context: {
           stack: [
             OP_CODES.OP_0,
