@@ -16,8 +16,9 @@ export class PlaygroundBlock {
 
   @Interval(3000)
   async generate (): Promise<void> {
+    const address = PlaygroundBlock.randomNodeAddress()
     await this.client.call('generatetoaddress', [1, PlaygroundBlock.randomNodeAddress(), 1], 'number')
     const count = await this.client.blockchain.getBlockCount()
-    this.logger.log(`generated new block - height: ${count}`)
+    this.logger.log(`generated new block using ${address} master node address - height: ${count}`)
   }
 }
