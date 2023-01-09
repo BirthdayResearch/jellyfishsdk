@@ -32,7 +32,7 @@ export class PoolPair {
   }
 
   /**
-   * Create a poolpair with given metadata
+   *  Update a poolpair with given metadata
    *
    * @param {UpdatePoolPairMetadata} metadata A data providing information for pool pair update
    * @param {string} metadata.pool The pool's symbol, id or creation tx
