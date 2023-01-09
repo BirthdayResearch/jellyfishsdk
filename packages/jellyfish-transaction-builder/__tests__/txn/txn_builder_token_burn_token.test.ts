@@ -75,6 +75,23 @@ describe('burnToken', () => {
     await testing.container.stop()
   })
 
+  it('should reject if the amount is negative', async () => {
+    const script = await providers.elliptic.script()
+    const promise = builder.tokens.burnTokens({
+      amounts: [{ token: Number(idBTC), amount: new BigNumber(-2) }],
+      burnType: 0,
+      from: script,
+      variantContext: {
+        variant: 0,
+        context: {
+          stack: []
+        }
+      }
+    }, script)
+
+    await expect(promise).rejects.toThrow('The value of "value" is out of range. It must be >= 0 and <= 4294967295. Received -200000000')
+  })
+
   it('should throw an error if not enough tokens are available to burn', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.tokens.burnTokens({
