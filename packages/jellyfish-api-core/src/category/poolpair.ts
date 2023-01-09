@@ -32,6 +32,24 @@ export class PoolPair {
   }
 
   /**
+   * Create a poolpair with given metadata
+   *
+   * @param {UpdatePoolPairMetadata} metadata A data providing information for pool pair update
+   * @param {string} metadata.pool The pool's symbol, id or creation tx
+   * @param {boolean} metadata.status Pool Status new property (bool)
+   * @param {number} metadata.commission Pool commission, up to 10^-8
+   * @param {string} metadata.ownerAddress Address of the pool owner.
+   * @param {string} [metadata.customRewards] Token reward to be paid on each block, multiple can be specified.
+   * @param {UTXO[]} utxos is an array of specific UTXOs to spend
+   * @param {string} utxos.txid
+   * @param {number} utxos.vout
+   * @return {Promise<string>}
+   */
+  async updatePoolPair (metadata: UpdatePoolPairMetadata, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('updatepoolpair', [metadata, utxos], 'number')
+  }
+
+  /**
    * Returns information about pools
    *
    * @param {PoolPairPagination} pagination
@@ -208,6 +226,14 @@ export interface CreatePoolPairMetadata {
   ownerAddress: string
   customRewards?: string[]
   pairSymbol?: string
+}
+
+export interface UpdatePoolPairMetadata { 
+  pool: string
+  status: boolean
+  commission: number
+  ownerAddress: string
+  customRewards?: string[]
 }
 
 export interface UTXO {
