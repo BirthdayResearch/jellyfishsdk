@@ -27,6 +27,7 @@
       <w>booland</w>
       <w>boolor</w>
       <w>buildcache</w>
+      <w>buildx</w>
       <w>canonbrother</w>
       <w>chainparams</w>
       <w>chainwork</w>
@@ -80,10 +81,18 @@
       <w>emissionburn</w>
       <w>equalverify</w>
       <w>eunos</w>
+      <w>eunosheight</w>
       <w>eunospayaheight</w>
       <w>feeburn</w>
       <w>fiveyeartimelock</w>
+      <w>fortcanningcrunchheight</w>
+      <w>fortcanningepilogueheight</w>
+      <w>fortcanninggreatworldheight</w>
       <w>fortcanningheight</w>
+      <w>fortcanninghillheight</w>
+      <w>fortcanningmuseumheight</w>
+      <w>fortcanningroadheight</w>
+      <w>fortcanningspringheight</w>
       <w>fromaltstack</w>
       <w>fullstackninja</w>
       <w>fuxingloh</w>
@@ -122,6 +131,7 @@
       <w>getvault</w>
       <w>getwalletinfo</w>
       <w>ghcr</w>
+      <w>grandcentralheight</w>
       <w>greaterthan</w>
       <w>greaterthanorequal</w>
       <w>hdkeypath</w>
@@ -186,6 +196,7 @@
       <w>mincolratio</w>
       <w>mintable</w>
       <w>mintedblocks</w>
+      <w>minttoken</w>
       <w>minttokens</w>
       <w>modifiedfee</w>
       <w>monstrobishi</w>
@@ -229,6 +240,7 @@
       <w>rpcbind</w>
       <w>rpcpassword</w>
       <w>rpcuser</w>
+      <w>rpcworkqueue</w>
       <w>rshift</w>
       <w>scripthash</w>
       <w>secp</w>
