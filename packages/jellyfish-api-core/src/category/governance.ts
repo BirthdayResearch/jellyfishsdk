@@ -132,11 +132,11 @@ export class Governance {
    * @param {ListGovProposalVotesOptions} options
    * @param {string} options.proposalId Proposal id
    * @param {MasternodeType | string} [options.masternode=MasternodeType.MINE] masternode id or reserved words 'mine' to list votes for all owned accounts or 'all' to list all votes
-   * @param {number} [options.cycle=-1] cycle: 0 (show current), cycle: N (show cycle N), cycle: -1 (show all)
+   * @param {number} [options.cycle=0] cycle: 0 (show current), cycle: N (show cycle N), cycle: -1 (show all)
    * @param {ListGovProposalVotesPagination} [options.pagination]
-   * @param {number} [options.pagination.start] default is 0
-   * @param {boolean} [options.pagination.including_start] default = true
-   * @param {number} [options.pagination.limit] to limit number of records
+   * @param {number} [options.pagination.start=0]
+   * @param {boolean} [options.pagination.including_start=true] defaults to false if options.pagination.start is set, true otherwise
+   * @param {number} [options.pagination.limit=100] to limit number of records
    * @return {Promise<ListVotesResult[]>} Proposal vote information
    */
   async listGovProposalVotes (

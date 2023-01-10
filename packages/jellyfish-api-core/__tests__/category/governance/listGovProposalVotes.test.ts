@@ -111,6 +111,34 @@ describe('Governance', () => {
     expect(votes[0]).toStrictEqual(votes1[0])
     expect(votes[1]).toStrictEqual(votes1[1])
     expect(votes[2]).toStrictEqual(votes2[0])
+
+    // including start is false, limit is not set
+    const votesIncludingStart1 = await testing.rpc.governance.listGovProposalVotes({
+      proposalId: proposalId,
+      pagination: {
+        start: 0,
+        including_start: false
+      }
+    })
+    expect(votesIncludingStart1[0]).toStrictEqual(votes[1])
+
+    // including_start not set, start is set (should default to false)
+    const votesIncludingStart2 = await testing.rpc.governance.listGovProposalVotes({
+      proposalId: proposalId,
+      pagination: {
+        start: 0
+      }
+    })
+    expect(votesIncludingStart2[0]).toStrictEqual(votes[1])
+
+    // limit is set
+    const votesLimit = await testing.rpc.governance.listGovProposalVotes({
+      proposalId: proposalId,
+      pagination: {
+        limit: 2
+      }
+    })
+    expect(votesLimit.length).toStrictEqual(2)
   })
 
   it('should listGovProposalVotes with filter masternode=MasternodeType.ALL', async () => {
