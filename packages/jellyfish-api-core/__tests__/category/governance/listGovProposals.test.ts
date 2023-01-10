@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { ListProposalsStatus, ListProposalsType, ProposalStatus, ProposalType } from '../../../src/category/governance'
+import { ListProposalsStatus, ListProposalsType, ProposalInfo, ProposalStatus, ProposalType } from '../../../src/category/governance'
 import { Testing } from '@defichain/jellyfish-testing'
 
 describe('Governance', () => {
@@ -115,6 +115,13 @@ describe('Governance proposals with cycle and pagination', () => {
   const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
+  function proposalLogMapper (proposal: ProposalInfo): {proposalId: string, title: string} {
+    return {
+      proposalId: proposal.proposalId,
+      title: proposal.title
+    }
+  }
+
   beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
@@ -222,7 +229,7 @@ describe('Governance proposals with cycle and pagination', () => {
     expect(vocRejectedProposals.length).toStrictEqual(0)
   })
 
-  it('should listGovProposals with pagination', async () => {
+  it.only('should listGovProposals with pagination', async () => {
     const data1 = {
       title: 'Vote of confidence #1',
       context: '<Git issue url>'
@@ -248,25 +255,33 @@ describe('Governance proposals with cycle and pagination', () => {
 
     // List all proposals
     const allProposals = await testing.rpc.governance.listGovProposals()
-    console.log('All proposals', allProposals)
+    console.log('All proposals', allProposals.map(proposalLogMapper))
 
     // List with pagination
-    const proposals1 = await testing.rpc.governance.listGovProposals({
+    const proposalsPage1 = await testing.rpc.governance.listGovProposals({
       pagination: {
-        start: voc3,
+        start: allProposals[0].proposalId,
         including_start: true,
-        limit: 1
+        limit: 2
       }
     })
-    console.log('Paginated proposal', proposals1)
+    const proposalsPage2 = await testing.rpc.governance.listGovProposals({
+      pagination: {
+        start: allProposals[2].proposalId,
+        including_start: true,
+        limit: 2
+      }
+    })
+    console.log('Page 1 proposal', proposalsPage1.map(proposalLogMapper))
+    console.log('Page 2 proposal', proposalsPage2.map(proposalLogMapper))
 
     // All records
-    // const proposals1 = await testing.rpc.governance.listGovProposals({
-    //   pagination: {
-    //     limit: 0
-    //   }
-    // })
-    // expect(proposals1.length).toStrictEqual(3)
+    const proposals1 = await testing.rpc.governance.listGovProposals({
+      pagination: {
+        limit: 0
+      }
+    })
+    expect(proposals1.length).toStrictEqual(3)
 
     // Filter for limit
     const proposals2 = await testing.rpc.governance.listGovProposals({
@@ -279,19 +294,26 @@ describe('Governance proposals with cycle and pagination', () => {
     // Filter with including_start
     const proposals3 = await testing.rpc.governance.listGovProposals({
       pagination: {
-        including_start: false,
-        limit: 2
+        including_start: false
       }
     })
     expect(proposals3).toStrictEqual(allProposals.slice(1))
 
     const proposals4 = await testing.rpc.governance.listGovProposals({
       pagination: {
+        including_start: true
+      }
+    })
+    expect(proposals4).toStrictEqual(allProposals)
+
+    // Filter with including_start and limit
+    const proposals5 = await testing.rpc.governance.listGovProposals({
+      pagination: {
         including_start: true,
         limit: 2
       }
     })
-    expect(proposals4).toStrictEqual(allProposals.slice(0, 2))
+    expect(proposals5).toStrictEqual(allProposals.slice(0, 2))
   })
 })
 

@@ -103,9 +103,9 @@ export class Governance {
    * @param {ListProposalsStatus} [options.status=ListProposalsStatus.ALL] status of proposals
    * @param {number} [options.cycle=0] payout cycle of proposals
    * @param {ListProposalPagination} [options.pagination]
-   * @param {number} [options.pagination.start] default is 0
-   * @param {boolean} [options.pagination.including_start] default = true
-   * @param {number} [options.pagination.limit] to limit number of records, default to 100
+   * @param {number} [options.pagination.start=0]
+   * @param {boolean} [options.pagination.including_start=true] defaults to false if options.pagination.start is set, true otherwise
+   * @param {number} [options.pagination.limit=100] to limit number of records
    * @return {Promise<ProposalInfo[]>}
    */
   async listGovProposals (options: ListProposalOptions = {}): Promise<ProposalInfo[]> {
