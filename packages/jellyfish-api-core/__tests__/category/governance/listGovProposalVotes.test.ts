@@ -121,6 +121,7 @@ describe('Governance', () => {
       }
     })
     expect(votesIncludingStart1[0]).toStrictEqual(votes[1])
+    expect(votesIncludingStart1.length).toStrictEqual(votes.length - 1)
 
     // including_start not set, start is set (should default to false)
     const votesIncludingStart2 = await testing.rpc.governance.listGovProposalVotes({
@@ -130,6 +131,7 @@ describe('Governance', () => {
       }
     })
     expect(votesIncludingStart2[0]).toStrictEqual(votes[1])
+    expect(votesIncludingStart2.length).toStrictEqual(votes.length - 1)
 
     // limit is set
     const votesLimit = await testing.rpc.governance.listGovProposalVotes({
