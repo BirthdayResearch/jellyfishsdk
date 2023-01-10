@@ -1,7 +1,7 @@
 import { Interval } from '@nestjs/schedule'
 import { Injectable, Logger } from '@nestjs/common'
 import { ApiClient } from '@defichain/jellyfish-api-core'
-import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
+import { MiningInfo } from '@defichain/jellyfish-api-core/dist/category/mining'
 
 @Injectable()
 export class PlaygroundBlock {
@@ -10,15 +10,12 @@ export class PlaygroundBlock {
   constructor (private readonly client: ApiClient) {
   }
 
-  private static randomNodeAddress (): string {
-    return RegTestFoundationKeys[Math.floor(Math.random() * RegTestFoundationKeys.length)].operator.address
-  }
-
   @Interval(3000)
   async generate (): Promise<void> {
-    const address = PlaygroundBlock.randomNodeAddress()
-    await this.client.call('generatetoaddress', [1, PlaygroundBlock.randomNodeAddress(), 1], 'number')
+    const { masternodes }: MiningInfo = await this.client.mining.getMiningInfo()
+    const randomAddress = masternodes[Math.floor(Math.random() * masternodes.length)].operator
+    await this.client.call('generatetoaddress', [1, randomAddress, 1], 'number')
     const count = await this.client.blockchain.getBlockCount()
-    this.logger.log(`generated new block using ${address} master node address - height: ${count}`)
+    this.logger.log(`generated new block - height: ${count}`)
   }
 }
