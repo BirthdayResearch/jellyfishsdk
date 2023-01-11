@@ -220,6 +220,8 @@ export interface ListProposalOptions {
 
 export interface ListProposalPagination {
   start?: string
+  including_start?: boolean
+  limit?: number
 }
 
 export interface ListGovProposalVotesOptions {
