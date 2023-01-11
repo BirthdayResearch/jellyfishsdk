@@ -327,7 +327,7 @@ export class Wallet {
 
   /**
    * Sign a message with the private key of an address
-   * Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
+   * Requires wallet to be unlocked for usage. Use `walletpassphrase` to unlock wallet.
    *
    * @param {string} address The DeFi address to use for the private key.
    * @param {string} message The message to create a signature of.
