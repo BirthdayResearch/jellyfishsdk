@@ -400,7 +400,7 @@ interface wallet {
 
 ## signMessage
 
-Sign a message with the private key of an address. Requires wallet passphrase to be set with walletpassphrase call if wallet is encrypted.
+Sign a message with the private key of an address. Requires wallet to be unlocked for usage. Use `walletpassphrase` to unlock wallet.
 
 ```ts title="client.wallet.signMessage()"
 interface wallet {
