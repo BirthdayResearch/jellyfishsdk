@@ -45,8 +45,8 @@ describe('playgroundBlock', () => {
       await testing.container.generate(1)
     }
     const updatedCount = await testing.container.getBlockCount()
-    expect(updatedCount).toBeGreaterThan(count)
     const { masternodes: updatedMasterNodes }: MiningInfo = await testing.container.call('getmininginfo', [])
+    expect(updatedCount).toBeGreaterThan(count)
     updatedMasterNodes.forEach((eachNode) => {
       const currentNode = masternodes.find((each) => each.operator === eachNode.operator)
       expect(eachNode.mintedblocks).toBeGreaterThan(currentNode?.mintedblocks ?? 0)
