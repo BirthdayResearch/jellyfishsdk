@@ -101,7 +101,7 @@ export class Governance {
    * @param {Object} options List proposal filter options
    * @param {ListProposalsType} [options.type=ListProposalsType.ALL] type of proposals
    * @param {ListProposalsStatus} [options.status=ListProposalsStatus.ALL] status of proposals
-   * @param {number} [options.cycle=0] payout cycle of proposals
+   * @param {number} [options.cycle=0] cycle: 0 (show all), cycle: N (show cycle N), cycle: -1 (show previous cycle)
    * @param {ListProposalsPagination} [options.pagination]
    * @param {number} [options.pagination.start=0]
    * @param {boolean} [options.pagination.including_start=true] defaults to false if options.pagination.start is set, true otherwise
