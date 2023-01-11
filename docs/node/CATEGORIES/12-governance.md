@@ -112,7 +112,7 @@ Returns list of proposals.
 
 ```ts title="client.governance.listGovProposals()"
 interface governance {
-  async listGovProposals ({
+  listGovProposals ({
     type = ListProposalsType.ALL,
     status = ListProposalsStatus.ALL
   } = {}): Promise<ProposalInfo[]>
@@ -175,7 +175,7 @@ Vote on a community proposal.
 
 ```ts title="client.governance.voteGov()"
 interface governance {
-  async voteGov (data: VoteData, utxos: UTXO[] = []): Promise<string>
+  voteGov (data: VoteData, utxos: UTXO[] = []): Promise<string>
 }
 
 enum VoteDecision {
@@ -202,12 +202,25 @@ Returns information about proposal votes.
 
 ```ts title="client.governance.listGovProposalVotes()"
 interface governance {
-  async listGovProposalVotes (proposalId: string, masternode: MasternodeType | string = MasternodeType.MINE, cycle: number = 0): Promise<ListVotesResult[]>
+  listGovProposalVotes (options: ListGovProposalVotesOptions): Promise<ListVotesResult[]>
 }
 
 enum MasternodeType {
   MINE = 'mine',
   ALL = 'all'
+}
+
+interface ListGovProposalVotesPagination {
+  start?: number
+  including_start?: boolean
+  limit?: number
+}
+
+interface ListGovProposalVotesOptions {
+  proposalId: string
+  masternode?: MasternodeType | string
+  cycle?: number
+  pagination?: ListGovProposalVotesPagination
 }
 
 interface ListVotesResult {
