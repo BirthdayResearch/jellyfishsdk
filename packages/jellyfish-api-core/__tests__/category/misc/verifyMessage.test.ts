@@ -6,6 +6,7 @@ import { RpcApiError } from '@defichain/jellyfish-api-core'
 describe('Verify message', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
+  const message = 'test'
 
   beforeAll(async () => {
     await container.start()
@@ -17,7 +18,7 @@ describe('Verify message', () => {
   })
 
   it('should throw error if invalid address', async () => {
-    const promise = client.misc.verifyMessage('test', 'ICqlzHuredAz6XN7bVsB09/FGtGbRX+nUv+E9qz44rQ8DRi/zHpDGuMs2U6EtnGapv7r1V7cIdJ2ui9TMaaCNvA=', 'test')
+    const promise = client.misc.verifyMessage('test', 'ICqlzHuredAz6XN7bVsB09/FGtGbRX+nUv+E9qz44rQ8DRi/zHpDGuMs2U6EtnGapv7r1V7cIdJ2ui9TMaaCNvA=', message)
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toMatchObject({
@@ -45,7 +46,6 @@ describe('Verify message', () => {
   it('should fail if incorrect keypair is used', async () => {
     const keyPair = RegTestFoundationKeys[0].owner
     const otherKeyPair = RegTestFoundationKeys[1].owner
-    const message = 'test'
 
     const signedString = await client.misc.signMessageWithPrivKey(keyPair.privKey, message)
 
@@ -55,8 +55,6 @@ describe('Verify message', () => {
 
   it('should fail to verify message if incorrect message', async () => {
     const keyPair = RegTestFoundationKeys[0].owner
-    const message = 'test'
-
     const signedString = await client.misc.signMessageWithPrivKey(keyPair.privKey, message)
 
     const isCorrect = await client.misc.verifyMessage(keyPair.address, signedString, 'test1')
@@ -65,8 +63,6 @@ describe('Verify message', () => {
 
   it('should verify message', async () => {
     const keyPair = RegTestFoundationKeys[0].owner
-    const message = 'test'
-
     const signedString = await client.misc.signMessageWithPrivKey(keyPair.privKey, message)
 
     const isCorrect = await client.misc.verifyMessage(keyPair.address, signedString, 'test')

@@ -16,7 +16,8 @@ describe('Verify message', () => {
   })
 
   it('should throw error if invalid private key', async () => {
-    const promise = client.misc.signMessageWithPrivKey('cUp5EVEjuAGpemSuejP36TWWuFKzuCbUJ4QAKJTiSSB2vXzDLsJ', 'test')
+    const privkey = await client.wallet.dumpPrivKey(await client.wallet.getNewAddress())
+    const promise = client.misc.signMessageWithPrivKey(privkey.substr(1, 7), 'test')
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toMatchObject({
@@ -29,7 +30,8 @@ describe('Verify message', () => {
   })
 
   it('should sign with private key', async () => {
-    const promise = client.misc.signMessageWithPrivKey('cRiRQ9cHmy5evDqNDdEV8f6zfbK6epi9Fpz4CRZsmLEmkwy54dWz', 'test')
+    const privkey = await client.wallet.dumpPrivKey(await client.wallet.getNewAddress())
+    const promise = client.misc.signMessageWithPrivKey(privkey, 'test')
     await expect(promise).toBeTruthy()
   })
 })
