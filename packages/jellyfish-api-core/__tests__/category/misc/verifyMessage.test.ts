@@ -31,7 +31,7 @@ describe('Verify message', () => {
   })
 
   it('should throw error if invalid signature', async () => {
-    const promise = client.misc.verifyMessage('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 'ICqlzHuredAz6XN7bVsB09/FGtGbRX+nUv+E9qz44rQ8DRi/zHpDGuMs2U6EtnGapv7r1V7cIdJ2ui9TMaaCNvA', 'test')
+    const promise = client.misc.verifyMessage('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 'ICqlzHuredAz6XN7bVsB09/FGtGbRX+nUv+E9qz44rQ8DRi/zHpDGuMs2U6EtnGapv7r1V7cIdJ2ui9TMaaCNvA', message)
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toMatchObject({
@@ -49,7 +49,7 @@ describe('Verify message', () => {
 
     const signedString = await client.misc.signMessageWithPrivKey(keyPair.privKey, message)
 
-    const isCorrect = await client.misc.verifyMessage(otherKeyPair.address, signedString, 'test')
+    const isCorrect = await client.misc.verifyMessage(otherKeyPair.address, signedString, message)
     expect(isCorrect).toStrictEqual(false)
   })
 
@@ -65,7 +65,7 @@ describe('Verify message', () => {
     const keyPair = RegTestFoundationKeys[0].owner
     const signedString = await client.misc.signMessageWithPrivKey(keyPair.privKey, message)
 
-    const isCorrect = await client.misc.verifyMessage(keyPair.address, signedString, 'test')
+    const isCorrect = await client.misc.verifyMessage(keyPair.address, signedString, message)
     expect(isCorrect).toStrictEqual(true)
   })
 })
