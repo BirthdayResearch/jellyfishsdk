@@ -228,7 +228,7 @@ export interface CreatePoolPairMetadata {
   pairSymbol?: string
 }
 
-export interface UpdatePoolPairMetadata { 
+export interface UpdatePoolPairMetadata {
   pool: string
   status: boolean
   commission: number
