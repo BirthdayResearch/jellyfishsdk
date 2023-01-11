@@ -3,12 +3,14 @@ import { ContainerAdapterClient } from '../../container_adapter_client'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { wallet } from '../../../src'
 
-describe('Sign Message on masternode', () => {
+describe('Sign Message on masternode by unlocking encrpyted wallet', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
   beforeAll(async () => {
     await container.start()
+    await client.call('encryptwallet', ['password'], 'number')
+    await client.call('walletpassphrase', ['password', 10000], 'number')
   })
 
   afterAll(async () => {
@@ -80,6 +82,7 @@ describe('Sign Message on masternode', () => {
   })
 
   it('should be verifiable using verifyMessage()', async () => {
+    // signMessage() is compatible with LEGACY address
     const address = await client.wallet.getNewAddress('', wallet.AddressType.LEGACY)
     const message = 'This is a test message'
 
@@ -87,5 +90,35 @@ describe('Sign Message on masternode', () => {
 
     const verify = await client.call('verifymessage', [address, signature, message], 'number')
     expect(verify).toStrictEqual(true)
+  })
+})
+
+describe('Sign Message on masternode without unlocking encrypted wallet', () => {
+  const container = new MasterNodeRegTestContainer()
+  const client = new ContainerAdapterClient(container)
+
+  beforeAll(async () => {
+    await container.start()
+    await client.call('encryptwallet', ['password'], 'number')
+  })
+
+  afterAll(async () => {
+    await container.stop()
+  })
+
+  it('should throw error even with compatible address', async () => {
+    // signMessage() is compatible with LEGACY address
+    const address = await client.wallet.getNewAddress('LEGACY example', wallet.AddressType.LEGACY)
+    const message = 'This is a test message'
+
+    const promise = client.wallet.signMessage(address, message)
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -13,
+        message: 'Error: Please enter the wallet passphrase with walletpassphrase first.'
+      }
+    })
   })
 })
