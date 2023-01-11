@@ -1,4 +1,3 @@
-import { RawTransaction } from '@defichain/jellyfish-api-core/dist/category/rawtx'
 import { BigNumber } from '@defichain/jellyfish-json'
 import {
   CreateMasternode,
@@ -54,16 +53,20 @@ export class TxnBuilderMasternode extends P2WPKHTxnBuilder {
    *
    * @param {UpdateMasternode} updateMasternode transaction to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
-   * @param {Object} [collateralInfo] needed when updating owner address
-   * @param {RawTransaction} collateralInfo.rawCollateralTx to get relevant data needed for collateral vin and vout
-   * @param {Script} collateralInfo.newOwnerScript for new owner address
+   * @param {Object} [collateral] needed when updating owner address
+   * @param {string} collateral.txid collateral txid
+   * @param {BigNumber} collateral.value collateral amount
+   * @param {number} collateral.tokenId collateral tokenId
+   * @param {Script} collateral.newOwnerScript for new owner address
    * @return {Promise<TransactionSegWit>}
    */
   async update (
     updateMasternode: UpdateMasternode,
     changeScript: Script,
-    collateralInfo?: {
-      rawCollateralTx: RawTransaction
+    collateral?: {
+      txid: string
+      value: BigNumber
+      tokenId: number
       newOwnerScript: Script
     }
   ): Promise<TransactionSegWit> {
@@ -91,27 +94,23 @@ export class TxnBuilderMasternode extends P2WPKHTxnBuilder {
     const mergedVout = [deFiOut, change]
     const mergedPrevouts = [...prevouts]
 
-    if (collateralInfo !== null && collateralInfo !== undefined) {
-      const { rawCollateralTx, newOwnerScript } = collateralInfo
-
-      if (rawCollateralTx.vout?.length < 2) {
-        throw new Error('Invalid collateral tx, no vout for collateral')
-      }
+    if (collateral !== null && collateral !== undefined) {
+      const { txid, value, tokenId, newOwnerScript } = collateral
 
       const collateralPrevout: Prevout = {
-        txid: rawCollateralTx.txid,
+        txid,
         vout: 1,
         script: changeScript,
-        value: new BigNumber(rawCollateralTx.vout[1].value),
-        tokenId: rawCollateralTx.vout[1].tokenId
+        value: new BigNumber(value),
+        tokenId
       }
       const collateralVout: Vout = {
         script: newOwnerScript,
-        value: new BigNumber(rawCollateralTx.vout[1].value),
-        tokenId: rawCollateralTx.vout[1].tokenId
+        value: new BigNumber(value),
+        tokenId
       }
       const collateralVin: Vin = {
-        txid: rawCollateralTx.txid,
+        txid,
         index: 1,
         script: { stack: [] },
         sequence: 0xffffffff

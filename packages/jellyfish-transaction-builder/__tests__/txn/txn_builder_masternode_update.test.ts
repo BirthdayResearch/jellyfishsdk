@@ -70,7 +70,9 @@ describe('UpdateMasternode', () => {
 
     const rawCollateralTx = await jsonRpc.rawtx.getRawTransaction(masternodeId, true)
     const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script1, {
-      rawCollateralTx: rawCollateralTx,
+      txid: rawCollateralTx.txid,
+      value: rawCollateralTx.vout[1].value,
+      tokenId: rawCollateralTx.vout[1].tokenId,
       newOwnerScript: script2
     })
     const outs = await sendTransaction(container, txn)
@@ -290,7 +292,9 @@ describe('UpdateMasternode', () => {
 
     const rawCollateralTx = await jsonRpc.rawtx.getRawTransaction(masternodeId, true)
     const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script1, {
-      rawCollateralTx: rawCollateralTx,
+      txid: rawCollateralTx.txid,
+      value: rawCollateralTx.vout[1].value,
+      tokenId: rawCollateralTx.vout[1].tokenId,
       newOwnerScript: script2
     })
     const outs = await sendTransaction(container, txn)
@@ -388,7 +392,9 @@ describe('UpdateMasternode', () => {
 
     const rawCollateralTx = await jsonRpc.rawtx.getRawTransaction(masternodeId, true)
     const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script1, {
-      rawCollateralTx: rawCollateralTx,
+      txid: rawCollateralTx.txid,
+      value: rawCollateralTx.vout[1].value,
+      tokenId: rawCollateralTx.vout[1].tokenId,
       newOwnerScript: script2
     })
     const outs = await sendTransaction(container, txn)
@@ -549,7 +555,9 @@ describe('UpdateMasternode', () => {
 
       const rawCollateralTx = await jsonRpc.rawtx.getRawTransaction(masternodeId, true)
       const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script, {
-        rawCollateralTx: rawCollateralTx,
+        txid: rawCollateralTx.txid,
+        value: rawCollateralTx.vout[1].value,
+        tokenId: rawCollateralTx.vout[1].tokenId,
         newOwnerScript: script2
       })
       const promise = sendTransaction(container, txn)
@@ -673,7 +681,9 @@ describe('UpdateMasternode', () => {
 
     const rawCollateralTx = await jsonRpc.rawtx.getRawTransaction(masternodeId, true)
     const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script1, {
-      rawCollateralTx: rawCollateralTx,
+      txid: rawCollateralTx.txid,
+      value: rawCollateralTx.vout[1].value,
+      tokenId: rawCollateralTx.vout[1].tokenId,
       newOwnerScript: script1
     })
     const promise = sendTransaction(container, txn)
@@ -828,7 +838,9 @@ describe('UpdateMasternode', () => {
     // masternodeId is used as collateral transaction id because collateralTx is empty after creating masternode
     const rawCollateralTx2 = await jsonRpc.rawtx.getRawTransaction(masternodeId, true)
     const txn2: TransactionSegWit = await builder.masternode.update(updateMasternode2, script1, {
-      rawCollateralTx: rawCollateralTx2,
+      txid: rawCollateralTx2.txid,
+      value: rawCollateralTx2.vout[1].value,
+      tokenId: rawCollateralTx2.vout[1].tokenId,
       newOwnerScript: script2
     })
     await sendTransaction(container, txn2)
@@ -864,7 +876,9 @@ describe('UpdateMasternode', () => {
     const rawCollateralTx3 = await jsonRpc.rawtx.getRawTransaction(mn.collateralTx, true)
 
     const txn3: TransactionSegWit = await builder.masternode.update(updateMasternode, script2, {
-      rawCollateralTx: rawCollateralTx3,
+      txid: rawCollateralTx3.txid,
+      value: rawCollateralTx3.vout[1].value,
+      tokenId: rawCollateralTx3.vout[1].tokenId,
       newOwnerScript: script3
     })
     const outs3 = await sendTransaction(container, txn3)
