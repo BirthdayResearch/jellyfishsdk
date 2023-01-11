@@ -40,7 +40,7 @@ describe('playgroundBlock', () => {
     const count = await testing.container.getBlockCount()
     const { masternodes }: MiningInfo = await testing.container.call('getmininginfo', [])
     const playgroundBlock = testing.app.get(PlaygroundBlock)
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 100; i++) {
       await playgroundBlock.generate()
       await testing.container.generate(1)
     }
