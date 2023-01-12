@@ -1,9 +1,10 @@
-import { VoteDecision } from '@defichain/jellyfish-api-core/dist/category/governance'
+import { ListProposalsStatus, ListProposalsType, VoteDecision } from '@defichain/jellyfish-api-core/dist/category/governance'
 import { Testing } from '@defichain/jellyfish-testing'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers/dist/index'
 import {
   GovernanceProposalStatus,
   GovernanceProposalType,
+  ProposalMasternodeType,
   ProposalVoteResultType
 } from '@defichain/whale-api-client/dist/api/governance'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
@@ -16,7 +17,7 @@ let app: NestFastifyApplication
 let controller: GovernanceController
 const testing = Testing.create(container)
 let cfpProposalId: string
-let dfipProposalId: string
+let vocProposalId: string
 let payoutAddress: string
 
 describe('governance proposals', () => {
@@ -31,7 +32,7 @@ describe('governance proposals', () => {
     app = await createTestingApp(container)
     controller = app.get(GovernanceController)
 
-    // Create proposals
+    // Create 1 CFP + 1 VOC
     payoutAddress = await testing.generateAddress()
     cfpProposalId = await testing.rpc.governance.createGovCfp({
       title: 'CFP proposal',
@@ -42,8 +43,8 @@ describe('governance proposals', () => {
     })
     await container.generate(1)
 
-    dfipProposalId = await testing.rpc.governance.createGovVoc({
-      title: 'DFIP proposal',
+    vocProposalId = await testing.rpc.governance.createGovVoc({
+      title: 'VOC proposal',
       context: 'github'
     })
     await container.generate(1)
@@ -53,12 +54,92 @@ describe('governance proposals', () => {
     await stopTestingApp(container, app)
   })
 
+  // Listing related tests
   it('should listProposals', async () => {
-    const result = await controller.listProposals({ size: 100 })
+    const result = await controller.listProposals()
     expect(result.data.length).toStrictEqual(2)
   })
 
-  it('should get CFP proposal', async () => {
+  it('should listProposals with size', async () => {
+    const result = await controller.listProposals(undefined, undefined, undefined, { size: 1 })
+    expect(result.data.length).toStrictEqual(1)
+  })
+
+  it('should listProposals with status', async () => {
+    const result = await controller.listProposals(ListProposalsStatus.VOTING)
+    expect(result.data.length).toStrictEqual(2)
+  })
+
+  it('should listProposals with type', async () => {
+    const result = await controller.listProposals(undefined, ListProposalsType.CFP)
+    expect(result.data.length).toStrictEqual(1)
+  })
+
+  it('should listProposals with cycle', async () => {
+    const result = await controller.listProposals(undefined, undefined, 0)
+    expect(result.data.length).toStrictEqual(2)
+  })
+
+  it('should listProposals with status and type', async () => {
+    const result = await controller.listProposals(ListProposalsStatus.VOTING, ListProposalsType.CFP)
+    expect(result.data.length).toStrictEqual(1)
+  })
+
+  it('should listProposals with status, type and cycle', async () => {
+    const result = await controller.listProposals(ListProposalsStatus.VOTING, ListProposalsType.CFP, 0)
+    expect(result.data.length).toStrictEqual(1)
+  })
+
+  it('should listProposals with pagination', async () => {
+    const resultPage1 = await controller.listProposals(undefined, undefined, undefined, {
+      size: 1
+    })
+    expect(resultPage1.data.length).toStrictEqual(1)
+    const resultPage2 = await controller.listProposals(undefined, undefined, undefined, {
+      next: resultPage1.page?.next,
+      size: 1
+    })
+    expect(resultPage2.data.length).toStrictEqual(1)
+  })
+
+  it('should listProposals with status and pagination', async () => {
+    const resultPage1 = await controller.listProposals(ListProposalsStatus.VOTING, undefined, undefined, {
+      size: 1
+    })
+    expect(resultPage1.data.length).toStrictEqual(1)
+    const resultPage2 = await controller.listProposals(ListProposalsStatus.VOTING, undefined, undefined, {
+      next: resultPage1.page?.next,
+      size: 1
+    })
+    expect(resultPage2.data.length).toStrictEqual(1)
+  })
+
+  it('should listProposals with type and pagination', async () => {
+    const resultPage1 = await controller.listProposals(undefined, ListProposalsType.CFP, undefined, {
+      size: 1
+    })
+    expect(resultPage1.data.length).toStrictEqual(1)
+    const resultPage2 = await controller.listProposals(undefined, ListProposalsType.CFP, undefined, {
+      next: resultPage1.page?.next,
+      size: 1
+    })
+    expect(resultPage2.data.length).toStrictEqual(0)
+  })
+
+  it('should listProposals with status, type and pagination', async () => {
+    const resultPage1 = await controller.listProposals(ListProposalsStatus.VOTING, ListProposalsType.CFP, undefined, {
+      size: 1
+    })
+    expect(resultPage1.data.length).toStrictEqual(1)
+    const resultPage2 = await controller.listProposals(ListProposalsStatus.VOTING, ListProposalsType.CFP, undefined, {
+      next: resultPage1.page?.next,
+      size: 1
+    })
+    expect(resultPage2.data.length).toStrictEqual(0)
+  })
+
+  // Get single related tests
+  it('should getProposal for CFP', async () => {
     const result = await controller.getProposal(cfpProposalId)
     expect(result).toStrictEqual({
       proposalId: cfpProposalId,
@@ -81,12 +162,12 @@ describe('governance proposals', () => {
     })
   })
 
-  it('should get DFIP proposal', async () => {
-    const result = await controller.getProposal(dfipProposalId)
+  it('should getProposal for VOC', async () => {
+    const result = await controller.getProposal(vocProposalId)
     expect(result).toStrictEqual({
-      proposalId: dfipProposalId,
+      proposalId: vocProposalId,
       creationHeight: 104,
-      title: 'DFIP proposal',
+      title: 'VOC proposal',
       context: 'github',
       contextHash: '',
       status: GovernanceProposalStatus.VOTING,
@@ -103,20 +184,10 @@ describe('governance proposals', () => {
     })
   })
 
-  it('should get CFP proposal votes', async () => {
+  // List vote related tests
+  // TODO: add pagination related test when playground has more than one MN to vote
+  it('should listProposalVotes', async () => {
     const masternodeId = await getVotableMasternodeId()
-    await testing.rpc.governance.voteGov({
-      proposalId: cfpProposalId,
-      masternodeId: masternodeId,
-      decision: VoteDecision.YES
-    })
-    await container.generate(1)
-    await testing.rpc.governance.voteGov({
-      proposalId: cfpProposalId,
-      masternodeId: masternodeId,
-      decision: VoteDecision.NO
-    })
-    await container.generate(1)
     await testing.rpc.governance.voteGov({
       proposalId: cfpProposalId,
       masternodeId: masternodeId,
@@ -134,33 +205,40 @@ describe('governance proposals', () => {
     ])
   })
 
-  it('should get DFIP proposal votes', async () => {
+  it('should listProposalVotes with all masternodes', async () => {
     const masternodeId = await getVotableMasternodeId()
     await testing.rpc.governance.voteGov({
-      proposalId: dfipProposalId,
+      proposalId: cfpProposalId,
       masternodeId: masternodeId,
       decision: VoteDecision.NEUTRAL
     })
     await container.generate(1)
-    await testing.rpc.governance.voteGov({
-      proposalId: dfipProposalId,
-      masternodeId: masternodeId,
-      decision: VoteDecision.NO
-    })
-    await container.generate(1)
-    await testing.rpc.governance.voteGov({
-      proposalId: dfipProposalId,
-      masternodeId: masternodeId,
-      decision: VoteDecision.YES
-    })
-    await container.generate(1)
-    const result = await controller.listProposalVotes(dfipProposalId)
+    const result = await controller.listProposalVotes(cfpProposalId, ProposalMasternodeType.ALL)
     expect(result).toStrictEqual([
       {
-        proposalId: dfipProposalId,
+        proposalId: cfpProposalId,
         masternodeId: masternodeId,
         cycle: 1,
-        vote: ProposalVoteResultType.YES
+        vote: ProposalVoteResultType.NEUTRAL
+      }
+    ])
+  })
+
+  it('should listProposalVotes with all masternodes and cycle', async () => {
+    const masternodeId = await getVotableMasternodeId()
+    await testing.rpc.governance.voteGov({
+      proposalId: cfpProposalId,
+      masternodeId: masternodeId,
+      decision: VoteDecision.NEUTRAL
+    })
+    await container.generate(1)
+    const result = await controller.listProposalVotes(cfpProposalId, ProposalMasternodeType.ALL, -1)
+    expect(result).toStrictEqual([
+      {
+        proposalId: cfpProposalId,
+        masternodeId: masternodeId,
+        cycle: 1,
+        vote: ProposalVoteResultType.NEUTRAL
       }
     ])
   })

@@ -26,15 +26,23 @@ export class GovernanceService {
   constructor (private readonly client: JsonRpcClient) {}
 
   async list (
-    query: PaginationQuery,
+    query: PaginationQuery = {
+      size: 30
+    },
+    status?: ListProposalsStatus,
     type?: ListProposalsType,
-    status?: ListProposalsStatus
+    cycle?: number
   ): Promise<ApiPagedResponse<GovernanceProposal>> {
-    // const next = query.next !== undefined ? String(query.next) : undefined; // TODO: implement pagination after available on ain
+    const next = query.next !== undefined ? String(query.next) : undefined
     const size = query.size > 30 ? 30 : query.size
     const list = await this.client.governance.listGovProposals({
       type,
-      status
+      status,
+      cycle,
+      pagination: {
+        start: next,
+        limit: size
+      }
     })
 
     const proposals = list.map((proposal: ProposalInfo) => {
@@ -65,16 +73,25 @@ export class GovernanceService {
   }
 
   async getProposalVotes (
+    query: PaginationQuery = {
+      size: 30
+    },
     id: string,
     masternode: string | ProposalMasternodeType,
     cycle: number
   ): Promise<ProposalVotesResult[]> {
     try {
-      const votes = await this.client.governance.listGovProposalVotes(
-        id,
+      const next = query.next !== undefined ? Number(query.next) : undefined
+      const size = query.size > 30 ? 30 : query.size
+      const votes = await this.client.governance.listGovProposalVotes({
+        proposalId: id,
         masternode,
-        cycle
-      )
+        cycle,
+        pagination: {
+          start: next,
+          limit: size
+        }
+      })
       return votes.map((v) => ({
         ...v,
         vote: mapGovernanceProposalVoteResult(v.vote)

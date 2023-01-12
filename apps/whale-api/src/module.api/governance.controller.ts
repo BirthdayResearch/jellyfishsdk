@@ -1,3 +1,4 @@
+import { ListProposalsStatus, ListProposalsType } from '@defichain/jellyfish-api-core/dist/category/governance'
 import {
   GovernanceProposal,
   ProposalMasternodeType,
@@ -13,44 +14,51 @@ export class GovernanceController {
   constructor (private readonly governanceService: GovernanceService) {}
 
   /**
-   * Paginate governance proposals.
+   * Return paginated governance proposals.
    *
-   * @param query
+   * @param {ListProposalsStatus} [status=ListProposalsStatus.ALL] type of proposals
+   * @param {ListProposalsType=} [type=ListProposalsType.ALL] status of proposals
+   * @param {number} [cycle=0]  cycle: 0 (show all), cycle: N (show cycle N), cycle: -1 (show previous cycle)
+   * @param {PaginationQuery} query pagination query
    * @returns {Promise<ApiPagedResponse<GovernanceProposal>>}
    */
   @Get('/proposals')
   async listProposals (
-    @Query() query: PaginationQuery
+    @Query() status: ListProposalsStatus = ListProposalsStatus.ALL,
+    @Query() type: ListProposalsType = ListProposalsType.ALL,
+    @Query('cycle', ParseIntPipe) cycle: number = 0,
+    @Query() query?: PaginationQuery
   ): Promise<ApiPagedResponse<GovernanceProposal>> {
-    return await this.governanceService.list(query)
+    return await this.governanceService.list(query, status, type, cycle)
   }
 
   /**
    * Get information about a proposal with given proposal id.
    *
-   * @param id
+   * @param {string} id proposal ID
    * @returns {Promise<GovernanceProposal>}
    */
   @Get('/proposals/:id')
-  async getProposal (@Param('id') id: string): Promise<GovernanceProposal> {
-    return await this.governanceService.get(id)
+  async getProposal (@Param('id') proposalId: string): Promise<GovernanceProposal> {
+    return await this.governanceService.get(proposalId)
   }
 
   /**
-   * Returns votes for a proposal
+   * Returns information about proposal votes.
    *
-   * @param {string} id
+   * @param {string} id proposalId
    * @param {ProposalMasternodeType | string} [masternode=ProposalMasternodeType.ALL] masternode id or reserved words 'mine' to list votes for all owned accounts or 'all' to list all votes
    * @param {number} [cycle=0] cycle: 0 (show current), cycle: N (show cycle N), cycle: -1 (show all)
+   * @param {PaginationQuery} query
    * @return {Promise<ProposalVotesResult[]>} Proposal vote information
    */
   @Get('/proposals/:id/votes')
   async listProposalVotes (
-    @Param('proposalId') proposalId: string,
-      @Query('masternode')
-      masternode: string | ProposalMasternodeType = ProposalMasternodeType.MINE,
-      @Query('cycle', ParseIntPipe) cycle: number = 0
+    @Param('id') proposalId: string,
+      @Query('masternode') masternode: string | ProposalMasternodeType = ProposalMasternodeType.MINE,
+      @Query('cycle', ParseIntPipe) cycle: number = 0,
+      @Query() query?: PaginationQuery
   ): Promise<ProposalVotesResult[]> {
-    return await this.governanceService.getProposalVotes(proposalId, masternode, cycle)
+    return await this.governanceService.getProposalVotes(query, proposalId, masternode, cycle)
   }
 }
