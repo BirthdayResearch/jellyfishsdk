@@ -1,7 +1,6 @@
 import {
-  OP_CODES, Script, TransactionSegWit
+  OP_CODES, Script, TransactionSegWit, TokenBurn
 } from '@defichain/jellyfish-transaction'
-import { TokenBurn } from '@defichain/jellyfish-transaction/dist/script'
 import { P2WPKHTxnBuilder } from './txn_builder'
 
 export class TxnBuilderTokens extends P2WPKHTxnBuilder {
