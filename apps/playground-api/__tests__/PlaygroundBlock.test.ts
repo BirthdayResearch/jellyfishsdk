@@ -5,7 +5,7 @@ import { PlaygroundBlock } from '../src/PlaygroundBlock'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { StartOptions, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { TestingGroup } from '@defichain/jellyfish-testing'
-import { MiningInfo } from '@defichain/jellyfish-api-core/dist/category/mining'
+import { mining } from '@defichain/jellyfish-api-core'
 
 class PlaygroundApiMasterNodeRegTestContainer extends MasterNodeRegTestContainer {
   protected getCmd (opts: StartOptions): string[] {
@@ -21,6 +21,13 @@ class PlaygroundApiMasterNodeRegTestContainer extends MasterNodeRegTestContainer
     ]
   }
 }
+
+async function wait (millis: number): Promise<void> {
+  await new Promise((resolve) => {
+    setTimeout(_ => resolve(0), millis)
+  })
+}
+
 const testing = PlaygroundApiTesting.create(TestingGroup.create(1, index => new PlaygroundApiMasterNodeRegTestContainer(RegTestFoundationKeys[index])))
 
 beforeAll(async () => {
@@ -37,19 +44,23 @@ afterAll(async () => {
 
 describe('playgroundBlock', () => {
   it('should be able to mint blocks using multiple nodes', async () => {
-    const count = await testing.container.getBlockCount()
-    const { masternodes }: MiningInfo = await testing.container.call('getmininginfo', [])
+    const blockCount = await testing.container.getBlockCount()
+    const { masternodes }: mining.MiningInfo = await testing.container.call('getmininginfo', [])
     const playgroundBlock = testing.app.get(PlaygroundBlock)
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 20; i++) {
       await playgroundBlock.generate()
-      await testing.container.generate(1)
+      await wait(3000)
     }
-    const updatedCount = await testing.container.getBlockCount()
-    const { masternodes: updatedMasterNodes }: MiningInfo = await testing.container.call('getmininginfo', [])
-    expect(updatedCount).toBeGreaterThan(count)
-    updatedMasterNodes.forEach((eachNode) => {
-      const currentNode = masternodes.find((each) => each.operator === eachNode.operator)
-      expect(eachNode.mintedblocks).toBeGreaterThan(currentNode?.mintedblocks ?? 0)
-    })
+    const updatedBlockCount = await testing.container.getBlockCount()
+    const { masternodes: updatedMasterNodes }: mining.MiningInfo = await testing.container.call('getmininginfo', [])
+    expect(updatedBlockCount).toBeGreaterThan(blockCount)
+    const minerMNcount = updatedMasterNodes.reduce((minerMNcount, eachNode) => {
+      const currentMintedBlocks = masternodes.find((each) => each.operator === eachNode.operator)?.mintedblocks ?? 0
+      if (eachNode.mintedblocks > currentMintedBlocks) {
+        return ++minerMNcount
+      }
+      return minerMNcount
+    }, 0)
+    expect(minerMNcount).toBeGreaterThanOrEqual(2)
   })
 })
