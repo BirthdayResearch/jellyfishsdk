@@ -1,6 +1,6 @@
 import { SmartBuffer } from 'smart-buffer'
 import { OP_DEFI_TX } from '../../../../src/script/dftx'
-import { BurnType, CTokenBurn, VariantType } from '../../../../src/script/dftx/dftx_token'
+import { CTokenBurn, TokenBurn } from '../../../../src/script/dftx/dftx_token'
 import { OP_CODES } from '../../../../src/script'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
 import BigNumber from 'bignumber.js'
@@ -41,8 +41,7 @@ it('should bi-directional buffer-object-buffer', () => {
     expect((stack[1] as OP_DEFI_TX).tx.type).toStrictEqual(0x46)
   })
 })
-
-const tokenBurnData = [
+const tokenBurnData: Array<{ header: string, data: string, tokenBurn: TokenBurn }> = [
   {
     // data without context
     header: '6a2f4466547846', // OP_RETURN(0x6a) (length 47 = 0x2f) CDfTx.SIGNATURE(0x44665478) CTokenBurn.OP_CODE(0x46)
@@ -59,9 +58,9 @@ const tokenBurnData = [
           OP_CODES.OP_PUSHDATA_HEX_LE('850e5938570fa2752353e211ab3d880b3ebfe58b')
         ]
       },
-      burnType: 0 as BurnType,
+      burnType: 0,
       variantContext: {
-        variant: 0 as VariantType,
+        variant: 0,
         context: {
           stack: []
         }
@@ -84,9 +83,9 @@ const tokenBurnData = [
           OP_CODES.OP_PUSHDATA_HEX_LE('ad54d71e8681e0c990349070cbd17a5c567a9b9e')
         ]
       },
-      burnType: 0 as BurnType,
+      burnType: 0,
       variantContext: {
-        variant: 0 as VariantType,
+        variant: 0,
         context: {
           stack: [
             OP_CODES.OP_0,
