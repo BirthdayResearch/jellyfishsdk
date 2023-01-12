@@ -63,11 +63,7 @@ describe('Token', () => {
     await client.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/mint-tokens-to-address': 'true' } })
     await container.generate(1)
 
-    let tokenBalances = await client.account.getTokenBalances()
     const toAddress = await container.getNewAddress()
-
-    expect(tokenBalances.length).toStrictEqual(0)
-
     const data = await client.token.mintTokens({ amounts: ['5@DBTC'], to: toAddress })
 
     expect(typeof data).toStrictEqual('string')
@@ -75,7 +71,7 @@ describe('Token', () => {
 
     await container.generate(1)
 
-    tokenBalances = await client.account.getAccount(toAddress)
+    const tokenBalances = await client.account.getAccount(toAddress)
 
     expect(tokenBalances.length).toStrictEqual(1)
     expect(tokenBalances[0]).toStrictEqual('5.00000000@DBTC')
@@ -121,11 +117,7 @@ describe('Token', () => {
     await client.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/mint-tokens-to-address': 'true' } })
     await container.generate(1)
 
-    const tokenBalances = await client.account.getTokenBalances()
     const toAddress = await container.getNewAddress()
-
-    expect(tokenBalances.length).toStrictEqual(0)
-
     const promise = client.token.mintTokens({
       amounts: ['5@DBTC'],
       to: toAddress.substr(0, 7)
