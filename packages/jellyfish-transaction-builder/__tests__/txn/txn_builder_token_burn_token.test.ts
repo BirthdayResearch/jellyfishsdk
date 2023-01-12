@@ -6,6 +6,8 @@ import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
 import { RegTest } from '@defichain/jellyfish-network'
 import { P2WPKH } from '@defichain/jellyfish-address'
+import { OP_CODES, TokenBurn } from '@defichain/jellyfish-transaction'
+import { Bech32 } from '@defichain/jellyfish-crypto'
 
 const attributeKey = 'ATTRIBUTES'
 const symbolDBTC = 'BTC'
@@ -76,7 +78,7 @@ describe('burnToken', () => {
 
   it('should reject if the amount is negative', async () => {
     const script = await providers.elliptic.script()
-    const promise = builder.tokens.burnTokens({
+    const promise = builder.tokens.burn({
       amounts: [{ token: Number(idBTC), amount: new BigNumber(-2) }],
       burnType: 0,
       from: script,
@@ -93,7 +95,7 @@ describe('burnToken', () => {
 
   it('should throw an error if not enough tokens are available to burn', async () => {
     const script = await providers.elliptic.script()
-    const txn = await builder.tokens.burnTokens({
+    const txn = await builder.tokens.burn({
       amounts: [{ token: Number(idBTC), amount: new BigNumber(15) }],
       burnType: 0,
       from: script,
@@ -122,8 +124,7 @@ describe('burnToken', () => {
     await testing.generate(1)
 
     const script = await providers.elliptic.script()
-
-    const txn = await builder.tokens.burnTokens({
+    const tokenBurn: TokenBurn = {
       amounts: [{ token: Number(idBTC), amount: new BigNumber(15) }],
       burnType: 0,
       from: script,
@@ -131,10 +132,37 @@ describe('burnToken', () => {
         variant: 0,
         context: script
       }
-    }, script)
+    }
+
+    const txn = await builder.tokens.burn(tokenBurn, script)
 
     // Ensure the created txn is correct
-    await sendTransaction(testing.container, txn)
+    const outs = await sendTransaction(testing.container, txn)
+    const encoded: string = OP_CODES.OP_DEFI_TX_TOKEN_BURN(tokenBurn).asBuffer().toString('hex')
+    const pubKey = await providers.ellipticPair.publicKey()
+    const address = Bech32.fromPubKey(pubKey, 'bcrt')
+    expect(outs).toStrictEqual([{
+      n: 0,
+      scriptPubKey: {
+        asm: expect.stringMatching(/^OP_RETURN 4466547846/),
+        hex: `6a${encoded}`,
+        type: 'nulldata'
+      },
+      tokenId: 0,
+      value: 0
+    }, {
+      n: 1,
+      scriptPubKey: {
+        addresses: [address],
+        asm: expect.any(String),
+        hex: expect.any(String),
+        reqSigs: 1,
+        type: 'witness_v0_keyhash'
+      },
+      tokenId: 0,
+      value: 99.9999904
+    }])
+
     await testing.generate(1)
 
     const attributes = await testing.rpc.masternode.getGov(attributeKey)
@@ -160,19 +188,44 @@ describe('burnToken', () => {
 
     const script = await providers.elliptic.script()
     const wavesColScript = P2WPKH.fromAddress(RegTest, wavesConsortiumAddress, P2WPKH).getScript()
-
-    const txn = await builder.tokens.burnTokens({
-      amounts: [{ token: Number(idBTC), amount: new BigNumber(15) }],
+    const tokenBurn: TokenBurn = {
+      amounts: [{ token: Number(idBTC), amount: new BigNumber(30) }],
       burnType: 0,
       from: script,
       variantContext: {
         variant: 0,
         context: wavesColScript
       }
-    }, script)
+    }
+    const txn = await builder.tokens.burn(tokenBurn, script)
 
     // Ensure the created txn is correct
-    await sendTransaction(testing.container, txn)
+    const outs = await sendTransaction(testing.container, txn)
+    const encoded: string = OP_CODES.OP_DEFI_TX_TOKEN_BURN(tokenBurn).asBuffer().toString('hex')
+    const pubKey = await providers.ellipticPair.publicKey()
+    const address = Bech32.fromPubKey(pubKey, 'bcrt')
+
+    expect(outs).toStrictEqual([{
+      n: 0,
+      scriptPubKey: {
+        asm: expect.stringMatching(/^OP_RETURN 4466547846/),
+        hex: `6a${encoded}`,
+        type: 'nulldata'
+      },
+      tokenId: 0,
+      value: 0
+    }, {
+      n: 1,
+      scriptPubKey: {
+        addresses: [address],
+        asm: expect.any(String),
+        hex: expect.any(String),
+        reqSigs: 1,
+        type: 'witness_v0_keyhash'
+      },
+      tokenId: 0,
+      value: 99.9999904
+    }])
     await testing.generate(1)
 
     const attributes = await testing.rpc.masternode.getGov(attributeKey)
@@ -181,10 +234,10 @@ describe('burnToken', () => {
 
     // Verify the token is accounted to consortium member
     expect(keys.some(key => burntKeyRegex.exec(key) === null)).toStrictEqual(true)
-    expect(attributes.ATTRIBUTES[`v0/live/economy/consortium_members/${idBTC}/01/burnt`]).toStrictEqual(new BigNumber(15))
+    expect(attributes.ATTRIBUTES[`v0/live/economy/consortium_members/${idBTC}/01/burnt`]).toStrictEqual(new BigNumber(30))
 
     // Verify the token is deducted
     const accAfter = await testing.rpc.account.getAccount(await providers.getAddress())
-    expect(accAfter).toStrictEqual(['85.00000000@BTC'])
+    expect(accAfter).toStrictEqual(['70.00000000@BTC'])
   })
 })
