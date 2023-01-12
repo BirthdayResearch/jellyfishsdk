@@ -8,7 +8,6 @@ describe('Verify message', () => {
 
   beforeAll(async () => {
     await container.start()
-    await container.waitForReady()
   })
 
   afterAll(async () => {
