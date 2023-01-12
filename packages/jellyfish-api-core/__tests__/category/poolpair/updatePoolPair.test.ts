@@ -9,12 +9,12 @@ describe('poolpair update', () => {
   const testing = Testing.create(container)
   const client = new ContainerAdapterClient(container)
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     await container.start()
     await container.waitForWalletCoinbaseMaturity()
   })
 
-  afterAll(async () => {
+  afterEach(async () => {
     await container.stop()
   })
 
@@ -33,6 +33,27 @@ describe('poolpair update', () => {
     await client.poolpair.updatePoolPair(metadata)
     await container.generate(1)
     const poolPairAfter = await testing.poolpair.get('CAT-DFI')
+    expect(poolPairAfter).toStrictEqual({
+      symbol: expect.any(String),
+      name: expect.any(String),
+      status: !poolPairBefore.status,
+      idTokenA: expect.any(String),
+      idTokenB: expect.any(String),
+      reserveA: expect.any(BigNumber),
+      reserveB: expect.any(BigNumber),
+      commission: new BigNumber(0.2),
+      totalLiquidity: expect.any(BigNumber),
+      'reserveA/reserveB': expect.any(BigNumber),
+      'reserveB/reserveA': expect.any(BigNumber),
+      tradeEnabled: expect.any(Boolean),
+      ownerAddress: expect.any(String),
+      blockCommissionA: expect.any(BigNumber),
+      blockCommissionB: expect.any(BigNumber),
+      rewardPct: expect.any(BigNumber),
+      rewardLoanPct: expect.any(BigNumber),
+      creationTx: expect.any(String),
+      creationHeight: expect.any(BigNumber)
+    })
     expect(poolPairAfter.commission.toString()).toStrictEqual(new BigNumber(metadata.commission).toString())
     expect(poolPairAfter.status).toStrictEqual(false)
   })
