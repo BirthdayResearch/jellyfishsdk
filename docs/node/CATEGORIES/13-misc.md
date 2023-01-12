@@ -22,3 +22,23 @@ interface misc {
   setMockTime (ts: number): Promise<void>
 }
 ```
+
+# verifyMessage
+
+Verify a signed message.
+
+```ts title="client.misc.verifyMessage()"
+interface misc {
+  verifyMessage (address: string, signature: string, message: string): Promise<boolean>
+}
+```
+
+# signMessageWithPrivKey
+
+Sign a message with the private key of an address
+
+```ts title="client.misc.signMessageWithPrivKey()"
+interface misc {
+  signMessageWithPrivKey (privkey: string, message: string): Promise<string>
+}
+```
