@@ -47,7 +47,6 @@ async function setupGovs (): Promise<void> {
 describe('burnToken', () => {
   beforeEach(async () => {
     await testing.container.start()
-    await testing.container.waitForReady()
     await testing.container.waitForWalletCoinbaseMaturity()
     wavesConsortiumAddress = await testing.generateAddress()
 
