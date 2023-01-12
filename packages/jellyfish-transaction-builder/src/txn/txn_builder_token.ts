@@ -11,7 +11,7 @@ export class TxnBuilderTokens extends P2WPKHTxnBuilder {
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @returns {Promise<TransactionSegWit>}
    */
-  async burnTokens (tokenBurn: TokenBurn, changeScript: Script): Promise<TransactionSegWit> {
+  async burn (tokenBurn: TokenBurn, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_TOKEN_BURN(tokenBurn),
       changeScript

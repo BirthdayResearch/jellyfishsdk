@@ -124,6 +124,7 @@ export class CTokenUpdateAny extends ComposableBuffer<TokenUpdateAny> {
  * Known as "std::variant<CScript>" in cpp.
  */
 export type VariantType = 0
+
 interface VariantScript {
   variant: VariantType // -----| 1 byte
   context: Script // ----------| VarUInt{1-9 bytes}, + n bytes
@@ -148,6 +149,7 @@ class CVariantScript extends ComposableBuffer<VariantScript> {
  * TokenBurn DeFi Transaction
  */
 export type BurnType = 0
+
 export interface TokenBurn {
   amounts: TokenBalanceUInt32[] // ----------| c = VarUInt{1-9 bytes}, + c x TokenBalance
   from: Script // ---------------------------| n = VarUInt{1-9 bytes}, + n bytes
