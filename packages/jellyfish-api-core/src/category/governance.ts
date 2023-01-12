@@ -101,13 +101,15 @@ export class Governance {
    * @param {Object} options List proposal filter options
    * @param {ListProposalsType} [options.type=ListProposalsType.ALL] type of proposals
    * @param {ListProposalsStatus} [options.status=ListProposalsStatus.ALL] status of proposals
+   * @param {number} [options.cycle=0] cycle: 0 (show all), cycle: N (show cycle N), cycle: -1 (show previous cycle)
+   * @param {ListProposalsPagination} [options.pagination]
+   * @param {number} [options.pagination.start=0]
+   * @param {boolean} [options.pagination.including_start=true] defaults to false if options.pagination.start is set, true otherwise
+   * @param {number} [options.pagination.limit=100] to limit number of records
    * @return {Promise<ProposalInfo[]>}
    */
-  async listGovProposals ({
-    type = ListProposalsType.ALL,
-    status = ListProposalsStatus.ALL
-  } = {}): Promise<ProposalInfo[]> {
-    return await this.client.call('listgovproposals', [type, status], { amount: 'bignumber' })
+  async listGovProposals (options: ListProposalsOptions = {}): Promise<ProposalInfo[]> {
+    return await this.client.call('listgovproposals', [options], { amount: 'bignumber' })
   }
 
   /**
@@ -207,6 +209,19 @@ export interface ListVotesResult {
   masternodeId: string
   cycle: number
   vote: string
+}
+
+export interface ListProposalsOptions {
+  type?: ListProposalsType
+  status?: ListProposalsStatus
+  cycle?: number
+  pagination?: ListProposalsPagination
+}
+
+export interface ListProposalsPagination {
+  start?: string
+  including_start?: boolean
+  limit?: number
 }
 
 export interface ListGovProposalVotesOptions {
