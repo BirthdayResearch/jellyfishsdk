@@ -46,7 +46,7 @@ describe('Token', () => {
 
     expect(tokenBalances.length).toStrictEqual(0)
 
-    const data = await client.token.mintTokens('5@DBTC')
+    const data = await client.token.mintTokens({ amounts: ['5@DBTC'] })
 
     expect(typeof data).toStrictEqual('string')
     expect(data.length).toStrictEqual(64)
@@ -59,8 +59,30 @@ describe('Token', () => {
     expect(tokenBalances[0]).toStrictEqual('5.00000000@1')
   })
 
+  it('should mintTokens to an address', async () => {
+    await client.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/mint-tokens-to-address': 'true' } })
+    await container.generate(1)
+
+    let tokenBalances = await client.account.getTokenBalances()
+    const toAddress = await container.getNewAddress()
+
+    expect(tokenBalances.length).toStrictEqual(0)
+
+    const data = await client.token.mintTokens({ amounts: ['5@DBTC'], to: toAddress })
+
+    expect(typeof data).toStrictEqual('string')
+    expect(data.length).toStrictEqual(64)
+
+    await container.generate(1)
+
+    tokenBalances = await client.account.getAccount(toAddress)
+
+    expect(tokenBalances.length).toStrictEqual(1)
+    expect(tokenBalances[0]).toStrictEqual('5.00000000@DBTC')
+  })
+
   it('should not mintTokens for non-existence token', async () => {
-    const promise = client.token.mintTokens('5@ETH')
+    const promise = client.token.mintTokens({ amounts: ['5@ETH'] })
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('Invalid Defi token: ETH\', code: 0, method: minttokens')
@@ -71,9 +93,18 @@ describe('Token', () => {
 
     expect(tokenBalances.length).toStrictEqual(1)
 
-    const { txid, vout } = await container.fundAddress(from, 10)
+    const {
+      txid,
+      vout
+    } = await container.fundAddress(from, 10)
 
-    const data = await client.token.mintTokens('5@DETH', [{ txid, vout }])
+    const data = await client.token.mintTokens({
+      amounts: ['5@DETH'],
+      utxos: [{
+        txid,
+        vout
+      }]
+    })
 
     expect(typeof data).toStrictEqual('string')
     expect(data.length).toStrictEqual(64)
@@ -84,6 +115,30 @@ describe('Token', () => {
 
     expect(tokenBalances.length).toStrictEqual(2)
     expect(tokenBalances[1]).toStrictEqual('5.00000000@2')
+  })
+
+  it('should throw error if invalid to address', async () => {
+    await client.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/mint-tokens-to-address': 'true' } })
+    await container.generate(1)
+
+    const tokenBalances = await client.account.getTokenBalances()
+    const toAddress = await container.getNewAddress()
+
+    expect(tokenBalances.length).toStrictEqual(0)
+
+    const promise = client.token.mintTokens({
+      amounts: ['5@DBTC'],
+      to: toAddress.substr(0, 7)
+    })
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -5,
+        message: `recipient (${toAddress.substr(0, 7)}) does not refer to any valid address`,
+        method: 'minttokens'
+      }
+    })
   })
 })
 
@@ -150,10 +205,10 @@ describe('Consortium', () => {
 
   it('should throw an error if foundation or consortium member authorization is not present', async () => {
     const errorMsg = 'RpcApiError: \'Test MintTokenTx execution failed:\nYou are not a foundation member or token owner and cannot mint this token!\', code: -32600, method: minttokens'
-    await expect(tGroup.get(2).rpc.token.mintTokens(`1@${symbolBTC}`)).rejects.toThrow(errorMsg)
-    await expect(tGroup.get(3).rpc.token.mintTokens(`1@${symbolBTC}`)).rejects.toThrow(errorMsg)
-    await expect(tGroup.get(2).rpc.token.mintTokens(`1@${symbolDOGE}`)).rejects.toThrow(errorMsg)
-    await expect(tGroup.get(3).rpc.token.mintTokens(`1@${symbolDOGE}`)).rejects.toThrow(errorMsg)
+    await expect(tGroup.get(2).rpc.token.mintTokens({ amounts: [`1@${symbolBTC}`] })).rejects.toThrow(errorMsg)
+    await expect(tGroup.get(3).rpc.token.mintTokens({ amounts: [`1@${symbolBTC}`] })).rejects.toThrow(errorMsg)
+    await expect(tGroup.get(2).rpc.token.mintTokens({ amounts: [`1@${symbolDOGE}`] })).rejects.toThrow(errorMsg)
+    await expect(tGroup.get(3).rpc.token.mintTokens({ amounts: [`1@${symbolDOGE}`] })).rejects.toThrow(errorMsg)
   })
 
   it('should throw an error if the token is not specified in governance vars', async () => {
@@ -173,7 +228,7 @@ describe('Consortium', () => {
     })
 
     // Member 02 trying to mint DOGE
-    await expect(tGroup.get(2).rpc.token.mintTokens(`1@${symbolDOGE}`)).rejects.toThrow('RpcApiError: \'Test MintTokenTx execution failed:\nYou are not a foundation member or token owner and cannot mint this token!\', code: -32600, method: minttokens')
+    await expect(tGroup.get(2).rpc.token.mintTokens({ amounts: [`1@${symbolDOGE}`] })).rejects.toThrow('RpcApiError: \'Test MintTokenTx execution failed:\nYou are not a foundation member or token owner and cannot mint this token!\', code: -32600, method: minttokens')
   })
 
   it('should throw an error if member daily mint limit exceeds', async () => {
@@ -191,7 +246,7 @@ describe('Consortium', () => {
       }
     })
 
-    await expect(tGroup.get(2).rpc.token.mintTokens(`6@${symbolBTC}`)).rejects.toThrow(`RpcApiError: 'Test MintTokenTx execution failed:\nYou will exceed your daily mint limit for ${symbolBTC} token by minting this amount', code: -32600, method: minttokens`)
+    await expect(tGroup.get(2).rpc.token.mintTokens({ amounts: [`6@${symbolBTC}`] })).rejects.toThrow(`RpcApiError: 'Test MintTokenTx execution failed:\nYou will exceed your daily mint limit for ${symbolBTC} token by minting this amount', code: -32600, method: minttokens`)
   })
 
   it('should throw an error if member maximum mint limit exceeds', async () => {
@@ -209,7 +264,7 @@ describe('Consortium', () => {
       }
     })
 
-    await expect(tGroup.get(2).rpc.token.mintTokens(`11@${symbolBTC}`)).rejects.toThrow(`RpcApiError: 'Test MintTokenTx execution failed:\nYou will exceed your maximum mint limit for ${symbolBTC} token by minting this amount!', code: -32600, method: minttokens`)
+    await expect(tGroup.get(2).rpc.token.mintTokens({ amounts: [`11@${symbolBTC}`] })).rejects.toThrow(`RpcApiError: 'Test MintTokenTx execution failed:\nYou will exceed your maximum mint limit for ${symbolBTC} token by minting this amount!', code: -32600, method: minttokens`)
   })
 
   it('should throw an error if global daily mint limit exceeds', async () => {
@@ -236,11 +291,11 @@ describe('Consortium', () => {
     })
 
     // Hit global daily mint limit
-    await tGroup.get(1).rpc.token.mintTokens(`5.0000000@${symbolBTC}`)
+    await tGroup.get(1).rpc.token.mintTokens({ amounts: [`5.0000000@${symbolBTC}`] })
     await tGroup.get(1).generate(1)
     await tGroup.waitForSync()
 
-    await expect(tGroup.get(3).rpc.token.mintTokens(`1.00000000@${symbolBTC}`)).rejects.toThrow(`RpcApiError: 'Test MintTokenTx execution failed:\nYou will exceed global daily maximum consortium mint limit for ${symbolBTC} token by minting this amount.', code: -32600, method: minttokens`)
+    await expect(tGroup.get(3).rpc.token.mintTokens({ amounts: [`1.00000000@${symbolBTC}`] })).rejects.toThrow(`RpcApiError: 'Test MintTokenTx execution failed:\nYou will exceed global daily maximum consortium mint limit for ${symbolBTC} token by minting this amount.', code: -32600, method: minttokens`)
   })
 
   it('should throw an error if global mint limit exceeds', async () => {
@@ -267,11 +322,11 @@ describe('Consortium', () => {
     })
 
     // Hit global mint limit
-    await tGroup.get(1).rpc.token.mintTokens(`5.0000000@${symbolBTC}`)
+    await tGroup.get(1).rpc.token.mintTokens({ amounts: [`5.0000000@${symbolBTC}`] })
     await tGroup.get(1).generate(1)
     await tGroup.waitForSync()
 
-    await expect(tGroup.get(3).rpc.token.mintTokens(`5.00000000@${symbolBTC}`)).rejects.toThrow(`RpcApiError: 'Test MintTokenTx execution failed:\nYou will exceed global maximum consortium mint limit for ${symbolBTC} token by minting this amount!', code: -32600, method: minttokens`)
+    await expect(tGroup.get(3).rpc.token.mintTokens({ amounts: [`5.00000000@${symbolBTC}`] })).rejects.toThrow(`RpcApiError: 'Test MintTokenTx execution failed:\nYou will exceed global maximum consortium mint limit for ${symbolBTC} token by minting this amount!', code: -32600, method: minttokens`)
   })
 
   it('should throw an error if tried to mint a token while not being an active member of the consortium', async () => {
@@ -290,7 +345,7 @@ describe('Consortium', () => {
       }
     })
 
-    await expect(tGroup.get(1).rpc.token.mintTokens(`1@${symbolDOGE}`)).rejects.toThrow(`Cannot mint token, not an active member of consortium for ${symbolDOGE}!`)
+    await expect(tGroup.get(1).rpc.token.mintTokens({ amounts: [`1@${symbolDOGE}`] })).rejects.toThrow(`Cannot mint token, not an active member of consortium for ${symbolDOGE}!`)
   })
 
   it('should be able to mint tokens', async () => {
@@ -308,7 +363,7 @@ describe('Consortium', () => {
       }
     })
 
-    const hash = await tGroup.get(2).rpc.token.mintTokens(`1@${symbolBTC}`)
+    const hash = await tGroup.get(2).rpc.token.mintTokens({ amounts: [`1@${symbolBTC}`] })
     expect(hash).toBeTruthy()
     await tGroup.get(2).generate(1)
 
@@ -434,13 +489,13 @@ describe('Consortium', () => {
     expect(attr0[`v0/consortium/${idDOGE}/mint_limit`]).toStrictEqual('100')
     expect(attr0[`v0/consortium/${idDOGE}/mint_limit_daily`]).toStrictEqual('50')
 
-    await tGroup.get(1).rpc.token.mintTokens(`3@${symbolBTC}`)
-    await tGroup.get(1).rpc.token.mintTokens(`4@${symbolDOGE}`)
+    await tGroup.get(1).rpc.token.mintTokens({ amounts: [`3@${symbolBTC}`] })
+    await tGroup.get(1).rpc.token.mintTokens({ amounts: [`4@${symbolDOGE}`] })
     await tGroup.get(1).generate(1)
     await tGroup.waitForSync()
 
-    await tGroup.get(2).rpc.token.mintTokens(`1@${symbolBTC}`)
-    await tGroup.get(2).rpc.token.mintTokens(`2@${symbolDOGE}`)
+    await tGroup.get(2).rpc.token.mintTokens({ amounts: [`1@${symbolBTC}`] })
+    await tGroup.get(2).rpc.token.mintTokens({ amounts: [`2@${symbolDOGE}`] })
     await tGroup.get(2).generate(1)
     await tGroup.waitForSync()
 
