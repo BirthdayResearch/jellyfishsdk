@@ -79,11 +79,11 @@ export class GovernanceService {
     id: string,
     masternode: string | ProposalMasternodeType,
     cycle: number
-  ): Promise<ProposalVotesResult[]> {
+  ): Promise<ApiPagedResponse<ProposalVotesResult>> {
     try {
       const next = query.next !== undefined ? Number(query.next) : undefined
       const size = query.size > 30 ? 30 : query.size
-      const votes = await this.client.governance.listGovProposalVotes({
+      const list = await this.client.governance.listGovProposalVotes({
         proposalId: id,
         masternode,
         cycle,
@@ -92,10 +92,14 @@ export class GovernanceService {
           limit: size
         }
       })
-      return votes.map((v) => ({
+      const votes = list.map((v) => ({
         ...v,
         vote: mapGovernanceProposalVoteResult(v.vote)
       }))
+
+      return ApiPagedResponse.of(votes, size, () => {
+        return (votes.length - 1).toString()
+      })
     } catch (err) {
       if (
         err instanceof RpcApiError &&

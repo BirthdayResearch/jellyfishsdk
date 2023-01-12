@@ -7,21 +7,23 @@ export class Governance {
   /**
    * Paginate query on-chain governance proposals
    *
-   * @param size of scheme to query
-   * @param next set of schemes
-   * @param type proposal type
-   * @param status proposal status
+   * @param {number} [size=30] of proposal to query
+   * @param {string} next set of proposals
+   * @param {GorvenanceListProposalsType} [type=GorvenanceListProposalsType.ALL] proposal type
+   * @param {GorvenanceListProposalsStatus} [status=GorvenanceListProposalsStatus.ALL] proposal status
+   * @param {number} [cycle=0] cycle: 0 (show all), cycle: N (show cycle N), cycle: -1 (show previous cycle)
    * @returns {Promise<ApiPagedResponse<ProposalInfo>>}
    */
   async listGovProposals (
-    size: number = 100,
+    size: number = 30,
     next?: string,
     type = GorvenanceListProposalsType.ALL,
-    status = GorvenanceListProposalsStatus.ALL
+    status = GorvenanceListProposalsStatus.ALL,
+    cycle = 0
   ): Promise<ApiPagedResponse<GovernanceProposal>> {
     return await this.client.requestList(
       'GET',
-      `governance/proposals?type=${type}&status=${status}`,
+      `governance/proposals?type=${type}&status=${status}&cycle=${cycle}`,
       size,
       next
     )
@@ -30,7 +32,7 @@ export class Governance {
   /**
    * Get information about a vault with given vault id.
    *
-   * @param {string} id
+   * @param {string} id proposal ID
    * @returns {Promise<GovernanceProposal>}
    */
   async getGovProposal (id: string): Promise<GovernanceProposal> {
@@ -40,7 +42,7 @@ export class Governance {
   /**
    * Returns votes for a proposal
    *
-   * @param {string} id
+   * @param {string} id proposal ID
    * @param {ProposalMasternodeType | string} [masternode=ProposalMasternodeType.ALL] masternode id or reserved words 'mine' to list votes for all owned accounts or 'all' to list all votes
    * @param {number} [cycle=0] cycle: 0 (show current), cycle: N (show cycle N), cycle: -1 (show all)
    * @return {Promise<ProposalVotesResult[]>} Proposal vote information

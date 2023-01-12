@@ -54,11 +54,11 @@ export class GovernanceController {
    */
   @Get('/proposals/:id/votes')
   async listProposalVotes (
-    @Param('id') proposalId: string,
+    @Param('id') id: string,
       @Query('masternode') masternode: string | ProposalMasternodeType = ProposalMasternodeType.MINE,
       @Query('cycle', ParseIntPipe) cycle: number = 0,
       @Query() query?: PaginationQuery
-  ): Promise<ProposalVotesResult[]> {
-    return await this.governanceService.getProposalVotes(query, proposalId, masternode, cycle)
+  ): Promise<ApiPagedResponse<ProposalVotesResult>> {
+    return await this.governanceService.getProposalVotes(query, id, masternode, cycle)
   }
 }
