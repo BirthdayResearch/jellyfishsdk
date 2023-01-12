@@ -63,7 +63,7 @@
     "subleveldown": "^6.0.1"
   },
   "devDependencies": {
-    "@nestjs/cli": "9.1.5",
+    "@nestjs/cli": "9.1.8",
     "@nestjs/schematics": "9.0.4",
     "@nestjs/testing": "9.2.1",
     "@types/cache-manager": "4.0.2",
@@ -73,7 +73,7 @@
     "@types/level": "^6.0.0",
     "@types/levelup": "4.3.1",
     "@types/lossless-json": "1.0.1",
-    "@types/memdown": "3.0.0",
+    "@types/memdown": "3.0.1",
     "@types/node": "16.11.58",
     "@types/subleveldown": "^4.1.1",
     "@types/supertest": "2.0.12",
