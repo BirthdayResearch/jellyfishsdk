@@ -8,7 +8,6 @@ describe('poolpair update', () => {
 
   beforeAll(async () => {
     await container.start()
-    await container.waitForWalletCoinbaseMaturity()
   })
 
   afterAll(async () => {
