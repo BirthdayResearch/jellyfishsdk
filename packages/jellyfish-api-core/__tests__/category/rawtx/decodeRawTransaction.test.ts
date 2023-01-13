@@ -2,8 +2,8 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers/dist/index
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { RpcApiError } from '../../../src'
 
-describe('poolpair update', () => {
-  const container = new RegTestContainer()
+describe('decode raw transaction', () => {
+  const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
   beforeAll(async () => {
