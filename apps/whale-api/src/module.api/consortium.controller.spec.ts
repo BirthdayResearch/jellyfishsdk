@@ -196,7 +196,7 @@ describe('getMemberMintStats', () => {
     await expect(promise).rejects.toThrow('Consortium member not found')
   })
 
-  it('should return mint limits and minted amounts set to 0 if the mint transaction does not exists', async () => {
+  it('should return minted amounts of 0 if the mint transaction does not exists', async () => {
     await setup()
 
     const stats = await controller.getMemberMintStats('01')
@@ -222,11 +222,11 @@ describe('getMemberMintStats', () => {
 
     await tGroup.waitForSync()
 
-    const stats = await controller.getMemberMintStats('01')
+    const stats = await controller.getMemberMintStats('02')
     expect(stats).toStrictEqual(
       {
-        memberId: '01',
-        memberName: 'alice',
+        memberId: '02',
+        memberName: 'bob',
         mintTokens: [
           { tokenSymbol: symbolBTC, tokenDisplaySymbol: `d${symbolBTC}`, tokenId: '1', minted: '1.50000000', mintedDaily: '1.50000000', mintLimit: '10.00000000', mintDailyLimit: '5.00000000' },
           { tokenSymbol: symbolETH, tokenDisplaySymbol: `d${symbolETH}`, tokenId: '2', minted: '3.00000000', mintedDaily: '3.00000000', mintLimit: '20.00000000', mintDailyLimit: '10.00000000' }
