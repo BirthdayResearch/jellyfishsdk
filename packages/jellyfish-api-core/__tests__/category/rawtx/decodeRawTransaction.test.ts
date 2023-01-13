@@ -3,7 +3,7 @@ import { ContainerAdapterClient } from '../../container_adapter_client'
 import { RpcApiError } from '../../../src'
 
 describe('poolpair update', () => {
-  const container = new MasterNodeRegTestContainer()
+  const container = new RegTestContainer()
   const client = new ContainerAdapterClient(container)
 
   beforeAll(async () => {
