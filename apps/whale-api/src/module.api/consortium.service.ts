@@ -89,6 +89,30 @@ export class ConsortiumService {
     existingABI.memberInfo.push(member)
   }
 
+  private pushMemberMintStats (mintStats: MemberMintStatsInfo, attrMemberId: string, tokens: TokenInfoWithId[], key: string, value: any): void {
+    const member = value[attrMemberId]
+    if (mintStats.memberId === '') {
+      mintStats.memberId = attrMemberId
+      mintStats.memberName = member.name
+    }
+
+    const tokenId = key.split('/')[2]
+    const token = tokens.find(t => t.id === tokenId)
+    if (token !== undefined) {
+      const tokenDecimal = +token.decimal.toString()
+      const tokenMintInfo = {
+        tokenSymbol: token.symbol,
+        tokenDisplaySymbol: parseDisplaySymbol(token),
+        tokenId: tokenId,
+        minted: '0.00000000',
+        mintedDaily: '0.00000000',
+        mintLimit: new BigNumber(member.mintLimit).toFixed(tokenDecimal),
+        mintDailyLimit: new BigNumber(member.mintLimitDaily).toFixed(tokenDecimal)
+      }
+      mintStats.mintTokens.push(tokenMintInfo)
+    }
+  }
+
   async getAssetBreakdown (): Promise<AssetBreakdownInfo[]> {
     const attrs = (await this.rpcClient.masternode.getGov('ATTRIBUTES')).ATTRIBUTES
 
@@ -139,38 +163,18 @@ export class ConsortiumService {
     const mintStats: MemberMintStatsInfo = { memberId: '', memberName: '', mintTokens: [] }
 
     keys.forEach((key) => {
-      const attrValue = attrs[key]
+      const value = attrs[key]
       if (membersKeyRegex.exec(key) !== null) {
-        const existingMemberId = Object.keys(attrValue).find((id) => id === memberId)
-        if (existingMemberId === undefined) {
+        const attrMemberId = Object.keys(value).find((id) => id === memberId)
+        if (attrMemberId === undefined) {
           return
         }
 
-        const member = attrValue[existingMemberId]
-        if (mintStats.memberId === '') {
-          mintStats.memberId = memberId
-          mintStats.memberName = member.name
-        }
-
-        const tokenId = key.split('/')[2]
-        const token = tokens.find(t => t.id === tokenId)
-        if (token !== undefined) {
-          const tokenDecimal = +token.decimal.toString()
-          const tokenMintInfo = {
-            tokenSymbol: token.symbol,
-            tokenDisplaySymbol: parseDisplaySymbol(token),
-            tokenId: tokenId,
-            minted: '0.00000000',
-            mintedDaily: '0.00000000',
-            mintLimit: new BigNumber(member.mintLimit).toFixed(tokenDecimal),
-            mintDailyLimit: new BigNumber(member.mintLimitDaily).toFixed(tokenDecimal)
-          }
-          mintStats.mintTokens.push(tokenMintInfo)
-        }
+        this.pushMemberMintStats(mintStats, attrMemberId, tokens, key, value)
       }
 
       if (mintedKeyRegex.exec(key) !== null || mintedDailyKeyRegex.exec(key) !== null) {
-        this.updateMemberMintAmounts(mintStats, tokens, key, attrValue)
+        this.updateMemberMintAmounts(mintStats, tokens, key, value)
       }
     })
 
