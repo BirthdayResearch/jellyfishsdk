@@ -367,6 +367,36 @@ describe('Consortium', () => {
     expect(attr[`v0/live/economy/consortium/${idBTC}/supply`]).toStrictEqual(new BigNumber('1'))
   })
 
+  it('should be able to mint tokens to address', async () => {
+    await setGovAttr({
+      'v0/params/feature/mint-tokens-to-address': 'true',
+      [`v0/consortium/${idBTC}/mint_limit`]: '10',
+      [`v0/consortium/${idBTC}/mint_limit_daily`]: '5',
+      [`v0/consortium/${idBTC}/members`]: {
+        '02': {
+          name: 'account2BTC',
+          ownerAddress: account2,
+          mintLimit: 10,
+          mintLimitDaily: 5,
+          backingId: 'backing2'
+        }
+      }
+    })
+
+    const toAddress = await tGroup.get(2).generateAddress()
+
+    const hash = await tGroup.get(2).rpc.token.mintTokens({ amounts: [`1@${symbolBTC}`], to: toAddress })
+    expect(hash).toBeTruthy()
+    await tGroup.get(2).generate(1)
+
+    expect((await tGroup.get(2).rpc.account.getAccount(toAddress))[0]).toStrictEqual(`1.00000000@${symbolBTC}`)
+
+    // Check global consortium attributes
+    const attr = (await tGroup.get(2).rpc.masternode.getGov('ATTRIBUTES')).ATTRIBUTES
+    expect(attr[`v0/live/economy/consortium/${idBTC}/minted`]).toStrictEqual(new BigNumber('1'))
+    expect(attr[`v0/live/economy/consortium/${idBTC}/supply`]).toStrictEqual(new BigNumber('1'))
+  })
+
   it('should be able to set unlimited mint limits per member when global mint_limit or mint_limit_daily is set to -1', async () => {
     await setGovAttr({
       [`v0/consortium/${idBTC}/mint_limit_daily`]: '-1',
