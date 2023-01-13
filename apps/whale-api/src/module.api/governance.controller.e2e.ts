@@ -222,7 +222,7 @@ describe('governance proposals', () => {
     ])
   })
 
-  it.only('should listProposalVotes with all records when limit is 0', async () => {
+  it('should listProposalVotes with all records when limit is 0', async () => {
     /**
      * Import the private keys of the masternode_operator in order to be able to mint blocks and vote on proposals.
      * This setup uses the default masternode + two additional masternodes for a total of 3 masternodes.
