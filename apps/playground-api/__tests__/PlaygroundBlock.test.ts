@@ -9,6 +9,7 @@ import { mining } from '@defichain/jellyfish-api-core'
 
 class PlaygroundApiMasterNodeRegTestContainer extends MasterNodeRegTestContainer {
   protected getCmd (opts: StartOptions): string[] {
+    // set multiple masternodes to the defid instance to increase probability minting blocks by multiple masternodes
     return [
       ...super.getCmd(opts),
       `-masternode_operator=${RegTestFoundationKeys[1].operator.address}`,
@@ -47,6 +48,7 @@ describe('playgroundBlock', () => {
     const blockCount = await testing.container.getBlockCount()
     const { masternodes }: mining.MiningInfo = await testing.container.call('getmininginfo', [])
     const playgroundBlock = testing.app.get(PlaygroundBlock)
+    // generate next 20 block to confirm multiple masternodes are mining the blocks
     for (let i = 0; i < 20; i++) {
       await playgroundBlock.generate()
       await wait(3000)
