@@ -56,7 +56,6 @@ export class TxnBuilderMasternode extends P2WPKHTxnBuilder {
    * @param {Object} [collateral] needed when updating owner address
    * @param {string} collateral.txid collateral txid
    * @param {BigNumber} collateral.value collateral amount
-   * @param {number} collateral.tokenId collateral tokenId
    * @param {Script} collateral.newOwnerScript for new owner address
    * @return {Promise<TransactionSegWit>}
    */
@@ -66,7 +65,6 @@ export class TxnBuilderMasternode extends P2WPKHTxnBuilder {
     collateral?: {
       txid: string
       value: BigNumber
-      tokenId: number
       newOwnerScript: Script
     }
   ): Promise<TransactionSegWit> {
@@ -95,19 +93,19 @@ export class TxnBuilderMasternode extends P2WPKHTxnBuilder {
     const mergedPrevouts = [...prevouts]
 
     if (collateral !== null && collateral !== undefined) {
-      const { txid, value, tokenId, newOwnerScript } = collateral
+      const { txid, value, newOwnerScript } = collateral
 
       const collateralPrevout: Prevout = {
         txid,
         vout: 1,
         script: changeScript,
         value: new BigNumber(value),
-        tokenId
+        tokenId: 0x00
       }
       const collateralVout: Vout = {
         script: newOwnerScript,
         value: new BigNumber(value),
-        tokenId
+        tokenId: 0x00
       }
       const collateralVin: Vin = {
         txid,
