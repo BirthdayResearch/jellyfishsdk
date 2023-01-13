@@ -16,6 +16,7 @@ export class GovernanceController {
   /**
    * Return paginated governance proposals.
    *
+   *
    * @param {ListProposalsStatus} [status=ListProposalsStatus.ALL] type of proposals
    * @param {ListProposalsType} [type=ListProposalsType.ALL] status of proposals
    * @param {number} [cycle=0]  cycle: 0 (show all), cycle: N (show cycle N), cycle: -1 (show previous cycle)
