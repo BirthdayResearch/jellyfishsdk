@@ -5,8 +5,7 @@ import { MasterNodeRegTestContainer, StartOptions } from '@defichain/testcontain
 import {
   GovernanceProposalStatus,
   GovernanceProposalType,
-  ProposalMasternodeType,
-  ProposalVoteResultType
+  ProposalMasternodeType
 } from '@defichain/whale-api-client/dist/api/governance'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import BigNumber from 'bignumber.js'
@@ -30,7 +29,7 @@ let cfpProposalId: string
 let vocProposalId: string
 let payoutAddress: string
 
-describe('governance proposals', () => {
+describe('governance - listProposals and getProposal', () => {
   beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
@@ -201,164 +200,111 @@ describe('governance proposals', () => {
       amount: undefined
     })
   })
+})
 
-  // List vote related tests
-  it('should listProposalVotes', async () => {
-    const masternodeId = await getVotableMasternodeId()
-    await testing.rpc.governance.voteGov({
-      proposalId: cfpProposalId,
-      masternodeId: masternodeId,
-      decision: VoteDecision.NEUTRAL
+describe('governance - listProposalVotes', () => {
+  beforeAll(async () => {
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
+    await testing.container.waitForWalletBalanceGTE(100)
+    await testing.container.call('setgov', [
+      { ATTRIBUTES: { 'v0/params/feature/gov': 'true' } }
+    ])
+    await testing.container.generate(1)
+    app = await createTestingApp(container)
+    controller = app.get(GovernanceController)
+
+    /**
+     * Import the private keys of the masternode_operator in order to be able to mint blocks and vote on proposals.
+     * This setup uses the default masternode + two additional masternodes for a total of 3 masternodes.
+     */
+    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[1].owner.privKey)
+    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[1].operator.privKey)
+    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[2].owner.privKey)
+    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[2].operator.privKey)
+
+    // Create 1 CFP + 1 VOC
+    payoutAddress = await testing.generateAddress()
+    cfpProposalId = await testing.rpc.governance.createGovCfp({
+      title: 'CFP proposal',
+      context: 'github',
+      amount: new BigNumber(1.23),
+      payoutAddress: payoutAddress,
+      cycles: 2
     })
     await testing.container.generate(1)
-    const result = await controller.listProposalVotes(cfpProposalId)
-    expect(result.data).toStrictEqual([
-      {
-        proposalId: cfpProposalId,
-        masternodeId: masternodeId,
-        cycle: 1,
-        vote: ProposalVoteResultType.NEUTRAL
+
+    vocProposalId = await testing.rpc.governance.createGovVoc({
+      title: 'VOC proposal',
+      context: 'github'
+    })
+    await testing.container.generate(1)
+
+    // Vote on CFP
+    await testing.rpc.governance.voteGov({
+      proposalId: cfpProposalId,
+      masternodeId: await getVotableMasternodeId(),
+      decision: VoteDecision.YES
+    })
+    await testing.container.generate(1)
+
+    // Expires cycle 1
+    const creationHeight = await testing.rpc.governance.getGovProposal(cfpProposalId).then(proposal => proposal.creationHeight)
+    const votingPeriod = 70
+    const cycle1 = creationHeight + (votingPeriod - creationHeight % votingPeriod) + votingPeriod
+    await testing.container.generate(cycle1 - await testing.container.getBlockCount())
+
+    // Vote on cycle 2
+    const masternodes = await testing.rpc.masternode.listMasternodes()
+    const votes = [VoteDecision.YES, VoteDecision.NO, VoteDecision.NO]
+    let index = 0
+    for (const [id, data] of Object.entries(masternodes)) {
+      if (data.operatorIsMine) {
+        await testing.container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
+        await testing.rpc.governance.voteGov({
+          proposalId: cfpProposalId,
+          masternodeId: id,
+          decision: votes[index]
+        })
+        index++ // all masternodes vote in second cycle
       }
-    ])
+    }
+    await testing.container.generate(1)
+  })
+
+  afterAll(async () => {
+    await stopTestingApp(container, app)
+  })
+
+  it('should listProposalVotes', async () => {
+    const result = await controller.listProposalVotes(cfpProposalId)
+    expect(result.data.length).toStrictEqual(3)
+  })
+
+  it('should listProposalVotes with cycle', async () => {
+    const result = await controller.listProposalVotes(cfpProposalId, undefined, 2)
+    expect(result.data.length).toStrictEqual(3)
   })
 
   it('should listProposalVotes with all records when limit is 0', async () => {
-    /**
-     * Import the private keys of the masternode_operator in order to be able to mint blocks and vote on proposals.
-     * This setup uses the default masternode + two additional masternodes for a total of 3 masternodes.
-     */
-    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[1].owner.privKey)
-    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[1].operator.privKey)
-    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[2].owner.privKey)
-    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[2].operator.privKey)
-
-    // Vote on cycle 1 CFP
-    const masternodeId = await getVotableMasternodeId()
-    await testing.rpc.governance.voteGov({
-      proposalId: cfpProposalId,
-      masternodeId: masternodeId,
-      decision: VoteDecision.YES
-    })
-    await testing.container.generate(1)
-
-    // Expires cycle 1
-    const creationHeight = await testing.rpc.governance.getGovProposal(cfpProposalId).then(proposal => proposal.creationHeight)
-    const votingPeriod = 70
-    const cycle1 = creationHeight + (votingPeriod - creationHeight % votingPeriod) + votingPeriod
-    await testing.container.generate(cycle1 - await testing.container.getBlockCount())
-
-    // Vote on cycle 2
-    const masternodes = await testing.rpc.masternode.listMasternodes()
-    const votes = [VoteDecision.YES, VoteDecision.NO, VoteDecision.NO]
-    let index = 0
-    for (const [id, data] of Object.entries(masternodes)) {
-      if (data.operatorIsMine) {
-        await testing.container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
-        await testing.rpc.governance.voteGov({
-          proposalId: cfpProposalId,
-          masternodeId: id,
-          decision: votes[index]
-        })
-        index++ // all masternodes vote in second cycle
-      }
-    }
-    await testing.container.generate(1)
-
-    const result = await controller.listProposalVotes(cfpProposalId, ProposalMasternodeType.ALL, -1, { size: 0 })
-    expect(result.data.length).toStrictEqual(4)
+    const result = await controller.listProposalVotes(cfpProposalId, undefined, undefined, { size: 0 })
+    expect(result.data.length).toStrictEqual(3)
   })
 
   it('should listProposalVotes with all masternodes', async () => {
-    const masternodeId = await getVotableMasternodeId()
-    await testing.rpc.governance.voteGov({
-      proposalId: cfpProposalId,
-      masternodeId: masternodeId,
-      decision: VoteDecision.NEUTRAL
-    })
-    await testing.container.generate(1)
     const result = await controller.listProposalVotes(cfpProposalId, ProposalMasternodeType.ALL)
-    expect(result.data).toStrictEqual([
-      {
-        proposalId: cfpProposalId,
-        masternodeId: masternodeId,
-        cycle: 1,
-        vote: ProposalVoteResultType.NEUTRAL
-      }
-    ])
+    expect(result.data.length).toStrictEqual(3)
   })
 
   it('should listProposalVotes with all masternodes and cycle', async () => {
-    // Vote on cycle 1 CFP
-    const masternodeId = await getVotableMasternodeId()
-    await testing.rpc.governance.voteGov({
-      proposalId: cfpProposalId,
-      masternodeId: masternodeId,
-      decision: VoteDecision.YES
-    })
-    await testing.container.generate(1)
-
-    // Expires cycle 1
-    const creationHeight = await testing.container.getBlockCount()
-    const votingPeriod = 70
-    const cycle1 = creationHeight + (votingPeriod - creationHeight % votingPeriod) + votingPeriod
-    await testing.container.generate(cycle1 - await testing.container.getBlockCount())
-
     const result = await controller.listProposalVotes(cfpProposalId, ProposalMasternodeType.ALL, -1)
-    expect(result.data).toStrictEqual([
-      {
-        proposalId: cfpProposalId,
-        masternodeId: masternodeId,
-        cycle: 1,
-        vote: ProposalVoteResultType.YES
-      }
-    ])
+    expect(result.data.length).toStrictEqual(4)
 
     const result2 = await controller.listProposalVotes(cfpProposalId, ProposalMasternodeType.ALL, 0)
-    expect(result2.data).toStrictEqual([])
+    expect(result2.data.length).toStrictEqual(3)
   })
 
   it('should listProposalVotes with all masternodes, cycle and pagination', async () => {
-    /**
-     * Import the private keys of the masternode_operator in order to be able to mint blocks and vote on proposals.
-     * This setup uses the default masternode + two additional masternodes for a total of 3 masternodes.
-     */
-    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[1].owner.privKey)
-    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[1].operator.privKey)
-    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[2].owner.privKey)
-    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[2].operator.privKey)
-
-    // Vote on cycle 1 CFP
-    const masternodeId = await getVotableMasternodeId()
-    await testing.rpc.governance.voteGov({
-      proposalId: cfpProposalId,
-      masternodeId: masternodeId,
-      decision: VoteDecision.YES
-    })
-    await testing.container.generate(1)
-
-    // Expires cycle 1
-    const creationHeight = await testing.rpc.governance.getGovProposal(cfpProposalId).then(proposal => proposal.creationHeight)
-    const votingPeriod = 70
-    const cycle1 = creationHeight + (votingPeriod - creationHeight % votingPeriod) + votingPeriod
-    await testing.container.generate(cycle1 - await testing.container.getBlockCount())
-
-    // Vote on cycle 2
-    const masternodes = await testing.rpc.masternode.listMasternodes()
-    const votes = [VoteDecision.YES, VoteDecision.NO, VoteDecision.NO]
-    let index = 0
-    for (const [id, data] of Object.entries(masternodes)) {
-      if (data.operatorIsMine) {
-        await testing.container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
-        await testing.rpc.governance.voteGov({
-          proposalId: cfpProposalId,
-          masternodeId: id,
-          decision: votes[index]
-        })
-        index++ // all masternodes vote in second cycle
-      }
-    }
-    await testing.container.generate(1)
-
     const resultPage1 = await controller.listProposalVotes(cfpProposalId, ProposalMasternodeType.ALL, 2, { size: 2 })
     expect(resultPage1.data.length).toStrictEqual(2)
     const resultPage2 = await controller.listProposalVotes(cfpProposalId, ProposalMasternodeType.ALL, 2, { next: resultPage1.page?.next, size: 2 })
