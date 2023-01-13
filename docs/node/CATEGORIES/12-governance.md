@@ -112,10 +112,20 @@ Returns list of proposals.
 
 ```ts title="client.governance.listGovProposals()"
 interface governance {
-  listGovProposals ({
-    type = ListProposalsType.ALL,
-    status = ListProposalsStatus.ALL
-  } = {}): Promise<ProposalInfo[]>
+  listGovProposals (options: ListProposalsOption = {}): Promise<ProposalInfo[]>
+}
+
+interface ListProposalsOptions {
+  type?: ListProposalsType
+  status?: ListProposalsStatus
+  cycle?: number
+  pagination?: ListProposalsPagination
+}
+
+interface ListProposalsPagination {
+  start?: string
+  including_start?: boolean
+  limit?: number
 }
 
 enum ListProposalsType {
