@@ -35,6 +35,7 @@ export class GovernanceController {
   /**
    * Get information about a proposal with given proposal id.
    *
+   *
    * @param {string} id proposal ID
    * @returns {Promise<GovernanceProposal>}
    */
