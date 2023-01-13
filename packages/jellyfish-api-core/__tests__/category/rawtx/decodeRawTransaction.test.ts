@@ -27,29 +27,29 @@ describe('decode raw transaction', () => {
       weight: 246,
       locktime: 0,
       vin: [
-        expect.objectContaining({
+        {
           txid: '000000000019d6689c085ae165831e934ff763ae46a2a6c17200000000000000',
           vout: 0,
           scriptSig:
-            expect.objectContaining({
+            {
               asm: '',
               hex: ''
-            }),
+            },
           txinwitness: ['6161'],
           sequence: 4294967295
-        })
+        }
       ],
       vout: [
-        expect.objectContaining({
+        {
           value: 1,
           n: 0,
           scriptPubKey:
-            expect.objectContaining({
+            {
               asm: '',
               hex: '',
               type: 'nonstandard'
-            })
-        })
+            }
+        }
       ]
     })
   })
@@ -72,28 +72,28 @@ describe('decode raw transaction', () => {
       weight: 240,
       locktime: 0,
       vin: [
-        expect.objectContaining({
+        {
           txid: '000000000019d6689c085ae165831e934ff763ae46a2a6c17200000000000000',
           vout: 0,
           scriptSig:
-            expect.objectContaining({
+            {
               asm: '',
               hex: ''
-            }),
+            },
           sequence: 4294967295
-        })
+        }
       ],
       vout: [
-        expect.objectContaining({
+        {
           value: 1,
           n: 0,
           scriptPubKey:
-            expect.objectContaining({
+            {
               asm: '',
               hex: '',
               type: 'nonstandard'
-            })
-        })
+            }
+        }
       ]
     })
   })
