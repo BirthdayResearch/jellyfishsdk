@@ -13,6 +13,24 @@ const client = new JsonRpcClient('http://foo:bar@localhost:8554')
 const something = await client.poolpair.method()
 ```
 
+## updatePoolPair
+
+Update a poolpair with given metadata
+
+```ts title="client.poolpair.updatePoolPair()"
+interface poolpair {
+  updatePoolPair (metadata: UpdatePoolPairMetadata, utxos: UTXO[] = []): Promise<string>
+}
+
+interface UpdatePoolPairMetadata {
+  pool: string
+  status: boolean
+  commission: number
+  ownerAddress: string
+  customRewards?: string[]
+}
+```
+
 ## listPoolPairs
 
 Returns information about pools
