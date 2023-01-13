@@ -233,4 +233,30 @@ describe('getMemberMintStats', () => {
         ]
       })
   })
+
+  it('should return overall minted amount for all blocks generated', async () => {
+    await setup()
+
+    await bob.rpc.token.mintTokens(`5@${symbolBTC}`)
+    await bob.generate(144) // 1 day = 144 blocks
+
+    await bob.rpc.token.mintTokens(`2@${symbolBTC}`) // Next day mint
+    await bob.generate(1)
+
+    await bob.rpc.token.mintTokens(`3.2@${symbolETH}`)
+    await bob.generate(1)
+
+    await tGroup.waitForSync()
+
+    const stats = await controller.getMemberMintStats('02')
+    expect(stats).toStrictEqual(
+      {
+        memberId: '02',
+        memberName: 'bob',
+        mintTokens: [
+          { tokenSymbol: symbolBTC, tokenDisplaySymbol: `d${symbolBTC}`, tokenId: '1', minted: '7.00000000', mintedDaily: '2.00000000', mintLimit: '10.00000000', mintDailyLimit: '5.00000000' },
+          { tokenSymbol: symbolETH, tokenDisplaySymbol: `d${symbolETH}`, tokenId: '2', minted: '3.20000000', mintedDaily: '3.20000000', mintLimit: '20.00000000', mintDailyLimit: '10.00000000' }
+        ]
+      })
+  })
 })
