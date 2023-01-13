@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { DeFiDCache, TokenInfoWithId } from './cache/defid.cache'
-import { AssetBreakdownInfo, MemberDetail, MemberWithTokenInfo } from '@defichain/whale-api-client/dist/api/consortium'
+import { AssetBreakdownInfo, MemberDetail, MemberWithTokenInfo, MemberMintStatsInfo } from '@defichain/whale-api-client/dist/api/consortium'
 import BigNumber from 'bignumber.js'
 import { parseDisplaySymbol } from './token.controller'
 
@@ -33,6 +33,25 @@ export class ConsortiumService {
     }
 
     existingMember[type] = val
+  }
+
+  private updateMemberMintAmounts (mintStats: MemberMintStatsInfo, tokens: TokenInfoWithId[], key: string, value: string): void {
+    const tokenId = key.split('/')[4]
+    const memberId = key.split('/')[5]
+    if (memberId !== mintStats.memberId) {
+      return
+    }
+    const existingToken = mintStats.mintTokens.find(t => t.tokenId === tokenId)
+    if (existingToken === undefined) {
+      return
+    }
+    const token = tokens.find(t => t.id === tokenId)
+    if (token === undefined) {
+      return
+    }
+    const type = key.split('/')[6] === 'daily_minted' ? 'mintedDaily' : 'minted'
+    const mintedAmount = type === 'mintedDaily' ? value.split('/')[1] : value
+    existingToken[type] = new BigNumber(mintedAmount).toFixed(+token.decimal.toString())
   }
 
   private pushToAssetBreakdownInfo (assetBreakdownInfo: AssetBreakdownInfo[], memberId: string, memberDetail: MemberDetail, tokenId: string, tokens: TokenInfoWithId[]): void {
@@ -100,5 +119,61 @@ export class ConsortiumService {
     })
 
     return assetBreakdownInfo
+  }
+
+  async getMemberMintStats (memberId: string): Promise<MemberMintStatsInfo> {
+    const attrs = (await this.rpcClient.masternode.getGov('ATTRIBUTES')).ATTRIBUTES
+
+    const keys: string[] = Object.keys(attrs)
+    const membersKeyRegex = /^v0\/consortium\/\d+\/members$/
+    const mintedKeyRegex = /^v0\/live\/economy\/consortium_members\/\d+\/\d+\/minted$/
+    const mintedDailyKeyRegex = /^v0\/live\/economy\/consortium_members\/\d+\/\d+\/daily_minted$/
+
+    const membersAttr = keys.filter((key) => membersKeyRegex.exec(key) !== null)
+    const memberIds = membersAttr.map((memberKey) => Object.keys(attrs[memberKey])).flat()
+    if (!memberIds.includes(memberId)) {
+      throw new Error('Consortium member not found')
+    }
+
+    const tokens: TokenInfoWithId[] = await this.defidCache.getAllTokenInfo() as TokenInfoWithId[]
+    const mintStats: MemberMintStatsInfo = { memberId: '', memberName: '', mintTokens: [] }
+
+    keys.forEach((key) => {
+      const attrValue = attrs[key]
+      if (membersKeyRegex.exec(key) !== null) {
+        const existingMemberId = Object.keys(attrValue).find((id) => id === memberId)
+        if (existingMemberId === undefined) {
+          return
+        }
+
+        const member = attrValue[existingMemberId]
+        if (mintStats.memberId === '') {
+          mintStats.memberId = memberId
+          mintStats.memberName = member.name
+        }
+
+        const tokenId = key.split('/')[2]
+        const token = tokens.find(t => t.id === tokenId)
+        if (token !== undefined) {
+          const tokenDecimal = +token.decimal.toString()
+          const tokenMintInfo = {
+            tokenSymbol: token.symbol,
+            tokenDisplaySymbol: parseDisplaySymbol(token),
+            tokenId: tokenId,
+            minted: '0.00000000',
+            mintedDaily: '0.00000000',
+            mintLimit: new BigNumber(member.mintLimit).toFixed(tokenDecimal),
+            mintDailyLimit: new BigNumber(member.mintLimitDaily).toFixed(tokenDecimal)
+          }
+          mintStats.mintTokens.push(tokenMintInfo)
+        }
+      }
+
+      if (mintedKeyRegex.exec(key) !== null || mintedDailyKeyRegex.exec(key) !== null) {
+        this.updateMemberMintAmounts(mintStats, tokens, key, attrValue)
+      }
+    })
+
+    return mintStats
   }
 }

@@ -39,3 +39,19 @@ export interface AssetBreakdownInfo {
   tokenDisplaySymbol: string
   memberInfo: MemberWithTokenInfo[]
 }
+
+export interface MintTokens {
+  tokenSymbol: string
+  tokenDisplaySymbol: string
+  tokenId: string
+  minted: string
+  mintedDaily: string
+  mintLimit: string
+  mintDailyLimit: string
+}
+
+export interface MemberMintStatsInfo {
+  memberId: string
+  memberName: string
+  mintTokens: MintTokens[]
+}
