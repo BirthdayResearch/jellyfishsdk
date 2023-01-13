@@ -336,6 +336,30 @@ export class Wallet {
   async signMessage (address: string, message: string): Promise<string> {
     return await this.client.call('signmessage', [address, message], 'number')
   }
+
+  /**
+   * Encrypts the wallet for the first time using a custom ‘passphrase’.
+   * Transactions related to private keys will thereafter require a passphrase before execution.
+   * To unlock wallet, use 'walletpassphrase'
+   *
+   * @param {string} passphrase The wallet passphrase. Must be at least 1 character, but should be long.
+   * @return {Promise<string>}
+   */
+  async encryptWallet (passphrase: string): Promise<string> {
+    return await this.client.call('encryptwallet', [passphrase], 'number')
+  }
+
+  /**
+   * Stores the wallet decryption key in memory for ‘timeout’ seconds.
+   * Calling 'walletpassphrase' when wallet is unlocked will set a new unlock time that overrides the old setting.
+   *
+   * @param {string} passphrase The wallet passphrase. Must be at least 1 character, but should be long.
+   * @param {number} timeout The time to keep the decryption key in seconds; capped at 100000000 (~3 years).
+   * @return {Promise<>}
+   */
+  async walletPassphrase (passphrase: string, timeout: number): Promise<string> {
+    return await this.client.call('walletpassphrase', [passphrase, timeout], 'number')
+  }
 }
 
 export interface UTXO {
