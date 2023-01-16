@@ -89,14 +89,15 @@ export class Token {
   /**
    * Creates a transaction to mint tokens.
    *
-   * @param {string} amountToken formatted as `${number}@${string}`
-   * @param {UTXO[]} [utxos = []]
-   * @param {string} [utxos.txid]
-   * @param {number} [utxos.vout]
+   * @param {string[]} options.amounts formatted as `${number}@${string}`
+   * @param {UTXO[]} [options.utxos = []]
+   * @param {string} [options.utxos.txid]
+   * @param {number} [options.utxos.vout]
+   * @param {string} [options.to] address to send minted tokens to
    * @return {Promise<string>}
    */
-  async mintTokens (amountToken: string, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('minttokens', [amountToken, utxos], 'number')
+  async mintTokens (options: MintTokensOptions): Promise<string> {
+    return await this.client.call('minttokens', [options], 'number')
   }
 
   /**
@@ -207,4 +208,10 @@ export interface DecodeCustomTxResult {
   type: string
   valid: boolean
   results: object
+}
+
+export interface MintTokensOptions {
+  amounts: string[]
+  utxos?: UTXO[]
+  to?: string
 }
