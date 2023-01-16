@@ -17,17 +17,24 @@ describe('Version information without masternode', () => {
 
   it('should getVersionInfo', async () => {
     const versionInfo: net.VersionInfo = await client.net.getVersionInfo()
-    expect(versionInfo.name).toStrictEqual('DeFiChain')
-    expect(typeof versionInfo.version).toStrictEqual('string')
-    expect(versionInfo.numericVersion).toBeGreaterThanOrEqual(0)
-    expect(typeof versionInfo.userAgent).toStrictEqual('string')
-    expect(versionInfo.protoVersion).toBeGreaterThanOrEqual(0)
-    expect(versionInfo.protoVersionMin).toBeGreaterThanOrEqual(0)
-    expect(typeof versionInfo.rpcVersion).toStrictEqual('string')
-    expect(typeof versionInfo.rpcVersionMin).toStrictEqual('string')
-    expect(typeof versionInfo.spv.btc.userAgent).toStrictEqual('string')
-    expect(versionInfo.spv.btc.version).toBeGreaterThanOrEqual(0)
-    expect(versionInfo.spv.btc.min).toBeGreaterThanOrEqual(0)
+    expect(versionInfo).toStrictEqual({
+      fullVersion: expect.stringContaining('DeFiChain'),
+      name: 'DeFiChain',
+      version: expect.any(String),
+      numericVersion: expect.any(Number),
+      protoVersion: expect.any(Number),
+      protoVersionMin: expect.any(Number),
+      userAgent: expect.stringContaining('DeFiChain'),
+      rpcVersion: expect.any(String),
+      rpcVersionMin: expect.any(String),
+      spv: {
+        btc: {
+          version: expect.any(Number),
+          min: expect.any(Number),
+          userAgent: expect.any(String)
+        }
+      }
+    })
   })
 })
 
@@ -46,16 +53,23 @@ describe('Version information with masternode', () => {
 
   it('should getVersionInfo', async () => {
     const versionInfo: net.VersionInfo = await client.net.getVersionInfo()
-    expect(versionInfo.name).toStrictEqual('DeFiChain')
-    expect(typeof versionInfo.version).toStrictEqual('string')
-    expect(versionInfo.numericVersion).toBeGreaterThanOrEqual(0)
-    expect(typeof versionInfo.userAgent).toStrictEqual('string')
-    expect(versionInfo.protoVersion).toBeGreaterThanOrEqual(0)
-    expect(versionInfo.protoVersionMin).toBeGreaterThanOrEqual(0)
-    expect(typeof versionInfo.rpcVersion).toStrictEqual('string')
-    expect(typeof versionInfo.rpcVersionMin).toStrictEqual('string')
-    expect(typeof versionInfo.spv.btc.userAgent).toStrictEqual('string')
-    expect(versionInfo.spv.btc.version).toBeGreaterThanOrEqual(0)
-    expect(versionInfo.spv.btc.min).toBeGreaterThanOrEqual(0)
+    expect(versionInfo).toStrictEqual({
+      fullVersion: expect.stringContaining('DeFiChain'),
+      name: 'DeFiChain',
+      version: expect.any(String),
+      numericVersion: expect.any(Number),
+      protoVersion: expect.any(Number),
+      protoVersionMin: expect.any(Number),
+      userAgent: expect.stringContaining('DeFiChain'),
+      rpcVersion: expect.any(String),
+      rpcVersionMin: expect.any(String),
+      spv: {
+        btc: {
+          version: expect.any(Number),
+          min: expect.any(Number),
+          userAgent: expect.any(String)
+        }
+      }
+    })
   })
 })
