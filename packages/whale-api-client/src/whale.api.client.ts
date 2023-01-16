@@ -18,6 +18,7 @@ import { Consortium } from './api/consortium'
 import { ApiPagedResponse, WhaleApiResponse } from './whale.api.response'
 import { raiseIfError, WhaleApiException, WhaleClientException, WhaleClientTimeoutException } from './errors'
 import { NetworkName } from '@defichain/jellyfish-network'
+import { Governance } from './api/governance'
 
 /**
  * WhaleApiClient Options
@@ -78,6 +79,7 @@ export class WhaleApiClient {
   public readonly fee = new Fee(this)
   public readonly loan = new Loan(this)
   public readonly consortium = new Consortium(this)
+  public readonly governance = new Governance(this)
 
   constructor (
     protected readonly options: WhaleApiClientOptions
