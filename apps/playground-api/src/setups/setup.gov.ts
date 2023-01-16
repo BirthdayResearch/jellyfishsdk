@@ -68,7 +68,7 @@ export class SetupGov extends PlaygroundSetup<Record<string, any>> {
           'v0/consortium/1/mint_limit': '50',
           'v0/consortium/1/mint_limit_daily': '5',
 
-          // // Set a consortium member for dBTC
+          // Set a consortium member for dBTC
           'v0/consortium/1/members': {
             '01': {
               name: 'Waves HQ',
