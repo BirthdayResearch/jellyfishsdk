@@ -238,7 +238,10 @@ describe('getMemberMintStats', () => {
     await setup()
 
     await bob.rpc.token.mintTokens(`5@${symbolBTC}`)
-    await bob.generate(144) // 1 day = 144 blocks
+
+    const height = await bob.container.call('getblockcount')
+    const blocksPerDay = (60 * 60 * 24) / (10 * 60) // 144 in regtest
+    await bob.generate(blocksPerDay - height) // Generate enough blocks for 1 day
 
     await bob.rpc.token.mintTokens(`2@${symbolBTC}`) // Next day mint
     await bob.generate(1)
