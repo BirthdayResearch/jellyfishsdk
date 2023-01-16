@@ -45,6 +45,24 @@ export class RawTx {
   }
 
   /**
+   * Return a JSON object representing the serialized, hex-encoded transaction.
+   * If iswitness is not present, heuristic tests will be used in decoding.
+   * If true, only witness deserialization will be tried.
+   * If false, only non-witness deserialization will be tried.
+   * This boolean should reflect whether the transaction has inputs
+   * (e.g. fully valid, or on-chain transactions), if known by the caller.
+   *
+   * @param {string} hexstring The transaction hex string
+   * @param {boolean} iswitness Whether the transaction hex is a serialized witness transaction.
+   */
+  async decodeRawTransaction (
+    hexstring: string,
+    iswitness: boolean
+  ): Promise<RawTransaction> {
+    return await this.client.call('decoderawtransaction', [hexstring, iswitness], 'number')
+  }
+
+  /**
    * Sign inputs for raw transaction (serialized, hex-encoded), providing an array of base58-encoded private keys that
    * will be the keys used to sign the transaction. An optional array of previous transaction outputs that this
    * transaction depends on but may not yet be in the blockchain.
