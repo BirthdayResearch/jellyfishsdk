@@ -34,7 +34,7 @@ export class TestingToken {
   async mint (options: TestingTokenMint): Promise<string> {
     const { amount, symbol } = options
     const account = `${new BigNumber(amount).toFixed(8)}@${symbol}`
-    return await this.rpc.token.mintTokens(account)
+    return await this.rpc.token.mintTokens({ amounts: [account] })
   }
 
   async send (options: TestingTokenSend): Promise<string> {
