@@ -125,6 +125,7 @@ describe('burnToken', () => {
 
     const script = await providers.elliptic.script()
     const tokenBurn: TokenBurn = {
+      // Burn 15 BTC
       amounts: [{ token: Number(idBTC), amount: new BigNumber(15) }],
       burnType: 0,
       from: script,
@@ -169,10 +170,10 @@ describe('burnToken', () => {
     const burntKeyRegex = /^v0\/live\/economy\/consortium_members\/\d+\/\d+\/burnt$/
     const keys: string[] = Object.keys(attributes.ATTRIBUTES)
 
-    // Verify the token is not burned to any consortium
+    // Verify that the burn action is not tied to any consortium member
     expect(keys.every(key => burntKeyRegex.exec(key) === null)).toStrictEqual(true)
 
-    // Verify the token is deducted
+    // Verify the token balance is deducted correctly (100 - 15 = 85 BTC)
     const accAfter = await testing.rpc.account.getAccount(await providers.getAddress())
     expect(accAfter).toStrictEqual(['85.00000000@BTC'])
   })
@@ -189,6 +190,7 @@ describe('burnToken', () => {
     const script = await providers.elliptic.script()
     const wavesColScript = P2WPKH.fromAddress(RegTest, wavesConsortiumAddress, P2WPKH).getScript()
     const tokenBurn: TokenBurn = {
+      // Burn 30 BTC
       amounts: [{ token: Number(idBTC), amount: new BigNumber(30) }],
       burnType: 0,
       from: script,
@@ -232,11 +234,11 @@ describe('burnToken', () => {
     const burntKeyRegex = /^v0\/live\/economy\/consortium_members\/\d+\/\d+\/burnt$/
     const keys: string[] = Object.keys(attributes.ATTRIBUTES)
 
-    // Verify the token is accounted to consortium member
+    // Verify that the burn action is tied to the existing consortium member
     expect(keys.some(key => burntKeyRegex.exec(key) === null)).toStrictEqual(true)
     expect(attributes.ATTRIBUTES[`v0/live/economy/consortium_members/${idBTC}/01/burnt`]).toStrictEqual(new BigNumber(30))
 
-    // Verify the token is deducted
+    // Verify the token balance is deducted correctly (100 - 30 = 70 BTC)
     const accAfter = await testing.rpc.account.getAccount(await providers.getAddress())
     expect(accAfter).toStrictEqual(['70.00000000@BTC'])
   })
