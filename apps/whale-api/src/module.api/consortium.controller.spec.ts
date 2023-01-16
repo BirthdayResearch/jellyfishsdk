@@ -215,9 +215,6 @@ describe('getMemberMintStats', () => {
     await setup()
 
     await bob.rpc.token.mintTokens({ amounts: [`1.5@${symbolBTC}`, `3@${symbolETH}`] })
-    // await bob.generate(1)
-
-    // await bob.rpc.token.mintTokens(`3@${symbolETH}`)
     await bob.generate(1)
 
     await tGroup.waitForSync()
@@ -244,9 +241,6 @@ describe('getMemberMintStats', () => {
     await bob.generate(blocksPerDay - height) // Generate enough blocks for 1 day
 
     await bob.rpc.token.mintTokens({ amounts: [`2@${symbolBTC}`, `3.2@${symbolETH}`] }) // Next day mint
-    // await bob.generate(1)
-
-    // await bob.rpc.token.mintTokens({ amounts: [`3.2@${symbolETH}`] })
     await bob.generate(1)
 
     await tGroup.waitForSync()
