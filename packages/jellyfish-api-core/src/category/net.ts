@@ -118,7 +118,7 @@ export interface NetworkInfo {
   warnings: string
 }
 
-export interface VersionInfo{
+export interface VersionInfo {
   name: string
   version: string
   numericVersion: number
