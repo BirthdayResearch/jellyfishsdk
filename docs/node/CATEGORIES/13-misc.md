@@ -42,3 +42,14 @@ interface misc {
   signMessageWithPrivKey (privkey: string, message: string): Promise<string>
 }
 ```
+
+# createMultiSig
+
+Creates a multi-signature address with n signature of m keys required.
+It returns a json object with the address and redeemScript.
+
+```ts title="client.misc.createMultiSig()"
+interface misc {
+  createMultiSig (nrequired: number, keys: string[], addressType: string = 'legacy'): Promise<MultiSigAddress>
+}
+```
