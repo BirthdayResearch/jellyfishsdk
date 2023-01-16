@@ -29,7 +29,7 @@ export class GovernanceController {
     @Query('cycle', ParseIntPipe) cycle: number = 0,
     @Query() query?: PaginationQuery
   ): Promise<ApiPagedResponse<GovernanceProposal>> {
-    return await this.governanceService.list(query, status, type, cycle)
+    return await this.governanceService.listGovernanceProposal(query, status, type, cycle)
   }
 
   /**
@@ -40,7 +40,7 @@ export class GovernanceController {
    */
   @Get('/proposals/:id')
   async getProposal (@Param('id') proposalId: string): Promise<GovernanceProposal> {
-    return await this.governanceService.get(proposalId)
+    return await this.governanceService.getGovernanceProposal(proposalId)
   }
 
   /**
@@ -59,6 +59,6 @@ export class GovernanceController {
       @Query('cycle', ParseIntPipe) cycle: number = 0,
       @Query() query?: PaginationQuery
   ): Promise<ApiPagedResponse<ProposalVotesResult>> {
-    return await this.governanceService.getProposalVotes(query, id, masternode, cycle)
+    return await this.governanceService.getGovernanceProposalVotes(query, id, masternode, cycle)
   }
 }

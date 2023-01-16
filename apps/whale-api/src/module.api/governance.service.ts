@@ -25,7 +25,7 @@ import {
 export class GovernanceService {
   constructor (private readonly client: JsonRpcClient) {}
 
-  async list (
+  async listGovernanceProposal (
     query: PaginationQuery = {
       size: 30
     },
@@ -34,7 +34,7 @@ export class GovernanceService {
     cycle?: number
   ): Promise<ApiPagedResponse<GovernanceProposal>> {
     const next = query.next !== undefined ? String(query.next) : undefined
-    const size = query.size > 30 ? 30 : query.size
+    const size = Math.min(query.size, 30)
     const list = await this.client.governance.listGovProposals({
       type,
       status,
@@ -54,7 +54,7 @@ export class GovernanceService {
     })
   }
 
-  async get (id: string): Promise<GovernanceProposal> {
+  async getGovernanceProposal (id: string): Promise<GovernanceProposal> {
     try {
       const proposal = await this.client.governance.getGovProposal(id)
       return this.mapGovernanceProposal(proposal)
@@ -62,8 +62,7 @@ export class GovernanceService {
       if (
         err instanceof RpcApiError &&
         (err?.payload?.message === `Proposal <${id}> not found` ||
-          err?.payload?.message ===
-            "proposalId must be of length 64 (not 3, for '999')")
+          err?.payload?.message.includes('proposalId must be of length 64'))
       ) {
         throw new NotFoundApiException('Unable to find proposal')
       } else {
@@ -72,7 +71,7 @@ export class GovernanceService {
     }
   }
 
-  async getProposalVotes (
+  async getGovernanceProposalVotes (
     query: PaginationQuery = {
       size: 30
     },
@@ -82,7 +81,7 @@ export class GovernanceService {
   ): Promise<ApiPagedResponse<ProposalVotesResult>> {
     try {
       const next = query.next !== undefined ? Number(query.next) : undefined
-      const size = query.size > 30 ? 30 : query.size
+      const size = Math.min(query.size, 30)
       const list = await this.client.governance.listGovProposalVotes({
         proposalId: id,
         masternode,
@@ -104,8 +103,7 @@ export class GovernanceService {
       if (
         err instanceof RpcApiError &&
         (err?.payload?.message === `Proposal <${id}> not found` ||
-          err?.payload?.message ===
-            "proposalId must be of length 64 (not 3, for '999')")
+          err?.payload?.message.includes('proposalId must be of length 64'))
       ) {
         throw new NotFoundApiException('Unable to find proposal')
       } else {
@@ -155,6 +153,6 @@ function mapGovernanceProposalVoteResult (type: VoteResult): ProposalVoteResultT
     case VoteResult.NEUTRAL:
       return ProposalVoteResultType.NEUTRAL
     default:
-      return ProposalVoteResultType.Unknown
+      return ProposalVoteResultType.UNKNOWN
   }
 }

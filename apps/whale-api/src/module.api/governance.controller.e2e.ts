@@ -5,7 +5,8 @@ import { MasterNodeRegTestContainer, StartOptions } from '@defichain/testcontain
 import {
   GovernanceProposalStatus,
   GovernanceProposalType,
-  ProposalMasternodeType
+  ProposalMasternodeType,
+  ProposalVoteResultType
 } from '@defichain/whale-api-client/dist/api/governance'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import BigNumber from 'bignumber.js'
@@ -66,7 +67,46 @@ describe('governance - listProposals and getProposal', () => {
   // Listing related tests
   it('should listProposals', async () => {
     const result = await controller.listProposals()
+    const cfpResult = result.data.find(proposal => proposal.type === GovernanceProposalType.COMMUNITY_FUND_PROPOSAL)
+    const vocResult = result.data.find(proposal => proposal.type === GovernanceProposalType.VOTE_OF_CONFIDENCE)
     expect(result.data.length).toStrictEqual(2)
+    expect(cfpResult).toStrictEqual({
+      proposalId: cfpProposalId,
+      creationHeight: expect.any(Number),
+      title: 'CFP proposal',
+      context: 'github',
+      contextHash: '',
+      status: GovernanceProposalStatus.VOTING,
+      type: GovernanceProposalType.COMMUNITY_FUND_PROPOSAL,
+      amount: new BigNumber(1.23).toFixed(8),
+      payoutAddress: payoutAddress,
+      currentCycle: 1,
+      totalCycles: 2,
+      cycleEndHeight: expect.any(Number),
+      proposalEndHeight: expect.any(Number),
+      votingPeriod: expect.any(Number),
+      quorum: expect.any(String),
+      approvalThreshold: expect.any(String),
+      fee: expect.any(Number)
+    })
+    expect(vocResult).toStrictEqual({
+      proposalId: vocProposalId,
+      creationHeight: expect.any(Number),
+      title: 'VOC proposal',
+      context: 'github',
+      contextHash: '',
+      status: GovernanceProposalStatus.VOTING,
+      type: GovernanceProposalType.VOTE_OF_CONFIDENCE,
+      amount: undefined,
+      currentCycle: 1,
+      totalCycles: 1,
+      cycleEndHeight: expect.any(Number),
+      proposalEndHeight: expect.any(Number),
+      votingPeriod: expect.any(Number),
+      quorum: expect.any(String),
+      approvalThreshold: expect.any(String),
+      fee: expect.any(Number)
+    })
   })
 
   it('should listProposals with size', async () => {
@@ -256,7 +296,7 @@ describe('governance - listProposalVotes', () => {
 
     // Vote on cycle 2
     const masternodes = await testing.rpc.masternode.listMasternodes()
-    const votes = [VoteDecision.YES, VoteDecision.NO, VoteDecision.NO]
+    const votes = [VoteDecision.YES, VoteDecision.NO, VoteDecision.NEUTRAL]
     let index = 0
     for (const [id, data] of Object.entries(masternodes)) {
       if (data.operatorIsMine) {
@@ -278,7 +318,28 @@ describe('governance - listProposalVotes', () => {
 
   it('should listProposalVotes', async () => {
     const result = await controller.listProposalVotes(cfpProposalId)
+    const yesVote = result.data.find(vote => vote.vote === ProposalVoteResultType.YES)
+    const noVote = result.data.find(vote => vote.vote === ProposalVoteResultType.NO)
+    const neutralVote = result.data.find(vote => vote.vote === ProposalVoteResultType.NEUTRAL)
     expect(result.data.length).toStrictEqual(3)
+    expect(yesVote).toStrictEqual({
+      proposalId: cfpProposalId,
+      masternodeId: expect.any(String),
+      cycle: 2,
+      vote: ProposalVoteResultType.YES
+    })
+    expect(noVote).toStrictEqual({
+      proposalId: cfpProposalId,
+      masternodeId: expect.any(String),
+      cycle: 2,
+      vote: ProposalVoteResultType.NO
+    })
+    expect(neutralVote).toStrictEqual({
+      proposalId: cfpProposalId,
+      masternodeId: expect.any(String),
+      cycle: 2,
+      vote: ProposalVoteResultType.NEUTRAL
+    })
   })
 
   it('should listProposalVotes with cycle', async () => {
@@ -322,7 +383,11 @@ async function getVotableMasternodeId (): Promise<string> {
     const masternode = masternodes[id]
     if (masternode.mintedBlocks > 0) {
       masternodeId = id
+      break
     }
+  }
+  if (masternodeId === '') {
+    throw new Error('No masternode is available to vote')
   }
   return masternodeId
 }

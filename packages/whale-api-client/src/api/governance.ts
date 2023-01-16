@@ -9,16 +9,16 @@ export class Governance {
    *
    * @param {number} [size=30] of proposal to query
    * @param {string} next set of proposals
-   * @param {GorvenanceListProposalsType} [type=GorvenanceListProposalsType.ALL] proposal type
-   * @param {GorvenanceListProposalsStatus} [status=GorvenanceListProposalsStatus.ALL] proposal status
+   * @param {GovernanceListProposalsType} [type=GovernanceListProposalsType.ALL] proposal type
+   * @param {GovernanceListProposalsStatus} [status=GovernanceListProposalsStatus.ALL] proposal status
    * @param {number} [cycle=0] cycle: 0 (show all), cycle: N (show cycle N), cycle: -1 (show previous cycle)
    * @returns {Promise<ApiPagedResponse<ProposalInfo>>}
    */
   async listGovProposals (
     size: number = 30,
     next?: string,
-    type = GorvenanceListProposalsType.ALL,
-    status = GorvenanceListProposalsStatus.ALL,
+    type = GovernanceListProposalsType.ALL,
+    status = GovernanceListProposalsStatus.ALL,
     cycle = 0
   ): Promise<ApiPagedResponse<GovernanceProposal>> {
     return await this.client.requestList(
@@ -59,13 +59,13 @@ export class Governance {
   }
 }
 
-export enum GorvenanceListProposalsType {
+export enum GovernanceListProposalsType {
   CFP = 'cfp',
   VOC = 'voc',
   ALL = 'all',
 }
 
-export enum GorvenanceListProposalsStatus {
+export enum GovernanceListProposalsStatus {
   VOTING = 'voting',
   REJECTED = 'rejected',
   COMPLETED = 'completed',
@@ -125,5 +125,5 @@ export enum ProposalVoteResultType {
   YES = 'YES',
   NO = 'NO',
   NEUTRAL = 'NEUTRAL',
-  Unknown = 'Unknown'
+  UNKNOWN = 'UNKNOWN'
 }

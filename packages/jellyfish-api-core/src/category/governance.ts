@@ -35,7 +35,7 @@ export enum VoteResult {
   YES = 'YES',
   NO = 'NO',
   NEUTRAL = 'NEUTRAL',
-  Unknown = 'Unknown'
+  UNKNOWN = 'Unknown'
 }
 
 export enum MasternodeType {
