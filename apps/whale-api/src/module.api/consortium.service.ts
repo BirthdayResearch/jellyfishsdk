@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { DeFiDCache, TokenInfoWithId } from './cache/defid.cache'
-import { AssetBreakdownInfo, MemberDetail, MemberWithTokenInfo, MemberMintStatsInfo } from '@defichain/whale-api-client/dist/api/consortium'
+import { AssetBreakdownInfo, MemberDetail, MemberWithTokenInfo, MemberMintStatsInfo, TokenWithMintStatsInfo, MintTokenWithStats } from '@defichain/whale-api-client/dist/api/consortium'
 import BigNumber from 'bignumber.js'
 import { parseDisplaySymbol } from './token.controller'
 
@@ -33,25 +33,6 @@ export class ConsortiumService {
     }
 
     existingMember[type] = val
-  }
-
-  private updateMemberMintAmounts (mintStats: MemberMintStatsInfo, tokens: TokenInfoWithId[], key: string, value: string): void {
-    const tokenId = key.split('/')[4]
-    const memberId = key.split('/')[5]
-    if (memberId !== mintStats.memberId) {
-      return
-    }
-    const existingToken = mintStats.mintTokens.find(t => t.tokenId === tokenId)
-    if (existingToken === undefined) {
-      return
-    }
-    const token = tokens.find(t => t.id === tokenId)
-    if (token === undefined) {
-      return
-    }
-    const type = key.split('/')[6] === 'daily_minted' ? 'mintedDaily' : 'minted'
-    const mintedAmount = type === 'mintedDaily' ? value.split('/')[1] : value
-    existingToken[type] = new BigNumber(mintedAmount).toFixed(+token.decimal.toString())
   }
 
   private pushToAssetBreakdownInfo (assetBreakdownInfo: AssetBreakdownInfo[], memberId: string, memberDetail: MemberDetail, tokenId: string, tokens: TokenInfoWithId[]): void {
@@ -89,28 +70,82 @@ export class ConsortiumService {
     existingABI.memberInfo.push(member)
   }
 
-  private pushMemberMintStats (mintStats: MemberMintStatsInfo, attrMemberId: string, tokens: TokenInfoWithId[], key: string, value: any): void {
-    const member = value[attrMemberId]
-    if (mintStats.memberId === '') {
-      mintStats.memberId = attrMemberId
-      mintStats.memberName = member.name
+  private getGlobalMintStatsPerToken (tokens: TokenInfoWithId[], attrs: any, keys: string[]): TokenWithMintStatsInfo[] {
+    const limitKeyRegex = /^v0\/consortium\/\d+\/mint_limit$/
+    const tokensWithMintStat: TokenWithMintStatsInfo[] = keys.filter(k => limitKeyRegex.exec(k) !== null).reduce((acc: any[], curr: string) => {
+      const tokenId = curr.split('/')[2]
+      const token = tokens.find(t => t.id === tokenId)
+      if (token === undefined) {
+        return acc
+      }
+
+      const mintLimit = attrs[curr]
+      const mintDailyLimit = attrs[`v0/consortium/${tokenId}/mint_limit_daily`]
+      const mintedAmount = attrs[`v0/live/economy/consortium/${tokenId}/minted`]
+      const mintedDailyAmount = this.getGlobalDailyMintedAmountPerToken(attrs, tokenId)
+
+      const tokenWithMint: TokenWithMintStatsInfo = {
+        ...token,
+        mintStats: {
+          minted: new BigNumber(mintedAmount ?? '0').toFixed(+token.decimal.toString()),
+          mintedDaily: new BigNumber(mintedDailyAmount ?? '0').toFixed(+token.decimal.toString()),
+          mintLimit: mintLimit ?? '0',
+          mintDailyLimit: mintDailyLimit ?? '0'
+        }
+      }
+      acc.push(tokenWithMint)
+      return acc
+    }, [])
+    return tokensWithMintStat
+  }
+
+  private getGlobalDailyMintedAmountPerToken (attrs: any, tokenId: string): BigNumber {
+    let globalDailyMinted = new BigNumber(0)
+    const dailyMintedRegex = /^v0\/live\/economy\/consortium_members\/\d+\/\d+\/daily_minted$/
+    const keys = Object.keys(attrs)
+
+    keys.forEach(key => {
+      if (dailyMintedRegex.exec(key) === null) {
+        return
+      }
+
+      const mintTokenId = key.split('/')[4]
+      if (mintTokenId === undefined || mintTokenId !== tokenId) {
+        return
+      }
+
+      const dailyMinted = attrs[key]
+      const dailyMintedAmount = dailyMinted?.split('/')[1] ?? '0'
+      globalDailyMinted = globalDailyMinted.plus(dailyMintedAmount)
+    })
+
+    return globalDailyMinted
+  }
+
+  private getTokenMintInfo (attrs: any, tokenId: string, token: TokenWithMintStatsInfo, memberId: string, member: any): MintTokenWithStats {
+    const mintedAmount = attrs[`v0/live/economy/consortium_members/${tokenId}/${memberId}/minted`] ?? '0'
+    const dailyMinted = attrs[`v0/live/economy/consortium_members/${tokenId}/${memberId}/daily_minted`]
+    const dailyMintedAmount = dailyMinted?.split('/')[1] ?? '0'
+
+    const tokenMintInfo = {
+      tokenSymbol: token.symbol,
+      tokenDisplaySymbol: parseDisplaySymbol(token),
+      tokenId: token.id,
+      member: {
+        minted: new BigNumber(mintedAmount).toFixed(+token.decimal.toString()),
+        mintedDaily: new BigNumber(dailyMintedAmount).toFixed(+token.decimal.toString()),
+        mintLimit: new BigNumber(member.mintLimit).toFixed(+token.decimal.toString()),
+        mintDailyLimit: new BigNumber(member.mintLimitDaily).toFixed(+token.decimal.toString())
+      },
+      global: {
+        minted: token.mintStats.minted,
+        mintedDaily: new BigNumber(token.mintStats.mintedDaily).toFixed(+token.decimal.toString()),
+        mintLimit: new BigNumber(token.mintStats.mintLimit).toFixed(+token.decimal.toString()),
+        mintDailyLimit: new BigNumber(token.mintStats.mintDailyLimit).toFixed(+token.decimal.toString())
+      }
     }
 
-    const tokenId = key.split('/')[2]
-    const token = tokens.find(t => t.id === tokenId)
-    if (token !== undefined) {
-      const tokenDecimal = +token.decimal.toString()
-      const tokenMintInfo = {
-        tokenSymbol: token.symbol,
-        tokenDisplaySymbol: parseDisplaySymbol(token),
-        tokenId: tokenId,
-        minted: '0.00000000',
-        mintedDaily: '0.00000000',
-        mintLimit: new BigNumber(member.mintLimit).toFixed(tokenDecimal),
-        mintDailyLimit: new BigNumber(member.mintLimitDaily).toFixed(tokenDecimal)
-      }
-      mintStats.mintTokens.push(tokenMintInfo)
-    }
+    return tokenMintInfo
   }
 
   async getAssetBreakdown (): Promise<AssetBreakdownInfo[]> {
@@ -147,35 +182,37 @@ export class ConsortiumService {
 
   async getMemberMintStats (memberId: string): Promise<MemberMintStatsInfo> {
     const attrs = (await this.rpcClient.masternode.getGov('ATTRIBUTES')).ATTRIBUTES
-
     const keys: string[] = Object.keys(attrs)
-    const membersKeyRegex = /^v0\/consortium\/\d+\/members$/
-    const mintedKeyRegex = /^v0\/live\/economy\/consortium_members\/\d+\/\d+\/minted$/
-    const mintedDailyKeyRegex = /^v0\/live\/economy\/consortium_members\/\d+\/\d+\/daily_minted$/
 
-    const membersAttr = keys.filter((key) => membersKeyRegex.exec(key) !== null)
-    const memberIds = membersAttr.map((memberKey) => Object.keys(attrs[memberKey])).flat()
-    if (!memberIds.includes(memberId)) {
+    const membersKeyRegex = /^v0\/consortium\/\d+\/members$/
+    const memberAttrs = keys.filter((key) => {
+      const matchesMemberAttr = membersKeyRegex.exec(key) !== null
+      const matchesMemberId = Object.keys(attrs[key]).some(id => id === memberId)
+      return matchesMemberAttr && matchesMemberId
+    })
+    if (memberAttrs === undefined || memberAttrs.length === 0) {
       throw new NotFoundException('Consortium member not found')
     }
 
     const tokens: TokenInfoWithId[] = await this.defidCache.getAllTokenInfo() as TokenInfoWithId[]
+    const tokensWithMintInfo = this.getGlobalMintStatsPerToken(tokens, attrs, keys)
+
     const mintStats: MemberMintStatsInfo = { memberId: '', memberName: '', mintTokens: [] }
-
-    keys.forEach((key) => {
-      const value = attrs[key]
-      if (membersKeyRegex.exec(key) !== null) {
-        const attrMemberId = Object.keys(value).find((id) => id === memberId)
-        if (attrMemberId === undefined) {
-          return
-        }
-
-        this.pushMemberMintStats(mintStats, attrMemberId, tokens, key, value)
+    memberAttrs.forEach(attrKey => {
+      const member = attrs[attrKey][memberId]
+      if (mintStats.memberId === '') {
+        mintStats.memberId = memberId
+        mintStats.memberName = member.name
       }
 
-      if (mintedKeyRegex.exec(key) !== null || mintedDailyKeyRegex.exec(key) !== null) {
-        this.updateMemberMintAmounts(mintStats, tokens, key, value)
+      const tokenId = attrKey.split('/')[2]
+      const token = tokensWithMintInfo.find((t: TokenWithMintStatsInfo) => t.id === tokenId)
+      if (token === undefined) {
+        return
       }
+
+      const tokenMintInfo = this.getTokenMintInfo(attrs, tokenId, token, memberId, member)
+      mintStats.mintTokens.push(tokenMintInfo)
     })
 
     return mintStats

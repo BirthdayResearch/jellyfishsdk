@@ -1,3 +1,4 @@
+import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
 import { WhaleApiClient } from '../whale.api.client'
 
 /**
@@ -49,18 +50,28 @@ export interface AssetBreakdownInfo {
   memberInfo: MemberWithTokenInfo[]
 }
 
-export interface MintTokens {
-  tokenSymbol: string
-  tokenDisplaySymbol: string
-  tokenId: string
+export interface MintStatsInfo {
   minted: string
   mintedDaily: string
   mintLimit: string
   mintDailyLimit: string
 }
 
+export interface MintTokenWithStats {
+  tokenSymbol: string
+  tokenDisplaySymbol: string
+  tokenId: string
+  member: MintStatsInfo
+  global: MintStatsInfo
+}
+
 export interface MemberMintStatsInfo {
   memberId: string
   memberName: string
-  mintTokens: MintTokens[]
+  mintTokens: MintTokenWithStats[]
+}
+
+export interface TokenWithMintStatsInfo extends TokenInfo {
+  id: string
+  mintStats: MintStatsInfo
 }
