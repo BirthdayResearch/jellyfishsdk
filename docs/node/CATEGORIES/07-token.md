@@ -152,6 +152,21 @@ interface UTXO {
 }
 ```
 
+## burnTokens
+
+Creates a transaction to burn tokens.
+
+```ts title="client.token.burnTokens()"
+interface token {
+  burnTokens (amounts: string, from?: string, context?: string, utxos: UTXO[] = []): Promise<string>
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
 ## getCustomTx
 
 Get detailed information about any custom transaction.

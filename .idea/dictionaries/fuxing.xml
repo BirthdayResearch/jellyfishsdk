@@ -160,6 +160,7 @@
       <w>keyhash</w>
       <w>keypoololdest</w>
       <w>keypoolsize</w>
+      <w>kyleleow</w>
       <w>lastblockcreationattempt</w>
       <w>lessthan</w>
       <w>lessthanorequal</w>
@@ -217,6 +218,7 @@
       <w>paybackloan</w>
       <w>paybacktokens</w>
       <w>paytxfee</w>
+      <w>pierregee</w>
       <w>pooledtx</w>
       <w>poolpair</w>
       <w>poolpairs</w>

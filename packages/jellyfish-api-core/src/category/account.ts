@@ -606,6 +606,10 @@ export interface BurnInfo {
    */
   tokens: string[]
   /**
+   * Token amount burnt by consortium members
+   */
+  consortiumtokens: string[]
+  /**
    * Amount collected via fee burn
    */
   feeburn: BigNumber

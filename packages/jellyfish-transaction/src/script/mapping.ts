@@ -29,10 +29,12 @@ import {
   PoolUpdatePair
 } from './dftx/dftx_pool'
 import {
+  CTokenBurn,
   CTokenCreate,
   CTokenMint,
   CTokenUpdate,
   CTokenUpdateAny,
+  TokenBurn,
   TokenCreate,
   TokenMint,
   TokenUpdate,
@@ -298,6 +300,14 @@ export const OP_CODES = {
       type: CTokenUpdateAny.OP_CODE,
       name: CTokenUpdateAny.OP_NAME,
       data: tokenUpdateAny
+    })
+  },
+  OP_DEFI_TX_TOKEN_BURN: (tokenBurn: TokenBurn): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CTokenBurn.OP_CODE,
+      name: CTokenBurn.OP_NAME,
+      data: tokenBurn
     })
   },
   OP_DEFI_TX_UTXOS_TO_ACCOUNT: (utxosToAccount: UtxosToAccount): OP_DEFI_TX => {
