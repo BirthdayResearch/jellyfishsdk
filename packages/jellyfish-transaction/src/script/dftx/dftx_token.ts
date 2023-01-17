@@ -1,5 +1,7 @@
 import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
 import { CTokenBalance, TokenBalanceUInt32 } from './dftx_balance'
+import { Script } from '../../tx'
+import { CScript } from '../../tx_composer'
 import BigNumber from 'bignumber.js'
 
 /**
@@ -114,6 +116,60 @@ export class CTokenUpdateAny extends ComposableBuffer<TokenUpdateAny> {
         tua.tradeable = v[1]
         tua.mintable = v[2]
       })
+    ]
+  }
+}
+
+/**
+ * Known as "std::variant<CScript>" in cpp.
+ */
+export type VariantType = 0
+
+interface VariantScript {
+  variant: VariantType // -----| 1 byte
+  context: Script // ----------| VarUInt{1-9 bytes}, + n bytes
+}
+
+/**
+ * Known as "std::variant<CScript>" in cpp.
+ *
+ * Composable VariantScript, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+class CVariantScript extends ComposableBuffer<VariantScript> {
+  composers (tb: VariantScript): BufferComposer[] {
+    return [
+      ComposableBuffer.uInt32(() => tb.variant, v => tb.variant = v as VariantType),
+      ComposableBuffer.single<Script>(() => tb.context, v => tb.context = v, v => new CScript(v))
+    ]
+  }
+}
+
+/**
+ * TokenBurn DeFi Transaction
+ */
+export type BurnType = 0
+
+export interface TokenBurn {
+  amounts: TokenBalanceUInt32[] // ----------| c = VarUInt{1-9 bytes}, + c x TokenBalance
+  from: Script // ---------------------------| n = VarUInt{1-9 bytes}, + n bytes
+  burnType: BurnType // ---------------------| 1 byte
+  variantContext: VariantScript // ----------| v = 1 byte, c = (VarUInt{1-9 bytes}, + n bytes)
+}
+/**
+ * Composable TokenBurn, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CTokenBurn extends ComposableBuffer<TokenBurn> {
+  static OP_CODE = 0x46 // 'F'
+  static OP_NAME = 'OP_DEFI_TX_TOKEN_BURN'
+
+  composers (tb: TokenBurn): BufferComposer[] {
+    return [
+      ComposableBuffer.compactSizeArray(() => tb.amounts, v => tb.amounts = v, v => new CTokenBalance(v)),
+      ComposableBuffer.single<Script>(() => tb.from, v => tb.from = v, v => new CScript(v)),
+      ComposableBuffer.uInt8(() => tb.burnType, v => tb.burnType = v as BurnType),
+      ComposableBuffer.single<VariantScript>(() => tb.variantContext, v => tb.variantContext = v, v => new CVariantScript(v))
     ]
   }
 }
