@@ -44,7 +44,7 @@ describe('create multi sig', () => {
     })
   })
 
-  it('should throw error if n < 0', async () => {
+  it('should throw error if nRequired < 0', async () => {
     const key0 = (await testing.rpc.wallet.getAddressInfo(await testing.rpc.wallet.getNewAddress('', wallet.AddressType.LEGACY))).pubkey
     const key1 = (await testing.rpc.wallet.getAddressInfo(await testing.rpc.wallet.getNewAddress('', wallet.AddressType.LEGACY))).pubkey
     const keys = [key0, key1]
