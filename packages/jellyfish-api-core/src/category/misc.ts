@@ -53,7 +53,7 @@ export class Misc {
    * @param {string} addressType default:'legacy', The address type to use. Options are 'legacy', 'p2sh-segwit', and 'bech32'.
    * @return Promise<MultiSigAddress> The signature of the message encoded in base 64
    */
-  async createMultiSig (nrequired: number, keys: string[], addressType: string = 'legacy'): Promise<MultiSigAddress> {
+  async createMultiSig (nRequired: number, keys: string[], addressType: string = 'legacy'): Promise<MultiSigAddress> {
     return await this.client.call('createmultisig', [nrequired, keys, addressType], 'number')
   }
 }
