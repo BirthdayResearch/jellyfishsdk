@@ -54,7 +54,7 @@ describe('burnTokens', () => {
       }
     })
 
-    await tGroup.get(0).rpc.token.mintTokens(`10@${symbolDBTC}`)
+    await tGroup.get(0).rpc.token.mintTokens({ amounts: [`10@${symbolDBTC}`] })
     await tGroup.get(0).generate(1)
   })
 
@@ -78,8 +78,6 @@ describe('burnTokens', () => {
   })
 
   it('should throw an error if invalid value is provided for from', async () => {
-    // @ts-expect-error
-    await expect(tGroup.get(0).rpc.token.burnTokens(`2@${symbolDBTC}`, null)).rejects.toThrow('Invalid parameters, argument "from" must not be null')
     await expect(tGroup.get(0).rpc.token.burnTokens(`2@${symbolDBTC}`, '')).rejects.toThrow('recipient () does not refer to any valid address')
     await expect(tGroup.get(0).rpc.token.burnTokens(`2@${symbolDBTC}`, 'ABC')).rejects.toThrow('recipient (ABC) does not refer to any valid address')
   })

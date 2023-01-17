@@ -46,7 +46,7 @@ export class SetupLoanToken extends PlaygroundSetup<SetLoanToken> {
 
     // NOTE(canonbrother): Loan token is strictly not mintable in real world
     // Minting loan token here is for dev purpose
-    await this.client.token.mintTokens(`100000000@${each.symbol}`)
+    await this.client.token.mintTokens({ amounts: [`100000000@${each.symbol}`] })
   }
 
   async has (each: SetLoanToken): Promise<boolean> {
