@@ -51,7 +51,7 @@ describe('derive addresses', () => {
     await expect(client.misc.deriveAddresses(descriptor, [-1, 2])).rejects.toThrow(RpcApiError)
   })
 
-  it('should raise an error if end of range is inferior to beginning', async () => {
+  it('should raise an error if end of range is smaller than the start', async () => {
     const descriptor = 'wpkh(tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK/1/1/*)'
     await expect(client.misc.deriveAddresses(descriptor, [2, 0])).rejects.toThrow(RpcApiError)
   })
