@@ -96,6 +96,18 @@ export const TestNet: Network = {
 }
 
 /**
+ * DevNet specific DeFi configuration.
+ */
+ export const DevNet: Network = {
+  ...TestNet,
+  name: 'devnet',
+  ports: {
+    rpc: 20554,
+    p2p: 20555
+  }
+}
+
+/**
  * RegTest specific DeFi configuration.
  */
 export const RegTest: Network = {
