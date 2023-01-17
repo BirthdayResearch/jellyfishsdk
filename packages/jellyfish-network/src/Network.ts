@@ -98,7 +98,7 @@ export const TestNet: Network = {
 /**
  * DevNet specific DeFi configuration.
  */
- export const DevNet: Network = {
+export const DevNet: Network = {
   ...TestNet,
   name: 'devnet',
   ports: {
