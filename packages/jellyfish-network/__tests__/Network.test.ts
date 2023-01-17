@@ -1,4 +1,4 @@
-import { Network, MainNet, RegTest, TestNet, getNetwork } from '../src'
+import { Network, MainNet, RegTest, TestNet, DevNet, getNetwork } from '../src'
 
 it('should be exported', () => {
   const network: Network = MainNet
@@ -43,6 +43,17 @@ it('should match TestNet network', () => {
   expect(TestNet.pubKeyHashPrefix).toStrictEqual(0xf)
   expect(TestNet.scriptHashPrefix).toStrictEqual(0x80)
   expect(TestNet.messagePrefix).toStrictEqual('\x15Defi Signed Message:\n')
+})
+
+it('should match DevNet network', () => {
+  expect(DevNet.name).toStrictEqual('devnet')
+  expect(DevNet.bech32.hrp).toStrictEqual('tf')
+  expect(DevNet.bip32.publicPrefix).toStrictEqual(0x043587cf)
+  expect(DevNet.bip32.privatePrefix).toStrictEqual(0x04358394)
+  expect(DevNet.wifPrefix).toStrictEqual(0xef)
+  expect(DevNet.pubKeyHashPrefix).toStrictEqual(0xf)
+  expect(DevNet.scriptHashPrefix).toStrictEqual(0x80)
+  expect(DevNet.messagePrefix).toStrictEqual('\x15Defi Signed Message:\n')
 })
 
 it('should match RegTest network', () => {
