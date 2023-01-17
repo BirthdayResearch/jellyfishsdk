@@ -48,13 +48,13 @@ export class Misc {
    * Creates a multi-signature address with n signature of m keys required.
    * It returns a json object with the address and redeemScript.
    *
-   * @param {number} nrequired The number of required signatures out of the n keys.
+   * @param {number} nRequired The number of required signatures out of the n keys.
    * @param {string[]} keys A json array of hex-encoded public keys.
    * @param {string} addressType default:'legacy', The address type to use. Options are 'legacy', 'p2sh-segwit', and 'bech32'.
    * @return Promise<MultiSigAddress> The signature of the message encoded in base 64
    */
   async createMultiSig (nRequired: number, keys: string[], addressType: string = 'legacy'): Promise<MultiSigAddress> {
-    return await this.client.call('createmultisig', [nrequired, keys, addressType], 'number')
+    return await this.client.call('createmultisig', [nRequired, keys, addressType], 'number')
   }
 }
 

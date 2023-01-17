@@ -5,7 +5,7 @@ import { RpcApiError } from '../../../src'
 import { Testing } from '@defichain/jellyfish-testing'
 import { ECDH } from 'node:crypto'
 
-describe('dcreate multi sig', () => {
+describe('create multi sig', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
   const testing = Testing.create(container)
@@ -33,13 +33,44 @@ describe('dcreate multi sig', () => {
     const key0 = 'key0'
     const key1 = 'key1'
     const keys = [key0, key1]
-    await expect(client.misc.createMultiSig(2, keys, 'legacy')).rejects.toThrow(RpcApiError)
+    const promise = client.misc.createMultiSig(2, keys, 'legacy')
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -5,
+        message: 'Invalid public key: key0\n.',
+        method: 'createmultisig'
+      }
+    })
   })
 
   it('should throw error if n < 0', async () => {
-    const key0 = 'key0'
-    const key1 = 'key1'
+    const key0 = (await testing.rpc.wallet.getAddressInfo(await testing.rpc.wallet.getNewAddress('', wallet.AddressType.LEGACY))).pubkey
+    const key1 = (await testing.rpc.wallet.getAddressInfo(await testing.rpc.wallet.getNewAddress('', wallet.AddressType.LEGACY))).pubkey
     const keys = [key0, key1]
-    await expect(client.misc.createMultiSig(-2, keys, 'legacy')).rejects.toThrow(RpcApiError)
+    const promise = client.misc.createMultiSig(-2, keys, 'legacy')
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -8,
+        message: 'a multisignature address must require at least one key to redeem',
+        method: 'createmultisig'
+      }
+    })
+  })
+
+  it('should throw error if addressType is not valid', async () => {
+    const key0 = (await testing.rpc.wallet.getAddressInfo(await testing.rpc.wallet.getNewAddress('', wallet.AddressType.LEGACY))).pubkey
+    const key1 = (await testing.rpc.wallet.getAddressInfo(await testing.rpc.wallet.getNewAddress('', wallet.AddressType.LEGACY))).pubkey
+    const keys = [key0, key1]
+    const promise = client.misc.createMultiSig(2, keys, 'addressType')
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -5,
+        message: 'Unknown address type \'addressType\'',
+        method: 'createmultisig'
+      }
+    })
   })
 })
