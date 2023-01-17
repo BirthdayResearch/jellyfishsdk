@@ -31,10 +31,11 @@ export class GovernanceService {
     },
     status?: ListProposalsStatus,
     type?: ListProposalsType,
-    cycle?: number
+    cycle?: number,
+    all: boolean = false
   ): Promise<ApiPagedResponse<GovernanceProposal>> {
     const next = query.next !== undefined ? String(query.next) : undefined
-    const size = Math.min(query.size, 30)
+    const size = all ? 0 : Math.min(query.size, 30) // blockchain by design to return all records when limit = 0
     const list = await this.client.governance.listGovProposals({
       type,
       status,
@@ -76,12 +77,13 @@ export class GovernanceService {
       size: 30
     },
     id: string,
-    masternode: string | ProposalMasternodeType,
-    cycle: number
+    masternode: ProposalMasternodeType | string = ProposalMasternodeType.MINE,
+    cycle: number = 0,
+    all?: boolean
   ): Promise<ApiPagedResponse<ProposalVotesResult>> {
     try {
       const next = query.next !== undefined ? Number(query.next) : undefined
-      const size = Math.min(query.size, 30)
+      const size = all === true ? 0 : Math.min(query.size, 30) // blockchain by design to return all records when limit = 0
       const list = await this.client.governance.listGovProposalVotes({
         proposalId: id,
         masternode,

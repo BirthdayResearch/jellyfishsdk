@@ -110,7 +110,7 @@ describe('governance - listProposals and getProposal', () => {
   })
 
   it('should listProposals with size', async () => {
-    const result = await controller.listProposals(undefined, undefined, undefined, { size: 1 })
+    const result = await controller.listProposals(undefined, undefined, undefined, undefined, { size: 1 })
     expect(result.data.length).toStrictEqual(1)
   })
 
@@ -140,11 +140,11 @@ describe('governance - listProposals and getProposal', () => {
   })
 
   it('should listProposals with pagination', async () => {
-    const resultPage1 = await controller.listProposals(undefined, undefined, undefined, {
+    const resultPage1 = await controller.listProposals(undefined, undefined, undefined, undefined, {
       size: 1
     })
     expect(resultPage1.data.length).toStrictEqual(1)
-    const resultPage2 = await controller.listProposals(undefined, undefined, undefined, {
+    const resultPage2 = await controller.listProposals(undefined, undefined, undefined, undefined, {
       next: resultPage1.page?.next,
       size: 1
     })
@@ -152,18 +152,23 @@ describe('governance - listProposals and getProposal', () => {
   })
 
   it('should listProposals with all record when limit is 0', async () => {
-    const result = await controller.listProposals(undefined, undefined, undefined, {
+    const result = await controller.listProposals(undefined, undefined, undefined, undefined, {
       size: 0
     })
     expect(result.data.length).toStrictEqual(2)
   })
 
+  it('should listProposals with all record when all flag is true', async () => {
+    const result = await controller.listProposals(undefined, undefined, undefined, true)
+    expect(result.data.length).toStrictEqual(2)
+  })
+
   it('should listProposals with status and pagination', async () => {
-    const resultPage1 = await controller.listProposals(ListProposalsStatus.VOTING, undefined, undefined, {
+    const resultPage1 = await controller.listProposals(ListProposalsStatus.VOTING, undefined, undefined, undefined, {
       size: 1
     })
     expect(resultPage1.data.length).toStrictEqual(1)
-    const resultPage2 = await controller.listProposals(ListProposalsStatus.VOTING, undefined, undefined, {
+    const resultPage2 = await controller.listProposals(ListProposalsStatus.VOTING, undefined, undefined, undefined, {
       next: resultPage1.page?.next,
       size: 1
     })
@@ -172,11 +177,11 @@ describe('governance - listProposals and getProposal', () => {
 
   // TODO: remove skip when blockchain fixes issue where start is ignored when non-all status is not passed
   it.skip('should listProposals with type and pagination', async () => {
-    const resultPage1 = await controller.listProposals(undefined, ListProposalsType.CFP, undefined, {
+    const resultPage1 = await controller.listProposals(undefined, ListProposalsType.CFP, undefined, undefined, {
       size: 1
     })
     expect(resultPage1.data.length).toStrictEqual(1)
-    const resultPage2 = await controller.listProposals(undefined, ListProposalsType.CFP, undefined, {
+    const resultPage2 = await controller.listProposals(undefined, ListProposalsType.CFP, undefined, undefined, {
       next: resultPage1.page?.next,
       size: 1
     })
@@ -184,11 +189,11 @@ describe('governance - listProposals and getProposal', () => {
   })
 
   it('should listProposals with status, type and pagination', async () => {
-    const resultPage1 = await controller.listProposals(ListProposalsStatus.VOTING, ListProposalsType.CFP, undefined, {
+    const resultPage1 = await controller.listProposals(ListProposalsStatus.VOTING, ListProposalsType.CFP, undefined, undefined, {
       size: 1
     })
     expect(resultPage1.data.length).toStrictEqual(1)
-    const resultPage2 = await controller.listProposals(ListProposalsStatus.VOTING, ListProposalsType.CFP, undefined, {
+    const resultPage2 = await controller.listProposals(ListProposalsStatus.VOTING, ListProposalsType.CFP, undefined, undefined, {
       next: resultPage1.page?.next,
       size: 1
     })
@@ -348,7 +353,12 @@ describe('governance - listProposalVotes', () => {
   })
 
   it('should listProposalVotes with all records when limit is 0', async () => {
-    const result = await controller.listProposalVotes(cfpProposalId, undefined, undefined, { size: 0 })
+    const result = await controller.listProposalVotes(cfpProposalId, undefined, undefined, undefined, { size: 0 })
+    expect(result.data.length).toStrictEqual(3)
+  })
+
+  it('should listProposalVotes with all records when all flag is true', async () => {
+    const result = await controller.listProposalVotes(cfpProposalId, undefined, undefined, true)
     expect(result.data.length).toStrictEqual(3)
   })
 
@@ -366,9 +376,9 @@ describe('governance - listProposalVotes', () => {
   })
 
   it('should listProposalVotes with all masternodes, cycle and pagination', async () => {
-    const resultPage1 = await controller.listProposalVotes(cfpProposalId, ProposalMasternodeType.ALL, 2, { size: 2 })
+    const resultPage1 = await controller.listProposalVotes(cfpProposalId, ProposalMasternodeType.ALL, 2, undefined, { size: 2 })
     expect(resultPage1.data.length).toStrictEqual(2)
-    const resultPage2 = await controller.listProposalVotes(cfpProposalId, ProposalMasternodeType.ALL, 2, { next: resultPage1.page?.next, size: 2 })
+    const resultPage2 = await controller.listProposalVotes(cfpProposalId, ProposalMasternodeType.ALL, 2, undefined, { next: resultPage1.page?.next, size: 2 })
     expect(resultPage2.data.length).toStrictEqual(1)
   })
 })

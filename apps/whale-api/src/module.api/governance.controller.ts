@@ -4,8 +4,9 @@ import {
   ProposalMasternodeType,
   ProposalVotesResult
 } from '@defichain/whale-api-client/dist/api/governance'
-import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common'
+import { Controller, DefaultValuePipe, Get, Param, ParseEnumPipe, ParseIntPipe, Query } from '@nestjs/common'
 import { GovernanceService } from './governance.service'
+import { EnumCustomException } from './pipes/api.validation.pipe'
 import { ApiPagedResponse } from './_core/api.paged.response'
 import { PaginationQuery } from './_core/api.query'
 
@@ -19,17 +20,19 @@ export class GovernanceController {
    * @param {ListProposalsStatus} [status=ListProposalsStatus.ALL] type of proposals
    * @param {ListProposalsType} [type=ListProposalsType.ALL] status of proposals
    * @param {number} [cycle=0]  cycle: 0 (show all), cycle: N (show cycle N), cycle: -1 (show previous cycle)
+   * @param {boolean} [all=false] flag to return all records
    * @param {PaginationQuery} query pagination query
    * @returns {Promise<ApiPagedResponse<GovernanceProposal>>}
    */
   @Get('/proposals')
   async listProposals (
-    @Query() status: ListProposalsStatus = ListProposalsStatus.ALL,
-    @Query() type: ListProposalsType = ListProposalsType.ALL,
-    @Query('cycle', ParseIntPipe) cycle: number = 0,
-    @Query() query?: PaginationQuery
+    @Query('status', new ParseEnumPipe(ListProposalsStatus, { exceptionFactory: () => EnumCustomException('status', ListProposalsStatus) }), new DefaultValuePipe(ListProposalsStatus.ALL)) status?: ListProposalsStatus,
+      @Query('type', new ParseEnumPipe(ListProposalsType, { exceptionFactory: () => EnumCustomException('type', ListProposalsType) }), new DefaultValuePipe(ListProposalsType.ALL)) type?: ListProposalsType,
+      @Query('cycle', new DefaultValuePipe(0), ParseIntPipe) cycle?: number,
+      @Query('all', new DefaultValuePipe(false)) all?: boolean,
+      @Query() query?: PaginationQuery
   ): Promise<ApiPagedResponse<GovernanceProposal>> {
-    return await this.governanceService.listGovernanceProposal(query, status, type, cycle)
+    return await this.governanceService.listGovernanceProposal(query, status, type, cycle, all)
   }
 
   /**
@@ -55,10 +58,11 @@ export class GovernanceController {
   @Get('/proposals/:id/votes')
   async listProposalVotes (
     @Param('id') id: string,
-      @Query('masternode') masternode: string | ProposalMasternodeType = ProposalMasternodeType.MINE,
-      @Query('cycle', ParseIntPipe) cycle: number = 0,
+      @Query('masternode', new DefaultValuePipe(ProposalMasternodeType.MINE)) masternode?: ProposalMasternodeType | string,
+      @Query('cycle', new DefaultValuePipe(0), ParseIntPipe) cycle?: number,
+      @Query('all', new DefaultValuePipe(false)) all?: boolean,
       @Query() query?: PaginationQuery
   ): Promise<ApiPagedResponse<ProposalVotesResult>> {
-    return await this.governanceService.getGovernanceProposalVotes(query, id, masternode, cycle)
+    return await this.governanceService.getGovernanceProposalVotes(query, id, masternode, cycle, all)
   }
 }

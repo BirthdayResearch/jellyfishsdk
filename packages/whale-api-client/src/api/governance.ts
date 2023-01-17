@@ -1,3 +1,4 @@
+import { ListProposalsStatus, ListProposalsType } from '@defichain/jellyfish-api-core/dist/category/governance'
 import { WhaleApiClient } from '../whale.api.client'
 import { ApiPagedResponse } from '../whale.api.response'
 
@@ -7,25 +8,33 @@ export class Governance {
   /**
    * Paginate query on-chain governance proposals
    *
+   * @param {GovernanceListProposalsStatus} [status=GovernanceListProposalsStatus.ALL] proposal status
+   * @param {GovernanceListProposalsType} [type=GovernanceListProposalsType.ALL] proposal type
+   * @param {number} [cycle=0] cycle: 0 (show all), cycle: N (show cycle N), cycle: -1 (show previous cycle)
    * @param {number} [size=30] of proposal to query
    * @param {string} next set of proposals
-   * @param {GovernanceListProposalsType} [type=GovernanceListProposalsType.ALL] proposal type
-   * @param {GovernanceListProposalsStatus} [status=GovernanceListProposalsStatus.ALL] proposal status
-   * @param {number} [cycle=0] cycle: 0 (show all), cycle: N (show cycle N), cycle: -1 (show previous cycle)
+   * @param {boolean} all true to return all records, otherwise it will return based on size param
    * @returns {Promise<ApiPagedResponse<ProposalInfo>>}
    */
   async listGovProposals (
+    status = ListProposalsStatus.ALL,
+    type = ListProposalsType.ALL,
+    cycle = 0,
     size: number = 30,
     next?: string,
-    type = GovernanceListProposalsType.ALL,
-    status = GovernanceListProposalsStatus.ALL,
-    cycle = 0
+    all: boolean = false
   ): Promise<ApiPagedResponse<GovernanceProposal>> {
     return await this.client.requestList(
       'GET',
-      `governance/proposals?type=${type}&status=${status}&cycle=${cycle}`,
+      'governance/proposals',
       size,
-      next
+      next,
+      {
+        status,
+        type,
+        cycle,
+        all
+      }
     )
   }
 
@@ -36,7 +45,7 @@ export class Governance {
    * @returns {Promise<GovernanceProposal>}
    */
   async getGovProposal (id: string): Promise<GovernanceProposal> {
-    return await this.client.requestData('GET', `governance/proposal/${id}`)
+    return await this.client.requestData('GET', `governance/proposals/${id}`)
   }
 
   /**
@@ -45,16 +54,29 @@ export class Governance {
    * @param {string} id proposal ID
    * @param {ProposalMasternodeType | string} [masternode=ProposalMasternodeType.ALL] masternode id or reserved words 'mine' to list votes for all owned accounts or 'all' to list all votes
    * @param {number} [cycle=0] cycle: 0 (show current), cycle: N (show cycle N), cycle: -1 (show all)
+   * @param {number} [size=30] of proposal to query
+   * @param {string} next set of proposals
+   * @param {boolean} all true to return all records, otherwise it will return based on size param
    * @return {Promise<ProposalVotesResult[]>} Proposal vote information
    */
   async listGovProposalVotes (
     id: string,
     masternode: string | ProposalMasternodeType = ProposalMasternodeType.MINE,
-    cycle: number = 0
-  ): Promise<ProposalVotesResult> {
-    return await this.client.requestData(
+    cycle: number = 0,
+    size: number = 30,
+    next?: string,
+    all: boolean = false
+  ): Promise<ApiPagedResponse<ProposalVotesResult>> {
+    return await this.client.requestList(
       'GET',
-      `governance/proposals/${id}/votes?masternode=${masternode}&cycle=${cycle}`
+      `governance/proposals/${id}/votes`,
+      size,
+      next,
+      {
+        masternode,
+        cycle,
+        all
+      }
     )
   }
 }

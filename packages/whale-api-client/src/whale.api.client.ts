@@ -64,6 +64,10 @@ export interface ResponseAsString {
   body: string
 }
 
+export interface QueryParameter {
+  [key: string]: string | number | boolean
+}
+
 export class WhaleApiClient {
   public readonly rpc = new Rpc(this)
   public readonly address = new Address(this)
@@ -115,12 +119,19 @@ export class WhaleApiClient {
    * @param {string} path to request
    * @param {number} [size] of the list
    * @param {string} [next] token for pagination
+   * @param {QueryParameter} [queryParam] optional query parameter
    * @return {ApiPagedResponse} data list in the JSON response body for pagination query
    * @see {paginate(ApiPagedResponse)} for pagination query chaining
    */
-  async requestList<T> (method: Method, path: string, size: number, next?: string): Promise<ApiPagedResponse<T>> {
+  async requestList<T> (method: Method, path: string, size: number, next?: string, queryParam?: QueryParameter): Promise<ApiPagedResponse<T>> {
     const params = new URLSearchParams()
     params.set('size', size.toString())
+
+    if (queryParam !== undefined) {
+      for (const query in queryParam) {
+        params.set(query, queryParam[query].toString())
+      }
+    }
 
     if (next !== undefined) {
       params.set('next', next)
