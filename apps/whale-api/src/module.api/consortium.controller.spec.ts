@@ -3,6 +3,7 @@ import { TestingGroup } from '@defichain/jellyfish-testing'
 import { createTestingApp, stopTestingApp } from '../e2e.module'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { StartFlags } from '@defichain/testcontainers'
+import { NotFoundException } from '@nestjs/common'
 
 const tGroup = TestingGroup.create(2)
 const alice = tGroup.get(0)
@@ -192,7 +193,7 @@ describe('getMemberMintStats', () => {
     await setup()
 
     const promise = controller.getMemberMintStats('01234')
-    await expect(promise).rejects.toThrow(Error)
+    await expect(promise).rejects.toThrow(NotFoundException)
     await expect(promise).rejects.toThrow('Consortium member not found')
   })
 

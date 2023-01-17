@@ -15,6 +15,15 @@ export class Consortium {
   async getAssetBreakdown (): Promise<AssetBreakdownInfo[]> {
     return await this.client.requestData('GET', 'consortium/assetbreakdown')
   }
+
+  /**
+   *  Gets the mint stats information of a specific consortium member
+   *
+   * @return {Promise<MemberMintStatsInfo[]>}
+    */
+  async getMemberMintStats (memberid: string): Promise<MemberMintStatsInfo[]> {
+    return await this.client.requestData('GET', `consortium/mintstats/${memberid}`)
+  }
 }
 
 export interface MemberDetail {

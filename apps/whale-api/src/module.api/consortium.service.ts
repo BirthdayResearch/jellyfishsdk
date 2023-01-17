@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { DeFiDCache, TokenInfoWithId } from './cache/defid.cache'
 import { AssetBreakdownInfo, MemberDetail, MemberWithTokenInfo, MemberMintStatsInfo } from '@defichain/whale-api-client/dist/api/consortium'
@@ -156,7 +156,7 @@ export class ConsortiumService {
     const membersAttr = keys.filter((key) => membersKeyRegex.exec(key) !== null)
     const memberIds = membersAttr.map((memberKey) => Object.keys(attrs[memberKey])).flat()
     if (!memberIds.includes(memberId)) {
-      throw new Error('Consortium member not found')
+      throw new NotFoundException('Consortium member not found')
     }
 
     const tokens: TokenInfoWithId[] = await this.defidCache.getAllTokenInfo() as TokenInfoWithId[]
