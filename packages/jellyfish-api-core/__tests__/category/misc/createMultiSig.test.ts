@@ -36,7 +36,7 @@ describe('dcreate multi sig', () => {
     await expect(client.misc.createMultiSig(2, keys, 'legacy')).rejects.toThrow(RpcApiError)
   })
 
-  it('should throw error if n is inferior to 0', async () => {
+  it('should throw error if n < 0', async () => {
     const key0 = 'key0'
     const key1 = 'key1'
     const keys = [key0, key1]
