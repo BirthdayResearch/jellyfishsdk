@@ -1,11 +1,10 @@
-import { ListProposalsStatus, ListProposalsType, VoteDecision } from '@defichain/jellyfish-api-core/dist/category/governance'
+import { ListProposalsStatus, ListProposalsType, MasternodeType, VoteDecision } from '@defichain/jellyfish-api-core/dist/category/governance'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { Testing } from '@defichain/jellyfish-testing'
 import { MasterNodeRegTestContainer, StartOptions } from '@defichain/testcontainers/dist/index'
 import {
   GovernanceProposalStatus,
   GovernanceProposalType,
-  ProposalMasternodeType,
   ProposalVoteResultType
 } from '@defichain/whale-api-client/dist/api/governance'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
@@ -363,22 +362,22 @@ describe('governance - listProposalVotes', () => {
   })
 
   it('should listProposalVotes with all masternodes', async () => {
-    const result = await controller.listProposalVotes(cfpProposalId, ProposalMasternodeType.ALL)
+    const result = await controller.listProposalVotes(cfpProposalId, MasternodeType.ALL)
     expect(result.data.length).toStrictEqual(3)
   })
 
   it('should listProposalVotes with all masternodes and cycle', async () => {
-    const result = await controller.listProposalVotes(cfpProposalId, ProposalMasternodeType.ALL, -1)
+    const result = await controller.listProposalVotes(cfpProposalId, MasternodeType.ALL, -1)
     expect(result.data.length).toStrictEqual(4)
 
-    const result2 = await controller.listProposalVotes(cfpProposalId, ProposalMasternodeType.ALL, 0)
+    const result2 = await controller.listProposalVotes(cfpProposalId, MasternodeType.ALL, 0)
     expect(result2.data.length).toStrictEqual(3)
   })
 
   it('should listProposalVotes with all masternodes, cycle and pagination', async () => {
-    const resultPage1 = await controller.listProposalVotes(cfpProposalId, ProposalMasternodeType.ALL, 2, undefined, { size: 2 })
+    const resultPage1 = await controller.listProposalVotes(cfpProposalId, MasternodeType.ALL, 2, undefined, { size: 2 })
     expect(resultPage1.data.length).toStrictEqual(2)
-    const resultPage2 = await controller.listProposalVotes(cfpProposalId, ProposalMasternodeType.ALL, 2, undefined, { next: resultPage1.page?.next, size: 2 })
+    const resultPage2 = await controller.listProposalVotes(cfpProposalId, MasternodeType.ALL, 2, undefined, { next: resultPage1.page?.next, size: 2 })
     expect(resultPage2.data.length).toStrictEqual(1)
   })
 })

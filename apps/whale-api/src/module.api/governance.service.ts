@@ -1,6 +1,7 @@
 import {
   ListProposalsStatus,
   ListProposalsType,
+  MasternodeType,
   ProposalInfo,
   ProposalStatus,
   ProposalType,
@@ -16,7 +17,6 @@ import {
   GovernanceProposal,
   GovernanceProposalStatus,
   GovernanceProposalType,
-  ProposalMasternodeType,
   ProposalVoteResultType,
   ProposalVotesResult
 } from '@defichain/whale-api-client/dist/api/governance'
@@ -77,7 +77,7 @@ export class GovernanceService {
       size: 30
     },
     id: string,
-    masternode: ProposalMasternodeType | string = ProposalMasternodeType.MINE,
+    masternode: MasternodeType | string = MasternodeType.MINE,
     cycle: number = 0,
     all?: boolean
   ): Promise<ApiPagedResponse<ProposalVotesResult>> {

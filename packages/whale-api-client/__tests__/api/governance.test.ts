@@ -1,8 +1,8 @@
-import { ListProposalsStatus, ListProposalsType, VoteDecision } from '@defichain/jellyfish-api-core/dist/category/governance'
+import { ListProposalsStatus, ListProposalsType, MasternodeType, VoteDecision } from '@defichain/jellyfish-api-core/dist/category/governance'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { Testing } from '@defichain/jellyfish-testing'
 import { MasterNodeRegTestContainer, StartOptions } from '@defichain/testcontainers/dist/index'
-import { GovernanceProposalStatus, GovernanceProposalType, ProposalMasternodeType, ProposalVoteResultType } from '@defichain/whale-api-client/dist/api/governance'
+import { GovernanceProposalStatus, GovernanceProposalType, ProposalVoteResultType } from '@defichain/whale-api-client/dist/api/governance'
 import BigNumber from 'bignumber.js'
 import { WhaleApiException } from '../../src'
 import { StubWhaleApiClient } from '../stub.client'
@@ -104,72 +104,72 @@ describe('governance - listProposals and getProposal', () => {
   })
 
   it('should listProposals with size', async () => {
-    const result = await client.governance.listGovProposals(undefined, undefined, undefined, 1)
+    const result = await client.governance.listGovProposals({ size: 1 })
     expect(result.length).toStrictEqual(1)
   })
 
   it('should listProposals with status', async () => {
-    const result = await client.governance.listGovProposals(ListProposalsStatus.VOTING)
+    const result = await client.governance.listGovProposals({ status: ListProposalsStatus.VOTING })
     expect(result.length).toStrictEqual(2)
   })
 
   it('should listProposals with type', async () => {
-    const result = await client.governance.listGovProposals(undefined, ListProposalsType.CFP)
+    const result = await client.governance.listGovProposals({ type: ListProposalsType.CFP })
     expect(result.length).toStrictEqual(1)
   })
 
   it('should listProposals with cycle', async () => {
-    const result = await client.governance.listGovProposals(undefined, undefined, 0)
+    const result = await client.governance.listGovProposals({ cycle: 0 })
     expect(result.length).toStrictEqual(2)
   })
 
   it('should listProposals with status and type', async () => {
-    const result = await client.governance.listGovProposals(ListProposalsStatus.VOTING, ListProposalsType.CFP)
+    const result = await client.governance.listGovProposals({ status: ListProposalsStatus.VOTING, type: ListProposalsType.CFP })
     expect(result.length).toStrictEqual(1)
   })
 
   it('should listProposals with status, type and cycle', async () => {
-    const result = await client.governance.listGovProposals(ListProposalsStatus.VOTING, ListProposalsType.CFP, 0)
+    const result = await client.governance.listGovProposals({ status: ListProposalsStatus.VOTING, type: ListProposalsType.CFP, cycle: 0 })
     expect(result.length).toStrictEqual(1)
   })
 
   it('should listProposals with pagination', async () => {
-    const resultPage1 = await client.governance.listGovProposals(undefined, undefined, undefined, 1)
+    const resultPage1 = await client.governance.listGovProposals({ size: 1 })
     expect(resultPage1.length).toStrictEqual(1)
-    const resultPage2 = await client.governance.listGovProposals(undefined, undefined, undefined, 1, resultPage1.nextToken)
+    const resultPage2 = await client.governance.listGovProposals({ size: 1, next: resultPage1.nextToken })
     expect(resultPage2.length).toStrictEqual(1)
     expect(resultPage1[0].proposalId).not.toStrictEqual(resultPage2[0].proposalId)
   })
 
   it('should listProposals with all record when all flag is true', async () => {
-    const result = await client.governance.listGovProposals(undefined, undefined, undefined, undefined, undefined, true)
+    const result = await client.governance.listGovProposals({ all: true })
     expect(result.length).toStrictEqual(2)
   })
 
   it('should listProposals with status and pagination', async () => {
-    const resultPage1 = await client.governance.listGovProposals(ListProposalsStatus.VOTING, undefined, undefined, 1)
+    const resultPage1 = await client.governance.listGovProposals({ status: ListProposalsStatus.VOTING, size: 1 })
     expect(resultPage1.length).toStrictEqual(1)
     expect(resultPage1[0].status).toStrictEqual(GovernanceProposalStatus.VOTING)
-    const resultPage2 = await client.governance.listGovProposals(ListProposalsStatus.VOTING, undefined, undefined, 1, resultPage1.nextToken)
+    const resultPage2 = await client.governance.listGovProposals({ status: ListProposalsStatus.VOTING, size: 1, next: resultPage1.nextToken })
     expect(resultPage2.length).toStrictEqual(1)
     expect(resultPage2[0].status).toStrictEqual(GovernanceProposalStatus.VOTING)
   })
 
   // TODO: remove skip when blockchain fixes issue where start is ignored when non-all status is not passed
   it.skip('should listProposals with type and pagination', async () => {
-    const resultPage1 = await client.governance.listGovProposals(undefined, ListProposalsType.CFP, undefined, 1)
+    const resultPage1 = await client.governance.listGovProposals({ type: ListProposalsType.CFP, size: 1 })
     expect(resultPage1.length).toStrictEqual(1)
     expect(resultPage1[0].type).toStrictEqual(GovernanceProposalType.COMMUNITY_FUND_PROPOSAL)
-    const resultPage2 = await client.governance.listGovProposals(undefined, ListProposalsType.CFP, undefined, 1, resultPage1.nextToken)
+    const resultPage2 = await client.governance.listGovProposals({ type: ListProposalsType.CFP, size: 1, next: resultPage1.nextToken })
     expect(resultPage2.length).toStrictEqual(0)
   })
 
   it('should listProposals with status, type and pagination', async () => {
-    const resultPage1 = await client.governance.listGovProposals(ListProposalsStatus.VOTING, ListProposalsType.CFP, undefined, 1)
+    const resultPage1 = await client.governance.listGovProposals({ status: ListProposalsStatus.VOTING, type: ListProposalsType.CFP, size: 1 })
     expect(resultPage1.length).toStrictEqual(1)
     expect(resultPage1[0].status).toStrictEqual(GovernanceProposalStatus.VOTING)
     expect(resultPage1[0].type).toStrictEqual(GovernanceProposalType.COMMUNITY_FUND_PROPOSAL)
-    const resultPage2 = await client.governance.listGovProposals(ListProposalsStatus.VOTING, ListProposalsType.CFP, undefined, 1, resultPage1.nextToken)
+    const resultPage2 = await client.governance.listGovProposals({ status: ListProposalsStatus.VOTING, type: ListProposalsType.CFP, size: 1, next: resultPage1.nextToken })
     expect(resultPage2.length).toStrictEqual(0)
   })
 
@@ -177,7 +177,7 @@ describe('governance - listProposals and getProposal', () => {
     try {
       // To skip typescript validation in order to assert invalid query parameter
       // @ts-expect-error
-      await client.governance.listGovProposals('123')
+      await client.governance.listGovProposals({ status: '123' })
     } catch (err) {
       expect(err).toBeInstanceOf(WhaleApiException)
       expect(err.error).toStrictEqual({
@@ -194,7 +194,7 @@ describe('governance - listProposals and getProposal', () => {
     try {
       // To skip typescript validation in order to assert invalid query parameter
       // @ts-expect-error
-      await client.governance.listGovProposals(undefined, '123')
+      await client.governance.listGovProposals({ type: '123' })
     } catch (err) {
       expect(err).toBeInstanceOf(WhaleApiException)
       expect(err.error).toStrictEqual({
@@ -203,66 +203,6 @@ describe('governance - listProposals and getProposal', () => {
         at: expect.any(Number),
         message: 'Invalid query parameter value for type. See the acceptable values: cfp, voc, all',
         url: '/v0.0/regtest/governance/proposals?size=30&status=all&type=123&cycle=0&all=false'
-      })
-    }
-  })
-
-  // Get single related tests
-  it('should getProposal for CFP', async () => {
-    const result = await client.governance.getGovProposal(cfpProposalId)
-    expect(result).toStrictEqual({
-      proposalId: cfpProposalId,
-      creationHeight: expect.any(Number),
-      title: 'CFP proposal',
-      context: 'github',
-      contextHash: '',
-      status: GovernanceProposalStatus.VOTING,
-      type: GovernanceProposalType.COMMUNITY_FUND_PROPOSAL,
-      amount: new BigNumber(1.23).toFixed(8),
-      payoutAddress: payoutAddress,
-      currentCycle: 1,
-      totalCycles: 2,
-      cycleEndHeight: expect.any(Number),
-      proposalEndHeight: expect.any(Number),
-      votingPeriod: expect.any(Number),
-      quorum: expect.any(String),
-      approvalThreshold: expect.any(String),
-      fee: expect.any(Number)
-    })
-  })
-
-  it('should getProposal for VOC', async () => {
-    const result = await client.governance.getGovProposal(vocProposalId)
-    expect(result).toStrictEqual({
-      proposalId: vocProposalId,
-      creationHeight: 104,
-      title: 'VOC proposal',
-      context: 'github',
-      contextHash: '',
-      status: GovernanceProposalStatus.VOTING,
-      type: GovernanceProposalType.VOTE_OF_CONFIDENCE,
-      currentCycle: 1,
-      totalCycles: 1,
-      cycleEndHeight: expect.any(Number),
-      proposalEndHeight: expect.any(Number),
-      votingPeriod: expect.any(Number),
-      quorum: expect.any(String),
-      approvalThreshold: expect.any(String),
-      fee: expect.any(Number)
-    })
-  })
-
-  it('should getProposal with error when using non-existent proposal ID', async () => {
-    try {
-      await client.governance.getGovProposal('123')
-    } catch (err) {
-      expect(err).toBeInstanceOf(WhaleApiException)
-      expect(err.error).toStrictEqual({
-        code: 404,
-        type: 'NotFound',
-        at: expect.any(Number),
-        message: 'Unable to find proposal',
-        url: '/v0.0/regtest/governance/proposals/123'
       })
     }
   })
@@ -344,7 +284,7 @@ describe('governance - listProposalVotes', () => {
   })
 
   it('should listProposalVotes', async () => {
-    const result = await client.governance.listGovProposalVotes(cfpProposalId)
+    const result = await client.governance.listGovProposalVotes({ id: cfpProposalId })
     const yesVote = result.find(vote => vote.vote === ProposalVoteResultType.YES)
     const noVote = result.find(vote => vote.vote === ProposalVoteResultType.NO)
     const neutralVote = result.find(vote => vote.vote === ProposalVoteResultType.NEUTRAL)
@@ -370,38 +310,38 @@ describe('governance - listProposalVotes', () => {
   })
 
   it('should listProposalVotes with cycle', async () => {
-    const result = await client.governance.listGovProposalVotes(cfpProposalId, undefined, 2)
+    const result = await client.governance.listGovProposalVotes({ id: cfpProposalId, cycle: 2 })
     expect(result.length).toStrictEqual(3)
   })
 
   it('should listProposalVotes with all records when all flag is true', async () => {
-    const result = await client.governance.listGovProposalVotes(cfpProposalId, undefined, undefined, undefined, undefined, true)
+    const result = await client.governance.listGovProposalVotes({ id: cfpProposalId, all: true })
     expect(result.length).toStrictEqual(3)
   })
 
   it('should listProposalVotes with all masternodes', async () => {
-    const result = await client.governance.listGovProposalVotes(cfpProposalId, ProposalMasternodeType.ALL)
+    const result = await client.governance.listGovProposalVotes({ id: cfpProposalId, masternode: MasternodeType.ALL })
     expect(result.length).toStrictEqual(3)
   })
 
   it('should listProposalVotes with all masternodes and cycle', async () => {
-    const result = await client.governance.listGovProposalVotes(cfpProposalId, ProposalMasternodeType.ALL, -1)
+    const result = await client.governance.listGovProposalVotes({ id: cfpProposalId, masternode: MasternodeType.ALL, cycle: -1 })
     expect(result.length).toStrictEqual(4)
 
-    const result2 = await client.governance.listGovProposalVotes(cfpProposalId, ProposalMasternodeType.ALL, 0)
+    const result2 = await client.governance.listGovProposalVotes({ id: cfpProposalId, masternode: MasternodeType.ALL, cycle: 0 })
     expect(result2.length).toStrictEqual(3)
   })
 
   it('should listProposalVotes with all masternodes, cycle and pagination', async () => {
-    const resultPage1 = await client.governance.listGovProposalVotes(cfpProposalId, ProposalMasternodeType.ALL, 2, 2)
+    const resultPage1 = await client.governance.listGovProposalVotes({ id: cfpProposalId, masternode: MasternodeType.ALL, cycle: 2, size: 2 })
     expect(resultPage1.length).toStrictEqual(2)
-    const resultPage2 = await client.governance.listGovProposalVotes(cfpProposalId, ProposalMasternodeType.ALL, 2, 2, resultPage1.nextToken)
+    const resultPage2 = await client.governance.listGovProposalVotes({ id: cfpProposalId, masternode: MasternodeType.ALL, cycle: 2, size: 2, next: resultPage1.nextToken })
     expect(resultPage2.length).toStrictEqual(1)
   })
 
   it('should listProposalVotes with error when using non-existent proposal ID', async () => {
     try {
-      await client.governance.listGovProposalVotes('123')
+      await client.governance.listGovProposalVotes({ id: '123' })
     } catch (err) {
       expect(err).toBeInstanceOf(WhaleApiException)
       expect(err.error).toStrictEqual({

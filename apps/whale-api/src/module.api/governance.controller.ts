@@ -1,7 +1,6 @@
-import { ListProposalsStatus, ListProposalsType } from '@defichain/jellyfish-api-core/dist/category/governance'
+import { ListProposalsStatus, ListProposalsType, MasternodeType } from '@defichain/jellyfish-api-core/dist/category/governance'
 import {
   GovernanceProposal,
-  ProposalMasternodeType,
   ProposalVotesResult
 } from '@defichain/whale-api-client/dist/api/governance'
 import { Controller, DefaultValuePipe, Get, Param, ParseEnumPipe, ParseIntPipe, Query } from '@nestjs/common'
@@ -50,7 +49,7 @@ export class GovernanceController {
    * Returns information about proposal votes.
    *
    * @param {string} id proposalId
-   * @param {ProposalMasternodeType | string} [masternode=ProposalMasternodeType.ALL] masternode id or reserved words 'mine' to list votes for all owned accounts or 'all' to list all votes
+   * @param {MasternodeType | string} [masternode=MasternodeType.ALL] masternode id or reserved words 'mine' to list votes for all owned accounts or 'all' to list all votes
    * @param {number} [cycle=0] cycle: 0 (show current), cycle: N (show cycle N), cycle: -1 (show all)
    * @param {PaginationQuery} query
    * @return {Promise<ProposalVotesResult[]>} Proposal vote information
@@ -58,7 +57,7 @@ export class GovernanceController {
   @Get('/proposals/:id/votes')
   async listProposalVotes (
     @Param('id') id: string,
-      @Query('masternode', new DefaultValuePipe(ProposalMasternodeType.MINE)) masternode?: ProposalMasternodeType | string,
+      @Query('masternode', new DefaultValuePipe(MasternodeType.MINE)) masternode?: MasternodeType | string,
       @Query('cycle', new DefaultValuePipe(0), ParseIntPipe) cycle?: number,
       @Query('all', new DefaultValuePipe(false)) all?: boolean,
       @Query() query?: PaginationQuery

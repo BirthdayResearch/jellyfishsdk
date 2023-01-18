@@ -1,39 +1,31 @@
-import { ListProposalsStatus, ListProposalsType } from '@defichain/jellyfish-api-core/dist/category/governance'
+import { ListProposalsStatus, ListProposalsType, MasternodeType } from '@defichain/jellyfish-api-core/dist/category/governance'
 import { WhaleApiClient } from '../whale.api.client'
 import { ApiPagedResponse } from '../whale.api.response'
-
 export class Governance {
   constructor (private readonly client: WhaleApiClient) {}
 
   /**
    * Paginate query on-chain governance proposals
    *
-   * @param {GovernanceListProposalsStatus} [status=GovernanceListProposalsStatus.ALL] proposal status
-   * @param {GovernanceListProposalsType} [type=GovernanceListProposalsType.ALL] proposal type
+   * @param {ListProposalsStatus} [status=ListProposalsStatus.ALL] proposal status
+   * @param {ListProposalsType} [type=ListProposalsType.ALL] proposal type
    * @param {number} [cycle=0] cycle: 0 (show all), cycle: N (show cycle N), cycle: -1 (show previous cycle)
    * @param {number} [size=30] of proposal to query
    * @param {string} next set of proposals
    * @param {boolean} all true to return all records, otherwise it will return based on size param
    * @returns {Promise<ApiPagedResponse<ProposalInfo>>}
    */
-  async listGovProposals (
-    status = ListProposalsStatus.ALL,
-    type = ListProposalsType.ALL,
-    cycle = 0,
-    size: number = 30,
-    next?: string,
-    all: boolean = false
-  ): Promise<ApiPagedResponse<GovernanceProposal>> {
+  async listGovProposals (option?: GovernanceListGovProposalsOptions): Promise<ApiPagedResponse<GovernanceProposal>> {
     return await this.client.requestList(
       'GET',
       'governance/proposals',
-      size,
-      next,
+      option?.size ?? 30,
+      option?.next,
       {
-        status,
-        type,
-        cycle,
-        all
+        status: option?.status ?? ListProposalsStatus.ALL,
+        type: option?.type ?? ListProposalsType.ALL,
+        cycle: option?.cycle ?? 0,
+        all: option?.all ?? false
       }
     )
   }
@@ -52,46 +44,44 @@ export class Governance {
    * Returns votes for a proposal
    *
    * @param {string} id proposal ID
-   * @param {ProposalMasternodeType | string} [masternode=ProposalMasternodeType.ALL] masternode id or reserved words 'mine' to list votes for all owned accounts or 'all' to list all votes
+   * @param {MasternodeType | string} [masternode=MasternodeType.ALL] masternode id or reserved words 'mine' to list votes for all owned accounts or 'all' to list all votes
    * @param {number} [cycle=0] cycle: 0 (show current), cycle: N (show cycle N), cycle: -1 (show all)
    * @param {number} [size=30] of proposal to query
    * @param {string} next set of proposals
    * @param {boolean} all true to return all records, otherwise it will return based on size param
    * @return {Promise<ProposalVotesResult[]>} Proposal vote information
    */
-  async listGovProposalVotes (
-    id: string,
-    masternode: string | ProposalMasternodeType = ProposalMasternodeType.MINE,
-    cycle: number = 0,
-    size: number = 30,
-    next?: string,
-    all: boolean = false
-  ): Promise<ApiPagedResponse<ProposalVotesResult>> {
+  async listGovProposalVotes (option?: GovernanceListGovProposalVotesOptions): Promise<ApiPagedResponse<ProposalVotesResult>> {
     return await this.client.requestList(
       'GET',
-      `governance/proposals/${id}/votes`,
-      size,
-      next,
+      `governance/proposals/${option?.id ?? ''}/votes`,
+      option?.size ?? 30,
+      option?.next,
       {
-        masternode,
-        cycle,
-        all
+        masternode: option?.masternode ?? MasternodeType.MINE,
+        cycle: option?.cycle ?? 0,
+        all: option?.all ?? false
       }
     )
   }
 }
 
-export enum GovernanceListProposalsType {
-  CFP = 'cfp',
-  VOC = 'voc',
-  ALL = 'all',
+export interface GovernanceListGovProposalsOptions {
+  status?: ListProposalsStatus
+  type?: ListProposalsType
+  cycle?: number
+  size?: number
+  next?: string
+  all?: boolean
 }
 
-export enum GovernanceListProposalsStatus {
-  VOTING = 'voting',
-  REJECTED = 'rejected',
-  COMPLETED = 'completed',
-  ALL = 'all',
+export interface GovernanceListGovProposalVotesOptions {
+  id: string
+  masternode?: MasternodeType
+  cycle?: number
+  size?: number
+  next?: string
+  all?: boolean
 }
 
 export enum GovernanceProposalType {
@@ -129,11 +119,6 @@ export interface GovernanceProposal {
   votesYesPct?: string
   fee: number
   options?: string[]
-}
-
-export enum ProposalMasternodeType {
-  MINE = 'mine',
-  ALL = 'all',
 }
 
 export interface ProposalVotesResult {
