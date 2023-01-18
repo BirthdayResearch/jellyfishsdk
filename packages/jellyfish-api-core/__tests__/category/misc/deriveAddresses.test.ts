@@ -23,7 +23,7 @@ describe('derive addresses', () => {
   it('should derive an address with range', async () => {
     const descriptor = 'wpkh(tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK/1/1/*)#kft60nuy'
     const address = ['bcrt1qhku5rq7jz8ulufe2y6fkcpnlvpsta7rq4442dy', 'bcrt1qpgptk2gvshyl0s9lqshsmx932l9ccsv265tvaq']
-    expect(await client.misc.deriveAddresses(descriptor, [1, 2])).toStrictEqual(address)
+    await expect(client.misc.deriveAddresses(descriptor, [1, 2])).toStrictEqual(address)
   })
 
   it('should derive an address without range pkh descriptor', async () => {
