@@ -39,7 +39,7 @@ async function setGovAttr (attributes: object): Promise<void> {
 }
 
 async function setMemberInfo (tokenId: string, memberInfo: Array<{ id: string, name: string, backingId: string, ownerAddress: string, mintLimit: string, dailyMintLimit: string }>): Promise<void> {
-  const members: any = {}
+  const members: { [key: string]: { [key: string]: string } } = {}
 
   memberInfo.forEach(mi => {
     members[mi.id] = {
