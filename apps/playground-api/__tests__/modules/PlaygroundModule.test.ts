@@ -68,7 +68,7 @@ it('should have gov set', async () => {
           mintLimit: 50,
           mintLimitDaily: 5,
           name: 'Waves HQ',
-          ownerAddress: RegTestFoundationKeys[0].owner.address,
+          ownerAddress: RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.address,
           status: 0
         },
         '02': {
@@ -76,7 +76,7 @@ it('should have gov set', async () => {
           mintLimit: 50,
           mintLimitDaily: 5,
           name: 'Alexandria',
-          ownerAddress: RegTestFoundationKeys[1].owner.address,
+          ownerAddress: RegTestFoundationKeys[RegTestFoundationKeys.length - 2].owner.address,
           status: 0
         }
       },
@@ -86,7 +86,7 @@ it('should have gov set', async () => {
           mintLimit: 10,
           mintLimitDaily: 5,
           name: 'Waves HQ',
-          ownerAddress: RegTestFoundationKeys[0].owner.address,
+          ownerAddress: RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.address,
           status: 0
         },
         '02': {
@@ -94,7 +94,7 @@ it('should have gov set', async () => {
           mintLimit: 10,
           mintLimitDaily: 5,
           name: 'Alexandria',
-          ownerAddress: RegTestFoundationKeys[1].owner.address,
+          ownerAddress: RegTestFoundationKeys[RegTestFoundationKeys.length - 2].owner.address,
           status: 0
         }
       },

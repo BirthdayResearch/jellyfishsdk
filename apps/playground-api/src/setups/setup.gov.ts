@@ -4,8 +4,8 @@ import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
 @Injectable()
 export class SetupGov extends PlaygroundSetup<Record<string, any>> {
-  consortiumOwnerAddress1: string = RegTestFoundationKeys[0].owner.address
-  consortiumOwnerAddress2: string = RegTestFoundationKeys[1].owner.address
+  consortiumOwnerAddress1: string = RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.address
+  consortiumOwnerAddress2: string = RegTestFoundationKeys[RegTestFoundationKeys.length - 2].owner.address
 
   list (): Array<Record<string, any>> {
     return [
