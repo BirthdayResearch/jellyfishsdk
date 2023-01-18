@@ -1,3 +1,4 @@
+import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { PlaygroundApiTesting } from '../../testing/PlaygroundApiTesting'
 
 const pg = PlaygroundApiTesting.create()
@@ -67,7 +68,7 @@ it('should have gov set', async () => {
           mintLimit: 50,
           mintLimitDaily: 5,
           name: 'Waves HQ',
-          ownerAddress: 'bcrt1qc2g87p4pehe0pnfsmph63m00f38gh76tjpuuf9',
+          ownerAddress: RegTestFoundationKeys[0].owner.address,
           status: 0
         },
         '02': {
@@ -75,7 +76,7 @@ it('should have gov set', async () => {
           mintLimit: 50,
           mintLimitDaily: 5,
           name: 'Alexandria',
-          ownerAddress: 'bcrt1qwg4n6520y64ajkl9nhul9jc0dpqhhrunwnmt4t',
+          ownerAddress: RegTestFoundationKeys[1].owner.address,
           status: 0
         }
       },
@@ -85,7 +86,7 @@ it('should have gov set', async () => {
           mintLimit: 10,
           mintLimitDaily: 5,
           name: 'Waves HQ',
-          ownerAddress: 'bcrt1qc2g87p4pehe0pnfsmph63m00f38gh76tjpuuf9',
+          ownerAddress: RegTestFoundationKeys[0].owner.address,
           status: 0
         },
         '02': {
@@ -93,7 +94,7 @@ it('should have gov set', async () => {
           mintLimit: 10,
           mintLimitDaily: 5,
           name: 'Alexandria',
-          ownerAddress: 'bcrt1qwg4n6520y64ajkl9nhul9jc0dpqhhrunwnmt4t',
+          ownerAddress: RegTestFoundationKeys[1].owner.address,
           status: 0
         }
       },
