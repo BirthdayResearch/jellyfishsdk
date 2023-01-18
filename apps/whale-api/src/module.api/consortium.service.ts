@@ -70,9 +70,9 @@ export class ConsortiumService {
     existingABI.memberInfo.push(member)
   }
 
-  private getGlobalMintStatsPerToken (tokens: TokenInfoWithId[], attrs: any, keys: string[]): TokenWithMintStatsInfo[] {
+  private getGlobalMintStatsPerToken (tokens: TokenInfoWithId[], attrs: Record<string, any>, keys: string[]): TokenWithMintStatsInfo[] {
     const limitKeyRegex = /^v0\/consortium\/\d+\/mint_limit$/
-    const tokensWithMintStat: TokenWithMintStatsInfo[] = keys.filter(k => limitKeyRegex.exec(k) !== null).reduce((acc: any[], curr: string) => {
+    const tokensWithMintStat = keys.filter(k => limitKeyRegex.exec(k) !== null).reduce((acc: TokenWithMintStatsInfo[], curr: string) => {
       const tokenId = curr.split('/')[2]
       const token = tokens.find(t => t.id === tokenId)
       if (token === undefined) {
@@ -99,7 +99,7 @@ export class ConsortiumService {
     return tokensWithMintStat
   }
 
-  private getGlobalDailyMintedAmountPerToken (attrs: any, tokenId: string): BigNumber {
+  private getGlobalDailyMintedAmountPerToken (attrs: Record<string, any>, tokenId: string): BigNumber {
     let globalDailyMinted = new BigNumber(0)
     const dailyMintedRegex = /^v0\/live\/economy\/consortium_members\/\d+\/\d+\/daily_minted$/
     const keys = Object.keys(attrs)
@@ -122,7 +122,7 @@ export class ConsortiumService {
     return globalDailyMinted
   }
 
-  private getTokenMintInfo (attrs: any, tokenId: string, token: TokenWithMintStatsInfo, memberId: string, member: any): MintTokenWithStats {
+  private getTokenMintInfo (attrs: Record<string, any>, tokenId: string, token: TokenWithMintStatsInfo, memberId: string, member: any): MintTokenWithStats {
     const mintedAmount = attrs[`v0/live/economy/consortium_members/${tokenId}/${memberId}/minted`] ?? '0'
     const dailyMinted = attrs[`v0/live/economy/consortium_members/${tokenId}/${memberId}/daily_minted`]
     const dailyMintedAmount = dailyMinted?.split('/')[1] ?? '0'
@@ -181,7 +181,7 @@ export class ConsortiumService {
   }
 
   async getMemberMintStats (memberId: string): Promise<MemberMintStatsInfo> {
-    const attrs = (await this.rpcClient.masternode.getGov('ATTRIBUTES')).ATTRIBUTES
+    const attrs: Record<string, any> = (await this.rpcClient.masternode.getGov('ATTRIBUTES')).ATTRIBUTES
     const keys: string[] = Object.keys(attrs)
 
     const membersKeyRegex = /^v0\/consortium\/\d+\/members$/
