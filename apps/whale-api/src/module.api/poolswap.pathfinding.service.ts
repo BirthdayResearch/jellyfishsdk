@@ -52,20 +52,6 @@ export class PoolSwapPathFindingService {
       paths
     } = await this.getAllSwapPaths(fromTokenId, toTokenId)
 
-    // always use direct path if available
-    for (const path of paths) {
-      const { estimatedReturn, estimatedReturnLessDexFees } = computeReturnLessDexFeesInDestinationToken(path, fromTokenId)
-      if (path.length === 1) {
-        return {
-          fromToken: fromToken,
-          toToken: toToken,
-          bestPath: path,
-          estimatedReturn: formatNumber(estimatedReturn), // denoted in toToken
-          estimatedReturnLessDexFees: formatNumber(estimatedReturnLessDexFees) // denoted in toToken
-        }
-      }
-    }
-
     // otherwise, search for the best path based on return
     let bestPath: SwapPathPoolPair[] = []
     let bestReturnLessDexFees = new BigNumber(0)
