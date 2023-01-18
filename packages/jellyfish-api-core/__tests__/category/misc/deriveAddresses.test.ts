@@ -26,6 +26,18 @@ describe('derive addresses', () => {
     expect(await client.misc.deriveAddresses(descriptor, [1, 2])).toStrictEqual(address)
   })
 
+  it('should derive an address without range pkh descriptor', async () => {
+    const descriptor = 'pkh([d6043800/0\'/0\'/18\']03efdee34c0009fd175f3b20b5e5a5517fd5d16746f2e635b44617adafeaebc388)#4ahsl9pk'
+    const address = ['ms7ruzvL4atCu77n47dStMb3of6iScS8kZ']
+    expect(await client.misc.deriveAddresses(descriptor)).toStrictEqual(address)
+  })
+
+  it('should derive an address without range sh descriptor', async () => {
+    const descriptor = 'sh(wpkh(tpubDCJtdt5dgJpdhW4MtaVYDhG4T4tF6jcLR1PxL43q9pq1mxvXgMS9Mzw1HnXG15vxUGQJMMSqCQHMTy3F1eW5VkgVroWzchsPD5BUojrcWs8/0/*))#e8nc36sh'
+    const address = ['2NA1PWXse3JjGGMcyjMETTCQnTpsLtQETQW', '2MzzJMkCmixHarCD47sFavseb3uTrPnxKav']
+    expect(await client.misc.deriveAddresses(descriptor, [0, 1])).toStrictEqual(address)
+  })
+
   it('should raise an error if the range is specified for un-ranged descriptor', async () => {
     const descriptor = 'wpkh(tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK/1/1/0)#t6wfjs64'
     const promise = client.misc.deriveAddresses(descriptor, [1, 3])
