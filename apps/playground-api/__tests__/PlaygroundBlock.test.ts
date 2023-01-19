@@ -55,6 +55,7 @@ describe('playgroundBlock', () => {
     const updatedBlockCount = await testing.container.getBlockCount()
     expect(updatedBlockCount).toBeGreaterThan(blockCount)
     const { masternodes }: mining.MiningInfo = await testing.container.call('getmininginfo', [])
+    expect(masternodes.length).toStrictEqual(8)
     // check each masternode minted blocks
     masternodes.forEach((eachNode) => {
       expect(eachNode.mintedblocks).toBeGreaterThan(0)
