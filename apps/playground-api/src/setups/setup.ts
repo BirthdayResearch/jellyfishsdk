@@ -1,6 +1,7 @@
 import { ApiClient } from '@defichain/jellyfish-api-core'
 import { Injectable, Logger } from '@nestjs/common'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
+import { PlaygroundBlock } from '../PlaygroundBlock'
 
 @Injectable()
 export abstract class PlaygroundSetup<Each> {
@@ -21,6 +22,7 @@ export abstract class PlaygroundSetup<Each> {
   }
 
   private readonly logger = new Logger(PlaygroundSetup.name)
+  private readonly playgroundBlock = new PlaygroundBlock(this.client)
 
   constructor (protected readonly client: ApiClient) {
   }
@@ -97,7 +99,7 @@ export abstract class PlaygroundSetup<Each> {
   }
 
   private async generateToAddress (): Promise<void> {
-    await this.client.call('generatetoaddress', [1, PlaygroundSetup.address, 1], 'number')
+    await this.playgroundBlock.generateToAddress()
     await this.wait(200)
   }
 
