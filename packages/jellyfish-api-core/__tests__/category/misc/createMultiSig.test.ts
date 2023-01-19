@@ -73,4 +73,32 @@ describe('create multi sig', () => {
       }
     })
   })
+
+  it('should throw error if there is not enough key', async () => {
+    const key0 = (await testing.rpc.wallet.getAddressInfo(await testing.rpc.wallet.getNewAddress('', wallet.AddressType.LEGACY))).pubkey
+    const keys = [key0]
+    const promise = client.misc.createMultiSig(2, keys, 'legacy')
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -8,
+        message: 'not enough keys supplied (got 1 keys, but need at least 2 to redeem)',
+        method: 'createmultisig'
+      }
+    })
+  })
+
+  it('should throw error if there is to many keys', async () => {
+    const key0 = (await testing.rpc.wallet.getAddressInfo(await testing.rpc.wallet.getNewAddress('', wallet.AddressType.LEGACY))).pubkey
+    const keys = [key0, key0, key0, key0, key0, key0, key0, key0, key0, key0, key0, key0, key0, key0, key0, key0, key0, key0]
+    const promise = client.misc.createMultiSig(2, keys, 'legacy')
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toMatchObject({
+      payload: {
+        code: -8,
+        message: 'Number of keys involved in the multisignature address creation > 16\nReduce the number',
+        method: 'createmultisig'
+      }
+    })
+  })
 })
