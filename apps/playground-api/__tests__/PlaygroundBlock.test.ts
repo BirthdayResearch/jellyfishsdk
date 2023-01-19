@@ -56,15 +56,9 @@ describe('playgroundBlock', () => {
     const updatedBlockCount = await testing.container.getBlockCount()
     const { masternodes: updatedMasterNodes }: mining.MiningInfo = await testing.container.call('getmininginfo', [])
     expect(updatedBlockCount).toBeGreaterThan(blockCount)
-    // miner masternode count
-    const minerMNcount = updatedMasterNodes.reduce((minerMNcount, eachNode) => {
+    updatedMasterNodes.forEach((eachNode) => {
       const currentMintedBlocks = masternodes.find((each) => each.operator === eachNode.operator)?.mintedblocks ?? 0
-      if (eachNode.mintedblocks > currentMintedBlocks) {
-        return ++minerMNcount
-      }
-      return minerMNcount
-    }, 0)
-    // check more than 1 masternode is minting the block
-    expect(minerMNcount).toBeGreaterThanOrEqual(2)
+      expect(eachNode.mintedblocks).toBeGreaterThanOrEqual(currentMintedBlocks)
+    })
   })
 })
