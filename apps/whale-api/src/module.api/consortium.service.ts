@@ -100,22 +100,16 @@ export class ConsortiumService {
   }
 
   private async getPaginatedHistoryTransactionsResponse (pageIndex: number, limit: number, members: MemberDetail[]): Promise<ConsortiumTransactionResponse> {
-    const transactions: AccountHistory[] = await this.rpcClient.account.listAccountHistory(members.map(m => m.ownerAddress), {
+    const memberAddresses = members.map(m => m.ownerAddress)
+
+    const transactions: AccountHistory[] = await this.rpcClient.account.listAccountHistory(memberAddresses, {
       txtypes: [DfTxType.MINT_TOKEN, DfTxType.BURN_TOKEN],
       including_start: true,
       start: pageIndex * limit,
       limit
     })
 
-    const promises = []
-    for (let i = 0; i < members.length; i++) {
-      promises.push(this.rpcClient.account.historyCount(members[i].ownerAddress, { txtype: DfTxType.BURN_TOKEN }))
-      promises.push(this.rpcClient.account.historyCount(members[i].ownerAddress, { txtype: DfTxType.MINT_TOKEN }))
-    }
-    const counts = await Promise.all(promises)
-    const totalTxCount = counts.reduce((prev, curr) => {
-      return prev + curr
-    }, 0)
+    const totalTxCount = await this.rpcClient.account.historyCount(memberAddresses, { txtypes: [DfTxType.BURN_TOKEN, DfTxType.MINT_TOKEN] })
 
     return {
       transactions: transactions.map(tx => {

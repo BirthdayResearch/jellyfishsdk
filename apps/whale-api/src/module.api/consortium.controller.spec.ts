@@ -306,31 +306,31 @@ describe('getTransactionHistory', () => {
       mintLimit: '40.00000000'
     }])
 
-    txIds.push(await alice.rpc.token.mintTokens(`0.5@${symbolBTC}`))
-    txIds.push(await bob.rpc.token.mintTokens(`0.5@${symbolBTC}`))
+    txIds.push(await alice.rpc.token.mintTokens({ amounts: [`0.5@${symbolBTC}`] }))
+    txIds.push(await bob.rpc.token.mintTokens({ amounts: [`0.5@${symbolBTC}`] }))
     await alice.generate(1)
     await bob.generate(1)
     await tGroup.waitForSync()
 
-    txIds.push(await alice.rpc.token.mintTokens(`0.1@${symbolBTC}`))
+    txIds.push(await alice.rpc.token.mintTokens({ amounts: [`0.1@${symbolBTC}`] }))
     txIds.push(await alice.rpc.token.burnTokens(`0.1@${symbolBTC}`, accountAlice))
-    txIds.push(await bob.rpc.token.mintTokens(`0.1@${symbolBTC}`))
+    txIds.push(await bob.rpc.token.mintTokens({ amounts: [`0.1@${symbolBTC}`] }))
     txIds.push(await bob.rpc.token.burnTokens(`0.1@${symbolBTC}`, accountBob))
     await alice.generate(1)
     await bob.generate(1)
     await tGroup.waitForSync()
 
-    await alice.rpc.token.mintTokens(`1@${symbolBTC}`)
+    await alice.rpc.token.mintTokens({ amounts: [`1@${symbolBTC}`] })
     await alice.generate(1)
 
-    await alice.rpc.token.mintTokens(`2@${symbolETH}`)
+    await alice.rpc.token.mintTokens({ amounts: [`2@${symbolETH}`] })
     await alice.generate(1)
 
     await alice.rpc.token.burnTokens(`1@${symbolETH}`, accountAlice)
     await alice.generate(1)
     await tGroup.waitForSync()
 
-    await bob.rpc.token.mintTokens(`4@${symbolBTC}`)
+    await bob.rpc.token.mintTokens({ amounts: [`4@${symbolBTC}`] })
     await bob.generate(1)
 
     await bob.rpc.token.burnTokens(`2@${symbolBTC}`, accountBob)
