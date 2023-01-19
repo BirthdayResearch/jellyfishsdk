@@ -42,3 +42,13 @@ interface misc {
   signMessageWithPrivKey (privkey: string, message: string): Promise<string>
 }
 ```
+
+# deriveAddresses
+
+Derives one or more addresses corresponding to an output descriptor.
+
+```ts title="client.misc.deriveAddresses()"
+interface misc {
+  deriveAddresses (descriptor: string, range?: number[]): Promise<string[]>
+}
+```
