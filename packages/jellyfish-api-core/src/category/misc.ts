@@ -43,4 +43,15 @@ export class Misc {
   async signMessageWithPrivKey (privkey: string, message: string): Promise<string> {
     return await this.client.call('signmessagewithprivkey', [privkey, message], 'number')
   }
+
+  /**
+   * Derives one or more addresses corresponding to an output descriptor.
+   *
+   * @param {string} descriptor The descriptor.
+   * @param {number[]} range If a ranged descriptor is used, this specifies the end or the range (in [begin,end] notation) to derive.
+   * @return Promise<string[]> the derived addresses
+   */
+  async deriveAddresses (descriptor: string, range?: number[]): Promise<string[]> {
+    return await this.client.call('deriveaddresses', [descriptor, range].filter(x => x !== undefined), 'number')
+  }
 }

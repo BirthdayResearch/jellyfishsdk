@@ -1,5 +1,8 @@
 import { OceanApiClient } from '../'
 
+/**
+ * @deprecated removing support very soon
+ */
 export class RawTx {
   constructor (private readonly api: OceanApiClient) {
   }
