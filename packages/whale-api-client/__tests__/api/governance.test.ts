@@ -4,7 +4,7 @@ import { Testing } from '@defichain/jellyfish-testing'
 import { MasterNodeRegTestContainer, StartOptions } from '@defichain/testcontainers/dist/index'
 import { GovernanceProposalStatus, GovernanceProposalType, ProposalVoteResultType } from '@defichain/whale-api-client/dist/api/governance'
 import BigNumber from 'bignumber.js'
-import { WhaleApiException } from '../../src'
+import { WhaleApiErrorType, WhaleApiException } from '../../src'
 import { StubWhaleApiClient } from '../stub.client'
 import { StubService } from '../stub.service'
 
@@ -173,38 +173,36 @@ describe('governance - listProposals and getProposal', () => {
     expect(resultPage2.length).toStrictEqual(0)
   })
 
-  it('should listProposals with error when using invalid status', async () => {
-    try {
+  it('should throw error when listProposals called with invalid status', async () => {
+    await expect(
       // To skip typescript validation in order to assert invalid query parameter
       // @ts-expect-error
-      await client.governance.listGovProposals({ status: '123' })
-    } catch (err) {
-      expect(err).toBeInstanceOf(WhaleApiException)
-      expect(err.error).toStrictEqual({
+      client.governance.listGovProposals({ status: '123' })
+    ).rejects.toThrowError(
+      new WhaleApiException({
         code: 400,
-        type: 'BadRequest',
+        type: WhaleApiErrorType.BadRequest,
         at: expect.any(Number),
         message: 'Invalid query parameter value for status. See the acceptable values: voting, rejected, completed, all',
         url: '/v0.0/regtest/governance/proposals?size=30&status=123&type=all&cycle=0&all=false'
       })
-    }
+    )
   })
 
-  it('should listProposals with error when using invalid type', async () => {
-    try {
+  it('should throw error when listProposals called with invalid type', async () => {
+    await expect(
       // To skip typescript validation in order to assert invalid query parameter
       // @ts-expect-error
-      await client.governance.listGovProposals({ type: '123' })
-    } catch (err) {
-      expect(err).toBeInstanceOf(WhaleApiException)
-      expect(err.error).toStrictEqual({
+      client.governance.listGovProposals({ type: '123' })
+    ).rejects.toThrowError(
+      new WhaleApiException({
         code: 400,
-        type: 'BadRequest',
+        type: WhaleApiErrorType.BadRequest,
         at: expect.any(Number),
         message: 'Invalid query parameter value for type. See the acceptable values: cfp, voc, all',
         url: '/v0.0/regtest/governance/proposals?size=30&status=all&type=123&cycle=0&all=false'
       })
-    }
+    )
   })
 })
 
@@ -339,19 +337,18 @@ describe('governance - listProposalVotes', () => {
     expect(resultPage2.length).toStrictEqual(1)
   })
 
-  it('should listProposalVotes with error when using non-existent proposal ID', async () => {
-    try {
-      await client.governance.listGovProposalVotes({ id: '123' })
-    } catch (err) {
-      expect(err).toBeInstanceOf(WhaleApiException)
-      expect(err.error).toStrictEqual({
+  it('should throw error when listProposalVotes using non-existent proposal ID', async () => {
+    await expect(
+      client.governance.listGovProposalVotes({ id: '123' })
+    ).rejects.toThrowError(
+      new WhaleApiException({
         code: 404,
-        type: 'NotFound',
+        type: WhaleApiErrorType.NotFound,
         at: expect.any(Number),
         message: 'Unable to find proposal',
         url: '/v0.0/regtest/governance/proposals/123/votes?size=30&masternode=mine&cycle=0&all=false'
       })
-    }
+    )
   })
 })
 
