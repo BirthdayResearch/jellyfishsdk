@@ -13,6 +13,7 @@ export enum OwnerType {
 
 export enum DfTxType {
   MINT_TOKEN = 'M',
+  BURN_TOKEN = 'F',
   POOL_SWAP = 's',
   ADD_POOL_LIQUIDITY = 'l',
   REMOVE_POOL_LIQUIDITY = 'r',
@@ -293,20 +294,23 @@ export class Account {
   /**
    * Returns information about account history
    *
-   * @param {OwnerType | string} [owner=OwnerType.MINE] single account ID (CScript or address) or reserved words 'mine' to list history for all owned accounts or 'all' to list whole DB
+   * @param {OwnerType | string | string[]} [owner=OwnerType.MINE] Single/multiple account ID(s) (CScript or address) or reserved words 'mine' to list history for all owned accounts or 'all' to list whole DB
    * @param {AccountHistoryOptions} [options]
    * @param {number} [options.maxBlockHeight] Optional height to iterate from (down to genesis block), (default = chaintip).
    * @param {number} [options.depth] Maximum depth, from the genesis block is the default
    * @param {boolean} [options.no_rewards] Filter out rewards
    * @param {string} [options.token] Filter by token
    * @param {DfTxType} [options.txtype] Filter by transaction type. See DfTxType.
+   * @param {DfTxType[]} [options.txtypes] Filter multiple transaction types, supported letter from {CustomTxType}.
    * @param {number} [options.limit=100] Maximum number of records to return, 100 by default
+   * @param {number} [options.start] Number of entries to skip
+   * @param {boolean} [options.including_start=false] If true, then iterate including starting position. False by default
    * @param {number} [options.txn] Order in block, unlimited by default
    * @param {Format} [options.format] Set the return amount format, Format.SYMBOL by default
    * @return {Promise<AccountHistory[]>}
    */
   async listAccountHistory (
-    owner: OwnerType | string = OwnerType.MINE,
+    owner: OwnerType | string | string[] = OwnerType.MINE,
     options: AccountHistoryOptions = {
       limit: 100
     }
@@ -539,7 +543,10 @@ export interface AccountHistoryOptions {
   no_rewards?: boolean
   token?: string
   txtype?: DfTxType
+  txtypes?: DfTxType[]
   limit?: number
+  start?: number
+  including_start?: boolean
   txn?: number
   format?: Format
 }
