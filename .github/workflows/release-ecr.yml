@@ -9,7 +9,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  APPS: 'legacy-api,ocean-api,playground-api,status-api,whale-api'
+  APPS: 'legacy-api,playground-api,status-api,whale-api'
 
 jobs:
   build:
@@ -18,7 +18,7 @@ jobs:
     environment: ECR Release Publishing
     strategy:
       matrix:
-        app: [ legacy-api, ocean-api, playground-api, status-api, whale-api ]
+        app: [ legacy-api, playground-api, status-api, whale-api ]
     steps:
       - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
 
