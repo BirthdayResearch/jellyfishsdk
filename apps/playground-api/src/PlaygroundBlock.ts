@@ -9,16 +9,12 @@ export class PlaygroundBlock {
   constructor (private readonly client: ApiClient) {
   }
 
-  async generateToAddress (): Promise<void> {
+  @Interval(3000)
+  async generate (): Promise<void> {
     const { masternodes, blocks }: mining.MiningInfo = await this.client.mining.getMiningInfo()
     const operator = masternodes[blocks % masternodes.length].operator
     await this.client.call('generatetoaddress', [1, operator, 1], 'number')
     const count = await this.client.blockchain.getBlockCount()
     this.logger.log(`generated new block - height: ${count}`)
-  }
-
-  @Interval(3000)
-  async generate (): Promise<void> {
-    await this.generateToAddress()
   }
 }
