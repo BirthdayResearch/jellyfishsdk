@@ -34,7 +34,7 @@ export class TestingToken {
   async mint (options: TestingTokenMint): Promise<string> {
     const { amount, symbol } = options
     const account = `${new BigNumber(amount).toFixed(8)}@${symbol}`
-    return await this.rpc.token.mintTokens(account)
+    return await this.rpc.token.mintTokens({ amounts: [account] })
   }
 
   async send (options: TestingTokenSend): Promise<string> {
@@ -47,6 +47,12 @@ export class TestingToken {
   async getTokenId (symbol: string): Promise<string> {
     const tokenInfo = await this.rpc.token.getToken(symbol)
     return Object.keys(tokenInfo)[0]
+  }
+
+  async burn (options: TestingTokenBurn): Promise<string> {
+    const { amount, symbol, from, context } = options
+    const account = `${new BigNumber(amount).toFixed(8)}@${symbol}`
+    return await this.rpc.token.burnTokens(account, from, context)
   }
 }
 
@@ -73,4 +79,11 @@ interface TestingTokenSend {
   address: string
   amount: number | string
   symbol: string
+}
+
+interface TestingTokenBurn {
+  amount: number | string
+  symbol: string
+  from: string
+  context?: string
 }

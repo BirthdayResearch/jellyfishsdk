@@ -155,16 +155,16 @@ describe('getAssetBreakdown', () => {
   it('should respond proper asset breakdown information', async () => {
     await setup()
 
-    await alice.rpc.token.mintTokens(`1@${symbolBTC}`)
+    await alice.rpc.token.mintTokens({ amounts: [`1@${symbolBTC}`] })
     await alice.generate(1)
 
-    await alice.rpc.token.mintTokens(`2@${symbolETH}`)
+    await alice.rpc.token.mintTokens({ amounts: [`2@${symbolETH}`] })
     await alice.generate(1)
 
     await alice.rpc.token.burnTokens(`1@${symbolETH}`, accountAlice)
     await alice.generate(1)
 
-    await bob.rpc.token.mintTokens(`4@${symbolBTC}`)
+    await bob.rpc.token.mintTokens({ amounts: [`4@${symbolBTC}`] })
     await bob.generate(1)
 
     await bob.rpc.token.burnTokens(`2@${symbolBTC}`, accountBob)

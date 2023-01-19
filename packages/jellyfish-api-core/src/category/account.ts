@@ -337,15 +337,16 @@ export class Account {
   /**
    * Returns count of account history
    *
-   * @param {OwnerType | string} [owner=OwnerType.MINE] single account ID (CScript or address) or reserved words 'mine' to list history count for all owned accounts or 'all' to list whole DB
+   * @param {OwnerType | string | string[]} [owner=OwnerType.MINE] Single/multiple account ID(s) (CScript or address) or reserved words 'mine' to list history count for all owned accounts or 'all' to list whole DB
    * @param {AccountHistoryCountOptions} [options]
    * @param {boolean} [options.no_rewards] Filter out rewards
    * @param {string} [options.token] Filter by token
    * @param {DfTxType} [options.txtype] Filter by transaction type. See DfTxType.
+   * @param {DfTxType[]} [options.txtypes] Filter by multiple transaction types. See DfTxType.
    * @return {Promise<number>} count of account history
    */
   async historyCount (
-    owner: OwnerType | string = OwnerType.MINE,
+    owner: OwnerType | string | string [] = OwnerType.MINE,
     options: AccountHistoryCountOptions = {}
   ): Promise<number> {
     return await this.client.call('accounthistorycount', [owner, options], 'number')
@@ -554,6 +555,7 @@ export interface AccountHistoryOptions {
 export interface AccountHistoryCountOptions {
   token?: string
   txtype?: DfTxType
+  txtypes?: DfTxType[]
   no_rewards?: boolean
 }
 
@@ -605,6 +607,10 @@ export interface BurnInfo {
    * Token amount send to burn address; formatted as AMOUNT@SYMBOL
    */
   tokens: string[]
+  /**
+   * Token amount burnt by consortium members
+   */
+  consortiumtokens: string[]
   /**
    * Amount collected via fee burn
    */

@@ -30,7 +30,7 @@ export class NativeChainContainer extends GenericContainer {
     if (process?.env?.DEFICHAIN_DOCKER_IMAGE !== undefined) {
       return process.env.DEFICHAIN_DOCKER_IMAGE
     }
-    return 'defi/defichain:3.2.0'
+    return 'defi/defichain:3.2.2'
   }
 
   public static readonly PREFIX = 'defichain-testcontainers-'
@@ -118,6 +118,7 @@ export class NativeChainContainer extends GenericContainer {
       '-fortcanninggreatworldheight=14',
       '-fortcanningepilogueheight=15',
       '-grandcentralheight=16',
+      '-grandcentralepilogueheight=17',
       '-regtest-skip-loan-collateral-validation',
       '-regtest-minttoken-simulate-mainnet=0'
     ],
