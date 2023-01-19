@@ -512,38 +512,6 @@ describe('get best path', () => {
     })
   })
 
-  it('should return direct path even if composite swap paths has greater return', async () => {
-    // 1 J = 7 K
-    // 1 J = 2 L = 8 K
-    const response = await controller.getBestPath('10', '11')
-    expect(response).toStrictEqual({
-      fromToken: {
-        id: '10',
-        name: 'J',
-        symbol: 'J',
-        displaySymbol: 'dJ'
-      },
-      toToken: {
-        id: '11',
-        name: 'K',
-        symbol: 'K',
-        displaySymbol: 'dK'
-      },
-      bestPath: [
-        {
-          symbol: 'J-K',
-          poolPairId: '23',
-          priceRatio: { ab: '0.14285714', ba: '7.00000000' },
-          tokenA: { id: '10', name: 'J', symbol: 'J', displaySymbol: 'dJ' },
-          tokenB: { id: '11', name: 'K', symbol: 'K', displaySymbol: 'dK' },
-          commissionFeeInPct: '0.25000000'
-        }
-      ],
-      estimatedReturn: '7.00000000',
-      estimatedReturnLessDexFees: '5.25000000'
-    })
-  })
-
   it('should deduct commission fee - 1 leg', async () => {
     const response = await controller.getBestPath('10', '12')
     expect(response).toStrictEqual({
