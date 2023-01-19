@@ -99,7 +99,7 @@ export abstract class PlaygroundSetup<Each> {
   }
 
   private async generateToAddress (): Promise<void> {
-    await this.playgroundBlock.generateToAddress()
+    await this.playgroundBlock.generate()
     await this.wait(200)
   }
 

@@ -46,7 +46,6 @@ afterAll(async () => {
 describe('playgroundBlock', () => {
   it('should be able to mint blocks using multiple nodes', async () => {
     const blockCount = await testing.container.getBlockCount()
-    const { masternodes }: mining.MiningInfo = await testing.container.call('getmininginfo', [])
     const playgroundBlock = testing.app.get(PlaygroundBlock)
     // generate next 20 block to confirm multiple masternodes are mining the blocks
     for (let i = 0; i < 20; i++) {
@@ -54,11 +53,11 @@ describe('playgroundBlock', () => {
       await wait(3000)
     }
     const updatedBlockCount = await testing.container.getBlockCount()
-    const { masternodes: updatedMasterNodes }: mining.MiningInfo = await testing.container.call('getmininginfo', [])
     expect(updatedBlockCount).toBeGreaterThan(blockCount)
-    updatedMasterNodes.forEach((eachNode) => {
-      const currentMintedBlocks = masternodes.find((each) => each.operator === eachNode.operator)?.mintedblocks ?? 0
-      expect(eachNode.mintedblocks).toBeGreaterThanOrEqual(currentMintedBlocks)
+    const { masternodes }: mining.MiningInfo = await testing.container.call('getmininginfo', [])
+    // check each masternode minted blocks
+    masternodes.forEach((eachNode) => {
+      expect(eachNode.mintedblocks).toBeGreaterThan(0)
     })
   })
 })
