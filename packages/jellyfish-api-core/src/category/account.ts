@@ -294,7 +294,7 @@ export class Account {
   /**
    * Returns information about account history
    *
-   * @param {OwnerType | string | string[]} [owner=OwnerType.MINE] Single/multiple account ID(s) (CScript or address) or reserved words 'mine' to list history for all owned accounts or 'all' to list whole DB
+   * @param {OwnerType | string | string[]} [owner=OwnerType.MINE] Account ID(s) (CScript or address) or reserved words 'mine' to list history for all owned accounts or 'all' to list whole DB
    * @param {AccountHistoryOptions} [options]
    * @param {number} [options.maxBlockHeight] Optional height to iterate from (down to genesis block), (default = chaintip).
    * @param {number} [options.depth] Maximum depth, from the genesis block is the default
@@ -337,7 +337,7 @@ export class Account {
   /**
    * Returns count of account history
    *
-   * @param {OwnerType | string | string[]} [owner=OwnerType.MINE] Single/multiple account ID(s) (CScript or address) or reserved words 'mine' to list history count for all owned accounts or 'all' to list whole DB
+   * @param {OwnerType | string | string[]} [owner=OwnerType.MINE] Account ID(s) (CScript or address) or reserved words 'mine' to list history count for all owned accounts or 'all' to list whole DB
    * @param {AccountHistoryCountOptions} [options]
    * @param {boolean} [options.no_rewards] Filter out rewards
    * @param {string} [options.token] Filter by token
