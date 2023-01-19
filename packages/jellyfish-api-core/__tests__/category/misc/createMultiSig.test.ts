@@ -18,12 +18,22 @@ describe('create multi sig', () => {
     await container.stop()
   })
 
-  it('should create multi signature address', async () => {
+  it('should create multi signature address 2-3', async () => {
     let key0 = (await testing.rpc.wallet.getAddressInfo(await testing.rpc.wallet.getNewAddress('', wallet.AddressType.LEGACY))).pubkey
     key0 = ECDH.convertKey(key0, 'secp256k1', 'hex', 'hex', 'uncompressed').toString()
     const key1 = (await testing.rpc.wallet.getAddressInfo(await testing.rpc.wallet.getNewAddress('', wallet.AddressType.LEGACY))).pubkey
     const key2 = (await testing.rpc.wallet.getAddressInfo(await testing.rpc.wallet.getNewAddress('', wallet.AddressType.LEGACY))).pubkey
     const keys = [key0, key1, key2]
+    const legacyAddr = (await client.misc.createMultiSig(2, keys, 'legacy')).address
+    expect((await client.misc.createMultiSig(2, keys, 'p2sh-segwit')).address).toStrictEqual(legacyAddr)
+    expect((await client.misc.createMultiSig(2, keys, 'bech32')).address).toStrictEqual(legacyAddr)
+  })
+
+  it('should create multi signature address 2-2', async () => {
+    let key0 = (await testing.rpc.wallet.getAddressInfo(await testing.rpc.wallet.getNewAddress('', wallet.AddressType.LEGACY))).pubkey
+    key0 = ECDH.convertKey(key0, 'secp256k1', 'hex', 'hex', 'uncompressed').toString()
+    const key1 = (await testing.rpc.wallet.getAddressInfo(await testing.rpc.wallet.getNewAddress('', wallet.AddressType.LEGACY))).pubkey
+    const keys = [key0, key1]
     const legacyAddr = (await client.misc.createMultiSig(2, keys, 'legacy')).address
     expect((await client.misc.createMultiSig(2, keys, 'p2sh-segwit')).address).toStrictEqual(legacyAddr)
     expect((await client.misc.createMultiSig(2, keys, 'bech32')).address).toStrictEqual(legacyAddr)
