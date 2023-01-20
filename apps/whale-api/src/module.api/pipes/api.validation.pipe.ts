@@ -1,4 +1,4 @@
-import { ArgumentMetadata, HttpStatus, ParseIntPipe, ValidationError, ValidationPipe } from '@nestjs/common'
+import { ArgumentMetadata, BadRequestException, HttpException, HttpStatus, ParseIntPipe, ValidationError, ValidationPipe } from '@nestjs/common'
 import { ApiErrorType, ApiException } from '../_core/api.error'
 
 export class ApiValidationPipe extends ValidationPipe {
@@ -64,4 +64,8 @@ export class StringIsIntegerPipe extends ValidationPipe {
     await this.parseIntPipe.transform(value, metadata) // throws error if value is not a numeric string
     return value
   }
+}
+
+export function EnumCustomException (parameter: string, enumType: any): HttpException {
+  return new BadRequestException(`Invalid query parameter value for ${parameter}. See the acceptable values: ${Object.keys(enumType).map(key => enumType[key]).join(', ')}`)
 }

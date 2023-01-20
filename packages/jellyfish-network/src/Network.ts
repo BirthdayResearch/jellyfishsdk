@@ -44,6 +44,8 @@ export function getNetwork (network: NetworkName): Network {
       return MainNet
     case 'testnet':
       return TestNet
+    case 'devnet':
+      return DevNet
     case 'regtest':
       return RegTest
     default:
@@ -92,6 +94,18 @@ export const TestNet: Network = {
   ports: {
     rpc: 18554,
     p2p: 18555
+  }
+}
+
+/**
+ * DevNet specific DeFi configuration.
+ */
+export const DevNet: Network = {
+  ...TestNet,
+  name: 'devnet',
+  ports: {
+    rpc: 20554,
+    p2p: 20555
   }
 }
 

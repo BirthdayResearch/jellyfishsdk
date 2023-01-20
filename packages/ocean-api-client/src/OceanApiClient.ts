@@ -2,7 +2,6 @@ import 'url-search-params-polyfill'
 import AbortController from 'abort-controller'
 import fetch from 'cross-fetch'
 import { ApiException, ApiMethod, ApiPagedResponse, ApiResponse, ClientException, TimeoutException } from './'
-import { RawTx } from './apis/RawTx'
 
 /**
  * OceanApiClient configurable options
@@ -25,15 +24,13 @@ export interface OceanApiClientOptions {
   /**
    * Network that ocean client is configured to
    */
-  network?: 'mainnet' | 'testnet' | 'regtest' | string
+  network?: 'mainnet' | 'testnet' | 'devnet' | 'regtest' | string
 }
 
 /**
  * OceanApiClient
  */
 export class OceanApiClient {
-  public readonly rawtx = new RawTx(this)
-
   constructor (
     protected readonly options: OceanApiClientOptions
   ) {
