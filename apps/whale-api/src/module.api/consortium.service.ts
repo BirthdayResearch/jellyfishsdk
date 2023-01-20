@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { DeFiDCache, TokenInfoWithId } from './cache/defid.cache'
-import { AssetBreakdownInfo, MemberDetail, MemberWithTokenInfo, MemberMintStatsInfo, TokenWithMintStatsInfo, MintTokenWithStats } from '@defichain/whale-api-client/dist/api/consortium'
+import { AssetBreakdownInfo, MemberDetail, MemberWithTokenInfo, MemberStatsInfo, TokenWithMintStatsInfo, MintTokenWithStats } from '@defichain/whale-api-client/dist/api/consortium'
 import BigNumber from 'bignumber.js'
 import { parseDisplaySymbol } from './token.controller'
 
@@ -137,7 +137,7 @@ export class ConsortiumService {
         mintLimit: new BigNumber(member.mintLimit).toFixed(+token.decimal.toString()),
         mintDailyLimit: new BigNumber(member.mintLimitDaily).toFixed(+token.decimal.toString())
       },
-      global: {
+      token: {
         minted: token.mintStats.minted,
         mintedDaily: new BigNumber(token.mintStats.mintedDaily).toFixed(+token.decimal.toString()),
         mintLimit: new BigNumber(token.mintStats.mintLimit).toFixed(+token.decimal.toString()),
@@ -180,7 +180,7 @@ export class ConsortiumService {
     return assetBreakdownInfo
   }
 
-  async getMemberMintStats (memberId: string): Promise<MemberMintStatsInfo> {
+  async getMemberStats (memberId: string): Promise<MemberStatsInfo> {
     const attrs: Record<string, any> = (await this.rpcClient.masternode.getGov('ATTRIBUTES')).ATTRIBUTES
     const keys: string[] = Object.keys(attrs)
 
@@ -197,12 +197,12 @@ export class ConsortiumService {
     const tokens: TokenInfoWithId[] = await this.defidCache.getAllTokenInfo() as TokenInfoWithId[]
     const tokensWithMintInfo = this.getGlobalMintStatsPerToken(tokens, attrs, keys)
 
-    const mintStats: MemberMintStatsInfo = { memberId: '', memberName: '', mintTokens: [] }
+    const stats: MemberStatsInfo = { memberId: '', memberName: '', mintTokens: [] }
     memberAttrs.forEach(attrKey => {
       const member = attrs[attrKey][memberId]
-      if (mintStats.memberId === '') {
-        mintStats.memberId = memberId
-        mintStats.memberName = member.name
+      if (stats.memberId === '') {
+        stats.memberId = memberId
+        stats.memberName = member.name
       }
 
       const tokenId = attrKey.split('/')[2]
@@ -212,9 +212,9 @@ export class ConsortiumService {
       }
 
       const tokenMintInfo = this.getTokenMintInfo(attrs, tokenId, token, memberId, member)
-      mintStats.mintTokens.push(tokenMintInfo)
+      stats.mintTokens.push(tokenMintInfo)
     })
 
-    return mintStats
+    return stats
   }
 }

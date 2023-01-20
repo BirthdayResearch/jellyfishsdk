@@ -188,11 +188,11 @@ describe('getAssetBreakdown', () => {
   })
 })
 
-describe('getMemberMintStats', () => {
+describe('getMemberStats', () => {
   it('should throw an error if given consortium member id does not exists', async () => {
     await setup()
 
-    const promise = controller.getMemberMintStats('01234')
+    const promise = controller.getMemberStats('01234')
     await expect(promise).rejects.toThrow(NotFoundException)
     await expect(promise).rejects.toThrow('Consortium member not found')
   })
@@ -200,14 +200,14 @@ describe('getMemberMintStats', () => {
   it('should return minted amounts of 0 if the mint transaction does not exists', async () => {
     await setup()
 
-    const stats = await controller.getMemberMintStats('01')
+    const stats = await controller.getMemberStats('01')
     expect(stats).toStrictEqual(
       {
         memberId: '01',
         memberName: 'alice',
         mintTokens: [
-          { tokenSymbol: symbolBTC, tokenDisplaySymbol: `d${symbolBTC}`, tokenId: '1', member: { minted: '0.00000000', mintedDaily: '0.00000000', mintLimit: '10.00000000', mintDailyLimit: '5.00000000' }, global: { minted: '0.00000000', mintedDaily: '0.00000000', mintLimit: '10.00000000', mintDailyLimit: '5.00000000' } },
-          { tokenSymbol: symbolETH, tokenDisplaySymbol: `d${symbolETH}`, tokenId: '2', member: { minted: '0.00000000', mintedDaily: '0.00000000', mintLimit: '20.00000000', mintDailyLimit: '10.00000000' }, global: { minted: '0.00000000', mintedDaily: '0.00000000', mintLimit: '20.00000000', mintDailyLimit: '10.00000000' } }
+          { tokenSymbol: symbolBTC, tokenDisplaySymbol: `d${symbolBTC}`, tokenId: '1', member: { minted: '0.00000000', mintedDaily: '0.00000000', mintLimit: '10.00000000', mintDailyLimit: '5.00000000' }, token: { minted: '0.00000000', mintedDaily: '0.00000000', mintLimit: '10.00000000', mintDailyLimit: '5.00000000' } },
+          { tokenSymbol: symbolETH, tokenDisplaySymbol: `d${symbolETH}`, tokenId: '2', member: { minted: '0.00000000', mintedDaily: '0.00000000', mintLimit: '20.00000000', mintDailyLimit: '10.00000000' }, token: { minted: '0.00000000', mintedDaily: '0.00000000', mintLimit: '20.00000000', mintDailyLimit: '10.00000000' } }
         ]
       })
   })
@@ -223,14 +223,14 @@ describe('getMemberMintStats', () => {
 
     await tGroup.waitForSync()
 
-    const stats = await controller.getMemberMintStats('02')
+    const stats = await controller.getMemberStats('02')
     expect(stats).toStrictEqual(
       {
         memberId: '02',
         memberName: 'bob',
         mintTokens: [
-          { tokenSymbol: symbolBTC, tokenDisplaySymbol: `d${symbolBTC}`, tokenId: '1', member: { minted: '1.50000000', mintedDaily: '1.50000000', mintLimit: '10.00000000', mintDailyLimit: '5.00000000' }, global: { minted: '2.50000000', mintedDaily: '2.50000000', mintLimit: '10.00000000', mintDailyLimit: '5.00000000' } },
-          { tokenSymbol: symbolETH, tokenDisplaySymbol: `d${symbolETH}`, tokenId: '2', member: { minted: '3.00000000', mintedDaily: '3.00000000', mintLimit: '20.00000000', mintDailyLimit: '10.00000000' }, global: { minted: '5.00000000', mintedDaily: '5.00000000', mintLimit: '20.00000000', mintDailyLimit: '10.00000000' } }
+          { tokenSymbol: symbolBTC, tokenDisplaySymbol: `d${symbolBTC}`, tokenId: '1', member: { minted: '1.50000000', mintedDaily: '1.50000000', mintLimit: '10.00000000', mintDailyLimit: '5.00000000' }, token: { minted: '2.50000000', mintedDaily: '2.50000000', mintLimit: '10.00000000', mintDailyLimit: '5.00000000' } },
+          { tokenSymbol: symbolETH, tokenDisplaySymbol: `d${symbolETH}`, tokenId: '2', member: { minted: '3.00000000', mintedDaily: '3.00000000', mintLimit: '20.00000000', mintDailyLimit: '10.00000000' }, token: { minted: '5.00000000', mintedDaily: '5.00000000', mintLimit: '20.00000000', mintDailyLimit: '10.00000000' } }
         ]
       })
   })
@@ -252,14 +252,14 @@ describe('getMemberMintStats', () => {
 
     await tGroup.waitForSync()
 
-    const stats = await controller.getMemberMintStats('02')
+    const stats = await controller.getMemberStats('02')
     expect(stats).toStrictEqual(
       {
         memberId: '02',
         memberName: 'bob',
         mintTokens: [
-          { tokenSymbol: symbolBTC, tokenDisplaySymbol: `d${symbolBTC}`, tokenId: '1', member: { minted: '6.00000000', mintedDaily: '2.00000000', mintLimit: '10.00000000', mintDailyLimit: '5.00000000' }, global: { minted: '7.00000000', mintedDaily: '3.00000000', mintLimit: '10.00000000', mintDailyLimit: '5.00000000' } },
-          { tokenSymbol: symbolETH, tokenDisplaySymbol: `d${symbolETH}`, tokenId: '2', member: { minted: '3.20000000', mintedDaily: '3.20000000', mintLimit: '20.00000000', mintDailyLimit: '10.00000000' }, global: { minted: '4.20000000', mintedDaily: '4.20000000', mintLimit: '20.00000000', mintDailyLimit: '10.00000000' } }
+          { tokenSymbol: symbolBTC, tokenDisplaySymbol: `d${symbolBTC}`, tokenId: '1', member: { minted: '6.00000000', mintedDaily: '2.00000000', mintLimit: '10.00000000', mintDailyLimit: '5.00000000' }, token: { minted: '7.00000000', mintedDaily: '3.00000000', mintLimit: '10.00000000', mintDailyLimit: '5.00000000' } },
+          { tokenSymbol: symbolETH, tokenDisplaySymbol: `d${symbolETH}`, tokenId: '2', member: { minted: '3.20000000', mintedDaily: '3.20000000', mintLimit: '20.00000000', mintDailyLimit: '10.00000000' }, token: { minted: '4.20000000', mintedDaily: '4.20000000', mintLimit: '20.00000000', mintDailyLimit: '10.00000000' } }
         ]
       })
   })

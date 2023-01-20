@@ -18,12 +18,12 @@ export class Consortium {
   }
 
   /**
-   *  Gets the mint stats information of a specific consortium member
+   *  Gets the stats information of a specific consortium member
    *
-   * @return {Promise<MemberMintStatsInfo[]>}
+   * @return {Promise<MemberStatsInfo[]>}
     */
-  async getMemberMintStats (memberid: string): Promise<MemberMintStatsInfo[]> {
-    return await this.client.requestData('GET', `consortium/mintstats/${memberid}`)
+  async getMemberStats (memberid: string): Promise<MemberStatsInfo[]> {
+    return await this.client.requestData('GET', `consortium/stats/${memberid}`)
   }
 }
 
@@ -50,6 +50,11 @@ export interface AssetBreakdownInfo {
   memberInfo: MemberWithTokenInfo[]
 }
 
+export interface TokenWithMintStatsInfo extends TokenInfo {
+  id: string
+  mintStats: MintStatsInfo
+}
+
 export interface MintStatsInfo {
   minted: string
   mintedDaily: string
@@ -62,16 +67,11 @@ export interface MintTokenWithStats {
   tokenDisplaySymbol: string
   tokenId: string
   member: MintStatsInfo
-  global: MintStatsInfo
+  token: MintStatsInfo
 }
 
-export interface MemberMintStatsInfo {
+export interface MemberStatsInfo {
   memberId: string
   memberName: string
   mintTokens: MintTokenWithStats[]
-}
-
-export interface TokenWithMintStatsInfo extends TokenInfo {
-  id: string
-  mintStats: MintStatsInfo
 }
