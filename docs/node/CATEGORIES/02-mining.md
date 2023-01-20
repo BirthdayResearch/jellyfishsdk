@@ -83,3 +83,26 @@ enum EstimateMode {
   CONSERVATIVE = 'CONSERVATIVE'
 }
 ```
+
+## getBlockTemplate
+
+If the request parameters include a 'mode' key, that is used to explicitly select between the default 'template' request or a 'proposal'.
+It returns data needed to construct a block to work on.
+For full specification, see BIPs 22, 23, 9, and 145:
+  https://github.com/bitcoin/bips/blob/master/bip-0022.mediawiki
+  https://github.com/bitcoin/bips/blob/master/bip-0023.mediawiki
+  https://github.com/bitcoin/bips/blob/master/bip-0009.mediawiki#getblocktemplate_changes
+  https://github.com/bitcoin/bips/blob/master/bip-0145.mediawiki
+
+```ts title="client.mining.getBlockTemplate()"
+interface mining {
+  getBlockTemplate (templateRequest: TemplateRquest): Promise<JSON>
+}
+
+interface TemplateRquest {
+  mode?: string
+  capabilities?: string[]
+  rules: string[]
+}
+
+```
