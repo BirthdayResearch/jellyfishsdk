@@ -24,7 +24,7 @@ export interface OceanApiClientOptions {
   /**
    * Network that ocean client is configured to
    */
-  network?: 'mainnet' | 'testnet' | 'regtest' | string
+  network?: 'mainnet' | 'testnet' | 'devnet' | 'regtest' | string
 }
 
 /**
