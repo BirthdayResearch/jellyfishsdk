@@ -1,5 +1,5 @@
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
-import { ConsortiumKey } from 'apps/playground-api/src/ConsortiumKey'
+import { ConsortiumKey } from '../../src/ConsortiumKey'
 import { PlaygroundApiTesting } from '../../testing/PlaygroundApiTesting'
 
 const pg = PlaygroundApiTesting.create()
