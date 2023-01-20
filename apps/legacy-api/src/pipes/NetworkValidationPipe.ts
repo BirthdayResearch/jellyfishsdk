@@ -5,7 +5,7 @@ import {
   PipeTransform
 } from '@nestjs/common'
 
-export type SupportedNetwork = 'mainnet' | 'testnet' | 'regtest'
+export type SupportedNetwork = 'mainnet' | 'testnet' | 'devnet' | 'regtest'
 
 @Injectable()
 export class NetworkValidationPipe implements PipeTransform {
@@ -13,6 +13,7 @@ export class NetworkValidationPipe implements PipeTransform {
     undefined, // defaults to 'mainnet'
     'mainnet',
     'testnet',
+    'devnet',
     'regtest'
   ])
 
