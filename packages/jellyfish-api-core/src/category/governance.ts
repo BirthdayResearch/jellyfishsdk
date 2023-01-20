@@ -31,6 +31,13 @@ export enum VoteDecision {
   NEUTRAL = 'neutral'
 }
 
+export enum VoteResult {
+  YES = 'YES',
+  NO = 'NO',
+  NEUTRAL = 'NEUTRAL',
+  UNKNOWN = 'Unknown'
+}
+
 export enum MasternodeType {
   MINE = 'mine',
   ALL = 'all'
@@ -208,7 +215,7 @@ export interface ListVotesResult {
   proposalId: string
   masternodeId: string
   cycle: number
-  vote: string
+  vote: VoteResult
 }
 
 export interface ListProposalsOptions {

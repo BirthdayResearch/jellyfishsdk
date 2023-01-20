@@ -44,6 +44,8 @@ export function getNetwork (network: NetworkName): Network {
       return MainNet
     case 'testnet':
       return TestNet
+    case 'devnet':
+      return DevNet
     case 'regtest':
       return RegTest
     default:

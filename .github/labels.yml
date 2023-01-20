@@ -81,8 +81,6 @@
 - color: 0581fa
   name: apps/playground-api
 - color: 0581fa
-  name: apps/rich-list-api
-- color: 0581fa
   name: apps/stats-api
 - color: 0581fa
   name: apps/whale-api

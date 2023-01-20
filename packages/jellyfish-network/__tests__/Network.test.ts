@@ -17,6 +17,11 @@ describe('getNetwork', () => {
     expect(getNetwork('testnet').bech32.hrp).toStrictEqual('tf')
   })
 
+  it('should get devnet', () => {
+    expect(getNetwork('devnet').name).toStrictEqual('devnet')
+    expect(getNetwork('devnet').bech32.hrp).toStrictEqual('tf')
+  })
+
   it('should get regtest', () => {
     expect(getNetwork('regtest').name).toStrictEqual('regtest')
     expect(getNetwork('regtest').bech32.hrp).toStrictEqual('bcrt')

@@ -71,11 +71,6 @@ labels:
     matcher:
       files: "apps/playground-api/**"
 
-  - label: apps/rich-list-api
-    sync: true
-    matcher:
-      files: "apps/rich-list-api/**"
-
   - label: apps/stats-api
     sync: true
     matcher:
