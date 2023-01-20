@@ -1,4 +1,5 @@
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
+import { ConsortiumKey } from 'apps/playground-api/src/ConsortiumKey'
 import { PlaygroundApiTesting } from '../../testing/PlaygroundApiTesting'
 
 const pg = PlaygroundApiTesting.create()
@@ -68,7 +69,7 @@ it('should have gov set', async () => {
           mintLimit: 50,
           mintLimitDaily: 5,
           name: 'Waves HQ',
-          ownerAddress: RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.address,
+          ownerAddress: ConsortiumKey.address,
           status: 0
         },
         '02': {
@@ -76,7 +77,7 @@ it('should have gov set', async () => {
           mintLimit: 50,
           mintLimitDaily: 5,
           name: 'Alexandria',
-          ownerAddress: RegTestFoundationKeys[RegTestFoundationKeys.length - 2].owner.address,
+          ownerAddress: RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.address,
           status: 0
         }
       },
@@ -86,7 +87,7 @@ it('should have gov set', async () => {
           mintLimit: 10,
           mintLimitDaily: 5,
           name: 'Waves HQ',
-          ownerAddress: RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.address,
+          ownerAddress: ConsortiumKey.address,
           status: 0
         },
         '02': {
@@ -94,7 +95,7 @@ it('should have gov set', async () => {
           mintLimit: 10,
           mintLimitDaily: 5,
           name: 'Alexandria',
-          ownerAddress: RegTestFoundationKeys[RegTestFoundationKeys.length - 2].owner.address,
+          ownerAddress: RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.address,
           status: 0
         }
       },

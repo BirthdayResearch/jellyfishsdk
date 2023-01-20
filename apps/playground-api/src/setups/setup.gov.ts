@@ -1,11 +1,12 @@
 import { PlaygroundSetup } from '../setups/setup'
 import { Injectable } from '@nestjs/common'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
+import { ConsortiumKey } from '../ConsortiumKey'
 
 @Injectable()
 export class SetupGov extends PlaygroundSetup<Record<string, any>> {
-  consortiumOwnerAddress1: string = RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.address
-  consortiumOwnerAddress2: string = RegTestFoundationKeys[RegTestFoundationKeys.length - 2].owner.address
+  consortiumOwnerAddress1: string = ConsortiumKey.address
+  consortiumOwnerAddress2: string = RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.address
 
   list (): Array<Record<string, any>> {
     return [
