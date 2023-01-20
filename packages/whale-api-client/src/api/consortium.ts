@@ -1,3 +1,4 @@
+import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
 import { WhaleApiClient } from '../whale.api.client'
 
 /**
@@ -14,6 +15,15 @@ export class Consortium {
     */
   async getAssetBreakdown (): Promise<AssetBreakdownInfo[]> {
     return await this.client.requestData('GET', 'consortium/assetbreakdown')
+  }
+
+  /**
+   *  Gets the stats information of a specific consortium member
+   *
+   * @return {Promise<MemberStatsInfo[]>}
+    */
+  async getMemberStats (memberid: string): Promise<MemberStatsInfo[]> {
+    return await this.client.requestData('GET', `consortium/stats/${memberid}`)
   }
 }
 
@@ -38,4 +48,30 @@ export interface AssetBreakdownInfo {
   tokenSymbol: string
   tokenDisplaySymbol: string
   memberInfo: MemberWithTokenInfo[]
+}
+
+export interface TokenWithMintStatsInfo extends TokenInfo {
+  id: string
+  mintStats: MintStatsInfo
+}
+
+export interface MintStatsInfo {
+  minted: string
+  mintedDaily: string
+  mintLimit: string
+  mintDailyLimit: string
+}
+
+export interface MintTokenWithStats {
+  tokenSymbol: string
+  tokenDisplaySymbol: string
+  tokenId: string
+  member: MintStatsInfo
+  token: MintStatsInfo
+}
+
+export interface MemberStatsInfo {
+  memberId: string
+  memberName: string
+  mintTokens: MintTokenWithStats[]
 }
