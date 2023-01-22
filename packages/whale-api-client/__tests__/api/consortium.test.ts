@@ -1,24 +1,118 @@
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { StartFlags } from '@defichain/testcontainers'
+import { WhaleApiException } from '../../src'
 import { StubWhaleApiClient } from '../stub.client'
 import { StubService } from '../stub.service'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../../../../apps/whale-api/src/e2e.module'
 
+const tGroup = TestingGroup.create(2)
+const alice = tGroup.get(0)
+const bob = tGroup.get(1)
+const symbolBTC = 'BTC'
+const symbolETH = 'ETH'
+let accountAlice: string, accountBob: string
+let idBTC: string
+let idETH: string
+const startFlags: StartFlags[] = [{ name: 'regtest-minttoken-simulate-mainnet', value: 1 }]
+
+const service = new StubService(alice.container)
+const client = new StubWhaleApiClient(service)
+
+async function setGovAttr (attributes: object): Promise<void> {
+  const hash = await alice.rpc.masternode.setGov({ ATTRIBUTES: attributes })
+  expect(hash).toBeTruthy()
+  await alice.generate(1)
+  await tGroup.waitForSync()
+}
+
+async function setMemberInfo (tokenId: string, memberInfo: Array<{ id: string, name: string, backingId: string, ownerAddress: string, mintLimit: string, mintLimitDaily: string }>): Promise<void> {
+  const members: { [key: string]: { [key: string]: string } } = {}
+
+  memberInfo.forEach(mi => {
+    members[mi.id] = {
+      name: mi.name,
+      ownerAddress: mi.ownerAddress,
+      backingId: mi.backingId,
+      mintLimitDaily: mi.mintLimitDaily,
+      mintLimit: mi.mintLimit
+    }
+  })
+
+  return await setGovAttr({ [`v0/consortium/${tokenId}/members`]: members })
+}
+
+async function setup (): Promise<void> {
+  accountAlice = await alice.generateAddress()
+  accountBob = await bob.generateAddress()
+
+  await alice.token.create({
+    symbol: symbolBTC,
+    name: symbolBTC,
+    isDAT: true,
+    mintable: true,
+    tradeable: true,
+    collateralAddress: accountAlice
+  })
+  await alice.generate(1)
+
+  await alice.token.create({
+    symbol: symbolETH,
+    name: symbolETH,
+    isDAT: true,
+    mintable: true,
+    tradeable: true,
+    collateralAddress: accountAlice
+  })
+  await alice.generate(1)
+
+  await alice.container.fundAddress(accountBob, 10)
+  await alice.generate(1)
+  idBTC = await alice.token.getTokenId(symbolBTC)
+  idETH = await alice.token.getTokenId(symbolETH)
+
+  await setGovAttr({
+    'v0/params/feature/consortium': 'true',
+    [`v0/consortium/${idBTC}/mint_limit`]: '10',
+    [`v0/consortium/${idBTC}/mint_limit_daily`]: '5',
+    [`v0/consortium/${idETH}/mint_limit`]: '20',
+    [`v0/consortium/${idETH}/mint_limit_daily`]: '10'
+  })
+
+  await setMemberInfo(idBTC, [{
+    id: '01',
+    name: 'alice',
+    ownerAddress: accountAlice,
+    backingId: 'abc',
+    mintLimitDaily: '5.00000000',
+    mintLimit: '10.00000000'
+  }, {
+    id: '02',
+    name: 'bob',
+    ownerAddress: accountBob,
+    backingId: 'def,hij',
+    mintLimitDaily: '5.00000000',
+    mintLimit: '10.00000000'
+  }])
+
+  await setMemberInfo(idETH, [{
+    id: '01',
+    name: 'alice',
+    ownerAddress: accountAlice,
+    backingId: '',
+    mintLimitDaily: '10.00000000',
+    mintLimit: '20.00000000'
+  }, {
+    id: '02',
+    name: 'bob',
+    ownerAddress: accountBob,
+    backingId: ' lmn ,    opq',
+    mintLimitDaily: '10.00000000',
+    mintLimit: '20.00000000'
+  }])
+}
+
 describe('getAssetBreakdown', () => {
-  const tGroup = TestingGroup.create(2)
-  const alice = tGroup.get(0)
-  const bob = tGroup.get(1)
-  const symbolBTC = 'BTC'
-  const symbolETH = 'ETH'
-  let accountAlice: string, accountBob: string
-  let idBTC: string
-  let idETH: string
-  const startFlags: StartFlags[] = [{ name: 'regtest-minttoken-simulate-mainnet', value: 1 }]
-
-  const service = new StubService(alice.container)
-  const client = new StubWhaleApiClient(service)
-
   beforeEach(async () => {
     await tGroup.start({ startFlags })
     await service.start()
@@ -32,99 +126,6 @@ describe('getAssetBreakdown', () => {
       await tGroup.stop()
     }
   })
-
-  async function setGovAttr (attributes: object): Promise<void> {
-    const hash = await alice.rpc.masternode.setGov({ ATTRIBUTES: attributes })
-    expect(hash).toBeTruthy()
-    await alice.generate(1)
-    await tGroup.waitForSync()
-  }
-
-  async function setMemberInfo (tokenId: string, memberInfo: Array<{ id: string, name: string, backingId: string, ownerAddress: string, mintLimit: string, dailyMintLimit: string }>): Promise<void> {
-    const members: any = {}
-
-    memberInfo.forEach(mi => {
-      members[mi.id] = {
-        name: mi.name,
-        ownerAddress: mi.ownerAddress,
-        backingId: mi.backingId,
-        mintLimitDaily: mi.dailyMintLimit,
-        mintLimit: mi.mintLimit
-      }
-    })
-
-    return await setGovAttr({ [`v0/consortium/${tokenId}/members`]: members })
-  }
-
-  async function setup (): Promise<void> {
-    accountAlice = await alice.generateAddress()
-    accountBob = await bob.generateAddress()
-
-    await alice.token.create({
-      symbol: symbolBTC,
-      name: symbolBTC,
-      isDAT: true,
-      mintable: true,
-      tradeable: true,
-      collateralAddress: accountAlice
-    })
-    await alice.generate(1)
-
-    await alice.token.create({
-      symbol: symbolETH,
-      name: symbolETH,
-      isDAT: true,
-      mintable: true,
-      tradeable: true,
-      collateralAddress: accountAlice
-    })
-    await alice.generate(1)
-
-    await alice.container.fundAddress(accountBob, 10)
-    await alice.generate(1)
-    idBTC = await alice.token.getTokenId(symbolBTC)
-    idETH = await alice.token.getTokenId(symbolETH)
-
-    await setGovAttr({
-      'v0/params/feature/consortium': 'true',
-      [`v0/consortium/${idBTC}/mint_limit`]: '10',
-      [`v0/consortium/${idBTC}/mint_limit_daily`]: '5',
-      [`v0/consortium/${idETH}/mint_limit`]: '20',
-      [`v0/consortium/${idETH}/mint_limit_daily`]: '10'
-    })
-
-    await setMemberInfo(idBTC, [{
-      id: '01',
-      name: 'alice',
-      ownerAddress: accountAlice,
-      backingId: 'abc',
-      dailyMintLimit: '5.00000000',
-      mintLimit: '10.00000000'
-    }, {
-      id: '02',
-      name: 'bob',
-      ownerAddress: accountBob,
-      backingId: 'def,hij',
-      dailyMintLimit: '5.00000000',
-      mintLimit: '10.00000000'
-    }])
-
-    await setMemberInfo(idETH, [{
-      id: '01',
-      name: 'alice',
-      ownerAddress: accountAlice,
-      backingId: '',
-      dailyMintLimit: '10.00000000',
-      mintLimit: '20.00000000'
-    }, {
-      id: '02',
-      name: 'bob',
-      ownerAddress: accountBob,
-      backingId: ' lmn ,    opq',
-      dailyMintLimit: '10.00000000',
-      mintLimit: '20.00000000'
-    }])
-  }
 
   it('should respond an empty list if theres no consortium members or tokens initialized', async () => {
     const info = await client.consortium.getAssetBreakdown()
@@ -192,19 +193,8 @@ describe('getAssetBreakdown', () => {
 })
 
 describe('getTransactionHistory', () => {
-  const tGroup = TestingGroup.create(2)
-  const alice = tGroup.get(0)
-  const bob = tGroup.get(1)
-  const symbolBTC = 'dBTC'
-  const symbolETH = 'dETH'
-  let accountAlice: string, accountBob: string
   let app: NestFastifyApplication
-  let idBTC: string
-  let idETH: string
-  const service = new StubService(alice.container)
-  const client = new StubWhaleApiClient(service)
   const txIdMatcher = expect.stringMatching(/^[0-9a-f]{64}$/)
-  const startFlags: StartFlags[] = [{ name: 'regtest-minttoken-simulate-mainnet', value: 1 }]
   const txIds: string[] = []
 
   beforeAll(async () => {
@@ -224,29 +214,6 @@ describe('getTransactionHistory', () => {
       await stopTestingApp(tGroup, app)
     }
   })
-
-  async function setGovAttr (ATTRIBUTES: object): Promise<void> {
-    const hash = await alice.rpc.masternode.setGov({ ATTRIBUTES })
-    expect(hash).toBeTruthy()
-    await alice.generate(1)
-    await tGroup.waitForSync()
-  }
-
-  async function setMemberInfo (tokenId: string, memberInfo: Array<{ id: string, name: string, backingId: string, ownerAddress: string, mintLimit: string, mintLimitDaily: string }>): Promise<void> {
-    const infoObjs: { [key: string]: object } = {}
-
-    memberInfo.forEach(mi => {
-      infoObjs[mi.id] = {
-        name: mi.name,
-        ownerAddress: mi.ownerAddress,
-        backingId: mi.backingId,
-        mintLimitDaily: mi.mintLimitDaily,
-        mintLimit: mi.mintLimit
-      }
-    })
-
-    return await setGovAttr({ [`v0/consortium/${tokenId}/members`]: infoObjs })
-  }
 
   async function setup (): Promise<void> {
     accountAlice = await alice.generateAddress()
@@ -371,9 +338,9 @@ describe('getTransactionHistory', () => {
 
     expect(info.transactions.length).toStrictEqual(3)
     expect(info.transactions).toStrictEqual([
-      { txId: txIdMatcher, type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 113 },
-      { txId: txIdMatcher, type: 'Mint', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '2.00000000' }], address: accountAlice, block: 112 },
-      { txId: txIdMatcher, type: 'Mint', member: 'alice', tokenAmounts: [{ token: 'dBTC', amount: '1.00000000' }], address: accountAlice, block: 111 }
+      { txId: txIdMatcher, type: 'Burn', member: 'alice', tokenAmounts: [{ token: symbolETH, amount: '-1.00000000' }], address: accountAlice, block: 113 },
+      { txId: txIdMatcher, type: 'Mint', member: 'alice', tokenAmounts: [{ token: symbolETH, amount: '2.00000000' }], address: accountAlice, block: 112 },
+      { txId: txIdMatcher, type: 'Mint', member: 'alice', tokenAmounts: [{ token: symbolBTC, amount: '1.00000000' }], address: accountAlice, block: 111 }
     ])
     expect(info.total).toStrictEqual(6)
   })
@@ -383,9 +350,9 @@ describe('getTransactionHistory', () => {
 
     expect(info.transactions.length).toStrictEqual(3)
     expect(info.transactions).toStrictEqual([
-      { txId: txIdMatcher, type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 113 },
-      { txId: txIdMatcher, type: 'Mint', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '2.00000000' }], address: accountAlice, block: 112 },
-      { txId: txIdMatcher, type: 'Mint', member: 'alice', tokenAmounts: [{ token: 'dBTC', amount: '1.00000000' }], address: accountAlice, block: 111 }
+      { txId: txIdMatcher, type: 'Burn', member: 'alice', tokenAmounts: [{ token: symbolETH, amount: '-1.00000000' }], address: accountAlice, block: 113 },
+      { txId: txIdMatcher, type: 'Mint', member: 'alice', tokenAmounts: [{ token: symbolETH, amount: '2.00000000' }], address: accountAlice, block: 112 },
+      { txId: txIdMatcher, type: 'Mint', member: 'alice', tokenAmounts: [{ token: symbolBTC, amount: '1.00000000' }], address: accountAlice, block: 111 }
     ])
     expect(info.total).toStrictEqual(6)
   })
@@ -397,7 +364,7 @@ describe('getTransactionHistory', () => {
 
     expect(info.transactions.length).toStrictEqual(1)
     expect(info.transactions).toStrictEqual([
-      { txId: tx.txid, type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 113 }
+      { txId: tx.txid, type: 'Burn', member: 'alice', tokenAmounts: [{ token: symbolETH, amount: '-1.00000000' }], address: accountAlice, block: 113 }
     ])
     expect(info.total).toStrictEqual(1)
   })
@@ -407,9 +374,9 @@ describe('getTransactionHistory', () => {
 
     expect(info.transactions.length).toStrictEqual(3)
     expect(info.transactions).toStrictEqual([
-      { txId: txIdMatcher, type: 'Burn', member: 'bob', tokenAmounts: [{ token: 'dBTC', amount: '-2.00000000' }], address: accountBob, block: 115 },
-      { txId: txIdMatcher, type: 'Mint', member: 'bob', tokenAmounts: [{ token: 'dBTC', amount: '4.00000000' }], address: accountBob, block: 114 },
-      { txId: txIdMatcher, type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 113 }
+      { txId: txIdMatcher, type: 'Burn', member: 'bob', tokenAmounts: [{ token: symbolBTC, amount: '-2.00000000' }], address: accountBob, block: 115 },
+      { txId: txIdMatcher, type: 'Mint', member: 'bob', tokenAmounts: [{ token: symbolBTC, amount: '4.00000000' }], address: accountBob, block: 114 },
+      { txId: txIdMatcher, type: 'Burn', member: 'alice', tokenAmounts: [{ token: symbolETH, amount: '-1.00000000' }], address: accountAlice, block: 113 }
     ])
     expect(info.total).toStrictEqual(11)
   })
@@ -419,8 +386,8 @@ describe('getTransactionHistory', () => {
 
     expect(info.transactions.length).toStrictEqual(2)
     expect(info.transactions).toStrictEqual([
-      { txId: txIdMatcher, type: 'Burn', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }], address: accountAlice, block: 113 },
-      { txId: txIdMatcher, type: 'Mint', member: 'alice', tokenAmounts: [{ token: 'dETH', amount: '2.00000000' }], address: accountAlice, block: 112 }
+      { txId: txIdMatcher, type: 'Burn', member: 'alice', tokenAmounts: [{ token: symbolETH, amount: '-1.00000000' }], address: accountAlice, block: 113 },
+      { txId: txIdMatcher, type: 'Mint', member: 'alice', tokenAmounts: [{ token: symbolETH, amount: '2.00000000' }], address: accountAlice, block: 112 }
     ])
     expect(info.total).toStrictEqual(6)
   })
@@ -452,7 +419,7 @@ describe('getTransactionHistory', () => {
         {
           type: 'Burn',
           member: 'bob',
-          tokenAmounts: [{ token: 'dBTC', amount: '-2.00000000' }],
+          tokenAmounts: [{ token: symbolBTC, amount: '-2.00000000' }],
           txId: txIdMatcher,
           address: accountBob,
           block: 115
@@ -460,7 +427,7 @@ describe('getTransactionHistory', () => {
         {
           type: 'Mint',
           member: 'bob',
-          tokenAmounts: [{ token: 'dBTC', amount: '4.00000000' }],
+          tokenAmounts: [{ token: symbolBTC, amount: '4.00000000' }],
           txId: txIdMatcher,
           address: accountBob,
           block: 114
@@ -475,7 +442,7 @@ describe('getTransactionHistory', () => {
         {
           type: 'Burn',
           member: 'alice',
-          tokenAmounts: [{ token: 'dETH', amount: '-1.00000000' }],
+          tokenAmounts: [{ token: symbolETH, amount: '-1.00000000' }],
           txId: txIdMatcher,
           address: accountAlice,
           block: 113
@@ -483,7 +450,7 @@ describe('getTransactionHistory', () => {
         {
           type: 'Mint',
           member: 'alice',
-          tokenAmounts: [{ token: 'dETH', amount: '2.00000000' }],
+          tokenAmounts: [{ token: symbolETH, amount: '2.00000000' }],
           txId: txIdMatcher,
           address: accountAlice,
           block: 112
@@ -496,7 +463,7 @@ describe('getTransactionHistory', () => {
     expect(page3.transactions[0]).toStrictEqual({
       type: 'Mint',
       member: 'alice',
-      tokenAmounts: [{ token: 'dBTC', amount: '1.00000000' }],
+      tokenAmounts: [{ token: symbolBTC, amount: '1.00000000' }],
       txId: txIdMatcher,
       address: accountAlice,
       block: 111
@@ -525,5 +492,104 @@ describe('getTransactionHistory', () => {
     })
 
     expect(txIds.length).toStrictEqual(0)
+  })
+})
+
+describe('getMemberStats', () => {
+  beforeEach(async () => {
+    await tGroup.start({ startFlags })
+    await service.start()
+    await alice.container.waitForWalletCoinbaseMaturity()
+  })
+
+  afterEach(async () => {
+    try {
+      await service.stop()
+    } finally {
+      await tGroup.stop()
+    }
+  })
+
+  it('should throw an error if provided consortium member id is invalid', async () => {
+    try {
+      await setup()
+      await client.consortium.getMemberStats('123')
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(WhaleApiException)
+      expect(err.error).toStrictEqual({
+        code: 404,
+        type: 'NotFound',
+        at: expect.any(Number),
+        message: 'Consortium member not found',
+        url: '/v0.0/regtest/consortium/stats/123'
+      })
+    }
+  })
+
+  it('should return minted amounts of 0 if the mint transaction does not exists', async () => {
+    await setup()
+
+    const stats = await client.consortium.getMemberStats('01')
+    expect(stats).toStrictEqual(
+      {
+        memberId: '01',
+        memberName: 'alice',
+        mintTokens: [
+          { tokenSymbol: symbolBTC, tokenDisplaySymbol: `d${symbolBTC}`, tokenId: '1', member: { minted: '0.00000000', mintedDaily: '0.00000000', mintLimit: '10.00000000', mintDailyLimit: '5.00000000' }, token: { minted: '0.00000000', mintedDaily: '0.00000000', mintLimit: '10.00000000', mintDailyLimit: '5.00000000' } },
+          { tokenSymbol: symbolETH, tokenDisplaySymbol: `d${symbolETH}`, tokenId: '2', member: { minted: '0.00000000', mintedDaily: '0.00000000', mintLimit: '20.00000000', mintDailyLimit: '10.00000000' }, token: { minted: '0.00000000', mintedDaily: '0.00000000', mintLimit: '20.00000000', mintDailyLimit: '10.00000000' } }
+        ]
+      })
+  })
+
+  it('should return complete mint stats of the member', async () => {
+    await setup()
+
+    await alice.rpc.token.mintTokens({ amounts: [`1@${symbolBTC}`, `2@${symbolETH}`] })
+    await alice.generate(1)
+
+    await bob.rpc.token.mintTokens({ amounts: [`1.5@${symbolBTC}`, `3@${symbolETH}`] })
+    await bob.generate(1)
+
+    await tGroup.waitForSync()
+
+    const stats = await client.consortium.getMemberStats('02')
+    expect(stats).toStrictEqual(
+      {
+        memberId: '02',
+        memberName: 'bob',
+        mintTokens: [
+          { tokenSymbol: symbolBTC, tokenDisplaySymbol: `d${symbolBTC}`, tokenId: '1', member: { minted: '1.50000000', mintedDaily: '1.50000000', mintLimit: '10.00000000', mintDailyLimit: '5.00000000' }, token: { minted: '2.50000000', mintedDaily: '2.50000000', mintLimit: '10.00000000', mintDailyLimit: '5.00000000' } },
+          { tokenSymbol: symbolETH, tokenDisplaySymbol: `d${symbolETH}`, tokenId: '2', member: { minted: '3.00000000', mintedDaily: '3.00000000', mintLimit: '20.00000000', mintDailyLimit: '10.00000000' }, token: { minted: '5.00000000', mintedDaily: '5.00000000', mintLimit: '20.00000000', mintDailyLimit: '10.00000000' } }
+        ]
+      })
+  })
+
+  it('should return overall minted amount for all blocks generated', async () => {
+    await setup()
+
+    await alice.rpc.token.mintTokens({ amounts: [`1@${symbolBTC}`, `1@${symbolETH}`] })
+    await alice.generate(1)
+
+    await bob.rpc.token.mintTokens({ amounts: [`4@${symbolBTC}`] })
+
+    const height = await bob.container.call('getblockcount')
+    const blocksPerDay = (60 * 60 * 24) / (10 * 60) // 144 in regtest
+    await bob.generate(blocksPerDay - height) // Generate blocks for 1 day
+
+    await bob.rpc.token.mintTokens({ amounts: [`2@${symbolBTC}`, `3.2@${symbolETH}`] }) // Next day mint
+    await bob.generate(1)
+
+    await tGroup.waitForSync()
+
+    const stats = await client.consortium.getMemberStats('02')
+    expect(stats).toStrictEqual(
+      {
+        memberId: '02',
+        memberName: 'bob',
+        mintTokens: [
+          { tokenSymbol: symbolBTC, tokenDisplaySymbol: `d${symbolBTC}`, tokenId: '1', member: { minted: '6.00000000', mintedDaily: '2.00000000', mintLimit: '10.00000000', mintDailyLimit: '5.00000000' }, token: { minted: '7.00000000', mintedDaily: '3.00000000', mintLimit: '10.00000000', mintDailyLimit: '5.00000000' } },
+          { tokenSymbol: symbolETH, tokenDisplaySymbol: `d${symbolETH}`, tokenId: '2', member: { minted: '3.20000000', mintedDaily: '3.20000000', mintLimit: '20.00000000', mintDailyLimit: '10.00000000' }, token: { minted: '4.20000000', mintedDaily: '4.20000000', mintLimit: '20.00000000', mintDailyLimit: '10.00000000' } }
+        ]
+      })
   })
 })
