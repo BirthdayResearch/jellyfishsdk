@@ -38,7 +38,7 @@ it('should getblockchaininfo via deprecated endpoint', async () => {
 it('should getblockchaininfo via JSON RPC 1.0', async () => {
   const result = await controller.post({
     method: 'getblockchaininfo'
-  })
+  } as any)
   expect(result.result.chain).toStrictEqual('regtest')
 })
 
