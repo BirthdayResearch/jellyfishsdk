@@ -326,11 +326,11 @@ describe('governance - listProposalVotes', () => {
     const result1 = await client.governance.listGovProposalVotes({ id: cfpProposalId, size: 2, masternode: MasternodeType.ALL, cycle: -1 })
     expect(result1.length).toStrictEqual(2)
     expect(result1.hasNext).toStrictEqual(true)
-    
+
     const result2 = await client.governance.listGovProposalVotes({ id: cfpProposalId, size: 2, next: result1.nextToken, masternode: MasternodeType.ALL, cycle: -1 })
     expect(result2.length).toStrictEqual(2)
     expect(result2.hasNext).toStrictEqual(true)
-    
+
     const result3 = await client.governance.listGovProposalVotes({ id: cfpProposalId, size: 2, next: result2.nextToken, masternode: MasternodeType.ALL, cycle: -1 })
     expect(result3.length).toStrictEqual(0)
     expect(result3.hasNext).toStrictEqual(false)
