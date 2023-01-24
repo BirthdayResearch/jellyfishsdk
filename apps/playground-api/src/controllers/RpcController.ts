@@ -68,7 +68,7 @@ export class CallRequest {
   @IsOptional()
   @IsArray()
   @Transform(({ value }) => value !== undefined ? value : [])
-  params?: any[]
+  params!: any[]
 }
 
 @Controller('/v0/playground/rpc')

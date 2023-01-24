@@ -57,7 +57,7 @@ export class JSONRPCParams {
   @IsOptional()
   @IsArray()
   @Transform(({ value }) => value !== undefined ? value : [])
-  params?: any[]
+  params!: any[]
 }
 
 export class JSONRPC {
@@ -71,7 +71,7 @@ export class JSONRPC {
   @IsOptional()
   @IsArray()
   @Transform(({ value }) => value !== undefined ? value : [])
-  params?: any[]
+  params!: any[]
 }
 
 @Controller('/rpc')
