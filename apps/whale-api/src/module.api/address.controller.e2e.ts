@@ -23,7 +23,6 @@ let dfiUsdc
 describe('listAccountHistory', () => {
   beforeAll(async () => {
     await container.start()
-    await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
 
     colAddr = await testing.generateAddress()
@@ -31,13 +30,22 @@ describe('listAccountHistory', () => {
     poolAddr = await testing.generateAddress()
     emptyAddr = await testing.generateAddress()
 
-    await testing.token.dfi({ address: colAddr, amount: 20000 })
+    await testing.token.dfi({
+      address: colAddr,
+      amount: 20000
+    })
     await testing.generate(1)
 
-    await testing.token.create({ symbol: 'USDC', collateralAddress: colAddr })
+    await testing.token.create({
+      symbol: 'USDC',
+      collateralAddress: colAddr
+    })
     await testing.generate(1)
 
-    await testing.token.mint({ symbol: 'USDC', amount: 10000 })
+    await testing.token.mint({
+      symbol: 'USDC',
+      amount: 10000
+    })
     await testing.generate(1)
 
     await testing.rpc.account.accountToAccount(colAddr, { [usdcAddr]: '10000@USDC' })
@@ -81,25 +89,64 @@ describe('listAccountHistory', () => {
     await testing.generate(1)
 
     // for testing same block pagination
-    await testing.token.create({ symbol: 'APE', collateralAddress: colAddr })
+    await testing.token.create({
+      symbol: 'APE',
+      collateralAddress: colAddr
+    })
     await testing.generate(1)
 
-    await testing.token.create({ symbol: 'CAT', collateralAddress: colAddr })
-    await testing.token.create({ symbol: 'DOG', collateralAddress: colAddr })
+    await testing.token.create({
+      symbol: 'CAT',
+      collateralAddress: colAddr
+    })
+    await testing.token.create({
+      symbol: 'DOG',
+      collateralAddress: colAddr
+    })
     await testing.generate(1)
 
-    await testing.token.create({ symbol: 'ELF', collateralAddress: colAddr })
-    await testing.token.create({ symbol: 'FOX', collateralAddress: colAddr })
-    await testing.token.create({ symbol: 'RAT', collateralAddress: colAddr })
-    await testing.token.create({ symbol: 'BEE', collateralAddress: colAddr })
-    await testing.token.create({ symbol: 'COW', collateralAddress: colAddr })
-    await testing.token.create({ symbol: 'OWL', collateralAddress: colAddr })
-    await testing.token.create({ symbol: 'ELK', collateralAddress: colAddr })
+    await testing.token.create({
+      symbol: 'ELF',
+      collateralAddress: colAddr
+    })
+    await testing.token.create({
+      symbol: 'FOX',
+      collateralAddress: colAddr
+    })
+    await testing.token.create({
+      symbol: 'RAT',
+      collateralAddress: colAddr
+    })
+    await testing.token.create({
+      symbol: 'BEE',
+      collateralAddress: colAddr
+    })
+    await testing.token.create({
+      symbol: 'COW',
+      collateralAddress: colAddr
+    })
+    await testing.token.create({
+      symbol: 'OWL',
+      collateralAddress: colAddr
+    })
+    await testing.token.create({
+      symbol: 'ELK',
+      collateralAddress: colAddr
+    })
     await testing.generate(1)
 
-    await testing.token.create({ symbol: 'PIG', collateralAddress: colAddr })
-    await testing.token.create({ symbol: 'KOI', collateralAddress: colAddr })
-    await testing.token.create({ symbol: 'FLY', collateralAddress: colAddr })
+    await testing.token.create({
+      symbol: 'PIG',
+      collateralAddress: colAddr
+    })
+    await testing.token.create({
+      symbol: 'KOI',
+      collateralAddress: colAddr
+    })
+    await testing.token.create({
+      symbol: 'FLY',
+      collateralAddress: colAddr
+    })
     await testing.generate(1)
 
     app = await createTestingApp(container)
@@ -145,7 +192,10 @@ describe('listAccountHistory', () => {
     while (page >= 0) {
       console.log('benchmarking, page: ', page)
       console.time('listrewards')
-      const history = await controller.listAccountHistory(poolAddr, { size: 30, next })
+      const history = await controller.listAccountHistory(poolAddr, {
+        size: 30,
+        next
+      })
       console.timeEnd('listrewards')
 
       if (history.page?.next === undefined) {
@@ -189,21 +239,30 @@ describe('listAccountHistory', () => {
 
     const firstLast = first.data[first.data.length - 1]
     const secondToken = `${firstLast.txid}-${firstLast.type}-${firstLast.block.height}`
-    const second = await controller.listAccountHistory(colAddr, { size: 3, next: secondToken })
+    const second = await controller.listAccountHistory(colAddr, {
+      size: 3,
+      next: secondToken
+    })
     expect(second.data[0]).toStrictEqual(full.data[3])
     expect(second.data[1]).toStrictEqual(full.data[4])
     expect(second.data[2]).toStrictEqual(full.data[5])
 
     const secondLast = second.data[second.data.length - 1]
     const thirdToken = `${secondLast.txid}-${secondLast.type}-${secondLast.block.height}`
-    const third = await controller.listAccountHistory(colAddr, { size: 3, next: thirdToken })
+    const third = await controller.listAccountHistory(colAddr, {
+      size: 3,
+      next: thirdToken
+    })
     expect(third.data[0]).toStrictEqual(full.data[6])
     expect(third.data[1]).toStrictEqual(full.data[7])
     expect(third.data[2]).toStrictEqual(full.data[8])
 
     const thirdLast = third.data[third.data.length - 1]
     const forthToken = `${thirdLast.txid}-${thirdLast.type}-${thirdLast.block.height}`
-    const forth = await controller.listAccountHistory(colAddr, { size: 3, next: forthToken })
+    const forth = await controller.listAccountHistory(colAddr, {
+      size: 3,
+      next: forthToken
+    })
     expect(forth.data[0]).toStrictEqual(full.data[9])
     expect(forth.data[1]).toStrictEqual(full.data[10])
     expect(forth.data[2]).toStrictEqual(full.data[11])
@@ -220,13 +279,22 @@ describe('getAccount', () => {
     poolAddr = await testing.generateAddress()
     emptyAddr = await testing.generateAddress()
 
-    await testing.token.dfi({ address: colAddr, amount: 20000 })
+    await testing.token.dfi({
+      address: colAddr,
+      amount: 20000
+    })
     await testing.generate(1)
 
-    await testing.token.create({ symbol: 'USDC', collateralAddress: colAddr })
+    await testing.token.create({
+      symbol: 'USDC',
+      collateralAddress: colAddr
+    })
     await testing.generate(1)
 
-    await testing.token.mint({ symbol: 'USDC', amount: 10000 })
+    await testing.token.mint({
+      symbol: 'USDC',
+      amount: 10000
+    })
     await testing.generate(1)
 
     await testing.rpc.account.accountToAccount(colAddr, { [usdcAddr]: '10000@USDC' })
@@ -270,25 +338,64 @@ describe('getAccount', () => {
     await testing.generate(1)
 
     // for testing same block pagination
-    await testing.token.create({ symbol: 'APE', collateralAddress: colAddr })
+    await testing.token.create({
+      symbol: 'APE',
+      collateralAddress: colAddr
+    })
     await testing.generate(1)
 
-    await testing.token.create({ symbol: 'CAT', collateralAddress: colAddr })
-    await testing.token.create({ symbol: 'DOG', collateralAddress: colAddr })
+    await testing.token.create({
+      symbol: 'CAT',
+      collateralAddress: colAddr
+    })
+    await testing.token.create({
+      symbol: 'DOG',
+      collateralAddress: colAddr
+    })
     await testing.generate(1)
 
-    await testing.token.create({ symbol: 'ELF', collateralAddress: colAddr })
-    await testing.token.create({ symbol: 'FOX', collateralAddress: colAddr })
-    await testing.token.create({ symbol: 'RAT', collateralAddress: colAddr })
-    await testing.token.create({ symbol: 'BEE', collateralAddress: colAddr })
-    await testing.token.create({ symbol: 'COW', collateralAddress: colAddr })
-    await testing.token.create({ symbol: 'OWL', collateralAddress: colAddr })
-    await testing.token.create({ symbol: 'ELK', collateralAddress: colAddr })
+    await testing.token.create({
+      symbol: 'ELF',
+      collateralAddress: colAddr
+    })
+    await testing.token.create({
+      symbol: 'FOX',
+      collateralAddress: colAddr
+    })
+    await testing.token.create({
+      symbol: 'RAT',
+      collateralAddress: colAddr
+    })
+    await testing.token.create({
+      symbol: 'BEE',
+      collateralAddress: colAddr
+    })
+    await testing.token.create({
+      symbol: 'COW',
+      collateralAddress: colAddr
+    })
+    await testing.token.create({
+      symbol: 'OWL',
+      collateralAddress: colAddr
+    })
+    await testing.token.create({
+      symbol: 'ELK',
+      collateralAddress: colAddr
+    })
     await testing.generate(1)
 
-    await testing.token.create({ symbol: 'PIG', collateralAddress: colAddr })
-    await testing.token.create({ symbol: 'KOI', collateralAddress: colAddr })
-    await testing.token.create({ symbol: 'FLY', collateralAddress: colAddr })
+    await testing.token.create({
+      symbol: 'PIG',
+      collateralAddress: colAddr
+    })
+    await testing.token.create({
+      symbol: 'KOI',
+      collateralAddress: colAddr
+    })
+    await testing.token.create({
+      symbol: 'FLY',
+      collateralAddress: colAddr
+    })
     await testing.generate(1)
 
     app = await createTestingApp(container)
@@ -364,7 +471,6 @@ describe('getAccount', () => {
 describe('getBalance', () => {
   beforeAll(async () => {
     await container.start()
-    await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
     await container.waitForWalletBalanceGTE(100)
 
@@ -434,7 +540,6 @@ describe('getBalance', () => {
 describe('getAggregation', () => {
   beforeAll(async () => {
     await container.start()
-    await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
     await container.waitForWalletBalanceGTE(100)
 
@@ -491,7 +596,6 @@ describe('getAggregation', () => {
 describe('listTransactions', () => {
   beforeAll(async () => {
     await container.start()
-    await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
     await container.waitForWalletBalanceGTE(100)
 
@@ -652,7 +756,6 @@ describe('listTransactions', () => {
 describe('listTransactionsUnspent', () => {
   beforeAll(async () => {
     await container.start()
-    await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
     await container.waitForWalletBalanceGTE(100)
 
@@ -691,8 +794,12 @@ describe('listTransactionsUnspent', () => {
     bech32: 'bcrt1qf26rj8895uewxcfeuukhng5wqxmmpqp555z5a7',
     privKey: 'cQbfHFbdJNhg3UGaBczir2m5D4hiFRVRKgoU8GJoxmu2gEhzqHtV'
   }
+  const addressC = {
+    bech32: 'bcrt1qyf5c9593u8v5s7exh3mfndw28k6sz84788tlze',
+    privKey: 'cPEKnsDLWGQXyFEaYxkcgwLddd7tGdJ2vZdEiFTzxMrY5dAMPKH1'
+  }
   const options = {
-    aEllipticPair: WIF.asEllipticPair(addressA.privKey),
+    aEllipticPair: WIF.asEllipticPair(addressC.privKey),
     bEllipticPair: WIF.asEllipticPair(addressB.privKey)
   }
 
@@ -700,7 +807,6 @@ describe('listTransactionsUnspent', () => {
     const response = await controller.listTransactionsUnspent(addressA.bech32, {
       size: 30
     })
-    console.log(response)
 
     expect(response.data.length).toStrictEqual(4)
     expect(response.page).toBeUndefined()
@@ -792,15 +898,27 @@ describe('listTransactionsUnspent', () => {
 describe('listTokens', () => {
   async function setupLoanToken (): Promise<void> {
     const oracleId = await testing.rpc.oracle.appointOracle(await testing.generateAddress(), [
-      { token: 'DFI', currency: 'USD' },
-      { token: 'LOAN', currency: 'USD' }
+      {
+        token: 'DFI',
+        currency: 'USD'
+      },
+      {
+        token: 'LOAN',
+        currency: 'USD'
+      }
     ], { weightage: 1 })
     await testing.generate(1)
 
     await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
       prices: [
-        { tokenAmount: '2@DFI', currency: 'USD' },
-        { tokenAmount: '2@LOAN', currency: 'USD' }
+        {
+          tokenAmount: '2@DFI',
+          currency: 'USD'
+        },
+        {
+          tokenAmount: '2@LOAN',
+          currency: 'USD'
+        }
       ]
     })
     await testing.generate(1)
@@ -839,8 +957,14 @@ describe('listTokens', () => {
 
     await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
       prices: [
-        { tokenAmount: '2@DFI', currency: 'USD' },
-        { tokenAmount: '2@LOAN', currency: 'USD' }
+        {
+          tokenAmount: '2@DFI',
+          currency: 'USD'
+        },
+        {
+          tokenAmount: '2@LOAN',
+          currency: 'USD'
+        }
       ]
     })
     await testing.generate(1)
