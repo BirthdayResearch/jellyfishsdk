@@ -323,16 +323,18 @@ describe('governance - listProposalVotes', () => {
   })
 
   it('should listProposalVotes with pagination', async () => {
-    const result = await client.governance.listGovProposalVotes({ id: cfpProposalId, size: 2, masternode: MasternodeType.ALL, cycle: -1 })
-    expect(result.length).toStrictEqual(2)
-    expect(result.hasNext).toStrictEqual(true)
-    const result1 = await client.governance.listGovProposalVotes({ id: cfpProposalId, size: 2, next: result.nextToken, masternode: MasternodeType.ALL, cycle: -1 })
+    const result1 = await client.governance.listGovProposalVotes({ id: cfpProposalId, size: 2, masternode: MasternodeType.ALL, cycle: -1 })
     expect(result1.length).toStrictEqual(2)
     expect(result1.hasNext).toStrictEqual(true)
+    
     const result2 = await client.governance.listGovProposalVotes({ id: cfpProposalId, size: 2, next: result1.nextToken, masternode: MasternodeType.ALL, cycle: -1 })
-    expect(result2.length).toStrictEqual(0)
-    expect(result2.hasNext).toStrictEqual(false)
-    expect(result2.nextToken).toStrictEqual(undefined)
+    expect(result2.length).toStrictEqual(2)
+    expect(result2.hasNext).toStrictEqual(true)
+    
+    const result3 = await client.governance.listGovProposalVotes({ id: cfpProposalId, size: 2, next: result2.nextToken, masternode: MasternodeType.ALL, cycle: -1 })
+    expect(result3.length).toStrictEqual(0)
+    expect(result3.hasNext).toStrictEqual(false)
+    expect(result3.nextToken).toStrictEqual(undefined)
   })
 
   it('should listProposalVotes with all masternodes and cycle', async () => {
