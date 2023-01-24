@@ -54,6 +54,9 @@ export class MethodWhitelist implements PipeTransform {
 }
 
 export class JSONRPCParams {
+  @IsOptional()
+  @IsArray()
+  @Transform(({ value }) => value !== undefined ? value : [])
   params?: any[]
 }
 

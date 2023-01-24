@@ -10,6 +10,8 @@ import {
   ArgumentMetadata
 } from '@nestjs/common'
 import { ApiClient } from '@defichain/jellyfish-api-core'
+import { IsArray, IsOptional } from 'class-validator'
+import { Transform } from 'class-transformer'
 
 /**
  * MethodWhitelist is a whitelist validation pipe to check whether a plain old rpc can be
@@ -63,6 +65,9 @@ export class MethodBlacklist implements PipeTransform {
 }
 
 export class CallRequest {
+  @IsOptional()
+  @IsArray()
+  @Transform(({ value }) => value !== undefined ? value : [])
   params?: any[]
 }
 
