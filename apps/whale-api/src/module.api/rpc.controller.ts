@@ -82,7 +82,7 @@ export class RpcController {
   @Post()
   async post (@Body() rpc: JSONRPC): Promise<ApiRpcResponse> {
     try {
-      const result = await this.client.call(rpc.method, rpc.params ?? [], 'lossless')
+      const result = await this.client.call(rpc.method, rpc.params, 'lossless')
       return new ApiRpcResponse(result)
     } catch (err: any) {
       if (err instanceof RpcApiError || err.payload !== undefined) {
