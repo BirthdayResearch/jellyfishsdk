@@ -58,7 +58,6 @@ issue:
         - legacy-api
         - ocean-api
         - playground-api
-        - rich-list-api
         - stats-api
         - whale-api
         - website

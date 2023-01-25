@@ -54,7 +54,10 @@ export class MethodWhitelist implements PipeTransform {
 }
 
 export class JSONRPCParams {
-  params?: any[]
+  @IsOptional()
+  @IsArray()
+  @Transform(({ value }) => value !== undefined ? value : [])
+  params!: any[]
 }
 
 export class JSONRPC {
@@ -68,7 +71,7 @@ export class JSONRPC {
   @IsOptional()
   @IsArray()
   @Transform(({ value }) => value !== undefined ? value : [])
-  params?: any[]
+  params!: any[]
 }
 
 @Controller('/rpc')
@@ -79,7 +82,7 @@ export class RpcController {
   @Post()
   async post (@Body() rpc: JSONRPC): Promise<ApiRpcResponse> {
     try {
-      const result = await this.client.call(rpc.method, rpc.params ?? [], 'lossless')
+      const result = await this.client.call(rpc.method, rpc.params, 'lossless')
       return new ApiRpcResponse(result)
     } catch (err: any) {
       if (err instanceof RpcApiError || err.payload !== undefined) {

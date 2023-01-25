@@ -36,6 +36,8 @@ import { LegacySubgraphService } from './legacy.subgraph.service'
 import { PoolPairFeesService } from './poolpair.fees.service'
 import { ConsortiumController } from './consortium.controller'
 import { ConsortiumService } from './consortium.service'
+import { GovernanceController } from './governance.controller'
+import { GovernanceService } from './governance.service'
 
 /**
  * Exposed ApiModule for public interfacing
@@ -59,7 +61,8 @@ import { ConsortiumService } from './consortium.service'
     RawtxController,
     LoanController,
     LegacyController,
-    ConsortiumController
+    ConsortiumController,
+    GovernanceController
   ],
   providers: [
     {
@@ -104,7 +107,8 @@ import { ConsortiumService } from './consortium.service'
       inject: [ConfigService]
     },
     LegacySubgraphService,
-    ConsortiumService
+    ConsortiumService,
+    GovernanceService
   ],
   exports: [
     DeFiDCache

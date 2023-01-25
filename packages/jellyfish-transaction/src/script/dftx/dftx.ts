@@ -36,10 +36,12 @@ import {
   PoolUpdatePair
 } from './dftx_pool'
 import {
+  CTokenBurn,
   CTokenCreate,
   CTokenMint,
   CTokenUpdate,
   CTokenUpdateAny,
+  TokenBurn,
   TokenCreate,
   TokenMint,
   TokenUpdate,
@@ -204,6 +206,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<PoolUpdatePair>(CPoolUpdatePair.OP_NAME, d => new CPoolUpdatePair(d))
       case CTokenMint.OP_CODE:
         return compose<TokenMint>(CTokenMint.OP_NAME, d => new CTokenMint(d))
+      case CTokenBurn.OP_CODE:
+        return compose<TokenBurn>(CTokenBurn.OP_NAME, d => new CTokenBurn(d))
       case CTokenCreate.OP_CODE:
         return compose<TokenCreate>(CTokenCreate.OP_NAME, d => new CTokenCreate(d))
       case CTokenUpdate.OP_CODE:

@@ -89,28 +89,29 @@ export class Token {
   /**
    * Creates a transaction to mint tokens.
    *
-   * @param {string} amountToken formatted as `${number}@${string}`
-   * @param {UTXO[]} [utxos = []]
-   * @param {string} [utxos.txid]
-   * @param {number} [utxos.vout]
+   * @param {string[]} options.amounts formatted as `${number}@${string}`
+   * @param {UTXO[]} [options.utxos = []]
+   * @param {string} [options.utxos.txid]
+   * @param {number} [options.utxos.vout]
+   * @param {string} [options.to] address to send minted tokens to
    * @return {Promise<string>}
    */
-  async mintTokens (amountToken: string, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('minttokens', [amountToken, utxos], 'number')
+  async mintTokens (options: MintTokensOptions): Promise<string> {
+    return await this.client.call('minttokens', [options], 'number')
   }
 
   /**
    * Creates a transaction to burn tokens.
    *
    * @param {string} amounts Amount as json string, or array. Example: '[ \"amount@token\" ]'
-   * @param {string} from Address containing tokens to be burned
-   * @param {string} context Additional data necessary for specific burn type
+   * @param {string} [from] Address containing tokens to be burned
+   * @param {string} [context] Additional data necessary for specific burn type
    * @param {UTXO[]} [utxos = []] A json array of json objects. Provide it if you want to spent specific UTXOs
    * @param {string} [utxos.txid] The transaction id
    * @param {number} [utxos.vout] The output number
    * @return {Promise<string>} The hex-encoded hash of broadcasted transaction
    */
-  async burnTokens (amounts: string, from: string, context?: string, utxos: UTXO[] = []): Promise<string> {
+  async burnTokens (amounts: string, from?: string, context?: string, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('burntokens', [{ amounts, from, context }, utxos], 'number')
   }
 
@@ -207,4 +208,10 @@ export interface DecodeCustomTxResult {
   type: string
   valid: boolean
   results: object
+}
+
+export interface MintTokensOptions {
+  amounts: string[]
+  utxos?: UTXO[]
+  to?: string
 }

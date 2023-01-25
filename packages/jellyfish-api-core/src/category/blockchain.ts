@@ -207,6 +207,36 @@ export class Blockchain {
   }
 
   /**
+  * Get all in-mempool descendants for a given transaction as string[]
+  *
+  * @param {string} txId the transaction id
+  * @param {boolean} verbose false
+  * @return {Promise<string[]>}
+  */
+  getMempoolDescendants (txId: string, verbose?: false): Promise<string[]>
+
+  /**
+  * Get all in-mempool descendants for a given transaction as json object
+  *
+  * @param {string} txId the transaction id
+  * @param {boolean} verbose true
+  * @return {Promise<MempoolTx>}
+  */
+  getMempoolDescendants (txId: string, verbose?: true): Promise<MempoolTx>
+
+  /**
+   * Get all in-mempool descendants if txId is in mempool as string[] if verbose is false
+   * else as json object
+   *
+   * @param {string} txId the transaction id
+   * @param {boolean} verbose default = false, true for json object, false for array of transaction ids
+   * @return {Promise<string[] | MempoolTx>}
+   */
+  async getMempoolDescendants (txId: string, verbose: boolean = false): Promise<string[] | MempoolTx> {
+    return await this.client.call('getmempooldescendants', [txId, verbose], 'bignumber')
+  }
+
+  /**
    * Get mempool data for the given transaction
    * @param {string} txId the transaction id
    * @return {Promise<MempoolTx>}

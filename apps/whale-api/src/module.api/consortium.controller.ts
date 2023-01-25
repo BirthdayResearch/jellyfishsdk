@@ -1,7 +1,7 @@
-import { Controller, Get } from '@nestjs/common'
+import { Controller, Get, Param } from '@nestjs/common'
 import { ConsortiumService } from './consortium.service'
 import { SemaphoreCache } from '@defichain-apps/libs/caches'
-import { AssetBreakdownInfo } from '@defichain/whale-api-client/dist/api/consortium'
+import { AssetBreakdownInfo, MemberStatsInfo } from '@defichain/whale-api-client/dist/api/consortium'
 
 @Controller('/consortium')
 export class ConsortiumController {
@@ -22,5 +22,19 @@ export class ConsortiumController {
     }, {
       ttl: 600 // 10 minutes
     }) as AssetBreakdownInfo[]
+  }
+
+  /**
+   *  Gets the stats information of a specific consortium member
+   *
+   * @return {Promise<MemberStatsInfo>}
+    */
+  @Get('/stats/:memberid')
+  async getMemberStats (@Param('memberid') memberId: string): Promise<MemberStatsInfo> {
+    return await this.cache.get<MemberStatsInfo>('CONSORTIUM_MEMBER_STATS', async () => {
+      return await this.consortiumService.getMemberStats(memberId)
+    }, {
+      ttl: 300 // 5 minutes
+    }) as MemberStatsInfo
   }
 }
