@@ -99,7 +99,10 @@ export class GovernanceService {
       }))
 
       return ApiPagedResponse.of(votes, size, () => {
-        return (votes.length - 1).toString()
+        if (next === undefined) {
+          return (votes.length - 1).toString()
+        }
+        return (next + votes.length).toString()
       })
     } catch (err) {
       if (
