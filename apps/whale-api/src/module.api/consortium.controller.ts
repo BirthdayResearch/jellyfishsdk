@@ -1,7 +1,17 @@
-import { Controller, ForbiddenException, Get, Query, Param } from '@nestjs/common'
+import { Controller, Get, Query, Param } from '@nestjs/common'
 import { ConsortiumService } from './consortium.service'
 import { ConsortiumTransactionResponse, AssetBreakdownInfo, MemberStatsInfo } from '@defichain/whale-api-client/dist/api/consortium'
 import { SemaphoreCache } from '@defichain-apps/libs/caches'
+import { PaginationQuery } from './_core/api.query'
+import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator'
+
+class TransactionHistoryPaginationQuery extends PaginationQuery {
+  @IsOptional()
+  @IsString()
+  @MinLength(3)
+  @MaxLength(64)
+  searchTerm?: string
+}
 
 @Controller('/consortium')
 export class ConsortiumController {
@@ -17,24 +27,14 @@ export class ConsortiumController {
     */
   @Get('/transactions')
   async getTransactionHistory (
-    @Query() query: { pageIndex?: number, limit?: number, searchTerm?: string }
+    @Query() query: TransactionHistoryPaginationQuery = { size: 50 }
   ): Promise<ConsortiumTransactionResponse> {
-    const { pageIndex = 0, limit = 20, searchTerm = undefined } = query
+    const { searchTerm = '' } = query
+    const next = query.next !== undefined ? Number(query.next) : 0
+    const size = Math.min(query.size, 50)
 
-    if (limit > 50 || limit < 1) {
-      throw new ForbiddenException('InvalidLimit')
-    }
-
-    if (searchTerm !== undefined && (searchTerm.length < 3 || searchTerm.length > 64)) {
-      throw new ForbiddenException('InvalidSearchTerm')
-    }
-
-    if (pageIndex < 0) {
-      throw new ForbiddenException('InvalidPageIndex')
-    }
-
-    return await this.cache.get<ConsortiumTransactionResponse>(`CONSORTIUM_TRANSACTIONS_${JSON.stringify({ pageIndex, limit, searchTerm })}`, async () => {
-      return await this.consortiumService.getTransactionHistory(+pageIndex, +limit, typeof searchTerm === 'string' ? searchTerm : '')
+    return await this.cache.get<ConsortiumTransactionResponse>(`CONSORTIUM_TRANSACTIONS_${JSON.stringify({ next, size, searchTerm })}`, async () => {
+      return await this.consortiumService.getTransactionHistory(next, size, searchTerm)
     }, {
       ttl: 600 // 10 mins
     }) as ConsortiumTransactionResponse

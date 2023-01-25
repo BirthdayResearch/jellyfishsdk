@@ -106,6 +106,7 @@ export class ConsortiumService {
     const memberAddresses = members.map(m => m.ownerAddress)
 
     const transactions: AccountHistory[] = await this.rpcClient.account.listAccountHistory(memberAddresses, {
+      no_rewards: true,
       txtypes: [DfTxType.MINT_TOKEN, DfTxType.BURN_TOKEN],
       including_start: true,
       start: pageIndex * limit,

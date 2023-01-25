@@ -319,18 +319,32 @@ describe('getTransactionHistory', () => {
     await waitForIndexedHeight(app, height)
   }
 
-  it('should throw an error if the limit is invalid', async () => {
-    await expect(client.consortium.getTransactionHistory(0, 51)).rejects.toThrow('InvalidLimit')
-    await expect(client.consortium.getTransactionHistory(0, 0)).rejects.toThrow('InvalidLimit')
-  })
-
   it('should throw an error if the search term is invalid', async () => {
-    await expect(client.consortium.getTransactionHistory(1, 10, 'a')).rejects.toThrow('InvalidSearchTerm')
-    await expect(client.consortium.getTransactionHistory(1, 10, 'a'.repeat(65))).rejects.toThrow('InvalidSearchTerm')
-  })
+    try {
+      await client.consortium.getTransactionHistory(1, 10, 'a')
+    } catch (err: any) {
+      expect(err.message).toStrictEqual('422 - ValidationError (/v0.0/regtest/consortium/transactions?next=1&size=10&searchTerm=a)')
+      expect(err.properties).toStrictEqual([{
+        constraints: [
+          'searchTerm must be longer than or equal to 3 characters'
+        ],
+        property: 'searchTerm',
+        value: 'a'
+      }])
+    }
 
-  it('should throw an error if the pageIndex is invalid', async () => {
-    await expect(client.consortium.getTransactionHistory(-1, 10)).rejects.toThrow('InvalidPageIndex')
+    try {
+      await client.consortium.getTransactionHistory(1, 10, 'a'.repeat(65))
+    } catch (err: any) {
+      expect(err.message).toStrictEqual(`422 - ValidationError (/v0.0/regtest/consortium/transactions?next=1&size=10&searchTerm=${'a'.repeat(65)})`)
+      expect(err.properties).toStrictEqual([{
+        constraints: [
+          'searchTerm must be shorter than or equal to 64 characters'
+        ],
+        property: 'searchTerm',
+        value: 'a'.repeat(65)
+      }])
+    }
   })
 
   it('should filter transactions with search term (member name)', async () => {

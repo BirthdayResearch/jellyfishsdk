@@ -34,15 +34,15 @@ export class Consortium {
    * @param {string} [searchTerm] Search term, can be a transaction id, member/owner address or name
    * @return {Promise<ConsortiumTransactionResponse[]>}
     */
-  async getTransactionHistory (pageIndex?: number, limit?: number, searchTerm?: string): Promise<ConsortiumTransactionResponse> {
+  async getTransactionHistory (next?: number, size?: number, searchTerm?: string): Promise<ConsortiumTransactionResponse> {
     const query = []
 
-    if (pageIndex !== undefined) {
-      query.push(`pageIndex=${pageIndex}`)
+    if (next !== undefined) {
+      query.push(`next=${next}`)
     }
 
-    if (limit !== undefined) {
-      query.push(`limit=${limit}`)
+    if (size !== undefined) {
+      query.push(`size=${size}`)
     }
 
     if (searchTerm !== undefined) {
