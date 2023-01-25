@@ -6,6 +6,7 @@ import { AccountHistoryCountOptions, DfTxType } from '../../../src/category/acco
 describe('Account', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
+  let from: string, to: string
 
   beforeAll(async () => {
     await container.start()
@@ -19,10 +20,10 @@ describe('Account', () => {
   })
 
   async function setup (): Promise<void> {
-    const from = await container.call('getnewaddress')
+    from = await container.call('getnewaddress')
     await createToken(from, 'DBTC', 200)
 
-    const to = await accountToAccount('DBTC', 5, from)
+    to = await accountToAccount('DBTC', 5, from)
     await accountToAccount('DBTC', 18, from, to)
 
     await createToken(from, 'DETH', 200)
@@ -102,7 +103,7 @@ describe('Account', () => {
     })
   })
 
-  it('should get accountHistory with txtype option', async () => {
+  it('should get accountHistoryCount with txtype option', async () => {
     await waitForExpect(async () => {
       const options: AccountHistoryCountOptions = {
         txtype: DfTxType.MINT_TOKEN
@@ -121,12 +122,27 @@ describe('Account', () => {
       }
       const options2: AccountHistoryCountOptions = {
         txtype: DfTxType.POOL_SWAP
-
       }
       const count1 = await client.account.historyCount('mine', options1)
       const count2 = await client.account.historyCount('mine', options2)
 
       expect(count1 === count2).toStrictEqual(false)
     })
+  })
+
+  it('should get accountHistoryCount for multiple txtypes at once', async () => {
+    const mintCount = await client.account.historyCount('mine', { txtype: DfTxType.MINT_TOKEN })
+    const poolSwapCount = await client.account.historyCount('mine', { txtype: DfTxType.POOL_SWAP })
+    const combinedCount = await client.account.historyCount('mine', { txtypes: [DfTxType.MINT_TOKEN, DfTxType.POOL_SWAP] })
+
+    expect(combinedCount).toStrictEqual(mintCount + poolSwapCount)
+  })
+
+  it('should get accountHistoryCount for multiple addresses at once', async () => {
+    const fromCount = await client.account.historyCount(from)
+    const toCount = await client.account.historyCount(to)
+    const combinedCount = await client.account.historyCount([from, to])
+
+    expect(combinedCount).toStrictEqual(fromCount + toCount)
   })
 })

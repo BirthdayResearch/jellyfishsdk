@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  APPS: 'legacy-api,ocean-api,playground-api,status-api,whale-api'
+  APPS: 'legacy-api,playground-api,status-api,whale-api'
 
 jobs:
   build:
@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        app: [ legacy-api, ocean-api, playground-api, status-api, whale-api ]
+        app: [ legacy-api, playground-api, status-api, whale-api ]
     steps:
       - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
 
@@ -49,7 +49,7 @@ jobs:
           result-encoding: string
 
       - name: Build & Publish
-        uses: docker/build-push-action@c56af957549030174b10d6867f20e78cfd7debc5 # v3.2.0
+        uses: docker/build-push-action@37abcedcc1da61a57767b7588cb9d03eb57e28b3 # v3.3.0
         with:
           push: true
           build-args: APP=${{ matrix.app }}

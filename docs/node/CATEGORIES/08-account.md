@@ -183,7 +183,7 @@ Returns information about account history
 ```ts title="client.account.listAccountHistory()"
 interface account {
   listAccountHistory (
-    owner: OwnerType | string = OwnerType.MINE,
+    owner: OwnerType | string | string[] = OwnerType.MINE,
     options: AccountHistoryOptions = {
       limit: 100
     }
@@ -197,6 +197,7 @@ enum OwnerType {
 
 enum DfTxType {
   MINT_TOKEN = 'M',
+  BURN_TOKEN = 'F',
   POOL_SWAP = 's',
   ADD_POOL_LIQUIDITY = 'l',
   REMOVE_POOL_LIQUIDITY = 'r',
@@ -238,7 +239,10 @@ interface AccountHistoryOptions {
   no_rewards?: boolean
   token?: string
   txtype?: DfTxType
+  txtypes?: DfTxType[]
   limit?: number
+  start?: number
+  including_start?: boolean
   txn?: number
   format?: Format
 }
@@ -276,7 +280,7 @@ Returns count of account history
 ```ts title="client.account.historyCount()"
 interface account {
   historyCount (
-    owner: OwnerType | string = OwnerType.MINE,
+    owner: OwnerType | string | string[] = OwnerType.MINE,
     options: AccountHistoryCountOptions = {}
   ): Promise<number>
 }
@@ -288,6 +292,7 @@ enum OwnerType {
 
 enum DfTxType {
   MINT_TOKEN = 'M',
+  BURN_TOKEN = 'F',
   POOL_SWAP = 's',
   ADD_POOL_LIQUIDITY = 'l',
   REMOVE_POOL_LIQUIDITY = 'r',
@@ -310,6 +315,7 @@ enum DfTxType {
 interface AccountHistoryCountOptions {
   token?: string
   txtype?: DfTxType
+  txtypes?: DfTxType[]
   no_rewards?: boolean
 }
 ```
@@ -376,6 +382,7 @@ interface account {
 
 enum DfTxType {
   MINT_TOKEN = 'M',
+  BURN_TOKEN = 'F',
   POOL_SWAP = 's',
   ADD_POOL_LIQUIDITY = 'l',
   REMOVE_POOL_LIQUIDITY = 'r',

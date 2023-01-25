@@ -54,7 +54,7 @@ describe('burnTokens', () => {
       }
     })
 
-    await tGroup.get(0).rpc.token.mintTokens(`10@${symbolDBTC}`)
+    await tGroup.get(0).rpc.token.mintTokens({ amounts: [`10@${symbolDBTC}`] })
     await tGroup.get(0).generate(1)
   })
 

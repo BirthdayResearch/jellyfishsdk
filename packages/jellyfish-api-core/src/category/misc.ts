@@ -56,6 +56,17 @@ export class Misc {
   async createMultiSig (nRequired: number, keys: string[], addressType: string = 'legacy'): Promise<MultiSigAddress> {
     return await this.client.call('createmultisig', [nRequired, keys, addressType], 'number')
   }
+  
+  /**
+   * Derives one or more addresses corresponding to an output descriptor.
+   *
+   * @param {string} descriptor The descriptor.
+   * @param {number[]} range If a ranged descriptor is used, this specifies the end or the range (in [begin,end] notation) to derive.
+   * @return Promise<string[]> the derived addresses
+   */
+  async deriveAddresses (descriptor: string, range?: number[]): Promise<string[]> {
+    return await this.client.call('deriveaddresses', [descriptor, range].filter(x => x !== undefined), 'number')
+  }
 }
 
 export interface MultiSigAddress {

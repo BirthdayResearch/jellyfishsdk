@@ -1,7 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
-import { DfTxType, BalanceTransferPayload, AccountResult, AccountOwner, Format } from '../../../src/category/account'
+import { AccountOwner, AccountResult, BalanceTransferPayload, DfTxType, Format } from '../../../src/category/account'
 
 function createTokenForContainer (container: MasterNodeRegTestContainer) {
   return async (address: string, symbol: string, amount: number) => {
@@ -25,13 +25,27 @@ describe('Account', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
   const createToken = createTokenForContainer(container)
+  const txtypes = [DfTxType.BURN_TOKEN, DfTxType.MINT_TOKEN]
+
+  let addr1: string
+  let addr2: string
 
   beforeAll(async () => {
     await container.start()
-    await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
     await container.waitForWalletBalanceGTE(100)
-    await createToken(await container.getNewAddress(), 'DBTC', 200)
+
+    addr1 = await container.getNewAddress()
+    addr2 = await container.getNewAddress()
+
+    await createToken(addr1, 'dBTC', 201)
+    await createToken(addr2, 'dETH', 100)
+
+    for (let i = 1; i <= 10; i++) {
+      await client.token.burnTokens(`${0.01 * i}@dBTC`, addr1)
+      await client.token.burnTokens(`${0.01 * i}@dETH`, addr2)
+      await container.generate(1)
+    }
   })
 
   afterAll(async () => {
@@ -158,7 +172,7 @@ describe('Account', () => {
 
   it('should listAccountHistory with options token', async () => {
     const options = {
-      token: 'DBTC'
+      token: 'dBTC'
     }
     await waitForExpect(async () => {
       const accountHistories = await client.account.listAccountHistory('mine', options)
@@ -172,7 +186,7 @@ describe('Account', () => {
       for (let j = 0; j < accountHistory.amounts.length; j += 1) {
         const amount = accountHistory.amounts[j]
         const symbol = amount.split('@')[1]
-        expect(symbol).toStrictEqual('DBTC')
+        expect(symbol).toStrictEqual('dBTC')
       }
     }
   })
@@ -223,8 +237,8 @@ describe('Account', () => {
     const accountHistories = await client.account.listAccountHistory('mine', options)
     expect(accountHistories.length).toBeGreaterThan(0)
     accountHistories.forEach(accountHistory => {
-      expect(accountHistory.blockHeight).toBeLessThanOrEqual(103)
-      if (accountHistory.blockHeight === 103) {
+      expect(accountHistory.blockHeight).toBeLessThanOrEqual(125)
+      if (accountHistory.blockHeight === 125) {
         expect(accountHistory.txn).toBeLessThanOrEqual(options.txn)
       }
     })
@@ -269,7 +283,7 @@ describe('Account', () => {
     const { hex, addresses } = owner
 
     const options = {
-      maxBlockHeight: 103,
+      maxBlockHeight: 105,
       txn: 1
     }
     const accountHistories = await client.account.listAccountHistory(hex, options)
@@ -290,7 +304,7 @@ describe('Account', () => {
     const { hex, addresses } = owner
 
     const options = {
-      maxBlockHeight: 103,
+      maxBlockHeight: 105,
       txn: 0
     }
     const accountHistories = await client.account.listAccountHistory(hex, options)
@@ -307,7 +321,7 @@ describe('Account', () => {
   it('should listAccountHistory with options format', async () => {
     { // amount format should be id
       const options = {
-        token: 'DBTC',
+        token: 'dBTC',
         format: Format.ID
       }
       const accountHistories = await client.account.listAccountHistory('mine', options)
@@ -325,7 +339,7 @@ describe('Account', () => {
 
     { // amount format should be symbol
       const options = {
-        token: 'DBTC',
+        token: 'dBTC',
         format: Format.SYMBOL
       }
       const accountHistories = await client.account.listAccountHistory('mine', options)
@@ -336,7 +350,7 @@ describe('Account', () => {
         for (let j = 0; j < accountHistory.amounts.length; j += 1) {
           const amount = accountHistory.amounts[j]
           const symbol = amount.split('@')[1]
-          expect(symbol).toStrictEqual('DBTC')
+          expect(symbol).toStrictEqual('dBTC')
         }
       }
     }
@@ -357,6 +371,34 @@ describe('Account', () => {
         }
       }
     }
+  })
+
+  it('should listAccountHistory with multiple addresses', async () => {
+    const accountHistoryAll = await client.account.listAccountHistory([addr1, addr2])
+    expect(accountHistoryAll.length).toStrictEqual(34)
+  })
+
+  it('should listAccountHistory with multiple addresses and txtypes', async () => {
+    const accountHistoryAll = await client.account.listAccountHistory([addr1, addr2], { txtypes })
+    expect(accountHistoryAll.length).toStrictEqual(22)
+  })
+
+  it('should listAccountHistory with multiple addresses, txtypes along with index based pagination', async () => {
+    const accountHistoryAll = await client.account.listAccountHistory([addr1, addr2], { txtypes })
+    expect(accountHistoryAll.length).toStrictEqual(22)
+
+    const accountHistory1 = await client.account.listAccountHistory([addr1, addr2], { start: 2, txtypes })
+    expect(accountHistory1[0].txid).toStrictEqual(accountHistoryAll[3].txid)
+    expect(accountHistory1.length).toStrictEqual(19)
+
+    const accountHistory2 = await client.account.listAccountHistory([addr1, addr2], { start: 2, including_start: true, txtypes })
+    expect(accountHistory2[0].txid).toStrictEqual(accountHistoryAll[2].txid)
+    expect(accountHistory2.length).toStrictEqual(20)
+
+    const accountHistory3 = await client.account.listAccountHistory([addr1, addr2], { start: 2, including_start: true, limit: 3, txtypes })
+    expect(accountHistory3[0].txid).toStrictEqual(accountHistoryAll[2].txid)
+    expect(accountHistory3[2].txid).toStrictEqual(accountHistoryAll[4].txid)
+    expect(accountHistory3.length).toStrictEqual(3)
   })
 })
 
