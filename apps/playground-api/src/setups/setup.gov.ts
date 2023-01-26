@@ -1,8 +1,13 @@
 import { PlaygroundSetup } from '../setups/setup'
 import { Injectable } from '@nestjs/common'
+import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
+import { ConsortiumKey } from '../ConsortiumKey'
 
 @Injectable()
 export class SetupGov extends PlaygroundSetup<Record<string, any>> {
+  consortiumOwnerAddress1: string = ConsortiumKey.address
+  consortiumOwnerAddress2: string = RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.address
+
   list (): Array<Record<string, any>> {
     return [
       {
@@ -72,14 +77,14 @@ export class SetupGov extends PlaygroundSetup<Record<string, any>> {
           'v0/consortium/1/members': {
             '01': {
               name: 'Waves HQ',
-              ownerAddress: 'bcrt1qc2g87p4pehe0pnfsmph63m00f38gh76tjpuuf9',
+              ownerAddress: this.consortiumOwnerAddress1,
               backingId: 'backing_address_btc_1_c',
               mintLimitDaily: '5.00000000',
               mintLimit: '50.00000000'
             },
             '02': {
               name: 'Alexandria',
-              ownerAddress: 'bcrt1qwg4n6520y64ajkl9nhul9jc0dpqhhrunwnmt4t',
+              ownerAddress: this.consortiumOwnerAddress2,
               backingId: 'backing_address_btc_1_br, backing_address_btc_2_br',
               mintLimitDaily: '5.00000000',
               mintLimit: '50.00000000'
@@ -94,14 +99,14 @@ export class SetupGov extends PlaygroundSetup<Record<string, any>> {
           'v0/consortium/2/members': {
             '01': {
               name: 'Waves HQ',
-              ownerAddress: 'bcrt1qc2g87p4pehe0pnfsmph63m00f38gh76tjpuuf9',
+              ownerAddress: this.consortiumOwnerAddress1,
               backingId: 'backing_address_eth_1_c',
               mintLimitDaily: '5.00000000',
               mintLimit: '10.00000000'
             },
             '02': {
               name: 'Alexandria',
-              ownerAddress: 'bcrt1qwg4n6520y64ajkl9nhul9jc0dpqhhrunwnmt4t',
+              ownerAddress: this.consortiumOwnerAddress2,
               backingId: 'backing_address_eth_1_br, backing_address_eth_2_br',
               mintLimitDaily: '5.00000000',
               mintLimit: '10.00000000'
