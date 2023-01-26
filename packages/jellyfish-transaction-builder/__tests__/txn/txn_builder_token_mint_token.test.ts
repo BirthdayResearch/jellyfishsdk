@@ -13,15 +13,15 @@ const attributeKey = 'ATTRIBUTES'
 const symbolDBTC = 'BTC'
 
 describe('Consortium', () => {
-  const tGroup = TestingGroup.create(2)
+  const tGroup = TestingGroup.create(3)
   const alice = tGroup.get(0)
   const bob = tGroup.get(1)
+  const charlie = tGroup.get(2)
   let account0: string
   let idBTC: string, idDOGE: string
   const symbolBTC = 'BTC'
   const symbolDOGE = 'DOGE'
 
-  // let providers: MockProviders
   let aProviders: MockProviders, bProviders: MockProviders
   let aBuilder: P2WPKHTransactionBuilder, bBuilder: P2WPKHTransactionBuilder
 
@@ -121,7 +121,7 @@ describe('Consortium', () => {
     await tGroup.waitForSync()
   }
 
-  it.skip('should throw an error if foundation or consortium member authorization is not present', async () => {
+  it('should throw an error if foundation or consortium member authorization is not present', async () => {
     await alice.rpc.masternode.setGov({
       [attributeKey]:
       {
@@ -131,17 +131,28 @@ describe('Consortium', () => {
     await alice.generate(1)
     await tGroup.waitForSync()
 
-    const script = await bProviders.elliptic.script()
+    const cProviders = await getProviders(alice.container)
+    const cBuilder = new P2WPKHTransactionBuilder(cProviders.fee, cProviders.prevout, cProviders.elliptic, RegTest)
+
+    await charlie.container.waitForWalletCoinbaseMaturity()
+    await charlie.token.dfi({ address: await charlie.generateAddress(), amount: 12 })
+    await charlie.generate(1)
+
+    await fundEllipticPair(charlie.container, cProviders.ellipticPair, 10)
+    await tGroup.waitForSync()
+    await cProviders.setupMocks()
+
+    const script = await cProviders.elliptic.script()
     const tokenMint: TokenMint = {
-      // Mint 1 BTC
+      // Mint 0.5 BTC
       balances: [{ token: Number(idBTC), amount: new BigNumber(0.5) }],
       to: {
         stack: []
       }
     }
 
-    const txn = await aBuilder.tokens.mint(tokenMint, script)
-    const promise = sendTransaction(alice.container, txn)
+    const txn = await cBuilder.tokens.mint(tokenMint, script)
+    const promise = sendTransaction(charlie.container, txn)
 
     await expect(promise).rejects.toThrow("DeFiDRpcError: 'MintTokenTx: You are not a foundation or consortium member and cannot mint this token! (code 16)', code: -26")
   })
@@ -233,7 +244,7 @@ describe('Consortium', () => {
 
     const script = await bProviders.elliptic.script()
     const tokenMint: TokenMint = {
-      // Mint 51 BTC
+      // Mint 50 BTC
       balances: [{ token: Number(idBTC), amount: new BigNumber(10) }],
       to: {
         stack: []
@@ -301,7 +312,7 @@ describe('Consortium', () => {
     expect(attr['v0/live/economy/consortium/1/minted']).toStrictEqual(new BigNumber('11.5'))
   })
 
-  it('should allow to mint tokens to another consortium address', async () => {
+  it('should allow to mint tokens to an address', async () => {
     await setupGovs()
 
     const script = P2WPKH.fromAddress(RegTest, consortiumMemberB.bech32, P2WPKH).getScript()
@@ -314,7 +325,7 @@ describe('Consortium', () => {
     const txn = await aBuilder.tokens.mint(tokenMint, script)
 
     // Ensure the created txn is correct
-    const outs = await sendTransaction(tGroup.get(1).container, txn)
+    const outs = await sendTransaction(bob.container, txn)
     const encoded: string = OP_CODES.OP_DEFI_TX_TOKEN_MINT(tokenMint).asBuffer().toString('hex')
 
     expect(outs).toStrictEqual([{
