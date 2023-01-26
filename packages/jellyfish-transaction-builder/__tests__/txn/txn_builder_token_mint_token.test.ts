@@ -181,7 +181,7 @@ describe('Consortium', () => {
     const script = await aProviders.elliptic.script()
     const tokenMint: TokenMint = {
       // Mint non-existent token
-      balances: [{ token: Number(22), amount: new BigNumber(1) }],
+      balances: [{ token: 22, amount: new BigNumber(1) }],
       to: {
         stack: []
       }
