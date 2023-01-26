@@ -175,6 +175,24 @@ describe('Consortium', () => {
     await expect(promise).rejects.toThrow("DeFiDRpcError: 'MintTokenTx: You are not a foundation member or token owner and cannot mint this token! (code 16)', code: -26")
   })
 
+  it('should not mintTokens for non-existent token', async () => {
+    await setupGovs()
+
+    const script = await aProviders.elliptic.script()
+    const tokenMint: TokenMint = {
+      // Mint non-existent token
+      balances: [{ token: Number(22), amount: new BigNumber(1) }],
+      to: {
+        stack: []
+      }
+    }
+
+    const txn = await aBuilder.tokens.mint(tokenMint, script)
+    const promise = sendTransaction(alice.container, txn)
+
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'MintTokenTx: token 22 does not exist! (code 16)', code: -26")
+  })
+
   it('should throw an error if member daily mint limit exceeds', async () => {
     await setupGovs()
 
