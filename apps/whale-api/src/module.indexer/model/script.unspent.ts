@@ -75,7 +75,8 @@ export class ScriptUnspentIndexer extends Indexer {
         n: vout.n,
         value: vout.value.toFixed(8),
         tokenId: vout.tokenId
-      }
+      },
+      coinbase: txn.vin.length === 0
     }
   }
 

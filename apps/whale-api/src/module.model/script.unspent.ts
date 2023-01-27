@@ -65,4 +65,5 @@ export interface ScriptUnspent extends Model {
     value: string // -----------| output value stored as string, string as decimal: 0.0000
     tokenId?: number // --------| dct id, unused currently, optional before txn v4
   }
+  coinbase: boolean // ---------| indicate whether this txn is a coinbase txn
 }
