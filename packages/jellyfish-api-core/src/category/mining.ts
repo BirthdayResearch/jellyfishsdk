@@ -1,3 +1,4 @@
+import { Transaction } from '@defichain/jellyfish-transaction/dist/tx'
 import { ApiClient } from '../.'
 
 export enum EstimateMode {
@@ -58,9 +59,9 @@ export class Mining {
    * @param {string} mode This must be set to 'template', 'proposal' (see BIP 23), or omitted
    * @param {string[]} capabilities client side supported feature, 'longpoll', 'coinbasetxn', 'coinbasevalue', 'proposal', 'serverlist', 'workid'
    * @param {string[]} rules A list of strings
-   * @returns {Promise<void>}
+   * @returns {Promise<BlockTemplate>}
    */
-  async getBlockTemplate (templateRequest: TemplateRequest): Promise<JSON> {
+  async getBlockTemplate (templateRequest: TemplateRequest): Promise<BlockTemplate> {
     return await this.client.call('getblocktemplate', [templateRequest], 'number')
   }
 }
@@ -124,4 +125,28 @@ export interface TemplateRequest {
   mode?: string
   capabilities?: string[]
   rules: string[]
+}
+
+export interface BlockTemplate {
+  capabilities: string[]
+  version: number
+  rules: string[]
+  vbavailable: JSON
+  vbrequired: number
+  previousblockhash: string
+  transactions: Transaction[]
+  coinbaseaux: JSON
+  coinbasevalue: number
+  longpollid: string
+  target: string
+  mintime: number
+  mutable: string[]
+  noncerange: string
+  sigoplimit: number
+  sizelimit: number
+  weightlimit: number
+  curtime: number
+  bits: string
+  height: number
+  default_witness_commitment: string
 }
