@@ -120,7 +120,7 @@ export interface SmartFeeEstimation {
   blocks: number
 }
 
-export interface TemplateRquest {
+export interface TemplateRequest {
   mode?: string
   capabilities?: string[]
   rules: string[]
