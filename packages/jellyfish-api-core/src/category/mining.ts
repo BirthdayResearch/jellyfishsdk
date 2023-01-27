@@ -54,13 +54,13 @@ export class Mining {
    *    https://github.com/bitcoin/bips/blob/master/bip-0009.mediawiki#getblocktemplate_changes
    *    https://github.com/bitcoin/bips/blob/master/bip-0145.mediawiki
    *
-   * @param {TemplateRquest} templateRequest A json object in the following spec
+   * @param {TemplateRequest} templateRequest A json object in the following spec
    * @param {string} mode This must be set to 'template', 'proposal' (see BIP 23), or omitted
    * @param {string[]} capabilities client side supported feature, 'longpoll', 'coinbasetxn', 'coinbasevalue', 'proposal', 'serverlist', 'workid'
    * @param {string[]} rules A list of strings
    * @returns {Promise<void>}
    */
-  async getBlockTemplate (templateRequest: TemplateRquest): Promise<JSON> {
+  async getBlockTemplate (templateRequest: TemplateRequest): Promise<JSON> {
     return await this.client.call('getblocktemplate', [templateRequest], 'number')
   }
 }
