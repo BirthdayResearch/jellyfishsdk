@@ -110,7 +110,13 @@ describe('submit block', () => {
   })
 
   it('should submit a block with different version', async () => {
-    block.blockHeader.version = 2
+    const v2Block = {
+      ...block,
+      blockHeader: {
+        ...block.blockHeader,
+        version: 2
+      }
+    }
     const composable = new CBlock(block)
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
