@@ -18,32 +18,36 @@ describe('create multi sig', () => {
     await container.stop()
   })
 
+  async function getNewKey (walletType: wallet.AddressType): Promise<string> {
+    return (await testing.rpc.wallet.getAddressInfo(await testing.rpc.wallet.getNewAddress('', walletType))).pubkey
+  }
+
   it('should create multi signature address 2-3', async () => {
-    let key0 = (await testing.rpc.wallet.getAddressInfo(await testing.rpc.wallet.getNewAddress('', wallet.AddressType.LEGACY))).pubkey
+    let key0 = await getNewKey(wallet.AddressType.LEGACY)
     key0 = ECDH.convertKey(key0, 'secp256k1', 'hex', 'hex', 'uncompressed').toString()
-    const key1 = (await testing.rpc.wallet.getAddressInfo(await testing.rpc.wallet.getNewAddress('', wallet.AddressType.LEGACY))).pubkey
-    const key2 = (await testing.rpc.wallet.getAddressInfo(await testing.rpc.wallet.getNewAddress('', wallet.AddressType.LEGACY))).pubkey
+    const key1 = await getNewKey(wallet.AddressType.LEGACY)
+    const key2 = await getNewKey(wallet.AddressType.LEGACY)
     const keys = [key0, key1, key2]
-    const legacyAddr = (await client.misc.createMultiSig(2, keys, 'legacy')).address
-    expect((await client.misc.createMultiSig(2, keys, 'p2sh-segwit')).address).toStrictEqual(legacyAddr)
-    expect((await client.misc.createMultiSig(2, keys, 'bech32')).address).toStrictEqual(legacyAddr)
+    const legacyAddr = (await client.misc.createMultiSig(2, keys, wallet.AddressType.LEGACY)).address
+    expect((await client.misc.createMultiSig(2, keys, wallet.AddressType.P2SH_SEGWIT)).address).toStrictEqual(legacyAddr)
+    expect((await client.misc.createMultiSig(2, keys, wallet.AddressType.BECH32)).address).toStrictEqual(legacyAddr)
   })
 
   it('should create multi signature address 2-2', async () => {
-    let key0 = (await testing.rpc.wallet.getAddressInfo(await testing.rpc.wallet.getNewAddress('', wallet.AddressType.LEGACY))).pubkey
+    let key0 = await getNewKey(wallet.AddressType.LEGACY)
     key0 = ECDH.convertKey(key0, 'secp256k1', 'hex', 'hex', 'uncompressed').toString()
-    const key1 = (await testing.rpc.wallet.getAddressInfo(await testing.rpc.wallet.getNewAddress('', wallet.AddressType.LEGACY))).pubkey
+    const key1 = await getNewKey(wallet.AddressType.LEGACY)
     const keys = [key0, key1]
-    const legacyAddr = (await client.misc.createMultiSig(2, keys, 'legacy')).address
-    expect((await client.misc.createMultiSig(2, keys, 'p2sh-segwit')).address).toStrictEqual(legacyAddr)
-    expect((await client.misc.createMultiSig(2, keys, 'bech32')).address).toStrictEqual(legacyAddr)
+    const legacyAddr = (await client.misc.createMultiSig(2, keys, wallet.AddressType.LEGACY)).address
+    expect((await client.misc.createMultiSig(2, keys, wallet.AddressType.P2SH_SEGWIT)).address).toStrictEqual(legacyAddr)
+    expect((await client.misc.createMultiSig(2, keys, wallet.AddressType.BECH32)).address).toStrictEqual(legacyAddr)
   })
 
   it('should throw error if key are not valid', async () => {
     const key0 = 'key0'
     const key1 = 'key1'
     const keys = [key0, key1]
-    const promise = client.misc.createMultiSig(2, keys, 'legacy')
+    const promise = client.misc.createMultiSig(2, keys, wallet.AddressType.LEGACY)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toMatchObject({
       payload: {
@@ -55,10 +59,10 @@ describe('create multi sig', () => {
   })
 
   it('should throw error if nRequired < 0', async () => {
-    const key0 = (await testing.rpc.wallet.getAddressInfo(await testing.rpc.wallet.getNewAddress('', wallet.AddressType.LEGACY))).pubkey
-    const key1 = (await testing.rpc.wallet.getAddressInfo(await testing.rpc.wallet.getNewAddress('', wallet.AddressType.LEGACY))).pubkey
+    const key0 = await getNewKey(wallet.AddressType.LEGACY)
+    const key1 = await getNewKey(wallet.AddressType.LEGACY)
     const keys = [key0, key1]
-    const promise = client.misc.createMultiSig(-2, keys, 'legacy')
+    const promise = client.misc.createMultiSig(-2, keys, wallet.AddressType.LEGACY)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toMatchObject({
       payload: {
@@ -69,25 +73,10 @@ describe('create multi sig', () => {
     })
   })
 
-  it('should throw error if addressType is not valid', async () => {
-    const key0 = (await testing.rpc.wallet.getAddressInfo(await testing.rpc.wallet.getNewAddress('', wallet.AddressType.LEGACY))).pubkey
-    const key1 = (await testing.rpc.wallet.getAddressInfo(await testing.rpc.wallet.getNewAddress('', wallet.AddressType.LEGACY))).pubkey
-    const keys = [key0, key1]
-    const promise = client.misc.createMultiSig(2, keys, 'addressType')
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toMatchObject({
-      payload: {
-        code: -5,
-        message: 'Unknown address type \'addressType\'',
-        method: 'createmultisig'
-      }
-    })
-  })
-
   it('should throw error if there is not enough key', async () => {
-    const key0 = (await testing.rpc.wallet.getAddressInfo(await testing.rpc.wallet.getNewAddress('', wallet.AddressType.LEGACY))).pubkey
+    const key0 = await getNewKey(wallet.AddressType.LEGACY)
     const keys = [key0]
-    const promise = client.misc.createMultiSig(2, keys, 'legacy')
+    const promise = client.misc.createMultiSig(2, keys, wallet.AddressType.LEGACY)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toMatchObject({
       payload: {
@@ -99,9 +88,9 @@ describe('create multi sig', () => {
   })
 
   it('should throw error if there is to many keys', async () => {
-    const key0 = (await testing.rpc.wallet.getAddressInfo(await testing.rpc.wallet.getNewAddress('', wallet.AddressType.LEGACY))).pubkey
+    const key0 = await getNewKey(wallet.AddressType.LEGACY)
     const keys = [key0, key0, key0, key0, key0, key0, key0, key0, key0, key0, key0, key0, key0, key0, key0, key0, key0, key0]
-    const promise = client.misc.createMultiSig(2, keys, 'legacy')
+    const promise = client.misc.createMultiSig(2, keys, wallet.AddressType.LEGACY)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toMatchObject({
       payload: {

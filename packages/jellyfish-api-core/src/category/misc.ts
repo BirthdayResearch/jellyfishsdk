@@ -1,4 +1,5 @@
 import { ApiClient } from '..'
+import { wallet } from '@defichain/jellyfish-api-core'
 
 /**
  * Misc RPCs for DeFi Blockchain
@@ -50,10 +51,11 @@ export class Misc {
    *
    * @param {number} nRequired The number of required signatures out of the n keys.
    * @param {string[]} keys array of hex-encoded public keys.
-   * @param {string} [addressType='legacy'] the address type to use. Options are 'legacy', 'p2sh-segwit', and 'bech32'.
+   * @param {wallet.AddressType} [addressType=wallet.AddressType.LEGACY] the address type to use.
+   *  Options are wallet.AddressType.LEGACY, wallet.AddressType.P2SHSEGWIT, and wallet.AddressType.BECH32.
    * @return Promise<MultiSigAddress> The signature of the message encoded in base 64
    */
-  async createMultiSig (nRequired: number, keys: string[], addressType: string = 'legacy'): Promise<MultiSigAddress> {
+  async createMultiSig (nRequired: number, keys: string[], addressType: wallet.AddressType = wallet.AddressType.LEGACY): Promise<MultiSigAddress> {
     return await this.client.call('createmultisig', [nRequired, keys, addressType], 'number')
   }
 

@@ -50,7 +50,7 @@ It returns a json object with the address and redeemScript.
 
 ```ts title="client.misc.createMultiSig()"
 interface misc {
-  createMultiSig (nrequired: number, keys: string[], addressType: string = 'legacy'): Promise<MultiSigAddress>
+  createMultiSig (nrequired: number, keys: string[], addressType: wallet.AddressType = wallet.AddressType.LEGACY): Promise<MultiSigAddress>
 }
 ```
 
