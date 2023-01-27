@@ -96,10 +96,10 @@ For full specification, see BIPs 22, 23, 9, and 145:
 
 ```ts title="client.mining.getBlockTemplate()"
 interface mining {
-  getBlockTemplate (templateRequest: TemplateRquest): Promise<JSON>
+  getBlockTemplate (templateRequest: TemplateRequest): Promise<JSON>
 }
 
-interface TemplateRquest {
+interface TemplateRequest {
   mode?: string
   capabilities?: string[]
   rules: string[]
