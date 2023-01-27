@@ -104,7 +104,7 @@ describe('submit block', () => {
     const composable = new CBlock(block)
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
-    const hexdata= buffer.toBuffer().toString('hex')
+    const hexdata = buffer.toBuffer().toString('hex')
     const promise = client.mining.submitBlock(hexdata)
     await expect(promise).resolves.not.toThrow()
   })
@@ -117,7 +117,7 @@ describe('submit block', () => {
         version: 2
       }
     }
-    const composable = new CBlock(block)
+    const composable = new CBlock(v2Block)
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
     const hexdata = buffer.toBuffer().toString('hex')
