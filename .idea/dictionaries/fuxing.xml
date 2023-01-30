@@ -111,6 +111,7 @@
       <w>getcollateraltoken</w>
       <w>getfutureswapblock</w>
       <w>getgov</w>
+      <w>getgovproposal</w>
       <w>getinterest</w>
       <w>getloanscheme</w>
       <w>getloantoken</w>
@@ -171,6 +172,8 @@
       <w>listburnhistory</w>
       <w>listcollateraltokens</w>
       <w>listcommunitybalances</w>
+      <w>listgovproposals</w>
+      <w>listgovproposalvotes</w>
       <w>listgovs</w>
       <w>listloanschemes</w>
       <w>listloantokens</w>

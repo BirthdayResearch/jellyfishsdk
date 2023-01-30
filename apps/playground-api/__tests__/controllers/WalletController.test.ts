@@ -1,5 +1,6 @@
 import { PlaygroundApiTesting } from '../../testing/PlaygroundApiTesting'
 import BigNumber from 'bignumber.js'
+import waitForExpect from 'wait-for-expect'
 
 const apiTesting = PlaygroundApiTesting.create()
 
@@ -26,13 +27,16 @@ describe('sendUtxo', () => {
     const txid = await apiTesting.client.wallet.sendUtxo('19.34153143', address)
     expect(txid.length).toStrictEqual(64)
 
-    const unspent = await apiTesting.rpc.wallet.listUnspent(1, 999999, {
-      addresses: [address]
-    })
+    // Added waitForExpect as `wallet.listUnspent` is known to be "flaky" as it run different on a separate wallet subsystem from blockchain core connectBlock
+    await waitForExpect(async () => {
+      const unspent = await apiTesting.rpc.wallet.listUnspent(1, 999999, {
+        addresses: [address]
+      })
 
-    expect(unspent.length).toStrictEqual(1)
-    expect(unspent[0].address).toStrictEqual(address)
-    expect(unspent[0].amount).toStrictEqual(new BigNumber('19.34153143'))
+      expect(unspent.length).toStrictEqual(1)
+      expect(unspent[0].address).toStrictEqual(address)
+      expect(unspent[0].amount).toStrictEqual(new BigNumber('19.34153143'))
+    })
   })
 
   it('should send token 0 to address and wait for automated block confirmation', async () => {
