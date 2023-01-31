@@ -155,6 +155,10 @@ describe('governance - listProposals and getProposal', () => {
       size: 0
     })
     expect(result.data.length).toStrictEqual(2)
+    const emptyResult = await controller.listProposals(ListProposalsStatus.REJECTED, undefined, undefined, undefined, {
+      size: 0
+    })
+    expect(emptyResult.data.length).toStrictEqual(0)
   })
 
   it('should listProposals with all record when all flag is true', async () => {
@@ -174,8 +178,7 @@ describe('governance - listProposals and getProposal', () => {
     expect(resultPage2.data.length).toStrictEqual(1)
   })
 
-  // TODO: remove skip when blockchain fixes issue where start is ignored when non-all status is not passed
-  it.skip('should listProposals with type and pagination', async () => {
+  it('should listProposals with type and pagination', async () => {
     const resultPage1 = await controller.listProposals(undefined, ListProposalsType.CFP, undefined, undefined, {
       size: 1
     })
@@ -359,6 +362,8 @@ describe('governance - listProposalVotes', () => {
   it('should listProposalVotes with all records when all flag is true', async () => {
     const result = await controller.listProposalVotes(cfpProposalId, undefined, undefined, true)
     expect(result.data.length).toStrictEqual(3)
+    const emptyResult = await controller.listProposalVotes(vocProposalId, undefined, undefined, true)
+    expect(emptyResult.data.length).toStrictEqual(0)
   })
 
   it('should listProposalVotes with all masternodes', async () => {
