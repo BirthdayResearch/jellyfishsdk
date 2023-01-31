@@ -347,53 +347,53 @@ export interface RawTransaction {
 }
 
 export interface DecodeScriptResult {
-  asm: string
   /**
    * Script public key
    */
-  type: string
+  asm: string
   /**
    * The output type
    */
-  reqSigs: number
+  type: string
   /**
    * The required signatures
    */
-  addresses: string[]
+  reqSigs: number
   /**
    * DeFi address
    */
-  p2sh: string
+  addresses: string[]
   /**
    * address of P2SH script wrapping this redeem script (not returned if the script is already a P2SH)
    */
-  segwit: {
+  p2sh: string
   /**
    * Result of a witness script public key wrapping this redeem script (not returned if the script is a P2SH or witness)
    */
-    asm: string
-    /**
+  segwit: {
+  /**
    * String representation of the script public key
    */
-    hex: string
+    asm: string
     /**
    * Hex string of the script public key
    */
-    type: string
+    hex: string
     /**
    * The type of the script public key (e.g. witness_v0_keyhash or witness_v0_scripthash)
    */
-    reqSigs: number
+    type: string
     /**
    * The required signatures (always 1)
    */
-    addresses: string[] // (always length 1)
+    reqSigs: number
     /**
    * segwit address
    */
-    p2shsegwit: string
-  /**
+    addresses: string[] // (always length 1)
+    /**
    * address of the P2SH script wrapping this witness redeem script
    */
+    p2shsegwit: string
   }
 }
