@@ -65,7 +65,7 @@ describe('burnToken', () => {
 
     await setupGovs()
 
-    // Fund 10 DFI UTXO
+    // Fund 100 DFI UTXO
     await fundEllipticPair(testing.container, providers.ellipticPair, 100)
     await providers.setupMocks()
 

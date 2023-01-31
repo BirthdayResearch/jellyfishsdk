@@ -9,6 +9,7 @@ import BigNumber from 'bignumber.js'
  */
 export interface TokenMint {
   balances: TokenBalanceUInt32[] // ----------| c = VarUInt{1-9 bytes}, + c x TokenBalance
+  to: Script
 }
 
 /**
@@ -21,7 +22,8 @@ export class CTokenMint extends ComposableBuffer<TokenMint> {
 
   composers (tm: TokenMint): BufferComposer[] {
     return [
-      ComposableBuffer.compactSizeArray(() => tm.balances, v => tm.balances = v, v => new CTokenBalance(v))
+      ComposableBuffer.compactSizeArray(() => tm.balances, v => tm.balances = v, v => new CTokenBalance(v)),
+      ComposableBuffer.single<Script>(() => tm.to, v => tm.to = v, v => new CScript(v))
     ]
   }
 }
