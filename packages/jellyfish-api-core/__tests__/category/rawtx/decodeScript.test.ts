@@ -83,6 +83,41 @@ describe('Decodescript()', () => {
     })
   })
 
+  it('should decode multisig scriptPubKey', async () => {
+    const pubKey0 = '03b0da749730dc9b4b1f4a14d6902877a92541f5368778853d9c4a0cb7802dcfb2'
+    const pubKey1 = '03b0da759730dc9b4b1f4a14d6902877a92541f5368778853d9c4a0cb7802dcfb2'
+    const pubKey2 = '03b0da769730dc9b4b1f4a14d6902877a92541f5368778853d9c4a0cb7802dcfb2'
+    const pushPK0 = `21${pubKey0}`
+    const pushPK1 = `21${pubKey1}`
+    const pushPK2 = `21${pubKey2}`
+
+    const script = `52${pushPK0}${pushPK1}${pushPK2}53ae`
+    const decode = await testing.rpc.rawtx.decodeScript(script)
+
+    expect(decode.asm).toStrictEqual(`2 ${pubKey0} ${pubKey1} ${pubKey2} 3 OP_CHECKMULTISIG`)
+    expect(decode).toStrictEqual({
+      asm: '2 03b0da749730dc9b4b1f4a14d6902877a92541f5368778853d9c4a0cb7802dcfb2 03b0da759730dc9b4b1f4a14d6902877a92541f5368778853d9c4a0cb7802dcfb2 03b0da769730dc9b4b1f4a14d6902877a92541f5368778853d9c4a0cb7802dcfb2 3 OP_CHECKMULTISIG',
+      reqSigs: 2,
+      type: 'multisig',
+      addresses: [
+        'mp52VuXfTKhzYpuR3jLvPEYYUCWt84J7D5',
+        'mrxE8hHPNJPyvvsbYEc2A163WgV2rebvgZ',
+        'n42fKbireJ7NDQzTYKL87xuPrgNuQzwCzt'
+      ],
+      p2sh: '2N1sgbTQxaaTAZwoiLr7wPDEPxoDyo9Jdo9',
+      segwit: {
+        asm: '0 7c70a5d9c2b7341ed8f0379921df2ef1642c6a7302e3286e597af2704395a82a',
+        hex: '00207c70a5d9c2b7341ed8f0379921df2ef1642c6a7302e3286e597af2704395a82a',
+        reqSigs: 1,
+        type: 'witness_v0_scripthash',
+        addresses: [
+          'bcrt1q03c2tkwzku6pak8sx7vjrhew79jzc6nnqt3jsmje0te8qsu44q4qsr7p7t'
+        ],
+        'p2sh-segwit': '2MwkCzzt4QBEZe1YmTZXaR6AjUMyGQZp8WG'
+      }
+    })
+  })
+
   it('should flag random data as nulldata', async () => {
     const random = '48304502207fa7a6d1e0ee81132a269ad84e68d695483745cde8b541e3bf630749894e342a022100c1f7ab20e13e22fb95281a870f3dcf38d782e53023ee313d741ad0cfbc0c509001'
     const decode = await testing.rpc.rawtx.decodeScript(`6a${random}`)
