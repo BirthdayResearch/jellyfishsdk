@@ -1,5 +1,5 @@
 import { ApiClient } from '..'
-import { wallet } from '@defichain/jellyfish-api-core'
+import { wallet } from '../../src'
 
 /**
  * Misc RPCs for DeFi Blockchain

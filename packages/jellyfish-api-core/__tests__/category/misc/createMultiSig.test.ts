@@ -28,9 +28,9 @@ describe('create multi sig', () => {
     const key1 = await getNewKey(wallet.AddressType.LEGACY)
     const key2 = await getNewKey(wallet.AddressType.LEGACY)
     const keys = [key0, key1, key2]
-    const legacyAddr = (await client.misc.createMultiSig(2, keys, wallet.AddressType.LEGACY)).address
-    expect((await client.misc.createMultiSig(2, keys, wallet.AddressType.P2SH_SEGWIT)).address).toStrictEqual(legacyAddr)
-    expect((await client.misc.createMultiSig(2, keys, wallet.AddressType.BECH32)).address).toStrictEqual(legacyAddr)
+    const { address } = await client.misc.createMultiSig(2, keys, wallet.AddressType.LEGACY)
+    expect((await client.misc.createMultiSig(2, keys, wallet.AddressType.P2SH_SEGWIT)).address).toStrictEqual(address)
+    expect((await client.misc.createMultiSig(2, keys, wallet.AddressType.BECH32)).address).toStrictEqual(address)
   })
 
   it('should create multi signature address 2-2', async () => {
@@ -38,9 +38,9 @@ describe('create multi sig', () => {
     key0 = ECDH.convertKey(key0, 'secp256k1', 'hex', 'hex', 'uncompressed').toString()
     const key1 = await getNewKey(wallet.AddressType.LEGACY)
     const keys = [key0, key1]
-    const legacyAddr = (await client.misc.createMultiSig(2, keys, wallet.AddressType.LEGACY)).address
-    expect((await client.misc.createMultiSig(2, keys, wallet.AddressType.P2SH_SEGWIT)).address).toStrictEqual(legacyAddr)
-    expect((await client.misc.createMultiSig(2, keys, wallet.AddressType.BECH32)).address).toStrictEqual(legacyAddr)
+    const { address } = await client.misc.createMultiSig(2, keys, wallet.AddressType.LEGACY)
+    expect((await client.misc.createMultiSig(2, keys, wallet.AddressType.P2SH_SEGWIT)).address).toStrictEqual(address)
+    expect((await client.misc.createMultiSig(2, keys, wallet.AddressType.BECH32)).address).toStrictEqual(address)
   })
 
   it('should throw error if key are not valid', async () => {
