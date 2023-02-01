@@ -135,7 +135,7 @@ export interface BlockTemplate {
   vbrequired: number
   previousblockhash: string
   transactions: Transaction[]
-  coinbaseaux: JSON
+  coinbaseaux: any
   coinbasevalue: number
   longpollid: string
   target: string
