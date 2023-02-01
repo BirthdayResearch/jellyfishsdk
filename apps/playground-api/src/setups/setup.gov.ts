@@ -69,6 +69,9 @@ export class SetupGov extends PlaygroundSetup<Record<string, any>> {
           // Enable consortium
           'v0/params/feature/consortium': 'true',
 
+          // Enable minting of token to an address
+          'v0/params/feature/mint-tokens-to-address': 'true',
+
           // Set a consortium global limit for dBTC
           'v0/consortium/1/mint_limit': '50',
           'v0/consortium/1/mint_limit_daily': '5',
