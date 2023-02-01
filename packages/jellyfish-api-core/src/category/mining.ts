@@ -131,7 +131,7 @@ export interface BlockTemplate {
   capabilities: string[]
   version: number
   rules: string[]
-  vbavailable: JSON
+  vbavailable: any
   vbrequired: number
   previousblockhash: string
   transactions: Transaction[]
