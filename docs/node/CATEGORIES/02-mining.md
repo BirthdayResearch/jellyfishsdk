@@ -96,13 +96,37 @@ For full specification, see BIPs 22, 23, 9, and 145:
 
 ```ts title="client.mining.getBlockTemplate()"
 interface mining {
-  getBlockTemplate (templateRequest: TemplateRequest): Promise<JSON>
+  getBlockTemplate (templateRequest: TemplateRequest): Promise<BlockTemplate>
 }
 
 interface TemplateRequest {
   mode?: string
   capabilities?: string[]
   rules: string[]
+}
+
+interface BlockTemplate {
+  capabilities: string[]
+  version: number
+  rules: string[]
+  vbavailable: any
+  vbrequired: number
+  previousblockhash: string
+  transactions: Transaction[]
+  coinbaseaux: any
+  coinbasevalue: number
+  longpollid: string
+  target: string
+  mintime: number
+  mutable: string[]
+  noncerange: string
+  sigoplimit: number
+  sizelimit: number
+  weightlimit: number
+  curtime: number
+  bits: string
+  height: number
+  default_witness_commitment: string
 }
 
 ```
