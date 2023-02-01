@@ -50,7 +50,7 @@ export class Mining {
    * See https://en.bitcoin.it/wiki/BIP_0022 for full specification.
    *
    * @param {string} hexdata the hex-encoded block data to submit
-   * @param {string} dummy dummy value, for compatibility with BIP22. This value is ignored.
+   * @param {string} dummy value, for compatibility with BIP22. This value is ignored.
    * @returns {Promise<void>}
    */
   async submitBlock (hexdata: string, dummy: string = ''): Promise<void> {
