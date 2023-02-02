@@ -51,9 +51,6 @@ export class GovernanceService {
     })
 
     return ApiPagedResponse.of(proposals, size, (proposal) => {
-      if (proposal === undefined) {
-        return undefined
-      }
       return proposal.proposalId
     })
   }
@@ -103,10 +100,7 @@ export class GovernanceService {
 
       return ApiPagedResponse.of(votes, size, () => {
         if (next === undefined) {
-          if (votes.length > 0) {
-            return (votes.length - 1).toString()
-          }
-          return undefined
+          return (votes.length - 1).toString()
         }
         return (next + votes.length).toString()
       })
