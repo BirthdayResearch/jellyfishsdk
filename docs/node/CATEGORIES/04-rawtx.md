@@ -201,20 +201,18 @@ interface rawtx {
   decodeScript (hexstring: string): Promise<DecodeScriptResult>
 }
 
-interface decodeScriptResult {
+interface DecodeScriptResult {
   asm: string
   type: string
-  reqSig: number
+  reqSigs: number
   addresses: string[]
   p2sh: string
-  segwit: segwitResult
-}
-
-interface segwitResult {
-  asm: string
-  hex: string
-  type: string
-  reqSig: number
-  addresses: string[]
-  p2sh-segwit: string
+  segwit: {
+    asm: string
+    hex: string
+    type: string
+    reqSigs: number
+    addresses: string[]
+    p2sh-segwit: string
+    }
 }

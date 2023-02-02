@@ -14,7 +14,7 @@ describe('Decodescript()', () => {
     await container.stop()
   })
 
-  it('should decode empty script', async () => {
+  it('should return the following for empty script', async () => {
     const address = ''
     const decode = await testing.rpc.rawtx.decodeScript(address)
 
@@ -41,10 +41,12 @@ describe('Decodescript()', () => {
     const scriptPk = addressInfo.scriptPubKey
     const decode = await testing.rpc.rawtx.decodeScript(scriptPk)
 
-    expect(decode.asm).toStrictEqual(`${addressInfo.witness_version} ${addressInfo.witness_program}`)
-    expect(decode.reqSigs).toStrictEqual(1)
-    expect(decode.type).toStrictEqual('witness_v0_keyhash')
-    expect(decode.addresses).toStrictEqual([addressInfo.address])
+    expect(decode).toStrictEqual(expect.objectContaining({
+      asm: `${addressInfo.witness_version} ${addressInfo.witness_program}`,
+      reqSigs: 1,
+      type: 'witness_v0_keyhash',
+      addresses: [addressInfo.address]
+    }))
   })
 
   it('should decode scriptPubKey from P2SH_SEGWIT address', async () => {
@@ -55,10 +57,12 @@ describe('Decodescript()', () => {
     const withoutOpCodes = addressInfo.scriptPubKey.substring(4, 44)
     const decode = await testing.rpc.rawtx.decodeScript(scriptPk)
 
-    expect(decode.asm).toStrictEqual(`OP_HASH160 ${withoutOpCodes} OP_EQUAL`)
-    expect(decode.reqSigs).toStrictEqual(1)
-    expect(decode.type).toStrictEqual('scripthash')
-    expect(decode.addresses).toStrictEqual([addressInfo.address])
+    expect(decode).toStrictEqual(expect.objectContaining({
+      asm: `OP_HASH160 ${withoutOpCodes} OP_EQUAL`,
+      reqSigs: 1,
+      type: 'scripthash',
+      addresses: [addressInfo.address]
+    }))
   })
 
   it('should decode scriptPubKey from LEGACY address', async () => {
@@ -94,7 +98,6 @@ describe('Decodescript()', () => {
     const script = `52${pushPK0}${pushPK1}${pushPK2}53ae`
     const decode = await testing.rpc.rawtx.decodeScript(script)
 
-    expect(decode.asm).toStrictEqual(`2 ${pubKey0} ${pubKey1} ${pubKey2} 3 OP_CHECKMULTISIG`)
     expect(decode).toStrictEqual({
       asm: '2 03b0da749730dc9b4b1f4a14d6902877a92541f5368778853d9c4a0cb7802dcfb2 03b0da759730dc9b4b1f4a14d6902877a92541f5368778853d9c4a0cb7802dcfb2 03b0da769730dc9b4b1f4a14d6902877a92541f5368778853d9c4a0cb7802dcfb2 3 OP_CHECKMULTISIG',
       reqSigs: 2,
@@ -123,9 +126,11 @@ describe('Decodescript()', () => {
     const decode = await testing.rpc.rawtx.decodeScript(`6a${random}`)
     const withoutOpCodes = random.substring(2)
 
-    expect(decode.asm).toStrictEqual(`OP_RETURN ${withoutOpCodes}`)
-    expect(decode.type).toStrictEqual('nulldata')
-    expect(decode.p2sh).toStrictEqual('2N9YehGXCtVh6nsnkd1ptpoavdSRvod9RAb')
+    expect(decode).toStrictEqual(expect.objectContaining({
+      asm: `OP_RETURN ${withoutOpCodes}`,
+      type: 'nulldata',
+      p2sh: '2N9YehGXCtVh6nsnkd1ptpoavdSRvod9RAb'
+    }))
   })
 
   it('should throw error for a non-hexadecimal string', async () => {

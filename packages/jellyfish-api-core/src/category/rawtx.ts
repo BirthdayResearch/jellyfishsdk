@@ -375,23 +375,23 @@ export interface DecodeScriptResult {
    * String representation of the script public key
    */
     asm: string
-  /**
+    /**
    * Hex string of the script public key
    */
     hex: string
-  /**
+    /**
    * The type of the script public key (e.g. witness_v0_keyhash or witness_v0_scripthash)
    */
     type: string
-  /**
+    /**
    * The required signatures (always 1)
    */
     reqSigs: number
-  /**
+    /**
    * segwit address
    */
     addresses: string[] // (always length 1)
-  /**
+    /**
    * address of the P2SH script wrapping this witness redeem script
    */
     p2shsegwit: string
