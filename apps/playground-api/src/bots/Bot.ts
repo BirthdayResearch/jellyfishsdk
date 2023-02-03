@@ -1,11 +1,14 @@
 import { ApiClient } from '@defichain/jellyfish-api-core'
+import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { Injectable } from '@nestjs/common'
-import { GenesisKeys } from '@defichain/testcontainers'
 import { Interval } from '@nestjs/schedule'
 
+/**
+ * @template Each
+ */
 @Injectable()
 export abstract class PlaygroundBot<Each> {
-  static MN_KEY = GenesisKeys[0]
+  static MN_KEY = RegTestFoundationKeys[0]
 
   /**
    * @return {string} address that should be used for everything

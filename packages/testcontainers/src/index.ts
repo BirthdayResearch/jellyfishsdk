@@ -1,4 +1,4 @@
-import { MasterNodeKey as MNK, RegTestFoundationKeys } from '@defichain/jellyfish-network'
+import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
 export { DockerOptions } from 'dockerode'
 export { waitForCondition } from './utils'
@@ -8,11 +8,6 @@ export { waitForCondition } from './utils'
  * @deprecated use `import { RegTestFoundationKeys } from '@defichain/jellyfish-network'`
  */
 export const GenesisKeys = RegTestFoundationKeys
-/**
- * Moved to @defichain/jellyfish-network
- * @deprecated use `import { MasterNodeKey } from '@defichain/jellyfish-network'`
- */
-export type MasterNodeKey = MNK
 
 export * from './containers/DeFiDContainer'
 export * from './containers/MainNetContainer'
@@ -26,6 +21,7 @@ export * from './utils'
 export * from './containers/RegTestContainer/LoanContainer'
 
 export * from './containers/AppContainer/WhaleSanityContainer'
+export * from './containers/AppContainer/WhaleApiContainer'
 
 export * from './containers/NativeChainContainer'
 export * from './containers/NativeChainRpc'
