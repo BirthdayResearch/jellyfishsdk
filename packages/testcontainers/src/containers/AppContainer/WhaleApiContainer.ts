@@ -4,6 +4,7 @@ import { waitForCondition } from '../../utils'
 import { StartedNativeChainContainer } from '../NativeChainContainer'
 import fetch from 'cross-fetch'
 
+// eslint-disable-next-line
 // @ts-ignore because `package.json` will always be available in the root of pnpm package
 import packageJson from '../../../package.json'
 
