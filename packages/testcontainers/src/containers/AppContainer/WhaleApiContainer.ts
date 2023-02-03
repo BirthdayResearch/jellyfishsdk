@@ -12,7 +12,6 @@ const WHALE_API_PORT = 3000
 const WHALE_VERSION = packageJson.version === '0.0.0' ? 'latest' : packageJson.version
 
 export class WhaleApiContainer extends GenericContainer {
-  // when 0.0.0 use latest
   constructor (image: string = `ghcr.io/jellyfishsdk/whale-api:${WHALE_VERSION}`) {
     super(image)
     this.withExposedPorts(WHALE_API_PORT).withStartupTimeout(120_000)
@@ -60,17 +59,14 @@ export class StartedWhaleApiContainer extends AbstractStartedContainer {
   }
 
   async waitForIndexedBlockHeight (height: number, timeout: number = 590000): Promise<void> {
-    const blockEndpoint = `${this.getEndpoint()}/v0/regtest/blocks?size=1`
+    const url = `${this.getEndpoint()}/v0/regtest/blocks?size=1`
 
     return await waitForCondition(async () => {
-      const response = await fetch(blockEndpoint, {
+      const response = await fetch(url, {
         method: 'GET'
       })
       const { data } = await response.json()
-      if (data[0].height > height) {
-        return true
-      }
-      return false
+      return data[0].height > height
     }, timeout, 200, 'waitForIndexedBlockHeight')
   }
 }
