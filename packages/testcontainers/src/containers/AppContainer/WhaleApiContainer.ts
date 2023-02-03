@@ -1,8 +1,11 @@
 import { GenericContainer, StartedNetwork } from 'testcontainers'
 import { AbstractStartedContainer } from 'testcontainers/dist/modules/abstract-started-container'
-import { StartedNativeChainContainer, waitForCondition } from '@defichain/testcontainers'
-import packageJson from '../../../package.json'
+import { waitForCondition } from '../../utils'
+import { StartedNativeChainContainer } from '../NativeChainContainer'
 import fetch from 'cross-fetch'
+
+// @ts-ignore because `package.json` will always be available in the root of pnpm package
+import packageJson from '../../../package.json'
 
 const WHALE_API_PORT = 3000
 
