@@ -3,6 +3,9 @@ import { Injectable, Logger } from '@nestjs/common'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { PlaygroundBlock } from '../PlaygroundBlock'
 
+/**
+ * @template Each
+ */
 @Injectable()
 export abstract class PlaygroundSetup<Each> {
   static MN_KEY = RegTestFoundationKeys[0]
