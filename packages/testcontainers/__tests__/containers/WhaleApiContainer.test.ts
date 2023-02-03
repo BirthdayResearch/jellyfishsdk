@@ -1,10 +1,12 @@
-import { NativeChainContainer, StartedNativeChainContainer } from '@defichain/testcontainers'
 import { Network } from 'testcontainers'
+import { WhaleApiClient } from '@defichain/whale-api-client'
+
 import {
+  NativeChainContainer,
+  StartedNativeChainContainer,
   StartedWhaleApiContainer,
   WhaleApiContainer
-} from '@defichain/testcontainers/dist/containers/AppContainer/WhaleApiContainer'
-import { WhaleApiClient } from '@defichain/whale-api-client'
+} from '../../src'
 
 let defid: StartedNativeChainContainer
 let whale: StartedWhaleApiContainer

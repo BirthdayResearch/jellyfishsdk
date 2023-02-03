@@ -22,6 +22,7 @@ export * from './containers/RegTestContainer/LoanContainer'
 
 export * from './containers/AppContainer/WhaleSanityContainer'
 export * from './containers/AppContainer/WhaleApiContainer'
+export * from './containers/AppContainer/PlaygroundApiContainer'
 
 export * from './containers/NativeChainContainer'
 export * from './containers/NativeChainRpc'
