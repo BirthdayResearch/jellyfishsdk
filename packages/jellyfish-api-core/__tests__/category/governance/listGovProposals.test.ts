@@ -253,8 +253,7 @@ describe('Governance', () => {
     expect(proposals.length).toStrictEqual(2)
   })
 
-  // TODO: remove `skip` after blockchain fixes bug where `start` is not considered when non-all status is not passed
-  it.skip('should listGovProposals with start, including_start and limit', async () => {
+  it('should listGovProposals with start, including_start and limit', async () => {
     const allProposals = await testing.rpc.governance.listGovProposals()
     const proposalsPage1 = await testing.rpc.governance.listGovProposals({
       pagination: {
@@ -270,8 +269,8 @@ describe('Governance', () => {
         limit: 2
       }
     })
-    expect(proposalsPage1.length).toStrictEqual(allProposals.slice(0, 2))
-    expect(proposalsPage2.length).toStrictEqual(allProposals.slice(2, 4))
+    expect(proposalsPage1).toStrictEqual(allProposals.slice(0, 2))
+    expect(proposalsPage2).toStrictEqual(allProposals.slice(2, 4))
   })
 
   it('should listGovProposals with status, start, including_start and limit', async () => {
@@ -320,10 +319,9 @@ describe('Governance', () => {
     expect(proposalsPage2).toStrictEqual(allVotingProposals.slice(-1))
   })
 
-  // TODO: remove `skip` after blockchain fixes bug where `start` is not considered when cycle is passed
-  it.skip('should listGovProposals with status, type, cycle, start, including_start and limit', async () => {
+  it('should listGovProposals with status, type, cycle, start, including_start and limit', async () => {
     const allVotingProposals = await testing.rpc.governance.listGovProposals().then(
-      proposals => proposals.filter(proposal => proposal.status === ProposalStatus.VOTING)
+      proposals => proposals.filter(proposal => proposal.status === ProposalStatus.VOTING && proposal.type === ProposalType.VOTE_OF_CONFIDENCE)
     )
     const proposalsPage1 = await testing.rpc.governance.listGovProposals({
       status: ListProposalsStatus.VOTING,
@@ -340,7 +338,7 @@ describe('Governance', () => {
       type: ListProposalsType.VOC,
       cycle: 2,
       pagination: {
-        start: proposalsPage1[1].proposalId,
+        start: allVotingProposals[2].proposalId,
         including_start: true,
         limit: 2
       }

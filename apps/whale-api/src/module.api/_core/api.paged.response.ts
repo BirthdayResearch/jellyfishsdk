@@ -86,7 +86,7 @@ export class ApiPagedResponse<T> extends ApiRawResponse {
    * @param {(item: T) => string} nextProvider to get next token when (limit === data array slice)
    */
   static of<T> (data: T[], limit: number, nextProvider: (item: T) => string): ApiPagedResponse<T> {
-    if (data.length === limit) {
+    if (data.length === limit && data.length > 0 && limit > 0) {
       const next = nextProvider(data[limit - 1])
       return this.next(data, next)
     }
