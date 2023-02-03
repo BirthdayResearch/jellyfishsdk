@@ -65,7 +65,6 @@ export class StartedPlaygroundApiContainer extends AbstractStartedContainer {
         method: 'GET'
       })
       const { data } = await response.json()
-      console.log(data.details)
       return data.details.playground.status === 'up'
     }, timeout, 200, 'waitForIndexedBlockHeight')
   }
