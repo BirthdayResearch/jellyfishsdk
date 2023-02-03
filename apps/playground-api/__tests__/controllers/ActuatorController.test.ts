@@ -23,11 +23,17 @@ describe('no peers', () => {
         details: {
           blockchain: {
             status: 'up'
+          },
+          playground: {
+            status: 'up'
           }
         },
         error: {},
         info: {
           blockchain: {
+            status: 'up'
+          },
+          playground: {
             status: 'up'
           }
         },
@@ -52,6 +58,9 @@ describe('no peers', () => {
             initialBlockDownload: expect.any(Boolean),
             peers: 0,
             status: 'down'
+          },
+          playground: {
+            status: 'up'
           }
         },
         error: {
@@ -63,7 +72,11 @@ describe('no peers', () => {
             status: 'down'
           }
         },
-        info: {},
+        info: {
+          playground: {
+            status: 'up'
+          }
+        },
         status: 'error'
       },
       error: {
@@ -101,11 +114,17 @@ describe('with peers', () => {
         details: {
           blockchain: {
             status: 'up'
+          },
+          playground: {
+            status: 'up'
           }
         },
         error: {},
         info: {
           blockchain: {
+            status: 'up'
+          },
+          playground: {
             status: 'up'
           }
         },
@@ -130,8 +149,10 @@ describe('with peers', () => {
             initialBlockDownload: false,
             peers: 1,
             status: 'up'
+          },
+          playground: {
+            status: 'up'
           }
-
         },
         error: {},
         info: {
@@ -140,6 +161,9 @@ describe('with peers', () => {
             headers: expect.any(Number),
             initialBlockDownload: false,
             peers: 1,
+            status: 'up'
+          },
+          playground: {
             status: 'up'
           }
         },

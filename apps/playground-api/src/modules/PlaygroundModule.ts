@@ -16,6 +16,7 @@ import { SetupLoanCollateral } from '../setups/setup.loan.collateral'
 import { SetupGov } from '../setups/setup.gov'
 import { VaultBot } from '../bots/VaultBot'
 import { ScheduleModule } from '@nestjs/schedule'
+import { ActuatorProbes } from '@defichain-apps/libs/actuator'
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ export class PlaygroundModule implements OnApplicationBootstrap {
 
   constructor (
     private readonly client: ApiClient,
+    private readonly probes: ActuatorProbes,
     private readonly indicator: PlaygroundProbeIndicator,
     utxo: SetupUtxo,
     token: SetupToken,
@@ -69,6 +71,7 @@ export class PlaygroundModule implements OnApplicationBootstrap {
       dex,
       gov
     ]
+    this.probes.add(indicator)
   }
 
   async onApplicationBootstrap (): Promise<void> {
