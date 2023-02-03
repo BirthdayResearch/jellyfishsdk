@@ -1,14 +1,15 @@
-import { NativeChainContainer, StartedNativeChainContainer } from '@defichain/testcontainers'
 import { Network } from 'testcontainers'
+import { WhaleApiClient } from '@defichain/whale-api-client'
+import { PlaygroundApiClient } from '@defichain/playground-api-client'
+
 import {
+  NativeChainContainer,
+  StartedNativeChainContainer,
   StartedWhaleApiContainer,
-  WhaleApiContainer
-} from '@defichain/testcontainers/dist/containers/AppContainer/WhaleApiContainer'
-import {
+  WhaleApiContainer,
   PlaygroundApiContainer,
   StartedPlaygroundApiContainer
-} from '@defichain/testcontainers/dist/containers/AppContainer/PlaygroundApiContainer'
-import { PlaygroundApiClient } from '@defichain/playground-api-client'
+} from '../../src'
 
 let defid: StartedNativeChainContainer
 let whale: StartedWhaleApiContainer
@@ -39,10 +40,19 @@ afterAll(async () => {
   await playground.stop()
 })
 
-it('should waitForIndexedBlockHeight(100)', async () => {
+it('should playground.waitForReady()', async () => {
   await playground.waitForReady()
 
-  const api = new PlaygroundApiClient(playground.getPlaygroundApiClientOptions())
-  console.log(await api.playground.info())
-  // TODO(fuxingloh): check poolpair
+  const playgroundApi = new PlaygroundApiClient(playground.getPlaygroundApiClientOptions())
+  const { block } = await playgroundApi.playground.info()
+  expect(block.count).toBeGreaterThanOrEqual(150)
+
+  // Check if any PoolPair is created.
+  const whaleApi = new WhaleApiClient(whale.getWhaleApiClientOptions())
+  const data = await whaleApi.poolpairs.list(1)
+  expect(data[0]).toStrictEqual(
+    expect.objectContaining({
+      name: expect.any(String)
+    })
+  )
 })

@@ -1,15 +1,19 @@
 import { GenericContainer, StartedNetwork } from 'testcontainers'
 import { AbstractStartedContainer } from 'testcontainers/dist/modules/abstract-started-container'
-import { StartedNativeChainContainer, waitForCondition } from '@defichain/testcontainers'
-import packageJson from '../../../package.json'
+import { waitForCondition } from '../../utils'
+import { StartedNativeChainContainer } from '../NativeChainContainer'
 import fetch from 'cross-fetch'
 
-const PLAYGROUND_API_PORT = 3000
+// eslint-disable-next-line
+// @ts-ignore because `package.json` will always be available in the root of pnpm package
+import packageJson from '../../../package.json'
 
 /**
  * For local environment, `:latest` tag will be used as there isn't pipeline to automatically rebuild image locally.
  */
 const PLAYGROUND_VERSION = packageJson.version === '0.0.0' ? 'latest' : packageJson.version
+
+const PLAYGROUND_API_PORT = 3000
 
 export class PlaygroundApiContainer extends GenericContainer {
   constructor (image: string = `ghcr.io/jellyfishsdk/playground-api:${PLAYGROUND_VERSION}`) {
@@ -60,9 +64,9 @@ export class StartedPlaygroundApiContainer extends AbstractStartedContainer {
       const response = await fetch(url, {
         method: 'GET'
       })
-      const { details } = await response.json()
-      console.log(details)
-      return details.playground.status === 'up'
+      const { data } = await response.json()
+      console.log(data.details)
+      return data.details.playground.status === 'up'
     }, timeout, 200, 'waitForIndexedBlockHeight')
   }
 }
