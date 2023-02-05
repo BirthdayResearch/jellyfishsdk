@@ -37,5 +37,14 @@
       "matchPackagePatterns": ["jest"],
       "groupName": "jest"
     }
+  ],
+  "regexManagers": [
+    {
+      "datasourceTemplate": "docker",
+      "fileMatch": ["packages/testcontainers/src/.+Container\\.ts$"],
+      "matchStrings": [
+        "    return '(?<depName>.*?):(?<currentValue>.*?)' // renovate.json regexManagers"
+      ]
+    }
   ]
 }
