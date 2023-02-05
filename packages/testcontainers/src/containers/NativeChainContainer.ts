@@ -30,7 +30,7 @@ export class NativeChainContainer extends GenericContainer {
     if (process?.env?.DEFICHAIN_DOCKER_IMAGE !== undefined) {
       return process.env.DEFICHAIN_DOCKER_IMAGE
     }
-    return 'defi/defichain:3.2.2'
+    return 'defi/defichain:3.2.2' // renovate.json regexManagers
   }
 
   public static readonly PREFIX = 'defichain-testcontainers-'
@@ -157,6 +157,7 @@ export class NativeChainContainer extends GenericContainer {
   }
 
   private readonly addedCmds: string[] = []
+
   public addCmd (newCmd: string): this {
     this.addedCmds.push(newCmd)
     return this
