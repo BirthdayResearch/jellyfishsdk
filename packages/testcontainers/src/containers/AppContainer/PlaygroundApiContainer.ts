@@ -66,6 +66,6 @@ export class StartedPlaygroundApiContainer extends AbstractStartedContainer {
       })
       const { data } = await response.json()
       return data.details.playground.status === 'up'
-    }, timeout, 200, 'waitForIndexedBlockHeight')
+    }, timeout, 200, 'waitForReady')
   }
 }
