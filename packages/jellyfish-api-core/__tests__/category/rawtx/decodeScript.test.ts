@@ -14,7 +14,7 @@ describe('Decodescript()', () => {
     await container.stop()
   })
 
-  it('should return the following for empty script', async () => {
+  it('should return empty value for empty script', async () => {
     const address = ''
     const decode = await testing.rpc.rawtx.decodeScript(address)
 
