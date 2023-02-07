@@ -407,6 +407,7 @@ interface wallet {
   signMessage (address: string, message: string): Promise<string>
 }
 ```
+
 ## encryptWallet
 
 Encrypts the wallet for the first time using a custom ‘passphrase’. Transactions related to private keys will thereafter require a passphrase before execution.
