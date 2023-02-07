@@ -371,29 +371,29 @@ export interface DecodeScriptResult {
    * Result of a witness script public key wrapping this redeem script (not returned if the script is a P2SH or witness)
    */
   segwit: {
-  /**
-   * String representation of the script public key
-   */
+    /**
+     * String representation of the script public key
+     */
     asm: string
     /**
-   * Hex string of the script public key
-   */
+     * Hex string of the script public key
+     */
     hex: string
     /**
-   * The type of the script public key (e.g. witness_v0_keyhash or witness_v0_scripthash)
-   */
+     * The type of the script public key (e.g. witness_v0_keyhash or witness_v0_scripthash)
+     */
     type: string
     /**
-   * The required signatures (always 1)
-   */
+     * The required signatures (always 1)
+     */
     reqSigs: number
     /**
-   * segwit address
-   */
+     * segwit address
+     */
     addresses: string[] // (always length 1)
     /**
-   * address of the P2SH script wrapping this witness redeem script
-   */
+     * address of the P2SH script wrapping this witness redeem script
+     */
     p2shsegwit: string
   }
 }

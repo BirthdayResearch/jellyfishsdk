@@ -192,6 +192,7 @@ interface ScriptPubKey {
   addresses: string[]
 }
 ```
+
 ## decodeScript
 
 Decode a hex-encoded script.
@@ -214,5 +215,5 @@ interface DecodeScriptResult {
     reqSigs: number
     addresses: string[]
     p2sh-segwit: string
-    }
+  }
 }
