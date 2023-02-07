@@ -1,5 +1,6 @@
 import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
+import { RpcApiError } from '@defichain/jellyfish-api-core'
 
 describe('Unencrypted Wallet without masternode', () => {
   const container = new RegTestContainer()
@@ -14,8 +15,10 @@ describe('Unencrypted Wallet without masternode', () => {
   })
 
   it('should throw error if walletPassphrase is called', async () => {
-    await expect(client.wallet.walletPassphrase('password', -100))
-      .rejects.toThrow("RpcApiError: 'Error: running with an unencrypted wallet, but walletpassphrase was called.', code: -15, method: walletpassphrase")
+    const promise = client.wallet.walletPassphrase('password', -100)
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow("RpcApiError: 'Error: running with an unencrypted wallet, but walletpassphrase was called.', code: -15, method: walletpassphrase")
   })
 })
 
@@ -33,18 +36,24 @@ describe('Encrypted Wallet without masternode', () => {
   })
 
   it('should throw error if timeout is negative', async () => {
-    await expect(client.wallet.walletPassphrase('password', -100))
-      .rejects.toThrow("RpcApiError: 'Timeout cannot be negative.', code: -8, method: walletpassphrase")
+    const promise = client.wallet.walletPassphrase('password', -100)
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow("RpcApiError: 'Timeout cannot be negative.', code: -8, method: walletpassphrase")
   })
 
   it('should throw error if passphrase is empty', async () => {
-    await expect(client.wallet.walletPassphrase('', 100))
-      .rejects.toThrow("RpcApiError: 'passphrase can not be empty', code: -8, method: walletpassphrase")
+    const promise = client.wallet.walletPassphrase('', 100)
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow("RpcApiError: 'passphrase can not be empty', code: -8, method: walletpassphrase")
   })
 
   it('should throw error if passphrase is incorrect', async () => {
-    await expect(client.wallet.walletPassphrase('wrongpassphrase', 100))
-      .rejects.toThrow("RpcApiError: 'Error: The wallet passphrase entered was incorrect.', code: -14, method: walletpassphrase")
+    const promise = client.wallet.walletPassphrase('incorrectpassword', 100)
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow("RpcApiError: 'Error: The wallet passphrase entered was incorrect.', code: -14, method: walletpassphrase")
   })
 })
 
@@ -61,8 +70,10 @@ describe('Unencrypted Wallet on masternode', () => {
   })
 
   it('should throw error if walletPassphrase is called', async () => {
-    await expect(client.wallet.walletPassphrase('password', -100))
-      .rejects.toThrow("RpcApiError: 'Error: running with an unencrypted wallet, but walletpassphrase was called.', code: -15, method: walletpassphrase")
+    const promise = client.wallet.walletPassphrase('password', -100)
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow("RpcApiError: 'Error: running with an unencrypted wallet, but walletpassphrase was called.', code: -15, method: walletpassphrase")
   })
 })
 
@@ -80,17 +91,23 @@ describe('Encrypted Wallet on masternode', () => {
   })
 
   it('should throw error if timeout is negative', async () => {
-    await expect(client.wallet.walletPassphrase('password', -100))
-      .rejects.toThrow("RpcApiError: 'Timeout cannot be negative.', code: -8, method: walletpassphrase")
+    const promise = client.wallet.walletPassphrase('password', -100)
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow("RpcApiError: 'Timeout cannot be negative.', code: -8, method: walletpassphrase")
   })
 
   it('should throw error if passphrase is empty', async () => {
-    await expect(client.wallet.walletPassphrase('', 100))
-      .rejects.toThrow("RpcApiError: 'passphrase can not be empty', code: -8, method: walletpassphrase")
+    const promise = client.wallet.walletPassphrase('', 100)
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow("RpcApiError: 'passphrase can not be empty', code: -8, method: walletpassphrase")
   })
 
   it('should throw error if passphrase is incorrect', async () => {
-    await expect(client.wallet.walletPassphrase('wrongpassword', 100))
-      .rejects.toThrow("RpcApiError: 'Error: The wallet passphrase entered was incorrect.', code: -14, method: walletpassphrase")
+    const promise = client.wallet.walletPassphrase('incorrectpassword', 100)
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow("RpcApiError: 'Error: The wallet passphrase entered was incorrect.', code: -14, method: walletpassphrase")
   })
 })
