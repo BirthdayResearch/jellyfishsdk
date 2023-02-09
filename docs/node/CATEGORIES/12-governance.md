@@ -78,9 +78,14 @@ interface ProposalInfo {
   votesPresent?: number
   votesPresentPct?: string
   votesYes?: number
+  votesInvalid?: number
+  votesNeutral?: number
+  votesNo?: number
   votesYesPct?: string
   fee: number
   options?: string[]
+  feeRedistributionPerVote: number
+  feeRedistributionTotal: number
 }
  ```
 
