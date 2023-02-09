@@ -126,6 +126,7 @@ export interface ProposalVotesResult {
   masternodeId: string
   cycle: number
   vote: ProposalVoteResultType
+  valid: boolean
 }
 
 export enum ProposalVoteResultType {

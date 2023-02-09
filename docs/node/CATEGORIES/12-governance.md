@@ -231,6 +231,8 @@ interface ListGovProposalVotesOptions {
   masternode?: MasternodeType | string
   cycle?: number
   pagination?: ListGovProposalVotesPagination
+  aggregate?: boolean
+  valid?: boolean
 }
 
 interface ListVotesResult {
@@ -238,5 +240,6 @@ interface ListVotesResult {
   masternodeId: string
   cycle: number
   vote: string
+  valid: boolean
 }
 ```
