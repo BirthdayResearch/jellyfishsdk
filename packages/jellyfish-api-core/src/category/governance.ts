@@ -124,7 +124,7 @@ export class Governance {
    *
    * @param {VoteData} data Vote data
    * @param {string} data.proposalId Proposal id
-   * @param {number} data.masternodeId Masternode id
+   * @param {number} data.masternodeId Masternode id/owner address/operator address
    * @param {VoteDecision} data.decision Vote decision. See VoteDecision.
    * @param {UTXO[]} [utxos = []] Specific utxos to spend
    * @param {string} [utxos.txid] The transaction id
