@@ -357,8 +357,29 @@ export class Wallet {
    * @param {number} timeout The time to keep the decryption key in seconds; capped at 100000000 (~3 years).
    * @return {Promise<>}
    */
-  async walletPassphrase (passphrase: string, timeout: number): Promise<string> {
+  async walletPassphrase (passphrase: string, timeout: number): Promise<void> {
     return await this.client.call('walletpassphrase', [passphrase, timeout], 'number')
+  }
+
+  /**
+   * Changes the wallet passphrase from ‘oldpassphrase’ to ‘newpassphrase’.
+   *
+   * @param {string} oldpassphrase The old wallet passphrase.
+   * @param {string} newpassphrase The new wallet passphrase.
+   * @return {Promise<>}
+   */
+  async walletPassphraseChange (oldpassphrase: string, newpassphrase: string): Promise<void> {
+    return await this.client.call('walletpassphrasechange', [oldpassphrase, newpassphrase], 'number')
+  }
+
+  /**
+   * Removes the wallet encryption key from memory, locking the wallet.
+   * Unlock wallet by calling 'walletpassphrase' to perform wallet-related methods.
+   *
+   * @return {Promise<>}
+   */
+  async walletLock (): Promise<void> {
+    return await this.client.call('walletlock', [], 'number')
   }
 }
 
