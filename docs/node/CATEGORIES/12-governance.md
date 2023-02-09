@@ -212,7 +212,7 @@ Returns information about proposal votes.
 
 ```ts title="client.governance.listGovProposalVotes()"
 interface governance {
-  listGovProposalVotes (options: ListGovProposalVotesOptions): Promise<ListVotesResult[]>
+  listGovProposalVotes (options?: ListGovProposalVotesOptions): Promise<ListVotesResult[]>
 }
 
 enum MasternodeType {
@@ -227,7 +227,7 @@ interface ListGovProposalVotesPagination {
 }
 
 interface ListGovProposalVotesOptions {
-  proposalId: string
+  proposalId?: string
   masternode?: MasternodeType | string
   cycle?: number
   pagination?: ListGovProposalVotesPagination

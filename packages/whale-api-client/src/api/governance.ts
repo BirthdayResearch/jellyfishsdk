@@ -43,12 +43,12 @@ export class Governance {
   /**
    * Returns votes for a proposal
    *
-   * @param {string} id proposal ID
-   * @param {MasternodeType | string} [masternode=MasternodeType.ALL] masternode id or reserved words 'mine' to list votes for all owned accounts or 'all' to list all votes
-   * @param {number} [cycle=0] cycle: 0 (show current), cycle: N (show cycle N), cycle: -1 (show all)
-   * @param {number} [size=30] of proposal to query
-   * @param {string} next set of proposals
-   * @param {boolean} all true to return all records, otherwise it will return based on size param
+   * @param {string} [option.id] proposal ID
+   * @param {MasternodeType | string} [option.masternode=MasternodeType.ALL] masternode id or reserved words 'mine' to list votes for all owned accounts or 'all' to list all votes
+   * @param {number} [option.cycle=0] cycle: 0 (show current), cycle: N (show cycle N), cycle: -1 (show all)
+   * @param {number} [option.size=30] of proposal to query
+   * @param {string} [option.next] set of proposals
+   * @param {boolean} [option.all] true to return all records, otherwise it will return based on size param
    * @return {Promise<ProposalVotesResult[]>} Proposal vote information
    */
   async listGovProposalVotes (option?: GovernanceListGovProposalVotesOptions): Promise<ApiPagedResponse<ProposalVotesResult>> {

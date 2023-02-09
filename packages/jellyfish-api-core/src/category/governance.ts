@@ -151,7 +151,7 @@ export class Governance {
    * @return {Promise<ListVotesResult[]>} Proposal vote information
    */
   async listGovProposalVotes (
-    options: ListGovProposalVotesOptions
+    options?: ListGovProposalVotesOptions
   ): Promise<ListVotesResult[]> {
     return await this.client.call('listgovproposalvotes', [options], 'number')
   }
@@ -235,7 +235,7 @@ export interface ListProposalsPagination {
 }
 
 export interface ListGovProposalVotesOptions {
-  proposalId: string
+  proposalId?: string
   masternode?: MasternodeType | string
   cycle?: number
   pagination?: ListGovProposalVotesPagination
