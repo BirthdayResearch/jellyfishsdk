@@ -43,6 +43,7 @@ export class Governance {
   /**
    * Returns votes for a proposal
    *
+   * @param {GovernanceListGovProposalVotesOptions} [option]
    * @param {string} [option.id] proposal ID
    * @param {MasternodeType | string} [option.masternode=MasternodeType.ALL] masternode id or reserved words 'mine' to list votes for all owned accounts or 'all' to list all votes
    * @param {number} [option.cycle=0] cycle: 0 (show current), cycle: N (show cycle N), cycle: -1 (show all)
