@@ -46,7 +46,7 @@
     "graphology": "0.25.1",
     "graphology-components": "1.5.4",
     "graphology-simple-path": "0.1.2",
-    "joi": "17.7.0",
+    "joi": "17.7.1",
     "lodash": "4.17.21",
     "level": "7.0.0",
     "level-js": "6.0.0",
