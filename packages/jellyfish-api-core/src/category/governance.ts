@@ -146,10 +146,12 @@ export class Governance {
    * @param {number} [options.pagination.start=0]
    * @param {boolean} [options.pagination.including_start=true] defaults to false if options.pagination.start is set, true otherwise
    * @param {number} [options.pagination.limit=100] to limit number of records
+   * @param {boolean} [options.aggregate=false] false: return raw vote data, true: return total votes by type
+   * @param {boolean} [options.valid=true] false: show only invalid votes at current height, true: show only valid votes at current height
    * @return {Promise<ListVotesResult[]>} Proposal vote information
    */
   async listGovProposalVotes (
-    options: ListGovProposalVotesOptions
+    options?: ListGovProposalVotesOptions
   ): Promise<ListVotesResult[]> {
     return await this.client.call('listgovproposalvotes', [options], 'number')
   }
@@ -216,6 +218,7 @@ export interface ListVotesResult {
   masternodeId: string
   cycle: number
   vote: VoteResult
+  valid: boolean
 }
 
 export interface ListProposalsOptions {
@@ -232,10 +235,12 @@ export interface ListProposalsPagination {
 }
 
 export interface ListGovProposalVotesOptions {
-  proposalId: string
+  proposalId?: string
   masternode?: MasternodeType | string
   cycle?: number
   pagination?: ListGovProposalVotesPagination
+  aggregate?: boolean
+  valid?: boolean
 }
 
 export interface ListGovProposalVotesPagination {

@@ -379,4 +379,168 @@ describe('Governance', () => {
     })
     expect(proposalVotes.length).toStrictEqual(1)
   })
+
+  it('should return aggregate votes - specific proposal', async () => {
+    const data = {
+      title: 'Testing a community fund proposal',
+      amount: new BigNumber(100),
+      context: '<Git issue url>',
+      payoutAddress: await testing.container.getNewAddress(),
+      cycles: 2
+    }
+    const proposalId = await testing.rpc.governance.createGovCfp(data) // Creates a cfp on which to vote
+    await testing.container.generate(1)
+
+    const votes = [VoteDecision.YES, VoteDecision.NO, VoteDecision.NO]
+
+    let index = 0
+    for (const [id, data] of Object.entries(masternodes)) {
+      if (data.operatorIsMine) {
+        await testing.container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
+        await testing.rpc.governance.voteGov({
+          proposalId,
+          masternodeId: id,
+          decision: votes[index]
+        })
+        index++
+      }
+    }
+    await testing.container.generate(1)
+
+    const aggregateVotes = await testing.rpc.governance.listGovProposalVotes({
+      proposalId: proposalId,
+      masternode: MasternodeType.ALL,
+      aggregate: true
+    })
+
+    expect(aggregateVotes.length).toStrictEqual(1)
+    expect(aggregateVotes).toMatchObject([
+      {
+        proposalId: proposalId,
+        total: 3,
+        yes: 1,
+        neutral: 0,
+        no: 2
+      }
+    ])
+  })
+
+  it('should return aggregate votes - multiple proposals', async () => {
+    const data1 = {
+      title: 'Testing a community fund proposal',
+      amount: new BigNumber(100),
+      context: '<Git issue url>',
+      payoutAddress: await testing.container.getNewAddress(),
+      cycles: 2
+    }
+    const data2 = {
+      title: 'Testing a community fund proposal 2',
+      amount: new BigNumber(100),
+      context: '<Git issue url>',
+      payoutAddress: await testing.container.getNewAddress(),
+      cycles: 2
+    }
+    const proposal1 = await testing.rpc.governance.createGovCfp(data1)
+    const proposal2 = await testing.rpc.governance.createGovCfp(data2)
+    await testing.container.generate(1)
+
+    const votes = [VoteDecision.YES, VoteDecision.NO, VoteDecision.NO]
+
+    let index = 0
+    for (const [id, data] of Object.entries(masternodes)) {
+      if (data.operatorIsMine) {
+        await testing.container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
+        await testing.rpc.governance.voteGov({
+          proposalId: proposal1,
+          masternodeId: id,
+          decision: votes[index]
+        })
+        await testing.rpc.governance.voteGov({
+          proposalId: proposal2,
+          masternodeId: id,
+          decision: votes[index]
+        })
+        index++
+      }
+    }
+    await testing.container.generate(1)
+
+    const aggregateVotes = await testing.rpc.governance.listGovProposalVotes()
+
+    expect(aggregateVotes.length).toStrictEqual(2)
+    expect(aggregateVotes).toEqual(expect.arrayContaining([
+      {
+        proposalId: proposal2,
+        total: 3,
+        yes: 1,
+        neutral: 0,
+        no: 2
+      },
+      {
+        proposalId: proposal1,
+        total: 3,
+        yes: 1,
+        neutral: 0,
+        no: 2
+      }
+    ]))
+  })
+
+  it('should return invalid votes', async () => {
+    const data = {
+      title: 'Testing a community fund proposal',
+      amount: new BigNumber(100),
+      context: '<Git issue url>',
+      payoutAddress: await testing.container.getNewAddress(),
+      cycles: 2
+    }
+    const proposalId = await testing.rpc.governance.createGovCfp(data) // Creates a cfp on which to vote
+    await testing.container.generate(1)
+
+    const votes = [VoteDecision.YES, VoteDecision.NO, VoteDecision.NO]
+
+    let index = 0
+    for (const [id, data] of Object.entries(masternodes)) {
+      if (data.operatorIsMine) {
+        await testing.container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
+        await testing.rpc.governance.voteGov({
+          proposalId,
+          masternodeId: id,
+          decision: votes[index]
+        })
+        index++
+      }
+    }
+    await testing.container.generate(1)
+
+    const invalidMasternode = Object.keys(masternodes).at(2)! // resign a masternode
+    await testing.rpc.masternode.resignMasternode(invalidMasternode)
+    await testing.generate(15) // wait for resignation to take effect
+
+    const invalidVotes = await testing.rpc.governance.listGovProposalVotes({
+      proposalId: proposalId,
+      masternode: MasternodeType.ALL,
+      cycle: 1,
+      valid: false
+    })
+    const validVotes = await testing.rpc.governance.listGovProposalVotes({
+      proposalId: proposalId,
+      masternode: MasternodeType.ALL,
+      cycle: 1,
+      valid: true
+    })
+
+    expect(invalidVotes.length).toStrictEqual(1)
+    expect(invalidVotes).toMatchObject([
+      {
+        proposalId: proposalId,
+        masternodeId: invalidMasternode,
+        cycle: 1,
+        vote: 'NO',
+        valid: false
+      }
+    ])
+
+    expect(validVotes.length).toStrictEqual(2)
+  })
 })
