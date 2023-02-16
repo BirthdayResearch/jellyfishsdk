@@ -150,7 +150,12 @@ describe('Governance with multiple masternodes voting', () => {
       votesPresent: 4,
       votesPresentPct: '100.00%',
       votesYes: 3,
-      votesYesPct: '75.00%'
+      votesNo: 1,
+      votesNeutral: 0,
+      votesInvalid: 0,
+      votesYesPct: '75.00%',
+      feeRedistributionPerVote: 0.625,
+      feeRedistributionTotal: 2.5
     })
 
     await testing.container.generate(cycle1 - await testing.container.getBlockCount())
@@ -175,7 +180,12 @@ describe('Governance with multiple masternodes voting', () => {
       votesPresent: 4,
       votesPresentPct: '100.00%',
       votesYes: 3,
-      votesYesPct: '75.00%'
+      votesYesPct: '75.00%',
+      votesNo: 1,
+      votesNeutral: 0,
+      votesInvalid: 0,
+      feeRedistributionPerVote: 0.625,
+      feeRedistributionTotal: 2.5
     })
   })
 
@@ -224,7 +234,12 @@ describe('Governance with multiple masternodes voting', () => {
       votesPresent: 4,
       votesPresentPct: '100.00%',
       votesYes: 2,
-      votesYesPct: '50.00%'
+      votesNo: 2,
+      votesNeutral: 0,
+      votesInvalid: 0,
+      votesYesPct: '50.00%',
+      feeRedistributionPerVote: 0.625,
+      feeRedistributionTotal: 2.5
     })
 
     await testing.container.generate(cycle1 - await testing.container.getBlockCount())
@@ -249,7 +264,12 @@ describe('Governance with multiple masternodes voting', () => {
       votesPresent: 4,
       votesPresentPct: '100.00%',
       votesYes: 2,
-      votesYesPct: '50.00%'
+      votesYesPct: '50.00%',
+      votesNo: 2,
+      votesNeutral: 0,
+      votesInvalid: 0,
+      feeRedistributionPerVote: 0.625,
+      feeRedistributionTotal: 2.5
     })
   })
 
@@ -301,7 +321,12 @@ describe('Governance with multiple masternodes voting', () => {
       votesPresent: 4,
       votesPresentPct: '100.00%',
       votesYes: 4,
-      votesYesPct: '100.00%'
+      votesNo: 0,
+      votesNeutral: 0,
+      votesInvalid: 0,
+      votesYesPct: '100.00%',
+      feeRedistributionPerVote: 1.25,
+      feeRedistributionTotal: 5
     })
 
     // cycle 2 votes
@@ -347,7 +372,12 @@ describe('Governance with multiple masternodes voting', () => {
       votesPresent: 4,
       votesPresentPct: '100.00%',
       votesYes: 1,
-      votesYesPct: '25.00%'
+      votesYesPct: '25.00%',
+      votesNo: 3,
+      votesNeutral: 0,
+      votesInvalid: 0,
+      feeRedistributionPerVote: 1.25,
+      feeRedistributionTotal: 5
     })
 
     await testing.container.generate(cycle2 - await testing.container.getBlockCount())
@@ -374,7 +404,12 @@ describe('Governance with multiple masternodes voting', () => {
       votesPresent: 4,
       votesPresentPct: '100.00%',
       votesYes: 1,
-      votesYesPct: '25.00%'
+      votesYesPct: '25.00%',
+      votesNo: 3,
+      votesNeutral: 0,
+      votesInvalid: 0,
+      feeRedistributionPerVote: 1.25,
+      feeRedistributionTotal: 5
     })
   }, 1200000)
 })
