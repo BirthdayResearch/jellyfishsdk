@@ -407,3 +407,19 @@ interface wallet {
   signMessage (address: string, message: string): Promise<string>
 }
 ```
+
+## addMultiSigAddress
+
+Add an nrequired-to-sign multisignature address to the wallet. Requires a new wallet backup.
+
+```ts title="client.wallet.signMessage()"
+interface wallet {
+  addMultiSigAddress (nrequired: number, keys: string): Promise<MultiSigAddressResult>
+}
+
+interface MultiSigAddressResult {
+  address: string
+  redeemScript: string
+  descriptor: string
+}
+```
