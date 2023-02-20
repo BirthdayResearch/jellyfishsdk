@@ -171,7 +171,6 @@ describe('listTransactions', () => {
     }
   })
 
-  // TODO: it should listTransactions with excludeCustomTx = false
   it('should listTransactions with excludeCustomTx = true', async () => {
     const inWalletTransactions = await client.wallet.listTransactions('*', 10, 0, undefined, true)
 
