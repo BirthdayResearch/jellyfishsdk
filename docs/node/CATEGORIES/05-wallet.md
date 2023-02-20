@@ -407,3 +407,13 @@ interface wallet {
   signMessage (address: string, message: string): Promise<string>
 }
 ```
+
+ ## listTransactions
+
+ List transactions based on the given criteria.
+
+ ```ts title="client.wallet.listTransactions()"
+ interface wallet {
+   listTransactions  (label: string = '*', count: number = 10, skip: number = 0, includeWatchOnly: boolean = true, excludeCustomTx: boolean = true): Promise<InWalletTransactionWithCategory[]>
+ }
+ ```
