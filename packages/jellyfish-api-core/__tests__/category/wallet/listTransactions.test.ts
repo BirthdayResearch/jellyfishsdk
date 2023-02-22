@@ -22,7 +22,7 @@ describe('listTransactions', () => {
     await client.wallet.sendToAddress(address, 0.0001)
     await container.generate(1, address)
 
-    const inWalletTransactions = await client.wallet.listTransactions()
+    const inWalletTransactions = await client.wallet.listTransactions({})
 
     expect(inWalletTransactions.length).toBeGreaterThanOrEqual(1)
 
@@ -49,7 +49,7 @@ describe('listTransactions', () => {
     await client.wallet.sendToAddress(address, 0.0001)
     await container.generate(1, address)
 
-    const inWalletTransactions = await client.wallet.listTransactions('owner')
+    const inWalletTransactions = await client.wallet.listTransactions({ label: 'owner' })
 
     inWalletTransactions.forEach((inWalletTransaction) => {
       expect(inWalletTransaction.label).toStrictEqual('owner')
@@ -80,7 +80,7 @@ describe('listTransactions', () => {
     await client.wallet.sendToAddress(address, 0.0001)
     await container.generate(1, address)
 
-    const inWalletTransactions = await client.wallet.listTransactions('owner')
+    const inWalletTransactions = await client.wallet.listTransactions({ label: 'owner' })
 
     inWalletTransactions.forEach((inWalletTransaction) => {
       expect(inWalletTransaction.label).toStrictEqual('owner')
@@ -111,7 +111,7 @@ describe('listTransactions', () => {
     await client.wallet.sendToAddress(address, 0.0001)
     await container.generate(1, address)
 
-    const inWalletTransactions = await client.wallet.listTransactions('*', 5)
+    const inWalletTransactions = await client.wallet.listTransactions({ count: 5 })
 
     expect(inWalletTransactions.length).toStrictEqual(5)
 
@@ -135,16 +135,16 @@ describe('listTransactions', () => {
   })
 
   it('should not listTransactions with count = -1', async () => {
-    await expect(client.wallet.listTransactions('*', -1)).rejects.toThrow('RpcApiError: \'Negative count\', code: -8, method: listtransactions')
+    await expect(client.wallet.listTransactions({ count: -1 })).rejects.toThrow('RpcApiError: \'Negative count\', code: -8, method: listtransactions')
   })
 
   it('should listTransactions with count = 0', async () => {
-    const inWalletTransactions = await client.wallet.listTransactions('*', 0)
+    const inWalletTransactions = await client.wallet.listTransactions({ count: 0 })
     expect(inWalletTransactions.length).toStrictEqual(0)
   })
 
   it('should listTransactions with includeWatchOnly false', async () => {
-    const inWalletTransactions = await client.wallet.listTransactions('*', 10, 0, false, undefined)
+    const inWalletTransactions = await client.wallet.listTransactions({ includeWatchOnly: false })
 
     inWalletTransactions.forEach((inWalletTransaction) => {
       expect(inWalletTransaction.address).toStrictEqual(address)
@@ -172,7 +172,7 @@ describe('listTransactions', () => {
   })
 
   it('should listTransactions with excludeCustomTx = true', async () => {
-    const inWalletTransactions = await client.wallet.listTransactions('*', 10, 0, undefined, true)
+    const inWalletTransactions = await client.wallet.listTransactions({ excludeCustomTx: true })
 
     inWalletTransactions.forEach((inWalletTransaction) => {
       expect(inWalletTransaction.address).toStrictEqual(address)

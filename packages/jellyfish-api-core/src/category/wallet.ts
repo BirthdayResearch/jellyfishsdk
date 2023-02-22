@@ -336,7 +336,19 @@ export class Wallet {
    * @param {boolean} excludeCustomTx False to include all transactions, otherwise exclude custom transactions (default = false)
    * @return {Promise<Array<InWalletTransactionWithFlatDetails>>}
    */
-  async listTransactions (label: string = '*', count: number = 10, skip: number = 0, includeWatchOnly: boolean = true, excludeCustomTx: boolean = false): Promise<InWalletTransactionWithFlatDetails[]> {
+  async listTransactions ({
+    label = '*',
+    count = 10,
+    skip = 0,
+    includeWatchOnly = true,
+    excludeCustomTx = false
+  }: {
+    label?: string
+    count?: number
+    skip?: number
+    includeWatchOnly?: boolean
+    excludeCustomTx?: boolean
+  }): Promise<InWalletTransactionWithFlatDetails[]> {
     return await this.client.call('listtransactions', [label, count, skip, includeWatchOnly, excludeCustomTx], { amount: 'bignumber' })
   }
 
