@@ -18,16 +18,14 @@ describe('listTransactions', () => {
   })
 
   it('should listTransactions', async () => {
-    const numTx = 10
-
-    for (let i = 0; i < numTx; i += 1) {
+    for (let i = 0; i < 10; i += 1) {
       await client.wallet.sendToAddress(address, 0.0001)
     }
     await container.generate(1, address)
 
     const inWalletTransactions = await client.wallet.listTransactions({})
 
-    expect(inWalletTransactions.length).toBe(numTx)
+    expect(inWalletTransactions.length).toStrictEqual(10)
 
     for (const inWalletTransaction of inWalletTransactions) {
       expect(inWalletTransaction).toMatchObject({
@@ -51,9 +49,7 @@ describe('listTransactions', () => {
   })
 
   it('should listTransactions with label set', async () => {
-    const numTx = 10
-
-    for (let i = 0; i < numTx; i += 1) {
+    for (let i = 0; i < 10; i += 1) {
       await client.wallet.sendToAddress(address, 0.0001)
     }
     await container.generate(1, address)
@@ -64,7 +60,7 @@ describe('listTransactions', () => {
       expect(inWalletTransaction.label).toStrictEqual('owner')
     })
 
-    expect(inWalletTransactions.length).toBe(numTx)
+    expect(inWalletTransactions.length).toStrictEqual(10)
 
     for (const inWalletTransaction of inWalletTransactions) {
       expect(inWalletTransaction).toMatchObject({
@@ -88,8 +84,7 @@ describe('listTransactions', () => {
   })
 
   it('should listTransactions with label set', async () => {
-    const numTx = 10
-    for (let i = 0; i < numTx; i += 1) {
+    for (let i = 0; i < 10; i += 1) {
       await client.wallet.sendToAddress(address, 0.0001)
     }
     await container.generate(1, address)
@@ -100,7 +95,7 @@ describe('listTransactions', () => {
       expect(inWalletTransaction.label).toStrictEqual('owner')
     })
 
-    expect(inWalletTransactions.length).toBeGreaterThanOrEqual(1)
+    expect(inWalletTransactions.length).toStrictEqual(10)
 
     for (const inWalletTransaction of inWalletTransactions) {
       expect(inWalletTransaction).toMatchObject({
@@ -162,13 +157,18 @@ describe('listTransactions', () => {
   })
 
   it('should listTransactions with includeWatchOnly false', async () => {
+    for (let i = 0; i < 10; i += 1) {
+      await client.wallet.sendToAddress(address, 0.0001)
+    }
+    await container.generate(1, address)
+
     const inWalletTransactions = await client.wallet.listTransactions({ includeWatchOnly: false })
 
     inWalletTransactions.forEach((inWalletTransaction) => {
       expect(inWalletTransaction.address).toStrictEqual(address)
     })
 
-    expect(inWalletTransactions.length).toBeGreaterThanOrEqual(1)
+    expect(inWalletTransactions.length).toStrictEqual(10)
 
     for (const inWalletTransaction of inWalletTransactions) {
       expect(inWalletTransaction).toMatchObject({
@@ -192,9 +192,7 @@ describe('listTransactions', () => {
   })
 
   it('should listTransactions with excludeCustomTx = true', async () => {
-    const numTx = 10
-
-    for (let i = 0; i < numTx; i += 1) {
+    for (let i = 0; i < 10; i += 1) {
       await client.wallet.sendToAddress(address, 0.0001)
     }
     await container.generate(1, address)
@@ -205,7 +203,7 @@ describe('listTransactions', () => {
       expect(inWalletTransaction.address).toStrictEqual(address)
     })
 
-    expect(inWalletTransactions.length).toBeGreaterThanOrEqual(numTx)
+    expect(inWalletTransactions.length).toStrictEqual(10)
 
     for (const inWalletTransaction of inWalletTransactions) {
       expect(inWalletTransaction).toMatchObject({
