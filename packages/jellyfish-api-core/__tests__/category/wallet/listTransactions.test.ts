@@ -1,4 +1,3 @@
-import { BIP125, InWalletTransactionCategory } from '@defichain/jellyfish-api-core/dist/category/wallet'
 import { BigNumber } from '@defichain/jellyfish-json'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
@@ -19,34 +18,80 @@ describe('listTransactions', () => {
   })
 
   it('should listTransactions', async () => {
-    await client.wallet.sendToAddress(address, 0.0001)
+    const numTx = 10
+
+    for (let i = 0; i < numTx; i += 1) {
+      await client.wallet.sendToAddress(address, 0.0001)
+    }
     await container.generate(1, address)
 
     const inWalletTransactions = await client.wallet.listTransactions({})
 
-    expect(inWalletTransactions.length).toBeGreaterThanOrEqual(1)
+    expect(inWalletTransactions.length).toBe(numTx)
 
     for (const inWalletTransaction of inWalletTransactions) {
-      expect(typeof inWalletTransaction.address).toStrictEqual('string')
-      expect(typeof inWalletTransaction.txid).toStrictEqual('string')
-      expect(inWalletTransaction.amount).toBeInstanceOf(BigNumber)
-
-      expect(typeof inWalletTransaction.confirmations).toStrictEqual('number')
-      expect(typeof inWalletTransaction.blockhash).toStrictEqual('string')
-      expect(typeof inWalletTransaction.blocktime).toStrictEqual('number')
-      expect(typeof inWalletTransaction.blockindex).toStrictEqual('number')
-      expect(typeof inWalletTransaction.time).toStrictEqual('number')
-      expect(typeof inWalletTransaction.timereceived).toStrictEqual('number')
-      expect(Object.values(BIP125).includes(inWalletTransaction['bip125-replaceable'])).toStrictEqual(true)
-
-      expect(Object.values(InWalletTransactionCategory).includes(inWalletTransaction.category)).toStrictEqual(true)
-      expect(typeof inWalletTransaction.label).toStrictEqual('string')
-      expect(typeof inWalletTransaction.vout).toStrictEqual('number')
+      expect(inWalletTransaction).toMatchObject({
+        address: expect.any(String),
+        txid: expect.any(String),
+        amount: expect.any(BigNumber),
+        confirmations: expect.any(Number),
+        blockhash: expect.any(String),
+        blocktime: expect.any(Number),
+        blockindex: expect.any(Number),
+        time: expect.any(Number),
+        timereceived: expect.any(Number),
+        // "bip125-replaceable" is "BIP125" enum but we test with "string" here
+        'bip125-replaceable': expect.any(String),
+        // "category" is "InWalletTransactionCategory" enum but we test with "string" here
+        category: expect.any(String),
+        label: expect.any(String),
+        vout: expect.any(Number)
+      })
     }
   })
 
   it('should listTransactions with label set', async () => {
-    await client.wallet.sendToAddress(address, 0.0001)
+    const numTx = 10
+
+    for (let i = 0; i < numTx; i += 1) {
+      await client.wallet.sendToAddress(address, 0.0001)
+    }
+    await container.generate(1, address)
+
+    const inWalletTransactions = await client.wallet.listTransactions({ label: 'owner' })
+
+    inWalletTransactions.forEach((inWalletTransaction) => {
+      expect(inWalletTransaction.label).toStrictEqual('owner')
+    })
+
+    expect(inWalletTransactions.length).toBeGreaterThanOrEqual(numTx)
+
+    for (const inWalletTransaction of inWalletTransactions) {
+      expect(inWalletTransaction).toMatchObject({
+        address: expect.any(String),
+        txid: expect.any(String),
+        amount: expect.any(BigNumber),
+        confirmations: expect.any(Number),
+        blockhash: expect.any(String),
+        blocktime: expect.any(Number),
+        blockindex: expect.any(Number),
+        time: expect.any(Number),
+        timereceived: expect.any(Number),
+        // "bip125-replaceable" is "BIP125" enum but we test with "string" here
+        'bip125-replaceable': expect.any(String),
+        // "category" is "InWalletTransactionCategory" enum but we test with "string" here
+        category: expect.any(String),
+        label: expect.any(String),
+        vout: expect.any(Number)
+      })
+    }
+  })
+
+  it('should listTransactions with label set', async () => {
+    const numTx = 10
+    for (let i = 0; i < numTx; i += 1) {
+      await client.wallet.sendToAddress(address, 0.0001)
+    }
     await container.generate(1, address)
 
     const inWalletTransactions = await client.wallet.listTransactions({ label: 'owner' })
@@ -58,52 +103,23 @@ describe('listTransactions', () => {
     expect(inWalletTransactions.length).toBeGreaterThanOrEqual(1)
 
     for (const inWalletTransaction of inWalletTransactions) {
-      expect(typeof inWalletTransaction.address).toStrictEqual('string')
-      expect(typeof inWalletTransaction.txid).toStrictEqual('string')
-      expect(inWalletTransaction.amount).toBeInstanceOf(BigNumber)
-
-      expect(typeof inWalletTransaction.confirmations).toStrictEqual('number')
-      expect(typeof inWalletTransaction.blockhash).toStrictEqual('string')
-      expect(typeof inWalletTransaction.blocktime).toStrictEqual('number')
-      expect(typeof inWalletTransaction.blockindex).toStrictEqual('number')
-      expect(typeof inWalletTransaction.time).toStrictEqual('number')
-      expect(typeof inWalletTransaction.timereceived).toStrictEqual('number')
-      expect(Object.values(BIP125).includes(inWalletTransaction['bip125-replaceable'])).toStrictEqual(true)
-
-      expect(Object.values(InWalletTransactionCategory).includes(inWalletTransaction.category)).toStrictEqual(true)
-      expect(typeof inWalletTransaction.label).toStrictEqual('string')
-      expect(typeof inWalletTransaction.vout).toStrictEqual('number')
-    }
-  })
-
-  it('should listTransactions with label set', async () => {
-    await client.wallet.sendToAddress(address, 0.0001)
-    await container.generate(1, address)
-
-    const inWalletTransactions = await client.wallet.listTransactions({ label: 'owner' })
-
-    inWalletTransactions.forEach((inWalletTransaction) => {
-      expect(inWalletTransaction.label).toStrictEqual('owner')
-    })
-
-    expect(inWalletTransactions.length).toBeGreaterThanOrEqual(1)
-
-    for (const inWalletTransaction of inWalletTransactions) {
-      expect(typeof inWalletTransaction.address).toStrictEqual('string')
-      expect(typeof inWalletTransaction.txid).toStrictEqual('string')
-      expect(inWalletTransaction.amount).toBeInstanceOf(BigNumber)
-
-      expect(typeof inWalletTransaction.confirmations).toStrictEqual('number')
-      expect(typeof inWalletTransaction.blockhash).toStrictEqual('string')
-      expect(typeof inWalletTransaction.blocktime).toStrictEqual('number')
-      expect(typeof inWalletTransaction.blockindex).toStrictEqual('number')
-      expect(typeof inWalletTransaction.time).toStrictEqual('number')
-      expect(typeof inWalletTransaction.timereceived).toStrictEqual('number')
-      expect(Object.values(BIP125).includes(inWalletTransaction['bip125-replaceable'])).toStrictEqual(true)
-
-      expect(Object.values(InWalletTransactionCategory).includes(inWalletTransaction.category)).toStrictEqual(true)
-      expect(typeof inWalletTransaction.label).toStrictEqual('string')
-      expect(typeof inWalletTransaction.vout).toStrictEqual('number')
+      expect(inWalletTransaction).toMatchObject({
+        address: expect.any(String),
+        txid: expect.any(String),
+        amount: expect.any(BigNumber),
+        confirmations: expect.any(Number),
+        blockhash: expect.any(String),
+        blocktime: expect.any(Number),
+        blockindex: expect.any(Number),
+        time: expect.any(Number),
+        timereceived: expect.any(Number),
+        // "bip125-replaceable" is "BIP125" enum but we test with "string" here
+        'bip125-replaceable': expect.any(String),
+        // "category" is "InWalletTransactionCategory" enum but we test with "string" here
+        category: expect.any(String),
+        label: expect.any(String),
+        vout: expect.any(Number)
+      })
     }
   })
 
@@ -116,21 +132,23 @@ describe('listTransactions', () => {
     expect(inWalletTransactions.length).toStrictEqual(5)
 
     for (const inWalletTransaction of inWalletTransactions) {
-      expect(typeof inWalletTransaction.address).toStrictEqual('string')
-      expect(typeof inWalletTransaction.txid).toStrictEqual('string')
-      expect(inWalletTransaction.amount).toBeInstanceOf(BigNumber)
-
-      expect(typeof inWalletTransaction.confirmations).toStrictEqual('number')
-      expect(typeof inWalletTransaction.blockhash).toStrictEqual('string')
-      expect(typeof inWalletTransaction.blocktime).toStrictEqual('number')
-      expect(typeof inWalletTransaction.blockindex).toStrictEqual('number')
-      expect(typeof inWalletTransaction.time).toStrictEqual('number')
-      expect(typeof inWalletTransaction.timereceived).toStrictEqual('number')
-      expect(Object.values(BIP125).includes(inWalletTransaction['bip125-replaceable'])).toStrictEqual(true)
-
-      expect(Object.values(InWalletTransactionCategory).includes(inWalletTransaction.category)).toStrictEqual(true)
-      expect(typeof inWalletTransaction.label).toStrictEqual('string')
-      expect(typeof inWalletTransaction.vout).toStrictEqual('number')
+      expect(inWalletTransaction).toMatchObject({
+        address: expect.any(String),
+        txid: expect.any(String),
+        amount: expect.any(BigNumber),
+        confirmations: expect.any(Number),
+        blockhash: expect.any(String),
+        blocktime: expect.any(Number),
+        blockindex: expect.any(Number),
+        time: expect.any(Number),
+        timereceived: expect.any(Number),
+        // "bip125-replaceable" is "BIP125" enum but we test with "string" here
+        'bip125-replaceable': expect.any(String),
+        // "category" is "InWalletTransactionCategory" enum but we test with "string" here
+        category: expect.any(String),
+        label: expect.any(String),
+        vout: expect.any(Number)
+      })
     }
   })
 
@@ -153,49 +171,60 @@ describe('listTransactions', () => {
     expect(inWalletTransactions.length).toBeGreaterThanOrEqual(1)
 
     for (const inWalletTransaction of inWalletTransactions) {
-      expect(typeof inWalletTransaction.address).toStrictEqual('string')
-      expect(typeof inWalletTransaction.txid).toStrictEqual('string')
-      expect(inWalletTransaction.amount).toBeInstanceOf(BigNumber)
-
-      expect(typeof inWalletTransaction.confirmations).toStrictEqual('number')
-      expect(typeof inWalletTransaction.blockhash).toStrictEqual('string')
-      expect(typeof inWalletTransaction.blocktime).toStrictEqual('number')
-      expect(typeof inWalletTransaction.blockindex).toStrictEqual('number')
-      expect(typeof inWalletTransaction.time).toStrictEqual('number')
-      expect(typeof inWalletTransaction.timereceived).toStrictEqual('number')
-      expect(Object.values(BIP125).includes(inWalletTransaction['bip125-replaceable'])).toStrictEqual(true)
-
-      expect(Object.values(InWalletTransactionCategory).includes(inWalletTransaction.category)).toStrictEqual(true)
-      expect(typeof inWalletTransaction.label).toStrictEqual('string')
-      expect(typeof inWalletTransaction.vout).toStrictEqual('number')
+      expect(inWalletTransaction).toMatchObject({
+        address: expect.any(String),
+        txid: expect.any(String),
+        amount: expect.any(BigNumber),
+        confirmations: expect.any(Number),
+        blockhash: expect.any(String),
+        blocktime: expect.any(Number),
+        blockindex: expect.any(Number),
+        time: expect.any(Number),
+        timereceived: expect.any(Number),
+        // "bip125-replaceable" is "BIP125" enum but we test with "string" here
+        'bip125-replaceable': expect.any(String),
+        // "category" is "InWalletTransactionCategory" enum but we test with "string" here
+        category: expect.any(String),
+        label: expect.any(String),
+        vout: expect.any(Number)
+      })
     }
   })
 
   it('should listTransactions with excludeCustomTx = true', async () => {
+    const numTx = 10
+
+    for (let i = 0; i < numTx; i += 1) {
+      await client.wallet.sendToAddress(address, 0.0001)
+    }
+    await container.generate(1, address)
+
     const inWalletTransactions = await client.wallet.listTransactions({ excludeCustomTx: true })
 
     inWalletTransactions.forEach((inWalletTransaction) => {
       expect(inWalletTransaction.address).toStrictEqual(address)
     })
 
-    expect(inWalletTransactions.length).toBeGreaterThanOrEqual(1)
+    expect(inWalletTransactions.length).toBeGreaterThanOrEqual(numTx)
 
     for (const inWalletTransaction of inWalletTransactions) {
-      expect(typeof inWalletTransaction.address).toStrictEqual('string')
-      expect(typeof inWalletTransaction.txid).toStrictEqual('string')
-      expect(inWalletTransaction.amount).toBeInstanceOf(BigNumber)
-
-      expect(typeof inWalletTransaction.confirmations).toStrictEqual('number')
-      expect(typeof inWalletTransaction.blockhash).toStrictEqual('string')
-      expect(typeof inWalletTransaction.blocktime).toStrictEqual('number')
-      expect(typeof inWalletTransaction.blockindex).toStrictEqual('number')
-      expect(typeof inWalletTransaction.time).toStrictEqual('number')
-      expect(typeof inWalletTransaction.timereceived).toStrictEqual('number')
-      expect(Object.values(BIP125).includes(inWalletTransaction['bip125-replaceable'])).toStrictEqual(true)
-
-      expect(Object.values(InWalletTransactionCategory).includes(inWalletTransaction.category)).toStrictEqual(true)
-      expect(typeof inWalletTransaction.label).toStrictEqual('string')
-      expect(typeof inWalletTransaction.vout).toStrictEqual('number')
+      expect(inWalletTransaction).toMatchObject({
+        address: expect.any(String),
+        txid: expect.any(String),
+        amount: expect.any(BigNumber),
+        confirmations: expect.any(Number),
+        blockhash: expect.any(String),
+        blocktime: expect.any(Number),
+        blockindex: expect.any(Number),
+        time: expect.any(Number),
+        timereceived: expect.any(Number),
+        // "bip125-replaceable" is "BIP125" enum but we test with "string" here
+        'bip125-replaceable': expect.any(String),
+        // "category" is "InWalletTransactionCategory" enum but we test with "string" here
+        category: expect.any(String),
+        label: expect.any(String),
+        vout: expect.any(Number)
+      })
     }
   })
 })
