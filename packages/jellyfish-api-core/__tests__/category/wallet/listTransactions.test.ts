@@ -64,7 +64,7 @@ describe('listTransactions', () => {
       expect(inWalletTransaction.label).toStrictEqual('owner')
     })
 
-    expect(inWalletTransactions.length).toBeGreaterThanOrEqual(numTx)
+    expect(inWalletTransactions.length).toBe(numTx)
 
     for (const inWalletTransaction of inWalletTransactions) {
       expect(inWalletTransaction).toMatchObject({
