@@ -18,9 +18,9 @@ describe('listTransactions', () => {
   })
 
   it('should listTransactions', async () => {
-    for (let i = 0; i < 10; i += 1) {
-      await client.wallet.sendToAddress(address, 0.0001)
-    }
+    await Promise.all(Array.from({ length: 10 }).map(async (_, i) => {
+      return await client.wallet.sendToAddress(address, 0.0001)
+    }))
     await container.generate(1, address)
 
     const inWalletTransactions = await client.wallet.listTransactions({})
@@ -49,9 +49,9 @@ describe('listTransactions', () => {
   })
 
   it('should listTransactions with label set', async () => {
-    for (let i = 0; i < 10; i += 1) {
-      await client.wallet.sendToAddress(address, 0.0001)
-    }
+    await Promise.all(Array.from({ length: 10 }).map(async (_, i) => {
+      return await client.wallet.sendToAddress(address, 0.0001)
+    }))
     await container.generate(1, address)
 
     const inWalletTransactions = await client.wallet.listTransactions({ label: 'owner' })
@@ -84,9 +84,9 @@ describe('listTransactions', () => {
   })
 
   it('should listTransactions with label set', async () => {
-    for (let i = 0; i < 10; i += 1) {
-      await client.wallet.sendToAddress(address, 0.0001)
-    }
+    await Promise.all(Array.from({ length: 10 }).map(async (_, i) => {
+      return await client.wallet.sendToAddress(address, 0.0001)
+    }))
     await container.generate(1, address)
 
     const inWalletTransactions = await client.wallet.listTransactions({ label: 'owner' })
@@ -119,7 +119,9 @@ describe('listTransactions', () => {
   })
 
   it('should listTransactions with count = 5', async () => {
-    await client.wallet.sendToAddress(address, 0.0001)
+    await Promise.all(Array.from({ length: 5 }).map(async (_, i) => {
+      return await client.wallet.sendToAddress(address, 0.0001)
+    }))
     await container.generate(1, address)
 
     const inWalletTransactions = await client.wallet.listTransactions({ count: 5 })
@@ -157,9 +159,9 @@ describe('listTransactions', () => {
   })
 
   it('should listTransactions with includeWatchOnly false', async () => {
-    for (let i = 0; i < 10; i += 1) {
-      await client.wallet.sendToAddress(address, 0.0001)
-    }
+    await Promise.all(Array.from({ length: 10 }).map(async (_, i) => {
+      return await client.wallet.sendToAddress(address, 0.0001)
+    }))
     await container.generate(1, address)
 
     const inWalletTransactions = await client.wallet.listTransactions({ includeWatchOnly: false })
@@ -192,9 +194,9 @@ describe('listTransactions', () => {
   })
 
   it('should listTransactions with excludeCustomTx = true', async () => {
-    for (let i = 0; i < 10; i += 1) {
-      await client.wallet.sendToAddress(address, 0.0001)
-    }
+    await Promise.all(Array.from({ length: 10 }).map(async (_, i) => {
+      return await client.wallet.sendToAddress(address, 0.0001)
+    }))
     await container.generate(1, address)
 
     const inWalletTransactions = await client.wallet.listTransactions({ excludeCustomTx: true })
