@@ -36,7 +36,7 @@ export abstract class DeFiDContainer extends DockerContainer {
     if (process?.env?.DEFICHAIN_DOCKER_IMAGE !== undefined) {
       return process.env.DEFICHAIN_DOCKER_IMAGE
     }
-    return 'defi/defichain:master-c6a7e2f94' // renovate.json regexManagers
+    return 'defi/defichain:3.2.5' // renovate.json regexManagers
   }
 
   public static readonly DefaultStartOptions = {
