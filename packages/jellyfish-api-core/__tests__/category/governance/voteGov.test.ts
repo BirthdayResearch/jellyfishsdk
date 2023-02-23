@@ -56,7 +56,7 @@ describe('Governance', () => {
 
     const promise = client.governance.voteGov({ proposalId, masternodeId, decision: VoteDecision.YES })
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow(`RpcApiError: 'The masternode ${masternodeId} does not exist', code: -8, method: votegov`)
+    await expect(promise).rejects.toThrow(`The masternode does not exist or the address doesn't own a masternode: ${masternodeId}', code: -8, method: votegov`)
   })
 
   it('should not vote on a proposal with an inactive masternode', async () => {
