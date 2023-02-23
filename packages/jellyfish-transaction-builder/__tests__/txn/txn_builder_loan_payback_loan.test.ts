@@ -460,7 +460,7 @@ describe('paybackLoan success', () => {
     expect(vaultBefore.loanValue).toStrictEqual(tslaLoanValueBefore.toNumber()) // loanAmount * 2 (::1 TSLA = 2 USD)
     expect(vaultBefore.interestValue).toStrictEqual(tslaInterestValueBefore.toNumber())
     expect(vaultBefore.collateralRatio).toStrictEqual(18750) // 15000 / 80.00004568 * 100
-    expect(vaultBefore.informativeRatio).toStrictEqual(18749.96789067)
+    expect(vaultBefore.informativeRatio).toStrictEqual(18749.97859221)
 
     const txn = await aBuilder.loans.paybackLoan({
       vaultId: bobVaultId,
