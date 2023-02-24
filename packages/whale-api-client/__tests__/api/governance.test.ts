@@ -1,7 +1,7 @@
 import { ListProposalsStatus, ListProposalsType, MasternodeType, VoteDecision } from '@defichain/jellyfish-api-core/dist/category/governance'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { Testing } from '@defichain/jellyfish-testing'
-import { MasterNodeRegTestContainer, StartOptions } from '@defichain/testcontainers/dist/index'
+import { MasterNodeRegTestContainer, StartOptions } from '@defichain/testcontainers'
 import { GovernanceProposalStatus, GovernanceProposalType, ProposalVoteResultType } from '@defichain/whale-api-client/dist/api/governance'
 import BigNumber from 'bignumber.js'
 import { WhaleApiErrorType, WhaleApiException } from '../../src'
@@ -291,19 +291,22 @@ describe('governance - listProposalVotes', () => {
       proposalId: cfpProposalId,
       masternodeId: expect.any(String),
       cycle: 2,
-      vote: ProposalVoteResultType.YES
+      vote: ProposalVoteResultType.YES,
+      valid: true
     })
     expect(noVote).toStrictEqual({
       proposalId: cfpProposalId,
       masternodeId: expect.any(String),
       cycle: 2,
-      vote: ProposalVoteResultType.NO
+      vote: ProposalVoteResultType.NO,
+      valid: true
     })
     expect(neutralVote).toStrictEqual({
       proposalId: cfpProposalId,
       masternodeId: expect.any(String),
       cycle: 2,
-      vote: ProposalVoteResultType.NEUTRAL
+      vote: ProposalVoteResultType.NEUTRAL,
+      valid: true
     })
   })
 

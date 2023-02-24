@@ -78,9 +78,14 @@ interface ProposalInfo {
   votesPresent?: number
   votesPresentPct?: string
   votesYes?: number
+  votesInvalid?: number
+  votesNeutral?: number
+  votesNo?: number
   votesYesPct?: string
   fee: number
   options?: string[]
+  feeRedistributionPerVote: number
+  feeRedistributionTotal: number
 }
  ```
 
@@ -212,7 +217,7 @@ Returns information about proposal votes.
 
 ```ts title="client.governance.listGovProposalVotes()"
 interface governance {
-  listGovProposalVotes (options: ListGovProposalVotesOptions): Promise<ListVotesResult[]>
+  listGovProposalVotes (options?: ListGovProposalVotesOptions): Promise<ListVotesResult[]>
 }
 
 enum MasternodeType {
@@ -227,10 +232,12 @@ interface ListGovProposalVotesPagination {
 }
 
 interface ListGovProposalVotesOptions {
-  proposalId: string
+  proposalId?: string
   masternode?: MasternodeType | string
   cycle?: number
   pagination?: ListGovProposalVotesPagination
+  aggregate?: boolean
+  valid?: boolean
 }
 
 interface ListVotesResult {
@@ -238,5 +245,6 @@ interface ListVotesResult {
   masternodeId: string
   cycle: number
   vote: string
+  valid: boolean
 }
 ```
