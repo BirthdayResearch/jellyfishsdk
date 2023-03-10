@@ -219,6 +219,22 @@ export class SetupDex extends PlaygroundSetup<PoolPairSetup> {
         add: {
           '*': ['1000@BTC', '10000000@USDT']
         }
+      },
+      {
+        symbol: 'EUROC-DFI',
+        create: {
+          tokenA: 'EUROC',
+          tokenB: 'DFI',
+          commission: 0,
+          status: true,
+          ownerAddress: PlaygroundSetup.address
+        },
+        add: {
+          '*': ['2000@DFI', '20000000@EUROC']
+        },
+        utxoToAccount: {
+          [PlaygroundSetup.address]: '2000@0'
+        }
       }
     ]
   }

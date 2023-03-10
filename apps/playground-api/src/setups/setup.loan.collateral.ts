@@ -66,6 +66,11 @@ export class SetupLoanCollateral extends PlaygroundSetup<SetCollateralToken> {
         token: 'OFF',
         fixedIntervalPriceId: 'OFF/USD',
         factor: new BigNumber('1')
+      },
+      {
+        token: 'EUROC',
+        fixedIntervalPriceId: 'EUROC/USD',
+        factor: new BigNumber('1')
       }
     ]
   }

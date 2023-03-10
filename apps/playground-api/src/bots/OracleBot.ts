@@ -138,6 +138,12 @@ export class OracleBot {
       amount: new BigNumber(1),
       change: new BigNumber(0),
       direction: PriceDirection.STABLE
+    },
+    {
+      token: 'EUROC',
+      amount: new BigNumber(1),
+      change: new BigNumber(0),
+      direction: PriceDirection.STABLE
     }
   ]
 
