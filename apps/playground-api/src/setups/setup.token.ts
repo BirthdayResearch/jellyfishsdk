@@ -131,6 +131,17 @@ export class SetupToken extends PlaygroundSetup<TokenSetup> {
           collateralAddress: PlaygroundSetup.address
         },
         amount: 100000000
+      },
+      {
+        create: {
+          symbol: 'EUROC',
+          name: 'Playground EUROC',
+          isDAT: true,
+          mintable: true,
+          tradeable: true,
+          collateralAddress: PlaygroundSetup.address
+        },
+        amount: 200000000
       }
     ]
   }

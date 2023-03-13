@@ -15,12 +15,12 @@ afterAll(async () => {
 
 it('should have pool pairs setup', async () => {
   const pairs = await testing.container.call('listpoolpairs')
-  expect(Object.values(pairs).length).toBe(15)
+  expect(Object.values(pairs).length).toBe(16)
 })
 
 it('should have tokens setup', async () => {
   const tokens = await testing.container.call('listtokens')
-  expect(Object.values(tokens).length).toBe(32)
+  expect(Object.values(tokens).length).toBe(34)
 })
 
 it('should have oracles setup', async () => {
@@ -56,7 +56,7 @@ it('should have loan tokens', async () => {
 
 it('should have loan collateral tokens', async () => {
   const results = await testing.container.call('listcollateraltokens')
-  expect(results.length).toBe(12)
+  expect(results.length).toBe(13)
 })
 
 it('should have gov set', async () => {
@@ -140,46 +140,49 @@ it('should have gov set', async () => {
       'v0/token/11/fixed_interval_price_id': 'OFF/USD',
       'v0/token/11/loan_collateral_enabled': 'true',
       'v0/token/11/loan_collateral_factor': '1',
-      'v0/token/12/payback_dfi': 'true',
-      'v0/token/12/payback_dfi_fee_pct': '0.01',
-      'v0/token/12/loan_payback/1': 'true',
-      'v0/token/12/loan_payback/14': 'true',
-      'v0/token/12/loan_payback_fee_pct/1': '0.01',
-      'v0/token/12/loan_payback_fee_pct/14': '0.01',
-      'v0/token/12/fixed_interval_price_id': 'DUSD/USD',
+      'v0/token/12/fixed_interval_price_id': 'EUROC/USD',
       'v0/token/12/loan_collateral_enabled': 'true',
-      'v0/token/12/loan_collateral_factor': '1.2',
-      'v0/token/12/loan_minting_enabled': 'true',
-      'v0/token/12/loan_minting_interest': '0',
-      'v0/token/12/loan_payback_collateral': 'true',
-      'v0/token/13/loan_payback/6': 'true',
-      'v0/token/13/loan_payback/12': 'true',
-      'v0/token/13/loan_payback_fee_pct/6': '0.01',
-      'v0/token/13/loan_payback_fee_pct/12': '0.01',
-      'v0/token/13/fixed_interval_price_id': 'TU10/USD',
+      'v0/token/12/loan_collateral_factor': '1',
+      'v0/token/13/payback_dfi': 'true',
+      'v0/token/13/payback_dfi_fee_pct': '0.01',
+      'v0/token/13/loan_payback/1': 'true',
+      'v0/token/13/loan_payback/15': 'true',
+      'v0/token/13/loan_payback_fee_pct/1': '0.01',
+      'v0/token/13/loan_payback_fee_pct/15': '0.01',
+      'v0/token/13/fixed_interval_price_id': 'DUSD/USD',
+      'v0/token/13/loan_collateral_enabled': 'true',
+      'v0/token/13/loan_collateral_factor': '1.2',
       'v0/token/13/loan_minting_enabled': 'true',
-      'v0/token/13/loan_minting_interest': '1',
-      'v0/token/14/loan_payback/1': 'true',
-      'v0/token/14/loan_payback/12': 'true',
-      'v0/token/14/loan_payback_fee_pct/1': '0.01',
-      'v0/token/14/loan_payback_fee_pct/12': '0.01',
-      'v0/token/14/fixed_interval_price_id': 'TD10/USD',
+      'v0/token/13/loan_minting_interest': '0',
+      'v0/token/13/loan_payback_collateral': 'true',
+      'v0/token/14/loan_payback/6': 'true',
+      'v0/token/14/loan_payback/13': 'true',
+      'v0/token/14/loan_payback_fee_pct/6': '0.01',
+      'v0/token/14/loan_payback_fee_pct/13': '0.01',
+      'v0/token/14/fixed_interval_price_id': 'TU10/USD',
       'v0/token/14/loan_minting_enabled': 'true',
-      'v0/token/14/loan_minting_interest': '1.5',
+      'v0/token/14/loan_minting_interest': '1',
+      'v0/token/15/loan_payback/1': 'true',
       'v0/token/15/loan_payback/13': 'true',
+      'v0/token/15/loan_payback_fee_pct/1': '0.01',
       'v0/token/15/loan_payback_fee_pct/13': '0.01',
-      'v0/token/15/fixed_interval_price_id': 'TS25/USD',
+      'v0/token/15/fixed_interval_price_id': 'TD10/USD',
       'v0/token/15/loan_minting_enabled': 'true',
-      'v0/token/15/loan_minting_interest': '2',
-      'v0/token/16/payback_dfi': 'true',
-      'v0/token/16/payback_dfi_fee_pct': '0.01',
-      'v0/token/16/loan_payback/12': 'true',
+      'v0/token/15/loan_minting_interest': '1.5',
       'v0/token/16/loan_payback/14': 'true',
-      'v0/token/16/loan_payback_fee_pct/12': '0.01',
       'v0/token/16/loan_payback_fee_pct/14': '0.01',
-      'v0/token/16/fixed_interval_price_id': 'TR50/USD',
+      'v0/token/16/fixed_interval_price_id': 'TS25/USD',
       'v0/token/16/loan_minting_enabled': 'true',
-      'v0/token/16/loan_minting_interest': '3'
+      'v0/token/16/loan_minting_interest': '2',
+      'v0/token/17/payback_dfi': 'true',
+      'v0/token/17/payback_dfi_fee_pct': '0.01',
+      'v0/token/17/loan_payback/13': 'true',
+      'v0/token/17/loan_payback/15': 'true',
+      'v0/token/17/loan_payback_fee_pct/13': '0.01',
+      'v0/token/17/loan_payback_fee_pct/15': '0.01',
+      'v0/token/17/fixed_interval_price_id': 'TR50/USD',
+      'v0/token/17/loan_minting_enabled': 'true',
+      'v0/token/17/loan_minting_interest': '3'
     })
   })
 

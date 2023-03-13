@@ -57,6 +57,9 @@ describe('oracle bot', () => {
       const USDC = oracleData.tokenPrices.find(x => x.token === 'USDC')
       expect(USDC?.amount).toBeDefined()
 
+      const EUROC = oracleData.tokenPrices.find(x => x.token === 'EUROC')
+      expect(EUROC?.amount).toBeDefined()
+
       const USDT = oracleData.tokenPrices.find(x => x.token === 'USDT')
       expect(USDT?.amount).toBeDefined()
     }, 200000)
