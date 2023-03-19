@@ -47,7 +47,7 @@ services:
     build:
       context: ../..
       args:
-        APP: whale
+        APP: whale-api
     ports:
       - "3000:3000"
     depends_on:
