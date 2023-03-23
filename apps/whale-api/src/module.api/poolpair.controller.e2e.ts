@@ -9,6 +9,7 @@ import { DeFiDCache } from './cache/defid.cache'
 import { CachePrefix } from '@defichain-apps/libs/caches'
 import { Cache } from 'cache-manager'
 import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
+import { PoolPairData, TokenIdentifier } from '@defichain/whale-api-client/dist/api/poolpairs'
 
 const container = new MasterNodeRegTestContainer()
 let app: NestFastifyApplication
@@ -276,6 +277,19 @@ describe('list', () => {
         h24: 0
       }
     })
+  })
+
+  it('list should not include any poolpairs with BURN', async () => {
+    const response = await controller.list({
+      size: 30
+    })
+    const burn = ['BURN', 'BURN2']
+
+    function doBurnAndPoolPairsIntersect (poolpairs: PoolPairData[], burnTokens: string[]): boolean {
+      return poolpairs.some(poolpair => burnTokens.includes(poolpair.symbol))
+    }
+
+    expect(doBurnAndPoolPairsIntersect(response.data, burn)).toBe(false)
   })
 
   it('should list with pagination', async () => {
@@ -984,8 +998,13 @@ describe('get list swappable tokens', () => {
 
   it('should not show status:false tokens', async () => {
     const result = await controller.listSwappableTokens('1') // A
-    expect(result.swappableTokens.map(token => token.symbol))
-      .not.toContain('BURN')
+    const unswappableTokens = ['BURN', 'BURN2']
+
+    function doUnswappableAndSwappableTokensIntersect (swappableTokens: TokenIdentifier[], unswappableTokens: string[]): boolean {
+      return swappableTokens.some(token => unswappableTokens.includes(token.symbol))
+    }
+
+    expect(doUnswappableAndSwappableTokensIntersect(result.swappableTokens, unswappableTokens)).toBe(false)
   })
 
   it('should list no tokens for token that is not swappable with any', async () => {
@@ -1218,6 +1237,14 @@ describe('latest dex prices', () => {
     await expect(controller.listDexPrices('BURN'))
       .rejects
       .toThrowError('Token \'BURN\' is invalid as it is not tradeable')
+
+    // BURN2 not included in any denominated dex prices
+    expect(result.dexPrices.BURN2).toBeUndefined()
+
+    // BURN2 is not a valid 'denomination' token
+    await expect(controller.listDexPrices('BURN2'))
+      .rejects
+      .toThrowError('Token \'BURN2\' is invalid as it is not tradeable')
   })
 
   describe('param validation - denomination', () => {
