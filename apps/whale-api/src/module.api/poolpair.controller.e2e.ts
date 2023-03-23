@@ -180,6 +180,18 @@ async function setup (): Promise<void> {
     shareAddress: await getNewAddress(container)
   })
 
+  // BURN2 should not be listed as Swappable
+  await createToken(container, 'BURN2')
+  await createPoolPair(container, 'BURN2', 'DFI', { status: false })
+  await mintTokens(container, 'BURN2', { mintAmount: 1 })
+  await addPoolLiquidity(container, {
+    tokenA: 'BURN2',
+    amountA: 1,
+    tokenB: 'DFI',
+    amountB: 1,
+    shareAddress: await getNewAddress(container)
+  })
+
   await container.call('setgov', [{ LP_SPLITS: { 16: 1.0 } }])
   await container.generate(1)
 
@@ -276,7 +288,7 @@ describe('list', () => {
     expect(first.data[1].symbol).toStrictEqual('B-DFI')
 
     const next = await controller.list({
-      size: 14,
+      size: 15,
       next: first.page?.next
     })
 
