@@ -9,7 +9,6 @@ import { DeFiDCache } from './cache/defid.cache'
 import { CachePrefix } from '@defichain-apps/libs/caches'
 import { Cache } from 'cache-manager'
 import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
-import { PoolPairData, TokenIdentifier } from '@defichain/whale-api-client/dist/api/poolpairs'
 
 const container = new MasterNodeRegTestContainer()
 let app: NestFastifyApplication
@@ -283,13 +282,9 @@ describe('list', () => {
     const response = await controller.list({
       size: 30
     })
-    const burn = ['BURN', 'BURN2']
+    const burnTokens = ['BURN', 'BURN2']
 
-    function doBurnAndPoolPairsIntersect (poolpairs: PoolPairData[], burnTokens: string[]): boolean {
-      return poolpairs.some(poolpair => burnTokens.includes(poolpair.symbol))
-    }
-
-    expect(doBurnAndPoolPairsIntersect(response.data, burn)).toBe(false)
+    expect(response.data.some(poolpair => burnTokens.includes(poolpair.symbol))).toBe(false)
   })
 
   it('should list with pagination', async () => {
@@ -1000,11 +995,7 @@ describe('get list swappable tokens', () => {
     const result = await controller.listSwappableTokens('1') // A
     const unswappableTokens = ['BURN', 'BURN2']
 
-    function doUnswappableAndSwappableTokensIntersect (swappableTokens: TokenIdentifier[], unswappableTokens: string[]): boolean {
-      return swappableTokens.some(token => unswappableTokens.includes(token.symbol))
-    }
-
-    expect(doUnswappableAndSwappableTokensIntersect(result.swappableTokens, unswappableTokens)).toBe(false)
+    expect(result.swappableTokens.some(token => unswappableTokens.includes(token.symbol))).toBe(false)
   })
 
   it('should list no tokens for token that is not swappable with any', async () => {
