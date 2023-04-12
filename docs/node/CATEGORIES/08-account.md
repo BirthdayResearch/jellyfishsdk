@@ -152,6 +152,16 @@ interface UTXO {
 }
 ```
 
+## transferBalance
+
+Create an transfer balance transaction submitted to a connected node.
+
+```ts title="client.account.transferBalance()"
+interface account {
+  transferBalance (type: TransferBalanceType, from: BalanceTransferPayload, to: BalanceTransferPayload): Promise<string>
+}
+
+
 ## accountToUtxos
 
 Create an Account to UTXOS transaction submitted to a connected node.

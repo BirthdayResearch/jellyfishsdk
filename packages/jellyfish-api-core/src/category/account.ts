@@ -51,6 +51,15 @@ export enum SelectionModeType {
   FORWARD = 'forward'
 }
 
+export enum TransferBalanceType {
+  /** type for AccountToAccount transfer */
+  AccountToAccount = 0x00,
+  /** type for EvmIn transfer */
+  EvmIn = 0x01,
+  /** type for EvmOut transfer */
+  EvmOut = 0x02,
+};
+
 /**
  * Account RPCs for DeFi Blockchain
  */
@@ -272,6 +281,18 @@ export class Account {
    */
   async accountToAccount (from: string, payload: BalanceTransferPayload, options: BalanceTransferAccountOptions = { utxos: [] }): Promise<string> {
     return await this.client.call('accounttoaccount', [from, payload, options.utxos], 'number')
+  }
+
+  /**
+   * Create an transfer balance transaction submitted to a connected node.
+   *
+   * @param {TransferBalanceType} type
+   * @param {BalanceTransferPayload} from
+   * @param {BalanceTransferPayload} to
+   * @return {Promise<string>}
+   */
+  async transferBalance (type: TransferBalanceType, from: BalanceTransferPayload, to: BalanceTransferPayload): Promise<string> {
+    return await this.client.call('transferbalance', [type, from, to], 'number')
   }
 
   /**

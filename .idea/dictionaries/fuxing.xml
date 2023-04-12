@@ -2,6 +2,7 @@
   <dictionary name="fuxing">
     <words>
       <w>accounttoaccount</w>
+      <w>transferbalance</w>
       <w>accounttoutxos</w>
       <w>acindex</w>
       <w>addpoolliquidity</w>

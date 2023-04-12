@@ -7,6 +7,8 @@ import {
   UtxosToAccount,
   SetFutureSwap,
   CAccountToAccount,
+  CTransferBalance,
+  TransferBalance,
   CAccountToUtxos,
   CAnyAccountToAccount,
   CUtxosToAccount,
@@ -220,6 +222,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<AccountToUtxos>(CAccountToUtxos.OP_NAME, d => new CAccountToUtxos(d))
       case CAccountToAccount.OP_CODE:
         return compose<AccountToAccount>(CAccountToAccount.OP_NAME, d => new CAccountToAccount(d))
+      case CTransferBalance.OP_CODE:
+        return compose<TransferBalance>(CTransferBalance.OP_NAME, d => new CTransferBalance(d))
       case CAnyAccountToAccount.OP_CODE:
         return compose<AnyAccountToAccount>(CAnyAccountToAccount.OP_NAME, d => new CAnyAccountToAccount(d))
       case CSetFutureSwap.OP_CODE:
