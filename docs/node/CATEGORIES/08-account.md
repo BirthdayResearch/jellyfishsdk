@@ -160,7 +160,7 @@ Create an transfer balance transaction submitted to a connected node.
 interface account {
   transferBalance (type: TransferBalanceType, from: BalanceTransferPayload, to: BalanceTransferPayload): Promise<string>
 }
-
+```
 
 ## accountToUtxos
 
