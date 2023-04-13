@@ -18,6 +18,7 @@ export * from './dftx_loans'
 export * from './dftx_vault'
 export * from './dftx_unmapped'
 export * from './dftx_icxorderbook'
+export * from './dftx_evmtx'
 export * from './dftx'
 
 const DEFI_SIGNATURE = '44665478' // DfTx

@@ -119,6 +119,7 @@ import {
   CPlaceAuctionBid,
   PlaceAuctionBid
 } from './dftx_vault'
+import { CEvmTx, EvmTx } from './dftx_evmtx'
 
 /**
  * DeFi Transaction
@@ -294,6 +295,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<PaybackLoanV2>(CPaybackLoanV2.OP_NAME, d => new CPaybackLoanV2(d))
       case CPlaceAuctionBid.OP_CODE:
         return compose<PlaceAuctionBid>(CPlaceAuctionBid.OP_NAME, d => new CPlaceAuctionBid(d))
+      case CEvmTx.OP_CODE:
+        return compose<EvmTx>(CEvmTx.OP_NAME, d => new CEvmTx(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }

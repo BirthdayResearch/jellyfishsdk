@@ -133,6 +133,7 @@ import {
   CUpdateMasternode,
   UpdateMasternode
 } from './dftx/dftx_masternode'
+import { CEvmTx, EvmTx } from './dftx/dftx_evmtx'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -628,6 +629,17 @@ export const OP_CODES = {
       type: CPlaceAuctionBid.OP_CODE,
       name: CPlaceAuctionBid.OP_NAME,
       data: placeAuctionBid
+    })
+  },
+  /**
+   * EVM TX
+   */
+  OP_DEFI_TX_EVM_TX: (evmTx: EvmTx): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CEvmTx.OP_CODE,
+      name: CEvmTx.OP_NAME,
+      data: evmTx
     })
   },
   OP_0: new constants.OP_0(),
