@@ -160,6 +160,19 @@ Create an transfer balance transaction submitted to a connected node.
 interface account {
   transferBalance (type: TransferBalanceType, from: BalanceTransferPayload, to: BalanceTransferPayload): Promise<string>
 }
+
+interface BalanceTransferPayload {
+  [key: string]: string // `${number}@${string}`
+}
+
+enum TransferBalanceType {
+  /** type for AccountToAccount transfer */
+  AccountToAccount = 0x00,
+  /** type for EvmIn transfer */
+  EvmIn = 0x01,
+  /** type for EvmOut transfer */
+  EvmOut = 0x02,
+};
 ```
 
 ## accountToUtxos
