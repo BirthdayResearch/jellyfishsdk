@@ -22,8 +22,8 @@ export class Evm {
    * @param {string} data
    * @returns {Promise<string>}
    */
-  async evmtx (evmTxOptions: EvmTxOptions): Promise<string> {
-    return await this.client.call('evmtx', [evmTxOptions], 'bignumber')
+  async evmtx ({ from, nonce, gasPrice, gasLimit, to, value, data }: EvmTxOptions): Promise<string> {
+    return await this.client.call('evmtx', [from, nonce, gasPrice, gasLimit, to, value, data], 'bignumber')
   }
 }
 
@@ -34,5 +34,5 @@ export interface EvmTxOptions {
   gasLimit: number
   to: string
   value: BigNumber
-  data: string
+  data?: string
 }
