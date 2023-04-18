@@ -1,11 +1,13 @@
 
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { Testing } from '@defichain/jellyfish-testing'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import BigNumber from 'bignumber.js'
 
 describe.only('Account', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
+  const testing = Testing.create(container)
 
   beforeAll(async () => {
     await container.start()
@@ -18,15 +20,30 @@ describe.only('Account', () => {
 
   it('should create a new EVM transaction', async () => {
     const from = await container.call('getnewaddress')
-    const ethAddress = await container.getNewAddress('', 'eth')
-    const toEthAddress = await container.getNewAddress('', 'eth')
+    const ethAddress = await container.call('getnewaddress', 'eth')
+    const toEthAddress = await container.call('getnewaddress', 'eth')
 
     // Topup DFI and ETH addresses
-    await container.call('utxostoaccount', [{ [from]: '101@DFI' }])
-    // await client.account.transferBalance(TransferBalanceType.EvmIn, { [from]: '100@DFI' }, { [ethAddress]: '100@DFI' }) // TODO (lyka): Dependent of transferBalance changes
+    await container.waitForWalletBalanceGTE(3)
+    await container.call('utxostoaccount', [{ [from]: '3@DFI' }])
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/feature/evm': 'true' } })
+    await container.generate(1)
+
+    const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+    expect(attributes.ATTRIBUTES['v0/params/feature/evm']).toStrictEqual('true')
+
+    const balanceDFIAddressBefore: Record<string, BigNumber> = await client.call('getaccount', [from, {}, true], 'bignumber')
+    const balanceETHAddressBefore: BigNumber = await client.call('getaccount', [ethAddress, {}, true], 'bignumber')
+    await container.call('transferbalance', ['evmin', { [from]: '2@DFI' }, { [ethAddress]: '2@DFI' }])
+    await container.generate(1)
+
+    const balanceDFIAddressAfter: Record<string, BigNumber> = await client.call('getaccount', [from, {}, true], 'bignumber')
+    const balanceETHAddressAfter: BigNumber = await client.call('getaccount', [ethAddress, {}, true], 'bignumber')
+    expect(balanceDFIAddressAfter['0']).toStrictEqual(balanceDFIAddressBefore['0'].minus(2))
+    expect(balanceETHAddressAfter).toStrictEqual((balanceETHAddressBefore ?? new BigNumber(0)).plus(2))
 
     // Create EVM transaction and submit to local node
-    const evmTxHash = await client.blockchain.evmtx({
+    const evmTxHash = await client.evm.evmtx({
       from: ethAddress,
       to: toEthAddress,
       nonce: 0,
@@ -36,9 +53,8 @@ describe.only('Account', () => {
     })
     await container.generate(1)
 
-    const blockHash = await client.blockchain.getBestBlockHash()
+    const blockHash: string = await client.blockchain.getBestBlockHash()
     const txs = await client.blockchain.getBlock(blockHash, 1)
-
     expect(txs.tx[1]).toStrictEqual(evmTxHash)
   })
 })
