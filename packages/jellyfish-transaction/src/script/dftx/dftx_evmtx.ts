@@ -1,16 +1,17 @@
 import BigNumber from 'bignumber.js'
 import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
+import { Script } from '../../tx'
+import { CScript } from '../../tx_composer'
 
 /**
  * EvmTx Transaction
  */
 export interface EvmTx {
-  // TODO (lyka): revisit these types
-  from: string // --------------------| VarUInt{1-9 bytes}, + n bytes
+  from: Script // --------------------| n = VarUInt{1-9 bytes}, + n bytes, wrapped ETH address to transfer from
   nonce: number // -------------------| VarInt{MSB-b128}
   gasPrice: number // ----------------| VarInt{MSB-b128}
   gasLimit: number // ----------------| VarInt{MSB-b128}
-  to: string // ----------------------| VarUInt{1-9 bytes}, + n bytes
+  to: Script // ----------------------| n = VarUInt{1-9 bytes}, + n bytes, wrapped ETH address to transfer to
   value: BigNumber // ----------------| 8 bytes unsigned
   data: string // --------------------| hex string
 }
@@ -25,11 +26,11 @@ export class CEvmTx extends ComposableBuffer<EvmTx> {
 
   composers (e: EvmTx): BufferComposer[] {
     return [
-      ComposableBuffer.compactSizeUtf8BE(() => e.from, (v) => (e.from = v)),
+      ComposableBuffer.single<Script>(() => e.from, v => e.from = v, v => new CScript(v)),
       ComposableBuffer.varInt(() => e.nonce, (v) => (e.nonce = v)),
       ComposableBuffer.varInt(() => e.gasPrice, (v) => (e.gasPrice = v)),
       ComposableBuffer.varInt(() => e.gasLimit, (v) => (e.gasLimit = v)),
-      ComposableBuffer.compactSizeUtf8BE(() => e.to, (v) => (e.to = v)),
+      ComposableBuffer.single<Script>(() => e.to, v => e.to = v, v => new CScript(v)),
       ComposableBuffer.satoshiAsBigNumber(() => e.value, (v) => (e.value = v)),
       ComposableBuffer.compactSizeUtf8BE(() => e.data, (v) => (e.data = v))
     ]
