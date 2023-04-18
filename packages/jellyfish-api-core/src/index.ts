@@ -36,7 +36,7 @@ export * as spv from './category/spv'
 export * as icxorderbook from './category/icxorderbook'
 export * as misc from './category/misc'
 export * as loan from './category/loan'
-export * as evm from './/category/evm'
+export * as evm from './category/evm'
 
 /**
  * A protocol agnostic DeFiChain node client, RPC calls are separated into their category.
