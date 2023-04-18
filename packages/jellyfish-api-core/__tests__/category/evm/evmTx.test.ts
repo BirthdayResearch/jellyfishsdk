@@ -20,8 +20,8 @@ describe.only('Account', () => {
 
   it('should create a new EVM transaction', async () => {
     const from = await container.call('getnewaddress')
-    const ethAddress = await container.call('getnewaddress', 'eth')
-    const toEthAddress = await container.call('getnewaddress', 'eth')
+    const ethAddress = await container.call('getnewaddress', ['', 'eth'])
+    const toEthAddress = await container.call('getnewaddress', ['', 'eth'])
 
     // Topup DFI and ETH addresses
     await container.waitForWalletBalanceGTE(3)
@@ -57,4 +57,6 @@ describe.only('Account', () => {
     const txs = await client.blockchain.getBlock(blockHash, 1)
     expect(txs.tx[1]).toStrictEqual(evmTxHash)
   })
+
+  //   TODO (Lyka): add error scenarios
 })
