@@ -5,14 +5,14 @@ import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
  * EvmTx Transaction
  */
 export interface EvmTx {
-  // TODO (lyka): Add type description to each field
-  from: string
-  nonce: number
-  gasPrice: number
-  gasLimit: number
-  to: string
-  value: BigNumber
-  data: string
+  // TODO (lyka): revisit these types
+  from: string // --------------------| VarUInt{1-9 bytes}, + n bytes
+  nonce: number // -------------------| VarInt{MSB-b128}
+  gasPrice: number // ----------------| VarInt{MSB-b128}
+  gasLimit: number // ----------------| VarInt{MSB-b128}
+  to: string // ----------------------| VarUInt{1-9 bytes}, + n bytes
+  value: BigNumber // ----------------| 8 bytes unsigned
+  data: string // --------------------| hex string
 }
 
 /**
