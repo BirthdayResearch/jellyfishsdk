@@ -53,11 +53,11 @@ export enum SelectionModeType {
 
 export enum TransferBalanceType {
   /** type for AccountToAccount transfer */
-  AccountToAccount = 0x00,
+  AccountToAccount = 'acctoacc',
   /** type for EvmIn transfer */
-  EvmIn = 0x01,
+  EvmIn = 'evmin',
   /** type for EvmOut transfer */
-  EvmOut = 0x02,
+  EvmOut = 'evmout',
 };
 
 /**
