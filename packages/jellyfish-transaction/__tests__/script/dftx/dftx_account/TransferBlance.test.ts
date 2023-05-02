@@ -7,11 +7,9 @@ import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
+    '6a4c514466547838000117a9145e93a29ac15cc3cacb3e9b192fa0bfc4acaab45187010000000040420f000000000001166014504be416ead5222b5b9fafac97e215809647fcd8010000000040420f0000000000',
     '6a4c514466547838010117a9145e93a29ac15cc3cacb3e9b192fa0bfc4acaab45187010000000040420f000000000001166014504be416ead5222b5b9fafac97e215809647fcd8010000000040420f0000000000',
     '6a4c514466547838010117a9145e93a29ac15cc3cacb3e9b192fa0bfc4acaab45187010000000000e1f50500000000011660146aa59c49b27d9a3cbd9f976f7e6179f84be53c05010000000000e1f50500000000'
-    // sample hash
-    // '6a2b446654786217a914fad0d4ab78412ec38e7a0b118e51e147e947e02d870100000000f2664e750200000002',
-    // '6a2b446654786217a91462f401bfbe944884f07b489eb97fd3b001d5303287010000000000a81dd50f00000002'
   ]
 
   fixtures.forEach(hex => {
@@ -20,7 +18,7 @@ it('should bi-directional buffer-object-buffer', () => {
     )
     const buffer = toBuffer(stack)
     expect(buffer.toString('hex')).toStrictEqual(hex)
-    expect((stack[1] as OP_DEFI_TX).tx.type).toStrictEqual(0x62)
+    expect((stack[1] as OP_DEFI_TX).tx.type).toStrictEqual(0x38)
   })
 })
 

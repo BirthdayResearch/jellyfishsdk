@@ -167,11 +167,11 @@ interface BalanceTransferPayload {
 
 enum TransferBalanceType {
   /** type for AccountToAccount transfer */
-  AccountToAccount = 'acctoacc',
+  AccountToAccount = '0x00',
   /** type for EvmIn transfer */
-  EvmIn = 'evmin',
+  EvmIn = '0x01',
   /** type for EvmOut transfer */
-  EvmOut = 'evmout',
+  EvmOut = '0x02',
 };
 ```
 
