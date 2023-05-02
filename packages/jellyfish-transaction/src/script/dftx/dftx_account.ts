@@ -112,7 +112,7 @@ export enum TransferBalanceType {
 };
 
 export interface TransferBalance {
-  type: number // ----------------------| 1 byte, 0x00 (AccountToAccount) | 0x01 (EvmIn) | 0x02 (EvmOut)
+  type: TransferBalanceType // ---------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
   from: Script // ----------------------| n = VarUInt{1-9 bytes}, + n bytes
   to: ScriptBalances[] // --------------| n = VarUInt{1-9 bytes}, + n bytes
 }
@@ -127,7 +127,7 @@ export class CTransferBalance extends ComposableBuffer<TransferBalance> {
 
   composers (a2a: TransferBalance): BufferComposer[] {
     return [
-      ComposableBuffer.uInt8(() => a2a.type, v => a2a.type = v as TransferBalanceType),
+      ComposableBuffer.compactSizeUtf8BE(() => a2a.type, v => a2a.type = v as TransferBalanceType),
       ComposableBuffer.compactSizeArray(() => a2a.to, v => a2a.to = v, v => new CScriptBalances(v)),
       ComposableBuffer.single<Script>(() => a2a.from, v => a2a.from = v, v => new CScript(v))
     ]
