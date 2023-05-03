@@ -13,6 +13,12 @@ describe('TransferBalance', () => {
   beforeAll(async () => {
     await container.start()
     await container.waitForWalletCoinbaseMaturity()
+    await client.masternode.setGov({
+      ATTRIBUTES: {
+        'v0/params/feature/evm': 'true'
+      }
+    })
+    await container.generate(1)
     dfiAddress = await container.call('getnewaddress')
     // transfer utxostoaccount
     await container.call('utxostoaccount', [{ [dfiAddress]: '100@0' }])
@@ -22,26 +28,6 @@ describe('TransferBalance', () => {
 
   afterAll(async () => {
     await container.stop()
-  })
-
-  it('should Transfer Balance from DFC to EVM', async () => {
-    const tokenBalances = await client.account.getTokenBalances()
-    const [initialBalance, tokenId] = tokenBalances[0].split('@')
-    const from: BalanceTransferPayload = {
-      [dfiAddress]: `${amountToTransfer}@DFI`
-    }
-    const to: BalanceTransferPayload = {
-      [ethAddress]: `${amountToTransfer}@DFI`
-    }
-    const data = await client.account.transferBalance(TransferBalanceType.EvmIn, from, to)
-    expect(typeof data).toStrictEqual('string')
-    expect(data.length).toStrictEqual(64)
-    await container.generate(1)
-    const updatedTokenBalances = await client.account.getTokenBalances()
-    const [updatedBalance, id] = updatedTokenBalances[0].split('@')
-    expect(id).toStrictEqual(tokenId)
-    expect(new BigNumber(updatedBalance).toNumber())
-      .toStrictEqual(new BigNumber(initialBalance).minus(amountToTransfer).toNumber())
   })
 
   it('should fail Transfer Balance from DFC to EVM if input and output value is different', async () => {
@@ -56,25 +42,22 @@ describe('TransferBalance', () => {
     await expect(promise).rejects.toThrow('sum of inputs (from) != sum of outputs (to)')
   })
 
-  it('should Transfer Balance from EVM to DFC', async () => {
-    const tokenBalances = await client.account.getTokenBalances()
-    const [initialBalance, tokenId] = tokenBalances[0].split('@')
+  it('should Transfer Balance from DFC to EVM', async () => {
     const from: BalanceTransferPayload = {
-      [ethAddress]: `${amountToTransfer}@DFI`
-    }
-
-    const to: BalanceTransferPayload = {
       [dfiAddress]: `${amountToTransfer}@DFI`
+    }
+    const to: BalanceTransferPayload = {
+      [ethAddress]: `${amountToTransfer}@DFI`
     }
     const data = await client.account.transferBalance(TransferBalanceType.EvmIn, from, to)
     expect(typeof data).toStrictEqual('string')
     expect(data.length).toStrictEqual(64)
     await container.generate(1)
-    const updatedTokenBalances = await client.account.getTokenBalances()
+    const updatedTokenBalances = await client.account.getAccount(ethAddress)
     const [updatedBalance, id] = updatedTokenBalances[0].split('@')
-    expect(id).toStrictEqual(tokenId)
+    expect(id).toStrictEqual('DFI')
     expect(new BigNumber(updatedBalance).toNumber())
-      .toStrictEqual(new BigNumber(initialBalance).plus(amountToTransfer).toNumber())
+      .toStrictEqual(new BigNumber(amountToTransfer).toNumber())
   })
 
   it('should fail Transfer Balance from EVM to DFC if input and output value is different', async () => {
@@ -84,9 +67,30 @@ describe('TransferBalance', () => {
     const to: BalanceTransferPayload = {
       [dfiAddress]: `${amountToTransfer + 1}@DFI`
     }
-    const promise = client.account.transferBalance(TransferBalanceType.EvmIn, from, to)
+    const promise = client.account.transferBalance(TransferBalanceType.EvmOut, from, to)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('sum of inputs (from) != sum of outputs (to)')
+  })
+
+  it('should Transfer Balance from EVM to DFC', async () => {
+    // TODO: check with MM for failing txn
+    const tokenBalances = await client.account.getAccount(ethAddress)
+    const [initialBalance, tokenId] = tokenBalances[0].split('@')
+    const from: BalanceTransferPayload = {
+      [ethAddress]: `${amountToTransfer}@DFI`
+    }
+    const to: BalanceTransferPayload = {
+      [dfiAddress]: `${amountToTransfer}@DFI`
+    }
+    const data = await client.account.transferBalance(TransferBalanceType.EvmOut, from, to)
+    expect(typeof data).toStrictEqual('string')
+    expect(data.length).toStrictEqual(64)
+    await container.generate(1)
+    const updatedTokenBalances = await client.account.getAccount(ethAddress)
+    const [updatedBalance, id] = updatedTokenBalances[0].split('@')
+    expect(id).toStrictEqual(tokenId)
+    expect(new BigNumber(updatedBalance).toNumber())
+      .toStrictEqual(new BigNumber(initialBalance).plus(amountToTransfer).toNumber())
   })
 
   // it('should not accountToAccount for DFI coin if does not own the recipient address', async () => {
