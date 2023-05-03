@@ -43,6 +43,8 @@ describe('TransferBalance', () => {
   })
 
   it('should Transfer Balance from DFC to EVM', async () => {
+    const tokenBalances = await client.account.getAccount(dfiAddress)
+    const [initialBalance, tokenId] = tokenBalances[0].split('@')
     const from: BalanceTransferPayload = {
       [dfiAddress]: `${amountToTransfer}@DFI`
     }
@@ -53,11 +55,19 @@ describe('TransferBalance', () => {
     expect(typeof data).toStrictEqual('string')
     expect(data.length).toStrictEqual(64)
     await container.generate(1)
-    const updatedTokenBalances = await client.account.getAccount(ethAddress)
+    const updatedTokenBalances = await client.account.getAccount(dfiAddress)
     const [updatedBalance, id] = updatedTokenBalances[0].split('@')
-    expect(id).toStrictEqual('DFI')
+    expect(id).toStrictEqual(tokenId)
     expect(new BigNumber(updatedBalance).toNumber())
-      .toStrictEqual(new BigNumber(amountToTransfer).toNumber())
+      .toStrictEqual(new BigNumber(initialBalance).minus(amountToTransfer).toNumber())
+
+    // check eth balance to be equal to amountToTransfer
+    const withoutEthBalanceRes = await client.account.getTokenBalances({}, false, { symbolLookup: false }, false)
+    const [withoutEthBalance] = withoutEthBalanceRes[0].split('@')
+    const withEthBalanceRes = await client.account.getTokenBalances({}, false, { symbolLookup: false }, true)
+    const [withEthBalance] = withEthBalanceRes[0].split('@')
+    expect(new BigNumber(withoutEthBalance).toNumber())
+      .toStrictEqual(new BigNumber(withEthBalance).minus(amountToTransfer).toNumber())
   })
 
   it('should fail Transfer Balance from EVM to DFC if input and output value is different', async () => {
@@ -73,8 +83,7 @@ describe('TransferBalance', () => {
   })
 
   it('should Transfer Balance from EVM to DFC', async () => {
-    // TODO: check with MM for failing txn
-    const tokenBalances = await client.account.getAccount(ethAddress)
+    const tokenBalances = await client.account.getAccount(dfiAddress)
     const [initialBalance, tokenId] = tokenBalances[0].split('@')
     const from: BalanceTransferPayload = {
       [ethAddress]: `${amountToTransfer}@DFI`
@@ -86,39 +95,17 @@ describe('TransferBalance', () => {
     expect(typeof data).toStrictEqual('string')
     expect(data.length).toStrictEqual(64)
     await container.generate(1)
-    const updatedTokenBalances = await client.account.getAccount(ethAddress)
+    const updatedTokenBalances = await client.account.getAccount(dfiAddress)
     const [updatedBalance, id] = updatedTokenBalances[0].split('@')
     expect(id).toStrictEqual(tokenId)
     expect(new BigNumber(updatedBalance).toNumber())
       .toStrictEqual(new BigNumber(initialBalance).plus(amountToTransfer).toNumber())
+
+    // check eth balance to be equal to zero
+    const withoutEthBalanceRes = await client.account.getTokenBalances({}, false, { symbolLookup: false }, false)
+    const [withoutEthBalance] = withoutEthBalanceRes[0].split('@')
+    const withEthBalanceRes = await client.account.getTokenBalances({}, false, { symbolLookup: false }, true)
+    const [withEthBalance] = withEthBalanceRes[0].split('@')
+    expect(new BigNumber(withoutEthBalance).toNumber()).toStrictEqual(new BigNumber(withEthBalance).toNumber())
   })
-
-  // it('should not accountToAccount for DFI coin if does not own the recipient address', async () => {
-  //   const promise = client.account.accountToAccount(from, { '2Mywjs9zEU4NtLknXQJZgozaxMvPn2Bb3qz': '5@DFI' })
-
-  //   await expect(promise).rejects.toThrow(RpcApiError)
-  //   await expect(promise).rejects.toThrow('The address (2Mywjs9zEU4NtLknXQJZgozaxMvPn2Bb3qz) is not your own address')
-  // })
-
-  // it('should accountToAccount with utxos', async () => {
-  //   const { txid } = await container.fundAddress(from, 10)
-
-  //   const payload: BalanceTransferPayload = {}
-  //   payload[await container.getNewAddress()] = '5@DFI'
-  //   payload[await container.getNewAddress()] = '5@DBTC'
-  //   payload[await container.getNewAddress()] = '5@DETH'
-
-  //   const utxos = await container.call('listunspent')
-  //   const inputs: UTXO[] = utxos.filter((utxo: UTXO) => utxo.txid === txid).map((utxo: UTXO) => {
-  //     return {
-  //       txid: utxo.txid,
-  //       vout: utxo.vout
-  //     }
-  //   })
-
-  //   const data = await client.account.accountToAccount(from, payload, { utxos: inputs })
-
-  //   expect(typeof data).toStrictEqual('string')
-  //   expect(data.length).toStrictEqual(64)
-  // })
 })

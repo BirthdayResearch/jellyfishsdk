@@ -53,11 +53,11 @@ export enum SelectionModeType {
 
 export enum TransferBalanceType {
   /** type for AccountToAccount transfer */
-  AccountToAccount = '0x00',
+  AccountToAccount = 'acctoacc',
   /** type for EvmIn transfer */
-  EvmIn = '0x01',
+  EvmIn = 'evmin',
   /** type for EvmOut transfer */
-  EvmOut = '0x02',
+  EvmOut = 'evmout',
 };
 
 /**
@@ -193,9 +193,10 @@ export class Account {
    * @param {boolean} [indexedAmounts=false] format of amount output, default = false (true: {tokenid:amount}, false: amount@tokenid)
    * @param {GetTokenBalancesOptions} [options]
    * @param {boolean} [options.symbolLookup=false] use token symbols in output, default = false
+   * @param {boolean} [includeEth=false] Whether to include Eth balances in output (default = false)
    * @return {Promise<string[]>} resolves as [ '300.00000000@0', '200.00000000@1' ]
    */
-  getTokenBalances (pagination?: AccountPagination, indexedAmounts?: boolean, options?: GetTokenBalancesOptions): Promise<string[]>
+  getTokenBalances (pagination?: AccountPagination, indexedAmounts?: boolean, options?: GetTokenBalancesOptions, includeEth?: boolean): Promise<string[]>
 
   /**
    * Get the balances of all accounts that belong to the wallet
@@ -245,10 +246,11 @@ export class Account {
   async getTokenBalances (
     pagination: AccountPagination = { limit: 100 },
     indexedAmounts = false,
-    options: GetTokenBalancesOptions = { symbolLookup: false }
+    options: GetTokenBalancesOptions = { symbolLookup: false },
+    includeEth = false
   ): Promise<string[] | AccountAmount> {
     const { symbolLookup } = options
-    return await this.client.call('gettokenbalances', [pagination, indexedAmounts, symbolLookup], 'bignumber')
+    return await this.client.call('gettokenbalances', [pagination, indexedAmounts, symbolLookup, includeEth], 'bignumber')
   }
 
   /**

@@ -82,14 +82,15 @@ Returns the balances of all accounts that belong to the wallet
 
 ```ts title="client.account.getTokenBalances()"
 interface account {
-  getTokenBalances (pagination?: AccountPagination, indexedAmounts?: boolean, options?: GetTokenBalancesOptions): Promise<string[]>
-  getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: false }): Promise<AccountAmount>
-  getTokenBalances (pagination: AccountPagination, indexedAmounts: false, options: { symbolLookup: true }): Promise<string[]>
-  getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: true }): Promise<AccountAmount>
+  getTokenBalances (pagination?: AccountPagination, indexedAmounts?: boolean, options?: GetTokenBalancesOptions, includeEth?: boolean): Promise<string[]>
+  getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: false }, includeEth?: boolean): Promise<AccountAmount>
+  getTokenBalances (pagination: AccountPagination, indexedAmounts: false, options: { symbolLookup: true }, includeEth?: boolean): Promise<string[]>
+  getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: true }, includeEth?: boolean): Promise<AccountAmount>
   getTokenBalances (
     pagination: AccountPagination = { limit: 100 },
     indexedAmounts = false,
-    options: GetTokenBalancesOptions = { symbolLookup: false}
+    options: GetTokenBalancesOptions = { symbolLookup: false},
+    includeEth?: boolean
   ): Promise<string[] | AccountAmount>
 }
 
@@ -167,11 +168,11 @@ interface BalanceTransferPayload {
 
 enum TransferBalanceType {
   /** type for AccountToAccount transfer */
-  AccountToAccount = '0x00',
+  AccountToAccount = 'acctoacc',
   /** type for EvmIn transfer */
-  EvmIn = '0x01',
+  EvmIn = 'evmin',
   /** type for EvmOut transfer */
-  EvmOut = '0x02',
+  EvmOut = 'evmout',
 };
 ```
 
