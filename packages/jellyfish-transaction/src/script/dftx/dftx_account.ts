@@ -128,8 +128,8 @@ export class CTransferBalance extends ComposableBuffer<TransferBalance> {
   composers (a2a: TransferBalance): BufferComposer[] {
     return [
       ComposableBuffer.compactSizeUtf8BE(() => a2a.type, v => a2a.type = v),
-      ComposableBuffer.compactSizeArray(() => a2a.to, v => a2a.to = v, v => new CScriptBalances(v)),
-      ComposableBuffer.single<Script>(() => a2a.from, v => a2a.from = v, v => new CScript(v))
+      ComposableBuffer.single<Script>(() => a2a.from, v => a2a.from = v, v => new CScript(v)),
+      ComposableBuffer.compactSizeArray(() => a2a.to, v => a2a.to = v, v => new CScriptBalances(v))
     ]
   }
 }
