@@ -6,10 +6,9 @@ import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
 // import { TransferBalance, CTransferBalance } from '../../../../src/script/dftx/dftx_account'
 // import BigNumber from 'bignumber.js'
 
-it.skip('should bi-directional buffer-object-buffer', () => {
+it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
-    // '6a224466547838010117a9140c75b562831107a91b3268bb2f45b667920420a587010000'
-    '6a4c514466547838010117a9140c75b562831107a91b3268bb2f45b667920420a58701000000000065cd1d00000000011660149702f4bca85647620729b87e5960b20f515e93d501000000000065cd1d00000000'
+    '6a4c514466547838010117a9144b78952c33c911462168536dbf81e0d7d75789068701000000000065cd1d0000000001166014425a65800f49dc79009daa58fedea5f228d1e6f301000000000065cd1d00000000'
   ]
 
   fixtures.forEach(hex => {

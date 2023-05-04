@@ -104,16 +104,16 @@ export class CAnyAccountToAccount extends ComposableBuffer<AnyAccountToAccount> 
  */
 export enum TransferBalanceType {
   /** type for AccountToAccount transfer */
-  AccountToAccount = 'acctoacc',
+  AccountToAccount = 0x00,
   /** type for EvmIn transfer */
-  EvmIn = 'evmin',
+  EvmIn = 0x01,
   /** type for EvmOut transfer */
-  EvmOut = 'evmout',
+  EvmOut = 0x02,
 };
 
 export interface TransferBalance {
-  type: string // ----------------------| VarUInt{1-9 bytes}, + n bytes
-  from: Script // ----------------------| n = VarUInt{1-9 bytes}, + n bytes
+  type: number // ----------------------| 4 bytes unsigned
+  from: ScriptBalances[] // ------------| n = VarUInt{1-9 bytes}, + n bytes
   to: ScriptBalances[] // --------------| n = VarUInt{1-9 bytes}, + n bytes
 }
 
@@ -127,8 +127,8 @@ export class CTransferBalance extends ComposableBuffer<TransferBalance> {
 
   composers (a2a: TransferBalance): BufferComposer[] {
     return [
-      ComposableBuffer.compactSizeUtf8BE(() => a2a.type, v => a2a.type = v),
-      ComposableBuffer.single<Script>(() => a2a.from, v => a2a.from = v, v => new CScript(v)),
+      ComposableBuffer.uInt8(() => a2a.type, v => a2a.type = v),
+      ComposableBuffer.compactSizeArray(() => a2a.from, v => a2a.from = v, v => new CScriptBalances(v)),
       ComposableBuffer.compactSizeArray(() => a2a.to, v => a2a.to = v, v => new CScriptBalances(v))
     ]
   }
