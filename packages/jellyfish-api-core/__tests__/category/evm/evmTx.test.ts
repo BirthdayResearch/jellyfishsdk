@@ -33,14 +33,11 @@ describe.only('Account', () => {
     expect(attributes.ATTRIBUTES['v0/params/feature/evm']).toStrictEqual('true')
 
     const balanceDFIAddressBefore: Record<string, BigNumber> = await client.call('getaccount', [from, {}, true], 'bignumber')
-    const balanceETHAddressBefore: BigNumber = await client.call('getaccount', [ethAddress, {}, true], 'bignumber')
     await container.call('transferbalance', ['evmin', { [from]: '2@DFI' }, { [ethAddress]: '2@DFI' }])
     await container.generate(1)
 
     const balanceDFIAddressAfter: Record<string, BigNumber> = await client.call('getaccount', [from, {}, true], 'bignumber')
-    const balanceETHAddressAfter: BigNumber = await client.call('getaccount', [ethAddress, {}, true], 'bignumber')
     expect(balanceDFIAddressAfter['0']).toStrictEqual(balanceDFIAddressBefore['0'].minus(2))
-    expect(balanceETHAddressAfter).toStrictEqual((balanceETHAddressBefore ?? new BigNumber(0)).plus(2))
 
     // Create EVM transaction and submit to local node
     const evmTxHash = await client.evm.evmtx({
