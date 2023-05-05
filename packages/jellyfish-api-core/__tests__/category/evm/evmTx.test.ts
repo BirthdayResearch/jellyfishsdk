@@ -1,10 +1,11 @@
 
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { Testing } from '@defichain/jellyfish-testing'
+import { RpcApiError } from '@defichain/jellyfish-api-core/dist/index'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import BigNumber from 'bignumber.js'
 
-describe.only('Account', () => {
+describe.only('EVMTX', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
   const testing = Testing.create(container)
@@ -53,7 +54,22 @@ describe.only('Account', () => {
     const blockHash: string = await client.blockchain.getBestBlockHash()
     const txs = await client.blockchain.getBlock(blockHash, 1)
     expect(txs.tx[1]).toStrictEqual(evmTxHash)
+
+    // TODO (lyka): Check the tx data from EVM
   })
 
-  //   TODO (Lyka): add error scenarios
+  it('should fail creation of evmtx when balance is not enough', async () => {
+    const ethAddress = await container.call('getnewaddress', ['', 'eth'])
+    const toEthAddress = await container.call('getnewaddress', ['', 'eth'])
+
+    await expect(client.evm.evmtx({
+      from: ethAddress,
+      to: toEthAddress,
+      nonce: 0,
+      gasPrice: 10,
+      gasLimit: 10000,
+      value: new BigNumber(5)
+    }))
+      .rejects.toThrow(RpcApiError)
+  })
 })
