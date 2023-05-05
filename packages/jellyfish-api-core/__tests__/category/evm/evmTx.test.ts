@@ -5,7 +5,7 @@ import { RpcApiError } from '@defichain/jellyfish-api-core/dist/index'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import BigNumber from 'bignumber.js'
 
-describe.only('EVMTX', () => {
+describe('EVMTX', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
   const testing = Testing.create(container)
