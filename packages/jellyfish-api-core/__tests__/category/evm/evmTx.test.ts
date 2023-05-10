@@ -72,4 +72,19 @@ describe('EVMTX', () => {
     }))
       .rejects.toThrow(RpcApiError)
   })
+
+  it('should fail creation of evmtx when ethereum address is not valid', async () => {
+    const fromAddress = await container.call('getnewaddress', [''])
+    const toAddress = await container.call('getnewaddress', [''])
+
+    await expect(client.evm.evmtx({
+      from: fromAddress,
+      to: toAddress,
+      nonce: 0,
+      gasPrice: 10,
+      gasLimit: 10000,
+      value: new BigNumber(5)
+    }))
+      .rejects.toThrow(RpcApiError)
+  })
 })
