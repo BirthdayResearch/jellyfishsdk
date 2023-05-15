@@ -772,6 +772,7 @@ export const OP_CODES = {
   // crypto
   OP_RIPEMD160: new crypto.OP_RIPEMD160(),
   OP_SHA1: new crypto.OP_SHA1(),
+  OP_SHA3: new crypto.OP_SHA3(),
   OP_SHA256: new crypto.OP_SHA256(),
   OP_HASH160: new crypto.OP_HASH160(),
   OP_HASH256: new crypto.OP_HASH256(),
@@ -900,6 +901,7 @@ const HEX_MAPPING: {
   0xa5: OP_CODES.OP_WITHIN,
   // crypto
   0xa6: OP_CODES.OP_RIPEMD160,
+  0xc0: OP_CODES.OP_SHA3,
   0xa7: OP_CODES.OP_SHA1,
   0xa8: OP_CODES.OP_SHA256,
   0xa9: OP_CODES.OP_HASH160,
