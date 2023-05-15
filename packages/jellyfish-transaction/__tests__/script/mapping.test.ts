@@ -382,6 +382,10 @@ describe('All mapped OP_CODES are setup properly: (static, hex, num, asm)', () =
     expectOPCode(script.OP_CODES.OP_SHA1, script.OP_SHA1, 'OP_SHA1', 0xa7, 'a7')
   })
 
+  it('OP_SHA3', () => {
+    expectOPCode(script.OP_CODES.OP_SHA3, script.OP_SHA3, 'OP_SHA3', 0xc0, 'c0')
+  })
+
   it('OP_SHA256', () => {
     expectOPCode(script.OP_CODES.OP_SHA256, script.OP_SHA256, 'OP_SHA256', 0xa8, 'a8')
   })
