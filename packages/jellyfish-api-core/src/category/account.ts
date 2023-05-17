@@ -51,13 +51,11 @@ export enum SelectionModeType {
   FORWARD = 'forward'
 }
 
-export enum TransferBalanceType {
-  /** type for AccountToAccount transfer */
-  AccountToAccount = 'acctoacc',
-  /** type for EvmIn transfer */
-  EvmIn = 'evmin',
-  /** type for EvmOut transfer */
-  EvmOut = 'evmout',
+export enum TransferDomainType {
+  /** type for DVM Token To EVM transfer */
+  DVMTokenToEVM = 1,
+  /** type for EVM To DVM Token transfer */
+  EVMToDVMToken = 2,
 };
 
 /**
@@ -288,13 +286,13 @@ export class Account {
   /**
    * Create an transfer balance transaction submitted to a connected node.
    *
-   * @param {TransferBalanceType} type
+   * @param {TransferDomainType} type
    * @param {BalanceTransferPayload} from
    * @param {BalanceTransferPayload} to
    * @return {Promise<string>}
    */
-  async transferBalance (type: TransferBalanceType, from: BalanceTransferPayload, to: BalanceTransferPayload): Promise<string> {
-    return await this.client.call('transferbalance', [type, from, to], 'number')
+  async transferDomain (type: TransferDomainType, from: BalanceTransferPayload, to: BalanceTransferPayload): Promise<string> {
+    return await this.client.call('transferdomain', [type, from, to], 'number')
   }
 
   /**

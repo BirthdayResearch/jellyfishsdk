@@ -1,10 +1,10 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { BalanceTransferPayload, TransferBalanceType } from '../../../src/category/account'
+import { BalanceTransferPayload, TransferDomainType } from '../../../src/category/account'
 import { RpcApiError } from '@defichain/jellyfish-api-core/dist/index'
 import BigNumber from 'bignumber.js'
 
-describe('TransferBalance', () => {
+describe('TransferDomain', () => {
   let dfiAddress: string, ethAddress: string
   const amountToTransfer = 5
   const container = new MasterNodeRegTestContainer()
@@ -37,7 +37,7 @@ describe('TransferBalance', () => {
     const to: BalanceTransferPayload = {
       [ethAddress]: `${amountToTransfer + 1}@DFI`
     }
-    const promise = client.account.transferBalance(TransferBalanceType.EvmIn, from, to)
+    const promise = client.account.transferDomain(TransferDomainType.DVMTokenToEVM, from, to)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('sum of inputs (from) != sum of outputs (to)')
   })
@@ -51,7 +51,7 @@ describe('TransferBalance', () => {
     const to: BalanceTransferPayload = {
       [ethAddress]: `${amountToTransfer}@DFI`
     }
-    const data = await client.account.transferBalance(TransferBalanceType.EvmIn, from, to)
+    const data = await client.account.transferDomain(TransferDomainType.DVMTokenToEVM, from, to)
     expect(typeof data).toStrictEqual('string')
     expect(data.length).toStrictEqual(64)
     await container.generate(1)
@@ -77,7 +77,7 @@ describe('TransferBalance', () => {
     const to: BalanceTransferPayload = {
       [dfiAddress]: `${amountToTransfer + 1}@DFI`
     }
-    const promise = client.account.transferBalance(TransferBalanceType.EvmOut, from, to)
+    const promise = client.account.transferDomain(TransferDomainType.EVMToDVMToken, from, to)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('sum of inputs (from) != sum of outputs (to)')
   })
@@ -91,7 +91,7 @@ describe('TransferBalance', () => {
     const to: BalanceTransferPayload = {
       [dfiAddress]: `${amountToTransfer}@DFI`
     }
-    const data = await client.account.transferBalance(TransferBalanceType.EvmOut, from, to)
+    const data = await client.account.transferDomain(TransferDomainType.EVMToDVMToken, from, to)
     expect(typeof data).toStrictEqual('string')
     expect(data.length).toStrictEqual(64)
     await container.generate(1)

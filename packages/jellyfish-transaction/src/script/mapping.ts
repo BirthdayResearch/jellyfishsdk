@@ -47,8 +47,8 @@ import {
   UtxosToAccount,
   SetFutureSwap,
   CAccountToAccount,
-  CTransferBalance,
-  TransferBalance,
+  CTransferDomain,
+  TransferDomain,
   CAccountToUtxos,
   CAnyAccountToAccount,
   CUtxosToAccount,
@@ -336,12 +336,12 @@ export const OP_CODES = {
       data: accountToAccount
     })
   },
-  OP_DEFI_TX_TRANSFER_BALANCE: (transferBalance: TransferBalance): OP_DEFI_TX => {
+  OP_DEFI_TX_TRANSFER_BALANCE: (transferDomain: TransferDomain): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
-      type: CTransferBalance.OP_CODE,
-      name: CTransferBalance.OP_NAME,
-      data: transferBalance
+      type: CTransferDomain.OP_CODE,
+      name: CTransferDomain.OP_NAME,
+      data: transferDomain
     })
   },
   OP_DEFI_TX_ANY_ACCOUNT_TO_ACCOUNT: (anyAccountToAccount: AnyAccountToAccount): OP_DEFI_TX => {

@@ -100,32 +100,30 @@ export class CAnyAccountToAccount extends ComposableBuffer<AnyAccountToAccount> 
 }
 
 /**
- * TransferBalance DeFi Transaction
+ * TransferDomain DeFi Transaction
  */
-export enum TransferBalanceType {
-  /** type for AccountToAccount transfer */
-  AccountToAccount = 0x00,
-  /** type for EvmIn transfer */
-  EvmIn = 0x01,
-  /** type for EvmOut transfer */
-  EvmOut = 0x02,
+export enum TransferDomainType {
+  /** type for DVM Token To EVM transfer */
+  DVMTokenToEVM = 1,
+  /** type for EVM To DVM Token transfer */
+  EVMToDVMToken = 2,
 };
 
-export interface TransferBalance {
+export interface TransferDomain {
   type: number // ----------------------| 4 bytes unsigned
   from: ScriptBalances[] // ------------| n = VarUInt{1-9 bytes}, + n bytes
   to: ScriptBalances[] // --------------| n = VarUInt{1-9 bytes}, + n bytes
 }
 
 /**
- * Composable TransferBalance, C stands for Composable.
+ * Composable TransferDomain, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
-export class CTransferBalance extends ComposableBuffer<TransferBalance> {
+export class CTransferDomain extends ComposableBuffer<TransferDomain> {
   static OP_CODE = 0x38 // '8'
   static OP_NAME = 'OP_DEFI_TX_TRANSFER_BALANCE'
 
-  composers (a2a: TransferBalance): BufferComposer[] {
+  composers (a2a: TransferDomain): BufferComposer[] {
     return [
       ComposableBuffer.uInt8(() => a2a.type, v => a2a.type = v),
       ComposableBuffer.compactSizeArray(() => a2a.from, v => a2a.from = v, v => new CScriptBalances(v)),

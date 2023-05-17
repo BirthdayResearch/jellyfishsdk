@@ -153,26 +153,24 @@ interface UTXO {
 }
 ```
 
-## transferBalance
+## transferDomain
 
 Create an transfer balance transaction submitted to a connected node.
 
-```ts title="client.account.transferBalance()"
+```ts title="client.account.transferDomain()"
 interface account {
-  transferBalance (type: TransferBalanceType, from: BalanceTransferPayload, to: BalanceTransferPayload): Promise<string>
+  transferDomain (type: TransferDomainType, from: BalanceTransferPayload, to: BalanceTransferPayload): Promise<string>
 }
 
 interface BalanceTransferPayload {
   [key: string]: string // `${number}@${string}`
 }
 
-enum TransferBalanceType {
-  /** type for AccountToAccount transfer */
-  AccountToAccount = 'acctoacc',
-  /** type for EvmIn transfer */
-  EvmIn = 'evmin',
-  /** type for EvmOut transfer */
-  EvmOut = 'evmout',
+enum TransferDomainType {
+  /** type for DVM Token To EVM transfer */
+  DVMTokenToEVM = 1,
+  /** type for EVM To DVM Token transfer */
+  EVMToDVMToken = 2,
 };
 ```
 
