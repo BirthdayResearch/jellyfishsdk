@@ -21,10 +21,9 @@ it('should bi-directional buffer-object-buffer', () => {
             gasPrice: 21,
             gasLimit: 21000,
             value: new BigNumber(1),
-            data: '0x00'
         }
      */
-    '6a4c7444665478396ef86c808504e3b292008252089489ba22c8c48e6ecc1bca0ae974015db907696180880de0b6b3a76400008026a0cc528f844e6dd7221af34d7e9d0b46f35fd6c2ec73bfcdf164ada84045eee6b9a03d8d4950f2b38950858070aa87549e7e17b21c007b28aba1fb21db7fdd735ec3'
+    '6a4c7444665478396ef86c808504e3b29200825208943e6f6b726024eb049cec041d4aeca14fc19fb9c5880de0b6b3a76400008025a062b19f00a1700e213240a6ea8c36ce0609ef2bc1cbce2ab854d3e68aa5d6de48a075b698851bc14d49fe81f546e408f7536dff9a222514c48876f9f2e7e5457463'
   ]
 
   fixtures.forEach(hex => {
