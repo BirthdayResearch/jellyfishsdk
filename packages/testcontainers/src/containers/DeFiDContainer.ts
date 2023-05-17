@@ -36,7 +36,8 @@ export abstract class DeFiDContainer extends DockerContainer {
     if (process?.env?.DEFICHAIN_DOCKER_IMAGE !== undefined) {
       return process.env.DEFICHAIN_DOCKER_IMAGE
     }
-    return 'defi/defichain:niven-ci-fix-01af8770a' // renovate.json regexManagers
+    // TODO (lyka): replace when official docker image is ready
+    return 'defi/defichain:niven-docker-port-20835fd79' // renovate.json regexManagers
   }
 
   public static readonly DefaultStartOptions = {
@@ -65,7 +66,7 @@ export abstract class DeFiDContainer extends DockerContainer {
    */
   protected getCmd (opts: StartOptions): string[] {
     return [
-      'defid',
+      'bin/defid',
       '-printtoconsole',
       '-rpcallowip=0.0.0.0/0',
       '-rpcbind=0.0.0.0',
