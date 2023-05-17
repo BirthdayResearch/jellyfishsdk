@@ -7,13 +7,13 @@ import { CScript } from '../../tx_composer'
  * EvmTx Transaction
  */
 export interface EvmTx {
-  from: Script // --------------------| n = VarUInt{1-9 bytes}, + n bytes, wrapped ETH address to transfer from
-  nonce: number // -------------------| VarInt{MSB-b128}
-  gasPrice: number // ----------------| VarInt{MSB-b128}
-  gasLimit: number // ----------------| VarInt{MSB-b128}
-  to: Script // ----------------------| n = VarUInt{1-9 bytes}, + n bytes, wrapped ETH address to transfer to
-  value: BigNumber // ----------------| 8 bytes unsigned
-  data: string // --------------------| hex string
+  from: Script // ---------------------| n = VarUInt{1-9 bytes}, + n bytes, wrapped ETH address to transfer from
+  nonce: number // --------------------| VarInt{MSB-b128}
+  gasPrice: number // -----------------| VarInt{MSB-b128}
+  gasLimit: number // -----------------| VarInt{MSB-b128}
+  to: Script // -----------------------| n = VarUInt{1-9 bytes}, + n bytes, wrapped ETH address to transfer to
+  value: BigNumber // -----------------| 8 bytes unsigned
+  data: string // ---------------------| hex string
 }
 
 /**

@@ -9,8 +9,8 @@ export const MAX_INT64 = new BigNumber('9223372036854775807')
  * @return BigNumber
  */
 export function readBigNumberUInt64 (buffer: SmartBuffer): BigNumber {
-  const second = buffer.readUInt32LE()
-  const first = buffer.readUInt32LE()
+  const second = buffer.length >= buffer.readOffset ? buffer.readUInt32LE(1) : buffer.readUInt32LE() // TODO (lyka): Check if offset is needed for evmtx
+  const first = buffer.length >= buffer.readOffset ? buffer.readUInt32LE(1) : buffer.readUInt32LE() // TODO (lyka): Check if offset is needed for evmtx
   return new BigNumber(first).multipliedBy(0x100000000).plus(second)
 }
 

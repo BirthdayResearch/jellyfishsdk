@@ -39,7 +39,7 @@ export function writeCompactSize (num: number, buffer: SmartBuffer): void {
  * @throws RangeError 'out of Number.MAX_SAFE_INTEGER range' when it's out of MAX_SAFE_INTEGER
  */
 export function readCompactSize (buffer: SmartBuffer): number {
-  const first = buffer.readUInt8()
+  const first = buffer.length >= buffer.readOffset ? buffer.readUInt8(1) : buffer.readUInt8() // TODO (lyka): Check if offset is needed for evmtx
   switch (first) {
     case 0xfd: // 16 bit (1 + 2 bytes)
       return buffer.readUInt16LE()

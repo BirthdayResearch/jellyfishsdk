@@ -47,7 +47,8 @@ describe('EVMTX', () => {
       nonce: 0,
       gasPrice: 21,
       gasLimit: 21000,
-      value: new BigNumber(0.1)
+      value: new BigNumber(1),
+      data: '0x00'
     })
     await container.generate(1)
 
