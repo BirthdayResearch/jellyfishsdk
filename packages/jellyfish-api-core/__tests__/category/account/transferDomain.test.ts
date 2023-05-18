@@ -73,8 +73,6 @@ describe('TransferDomain', () => {
     const to: BalanceTransferPayload = {
       [ethAddress]: `${amountToTransfer + 1}@DFI`
     }
-    // To skip typescript validation in order to assert invalid query parameter
-    // @ts-expect-error
     const promise = client.account.transferDomain(0, from, to)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('Invalid parameters, argument "type" must be either 1 (DFI token to EVM) or 2 (EVM to DFI token)')
