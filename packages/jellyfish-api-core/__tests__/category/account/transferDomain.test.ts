@@ -30,7 +30,7 @@ describe('TransferDomain', () => {
     await container.stop()
   })
 
-  it('should fail Transfer Balance from DFC to EVM if input and output value is different', async () => {
+  it('should fail Transfer Domain from DFC to EVM if from and to value is different', async () => {
     const from: BalanceTransferPayload = {
       [dfiAddress]: `${amountToTransfer}@DFI`
     }
