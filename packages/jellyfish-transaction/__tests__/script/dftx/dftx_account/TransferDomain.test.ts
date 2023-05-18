@@ -39,7 +39,7 @@ it('should bi-directional buffer-object-buffer', () => {
  * using transferDomain sample from
  * https://explorer.defichain.io/#/DFI/mainnet/tx/
  */
-const header = '6a4c514466547838' // OP_RETURN 44665478 38
+const header = '6a4c514466547838' // OP_RETURN(0x6a) (length 76 = 0x4c) CDfTx.SIGNATURE(0x44665478) CTransferDomain.OP_CODE(0x38)
 const data = '010117a914aad4dafbcf8c7f5f02ba5e67e101e0bf1ffdc8558701000000000065cd1d00000000011660143ceeb32b5abd5734ac3b85bac8fa9f137f69806f01000000000065cd1d00000000'
 const transferDomain: TransferDomain = {
   type: 1,
