@@ -35,16 +35,12 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-/**
- * using transferDomain sample from
- * https://explorer.defichain.io/#/DFI/mainnet/tx/
- */
 const header = '6a4c514466547838' // OP_RETURN(0x6a) (length 76 = 0x4c) CDfTx.SIGNATURE(0x44665478) CTransferDomain.OP_CODE(0x38)
 // TransferDomain.type (0x01)
 // TransferDomain.from (0x0117a914aad4dafbcf8c7f5f02ba5e67e101e0bf1ffdc8558701000000000065cd1d00000000)
 // TransferDomain.to (0x011660143ceeb32b5abd5734ac3b85bac8fa9f137f69806f01000000000065cd1d00000000)
-const data = '010117a914aad4dafbcf8c7f5f02ba5e67e101e0bf1ffdc8558701000000000065cd1d00000000011660143ceeb32b5abd5734ac3b85bac8fa9f137f69806f01000000000065cd1d00000000'
-const transferDomain: TransferDomain = {
+const evmInData = '010117a914aad4dafbcf8c7f5f02ba5e67e101e0bf1ffdc8558701000000000065cd1d00000000011660143ceeb32b5abd5734ac3b85bac8fa9f137f69806f01000000000065cd1d00000000'
+const evmInTransferDomain: TransferDomain = {
   type: 1,
   from: [{
     balances: [
@@ -75,28 +71,89 @@ const transferDomain: TransferDomain = {
   }]
 }
 
-it('should craft dftx with OP_CODES._()', () => {
+it('should craft dftx with OP_CODES._() for DVMToEVMToken', () => {
   const stack = [
     OP_CODES.OP_RETURN,
-    OP_CODES.OP_DEFI_TX_TRANSFER_BALANCE(transferDomain)
+    OP_CODES.OP_DEFI_TX_TRANSFER_BALANCE(evmInTransferDomain)
   ]
 
   const buffer = toBuffer(stack)
-  expect(buffer.toString('hex')).toStrictEqual(header + data)
+  expect(buffer.toString('hex')).toStrictEqual(header + evmInData)
 })
 
-describe('Composable', () => {
+describe('Composable DVMToEVMToken', () => {
   it('should compose from buffer to composable', () => {
-    const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
+    const buffer = SmartBuffer.fromBuffer(Buffer.from(evmInData, 'hex'))
     const composable = new CTransferDomain(buffer)
-    expect(composable.toObject()).toStrictEqual(transferDomain)
+    expect(composable.toObject()).toStrictEqual(evmInTransferDomain)
   })
 
   it('should compose from composable to buffer', () => {
-    const composable = new CTransferDomain(transferDomain)
+    const composable = new CTransferDomain(evmInTransferDomain)
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
 
-    expect(buffer.toBuffer().toString('hex')).toStrictEqual(data)
+    expect(buffer.toBuffer().toString('hex')).toStrictEqual(evmInData)
+  })
+})
+
+// TransferDomain.type (0x02)
+// TransferDomain.from (0x0201166014ea83daf487492796ae969d212443f13906e6674001000000000065cd1d00000000)
+// TransferDomain.to (0x0117a9149a59040582af240bb1b91ec1ca48226d2afd84f38701000000000065cd1d00000000)
+const evmOutData = '0201166014ea83daf487492796ae969d212443f13906e6674001000000000065cd1d000000000117a9149a59040582af240bb1b91ec1ca48226d2afd84f38701000000000065cd1d00000000'
+const evmOutTransferDomain: TransferDomain = {
+  type: 2,
+  from: [{
+    balances: [
+      {
+        amount: new BigNumber('5'), token: 0
+      }
+    ],
+    script: {
+      stack: [
+        OP_CODES.OP_16,
+        OP_CODES.OP_PUSHDATA_HEX_LE('ea83daf487492796ae969d212443f13906e66740')
+      ]
+    }
+  }],
+  to: [{
+    balances: [
+      {
+        amount: new BigNumber('5'), token: 0
+      }
+    ],
+    script: {
+      stack: [
+        OP_CODES.OP_HASH160,
+        OP_CODES.OP_PUSHDATA_HEX_LE('9a59040582af240bb1b91ec1ca48226d2afd84f3'),
+        OP_CODES.OP_EQUAL
+      ]
+    }
+  }]
+}
+
+it('should craft dftx with OP_CODES._() for EVMToDVMToken', () => {
+  const stack = [
+    OP_CODES.OP_RETURN,
+    OP_CODES.OP_DEFI_TX_TRANSFER_BALANCE(evmOutTransferDomain)
+  ]
+
+  const buffer = toBuffer(stack)
+  expect(buffer.toString('hex')).toStrictEqual(header + evmOutData)
+})
+
+describe('Composable EVMToDVMToken', () => {
+  it('should compose from buffer to composable', () => {
+    const buffer = SmartBuffer.fromBuffer(Buffer.from(evmOutData, 'hex'))
+    const composable = new CTransferDomain(buffer)
+    expect(composable.toObject()).toStrictEqual(evmOutTransferDomain)
+  })
+
+  it('should compose from composable to buffer', () => {
+    const composable = new CTransferDomain(evmOutTransferDomain)
+    const buffer = new SmartBuffer()
+    composable.toBuffer(buffer)
+
+    expect(buffer.toBuffer().toString('hex')).toStrictEqual(evmOutData)
   })
 })
