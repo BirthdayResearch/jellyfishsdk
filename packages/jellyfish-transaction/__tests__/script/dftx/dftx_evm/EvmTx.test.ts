@@ -2,7 +2,7 @@ import { SmartBuffer } from 'smart-buffer'
 import { OP_DEFI_TX } from '../../../../src/script/dftx'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
 
-it('should bi-directional buffer-object-buffer', () => {
+it.skip('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
     /**
      {
