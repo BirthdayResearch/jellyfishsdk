@@ -110,7 +110,7 @@ export enum TransferDomainType {
 };
 
 export interface TransferDomain {
-  type: number // ----------------------| 4 bytes unsigned
+  type: TransferDomainType // ----------------------| 4 bytes unsigned
   from: ScriptBalances[] // ------------| n = VarUInt{1-9 bytes}, + n bytes
   to: ScriptBalances[] // --------------| n = VarUInt{1-9 bytes}, + n bytes
 }
