@@ -51,6 +51,13 @@ export enum SelectionModeType {
   FORWARD = 'forward'
 }
 
+export enum TransferDomainType {
+  /** type for DVM Token To EVM transfer */
+  DVMTokenToEVM = 1,
+  /** type for EVM To DVM Token transfer */
+  EVMToDVMToken = 2,
+};
+
 /**
  * Account RPCs for DeFi Blockchain
  */
