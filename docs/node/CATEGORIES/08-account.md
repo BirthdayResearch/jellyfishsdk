@@ -155,7 +155,7 @@ interface UTXO {
 
 ## transferDomain
 
-Create an transfer balance transaction submitted to a connected node.
+Create a transfer domain transaction submitted to a connected node.
 
 ```ts title="client.account.transferDomain()"
 interface account {
