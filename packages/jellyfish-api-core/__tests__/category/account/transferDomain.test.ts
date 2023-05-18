@@ -59,6 +59,7 @@ describe('TransferDomain', () => {
     const to: BalanceTransferPayload = {
       [ethAddress]: `${amountToTransfer + 1}@DFI`
     }
+    // To skip typescript validation in order to assert invalid query parameter
     // @ts-expect-error
     const promise = client.account.transferDomain('blabla', from, to)
     await expect(promise).rejects.toThrow(RpcApiError)
@@ -72,6 +73,7 @@ describe('TransferDomain', () => {
     const to: BalanceTransferPayload = {
       [ethAddress]: `${amountToTransfer + 1}@DFI`
     }
+    // To skip typescript validation in order to assert invalid query parameter
     // @ts-expect-error
     const promise = client.account.transferDomain(0, from, to)
     await expect(promise).rejects.toThrow(RpcApiError)
