@@ -34,7 +34,7 @@ describe('EVMTX', () => {
     expect(attributes.ATTRIBUTES['v0/params/feature/evm']).toStrictEqual('true')
   })
 
-  it('should create a new EVM transaction', async () => {
+  it.only('should create a new EVM transaction', async () => {
     const amountToTransfer = 2
     const from: BalanceTransferPayload = {
       [dfiAddress]: `${amountToTransfer}@DFI`
@@ -61,6 +61,9 @@ describe('EVMTX', () => {
       value: new BigNumber(1)
       // data: '0x00'
     })
+    console.log({ evmTxHash, ethAddress, toEthAddress })
+    const rawTx = await container.call('getrawtransaction', [evmTxHash, true])
+    console.log('rawTx: ', JSON.stringify(rawTx))
     await container.generate(1)
 
     const blockHash: string = await client.blockchain.getBestBlockHash()

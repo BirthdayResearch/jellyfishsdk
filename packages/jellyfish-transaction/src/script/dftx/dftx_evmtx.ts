@@ -13,7 +13,7 @@ export interface EvmTx {
   gasLimit: number // -----------------| VarInt{MSB-b128}
   to: Script // -----------------------| n = VarUInt{1-9 bytes}, + n bytes, wrapped ETH address to transfer to
   value: BigNumber // -----------------| 8 bytes unsigned
-  data: string // ---------------------| hex string
+  // data: string // ---------------------| hex string
 }
 
 /**
@@ -31,8 +31,8 @@ export class CEvmTx extends ComposableBuffer<EvmTx> {
       ComposableBuffer.varInt(() => e.gasPrice, (v) => (e.gasPrice = v)),
       ComposableBuffer.varInt(() => e.gasLimit, (v) => (e.gasLimit = v)),
       ComposableBuffer.single<Script>(() => e.to, v => e.to = v, v => new CScript(v)),
-      ComposableBuffer.satoshiAsBigNumber(() => e.value, (v) => (e.value = v)),
-      ComposableBuffer.compactSizeUtf8BE(() => e.data, (v) => (e.data = v))
+      ComposableBuffer.satoshiAsBigNumber(() => e.value, (v) => (e.value = v))
+      // ComposableBuffer.compactSizeUtf8BE(() => e.data, (v) => (e.data = v))
     ]
   }
 }
