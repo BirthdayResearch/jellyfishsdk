@@ -16,7 +16,7 @@ const PLAYGROUND_VERSION = packageJson.version === '0.0.0' ? 'latest' : packageJ
 const PLAYGROUND_API_PORT = 3000
 
 export class PlaygroundApiContainer extends GenericContainer {
-  constructor (image: string = `ghcr.io/jellyfishsdk/playground-api:${PLAYGROUND_VERSION}`) {
+  constructor (image: string = `ghcr.io/birthdayresearch/playground-api:${PLAYGROUND_VERSION}`) {
     super(image)
     this.withExposedPorts(PLAYGROUND_API_PORT).withStartupTimeout(120_000)
   }
