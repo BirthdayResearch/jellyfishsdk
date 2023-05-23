@@ -132,7 +132,7 @@ export class Spv {
     /**
      * Looking at ain, it's returning an array of txid containing only 1 txid.
      * Considering some factors, this implementation is different from the rpc docs
-     * on ain side. Refer to PR https://github.com/JellyfishSDK/jellyfish/pull/1324
+     * on ain side. Refer to PR https://github.com/BirthdayResearch/jellyfishsdk/pull/1324
      */
     return await this.client.call<string[]>('spv_refundhtlcall', [destinationAddress, options.feeRate], 'number')
   }

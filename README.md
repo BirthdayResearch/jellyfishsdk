@@ -1,5 +1,5 @@
-[![CI](https://github.com/JellyfishSDK/jellyfish/actions/workflows/ci.yml/badge.svg)](https://github.com/JellyfishSDK/jellyfish/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/JellyfishSDK/jellyfish/branch/main/graph/badge.svg?token=M22thSGyqO)](https://codecov.io/gh/JellyfishSDK/jellyfish)
+[![CI](https://github.com/BirthdayResearch/jellyfishsdk/actions/workflows/ci.yml/badge.svg)](https://github.com/BirthdayResearch/jellyfishsdk/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/BirthdayResearch/jellyfishsdk/branch/main/graph/badge.svg?token=M22thSGyqO)](https://codecov.io/gh/BirthdayResearch/jellyfishsdk)
 [![npm](https://img.shields.io/npm/v/@defichain/jellyfish-network)](https://www.npmjs.com/package/@defichain/jellyfish-network)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/c5b7a65e-aeec-4e12-a7b7-300cbc1a8069/deploy-status)](https://app.netlify.com/sites/cranky-franklin-5e59ef/deploys)
 
@@ -22,11 +22,11 @@ the way to make it merge-able. Here are some of our documented [contributing gui
 ## Security issues
 
 If you discover a security vulnerability in
-`JellyfishSDK/jellyfish`,
+`BirthdayResearch/jellyfishsdk`,
 [please see submit it privately](https://github.com/JellyfishSDK/.github/blob/main/SECURITY.md).
 
 ## License & Disclaimer
 
-By using `JellyfishSDK/jellyfish` (this repo), you (the user) agree to be bound by [the terms of this license](LICENSE).
+By using `BirthdayResearch/jellyfishsdk` (this repo), you (the user) agree to be bound by [the terms of this license](LICENSE).
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FDeFiCh%2Fjellyfish.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FDeFiCh%2Fjellyfish?ref=badge_large)
