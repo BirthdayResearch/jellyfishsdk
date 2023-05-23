@@ -100,4 +100,4 @@ jobs:
           push: false
           build-args: APP=${{ matrix.app }}
           platforms: ${{ matrix.platform }}
-          tags: ghcr.io/jellyfishsdk/${{ matrix.app }}:latest
+          tags: ghcr.io/birthdayresearch/${{ matrix.app }}:latest

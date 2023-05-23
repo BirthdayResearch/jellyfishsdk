@@ -57,8 +57,8 @@ jobs:
             linux/amd64
             linux/arm64
           tags: ${{ steps.tags.outputs.result }}
-          cache-from: type=registry,ref=ghcr.io/jellyfishsdk/jellyfish:buildcache
-          cache-to: type=registry,ref=ghcr.io/jellyfishsdk/jellyfish:buildcache,mode=max
+          cache-from: type=registry,ref=ghcr.io/birthdayresearch/jellyfish:buildcache
+          cache-to: type=registry,ref=ghcr.io/birthdayresearch/jellyfish:buildcache,mode=max
 
   report:
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]'
