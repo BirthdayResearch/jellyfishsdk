@@ -3,7 +3,7 @@
   "name": "@defichain/jellyfish-transaction-builder",
   "version": "0.0.0",
   "description": "SDK & Ecosystem for building modern lite DeFi Applications at scale.",
-  "repository": "JellyfishSDK/jellyfish",
+  "repository": "BirthdayResearch/jellyfishsdk",
   "license": "MIT",
   "main": "dist",
   "types": "dist",

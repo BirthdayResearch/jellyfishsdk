@@ -3,7 +3,7 @@
   "name": "@defichain-apps/nest-apps",
   "version": "0.0.0",
   "description": "SDK & Ecosystem for building modern lite DeFi Applications at scale.",
-  "repository": "JellyfishSDK/jellyfish",
+  "repository": "BirthdayResearch/jellyfishsdk",
   "license": "MIT",
   "scripts": {
     "build": "nest build",

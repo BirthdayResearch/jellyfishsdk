@@ -39,7 +39,7 @@ testing.poolpair    // for poolpair setup with reasonable defaults
 
 <details>
 
-<summary>Usage within JellyfishSDK/jellyfish/packages</summary>
+<summary>Usage within BirthdayResearch/jellyfishsdk/packages</summary>
 
 ### Cyclic dependencies
 

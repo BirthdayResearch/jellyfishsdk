@@ -4,12 +4,12 @@ DeFiChain Status API, providing the statuses of different DeFiChain services.
 
 
 ## Motivation
-> https://github.com/JellyfishSDK/jellyfish/issues/1270
+> https://github.com/BirthdayResearch/jellyfishsdk/issues/1270
 
 To decouple the DeFiChain products from the status page, the approach of having a centralised provider to determine each DeFiChain service status with a pre-defined logic will allow it to be maintained consistently throughout. This will allow other apps or services to share the status from the same Status APIs.
 
 ### `/blockchain`
->https://github.com/JellyfishSDK/jellyfish/issues/1271
+>https://github.com/BirthdayResearch/jellyfishsdk/issues/1271
 
 To provide the status of the blockchain based on the block creation time interval
 
@@ -31,7 +31,7 @@ To provide the status of each oracle given the address based on the last publish
 
  
 ### `/overall`
->https://github.com/JellyfishSDK/jellyfish/issues/1274
+>https://github.com/BirthdayResearch/jellyfishsdk/issues/1274
 
 To provide the aggregated status of all services required by Light Wallet & Scan (Blockchain & Ocean).
 
