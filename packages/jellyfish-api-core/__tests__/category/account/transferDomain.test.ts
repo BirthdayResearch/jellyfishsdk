@@ -24,7 +24,6 @@ describe('TransferDomain', () => {
     await container.call('utxostoaccount', [{ [dfiAddress]: '100@0' }])
     await createToken(dfiAddress, 'BTC', 200)
     await container.generate(1)
-    await container.generate(1)
     ethAddress = await container.getNewAddress('', 'eth')
   })
 
@@ -102,7 +101,7 @@ describe('TransferDomain', () => {
     await expect(promise).rejects.toThrow('recipient (invalidAddress) does not refer to any valid address')
   })
 
-  it('should fail Transfer Domain from DFC to EVM if from Address is not dfi address', async () => {
+  it('should fail Transfer Domain from DFC to EVM if from Address is not a DFI address', async () => {
     const from: BalanceTransferPayload = {
       [ethAddress]: `${amountToTransfer}@DFI`
     }
@@ -202,18 +201,6 @@ describe('TransferDomain', () => {
       .toStrictEqual(new BigNumber(withEthBalance).minus(amountToTransfer).toNumber())
   })
 
-  // it('should fail Transfer Domain from EVM to DFC if from and to value is different', async () => {
-  //   const from: BalanceTransferPayload = {
-  //     [ethAddress]: `${amountToTransfer}@DFI`
-  //   }
-  //   const to: BalanceTransferPayload = {
-  //     [dfiAddress]: `${amountToTransfer + 1}@DFI`
-  //   }
-  //   const promise = client.account.transferDomain(TransferDomainType.EVMToDVMToken, from, to)
-  //   await expect(promise).rejects.toThrow(RpcApiError)
-  //   await expect(promise).rejects.toThrow('sum of inputs (from) != sum of outputs (to)')
-  // })
-
   it('should fail Transfer Domain from EVM to DFC if from Address is invalid', async () => {
     const from: BalanceTransferPayload = {
       invalidAddress: `${amountToTransfer}@DFI`
@@ -250,7 +237,7 @@ describe('TransferDomain', () => {
     await expect(promise).rejects.toThrow('From address must be an ETH address in case of "evmout" transfer type')
   })
 
-  it('should fail Transfer Domain from EVM to DFC if to Address is not dfi address', async () => {
+  it('should fail Transfer Domain from EVM to DFC if to Address is not a DFI address', async () => {
     const from: BalanceTransferPayload = {
       [ethAddress]: `${amountToTransfer}@DFI`
     }
