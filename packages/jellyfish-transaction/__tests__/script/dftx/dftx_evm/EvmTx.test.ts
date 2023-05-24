@@ -2,28 +2,18 @@ import { SmartBuffer } from 'smart-buffer'
 import { OP_DEFI_TX } from '../../../../src/script/dftx'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
 
-it.skip('should bi-directional buffer-object-buffer', () => {
+it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
     /**
-     {
-        // TODO (lyka): EVM TX DETAILS
-        6a: OP_CODE
-        4c74: ...
-        44665478396ef86c808504e3b2: ...
-     }
+      6a - OP_RETURN
+      4c - OP_PUSHDATA1
+      74 - length
+      44665478 - dftx
+      39 - txtype
+      6e - length
+      f86c808504e3b29200825208946c34cbb9219d8caa428835d2073e8ec88ba0a110880de0b6b3a76400008025a037f41c543402c9b02b35b45ef43ac31a63dcbeba0c622249810ecdec00aee376a05eb2be77eb0c7a1875a53ba15fc6afe246fbffe869157edbde64270e41ba045e0000000000 -- signed evm tx
      */
-    /**
-     * Vout Hex Data:
-        {
-            from: ethAddress,
-            to: toEthAddress,
-            nonce: 0,
-            gasPrice: 21,
-            gasLimit: 21000,
-            value: new BigNumber(1),
-        }
-     */
-    '6a4c7444665478396ef86c808504e3b29200825208943e6f6b726024eb049cec041d4aeca14fc19fb9c5880de0b6b3a76400008025a062b19f00a1700e213240a6ea8c36ce0609ef2bc1cbce2ab854d3e68aa5d6de48a075b698851bc14d49fe81f546e408f7536dff9a222514c48876f9f2e7e5457463'
+    '6a4c7444665478396ef86c808504e3b29200825208946c34cbb9219d8caa428835d2073e8ec88ba0a110880de0b6b3a76400008025a037f41c543402c9b02b35b45ef43ac31a63dcbeba0c622249810ecdec00aee376a05eb2be77eb0c7a1875a53ba15fc6afe246fbffe869157edbde64270e41ba045e0000000000'
   ]
 
   fixtures.forEach(hex => {
@@ -35,3 +25,5 @@ it.skip('should bi-directional buffer-object-buffer', () => {
     expect((stack[1] as OP_DEFI_TX).tx.type).toStrictEqual(0x39)
   })
 })
+
+// TODO: Add tests to craft and compose dftx
