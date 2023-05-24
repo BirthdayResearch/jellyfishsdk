@@ -1,6 +1,7 @@
 import { SmartBuffer } from 'smart-buffer'
-import { OP_DEFI_TX } from '../../../../src/script/dftx'
+import { CEvmTx, EvmTx, OP_DEFI_TX } from '../../../../src/script/dftx'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
+import { OP_CODES } from '../../../../src'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
@@ -26,4 +27,43 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-// TODO: Add tests to craft and compose dftx
+const evmTxData: Array<{ header: string, data: string, evmTx: EvmTx }> = [
+  {
+    // data with context
+    header: '6a4c744466547839', // OP_RETURN(6a) OP_PUSHDATA1(4c) (length 74) CDfTx.SIGNATURE(44665478) CEvmTx.OP_CODE(39)
+    data: 'f86c808504e3b292008252089491fd112728a18d37d27ca2631e19983fb3d1ca72880de0b6b3a76400008026a01115fd8f4a95e31c8ae613b7faaa7ec6be0d90af8c24224d41deb756766c5f0ea01f3d65607ef93230cf3aa091dd78ec310dcdddf81867e89ee2e49dce310455ae',
+    evmTx: {
+      raw: 'f86c808504e3b292008252089491fd112728a18d37d27ca2631e19983fb3d1ca72880de0b6b3a76400008026a01115fd8f4a95e31c8ae613b7faaa7ec6be0d90af8c24224d41deb756766c5f0ea01f3d65607ef93230cf3aa091dd78ec310dcdddf81867e89ee2e49dce310455ae'
+    }
+  }
+]
+
+describe.each(evmTxData)('should craft and compose dftx',
+  ({ header, evmTx, data }: { header: string, data: string, evmTx: EvmTx }) => {
+    it('should craft dftx with OP_CODES._() for evm tx', () => {
+      const stack = [
+        OP_CODES.OP_RETURN,
+        OP_CODES.OP_DEFI_TX_EVM_TX(evmTx)
+      ]
+
+      const buffer = toBuffer(stack)
+      expect(buffer.toString('hex')).toStrictEqual(header + data)
+    })
+
+    describe('Composable', () => {
+      it('should compose from buffer to composable', () => {
+        const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
+        const composable = new CEvmTx(buffer)
+
+        expect(composable.toObject()).toStrictEqual(evmTx)
+      })
+
+      it('should compose from composable to buffer', () => {
+        const composable = new CEvmTx(evmTx)
+        const buffer = new SmartBuffer()
+        composable.toBuffer(buffer)
+
+        expect(buffer.toBuffer().toString('hex')).toStrictEqual(data)
+      })
+    })
+  })
