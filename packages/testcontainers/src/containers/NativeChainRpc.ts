@@ -117,7 +117,7 @@ export class NativeChainRpc {
     return await this.call('addnode', [ip, 'onetry'])
   }
 
-  async getNewAddress (label: string = '', addressType: 'legacy' | 'p2sh-segwit' | 'bech32' | string = 'bech32'): Promise<string> {
+  async getNewAddress (label: string = '', addressType: 'legacy' | 'p2sh-segwit' | 'bech32' | 'eth' | string = 'bech32'): Promise<string> {
     return await this.call('getnewaddress', [label, addressType])
   }
 

@@ -37,5 +37,10 @@ describe('regtest', () => {
       const address = await container.getNewAddress('not-default', 'legacy')
       expect(address.length).toStrictEqual(34)
     })
+
+    it('should be able to getnewaddress with label and as eth', async () => {
+      const address = await container.getNewAddress('not-default', 'eth')
+      expect(address.length).toStrictEqual(42)
+    })
   })
 })
