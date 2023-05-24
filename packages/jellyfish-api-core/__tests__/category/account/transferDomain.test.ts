@@ -62,7 +62,7 @@ describe('TransferDomain', () => {
     // @ts-expect-error
     const promise = client.account.transferDomain('blabla', from, to)
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('xpected type number, got string')
+    await expect(promise).rejects.toThrow('expected type number, got string')
   })
 
   it('should fail Transfer Domain from DFC to EVM if type is invalid', async () => {
