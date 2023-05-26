@@ -134,7 +134,7 @@ export class TxnBuilderAccount extends P2WPKHTxnBuilder {
 
   async transferDomain (transferDomain: TransferDomain, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
-      OP_CODES.OP_DEFI_TX_TRANSFER_BALANCE(transferDomain),
+      OP_CODES.OP_DEFI_TX_TRANSFER_DOMAIN(transferDomain),
       changeScript
     )
   }

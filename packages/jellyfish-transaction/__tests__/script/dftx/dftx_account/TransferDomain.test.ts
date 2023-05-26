@@ -74,7 +74,7 @@ const evmInTransferDomain: TransferDomain = {
 it('should craft dftx with OP_CODES._() for DVMToEVMToken', () => {
   const stack = [
     OP_CODES.OP_RETURN,
-    OP_CODES.OP_DEFI_TX_TRANSFER_BALANCE(evmInTransferDomain)
+    OP_CODES.OP_DEFI_TX_TRANSFER_DOMAIN(evmInTransferDomain)
   ]
 
   const buffer = toBuffer(stack)
@@ -135,7 +135,7 @@ const evmOutTransferDomain: TransferDomain = {
 it('should craft dftx with OP_CODES._() for EVMToDVMToken', () => {
   const stack = [
     OP_CODES.OP_RETURN,
-    OP_CODES.OP_DEFI_TX_TRANSFER_BALANCE(evmOutTransferDomain)
+    OP_CODES.OP_DEFI_TX_TRANSFER_DOMAIN(evmOutTransferDomain)
   ]
 
   const buffer = toBuffer(stack)

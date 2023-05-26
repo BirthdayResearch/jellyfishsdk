@@ -110,7 +110,7 @@ export enum TransferDomainType {
 };
 
 export interface TransferDomain {
-  type: TransferDomainType // ----------------------| 4 bytes unsigned
+  type: TransferDomainType // ----------| 4 bytes unsigned
   from: ScriptBalances[] // ------------| n = VarUInt{1-9 bytes}, + n bytes
   to: ScriptBalances[] // --------------| n = VarUInt{1-9 bytes}, + n bytes
 }
@@ -121,13 +121,13 @@ export interface TransferDomain {
  */
 export class CTransferDomain extends ComposableBuffer<TransferDomain> {
   static OP_CODE = 0x38 // '8'
-  static OP_NAME = 'OP_DEFI_TX_TRANSFER_BALANCE'
+  static OP_NAME = 'OP_DEFI_TX_TRANSFER_DOMAIN'
 
-  composers (a2a: TransferDomain): BufferComposer[] {
+  composers (td: TransferDomain): BufferComposer[] {
     return [
-      ComposableBuffer.uInt8(() => a2a.type, v => a2a.type = v),
-      ComposableBuffer.compactSizeArray(() => a2a.from, v => a2a.from = v, v => new CScriptBalances(v)),
-      ComposableBuffer.compactSizeArray(() => a2a.to, v => a2a.to = v, v => new CScriptBalances(v))
+      ComposableBuffer.uInt8(() => td.type, v => td.type = v),
+      ComposableBuffer.compactSizeArray(() => td.from, v => td.from = v, v => new CScriptBalances(v)),
+      ComposableBuffer.compactSizeArray(() => td.to, v => td.to = v, v => new CScriptBalances(v))
     ]
   }
 }

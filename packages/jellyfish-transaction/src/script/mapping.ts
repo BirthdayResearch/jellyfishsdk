@@ -336,7 +336,7 @@ export const OP_CODES = {
       data: accountToAccount
     })
   },
-  OP_DEFI_TX_TRANSFER_BALANCE: (transferDomain: TransferDomain): OP_DEFI_TX => {
+  OP_DEFI_TX_TRANSFER_DOMAIN: (transferDomain: TransferDomain): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
       type: CTransferDomain.OP_CODE,

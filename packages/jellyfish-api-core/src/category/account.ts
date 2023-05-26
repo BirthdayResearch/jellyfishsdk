@@ -284,7 +284,7 @@ export class Account {
   }
 
   /**
-   * Create an transfer balance transaction submitted to a connected node.
+   * Create an transfer domain transaction submitted to a connected node.
    *
    * @param {TransferDomainType} type
    * @param {BalanceTransferPayload} from
