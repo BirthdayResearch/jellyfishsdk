@@ -32,7 +32,7 @@ const evmTxData: Array<{ header: string, length: string, data: string, evmTx: Ev
   {
     // data with context
     header: '6a4c744466547839', // OP_RETURN(6a) OP_PUSHDATA1(4c) (length 74) CDfTx.SIGNATURE(44665478) CEvmTx.OP_CODE(39)
-    // TODO: Check why lenght 6e is ignored
+    // TODO: Check why length 6e is ignored
     length: '6e', // length 6e
     data: '6ef86c808504e3b292008252089491fd112728a18d37d27ca2631e19983fb3d1ca72880de0b6b3a76400008026a01115fd8f4a95e31c8ae613b7faaa7ec6be0d90af8c24224d41deb756766c5f0ea01f3d65607ef93230cf3aa091dd78ec310dcdddf81867e89ee2e49dce310455ae',
     evmTx: {
@@ -41,7 +41,7 @@ const evmTxData: Array<{ header: string, length: string, data: string, evmTx: Ev
   },
   {
     header: '6a4c744466547839', // OP_RETURN(6a) OP_PUSHDATA1(4c) (length 74) CDfTx.SIGNATURE(44665478) CEvmTx.OP_CODE(39)
-    // TODO: Check why lenght 6e is ignored
+    // TODO: Check why length 6e is ignored
     length: '6e', // length 6e
     data: '6ef86c808504e3b292008252089431aff0f9bd809c09b17859c3167b0ed1965743e3880de0b6b3a76400008026a0a5c6a81fdacf02b1d6e78c132666faee8d9017e12c5a97983e5f998462e5a9c3a018bf23d147bcb6cd009a2c9fa76b28d707b61ed376679d907cecb7c38140bcd9',
     evmTx: {
