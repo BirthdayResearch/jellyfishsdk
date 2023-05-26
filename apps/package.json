@@ -3,7 +3,7 @@
   "name": "@defichain-apps/nest-apps",
   "version": "0.0.0",
   "description": "SDK & Ecosystem for building modern lite DeFi Applications at scale.",
-  "repository": "JellyfishSDK/jellyfish",
+  "repository": "BirthdayResearch/jellyfishsdk",
   "license": "MIT",
   "scripts": {
     "build": "nest build",
@@ -34,7 +34,7 @@
     "@nestjs/core": "9.3.9",
     "@nestjs/platform-express": "9.3.9",
     "@nestjs/platform-fastify": "9.3.9",
-    "@nestjs/schedule": "2.2.1",
+    "@nestjs/schedule": "2.2.2",
     "@nestjs/terminus": "9.2.1",
     "async-mutex": "0.4.0",
     "bignumber.js": "9.0.2",

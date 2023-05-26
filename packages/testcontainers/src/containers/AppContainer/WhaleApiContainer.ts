@@ -16,7 +16,7 @@ const WHALE_API_PORT = 3000
 const WHALE_VERSION = packageJson.version === '0.0.0' ? 'latest' : packageJson.version
 
 export class WhaleApiContainer extends GenericContainer {
-  constructor (image: string = `ghcr.io/jellyfishsdk/whale-api:${WHALE_VERSION}`) {
+  constructor (image: string = `ghcr.io/birthdayresearch/whale-api:${WHALE_VERSION}`) {
     super(image)
     this.withExposedPorts(WHALE_API_PORT).withStartupTimeout(120_000)
   }

@@ -11,9 +11,9 @@ agnostic.
 
 ### #555 Broke Compatibility with BIP32
 
-> https://github.com/JellyfishSDK/jellyfish/pull/555
+> https://github.com/BirthdayResearch/jellyfishsdk/pull/555
 
-In [#555](https://github.com/JellyfishSDK/jellyfish/pull/555) a significant change was done to
+In [#555](https://github.com/BirthdayResearch/jellyfishsdk/pull/555) a significant change was done to
 "@defichain/jellyfish-wallet-mnemonic". Part of the BIP32 specification literature defines the use of HMAC-SHA512.
 `"Calculate I = HMAC-SHA512(Key = "Bitcoin seed", Data = S)"`. The `Key` in this implementation was updated
 to `"@defichain/jellyfish-wallet-mnemonic"`. Although a novel idea at that time, this, unfortunately, created
