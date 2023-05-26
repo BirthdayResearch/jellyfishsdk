@@ -40,6 +40,7 @@ describe('regtest', () => {
 
     it('should be able to getnewaddress with label and as eth', async () => {
       const address = await container.getNewAddress('not-default', 'eth')
+      expect(address).toMatch(/^0x[a-fA-F0-9]{40}$/gm)
       expect(address.length).toStrictEqual(42)
     })
   })
