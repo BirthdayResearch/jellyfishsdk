@@ -12,7 +12,6 @@ export class Evm {
 
   /**
    * Creates an EVM transaction submitted to local node and network
-   * TODO (lyka): Add params descriptions
    * @param {string} from
    * @param {number} nonce
    * @param {number} gasPrice
