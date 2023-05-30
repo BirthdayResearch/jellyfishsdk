@@ -3,6 +3,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { Testing } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '@defichain/jellyfish-api-core/dist/index'
 import { ContainerAdapterClient } from '../../container_adapter_client'
+import { BalanceTransferPayload, TransferDomainType } from '../../../src/category/account'
 import BigNumber from 'bignumber.js'
 
 describe('EVMTX', () => {
@@ -10,8 +11,7 @@ describe('EVMTX', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
   const testing = Testing.create(container)
-  const txNonceGas = {
-    nonce: 0,
+  const txGas = {
     gasPrice: 21,
     gasLimit: 21000
   }
@@ -24,6 +24,8 @@ describe('EVMTX', () => {
     })
     await container.generate(1)
     dfiAddress = await container.call('getnewaddress')
+    await container.call('utxostoaccount', [{ [dfiAddress]: '105@DFI' }])
+    await container.generate(1)
     ethAddress = await container.call('getnewaddress', ['', 'eth'])
     toEthAddress = await container.call('getnewaddress', ['', 'eth'])
   })
@@ -38,11 +40,27 @@ describe('EVMTX', () => {
   })
 
   it('should successfully create a new EVM transaction', async () => {
+    const amountToTransfer = 100
+    const from: BalanceTransferPayload = {
+      [dfiAddress]: `${amountToTransfer}@DFI`
+    }
+    const to: BalanceTransferPayload = {
+      [ethAddress]: `${amountToTransfer}@DFI`
+    }
+
+    const balanceDFIAddressBefore: Record<string, BigNumber> = await client.call('getaccount', [dfiAddress, {}, true], 'bignumber')
+    await container.call('transferdomain', [TransferDomainType.DVMTokenToEVM, from, to])
+    await container.generate(1)
+
+    const balanceDFIAddressAfter: Record<string, BigNumber> = await client.call('getaccount', [dfiAddress, {}, true], 'bignumber')
+    expect(balanceDFIAddressAfter['0']).toStrictEqual(balanceDFIAddressBefore['0'].minus(amountToTransfer))
+
     const evmTxHash = await client.evm.evmtx({
       from: ethAddress,
       to: toEthAddress,
       value: new BigNumber(1),
-      ...txNonceGas
+      nonce: 0,
+      ...txGas
     })
     await container.generate(1)
 
@@ -56,8 +74,9 @@ describe('EVMTX', () => {
       from: ethAddress,
       to: toEthAddress,
       value: new BigNumber(0.03),
-      data: 'ad33eb89000000000000000000000000a218a0ea9a888e3f6e2dffdf4066885f596f07bf', // rabndom methodId 0xad33eb89, random tokenAddr 000000000000000000000000a218a0ea9a888e3f6e2dffdf4066885f596f07bf
-      ...txNonceGas
+      data: 'ad33eb89000000000000000000000000a218a0ea9a888e3f6e2dffdf4066885f596f07bf', // random methodId 0xad33eb89, random tokenAddr 000000000000000000000000a218a0ea9a888e3f6e2dffdf4066885f596f07bf
+      nonce: 1,
+      ...txGas
     })
     await container.generate(1)
 
@@ -71,7 +90,8 @@ describe('EVMTX', () => {
       from: ethAddress,
       to: toEthAddress,
       value: new BigNumber(Number.MAX_VALUE),
-      ...txNonceGas
+      nonce: 2,
+      ...txGas
     })).rejects.toThrow(new RpcApiError({ code: -3, method: 'evmtx', message: 'Invalid amount' }))
   })
 
@@ -80,7 +100,8 @@ describe('EVMTX', () => {
       from: dfiAddress,
       to: ethAddress,
       value: new BigNumber(1),
-      ...txNonceGas
+      nonce: 2,
+      ...txGas
     })).rejects.toThrow(new RpcApiError({ code: -8, method: 'evmtx', message: 'from address not an Ethereum address' }))
   })
 
@@ -89,7 +110,8 @@ describe('EVMTX', () => {
       from: ethAddress,
       to: dfiAddress,
       value: new BigNumber(1),
-      ...txNonceGas
+      nonce: 2,
+      ...txGas
     })).rejects.toThrow(new RpcApiError({ code: -8, method: 'evmtx', message: 'to address not an Ethereum address' }))
   })
 
@@ -98,8 +120,8 @@ describe('EVMTX', () => {
       from: ethAddress,
       to: toEthAddress,
       value: new BigNumber(1),
-      ...txNonceGas,
-      nonce: 12345678
+      nonce: 12345678,
+      ...txGas
     })).rejects.toThrow(RpcApiError)
   })
 
@@ -108,8 +130,9 @@ describe('EVMTX', () => {
       from: ethAddress,
       to: toEthAddress,
       value: new BigNumber(1),
-      ...txNonceGas,
-      gasPrice: Number.MAX_VALUE
+      nonce: 2,
+      gasPrice: Number.MAX_VALUE,
+      gasLimit: txGas.gasLimit
     })).rejects.toThrow(new RpcApiError({ code: -1, method: 'evmtx', message: 'JSON integer out of range' }))
   })
 
@@ -118,7 +141,8 @@ describe('EVMTX', () => {
       from: ethAddress,
       to: toEthAddress,
       value: new BigNumber(1),
-      ...txNonceGas,
+      nonce: 2,
+      gasPrice: txGas.gasPrice,
       gasLimit: Number.MAX_VALUE
     })).rejects.toThrow(new RpcApiError({ code: -1, method: 'evmtx', message: 'JSON integer out of range' }))
   })
