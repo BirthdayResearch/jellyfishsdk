@@ -51,7 +51,7 @@ describe('TransferDomain', () => {
     await container.generate(1)
   }
 
-  it('should fail Transfer Domain from DFC to EVM if type is string', async () => {
+  it('should fail Transfer Domain from DFC Token to EVM if type is string', async () => {
     const from: BalanceTransferPayload = {
       [dfiAddress]: `${amountToTransfer}@DFI`
     }
@@ -65,7 +65,7 @@ describe('TransferDomain', () => {
     await expect(promise).rejects.toThrow('Expected type number, got string')
   })
 
-  it('should fail Transfer Domain from DFC to EVM if type is invalid', async () => {
+  it('should fail Transfer Domain from DFC Token to EVM if type is invalid', async () => {
     const from: BalanceTransferPayload = {
       [dfiAddress]: `${amountToTransfer}@DFI`
     }
@@ -77,7 +77,7 @@ describe('TransferDomain', () => {
     await expect(promise).rejects.toThrow('Invalid parameters, argument "type" must be either 1 (DFI token to EVM) or 2 (EVM to DFI token)')
   })
 
-  it('should fail Transfer Domain from DFC to EVM if from Address is invalid', async () => {
+  it('should fail Transfer Domain from DFC Token to EVM if from Address is invalid', async () => {
     const from: BalanceTransferPayload = {
       invalidAddress: `${amountToTransfer}@DFI`
     }
@@ -89,7 +89,7 @@ describe('TransferDomain', () => {
     await expect(promise).rejects.toThrow('recipient (invalidAddress) does not refer to any valid address')
   })
 
-  it('should fail Transfer Domain from DFC to EVM if to Address is invalid', async () => {
+  it('should fail Transfer Domain from DFC Token to EVM if to Address is invalid', async () => {
     const from: BalanceTransferPayload = {
       [dfiAddress]: `${amountToTransfer}@DFI`
     }
@@ -101,7 +101,7 @@ describe('TransferDomain', () => {
     await expect(promise).rejects.toThrow('recipient (invalidAddress) does not refer to any valid address')
   })
 
-  it('should fail Transfer Domain from DFC to EVM if from Address is not a DFI address', async () => {
+  it('should fail Transfer Domain from DFC Token to EVM if from Address is not a DFI address', async () => {
     const from: BalanceTransferPayload = {
       [ethAddress]: `${amountToTransfer}@DFI`
     }
@@ -113,7 +113,7 @@ describe('TransferDomain', () => {
     await expect(promise).rejects.toThrow('From address must not be an ETH address in case of "evmin" transfer type')
   })
 
-  it('should fail Transfer Domain from DFC to EVM if to Address is not eth address', async () => {
+  it('should fail Transfer Domain from DFC Token to EVM if to Address is not eth address', async () => {
     const from: BalanceTransferPayload = {
       [dfiAddress]: `${amountToTransfer}@DFI`
     }
@@ -125,7 +125,7 @@ describe('TransferDomain', () => {
     await expect(promise).rejects.toThrow('To address must be an ETH address in case of "evmin" transfer type')
   })
 
-  it('should fail Transfer Domain from DFC to EVM if from and to value is different', async () => {
+  it('should fail Transfer Domain from DFC Token to EVM if from and to value is different', async () => {
     const from: BalanceTransferPayload = {
       [dfiAddress]: `${amountToTransfer}@DFI`
     }
@@ -137,7 +137,7 @@ describe('TransferDomain', () => {
     await expect(promise).rejects.toThrow('sum of inputs (from) != sum of outputs (to)')
   })
 
-  it('should fail Transfer Domain from DFC to EVM if from and to value is different tokens', async () => {
+  it('should fail Transfer Domain from DFC Token to EVM if from and to value is different tokens', async () => {
     const from: BalanceTransferPayload = {
       [dfiAddress]: `${amountToTransfer}@DFI`
     }
@@ -149,7 +149,7 @@ describe('TransferDomain', () => {
     await expect(promise).rejects.toThrow('sum of inputs (from) != sum of outputs (to)')
   })
 
-  it('should fail Transfer Domain from DFC to EVM if transferring unsupported tokens', async () => {
+  it('should fail Transfer Domain from DFC Token to EVM if transferring unsupported tokens', async () => {
     const from: BalanceTransferPayload = {
       [dfiAddress]: `${amountToTransfer}@BTC`
     }
@@ -161,7 +161,7 @@ describe('TransferDomain', () => {
     await expect(promise).rejects.toThrow('For "evmin" transfers, only DFI token is currently supported')
   })
 
-  it('should fail Transfer Domain from DFC to EVM if not enough balance', async () => {
+  it('should fail Transfer Domain from DFC Token to EVM if not enough balance', async () => {
     const from: BalanceTransferPayload = {
       [dfiAddress]: '1000@DFI'
     }
@@ -173,7 +173,7 @@ describe('TransferDomain', () => {
     await expect(promise).rejects.toThrow('not enough balance on owner\'s account')
   })
 
-  it('should Transfer Domain from DFC to EVM', async () => {
+  it('should Transfer Domain from DFC Token to EVM', async () => {
     const tokenBalances = await client.account.getAccount(dfiAddress)
     const [initialBalance, tokenId] = tokenBalances[0].split('@')
     const from: BalanceTransferPayload = {
@@ -201,7 +201,7 @@ describe('TransferDomain', () => {
       .toStrictEqual(new BigNumber(withEthBalance).minus(amountToTransfer).toNumber())
   })
 
-  it('should fail Transfer Domain from EVM to DFC if from Address is invalid', async () => {
+  it('should fail Transfer Domain from EVM to DFC Token if from Address is invalid', async () => {
     const from: BalanceTransferPayload = {
       invalidAddress: `${amountToTransfer}@DFI`
     }
@@ -213,7 +213,7 @@ describe('TransferDomain', () => {
     await expect(promise).rejects.toThrow('recipient (invalidAddress) does not refer to any valid address')
   })
 
-  it('should fail Transfer Domain from EVM to DFC if to Address is invalid', async () => {
+  it('should fail Transfer Domain from EVM to DFC Token if to Address is invalid', async () => {
     const from: BalanceTransferPayload = {
       [ethAddress]: `${amountToTransfer}@DFI`
     }
@@ -225,7 +225,7 @@ describe('TransferDomain', () => {
     await expect(promise).rejects.toThrow('recipient (invalidAddress) does not refer to any valid address')
   })
 
-  it('should fail Transfer Domain from EVM to DFC if from Address is not eth address', async () => {
+  it('should fail Transfer Domain from EVM to DFC Token if from Address is not eth address', async () => {
     const from: BalanceTransferPayload = {
       [dfiAddress]: `${amountToTransfer}@DFI`
     }
@@ -237,7 +237,7 @@ describe('TransferDomain', () => {
     await expect(promise).rejects.toThrow('From address must be an ETH address in case of "evmout" transfer type')
   })
 
-  it('should fail Transfer Domain from EVM to DFC if to Address is not a DFI address', async () => {
+  it('should fail Transfer Domain from EVM to DFC Token if to Address is not a DFI address', async () => {
     const from: BalanceTransferPayload = {
       [ethAddress]: `${amountToTransfer}@DFI`
     }
@@ -249,7 +249,7 @@ describe('TransferDomain', () => {
     await expect(promise).rejects.toThrow('To address must not be an ETH address in case of "evmout" transfer type')
   })
 
-  it('should fail Transfer Domain from EVM to DFC if from and to value is different', async () => {
+  it('should fail Transfer Domain from EVM to DFC Token if from and to value is different', async () => {
     const from: BalanceTransferPayload = {
       [ethAddress]: `${amountToTransfer}@DFI`
     }
@@ -261,7 +261,7 @@ describe('TransferDomain', () => {
     await expect(promise).rejects.toThrow('sum of inputs (from) != sum of outputs (to)')
   })
 
-  it('should fail Transfer Domain from EVM to DFC if from and to value is different tokens', async () => {
+  it('should fail Transfer Domain from EVM to DFC Token if from and to value is different tokens', async () => {
     const from: BalanceTransferPayload = {
       [ethAddress]: `${amountToTransfer}@DFI`
     }
@@ -273,7 +273,7 @@ describe('TransferDomain', () => {
     await expect(promise).rejects.toThrow('sum of inputs (from) != sum of outputs (to)')
   })
 
-  it('should fail Transfer Domain from EVM to DFC if transferring unsupported tokens', async () => {
+  it('should fail Transfer Domain from EVM to DFC Token if transferring unsupported tokens', async () => {
     const from: BalanceTransferPayload = {
       [ethAddress]: `${amountToTransfer}@BTC`
     }
@@ -285,7 +285,7 @@ describe('TransferDomain', () => {
     await expect(promise).rejects.toThrow('For "evmout" transfers, only DFI token is currently supported')
   })
 
-  it('should fail Transfer Domain from EVM to DFC if not enough balance', async () => {
+  it('should fail Transfer Domain from EVM to DFC Token if not enough balance', async () => {
     const from: BalanceTransferPayload = {
       [ethAddress]: '1000@DFI'
     }
@@ -297,7 +297,7 @@ describe('TransferDomain', () => {
     await expect(promise).rejects.toThrow(`Not enough balance in ${ethAddress} to cover "evmout" transfer`)
   })
 
-  it('should Transfer Domain from EVM to DFC', async () => {
+  it('should Transfer Domain from EVM to DFC Token', async () => {
     const tokenBalances = await client.account.getAccount(dfiAddress)
     const [initialBalance, tokenId] = tokenBalances[0].split('@')
     const from: BalanceTransferPayload = {
