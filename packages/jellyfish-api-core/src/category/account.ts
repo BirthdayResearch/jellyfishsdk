@@ -52,12 +52,19 @@ export enum SelectionModeType {
 }
 
 export enum TransferDomainType {
-  UTXO = 0,
+  NONE = 0,
+  /** type reserved for UTXO */
+  UTXO = 1,
   /** type for DVM Token To EVM transfer */
-  DVM = 1,
+  DVM = 2,
   /** type for EVM To DVM Token transfer */
-  EVM = 2,
+  EVM = 3,
 };
+
+export enum TransferBalanceKey {
+  SRC = 'src',
+  DST = 'dst'
+}
 
 /**
  * Account RPCs for DeFi Blockchain
@@ -287,13 +294,17 @@ export class Account {
   /**
    * Create an transfer domain transaction submitted to a connected node.
    *
-   * @param {TransferDomainType} type
-   * @param {BalanceTransferPayload} from
-   * @param {BalanceTransferPayload} to
+   * @param {Array<Record<TransferBalanceKey, TransferDomainInfo>>} payload[]
+   * @param {Record<TransferBalanceKey, TransferDomainInfo>} payload
+   * @param {TransferDomainInfo} info
+   * @param {string} info.address
+   * @param {string} info.amount
+   * @param {TransferDomainType} info.domain
+   * @param {string} [info.data] optional data, note: currently its not used
    * @return {Promise<string>}
    */
-  async transferDomain (type: TransferDomainType, from: BalanceTransferPayload, to: BalanceTransferPayload): Promise<string> {
-    return await this.client.call('transferdomain', [type, from, to], 'number')
+  async transferDomain (payload: Array<Record<string, TransferDomainInfo>>): Promise<string> {
+    return await this.client.call('transferdomain', [payload], 'number')
   }
 
   /**
@@ -704,4 +715,10 @@ export interface ListFutureInfo {
 export interface DusdSwapsInfo {
   owner: string
   amount: BigNumber
+}
+
+export interface TransferDomainInfo {
+  address: string
+  amount: string
+  domain: TransferDomainType
 }
