@@ -84,7 +84,7 @@ describe('TransferDomain', () => {
     const to: BalanceTransferPayload = {
       [ethAddress]: `${amountToTransfer + 1}@DFI`
     }
-    const promise = client.account.transferDomain(TransferDomainType.DVMTokenToEVM, from, to)
+    const promise = client.account.transferDomain(TransferDomainType.DVM, from, to)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('recipient (invalidAddress) does not refer to any valid address')
   })
@@ -96,7 +96,7 @@ describe('TransferDomain', () => {
     const to: BalanceTransferPayload = {
       invalidAddress: `${amountToTransfer + 1}@DFI`
     }
-    const promise = client.account.transferDomain(TransferDomainType.DVMTokenToEVM, from, to)
+    const promise = client.account.transferDomain(TransferDomainType.DVM, from, to)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('recipient (invalidAddress) does not refer to any valid address')
   })
@@ -108,7 +108,7 @@ describe('TransferDomain', () => {
     const to: BalanceTransferPayload = {
       [ethAddress]: `${amountToTransfer}@DFI`
     }
-    const promise = client.account.transferDomain(TransferDomainType.DVMTokenToEVM, from, to)
+    const promise = client.account.transferDomain(TransferDomainType.DVM, from, to)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('From address must not be an ETH address in case of "evmin" transfer type')
   })
@@ -120,7 +120,7 @@ describe('TransferDomain', () => {
     const to: BalanceTransferPayload = {
       [dfiAddress]: `${amountToTransfer}@DFI`
     }
-    const promise = client.account.transferDomain(TransferDomainType.DVMTokenToEVM, from, to)
+    const promise = client.account.transferDomain(TransferDomainType.DVM, from, to)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('To address must be an ETH address in case of "evmin" transfer type')
   })
@@ -132,7 +132,7 @@ describe('TransferDomain', () => {
     const to: BalanceTransferPayload = {
       [ethAddress]: `${amountToTransfer + 1}@DFI`
     }
-    const promise = client.account.transferDomain(TransferDomainType.DVMTokenToEVM, from, to)
+    const promise = client.account.transferDomain(TransferDomainType.DVM, from, to)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('sum of inputs (from) != sum of outputs (to)')
   })
@@ -144,7 +144,7 @@ describe('TransferDomain', () => {
     const to: BalanceTransferPayload = {
       [ethAddress]: `${amountToTransfer}@BTC`
     }
-    const promise = client.account.transferDomain(TransferDomainType.DVMTokenToEVM, from, to)
+    const promise = client.account.transferDomain(TransferDomainType.DVM, from, to)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('sum of inputs (from) != sum of outputs (to)')
   })
@@ -156,7 +156,7 @@ describe('TransferDomain', () => {
     const to: BalanceTransferPayload = {
       [ethAddress]: `${amountToTransfer}@BTC`
     }
-    const promise = client.account.transferDomain(TransferDomainType.DVMTokenToEVM, from, to)
+    const promise = client.account.transferDomain(TransferDomainType.DVM, from, to)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('For "evmin" transfers, only DFI token is currently supported')
   })
@@ -168,7 +168,7 @@ describe('TransferDomain', () => {
     const to: BalanceTransferPayload = {
       [ethAddress]: '1000@DFI'
     }
-    const promise = client.account.transferDomain(TransferDomainType.DVMTokenToEVM, from, to)
+    const promise = client.account.transferDomain(TransferDomainType.DVM, from, to)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('not enough balance on owner\'s account')
   })
@@ -182,7 +182,7 @@ describe('TransferDomain', () => {
     const to: BalanceTransferPayload = {
       [ethAddress]: `${amountToTransfer}@DFI`
     }
-    const data = await client.account.transferDomain(TransferDomainType.DVMTokenToEVM, from, to)
+    const data = await client.account.transferDomain(TransferDomainType.DVM, from, to)
     expect(typeof data).toStrictEqual('string')
     expect(data.length).toStrictEqual(64)
     await container.generate(1)
@@ -208,7 +208,7 @@ describe('TransferDomain', () => {
     const to: BalanceTransferPayload = {
       [dfiAddress]: `${amountToTransfer + 1}@DFI`
     }
-    const promise = client.account.transferDomain(TransferDomainType.EVMToDVMToken, from, to)
+    const promise = client.account.transferDomain(TransferDomainType.EVM, from, to)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('recipient (invalidAddress) does not refer to any valid address')
   })
@@ -220,7 +220,7 @@ describe('TransferDomain', () => {
     const to: BalanceTransferPayload = {
       invalidAddress: `${amountToTransfer + 1}@DFI`
     }
-    const promise = client.account.transferDomain(TransferDomainType.EVMToDVMToken, from, to)
+    const promise = client.account.transferDomain(TransferDomainType.EVM, from, to)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('recipient (invalidAddress) does not refer to any valid address')
   })
@@ -232,7 +232,7 @@ describe('TransferDomain', () => {
     const to: BalanceTransferPayload = {
       [dfiAddress]: `${amountToTransfer}@DFI`
     }
-    const promise = client.account.transferDomain(TransferDomainType.EVMToDVMToken, from, to)
+    const promise = client.account.transferDomain(TransferDomainType.EVM, from, to)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('From address must be an ETH address in case of "evmout" transfer type')
   })
@@ -244,7 +244,7 @@ describe('TransferDomain', () => {
     const to: BalanceTransferPayload = {
       [ethAddress]: `${amountToTransfer}@DFI`
     }
-    const promise = client.account.transferDomain(TransferDomainType.EVMToDVMToken, from, to)
+    const promise = client.account.transferDomain(TransferDomainType.EVM, from, to)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('To address must not be an ETH address in case of "evmout" transfer type')
   })
@@ -256,7 +256,7 @@ describe('TransferDomain', () => {
     const to: BalanceTransferPayload = {
       [dfiAddress]: `${amountToTransfer + 1}@DFI`
     }
-    const promise = client.account.transferDomain(TransferDomainType.EVMToDVMToken, from, to)
+    const promise = client.account.transferDomain(TransferDomainType.EVM, from, to)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('sum of inputs (from) != sum of outputs (to)')
   })
@@ -268,7 +268,7 @@ describe('TransferDomain', () => {
     const to: BalanceTransferPayload = {
       [dfiAddress]: `${amountToTransfer}@BTC`
     }
-    const promise = client.account.transferDomain(TransferDomainType.EVMToDVMToken, from, to)
+    const promise = client.account.transferDomain(TransferDomainType.EVM, from, to)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('sum of inputs (from) != sum of outputs (to)')
   })
@@ -280,7 +280,7 @@ describe('TransferDomain', () => {
     const to: BalanceTransferPayload = {
       [dfiAddress]: `${amountToTransfer}@BTC`
     }
-    const promise = client.account.transferDomain(TransferDomainType.EVMToDVMToken, from, to)
+    const promise = client.account.transferDomain(TransferDomainType.EVM, from, to)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('For "evmout" transfers, only DFI token is currently supported')
   })
@@ -292,7 +292,7 @@ describe('TransferDomain', () => {
     const to: BalanceTransferPayload = {
       [dfiAddress]: '1000@DFI'
     }
-    const promise = client.account.transferDomain(TransferDomainType.EVMToDVMToken, from, to)
+    const promise = client.account.transferDomain(TransferDomainType.EVM, from, to)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow(`Not enough balance in ${ethAddress} to cover "evmout" transfer`)
   })
@@ -306,7 +306,7 @@ describe('TransferDomain', () => {
     const to: BalanceTransferPayload = {
       [dfiAddress]: `${amountToTransfer}@DFI`
     }
-    const data = await client.account.transferDomain(TransferDomainType.EVMToDVMToken, from, to)
+    const data = await client.account.transferDomain(TransferDomainType.EVM, from, to)
     expect(typeof data).toStrictEqual('string')
     expect(data.length).toStrictEqual(64)
     await container.generate(1)

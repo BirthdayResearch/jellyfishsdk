@@ -8,7 +8,7 @@ import { TransferDomain, CTransferDomain } from '../../../../src/script/dftx/dft
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
     /**
-     * DVMTokenToEVM : {
+     * DVM : {
      *  type: 1,
      *  from: { '2N8pVrM8gVsp4wMaE14U2WHvKar1jf2zNq9': '5@DFI' },
      *  to: { '0x3ceeb32b5abd5734ac3b85bac8fa9f137f69806f': '5@DFI' }
@@ -16,7 +16,7 @@ it('should bi-directional buffer-object-buffer', () => {
      */
     '6a4c514466547838010117a914aad4dafbcf8c7f5f02ba5e67e101e0bf1ffdc8558701000000000065cd1d00000000011660143ceeb32b5abd5734ac3b85bac8fa9f137f69806f01000000000065cd1d00000000',
     /**
-     * EVMToDVMToken : {
+     * EVM : {
      *  type: 2,
      *  from: { '0xea83daf487492796ae969d212443f13906e66740': '5@DFI' },
      *  to: { '2N7KLgkCu7PDNwxCEKnaY7qQSrzcHb2VHNY': '5@DFI' }
@@ -132,7 +132,7 @@ const evmOutTransferDomain: TransferDomain = {
   }]
 }
 
-it('should craft dftx with OP_CODES._() for EVMToDVMToken', () => {
+it('should craft dftx with OP_CODES._() for EVM', () => {
   const stack = [
     OP_CODES.OP_RETURN,
     OP_CODES.OP_DEFI_TX_TRANSFER_DOMAIN(evmOutTransferDomain)
@@ -142,7 +142,7 @@ it('should craft dftx with OP_CODES._() for EVMToDVMToken', () => {
   expect(buffer.toString('hex')).toStrictEqual(header + evmOutData)
 })
 
-describe('Composable EVMToDVMToken', () => {
+describe('Composable EVM', () => {
   it('should compose from buffer to composable', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(evmOutData, 'hex'))
     const composable = new CTransferDomain(buffer)

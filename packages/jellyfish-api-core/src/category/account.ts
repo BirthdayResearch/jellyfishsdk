@@ -52,10 +52,11 @@ export enum SelectionModeType {
 }
 
 export enum TransferDomainType {
+  UTXO = 0,
   /** type for DVM Token To EVM transfer */
-  DVMTokenToEVM = 1,
+  DVM = 1,
   /** type for EVM To DVM Token transfer */
-  EVMToDVMToken = 2,
+  EVM = 2,
 };
 
 /**

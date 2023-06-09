@@ -167,10 +167,11 @@ interface BalanceTransferPayload {
 }
 
 enum TransferDomainType {
-  /** type for DVM Token To EVM transfer */
-  DVMTokenToEVM = 1,
+  UTXO = 0,
   /** type for EVM To DVM Token transfer */
-  EVMToDVMToken = 2,
+  DVM = 1,
+  /** type for DVM Token To EVM transfer */
+  EVM = 2,
 };
 ```
 
