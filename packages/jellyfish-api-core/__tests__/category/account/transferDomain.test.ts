@@ -1,326 +1,264 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { BalanceTransferPayload, TransferDomainType } from '../../../src/category/account'
+import { TransferBalanceKey, TransferDomainType } from '../../../src/category/account'
 import { RpcApiError } from '@defichain/jellyfish-api-core/dist/index'
 import BigNumber from 'bignumber.js'
 
+enum Transfer {
+  THREE = 3
+}
+
 describe('TransferDomain', () => {
-  let dfiAddress: string, ethAddress: string
-  const amountToTransfer = 5
+  let dvmAddr: string, evmAddr: string
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
   beforeAll(async () => {
     await container.start()
     await container.waitForWalletCoinbaseMaturity()
+
     await client.masternode.setGov({
       ATTRIBUTES: {
         'v0/params/feature/evm': 'true'
       }
     })
     await container.generate(1)
-    dfiAddress = await container.call('getnewaddress')
-    // transfer utxostoaccount
-    await container.call('utxostoaccount', [{ [dfiAddress]: '100@0' }])
-    await createToken(dfiAddress, 'BTC', 200)
+
+    dvmAddr = await container.call('getnewaddress')
+    evmAddr = await container.getNewAddress('eth', 'eth')
+
+    await container.call('utxostoaccount', [{ [dvmAddr]: '100@0' }])
     await container.generate(1)
-    ethAddress = await container.getNewAddress('', 'eth')
+
+    await container.call('createtoken', [{
+      symbol: 'BTC',
+      name: 'BTC',
+      isDAT: true,
+      mintable: true,
+      tradeable: true,
+      collateralAddress: dvmAddr
+    }])
+    await container.generate(1)
+
+    await container.call('minttokens', ['10@BTC'])
+    await container.generate(1)
   })
 
   afterAll(async () => {
     await container.stop()
   })
 
-  async function createToken (address: string, symbol: string, amount: number): Promise<void> {
-    const metadata = {
-      symbol,
-      name: symbol,
-      isDAT: true,
-      mintable: true,
-      tradeable: true,
-      collateralAddress: address
-    }
-    await container.waitForWalletBalanceGTE(101)
-    await container.call('createtoken', [metadata])
+  describe('transferDomain failed', () => {
+    it('should fail if dvmAddr is invalid', async () => {
+      const promise = client.account.transferDomain([
+        {
+          [TransferBalanceKey.SRC]: {
+            address: 'invalid',
+            amount: `${Transfer.THREE}@DFI`,
+            domain: TransferDomainType.DVM
+          },
+          [TransferBalanceKey.DST]: {
+            address: evmAddr,
+            amount: `${Transfer.THREE}@DFI`,
+            domain: TransferDomainType.EVM
+          }
+        }
+      ])
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('recipient (invalid) does not refer to any valid address')
+
+      {
+        const promise = client.account.transferDomain([
+          {
+            [TransferBalanceKey.SRC]: {
+              address: dvmAddr,
+              amount: `${Transfer.THREE}@DFI`,
+              domain: TransferDomainType.DVM
+            },
+            [TransferBalanceKey.DST]: {
+              address: 'invalid',
+              amount: `${Transfer.THREE}@DFI`,
+              domain: TransferDomainType.EVM
+            }
+          }
+        ])
+        await expect(promise).rejects.toThrow(RpcApiError)
+        await expect(promise).rejects.toThrow('recipient (invalid) does not refer to any valid address')
+      }
+    })
+
+    it('should fail if address with transfer domain type are not match', async () => {
+      {
+        const promise = client.account.transferDomain([
+          {
+            [TransferBalanceKey.SRC]: {
+              address: evmAddr, // <- not match
+              amount: `${Transfer.THREE}@DFI`,
+              domain: TransferDomainType.DVM // <- not match
+            },
+            [TransferBalanceKey.DST]: {
+              address: evmAddr,
+              amount: `${Transfer.THREE}@DFI`,
+              domain: TransferDomainType.EVM
+            }
+          }
+        ])
+        await expect(promise).rejects.toThrow(RpcApiError)
+        await expect(promise).rejects.toThrow('Src address must not be an ETH address in case of "DVM" domain')
+      }
+
+      {
+        const promise = client.account.transferDomain([
+          {
+            [TransferBalanceKey.SRC]: {
+              address: dvmAddr,
+              amount: `${Transfer.THREE}@DFI`,
+              domain: TransferDomainType.DVM
+            },
+            [TransferBalanceKey.DST]: {
+              address: dvmAddr, // <- not match
+              amount: `${Transfer.THREE}@DFI`,
+              domain: TransferDomainType.EVM // <- not match
+            }
+          }
+        ])
+        await expect(promise).rejects.toThrow(RpcApiError)
+        await expect(promise).rejects.toThrow('Dst address must be an ETH address in case of "EVM" domain')
+      }
+    })
+
+    it('should fail if amount is different', async () => {
+      const promise = client.account.transferDomain([
+        {
+          [TransferBalanceKey.SRC]: {
+            address: dvmAddr,
+            amount: `${Transfer.THREE}@DFI`, // diff
+            domain: TransferDomainType.DVM
+          },
+          [TransferBalanceKey.DST]: {
+            address: dvmAddr,
+            amount: `${Transfer.THREE + 46}@DFI`, // diff
+            domain: TransferDomainType.EVM
+          }
+        }
+      ])
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('Source amount must be equal to destination amount')
+    })
+
+    it('should fail if transfer other than DFI token', async () => {
+      const promise = client.account.transferDomain([
+        {
+          [TransferBalanceKey.SRC]: {
+            address: dvmAddr,
+            amount: `${Transfer.THREE}@DFI`,
+            domain: TransferDomainType.DVM
+          },
+          [TransferBalanceKey.DST]: {
+            address: dvmAddr,
+            amount: `${Transfer.THREE}@BTC`,
+            domain: TransferDomainType.EVM
+          }
+        }
+      ])
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('For transferdomain, only DFI token is currently supported')
+    })
+
+    it('should fail if insufficient balance', async () => {
+      const promise = client.account.transferDomain([
+        {
+          [TransferBalanceKey.SRC]: {
+            address: dvmAddr,
+            amount: '999@DFI',
+            domain: TransferDomainType.DVM
+          },
+          [TransferBalanceKey.DST]: {
+            address: evmAddr,
+            amount: '999@DFI',
+            domain: TransferDomainType.EVM
+          }
+        }
+      ])
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('amount 100.00000000 is less than 999.00000000')
+    })
+  })
+
+  it('should Transfer Domain from DVM to EVM', async () => {
+    const dvmAcc = await client.account.getAccount(dvmAddr)
+    const [dvmBalance0, tokenId0] = dvmAcc[0].split('@')
+
+    const txid = await client.account.transferDomain([
+      {
+        [TransferBalanceKey.SRC]: {
+          address: dvmAddr,
+          amount: `${Transfer.THREE}@DFI`,
+          domain: TransferDomainType.DVM
+        },
+        [TransferBalanceKey.DST]: {
+          address: evmAddr,
+          amount: `${Transfer.THREE}@DFI`,
+          domain: TransferDomainType.EVM
+        }
+      }
+    ])
+    expect(typeof txid).toStrictEqual('string')
+    expect(txid.length).toStrictEqual(64)
     await container.generate(1)
 
-    await container.call('utxostoaccount', [{ [address]: '100@0' }])
+    const dvmAcc1 = await client.account.getAccount(dvmAddr)
+    const [dvmBalance1, tokenId1] = dvmAcc1[0].split('@')
+    expect(tokenId1).toStrictEqual(tokenId0)
+
+    // check: dvm balance is transfered
+    expect(new BigNumber(dvmBalance1).toNumber())
+      .toStrictEqual(new BigNumber(dvmBalance0).minus(Transfer.THREE).toNumber())
+
+    // check: evm balance = dvm balance - tranferred
+    const withoutEthRes = await client.account.getTokenBalances({}, false, { symbolLookup: false }, false)
+    const [withoutEth] = withoutEthRes[0].split('@')
+
+    const withEthRes = await client.account.getTokenBalances({}, false, { symbolLookup: false }, true)
+    const [withEth] = withEthRes[0].split('@')
+    expect(new BigNumber(withoutEth).toNumber())
+      .toStrictEqual(new BigNumber(withEth).minus(Transfer.THREE).toNumber())
+  })
+
+  it('should Transfer Domain from EVM to DVM', async () => {
+    const dvmAcc = await client.account.getAccount(dvmAddr)
+    const [dvmBalance0, tokenId0] = dvmAcc[0].split('@')
+
+    const txid = await client.account.transferDomain([
+      {
+        [TransferBalanceKey.SRC]: {
+          address: evmAddr,
+          amount: `${Transfer.THREE}@DFI`,
+          domain: TransferDomainType.EVM
+        },
+        [TransferBalanceKey.DST]: {
+          address: dvmAddr,
+          amount: `${Transfer.THREE}@DFI`,
+          domain: TransferDomainType.DVM
+        }
+      }
+    ])
+    expect(typeof txid).toStrictEqual('string')
+    expect(txid.length).toStrictEqual(64)
+
     await container.generate(1)
 
-    await container.call('minttokens', [`${amount.toString()}@${symbol}`])
-    await container.generate(1)
-  }
-
-  it('should fail Transfer Domain from DFC Token to EVM if type is string', async () => {
-    const from: BalanceTransferPayload = {
-      [dfiAddress]: `${amountToTransfer}@DFI`
-    }
-    const to: BalanceTransferPayload = {
-      [ethAddress]: `${amountToTransfer + 1}@DFI`
-    }
-    // To skip typescript validation in order to assert invalid query parameter
-    // @ts-expect-error
-    const promise = client.account.transferDomain('blabla', from, to)
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('Expected type number, got string')
-  })
-
-  it('should fail Transfer Domain from DFC Token to EVM if type is invalid', async () => {
-    const from: BalanceTransferPayload = {
-      [dfiAddress]: `${amountToTransfer}@DFI`
-    }
-    const to: BalanceTransferPayload = {
-      [ethAddress]: `${amountToTransfer + 1}@DFI`
-    }
-    const promise = client.account.transferDomain(0, from, to)
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('Invalid parameters, argument "type" must be either 1 (DFI token to EVM) or 2 (EVM to DFI token)')
-  })
-
-  it('should fail Transfer Domain from DFC Token to EVM if from Address is invalid', async () => {
-    const from: BalanceTransferPayload = {
-      invalidAddress: `${amountToTransfer}@DFI`
-    }
-    const to: BalanceTransferPayload = {
-      [ethAddress]: `${amountToTransfer + 1}@DFI`
-    }
-    const promise = client.account.transferDomain(TransferDomainType.DVM, from, to)
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('recipient (invalidAddress) does not refer to any valid address')
-  })
-
-  it('should fail Transfer Domain from DFC Token to EVM if to Address is invalid', async () => {
-    const from: BalanceTransferPayload = {
-      [dfiAddress]: `${amountToTransfer}@DFI`
-    }
-    const to: BalanceTransferPayload = {
-      invalidAddress: `${amountToTransfer + 1}@DFI`
-    }
-    const promise = client.account.transferDomain(TransferDomainType.DVM, from, to)
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('recipient (invalidAddress) does not refer to any valid address')
-  })
-
-  it('should fail Transfer Domain from DFC Token to EVM if from Address is not a DFI address', async () => {
-    const from: BalanceTransferPayload = {
-      [ethAddress]: `${amountToTransfer}@DFI`
-    }
-    const to: BalanceTransferPayload = {
-      [ethAddress]: `${amountToTransfer}@DFI`
-    }
-    const promise = client.account.transferDomain(TransferDomainType.DVM, from, to)
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('From address must not be an ETH address in case of "evmin" transfer type')
-  })
-
-  it('should fail Transfer Domain from DFC Token to EVM if to Address is not eth address', async () => {
-    const from: BalanceTransferPayload = {
-      [dfiAddress]: `${amountToTransfer}@DFI`
-    }
-    const to: BalanceTransferPayload = {
-      [dfiAddress]: `${amountToTransfer}@DFI`
-    }
-    const promise = client.account.transferDomain(TransferDomainType.DVM, from, to)
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('To address must be an ETH address in case of "evmin" transfer type')
-  })
-
-  it('should fail Transfer Domain from DFC Token to EVM if from and to value is different', async () => {
-    const from: BalanceTransferPayload = {
-      [dfiAddress]: `${amountToTransfer}@DFI`
-    }
-    const to: BalanceTransferPayload = {
-      [ethAddress]: `${amountToTransfer + 1}@DFI`
-    }
-    const promise = client.account.transferDomain(TransferDomainType.DVM, from, to)
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('sum of inputs (from) != sum of outputs (to)')
-  })
-
-  it('should fail Transfer Domain from DFC Token to EVM if from and to value is different tokens', async () => {
-    const from: BalanceTransferPayload = {
-      [dfiAddress]: `${amountToTransfer}@DFI`
-    }
-    const to: BalanceTransferPayload = {
-      [ethAddress]: `${amountToTransfer}@BTC`
-    }
-    const promise = client.account.transferDomain(TransferDomainType.DVM, from, to)
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('sum of inputs (from) != sum of outputs (to)')
-  })
-
-  it('should fail Transfer Domain from DFC Token to EVM if transferring unsupported tokens', async () => {
-    const from: BalanceTransferPayload = {
-      [dfiAddress]: `${amountToTransfer}@BTC`
-    }
-    const to: BalanceTransferPayload = {
-      [ethAddress]: `${amountToTransfer}@BTC`
-    }
-    const promise = client.account.transferDomain(TransferDomainType.DVM, from, to)
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('For "evmin" transfers, only DFI token is currently supported')
-  })
-
-  it('should fail Transfer Domain from DFC Token to EVM if not enough balance', async () => {
-    const from: BalanceTransferPayload = {
-      [dfiAddress]: '1000@DFI'
-    }
-    const to: BalanceTransferPayload = {
-      [ethAddress]: '1000@DFI'
-    }
-    const promise = client.account.transferDomain(TransferDomainType.DVM, from, to)
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('not enough balance on owner\'s account')
-  })
-
-  it('should Transfer Domain from DFC Token to EVM', async () => {
-    const tokenBalances = await client.account.getAccount(dfiAddress)
-    const [initialBalance, tokenId] = tokenBalances[0].split('@')
-    const from: BalanceTransferPayload = {
-      [dfiAddress]: `${amountToTransfer}@DFI`
-    }
-    const to: BalanceTransferPayload = {
-      [ethAddress]: `${amountToTransfer}@DFI`
-    }
-    const data = await client.account.transferDomain(TransferDomainType.DVM, from, to)
-    expect(typeof data).toStrictEqual('string')
-    expect(data.length).toStrictEqual(64)
-    await container.generate(1)
-    const updatedTokenBalances = await client.account.getAccount(dfiAddress)
-    const [updatedBalance, id] = updatedTokenBalances[0].split('@')
-    expect(id).toStrictEqual(tokenId)
-    expect(new BigNumber(updatedBalance).toNumber())
-      .toStrictEqual(new BigNumber(initialBalance).minus(amountToTransfer).toNumber())
-
-    // check eth balance to be equal to amountToTransfer
-    const withoutEthBalanceRes = await client.account.getTokenBalances({}, false, { symbolLookup: false }, false)
-    const [withoutEthBalance] = withoutEthBalanceRes[0].split('@')
-    const withEthBalanceRes = await client.account.getTokenBalances({}, false, { symbolLookup: false }, true)
-    const [withEthBalance] = withEthBalanceRes[0].split('@')
-    expect(new BigNumber(withoutEthBalance).toNumber())
-      .toStrictEqual(new BigNumber(withEthBalance).minus(amountToTransfer).toNumber())
-  })
-
-  it('should fail Transfer Domain from EVM to DFC Token if from Address is invalid', async () => {
-    const from: BalanceTransferPayload = {
-      invalidAddress: `${amountToTransfer}@DFI`
-    }
-    const to: BalanceTransferPayload = {
-      [dfiAddress]: `${amountToTransfer + 1}@DFI`
-    }
-    const promise = client.account.transferDomain(TransferDomainType.EVM, from, to)
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('recipient (invalidAddress) does not refer to any valid address')
-  })
-
-  it('should fail Transfer Domain from EVM to DFC Token if to Address is invalid', async () => {
-    const from: BalanceTransferPayload = {
-      [ethAddress]: `${amountToTransfer}@DFI`
-    }
-    const to: BalanceTransferPayload = {
-      invalidAddress: `${amountToTransfer + 1}@DFI`
-    }
-    const promise = client.account.transferDomain(TransferDomainType.EVM, from, to)
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('recipient (invalidAddress) does not refer to any valid address')
-  })
-
-  it('should fail Transfer Domain from EVM to DFC Token if from Address is not eth address', async () => {
-    const from: BalanceTransferPayload = {
-      [dfiAddress]: `${amountToTransfer}@DFI`
-    }
-    const to: BalanceTransferPayload = {
-      [dfiAddress]: `${amountToTransfer}@DFI`
-    }
-    const promise = client.account.transferDomain(TransferDomainType.EVM, from, to)
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('From address must be an ETH address in case of "evmout" transfer type')
-  })
-
-  it('should fail Transfer Domain from EVM to DFC Token if to Address is not a DFI address', async () => {
-    const from: BalanceTransferPayload = {
-      [ethAddress]: `${amountToTransfer}@DFI`
-    }
-    const to: BalanceTransferPayload = {
-      [ethAddress]: `${amountToTransfer}@DFI`
-    }
-    const promise = client.account.transferDomain(TransferDomainType.EVM, from, to)
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('To address must not be an ETH address in case of "evmout" transfer type')
-  })
-
-  it('should fail Transfer Domain from EVM to DFC Token if from and to value is different', async () => {
-    const from: BalanceTransferPayload = {
-      [ethAddress]: `${amountToTransfer}@DFI`
-    }
-    const to: BalanceTransferPayload = {
-      [dfiAddress]: `${amountToTransfer + 1}@DFI`
-    }
-    const promise = client.account.transferDomain(TransferDomainType.EVM, from, to)
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('sum of inputs (from) != sum of outputs (to)')
-  })
-
-  it('should fail Transfer Domain from EVM to DFC Token if from and to value is different tokens', async () => {
-    const from: BalanceTransferPayload = {
-      [ethAddress]: `${amountToTransfer}@DFI`
-    }
-    const to: BalanceTransferPayload = {
-      [dfiAddress]: `${amountToTransfer}@BTC`
-    }
-    const promise = client.account.transferDomain(TransferDomainType.EVM, from, to)
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('sum of inputs (from) != sum of outputs (to)')
-  })
-
-  it('should fail Transfer Domain from EVM to DFC Token if transferring unsupported tokens', async () => {
-    const from: BalanceTransferPayload = {
-      [ethAddress]: `${amountToTransfer}@BTC`
-    }
-    const to: BalanceTransferPayload = {
-      [dfiAddress]: `${amountToTransfer}@BTC`
-    }
-    const promise = client.account.transferDomain(TransferDomainType.EVM, from, to)
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('For "evmout" transfers, only DFI token is currently supported')
-  })
-
-  it('should fail Transfer Domain from EVM to DFC Token if not enough balance', async () => {
-    const from: BalanceTransferPayload = {
-      [ethAddress]: '1000@DFI'
-    }
-    const to: BalanceTransferPayload = {
-      [dfiAddress]: '1000@DFI'
-    }
-    const promise = client.account.transferDomain(TransferDomainType.EVM, from, to)
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow(`Not enough balance in ${ethAddress} to cover "evmout" transfer`)
-  })
-
-  it('should Transfer Domain from EVM to DFC Token', async () => {
-    const tokenBalances = await client.account.getAccount(dfiAddress)
-    const [initialBalance, tokenId] = tokenBalances[0].split('@')
-    const from: BalanceTransferPayload = {
-      [ethAddress]: `${amountToTransfer}@DFI`
-    }
-    const to: BalanceTransferPayload = {
-      [dfiAddress]: `${amountToTransfer}@DFI`
-    }
-    const data = await client.account.transferDomain(TransferDomainType.EVM, from, to)
-    expect(typeof data).toStrictEqual('string')
-    expect(data.length).toStrictEqual(64)
-    await container.generate(1)
-    const updatedTokenBalances = await client.account.getAccount(dfiAddress)
-    const [updatedBalance, id] = updatedTokenBalances[0].split('@')
-    expect(id).toStrictEqual(tokenId)
-    expect(new BigNumber(updatedBalance).toNumber())
-      .toStrictEqual(new BigNumber(initialBalance).plus(amountToTransfer).toNumber())
+    const dvmAcc1 = await client.account.getAccount(dvmAddr)
+    const [dvmBalance1, tokenId1] = dvmAcc1[0].split('@')
+    expect(tokenId1).toStrictEqual(tokenId0)
+    expect(new BigNumber(dvmBalance1).toNumber())
+      .toStrictEqual(new BigNumber(dvmBalance0).plus(Transfer.THREE).toNumber())
 
     // check eth balance to be equal to zero
-    const withoutEthBalanceRes = await client.account.getTokenBalances({}, false, { symbolLookup: false }, false)
-    const [withoutEthBalance] = withoutEthBalanceRes[0].split('@')
-    const withEthBalanceRes = await client.account.getTokenBalances({}, false, { symbolLookup: false }, true)
-    const [withEthBalance] = withEthBalanceRes[0].split('@')
-    expect(new BigNumber(withoutEthBalance).toNumber()).toStrictEqual(new BigNumber(withEthBalance).toNumber())
+    const withoutEthRes = await client.account.getTokenBalances({}, false, { symbolLookup: false }, false)
+    const [withoutEth] = withoutEthRes[0].split('@')
+    const withEthRes = await client.account.getTokenBalances({}, false, { symbolLookup: false }, true)
+    const [withEth] = withEthRes[0].split('@')
+    expect(new BigNumber(withoutEth).toNumber()).toStrictEqual(new BigNumber(withEth).toNumber())
   })
 })
