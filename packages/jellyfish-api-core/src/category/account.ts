@@ -52,11 +52,19 @@ export enum SelectionModeType {
 }
 
 export enum TransferDomainType {
+  NONE = 0,
+  /** type reserved for UTXO */
+  UTXO = 1,
   /** type for DVM Token To EVM transfer */
-  DVMTokenToEVM = 1,
+  DVM = 2,
   /** type for EVM To DVM Token transfer */
-  EVMToDVMToken = 2,
+  EVM = 3,
 };
+
+export enum TransferBalanceKey {
+  SRC = 'src',
+  DST = 'dst'
+}
 
 /**
  * Account RPCs for DeFi Blockchain
