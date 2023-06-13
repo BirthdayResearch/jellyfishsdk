@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { TransferBalanceKey, TransferDomainType } from '../../../src/category/account'
+import { TransferDomainKey, TransferDomainType } from '../../../src/category/account'
 import waitForExpect from 'wait-for-expect'
 import BigNumber from 'bignumber.js'
 
@@ -117,12 +117,12 @@ describe('Account', () => {
 
     await client.account.transferDomain([
       {
-        [TransferBalanceKey.SRC]: {
+        [TransferDomainKey.SRC]: {
           address: dvmAddr,
           amount: '3@DFI',
           domain: TransferDomainType.DVM
         },
-        [TransferBalanceKey.DST]: {
+        [TransferDomainKey.DST]: {
           address: evmAddr,
           amount: '3@DFI',
           domain: TransferDomainType.EVM

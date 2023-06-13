@@ -61,7 +61,7 @@ export enum TransferDomainType {
   EVM = 3,
 };
 
-export enum TransferBalanceKey {
+export enum TransferDomainKey {
   SRC = 'src',
   DST = 'dst'
 }
@@ -296,8 +296,8 @@ export class Account {
   /**
    * Create an transfer domain transaction submitted to a connected node.
    *
-   * @param {Array<Record<TransferBalanceKey, TransferDomainInfo>>} payload[]
-   * @param {Record<TransferBalanceKey, TransferDomainInfo>} payload
+   * @param {Array<Record<TransferDomainKey, TransferDomainInfo>>} payload[]
+   * @param {Record<TransferDomainKey, TransferDomainInfo>} payload
    * @param {TransferDomainInfo} info
    * @param {string} info.address
    * @param {string} info.amount
