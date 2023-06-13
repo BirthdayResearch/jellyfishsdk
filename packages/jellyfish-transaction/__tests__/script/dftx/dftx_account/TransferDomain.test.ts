@@ -8,21 +8,65 @@ import { TransferDomain, CTransferDomain } from '../../../../src/script/dftx/dft
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
     /**
-     * DVM : {
-     *  type: 1,
-     *  from: { '2N8pVrM8gVsp4wMaE14U2WHvKar1jf2zNq9': '5@DFI' },
-     *  to: { '0x3ceeb32b5abd5734ac3b85bac8fa9f137f69806f': '5@DFI' }
-     * }
+     * [{
+     *  [TransferBalanceKey.SRC]: {
+     *    address: '2N1nTGPQ6Q6k2zVX9tBGnaE4jsP9pzMej1P',
+     *    amount '3@DFI',
+     *    domain: TransferDomainType.DVM
+     *  },
+     *  [TransferBalanceKey.DST]: {
+     *    address: '0x86773C61086A9b6b24CE541eB5637e61F446B880',
+     *    amount: '1.23456789@DFI',
+     *    domain: TransferDomainType.EVM
+     *  }
+     * }]
      */
-    '6a4c514466547838010117a914aad4dafbcf8c7f5f02ba5e67e101e0bf1ffdc8558701000000000065cd1d00000000011660143ceeb32b5abd5734ac3b85bac8fa9f137f69806f01000000000065cd1d00000000',
+    '6a4b44665478380117a9145da8fc155086aba13fc48b4eabf2d38ab39a4fbc870000a3e11100000000020016601486773c61086a9b6b24ce541eb5637e61f446b8800000a3e111000000000300',
     /**
-     * EVM : {
-     *  type: 2,
-     *  from: { '0xea83daf487492796ae969d212443f13906e66740': '5@DFI' },
-     *  to: { '2N7KLgkCu7PDNwxCEKnaY7qQSrzcHb2VHNY': '5@DFI' }
-     * }
+     * [{
+     *  [TransferBalanceKey.SRC]: {
+     *    address: '2MzG52a4deQYjN6GxQMZVXhHrw5e4y67HLj',
+     *    amount '3@DFI',
+     *    domain: TransferDomainType.DVM
+     *  },
+     *  [TransferBalanceKey.DST]: {
+     *    address: '0xffD258C46c9680D5E8a841A4049D8Ef2Ac4F9Df3',
+     *    amount: '1.23456789@DFI',
+     *    domain: TransferDomainType.EVM
+     *  }
+     * }]
      */
-    '6a4c5144665478380201166014ea83daf487492796ae969d212443f13906e6674001000000000065cd1d000000000117a9149a59040582af240bb1b91ec1ca48226d2afd84f38701000000000065cd1d00000000'
+    '6a4b44665478380117a9144cf1d108cebd26cba2deedc6e5e7b803f1cc4421870015cd5b07000000000200166014ffd258c46c9680d5e8a841a4049d8ef2ac4f9df30015cd5b07000000000300',
+    /**
+     * [{
+     *  [TransferBalanceKey.SRC]: {
+     *    address: '2N5ENYosHTfoqrDxhyPXsF1U7f9pJbwEpRP',
+     *    amount '0.00000004@DFI',
+     *    domain: TransferDomainType.DVM
+     *  },
+     *  [TransferBalanceKey.DST]: {
+     *    address: '0xba5D5C77F5f56a949a57ceF0D8A5fC9b22E5B6D0',
+     *    amount: '0.00000004@DFI',
+     *    domain: TransferDomainType.EVM
+     *  }
+     * }]
+     */
+    '6a4b44665478380117a91483783d579d385369c81df230ec6d4b316cd0eebe870004000000000000000200166014ba5d5c77f5f56a949a57cef0d8a5fc9b22e5b6d00004000000000000000300',
+    /**
+     * [{
+     *  [TransferBalanceKey.SRC]: {
+     *    address: '0x8abE1FaDb210B634bd7EB4bBEDD63ae4D3DF280a',
+     *    amount '3@DFI',
+     *    domain: TransferDomainType.EVM
+     *  },
+     *  [TransferBalanceKey.DST]: {
+     *    address: '2MuGAF5bpgnoFo2TjJCbPmzyRXeu3uoaf5r',
+     *    amount: '3@DFI',
+     *    domain: TransferDomainType.DVM
+     *  }
+     * }]
+     */
+    '6a4b4466547838011660148abe1fadb210b634bd7eb4bbedd63ae4d3df280a0000a3e11100000000030017a914161d8a9c734111864a34e44ba7c412af8e1b892f870000a3e111000000000200'
   ]
 
   fixtures.forEach(hex => {
@@ -35,125 +79,73 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a4c514466547838' // OP_RETURN(0x6a) (length 76 = 0x4c) CDfTx.SIGNATURE(0x44665478) CTransferDomain.OP_CODE(0x38)
-// TransferDomain.type (0x01)
-// TransferDomain.from (0x0117a914aad4dafbcf8c7f5f02ba5e67e101e0bf1ffdc8558701000000000065cd1d00000000)
-// TransferDomain.to (0x011660143ceeb32b5abd5734ac3b85bac8fa9f137f69806f01000000000065cd1d00000000)
-const evmInData = '010117a914aad4dafbcf8c7f5f02ba5e67e101e0bf1ffdc8558701000000000065cd1d00000000011660143ceeb32b5abd5734ac3b85bac8fa9f137f69806f01000000000065cd1d00000000'
-const evmInTransferDomain: TransferDomain = {
-  type: 1,
-  from: [{
-    balances: [
-      {
-        amount: new BigNumber('5'), token: 0
-      }
-    ],
-    script: {
-      stack: [
-        OP_CODES.OP_HASH160,
-        OP_CODES.OP_PUSHDATA_HEX_LE('aad4dafbcf8c7f5f02ba5e67e101e0bf1ffdc855'),
-        OP_CODES.OP_EQUAL
-      ]
-    }
-  }],
-  to: [{
-    balances: [
-      {
-        amount: new BigNumber('5'), token: 0
-      }
-    ],
-    script: {
-      stack: [
-        OP_CODES.OP_16,
-        OP_CODES.OP_PUSHDATA_HEX_LE('3ceeb32b5abd5734ac3b85bac8fa9f137f69806f')
-      ]
-    }
-  }]
-}
-
-it('should craft dftx with OP_CODES._() for DVMToEVMToken', () => {
-  const stack = [
-    OP_CODES.OP_RETURN,
-    OP_CODES.OP_DEFI_TX_TRANSFER_DOMAIN(evmInTransferDomain)
-  ]
-
-  const buffer = toBuffer(stack)
-  expect(buffer.toString('hex')).toStrictEqual(header + evmInData)
-})
-
-describe('Composable DVMToEVMToken', () => {
-  it('should compose from buffer to composable', () => {
-    const buffer = SmartBuffer.fromBuffer(Buffer.from(evmInData, 'hex'))
-    const composable = new CTransferDomain(buffer)
-    expect(composable.toObject()).toStrictEqual(evmInTransferDomain)
-  })
-
-  it('should compose from composable to buffer', () => {
-    const composable = new CTransferDomain(evmInTransferDomain)
-    const buffer = new SmartBuffer()
-    composable.toBuffer(buffer)
-
-    expect(buffer.toBuffer().toString('hex')).toStrictEqual(evmInData)
-  })
-})
-
-// TransferDomain.type (0x02)
-// TransferDomain.from (0x0201166014ea83daf487492796ae969d212443f13906e6674001000000000065cd1d00000000)
-// TransferDomain.to (0x0117a9149a59040582af240bb1b91ec1ca48226d2afd84f38701000000000065cd1d00000000)
-const evmOutData = '0201166014ea83daf487492796ae969d212443f13906e6674001000000000065cd1d000000000117a9149a59040582af240bb1b91ec1ca48226d2afd84f38701000000000065cd1d00000000'
-const evmOutTransferDomain: TransferDomain = {
-  type: 2,
-  from: [{
-    balances: [
-      {
-        amount: new BigNumber('5'), token: 0
-      }
-    ],
-    script: {
-      stack: [
-        OP_CODES.OP_16,
-        OP_CODES.OP_PUSHDATA_HEX_LE('ea83daf487492796ae969d212443f13906e66740')
-      ]
-    }
-  }],
-  to: [{
-    balances: [
-      {
-        amount: new BigNumber('5'), token: 0
-      }
-    ],
-    script: {
-      stack: [
-        OP_CODES.OP_HASH160,
-        OP_CODES.OP_PUSHDATA_HEX_LE('9a59040582af240bb1b91ec1ca48226d2afd84f3'),
-        OP_CODES.OP_EQUAL
-      ]
+const header = '6a4b4466547838' // OP_RETURN(0x6a) (length 76 = 0x4b) CDfTx.SIGNATURE(0x44665478) CTransferDomain.OP_CODE(0x38)
+// TransferDomain[0].OP_H160 (0xa9)
+// TransferDomain[0].OP_PUSHDATA_HEX_LE (0x5da8fc155086aba13fc48b4eabf2d38ab39a4fbc)
+// TransferDomain[0].OP_EQUAL (0x87)
+// TransferDomain[0].amount.token (0x00)
+// TransferDomain[0].amount.amount [LE] (0x00a3e11100000000) -> 0x0000000011e1a300 -> 300000000
+// TransferDomain[0].domain (0x02)
+// TransferDomain[0].data (0x00)
+// TransferDomain[1].OP_CODES.OP_16 (0x60)
+// length 20 = 0x14
+// TransferDomain[1].OP_PUSHDATA_HEX_LE (0x86773c61086a9b6b24ce541eb5637e61f446b880)
+// TransferDomain[0].amount.token (0x00)
+// TransferDomain[0].amount.amount [LE] (0x00a3e11100000000) -> 0x0000000011e1a300 -> 300000000
+// TransferDomain[0].domain (0x03)
+// TransferDomain[0].data (0x00)
+const data = '0117a9145da8fc155086aba13fc48b4eabf2d38ab39a4fbc870000a3e11100000000020016601486773c61086a9b6b24ce541eb5637e61f446b8800000a3e111000000000300'
+const transferDomain: TransferDomain = {
+  items: [{
+    src: {
+      address: {
+        stack: [
+          OP_CODES.OP_HASH160,
+          OP_CODES.OP_PUSHDATA_HEX_LE('5da8fc155086aba13fc48b4eabf2d38ab39a4fbc'),
+          OP_CODES.OP_EQUAL
+        ]
+      },
+      amount: { token: 0, amount: new BigNumber(3) },
+      domain: 2, // TransferDomainType.DVM
+      data: 0
+    },
+    dst: {
+      address: {
+        stack: [
+          OP_CODES.OP_16,
+          OP_CODES.OP_PUSHDATA_HEX_LE('86773c61086a9b6b24ce541eb5637e61f446b880')
+        ]
+      },
+      amount: { token: 0, amount: new BigNumber(3) },
+      domain: 3, // TransferDomainType.EVM
+      data: 0
     }
   }]
 }
 
-it('should craft dftx with OP_CODES._() for EVM', () => {
+it('should craft dftx with OP_CODES._()', () => {
   const stack = [
     OP_CODES.OP_RETURN,
-    OP_CODES.OP_DEFI_TX_TRANSFER_DOMAIN(evmOutTransferDomain)
+    OP_CODES.OP_DEFI_TX_TRANSFER_DOMAIN(transferDomain)
   ]
 
   const buffer = toBuffer(stack)
-  expect(buffer.toString('hex')).toStrictEqual(header + evmOutData)
+  expect(buffer.toString('hex')).toStrictEqual(header + data)
 })
 
-describe('Composable EVM', () => {
+describe('Composable', () => {
   it('should compose from buffer to composable', () => {
-    const buffer = SmartBuffer.fromBuffer(Buffer.from(evmOutData, 'hex'))
+    const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
     const composable = new CTransferDomain(buffer)
-    expect(composable.toObject()).toStrictEqual(evmOutTransferDomain)
+
+    expect(composable.toObject()).toStrictEqual(transferDomain)
   })
 
   it('should compose from composable to buffer', () => {
-    const composable = new CTransferDomain(evmOutTransferDomain)
+    const composable = new CTransferDomain(transferDomain)
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
 
-    expect(buffer.toBuffer().toString('hex')).toStrictEqual(evmOutData)
+    expect(buffer.toBuffer().toString('hex')).toStrictEqual(data)
   })
 })

@@ -99,21 +99,56 @@ export class CAnyAccountToAccount extends ComposableBuffer<AnyAccountToAccount> 
   }
 }
 
+export enum TransferDomainKey {
+  SRC = 'src',
+  DST = 'dst'
+}
+
 /**
- * TransferDomain DeFi Transaction
+ * TransferDomainItem DeFi Transaction
  */
-export enum TransferDomainType {
-  UTXO = 0,
-  /** type for DVM Token To EVM transfer */
-  DVM = 1,
-  /** type for EVM To DVM Token transfer */
-  EVM = 2,
-};
+export interface TransferDomainItem {
+  address: Script // ----------------------| n = VarUInt{1-9 bytes}, + n bytes
+  amount: TokenBalanceVarInt // -----------| VarUInt{1-9 bytes} for token Id + 8 bytes for amount, in amount@token format
+  domain: number // -----------------------| 1 byte unsigned, 0x0 (NONE), 0x1 (UTXO), 0x2 (DVM), 0x3 (EVM)
+  data: number // -------------------------| 1 byte unsigned array, currently unused
+}
+
+/**
+ * Composable TransferDomainItem, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CTransferDomainItem extends ComposableBuffer<TransferDomainItem> {
+  composers (tdi: TransferDomainItem): BufferComposer[] {
+    return [
+      ComposableBuffer.single<Script>(() => tdi.address, v => tdi.address = v, v => new CScript(v)),
+      ComposableBuffer.single<TokenBalanceVarInt>(() => tdi.amount, v => tdi.amount = v, v => new CTokenBalanceVarInt(v)),
+      ComposableBuffer.uInt8(() => tdi.domain, v => tdi.domain = v),
+      ComposableBuffer.uInt8(() => tdi.data, v => tdi.data = v)
+    ]
+  }
+}
+
+export interface TransferDomainPair {
+  src: TransferDomainItem
+  dst: TransferDomainItem
+}
+
+/**
+ * Composable TransferDomainPair, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CTransferDomainPair extends ComposableBuffer<TransferDomainPair> {
+  composers (tdi: TransferDomainPair): BufferComposer[] {
+    return [
+      ComposableBuffer.single<TransferDomainItem>(() => tdi.src, v => tdi.src = v, v => new CTransferDomainItem(v)),
+      ComposableBuffer.single<TransferDomainItem>(() => tdi.dst, v => tdi.dst = v, v => new CTransferDomainItem(v))
+    ]
+  }
+}
 
 export interface TransferDomain {
-  type: TransferDomainType // ----------| 4 bytes unsigned
-  from: ScriptBalances[] // ------------| n = VarUInt{1-9 bytes}, + n bytes
-  to: ScriptBalances[] // --------------| n = VarUInt{1-9 bytes}, + n bytes
+  items: TransferDomainPair[]
 }
 
 /**
@@ -126,9 +161,7 @@ export class CTransferDomain extends ComposableBuffer<TransferDomain> {
 
   composers (td: TransferDomain): BufferComposer[] {
     return [
-      ComposableBuffer.uInt8(() => td.type, v => td.type = v),
-      ComposableBuffer.compactSizeArray(() => td.from, v => td.from = v, v => new CScriptBalances(v)),
-      ComposableBuffer.compactSizeArray(() => td.to, v => td.to = v, v => new CScriptBalances(v))
+      ComposableBuffer.compactSizeArray(() => td.items, v => td.items = v, v => new CTransferDomainPair(v))
     ]
   }
 }
