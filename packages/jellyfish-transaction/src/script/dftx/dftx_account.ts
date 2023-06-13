@@ -99,11 +99,6 @@ export class CAnyAccountToAccount extends ComposableBuffer<AnyAccountToAccount> 
   }
 }
 
-export enum TransferDomainKey {
-  SRC = 'src',
-  DST = 'dst'
-}
-
 /**
  * TransferDomainItem DeFi Transaction
  */
