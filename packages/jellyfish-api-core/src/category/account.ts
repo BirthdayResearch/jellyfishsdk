@@ -199,10 +199,10 @@ export class Account {
    * @param {boolean} [indexedAmounts=false] format of amount output, default = false (true: {tokenid:amount}, false: amount@tokenid)
    * @param {GetTokenBalancesOptions} [options]
    * @param {boolean} [options.symbolLookup=false] use token symbols in output, default = false
-   * @param {boolean} [includeEth=false] Whether to include Eth balances in output (default = false)
+   * @param {boolean} [options.includeEth=false] to include Eth balances in output, default = false
    * @return {Promise<string[]>} resolves as [ '300.00000000@0', '200.00000000@1' ]
    */
-  getTokenBalances (pagination?: AccountPagination, indexedAmounts?: boolean, options?: GetTokenBalancesOptions, includeEth?: boolean): Promise<string[]>
+  getTokenBalances (pagination?: AccountPagination, indexedAmounts?: boolean, options?: GetTokenBalancesOptions): Promise<string[]>
 
   /**
    * Get the balances of all accounts that belong to the wallet
@@ -215,9 +215,10 @@ export class Account {
    * @param {boolean} [indexedAmounts=false] format of amount output, default = false (true: {tokenid:amount}, false: amount@tokenid)
    * @param {GetTokenBalancesOptions} [options]
    * @param {boolean} [options.symbolLookup=false] use token symbols in output, default = false
+   * @param {boolean} [options.includeEth=false] to include Eth balances in output, default = false
    * @return {Promise<AccountAmount>} resolves as { '0': 300, '1': 200 }
    */
-  getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: false }): Promise<AccountAmount>
+  getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: false, includeEth: false }): Promise<AccountAmount>
 
   /**
    * Get the balances of all accounts that belong to the wallet
@@ -230,9 +231,10 @@ export class Account {
    * @param {boolean} [indexedAmounts=false] format of amount output, default = false (true: {tokenid:amount}, false: amount@tokenid)
    * @param {GetTokenBalancesOptions} [options]
    * @param {boolean} [options.symbolLookup=false] use token symbols in output, default = false
+   * @param {boolean} [options.includeEth=false] to include Eth balances in output, default = false
    * @return {Promise<string[]>} resolves as [ '300.00000000@DFI', '200.00000000@DBTC' ]
    */
-  getTokenBalances (pagination: AccountPagination, indexedAmounts: false, options: { symbolLookup: true }): Promise<string[]>
+  getTokenBalances (pagination: AccountPagination, indexedAmounts: false, options: { symbolLookup: true, includeEth: false }): Promise<string[]>
 
   /**
    * Get the balances of all accounts that belong to the wallet
@@ -245,17 +247,17 @@ export class Account {
    * @param {boolean} [indexedAmounts=false] format of amount output, default = false (true: {tokenid:amount}, false: amount@tokenid)
    * @param {GetTokenBalancesOptions} [options]
    * @param {boolean} [options.symbolLookup=false] use token symbols in output, default = false
+   * @param {boolean} [options.includeEth=false] to include Eth balances in output, default = false
    * @return {Promise<AccountAmount>} resolves as { DFI: 300, DBTC: 200 }
    */
-  getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: true }): Promise<AccountAmount>
+  getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: true, includeEth: false }): Promise<AccountAmount>
 
   async getTokenBalances (
     pagination: AccountPagination = { limit: 100 },
     indexedAmounts = false,
-    options: GetTokenBalancesOptions = { symbolLookup: false },
-    includeEth = false
+    options: GetTokenBalancesOptions = { symbolLookup: false, includeEth: false }
   ): Promise<string[] | AccountAmount> {
-    const { symbolLookup } = options
+    const { symbolLookup, includeEth } = options
     return await this.client.call('gettokenbalances', [pagination, indexedAmounts, symbolLookup, includeEth], 'bignumber')
   }
 
@@ -545,6 +547,7 @@ export interface GetAccountOptions {
 
 export interface GetTokenBalancesOptions {
   symbolLookup?: boolean
+  includeEth?: boolean
 }
 
 export interface BalanceTransferPayload {

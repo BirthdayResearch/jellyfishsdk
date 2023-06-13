@@ -271,10 +271,10 @@ describe('TransferDomain', () => {
       .toStrictEqual(new BigNumber(dvmBalance0).minus(Transfer.THREE).toNumber())
 
     // check: evm balance = dvm balance - tranferred
-    const withoutEthRes = await client.account.getTokenBalances({}, false, { symbolLookup: false }, false)
+    const withoutEthRes = await client.account.getTokenBalances({}, false)
     const [withoutEth] = withoutEthRes[0].split('@')
 
-    const withEthRes = await client.account.getTokenBalances({}, false, { symbolLookup: false }, true)
+    const withEthRes = await client.account.getTokenBalances({}, false, { symbolLookup: false, includeEth: true })
     const [withEth] = withEthRes[0].split('@')
     expect(new BigNumber(withoutEth).toNumber())
       .toStrictEqual(new BigNumber(withEth).minus(Transfer.THREE).toNumber())
@@ -310,9 +310,9 @@ describe('TransferDomain', () => {
       .toStrictEqual(new BigNumber(dvmBalance0).plus(Transfer.THREE).toNumber())
 
     // check eth balance to be equal to zero
-    const withoutEthRes = await client.account.getTokenBalances({}, false, { symbolLookup: false }, false)
+    const withoutEthRes = await client.account.getTokenBalances({}, false)
     const [withoutEth] = withoutEthRes[0].split('@')
-    const withEthRes = await client.account.getTokenBalances({}, false, { symbolLookup: false }, true)
+    const withEthRes = await client.account.getTokenBalances({}, false, { symbolLookup: false, includeEth: true })
     const [withEth] = withEthRes[0].split('@')
     expect(new BigNumber(withoutEth).toNumber()).toStrictEqual(new BigNumber(withEth).toNumber())
   })
