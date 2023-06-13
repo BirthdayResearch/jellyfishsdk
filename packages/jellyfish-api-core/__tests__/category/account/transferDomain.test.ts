@@ -49,82 +49,23 @@ describe('TransferDomain', () => {
   })
 
   describe('transferDomain failed', () => {
-    it('should fail if dvmAddr is invalid', async () => {
+    it('should fail if transfer within same domain', async () => {
       const promise = client.account.transferDomain([
         {
           [TransferBalanceKey.SRC]: {
-            address: 'invalid',
+            address: dvmAddr,
             amount: `${Transfer.THREE}@DFI`,
             domain: TransferDomainType.DVM
           },
           [TransferBalanceKey.DST]: {
-            address: evmAddr,
-            amount: `${Transfer.THREE}@DFI`,
-            domain: TransferDomainType.EVM
+            address: dvmAddr,
+            amount: `${Transfer.THREE + 46}@DFI`,
+            domain: TransferDomainType.DVM
           }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('recipient (invalid) does not refer to any valid address')
-
-      {
-        const promise = client.account.transferDomain([
-          {
-            [TransferBalanceKey.SRC]: {
-              address: dvmAddr,
-              amount: `${Transfer.THREE}@DFI`,
-              domain: TransferDomainType.DVM
-            },
-            [TransferBalanceKey.DST]: {
-              address: 'invalid',
-              amount: `${Transfer.THREE}@DFI`,
-              domain: TransferDomainType.EVM
-            }
-          }
-        ])
-        await expect(promise).rejects.toThrow(RpcApiError)
-        await expect(promise).rejects.toThrow('recipient (invalid) does not refer to any valid address')
-      }
-    })
-
-    it('should fail if address with transfer domain type are not match', async () => {
-      {
-        const promise = client.account.transferDomain([
-          {
-            [TransferBalanceKey.SRC]: {
-              address: evmAddr, // <- not match
-              amount: `${Transfer.THREE}@DFI`,
-              domain: TransferDomainType.DVM // <- not match
-            },
-            [TransferBalanceKey.DST]: {
-              address: evmAddr,
-              amount: `${Transfer.THREE}@DFI`,
-              domain: TransferDomainType.EVM
-            }
-          }
-        ])
-        await expect(promise).rejects.toThrow(RpcApiError)
-        await expect(promise).rejects.toThrow('Src address must not be an ETH address in case of "DVM" domain')
-      }
-
-      {
-        const promise = client.account.transferDomain([
-          {
-            [TransferBalanceKey.SRC]: {
-              address: dvmAddr,
-              amount: `${Transfer.THREE}@DFI`,
-              domain: TransferDomainType.DVM
-            },
-            [TransferBalanceKey.DST]: {
-              address: dvmAddr, // <- not match
-              amount: `${Transfer.THREE}@DFI`,
-              domain: TransferDomainType.EVM // <- not match
-            }
-          }
-        ])
-        await expect(promise).rejects.toThrow(RpcApiError)
-        await expect(promise).rejects.toThrow('Dst address must be an ETH address in case of "EVM" domain')
-      }
+      await expect(promise).rejects.toThrow('Cannot transfer inside same domain')
     })
 
     it('should fail if amount is different', async () => {
@@ -163,6 +104,120 @@ describe('TransferDomain', () => {
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
       await expect(promise).rejects.toThrow('For transferdomain, only DFI token is currently supported')
+    })
+
+    it('(dvm -> evm) should fail if source address and source domain are not match', async () => {
+      const promise = client.account.transferDomain([
+        {
+          [TransferBalanceKey.SRC]: {
+            address: evmAddr, // <- not match
+            amount: `${Transfer.THREE}@DFI`,
+            domain: TransferDomainType.DVM // <- not match
+          },
+          [TransferBalanceKey.DST]: {
+            address: evmAddr,
+            amount: `${Transfer.THREE}@DFI`,
+            domain: TransferDomainType.EVM
+          }
+        }
+      ])
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('Src address must not be an ETH address in case of "DVM" domain')
+    })
+
+    it('(evm -> dvm) should fail if source address and source domain are not match', async () => {
+      const promise = client.account.transferDomain([
+        {
+          [TransferBalanceKey.SRC]: {
+            address: dvmAddr, // <- not match
+            amount: `${Transfer.THREE}@DFI`,
+            domain: TransferDomainType.EVM // <- not match
+          },
+          [TransferBalanceKey.DST]: {
+            address: dvmAddr,
+            amount: `${Transfer.THREE}@DFI`,
+            domain: TransferDomainType.DVM
+          }
+        }
+      ])
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('Src address must be an ETH address in case of "EVM" domain')
+    })
+
+    it('(dvm -> evm) should fail if destination address and destination domain are not match', async () => {
+      const promise = client.account.transferDomain([
+        {
+          [TransferBalanceKey.SRC]: {
+            address: dvmAddr,
+            amount: `${Transfer.THREE}@DFI`,
+            domain: TransferDomainType.DVM
+          },
+          [TransferBalanceKey.DST]: {
+            address: dvmAddr, // <- not match
+            amount: `${Transfer.THREE}@DFI`,
+            domain: TransferDomainType.EVM // <- not match
+          }
+        }
+      ])
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('Dst address must be an ETH address in case of "EVM" domain')
+    })
+
+    it('(evm -> dvm) should fail if destination address and destination domain are not match', async () => {
+      const promise = client.account.transferDomain([
+        {
+          [TransferBalanceKey.SRC]: {
+            address: evmAddr,
+            amount: `${Transfer.THREE}@DFI`,
+            domain: TransferDomainType.EVM
+          },
+          [TransferBalanceKey.DST]: {
+            address: evmAddr, // <- not match
+            amount: `${Transfer.THREE}@DFI`,
+            domain: TransferDomainType.DVM // <- not match
+          }
+        }
+      ])
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('Dst address must not be an ETH address in case of "DVM" domain')
+    })
+
+    it('(dvm -> evm) should fail if address is invalid', async () => {
+      const promise = client.account.transferDomain([
+        {
+          [TransferBalanceKey.SRC]: {
+            address: 'invalid',
+            amount: `${Transfer.THREE}@DFI`,
+            domain: TransferDomainType.DVM
+          },
+          [TransferBalanceKey.DST]: {
+            address: evmAddr,
+            amount: `${Transfer.THREE}@DFI`,
+            domain: TransferDomainType.EVM
+          }
+        }
+      ])
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('recipient (invalid) does not refer to any valid address')
+    })
+
+    it('(evm -> dvm) should fail if address is invalid', async () => {
+      const promise = client.account.transferDomain([
+        {
+          [TransferBalanceKey.SRC]: {
+            address: evmAddr,
+            amount: `${Transfer.THREE}@DFI`,
+            domain: TransferDomainType.EVM
+          },
+          [TransferBalanceKey.DST]: {
+            address: 'invalid',
+            amount: `${Transfer.THREE}@DFI`,
+            domain: TransferDomainType.DVM
+          }
+        }
+      ])
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('recipient (invalid) does not refer to any valid address')
     })
 
     it('should fail if insufficient balance', async () => {
