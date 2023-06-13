@@ -107,7 +107,7 @@ const transferDomain: TransferDomain = {
       },
       amount: { token: 0, amount: new BigNumber(3) },
       domain: 2, // TransferDomainType.DVM
-      data: 0
+      data: [0] // `[0]` is undefined as empty byte will be inserted
     },
     dst: {
       address: {
@@ -118,7 +118,7 @@ const transferDomain: TransferDomain = {
       },
       amount: { token: 0, amount: new BigNumber(3) },
       domain: 3, // TransferDomainType.EVM
-      data: 0
+      data: [0] // `[0]` is undefined as empty byte will be inserted
     }
   }]
 }
