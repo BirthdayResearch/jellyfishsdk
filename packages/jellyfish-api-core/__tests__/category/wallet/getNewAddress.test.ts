@@ -43,6 +43,9 @@ describe('Address without masternode', () => {
       const bech32Address = await client.wallet.getNewAddress('bob', wallet.AddressType.BECH32)
       const bech32AddressValidateResult = await client.wallet.validateAddress(bech32Address)
 
+      const ethAddress = await client.wallet.getNewAddress('eth', wallet.AddressType.ETH)
+      const ethAddressValidateResult = await client.wallet.validateAddress(ethAddress)
+
       expect(typeof legacyAddress).toStrictEqual('string')
       expect(legacyAddressValidateResult.isvalid).toStrictEqual(true)
       expect(legacyAddressValidateResult.address).toStrictEqual(legacyAddress)
@@ -63,6 +66,13 @@ describe('Address without masternode', () => {
       expect(typeof bech32AddressValidateResult.scriptPubKey).toStrictEqual('string')
       expect(bech32AddressValidateResult.isscript).toStrictEqual(false)
       expect(bech32AddressValidateResult.iswitness).toStrictEqual(true)
+
+      expect(typeof ethAddress).toStrictEqual('string')
+      expect(ethAddressValidateResult.isvalid).toStrictEqual(true)
+      expect(ethAddressValidateResult.address).toStrictEqual(ethAddress)
+      expect(typeof ethAddressValidateResult.scriptPubKey).toStrictEqual('string')
+      expect(ethAddressValidateResult.isscript).toStrictEqual(false)
+      expect(ethAddressValidateResult.iswitness).toStrictEqual(true)
     })
   })
 })

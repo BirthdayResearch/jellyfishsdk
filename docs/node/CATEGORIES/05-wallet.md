@@ -237,6 +237,13 @@ Returns a new DeFi address for receiving payments. If 'label' is specified, it's
 interface wallet {
   getNewAddress (label: string = '', addressType = AddressType.BECH32): Promise<string>
 }
+
+enum AddressType {
+  LEGACY = 'legacy',
+  P2SH_SEGWIT = 'p2sh-segwit',
+  BECH32 = 'bech32',
+  ETH = 'eth',
+}
 ```
 
 ## validateAddress
