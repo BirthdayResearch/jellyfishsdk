@@ -90,7 +90,6 @@ interface account {
     pagination: AccountPagination = { limit: 100 },
     indexedAmounts = false,
     options: GetTokenBalancesOptions = { symbolLookup: false, includeEth: false},
-    includeEth?: boolean
   ): Promise<string[] | AccountAmount>
 }
 
