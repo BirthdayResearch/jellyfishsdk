@@ -5,7 +5,8 @@ import { RpcApiError } from '@defichain/jellyfish-api-core/dist/index'
 import BigNumber from 'bignumber.js'
 
 enum Transfer {
-  THREE = 3
+  THREE = 3,
+  FOUR = 4,
 }
 
 describe('TransferDomain', () => {
@@ -334,5 +335,173 @@ describe('TransferDomain', () => {
     const withEthRes = await client.account.getTokenBalances({}, false, { symbolLookup: false, includeEth: true })
     const [withEth] = withEthRes[0].split('@')
     expect(new BigNumber(withoutEth).toNumber()).toStrictEqual(new BigNumber(withEth).toNumber())
+  })
+
+  it('should (duo) Transfer Domain from DVM to EVM', async () => {
+    const dvmAcc = await client.account.getAccount(dvmAddr)
+    const [dvmBalance0, tokenId0] = dvmAcc[0].split('@')
+
+    const txid = await client.account.transferDomain([
+      {
+        src: {
+          address: dvmAddr,
+          amount: `${Transfer.THREE}@DFI`,
+          domain: TransferDomainType.DVM
+        },
+        dst: {
+          address: evmAddr,
+          amount: `${Transfer.THREE}@DFI`,
+          domain: TransferDomainType.EVM
+        }
+      },
+      {
+        src: {
+          address: dvmAddr,
+          amount: `${Transfer.FOUR}@DFI`,
+          domain: TransferDomainType.DVM
+        },
+        dst: {
+          address: evmAddr,
+          amount: `${Transfer.FOUR}@DFI`,
+          domain: TransferDomainType.EVM
+        }
+      }
+    ])
+    expect(typeof txid).toStrictEqual('string')
+    expect(txid.length).toStrictEqual(64)
+    await container.generate(1)
+
+    const dvmAcc1 = await client.account.getAccount(dvmAddr)
+    const [dvmBalance1, tokenId1] = dvmAcc1[0].split('@')
+    expect(tokenId1).toStrictEqual(tokenId0)
+
+    // check: dvm balance is transfered
+    expect(new BigNumber(dvmBalance1).toNumber())
+      .toStrictEqual(new BigNumber(dvmBalance0).minus(Transfer.THREE + Transfer.FOUR).toNumber())
+
+    // check: evm balance = dvm balance - tranferred
+    const withoutEthRes = await client.account.getTokenBalances({}, false)
+    const [withoutEth] = withoutEthRes[0].split('@')
+
+    const withEthRes = await client.account.getTokenBalances({}, false, { symbolLookup: false, includeEth: true })
+    const [withEth] = withEthRes[0].split('@')
+    expect(new BigNumber(withoutEth).toNumber())
+      .toStrictEqual(new BigNumber(withEth).minus(Transfer.THREE + Transfer.FOUR).toNumber())
+  })
+
+  it('should (duo) Transfer Domain from EVM to DVM', async () => {
+    const dvmAcc = await client.account.getAccount(dvmAddr)
+    const [dvmBalance0, tokenId0] = dvmAcc[0].split('@')
+
+    const txid = await client.account.transferDomain([
+      {
+        src: {
+          address: evmAddr,
+          amount: `${Transfer.THREE}@DFI`,
+          domain: TransferDomainType.EVM
+        },
+        dst: {
+          address: dvmAddr,
+          amount: `${Transfer.THREE}@DFI`,
+          domain: TransferDomainType.DVM
+        }
+      },
+      {
+        src: {
+          address: evmAddr,
+          amount: `${Transfer.FOUR}@DFI`,
+          domain: TransferDomainType.EVM
+        },
+        dst: {
+          address: dvmAddr,
+          amount: `${Transfer.FOUR}@DFI`,
+          domain: TransferDomainType.DVM
+        }
+      }
+    ])
+    expect(typeof txid).toStrictEqual('string')
+    expect(txid.length).toStrictEqual(64)
+
+    await container.generate(1)
+
+    const dvmAcc1 = await client.account.getAccount(dvmAddr)
+    const [dvmBalance1, tokenId1] = dvmAcc1[0].split('@')
+    expect(tokenId1).toStrictEqual(tokenId0)
+    expect(new BigNumber(dvmBalance1).toNumber())
+      .toStrictEqual(new BigNumber(dvmBalance0).plus(Transfer.THREE + Transfer.FOUR).toNumber())
+
+    // check eth balance to be equal to zero
+    const withoutEthRes = await client.account.getTokenBalances({}, false)
+    const [withoutEth] = withoutEthRes[0].split('@')
+    const withEthRes = await client.account.getTokenBalances({}, false, { symbolLookup: false, includeEth: true })
+    const [withEth] = withEthRes[0].split('@')
+    expect(new BigNumber(withoutEth).toNumber()).toStrictEqual(new BigNumber(withEth).toNumber())
+  })
+
+  it('should (duo-diff) Transfer Domain from EVM to DVM and DVM to EVM', async () => {
+    // transfer some to evm first
+    await client.account.transferDomain([
+      {
+        src: {
+          address: dvmAddr,
+          amount: `${Transfer.THREE}@DFI`,
+          domain: TransferDomainType.DVM
+        },
+        dst: {
+          address: evmAddr,
+          amount: `${Transfer.THREE}@DFI`,
+          domain: TransferDomainType.EVM
+        }
+      }
+    ])
+    await container.generate(1)
+
+    const dvmAcc = await client.account.getAccount(dvmAddr)
+    const [dvmBalance0, tokenId0] = dvmAcc[0].split('@')
+
+    // start
+    const txid = await client.account.transferDomain([
+      {
+        src: {
+          address: dvmAddr,
+          amount: `${Transfer.FOUR}@DFI`,
+          domain: TransferDomainType.DVM
+        },
+        dst: {
+          address: evmAddr,
+          amount: `${Transfer.FOUR}@DFI`,
+          domain: TransferDomainType.EVM
+        }
+      },
+      {
+        src: {
+          address: evmAddr,
+          amount: `${Transfer.THREE}@DFI`,
+          domain: TransferDomainType.EVM
+        },
+        dst: {
+          address: dvmAddr,
+          amount: `${Transfer.THREE}@DFI`,
+          domain: TransferDomainType.DVM
+        }
+      }
+    ])
+    expect(typeof txid).toStrictEqual('string')
+    expect(txid.length).toStrictEqual(64)
+
+    await container.generate(1)
+
+    const dvmAcc1 = await client.account.getAccount(dvmAddr)
+    const [dvmBalance1, tokenId1] = dvmAcc1[0].split('@')
+    expect(tokenId1).toStrictEqual(tokenId0)
+    expect(new BigNumber(dvmBalance1).toNumber())
+      .toStrictEqual(new BigNumber(dvmBalance0).plus(Transfer.THREE - Transfer.FOUR).toNumber())
+
+    // check eth balance to be equal to zero
+    const withoutEthRes = await client.account.getTokenBalances({}, false)
+    const [withoutEth] = withoutEthRes[0].split('@')
+    const withEthRes = await client.account.getTokenBalances({}, false, { symbolLookup: false, includeEth: true })
+    const [withEth] = withEthRes[0].split('@')
+    expect(new BigNumber(withoutEth).plus(Transfer.FOUR).toNumber()).toStrictEqual(new BigNumber(withEth).toNumber())
   })
 })
