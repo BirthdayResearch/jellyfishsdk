@@ -60,7 +60,7 @@ describe('TransferDomain', () => {
           },
           dst: {
             address: dvmAddr,
-            amount: `${Transfer.THREE + 46}@DFI`,
+            amount: `${Transfer.THREE}@DFI`,
             domain: TransferDomainType.DVM
           }
         }
