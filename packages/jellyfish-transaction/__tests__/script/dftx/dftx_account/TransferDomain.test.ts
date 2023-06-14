@@ -9,12 +9,12 @@ it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
     /**
      * [{
-     *  [TransferDomainKey.SRC]: {
+     *  src: {
      *    address: '2N1nTGPQ6Q6k2zVX9tBGnaE4jsP9pzMej1P',
      *    amount '3@DFI',
      *    domain: TransferDomainType.DVM
      *  },
-     *  [TransferDomainKey.DST]: {
+     *  dst: {
      *    address: '0x86773C61086A9b6b24CE541eB5637e61F446B880',
      *    amount: '1.23456789@DFI',
      *    domain: TransferDomainType.EVM
@@ -24,12 +24,12 @@ it('should bi-directional buffer-object-buffer', () => {
     '6a4b44665478380117a9145da8fc155086aba13fc48b4eabf2d38ab39a4fbc870000a3e11100000000020016601486773c61086a9b6b24ce541eb5637e61f446b8800000a3e111000000000300',
     /**
      * [{
-     *  [TransferDomainKey.SRC]: {
+     *  src: {
      *    address: '2MzG52a4deQYjN6GxQMZVXhHrw5e4y67HLj',
      *    amount '3@DFI',
      *    domain: TransferDomainType.DVM
      *  },
-     *  [TransferDomainKey.DST]: {
+     *  dst: {
      *    address: '0xffD258C46c9680D5E8a841A4049D8Ef2Ac4F9Df3',
      *    amount: '1.23456789@DFI',
      *    domain: TransferDomainType.EVM
@@ -39,12 +39,12 @@ it('should bi-directional buffer-object-buffer', () => {
     '6a4b44665478380117a9144cf1d108cebd26cba2deedc6e5e7b803f1cc4421870015cd5b07000000000200166014ffd258c46c9680d5e8a841a4049d8ef2ac4f9df30015cd5b07000000000300',
     /**
      * [{
-     *  [TransferDomainKey.SRC]: {
+     *  src: {
      *    address: '2N5ENYosHTfoqrDxhyPXsF1U7f9pJbwEpRP',
      *    amount '0.00000004@DFI',
      *    domain: TransferDomainType.DVM
      *  },
-     *  [TransferDomainKey.DST]: {
+     *  dst: {
      *    address: '0xba5D5C77F5f56a949a57ceF0D8A5fC9b22E5B6D0',
      *    amount: '0.00000004@DFI',
      *    domain: TransferDomainType.EVM
@@ -54,12 +54,12 @@ it('should bi-directional buffer-object-buffer', () => {
     '6a4b44665478380117a91483783d579d385369c81df230ec6d4b316cd0eebe870004000000000000000200166014ba5d5c77f5f56a949a57cef0d8a5fc9b22e5b6d00004000000000000000300',
     /**
      * [{
-     *  [TransferDomainKey.SRC]: {
+     *  src: {
      *    address: '0x8abE1FaDb210B634bd7EB4bBEDD63ae4D3DF280a',
      *    amount '3@DFI',
      *    domain: TransferDomainType.EVM
      *  },
-     *  [TransferDomainKey.DST]: {
+     *  dst: {
      *    address: '2MuGAF5bpgnoFo2TjJCbPmzyRXeu3uoaf5r',
      *    amount: '3@DFI',
      *    domain: TransferDomainType.DVM

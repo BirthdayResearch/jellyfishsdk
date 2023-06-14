@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { TransferDomainKey, TransferDomainType } from '../../../src/category/account'
+import { TransferDomainType } from '../../../src/category/account'
 import { RpcApiError } from '@defichain/jellyfish-api-core/dist/index'
 import BigNumber from 'bignumber.js'
 
@@ -52,12 +52,12 @@ describe('TransferDomain', () => {
     it('should fail if transfer within same domain', async () => {
       const promise = client.account.transferDomain([
         {
-          [TransferDomainKey.SRC]: {
+          src: {
             address: dvmAddr,
             amount: `${Transfer.THREE}@DFI`,
             domain: TransferDomainType.DVM
           },
-          [TransferDomainKey.DST]: {
+          dst: {
             address: dvmAddr,
             amount: `${Transfer.THREE + 46}@DFI`,
             domain: TransferDomainType.DVM
@@ -71,12 +71,12 @@ describe('TransferDomain', () => {
     it('should fail if amount is different', async () => {
       const promise = client.account.transferDomain([
         {
-          [TransferDomainKey.SRC]: {
+          src: {
             address: dvmAddr,
             amount: `${Transfer.THREE}@DFI`, // diff
             domain: TransferDomainType.DVM
           },
-          [TransferDomainKey.DST]: {
+          dst: {
             address: dvmAddr,
             amount: `${Transfer.THREE + 46}@DFI`, // diff
             domain: TransferDomainType.EVM
@@ -90,12 +90,12 @@ describe('TransferDomain', () => {
     it('should fail if transfer other than DFI token', async () => {
       const promise = client.account.transferDomain([
         {
-          [TransferDomainKey.SRC]: {
+          src: {
             address: dvmAddr,
             amount: `${Transfer.THREE}@DFI`,
             domain: TransferDomainType.DVM
           },
-          [TransferDomainKey.DST]: {
+          dst: {
             address: dvmAddr,
             amount: `${Transfer.THREE}@BTC`,
             domain: TransferDomainType.EVM
@@ -109,12 +109,12 @@ describe('TransferDomain', () => {
     it('(dvm -> evm) should fail if source address and source domain are not match', async () => {
       const promise = client.account.transferDomain([
         {
-          [TransferDomainKey.SRC]: {
+          src: {
             address: evmAddr, // <- not match
             amount: `${Transfer.THREE}@DFI`,
             domain: TransferDomainType.DVM // <- not match
           },
-          [TransferDomainKey.DST]: {
+          dst: {
             address: evmAddr,
             amount: `${Transfer.THREE}@DFI`,
             domain: TransferDomainType.EVM
@@ -128,12 +128,12 @@ describe('TransferDomain', () => {
     it('(evm -> dvm) should fail if source address and source domain are not match', async () => {
       const promise = client.account.transferDomain([
         {
-          [TransferDomainKey.SRC]: {
+          src: {
             address: dvmAddr, // <- not match
             amount: `${Transfer.THREE}@DFI`,
             domain: TransferDomainType.EVM // <- not match
           },
-          [TransferDomainKey.DST]: {
+          dst: {
             address: dvmAddr,
             amount: `${Transfer.THREE}@DFI`,
             domain: TransferDomainType.DVM
@@ -147,12 +147,12 @@ describe('TransferDomain', () => {
     it('(dvm -> evm) should fail if destination address and destination domain are not match', async () => {
       const promise = client.account.transferDomain([
         {
-          [TransferDomainKey.SRC]: {
+          src: {
             address: dvmAddr,
             amount: `${Transfer.THREE}@DFI`,
             domain: TransferDomainType.DVM
           },
-          [TransferDomainKey.DST]: {
+          dst: {
             address: dvmAddr, // <- not match
             amount: `${Transfer.THREE}@DFI`,
             domain: TransferDomainType.EVM // <- not match
@@ -166,12 +166,12 @@ describe('TransferDomain', () => {
     it('(evm -> dvm) should fail if destination address and destination domain are not match', async () => {
       const promise = client.account.transferDomain([
         {
-          [TransferDomainKey.SRC]: {
+          src: {
             address: evmAddr,
             amount: `${Transfer.THREE}@DFI`,
             domain: TransferDomainType.EVM
           },
-          [TransferDomainKey.DST]: {
+          dst: {
             address: evmAddr, // <- not match
             amount: `${Transfer.THREE}@DFI`,
             domain: TransferDomainType.DVM // <- not match
@@ -185,12 +185,12 @@ describe('TransferDomain', () => {
     it('(dvm -> evm) should fail if address is invalid', async () => {
       const promise = client.account.transferDomain([
         {
-          [TransferDomainKey.SRC]: {
+          src: {
             address: 'invalid',
             amount: `${Transfer.THREE}@DFI`,
             domain: TransferDomainType.DVM
           },
-          [TransferDomainKey.DST]: {
+          dst: {
             address: evmAddr,
             amount: `${Transfer.THREE}@DFI`,
             domain: TransferDomainType.EVM
@@ -204,12 +204,12 @@ describe('TransferDomain', () => {
     it('(evm -> dvm) should fail if address is invalid', async () => {
       const promise = client.account.transferDomain([
         {
-          [TransferDomainKey.SRC]: {
+          src: {
             address: evmAddr,
             amount: `${Transfer.THREE}@DFI`,
             domain: TransferDomainType.EVM
           },
-          [TransferDomainKey.DST]: {
+          dst: {
             address: 'invalid',
             amount: `${Transfer.THREE}@DFI`,
             domain: TransferDomainType.DVM
@@ -223,12 +223,12 @@ describe('TransferDomain', () => {
     it('(dvm -> evm) should fail if insufficient balance', async () => {
       const promise = client.account.transferDomain([
         {
-          [TransferDomainKey.SRC]: {
+          src: {
             address: dvmAddr,
             amount: '999@DFI',
             domain: TransferDomainType.DVM
           },
-          [TransferDomainKey.DST]: {
+          dst: {
             address: evmAddr,
             amount: '999@DFI',
             domain: TransferDomainType.EVM
@@ -242,12 +242,12 @@ describe('TransferDomain', () => {
     it('(evm -> dvm) should fail if insufficient balance', async () => {
       const promise = client.account.transferDomain([
         {
-          [TransferDomainKey.SRC]: {
+          src: {
             address: evmAddr,
             amount: '999@DFI',
             domain: TransferDomainType.EVM
           },
-          [TransferDomainKey.DST]: {
+          dst: {
             address: dvmAddr,
             amount: '999@DFI',
             domain: TransferDomainType.DVM
@@ -265,12 +265,12 @@ describe('TransferDomain', () => {
 
     const txid = await client.account.transferDomain([
       {
-        [TransferDomainKey.SRC]: {
+        src: {
           address: dvmAddr,
           amount: `${Transfer.THREE}@DFI`,
           domain: TransferDomainType.DVM
         },
-        [TransferDomainKey.DST]: {
+        dst: {
           address: evmAddr,
           amount: `${Transfer.THREE}@DFI`,
           domain: TransferDomainType.EVM
@@ -305,12 +305,12 @@ describe('TransferDomain', () => {
 
     const txid = await client.account.transferDomain([
       {
-        [TransferDomainKey.SRC]: {
+        src: {
           address: evmAddr,
           amount: `${Transfer.THREE}@DFI`,
           domain: TransferDomainType.EVM
         },
-        [TransferDomainKey.DST]: {
+        dst: {
           address: dvmAddr,
           amount: `${Transfer.THREE}@DFI`,
           domain: TransferDomainType.DVM
