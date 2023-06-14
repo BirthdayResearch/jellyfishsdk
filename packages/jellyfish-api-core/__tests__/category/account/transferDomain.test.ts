@@ -4,11 +4,6 @@ import { TransferDomainType } from '../../../src/category/account'
 import { RpcApiError } from '@defichain/jellyfish-api-core/dist/index'
 import BigNumber from 'bignumber.js'
 
-enum Transfer {
-  THREE = 3,
-  FOUR = 4,
-}
-
 describe('TransferDomain', () => {
   let dvmAddr: string, evmAddr: string
   const container = new MasterNodeRegTestContainer()
@@ -55,12 +50,12 @@ describe('TransferDomain', () => {
         {
           src: {
             address: dvmAddr,
-            amount: `${Transfer.THREE}@DFI`,
+            amount: '3@DFI',
             domain: TransferDomainType.DVM
           },
           dst: {
             address: dvmAddr,
-            amount: `${Transfer.THREE}@DFI`,
+            amount: '3@DFI',
             domain: TransferDomainType.DVM
           }
         }
@@ -74,12 +69,12 @@ describe('TransferDomain', () => {
         {
           src: {
             address: dvmAddr,
-            amount: `${Transfer.THREE}@DFI`, // diff
+            amount: '3@DFI', // diff
             domain: TransferDomainType.DVM
           },
           dst: {
             address: dvmAddr,
-            amount: `${Transfer.THREE + 46}@DFI`, // diff
+            amount: '46@DFI', // diff
             domain: TransferDomainType.EVM
           }
         }
@@ -93,12 +88,12 @@ describe('TransferDomain', () => {
         {
           src: {
             address: dvmAddr,
-            amount: `${Transfer.THREE}@DFI`,
+            amount: '3@DFI',
             domain: TransferDomainType.DVM
           },
           dst: {
             address: dvmAddr,
-            amount: `${Transfer.THREE}@BTC`,
+            amount: '3@BTC',
             domain: TransferDomainType.EVM
           }
         }
@@ -112,12 +107,12 @@ describe('TransferDomain', () => {
         {
           src: {
             address: evmAddr, // <- not match
-            amount: `${Transfer.THREE}@DFI`,
+            amount: '3@DFI',
             domain: TransferDomainType.DVM // <- not match
           },
           dst: {
             address: evmAddr,
-            amount: `${Transfer.THREE}@DFI`,
+            amount: '3@DFI',
             domain: TransferDomainType.EVM
           }
         }
@@ -131,12 +126,12 @@ describe('TransferDomain', () => {
         {
           src: {
             address: dvmAddr, // <- not match
-            amount: `${Transfer.THREE}@DFI`,
+            amount: '3@DFI',
             domain: TransferDomainType.EVM // <- not match
           },
           dst: {
             address: dvmAddr,
-            amount: `${Transfer.THREE}@DFI`,
+            amount: '3@DFI',
             domain: TransferDomainType.DVM
           }
         }
@@ -150,12 +145,12 @@ describe('TransferDomain', () => {
         {
           src: {
             address: dvmAddr,
-            amount: `${Transfer.THREE}@DFI`,
+            amount: '3@DFI',
             domain: TransferDomainType.DVM
           },
           dst: {
             address: dvmAddr, // <- not match
-            amount: `${Transfer.THREE}@DFI`,
+            amount: '3@DFI',
             domain: TransferDomainType.EVM // <- not match
           }
         }
@@ -169,12 +164,12 @@ describe('TransferDomain', () => {
         {
           src: {
             address: evmAddr,
-            amount: `${Transfer.THREE}@DFI`,
+            amount: '3@DFI',
             domain: TransferDomainType.EVM
           },
           dst: {
             address: evmAddr, // <- not match
-            amount: `${Transfer.THREE}@DFI`,
+            amount: '3@DFI',
             domain: TransferDomainType.DVM // <- not match
           }
         }
@@ -188,12 +183,12 @@ describe('TransferDomain', () => {
         {
           src: {
             address: 'invalid',
-            amount: `${Transfer.THREE}@DFI`,
+            amount: '3@DFI',
             domain: TransferDomainType.DVM
           },
           dst: {
             address: evmAddr,
-            amount: `${Transfer.THREE}@DFI`,
+            amount: '3@DFI',
             domain: TransferDomainType.EVM
           }
         }
@@ -207,12 +202,12 @@ describe('TransferDomain', () => {
         {
           src: {
             address: evmAddr,
-            amount: `${Transfer.THREE}@DFI`,
+            amount: '3@DFI',
             domain: TransferDomainType.EVM
           },
           dst: {
             address: 'invalid',
-            amount: `${Transfer.THREE}@DFI`,
+            amount: '3@DFI',
             domain: TransferDomainType.DVM
           }
         }
@@ -306,12 +301,12 @@ describe('TransferDomain', () => {
       {
         src: {
           address: dvmAddr,
-          amount: `${Transfer.THREE}@DFI`,
+          amount: '3@DFI',
           domain: TransferDomainType.DVM
         },
         dst: {
           address: evmAddr,
-          amount: `${Transfer.THREE}@DFI`,
+          amount: '3@DFI',
           domain: TransferDomainType.EVM
         }
       }
@@ -325,8 +320,8 @@ describe('TransferDomain', () => {
     expect(tokenId1).toStrictEqual(tokenId0)
 
     // check: dvm balance is transfered
-    expect(new BigNumber(dvmBalance1).toNumber())
-      .toStrictEqual(new BigNumber(dvmBalance0).minus(Transfer.THREE).toNumber())
+    expect(new BigNumber(dvmBalance1))
+      .toStrictEqual(new BigNumber(dvmBalance0).minus(3))
 
     // check: evm balance = dvm balance - tranferred
     const withoutEthRes = await client.account.getTokenBalances({}, false)
@@ -334,8 +329,8 @@ describe('TransferDomain', () => {
 
     const withEthRes = await client.account.getTokenBalances({}, false, { symbolLookup: false, includeEth: true })
     const [withEth] = withEthRes[0].split('@')
-    expect(new BigNumber(withoutEth).toNumber())
-      .toStrictEqual(new BigNumber(withEth).minus(Transfer.THREE).toNumber())
+    expect(new BigNumber(withoutEth))
+      .toStrictEqual(new BigNumber(withEth).minus(3))
   })
 
   it('should Transfer Domain from EVM to DVM', async () => {
@@ -346,12 +341,12 @@ describe('TransferDomain', () => {
       {
         src: {
           address: evmAddr,
-          amount: `${Transfer.THREE}@DFI`,
+          amount: '3@DFI',
           domain: TransferDomainType.EVM
         },
         dst: {
           address: dvmAddr,
-          amount: `${Transfer.THREE}@DFI`,
+          amount: '3@DFI',
           domain: TransferDomainType.DVM
         }
       }
@@ -364,15 +359,15 @@ describe('TransferDomain', () => {
     const dvmAcc1 = await client.account.getAccount(dvmAddr)
     const [dvmBalance1, tokenId1] = dvmAcc1[0].split('@')
     expect(tokenId1).toStrictEqual(tokenId0)
-    expect(new BigNumber(dvmBalance1).toNumber())
-      .toStrictEqual(new BigNumber(dvmBalance0).plus(Transfer.THREE).toNumber())
+    expect(new BigNumber(dvmBalance1))
+      .toStrictEqual(new BigNumber(dvmBalance0).plus(3))
 
     // check eth balance to be equal to zero
     const withoutEthRes = await client.account.getTokenBalances({}, false)
     const [withoutEth] = withoutEthRes[0].split('@')
     const withEthRes = await client.account.getTokenBalances({}, false, { symbolLookup: false, includeEth: true })
     const [withEth] = withEthRes[0].split('@')
-    expect(new BigNumber(withoutEth).toNumber()).toStrictEqual(new BigNumber(withEth).toNumber())
+    expect(new BigNumber(withoutEth)).toStrictEqual(new BigNumber(withEth))
   })
 
   it('should (duo) Transfer Domain from DVM to EVM', async () => {
@@ -383,24 +378,24 @@ describe('TransferDomain', () => {
       {
         src: {
           address: dvmAddr,
-          amount: `${Transfer.THREE}@DFI`,
+          amount: '3@DFI',
           domain: TransferDomainType.DVM
         },
         dst: {
           address: evmAddr,
-          amount: `${Transfer.THREE}@DFI`,
+          amount: '3@DFI',
           domain: TransferDomainType.EVM
         }
       },
       {
         src: {
           address: dvmAddr,
-          amount: `${Transfer.FOUR}@DFI`,
+          amount: '4@DFI',
           domain: TransferDomainType.DVM
         },
         dst: {
           address: evmAddr,
-          amount: `${Transfer.FOUR}@DFI`,
+          amount: '4@DFI',
           domain: TransferDomainType.EVM
         }
       }
@@ -414,8 +409,8 @@ describe('TransferDomain', () => {
     expect(tokenId1).toStrictEqual(tokenId0)
 
     // check: dvm balance is transfered
-    expect(new BigNumber(dvmBalance1).toNumber())
-      .toStrictEqual(new BigNumber(dvmBalance0).minus(Transfer.THREE + Transfer.FOUR).toNumber())
+    expect(new BigNumber(dvmBalance1))
+      .toStrictEqual(new BigNumber(dvmBalance0).minus(3 + 4))
 
     // check: evm balance = dvm balance - tranferred
     const withoutEthRes = await client.account.getTokenBalances({}, false)
@@ -423,8 +418,8 @@ describe('TransferDomain', () => {
 
     const withEthRes = await client.account.getTokenBalances({}, false, { symbolLookup: false, includeEth: true })
     const [withEth] = withEthRes[0].split('@')
-    expect(new BigNumber(withoutEth).toNumber())
-      .toStrictEqual(new BigNumber(withEth).minus(Transfer.THREE + Transfer.FOUR).toNumber())
+    expect(new BigNumber(withoutEth))
+      .toStrictEqual(new BigNumber(withEth).minus(3 + 4))
   })
 
   it('should (duo) Transfer Domain from EVM to DVM', async () => {
@@ -435,24 +430,24 @@ describe('TransferDomain', () => {
       {
         src: {
           address: evmAddr,
-          amount: `${Transfer.THREE}@DFI`,
+          amount: '3@DFI',
           domain: TransferDomainType.EVM
         },
         dst: {
           address: dvmAddr,
-          amount: `${Transfer.THREE}@DFI`,
+          amount: '3@DFI',
           domain: TransferDomainType.DVM
         }
       },
       {
         src: {
           address: evmAddr,
-          amount: `${Transfer.FOUR}@DFI`,
+          amount: '4@DFI',
           domain: TransferDomainType.EVM
         },
         dst: {
           address: dvmAddr,
-          amount: `${Transfer.FOUR}@DFI`,
+          amount: '4@DFI',
           domain: TransferDomainType.DVM
         }
       }
@@ -465,15 +460,15 @@ describe('TransferDomain', () => {
     const dvmAcc1 = await client.account.getAccount(dvmAddr)
     const [dvmBalance1, tokenId1] = dvmAcc1[0].split('@')
     expect(tokenId1).toStrictEqual(tokenId0)
-    expect(new BigNumber(dvmBalance1).toNumber())
-      .toStrictEqual(new BigNumber(dvmBalance0).plus(Transfer.THREE + Transfer.FOUR).toNumber())
+    expect(new BigNumber(dvmBalance1))
+      .toStrictEqual(new BigNumber(dvmBalance0).plus(3 + 4))
 
     // check eth balance to be equal to zero
     const withoutEthRes = await client.account.getTokenBalances({}, false)
     const [withoutEth] = withoutEthRes[0].split('@')
     const withEthRes = await client.account.getTokenBalances({}, false, { symbolLookup: false, includeEth: true })
     const [withEth] = withEthRes[0].split('@')
-    expect(new BigNumber(withoutEth).toNumber()).toStrictEqual(new BigNumber(withEth).toNumber())
+    expect(new BigNumber(withoutEth)).toStrictEqual(new BigNumber(withEth))
   })
 
   it('should (duo-diff) Transfer Domain from EVM to DVM and DVM to EVM', async () => {
@@ -482,12 +477,12 @@ describe('TransferDomain', () => {
       {
         src: {
           address: dvmAddr,
-          amount: `${Transfer.THREE}@DFI`,
+          amount: '3@DFI',
           domain: TransferDomainType.DVM
         },
         dst: {
           address: evmAddr,
-          amount: `${Transfer.THREE}@DFI`,
+          amount: '3@DFI',
           domain: TransferDomainType.EVM
         }
       }
@@ -502,24 +497,24 @@ describe('TransferDomain', () => {
       {
         src: {
           address: dvmAddr,
-          amount: `${Transfer.FOUR}@DFI`,
+          amount: '4@DFI',
           domain: TransferDomainType.DVM
         },
         dst: {
           address: evmAddr,
-          amount: `${Transfer.FOUR}@DFI`,
+          amount: '4@DFI',
           domain: TransferDomainType.EVM
         }
       },
       {
         src: {
           address: evmAddr,
-          amount: `${Transfer.THREE}@DFI`,
+          amount: '3@DFI',
           domain: TransferDomainType.EVM
         },
         dst: {
           address: dvmAddr,
-          amount: `${Transfer.THREE}@DFI`,
+          amount: '3@DFI',
           domain: TransferDomainType.DVM
         }
       }
@@ -532,14 +527,14 @@ describe('TransferDomain', () => {
     const dvmAcc1 = await client.account.getAccount(dvmAddr)
     const [dvmBalance1, tokenId1] = dvmAcc1[0].split('@')
     expect(tokenId1).toStrictEqual(tokenId0)
-    expect(new BigNumber(dvmBalance1).toNumber())
-      .toStrictEqual(new BigNumber(dvmBalance0).plus(Transfer.THREE - Transfer.FOUR).toNumber())
+    expect(new BigNumber(dvmBalance1))
+      .toStrictEqual(new BigNumber(dvmBalance0).plus(3 - 4))
 
     // check eth balance to be equal to zero
     const withoutEthRes = await client.account.getTokenBalances({}, false)
     const [withoutEth] = withoutEthRes[0].split('@')
     const withEthRes = await client.account.getTokenBalances({}, false, { symbolLookup: false, includeEth: true })
     const [withEth] = withEthRes[0].split('@')
-    expect(new BigNumber(withoutEth).plus(Transfer.FOUR).toNumber()).toStrictEqual(new BigNumber(withEth).toNumber())
+    expect(new BigNumber(withoutEth).plus(4)).toStrictEqual(new BigNumber(withEth))
   })
 })
