@@ -258,6 +258,44 @@ describe('TransferDomain', () => {
       await expect(promise).rejects.toThrow(RpcApiError)
       await expect(promise).rejects.toThrow(`Not enough balance in ${evmAddr} to cover "EVM" domain transfer`)
     })
+
+    it('(dvm -> evm) should fail if negative amount', async () => {
+      const promise = client.account.transferDomain([
+        {
+          src: {
+            address: dvmAddr,
+            amount: '-1@DFI',
+            domain: TransferDomainType.DVM
+          },
+          dst: {
+            address: evmAddr,
+            amount: '-1@DFI',
+            domain: TransferDomainType.EVM
+          }
+        }
+      ])
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('Amount out of range')
+    })
+
+    it('(evm -> dvm) should fail if negative amount', async () => {
+      const promise = client.account.transferDomain([
+        {
+          src: {
+            address: evmAddr,
+            amount: '-1@DFI',
+            domain: TransferDomainType.EVM
+          },
+          dst: {
+            address: dvmAddr,
+            amount: '-1@DFI',
+            domain: TransferDomainType.DVM
+          }
+        }
+      ])
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('Amount out of range')
+    })
   })
 
   it('should Transfer Domain from DVM to EVM', async () => {
