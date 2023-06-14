@@ -305,7 +305,7 @@ export class Account {
    * @param {string} [info.data] optional data, note: currently its not used
    * @return {Promise<string>}
    */
-  async transferDomain (payload: Array<Record<string, TransferDomainInfo>>): Promise<string> {
+  async transferDomain (payload: Array<Record<TransferDomainKey, TransferDomainInfo>>): Promise<string> {
     return await this.client.call('transferdomain', [payload], 'number')
   }
 
