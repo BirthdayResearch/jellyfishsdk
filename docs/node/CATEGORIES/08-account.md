@@ -89,7 +89,7 @@ interface account {
   getTokenBalances (
     pagination: AccountPagination = { limit: 100 },
     indexedAmounts = false,
-    options: GetTokenBalancesOptions = { symbolLookup: false}
+    options: GetTokenBalancesOptions = { symbolLookup: false, includeEth: false},
   ): Promise<string[] | AccountAmount>
 }
 
@@ -105,6 +105,7 @@ interface AccountPagination {
 
 interface GetTokenBalancesOptions {
   symbolLookup?: boolean
+  includeEth?: boolean
 }
 ```
 
@@ -150,6 +151,32 @@ interface UTXO {
   txid: string
   vout: number
 }
+```
+
+## transferDomain
+
+Create a transfer domain transaction submitted to a connected node.
+
+```ts title="client.account.transferDomain()"
+interface account {
+  transferDomain (payload: Array<Record<string, TransferDomainInfo>>): Promise<string>
+}
+
+interface TransferDomainInfo {
+  address: string
+  amount: string
+  domain: TransferDomainType
+}
+
+enum TransferDomainType {
+  NONE = 0,
+  /** type reserved for UTXO */
+  UTXO = 1,
+  /** type for DVM Token To EVM transfer */
+  DVM = 2,
+  /** type for EVM To DVM Token transfer */
+  EVM = 3,
+};
 ```
 
 ## accountToUtxos

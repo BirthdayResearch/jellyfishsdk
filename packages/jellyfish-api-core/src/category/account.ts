@@ -51,6 +51,21 @@ export enum SelectionModeType {
   FORWARD = 'forward'
 }
 
+export enum TransferDomainType {
+  NONE = 0,
+  /** type reserved for UTXO */
+  UTXO = 1,
+  /** type for DVM Token To EVM transfer */
+  DVM = 2,
+  /** type for EVM To DVM Token transfer */
+  EVM = 3,
+};
+
+export enum TransferDomainKey {
+  SRC = 'src',
+  DST = 'dst'
+}
+
 /**
  * Account RPCs for DeFi Blockchain
  */
@@ -184,6 +199,7 @@ export class Account {
    * @param {boolean} [indexedAmounts=false] format of amount output, default = false (true: {tokenid:amount}, false: amount@tokenid)
    * @param {GetTokenBalancesOptions} [options]
    * @param {boolean} [options.symbolLookup=false] use token symbols in output, default = false
+   * @param {boolean} [options.includeEth=false] to include Eth balances in output, default = false
    * @return {Promise<string[]>} resolves as [ '300.00000000@0', '200.00000000@1' ]
    */
   getTokenBalances (pagination?: AccountPagination, indexedAmounts?: boolean, options?: GetTokenBalancesOptions): Promise<string[]>
@@ -199,9 +215,10 @@ export class Account {
    * @param {boolean} [indexedAmounts=false] format of amount output, default = false (true: {tokenid:amount}, false: amount@tokenid)
    * @param {GetTokenBalancesOptions} [options]
    * @param {boolean} [options.symbolLookup=false] use token symbols in output, default = false
+   * @param {boolean} [options.includeEth=false] to include Eth balances in output, default = false
    * @return {Promise<AccountAmount>} resolves as { '0': 300, '1': 200 }
    */
-  getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: false }): Promise<AccountAmount>
+  getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: false, includeEth: false }): Promise<AccountAmount>
 
   /**
    * Get the balances of all accounts that belong to the wallet
@@ -214,9 +231,10 @@ export class Account {
    * @param {boolean} [indexedAmounts=false] format of amount output, default = false (true: {tokenid:amount}, false: amount@tokenid)
    * @param {GetTokenBalancesOptions} [options]
    * @param {boolean} [options.symbolLookup=false] use token symbols in output, default = false
+   * @param {boolean} [options.includeEth=false] to include Eth balances in output, default = false
    * @return {Promise<string[]>} resolves as [ '300.00000000@DFI', '200.00000000@DBTC' ]
    */
-  getTokenBalances (pagination: AccountPagination, indexedAmounts: false, options: { symbolLookup: true }): Promise<string[]>
+  getTokenBalances (pagination: AccountPagination, indexedAmounts: false, options: { symbolLookup: true, includeEth: false }): Promise<string[]>
 
   /**
    * Get the balances of all accounts that belong to the wallet
@@ -229,17 +247,18 @@ export class Account {
    * @param {boolean} [indexedAmounts=false] format of amount output, default = false (true: {tokenid:amount}, false: amount@tokenid)
    * @param {GetTokenBalancesOptions} [options]
    * @param {boolean} [options.symbolLookup=false] use token symbols in output, default = false
+   * @param {boolean} [options.includeEth=false] to include Eth balances in output, default = false
    * @return {Promise<AccountAmount>} resolves as { DFI: 300, DBTC: 200 }
    */
-  getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: true }): Promise<AccountAmount>
+  getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: true, includeEth: false }): Promise<AccountAmount>
 
   async getTokenBalances (
     pagination: AccountPagination = { limit: 100 },
     indexedAmounts = false,
-    options: GetTokenBalancesOptions = { symbolLookup: false }
+    options: GetTokenBalancesOptions = { symbolLookup: false, includeEth: false }
   ): Promise<string[] | AccountAmount> {
-    const { symbolLookup } = options
-    return await this.client.call('gettokenbalances', [pagination, indexedAmounts, symbolLookup], 'bignumber')
+    const { symbolLookup, includeEth } = options
+    return await this.client.call('gettokenbalances', [pagination, indexedAmounts, symbolLookup, includeEth], 'bignumber')
   }
 
   /**
@@ -272,6 +291,22 @@ export class Account {
    */
   async accountToAccount (from: string, payload: BalanceTransferPayload, options: BalanceTransferAccountOptions = { utxos: [] }): Promise<string> {
     return await this.client.call('accounttoaccount', [from, payload, options.utxos], 'number')
+  }
+
+  /**
+   * Create an transfer domain transaction submitted to a connected node.
+   *
+   * @param {Array<Record<TransferDomainKey, TransferDomainInfo>>} payload[]
+   * @param {Record<TransferDomainKey, TransferDomainInfo>} payload
+   * @param {TransferDomainInfo} info
+   * @param {string} info.address
+   * @param {string} info.amount
+   * @param {TransferDomainType} info.domain
+   * @param {string} [info.data] optional data, note: currently its not used
+   * @return {Promise<string>}
+   */
+  async transferDomain (payload: Array<Record<TransferDomainKey, TransferDomainInfo>>): Promise<string> {
+    return await this.client.call('transferdomain', [payload], 'number')
   }
 
   /**
@@ -512,6 +547,7 @@ export interface GetAccountOptions {
 
 export interface GetTokenBalancesOptions {
   symbolLookup?: boolean
+  includeEth?: boolean
 }
 
 export interface BalanceTransferPayload {
@@ -682,4 +718,10 @@ export interface ListFutureInfo {
 export interface DusdSwapsInfo {
   owner: string
   amount: BigNumber
+}
+
+export interface TransferDomainInfo {
+  address: string
+  amount: string
+  domain: TransferDomainType
 }

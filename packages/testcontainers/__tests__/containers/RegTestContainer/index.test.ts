@@ -37,5 +37,13 @@ describe('regtest', () => {
       const address = await container.getNewAddress('not-default', 'legacy')
       expect(address.length).toStrictEqual(34)
     })
+
+    it('should be able to getnewaddress with label and as eth', async () => {
+      const address = await container.getNewAddress('not-default', 'eth')
+      // NOTE(canonbrother): eth addr validation refers to
+      // https://github.com/ethers-io/ethers.js/blob/5210b68a7837654c6b84207a45e1e573d9472d1a/src.ts/address/address.ts#L123
+      expect(address).toMatch(/^0x[a-fA-F0-9]{40}$/gm)
+      expect(address.length).toStrictEqual(42)
+    })
   })
 })

@@ -10,7 +10,8 @@ export enum Mode {
 export enum AddressType {
   LEGACY = 'legacy',
   P2SH_SEGWIT = 'p2sh-segwit',
-  BECH32 = 'bech32'
+  BECH32 = 'bech32',
+  ETH = 'eth',
 }
 
 export enum ScriptType {
