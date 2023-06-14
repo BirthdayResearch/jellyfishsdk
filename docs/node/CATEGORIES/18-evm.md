@@ -18,7 +18,7 @@ const something = await client.evm.method()
 Creates an EVM transaction submitted to local node and network.
 
 ```ts title="client.evm.evmTx()"
-interface account {
+interface evm {
   evmTx (options: EvmTxOptions): Promise<string>
 }
 

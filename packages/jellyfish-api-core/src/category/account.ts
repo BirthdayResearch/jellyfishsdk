@@ -61,11 +61,6 @@ export enum TransferDomainType {
   EVM = 3,
 };
 
-export enum TransferBalanceKey {
-  SRC = 'src',
-  DST = 'dst'
-}
-
 /**
  * Account RPCs for DeFi Blockchain
  */

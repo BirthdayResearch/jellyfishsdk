@@ -3,19 +3,18 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { Testing } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '@defichain/jellyfish-api-core/dist/index'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { TransferDomainType, TransferBalanceKey } from '../../../src/category/account'
+import { TransferDomainType } from '../../../src/category/account'
 import BigNumber from 'bignumber.js'
-
-enum Amount {
-  ONE = 1,
-  HUNDRED = 100
-}
 
 describe('EVMTX', () => {
   let dfiAddress: string, ethAddress: string, toEthAddress: string
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
   const testing = Testing.create(container)
+  const amount = {
+    ONE: 1,
+    HUNDRED: 100
+  }
   const txGas = {
     gasPrice: 21,
     gasLimit: 21000
@@ -48,14 +47,14 @@ describe('EVMTX', () => {
     const balanceDFIAddressBefore: Record<string, BigNumber> = await client.call('getaccount', [dfiAddress, {}, true], 'bignumber')
     const dvmToEvmTransfer = [
       {
-        [TransferBalanceKey.SRC]: {
+        src: {
           address: dfiAddress,
-          amount: `${Amount.HUNDRED}@DFI`,
+          amount: `${amount.HUNDRED}@DFI`,
           domain: TransferDomainType.DVM
         },
-        [TransferBalanceKey.DST]: {
+        dst: {
           address: ethAddress,
-          amount: `${Amount.HUNDRED}@DFI`,
+          amount: `${amount.HUNDRED}@DFI`,
           domain: TransferDomainType.EVM
         }
       }
@@ -64,12 +63,12 @@ describe('EVMTX', () => {
     await container.generate(1)
 
     const balanceDFIAddressAfter: Record<string, BigNumber> = await client.call('getaccount', [dfiAddress, {}, true], 'bignumber')
-    expect(balanceDFIAddressAfter['0']).toStrictEqual(balanceDFIAddressBefore['0'].minus(Amount.HUNDRED))
+    expect(balanceDFIAddressAfter['0']).toStrictEqual(balanceDFIAddressBefore['0'].minus(amount.HUNDRED))
 
     const evmTxHash = await client.evm.evmtx({
       from: ethAddress,
       to: toEthAddress,
-      value: new BigNumber(Amount.ONE),
+      value: new BigNumber(amount.ONE),
       nonce: 0,
       ...txGas
     })
@@ -84,7 +83,7 @@ describe('EVMTX', () => {
     const evmTxHash = await client.evm.evmtx({
       from: ethAddress,
       to: toEthAddress,
-      value: new BigNumber(Amount.ONE),
+      value: new BigNumber(amount.ONE),
       data: 'ad33eb89000000000000000000000000a218a0ea9a888e3f6e2dffdf4066885f596f07bf', // random methodId 0xad33eb89, random tokenAddr 000000000000000000000000a218a0ea9a888e3f6e2dffdf4066885f596f07bf
       nonce: 1,
       ...txGas
@@ -110,7 +109,7 @@ describe('EVMTX', () => {
     await expect(client.evm.evmtx({
       from: dfiAddress,
       to: ethAddress,
-      value: new BigNumber(Amount.ONE),
+      value: new BigNumber(amount.ONE),
       nonce: 2,
       ...txGas
     })).rejects.toThrow(new RpcApiError({ code: -8, method: 'evmtx', message: 'from address not an Ethereum address' }))
@@ -120,7 +119,7 @@ describe('EVMTX', () => {
     await expect(client.evm.evmtx({
       from: ethAddress,
       to: dfiAddress,
-      value: new BigNumber(Amount.ONE),
+      value: new BigNumber(amount.ONE),
       nonce: 2,
       ...txGas
     })).rejects.toThrow(new RpcApiError({ code: -8, method: 'evmtx', message: 'to address not an Ethereum address' }))
@@ -130,7 +129,7 @@ describe('EVMTX', () => {
     await expect(client.evm.evmtx({
       from: ethAddress,
       to: toEthAddress,
-      value: new BigNumber(Amount.ONE),
+      value: new BigNumber(amount.ONE),
       nonce: 0,
       ...txGas
     })).rejects.toThrow(RpcApiError)
@@ -140,7 +139,7 @@ describe('EVMTX', () => {
     await expect(client.evm.evmtx({
       from: ethAddress,
       to: toEthAddress,
-      value: new BigNumber(Amount.ONE),
+      value: new BigNumber(amount.ONE),
       nonce: 2,
       gasPrice: Number.MAX_VALUE,
       gasLimit: txGas.gasLimit
@@ -151,7 +150,7 @@ describe('EVMTX', () => {
     await expect(client.evm.evmtx({
       from: ethAddress,
       to: toEthAddress,
-      value: new BigNumber(Amount.ONE),
+      value: new BigNumber(amount.ONE),
       nonce: 2,
       gasPrice: txGas.gasPrice,
       gasLimit: Number.MAX_VALUE
