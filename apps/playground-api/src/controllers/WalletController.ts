@@ -24,7 +24,8 @@ export class WalletController {
   async balances (): Promise<WalletBalances> {
     const balance = await this.client.wallet.getBalance()
     const account = await this.client.account.getTokenBalances({}, true, {
-      symbolLookup: false
+      symbolLookup: false,
+      includeEth: false
     })
 
     const tokens = Object.entries(account).map(([id, value]) => {

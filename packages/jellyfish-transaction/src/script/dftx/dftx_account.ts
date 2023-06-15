@@ -2,6 +2,7 @@ import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
 import { CScriptBalances, CTokenBalance, CTokenBalanceVarInt, ScriptBalances, TokenBalanceUInt32, TokenBalanceVarInt } from './dftx_balance'
+import { SmartBuffer } from 'smart-buffer'
 
 /**
  * UtxosToAccount DeFi Transaction
@@ -95,6 +96,85 @@ export class CAnyAccountToAccount extends ComposableBuffer<AnyAccountToAccount> 
     return [
       ComposableBuffer.compactSizeArray(() => aa2a.from, v => aa2a.from = v, v => new CScriptBalances(v)),
       ComposableBuffer.compactSizeArray(() => aa2a.to, v => aa2a.to = v, v => new CScriptBalances(v))
+    ]
+  }
+}
+
+/**
+ * TransferDomainItem DeFi Transaction
+ */
+export interface TransferDomainItem {
+  address: Script // ----------------------| n = VarUInt{1-9 bytes}, + n bytes
+  amount: TokenBalanceVarInt // -----------| VarUInt{1-9 bytes} for token Id + 8 bytes for amount, in amount@token format
+  domain: number // -----------------------| 1 byte unsigned, 0x0 (NONE), 0x1 (UTXO), 0x2 (DVM), 0x3 (EVM)
+  data?: number[] // ----------------------| 1 byte unsigned array, currently unused
+}
+
+/**
+ * Composable TransferDomainItem, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CTransferDomainItem extends ComposableBuffer<TransferDomainItem> {
+  composers (tdi: TransferDomainItem): BufferComposer[] {
+    return [
+      ComposableBuffer.single<Script>(() => tdi.address, v => tdi.address = v, v => new CScript(v)),
+      ComposableBuffer.single<TokenBalanceVarInt>(() => tdi.amount, v => tdi.amount = v, v => new CTokenBalanceVarInt(v)),
+      ComposableBuffer.uInt8(() => tdi.domain, v => tdi.domain = v),
+      {
+        fromBuffer: (buffer: SmartBuffer): void => {
+          const array: number[] = []
+          if (buffer.remaining() > 0) {
+            array.push(buffer.readUInt8())
+          }
+          tdi.data = array
+        },
+        toBuffer: (buffer: SmartBuffer): void => {
+          if (tdi.data !== undefined) {
+            for (let i = 0; i < tdi.data.length; i += 1) {
+              buffer.writeUInt8(tdi.data[i])
+            }
+          } else {
+            buffer.writeUInt8(0x00)
+          }
+        }
+      }
+    ]
+  }
+}
+
+export interface TransferDomainPair {
+  src: TransferDomainItem
+  dst: TransferDomainItem
+}
+
+/**
+ * Composable TransferDomainPair, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CTransferDomainPair extends ComposableBuffer<TransferDomainPair> {
+  composers (tdi: TransferDomainPair): BufferComposer[] {
+    return [
+      ComposableBuffer.single<TransferDomainItem>(() => tdi.src, v => tdi.src = v, v => new CTransferDomainItem(v)),
+      ComposableBuffer.single<TransferDomainItem>(() => tdi.dst, v => tdi.dst = v, v => new CTransferDomainItem(v))
+    ]
+  }
+}
+
+export interface TransferDomain {
+  items: TransferDomainPair[]
+}
+
+/**
+ * Composable TransferDomain, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CTransferDomain extends ComposableBuffer<TransferDomain> {
+  static OP_CODE = 0x38 // '8'
+  static OP_NAME = 'OP_DEFI_TX_TRANSFER_DOMAIN'
+
+  composers (td: TransferDomain): BufferComposer[] {
+    return [
+      ComposableBuffer.compactSizeArray(() => td.items, v => td.items = v, v => new CTransferDomainPair(v))
     ]
   }
 }

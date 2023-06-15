@@ -1,5 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
+import { TransferDomainType } from '../../../src/category/account'
 import waitForExpect from 'wait-for-expect'
 import BigNumber from 'bignumber.js'
 
@@ -80,7 +81,7 @@ describe('Account', () => {
 
   it('should getTokenBalances with indexedAmounts true', async () => {
     await waitForExpect(async () => {
-      const tokenBalances = await client.account.getTokenBalances({}, true, { symbolLookup: false })
+      const tokenBalances = await client.account.getTokenBalances({}, true, { symbolLookup: false, includeEth: false })
       expect(typeof tokenBalances === 'object').toStrictEqual(true)
       for (const k in tokenBalances) {
         expect(tokenBalances[k] instanceof BigNumber).toStrictEqual(true)
@@ -90,13 +91,53 @@ describe('Account', () => {
 
   it('should getTokenBalances with symbolLookup', async () => {
     await waitForExpect(async () => {
-      const tokenBalances = await client.account.getTokenBalances({}, false, { symbolLookup: true })
+      const tokenBalances = await client.account.getTokenBalances({}, false, { symbolLookup: true, includeEth: false })
       expect(tokenBalances.length).toBeGreaterThan(0)
     })
 
-    const tokenBalances = await client.account.getTokenBalances({}, false, { symbolLookup: true })
+    const tokenBalances = await client.account.getTokenBalances({}, false, { symbolLookup: true, includeEth: false })
     for (let i = 0; i < tokenBalances.length; i += 1) {
       expect(typeof tokenBalances[i]).toStrictEqual('string')
     }
+  })
+
+  it('should getTokenBlaances with including eth', async () => {
+    await client.masternode.setGov({
+      ATTRIBUTES: {
+        'v0/params/feature/evm': 'true'
+      }
+    })
+    await container.generate(1)
+
+    const dvmAddr = await container.call('getnewaddress')
+    const evmAddr = await container.getNewAddress('eth', 'eth')
+
+    await container.call('utxostoaccount', [{ [dvmAddr]: '100@0' }])
+    await container.generate(1)
+
+    await client.account.transferDomain([
+      {
+        src: {
+          address: dvmAddr,
+          amount: '3@DFI',
+          domain: TransferDomainType.DVM
+        },
+        dst: {
+          address: evmAddr,
+          amount: '3@DFI',
+          domain: TransferDomainType.EVM
+        }
+      }
+    ])
+    await container.generate(1)
+
+    await waitForExpect(async () => {
+      const withoutEth = await client.account.getTokenBalances({}, false, { symbolLookup: true, includeEth: false })
+      const wo = withoutEth[0].split('@')[0]
+
+      const withEth = await client.account.getTokenBalances({}, false, { symbolLookup: true, includeEth: true })
+      const w = withEth[0].split('@')[0]
+      expect(new BigNumber(w)).toStrictEqual(new BigNumber(wo).plus(3))
+    })
   })
 })

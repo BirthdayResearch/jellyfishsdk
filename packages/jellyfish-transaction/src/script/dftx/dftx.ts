@@ -7,6 +7,8 @@ import {
   UtxosToAccount,
   SetFutureSwap,
   CAccountToAccount,
+  CTransferDomain,
+  TransferDomain,
   CAccountToUtxos,
   CAnyAccountToAccount,
   CUtxosToAccount,
@@ -221,6 +223,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<AccountToUtxos>(CAccountToUtxos.OP_NAME, d => new CAccountToUtxos(d))
       case CAccountToAccount.OP_CODE:
         return compose<AccountToAccount>(CAccountToAccount.OP_NAME, d => new CAccountToAccount(d))
+      case CTransferDomain.OP_CODE:
+        return compose<TransferDomain>(CTransferDomain.OP_NAME, d => new CTransferDomain(d))
       case CAnyAccountToAccount.OP_CODE:
         return compose<AnyAccountToAccount>(CAnyAccountToAccount.OP_NAME, d => new CAnyAccountToAccount(d))
       case CSetFutureSwap.OP_CODE:

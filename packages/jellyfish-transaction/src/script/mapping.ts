@@ -47,6 +47,8 @@ import {
   UtxosToAccount,
   SetFutureSwap,
   CAccountToAccount,
+  CTransferDomain,
+  TransferDomain,
   CAccountToUtxos,
   CAnyAccountToAccount,
   CUtxosToAccount,
@@ -333,6 +335,14 @@ export const OP_CODES = {
       type: CAccountToAccount.OP_CODE,
       name: CAccountToAccount.OP_NAME,
       data: accountToAccount
+    })
+  },
+  OP_DEFI_TX_TRANSFER_DOMAIN: (transferDomain: TransferDomain): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CTransferDomain.OP_CODE,
+      name: CTransferDomain.OP_NAME,
+      data: transferDomain
     })
   },
   OP_DEFI_TX_ANY_ACCOUNT_TO_ACCOUNT: (anyAccountToAccount: AnyAccountToAccount): OP_DEFI_TX => {
