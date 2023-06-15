@@ -47,7 +47,7 @@ const evmTxData: Array<{ header: string, data: string, evmTx: EvmTx }> = [
 ]
 
 describe.each(evmTxData)('should craft and compose dftx',
-  ({ header, evmTx, data }: { header: string, data: string, evmTx: EvmTx }) => {
+  ({ header, data, evmTx }: { header: string, data: string, evmTx: EvmTx }) => {
     it('should craft dftx with OP_CODES._() for evm tx', () => {
       const stack = [
         OP_CODES.OP_RETURN,

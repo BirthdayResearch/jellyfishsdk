@@ -18,7 +18,7 @@ export class Evm {
    * @param {number} gasLimit
    * @param {string} to
    * @param {BigNumber} value
-   * @param {string} data
+   * @param {string} [data]
    * @returns {Promise<string>}
    */
   async evmtx ({ from, nonce, gasPrice, gasLimit, to, value, data }: EvmTxOptions): Promise<string> {
