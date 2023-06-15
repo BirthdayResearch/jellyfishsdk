@@ -95,6 +95,17 @@ describe('EVMTX', () => {
     expect(txs.tx[1]).toStrictEqual(evmTxHash)
   })
 
+  it('should fail creation of evmtx when data input is not hex', async () => {
+    await expect(client.evm.evmtx({
+      from: ethAddress,
+      to: toEthAddress,
+      value: new BigNumber(amount.ONE),
+      nonce: 2,
+      data: '1234abcnothex',
+      ...txGas
+    })).rejects.toThrow(new RpcApiError({ code: -8, method: 'evmtx', message: 'Input param expected to be in hex format' }))
+  })
+
   it('should fail creation of evmtx when amount is not valid', async () => {
     await expect(client.evm.evmtx({
       from: ethAddress,
