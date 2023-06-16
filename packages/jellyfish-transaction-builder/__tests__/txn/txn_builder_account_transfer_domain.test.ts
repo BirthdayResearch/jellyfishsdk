@@ -7,6 +7,7 @@ import { Testing } from '@defichain/jellyfish-testing'
 import { RegTest, RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import {
   OP_CODES,
+  Script,
   TransferDomain
 } from '@defichain/jellyfish-transaction'
 import { WIF } from '@defichain/jellyfish-crypto'
@@ -25,6 +26,7 @@ let builder: P2WPKHTransactionBuilder
 
 let dvmAddr: string
 let evmAddr: string
+let dvmScript: Script
 
 describe('transferDomain', () => {
   beforeAll(async () => {
@@ -43,6 +45,7 @@ describe('transferDomain', () => {
 
     dvmAddr = await providers.getAddress()
     evmAddr = await container.getNewAddress('eth', 'eth')
+    dvmScript = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript()
 
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
@@ -67,7 +70,6 @@ describe('transferDomain', () => {
 
   describe('transferDomain failed', () => {
     it('should fail if transfer within same domain', async () => {
-      const dvmScript = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript()
       const evmScript = {
         stack: [
           OP_CODES.OP_16,
@@ -106,7 +108,6 @@ describe('transferDomain', () => {
     })
 
     it('should fail if amount is different', async () => {
-      const dvmScript = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript()
       const evmScript = {
         stack: [
           OP_CODES.OP_16,
@@ -144,7 +145,6 @@ describe('transferDomain', () => {
     })
 
     it('should fail if transfer other than DFI token', async () => {
-      const dvmScript = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript()
       const evmScript = {
         stack: [
           OP_CODES.OP_16,
@@ -181,7 +181,6 @@ describe('transferDomain', () => {
     })
 
     it('(dvm -> evm) should fail if source address and source domain are not match', async () => {
-      const dvmScript = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript()
       const evmScript = {
         stack: [
           OP_CODES.OP_16,
@@ -219,8 +218,6 @@ describe('transferDomain', () => {
     })
 
     it('(evm -> dvm) should fail if source address and source domain are not match', async () => {
-      const dvmScript = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript()
-
       const transferDomain: TransferDomain = {
         items: [{
           src:
@@ -251,8 +248,6 @@ describe('transferDomain', () => {
     })
 
     it('(dvm -> evm) should fail if destination address and destination domain are not match', async () => {
-      const dvmScript = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript()
-
       const transferDomain: TransferDomain = {
         items: [{
           src:
@@ -290,7 +285,6 @@ describe('transferDomain', () => {
           OP_CODES.OP_PUSHDATA_HEX_LE(evmAddr.substring(2, evmAddr.length))
         ]
       }
-      const dvmScript = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript()
 
       const transferDomain: TransferDomain = {
         items: [{
@@ -365,7 +359,6 @@ describe('transferDomain', () => {
     const dvmAccBefore = await testing.rpc.account.getAccount(dvmAddr)
     const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[0].split('@')
 
-    const dvmScript = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript()
     const evmScript = {
       stack: [
         OP_CODES.OP_16,
@@ -436,9 +429,6 @@ describe('transferDomain', () => {
 
   // WIP
   it.skip('should transfer domain from EVM to DVM', async () => {
-    // const script = await providers.elliptic.script()
-    const script = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript()
-
     const evmScript = {
       stack: [
         OP_CODES.OP_16,
@@ -458,7 +448,7 @@ describe('transferDomain', () => {
           data: [0]
         },
         dst: {
-          address: script,
+          address: dvmScript,
           domain: TRANSFER_DOMAIN_TYPE.DVM,
           amount: {
             token: 0,
@@ -469,7 +459,7 @@ describe('transferDomain', () => {
       }]
     }
 
-    const txn = await builder.account.transferDomain(transferDomain, script)
+    const txn = await builder.account.transferDomain(transferDomain, dvmScript)
     const outs = await sendTransaction(container, txn)
     console.log({ outs })
   })
