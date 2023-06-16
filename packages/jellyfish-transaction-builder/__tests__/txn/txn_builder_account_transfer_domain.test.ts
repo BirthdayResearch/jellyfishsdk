@@ -167,10 +167,9 @@ describe('transferDomain', () => {
   it('should transfer domain from DVM to EVM', async () => {
     const script = await providers.elliptic.script()
     // const script = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript()
-
     const evmScript = {
       stack: [
-        OP_CODES.OP_0,
+        OP_CODES.OP_16,
         OP_CODES.OP_PUSHDATA_HEX_LE(evmAddr.substring(2, evmAddr.length - 1))
       ]
     }
