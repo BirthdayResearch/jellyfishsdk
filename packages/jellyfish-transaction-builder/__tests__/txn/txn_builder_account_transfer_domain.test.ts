@@ -46,9 +46,7 @@ describe('transferDomain', () => {
 
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
-    await testing.token.dfi({ address: dvmAddr, amount: 300 })
-
-    await testing.token.dfi({ address: await providers.getAddress(), amount: 300 })
+    await testing.token.dfi({ address: dvmAddr, amount: 12 })
     await testing.generate(1)
 
     // Fund 100 DFI UTXO
@@ -285,7 +283,7 @@ describe('transferDomain', () => {
     })
 
     // WIP
-    it.only('(evm -> dvm) should fail if destination address and destination domain are not match', async () => {
+    it.skip('(evm -> dvm) should fail if destination address and destination domain are not match', async () => {
       const evmScript = {
         stack: [
           OP_CODES.OP_16,
@@ -363,8 +361,10 @@ describe('transferDomain', () => {
     })
   })
 
-  // WIP
   it('should transfer domain from DVM to EVM', async () => {
+    const dvmAccBefore = await testing.rpc.account.getAccount(dvmAddr)
+    const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[0].split('@')
+
     const dvmScript = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript()
     const evmScript = {
       stack: [
@@ -416,13 +416,26 @@ describe('transferDomain', () => {
     expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
     expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(dvmAddr)
 
-    // Test account
-    // const accAfter = await testing.rpc.account.getAccount(dvmAddr)
-    // console.log({ accAfter: JSON.stringify(accAfter) })
+    const dvmAccAfter = await testing.rpc.account.getAccount(dvmAddr)
+    const [dvmBalanceAfter0, tokenIdAfter0] = dvmAccAfter[0].split('@')
+    expect(tokenIdBefore0).toStrictEqual(tokenIdAfter0)
+
+    // check: dvm balance is transfered
+    expect(new BigNumber(dvmBalanceAfter0))
+      .toStrictEqual(new BigNumber(dvmBalanceBefore0).minus(3))
+
+    // check: evm balance = dvm balance - tranferred
+    const withoutEthRes = await testing.rpc.account.getTokenBalances({}, false)
+    const [withoutEth] = withoutEthRes[0].split('@')
+
+    const withEthRes = await testing.rpc.account.getTokenBalances({}, false, { symbolLookup: false, includeEth: true })
+    const [withEth] = withEthRes[0].split('@')
+    expect(new BigNumber(withoutEth))
+      .toStrictEqual(new BigNumber(withEth).minus(3))
   })
 
   // WIP
-  it('should transfer domain from EVM to DVM', async () => {
+  it.skip('should transfer domain from EVM to DVM', async () => {
     // const script = await providers.elliptic.script()
     const script = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript()
 
