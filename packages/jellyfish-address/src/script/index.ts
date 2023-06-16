@@ -1,5 +1,5 @@
 import { SmartBuffer } from 'smart-buffer'
-import { OP_CODES, Script, toOPCodes } from '@defichain/jellyfish-transaction'
+import { Script, toOPCodes } from '@defichain/jellyfish-transaction'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { fromBech32P2WPKH, fromScriptP2WPKH } from './P2WPKH'
 import { fromBech32P2WSH, fromScriptP2WSH } from './P2WSH'
@@ -168,19 +168,4 @@ export function fromScriptHex (hex: string, network: NetworkName): DecodedAddres
     stack: toOPCodes(SmartBuffer.fromBuffer(buffer))
   }
   return fromScript(script, network)
-}
-
-/**
- * Convert evm address to a script
- *
- * @param  {string} evmAddr to convert into script without 0x
- * @return {Script} redeem script of this account. (NATIVE SEGWIT)
- */
-export function getEvmScript (evmAddr: string): Script {
-  return {
-    stack: [
-      OP_CODES.OP_16,
-      OP_CODES.OP_PUSHDATA_HEX_LE(evmAddr)
-    ]
-  }
 }
