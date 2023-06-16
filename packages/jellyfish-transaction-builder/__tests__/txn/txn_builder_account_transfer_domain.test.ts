@@ -1,4 +1,4 @@
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { DeFiDRpcError, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { fundEllipticPair, sendTransaction } from '../test.utils'
@@ -10,18 +10,24 @@ import {
   TransferDomain
 } from '@defichain/jellyfish-transaction'
 import { WIF } from '@defichain/jellyfish-crypto'
+import { P2WPKH } from '@defichain/jellyfish-address'
+
+const TRANSFER_DOMAIN_TYPE = {
+  DVM: 2,
+  EVM: 3
+}
 
 const container = new MasterNodeRegTestContainer()
+const testing = Testing.create(container)
+
 let providers: MockProviders
 let builder: P2WPKHTransactionBuilder
-
-const testing = Testing.create(container)
 
 let dvmAddr: string
 let evmAddr: string
 
 describe('transferDomain', () => {
-  beforeEach(async () => {
+  beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
 
@@ -32,11 +38,11 @@ describe('transferDomain', () => {
     })
     await testing.generate(1)
 
-    dvmAddr = await container.getNewAddress()
-    evmAddr = await testing.container.getNewAddress('eth', 'eth')
     providers = await getProviders(testing.container)
-
     providers.setEllipticPair(WIF.asEllipticPair(RegTestFoundationKeys[0].owner.privKey))
+
+    dvmAddr = await providers.getAddress()
+    evmAddr = await container.getNewAddress('eth', 'eth')
 
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
@@ -57,149 +63,302 @@ describe('transferDomain', () => {
     )
   })
 
-  afterEach(async () => {
+  afterAll(async () => {
     await testing.container.stop()
   })
 
-  // it("should fail if transfer within same domain", async () => {
-  //   const script = await providers.elliptic.script(); // TODO(Pierre): Check if this is the correct dvm address to use
+  describe('transferDomain failed', () => {
+    it('should fail if transfer within same domain', async () => {
+      const dvmScript = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript()
+      const evmScript = {
+        stack: [
+          OP_CODES.OP_16,
+          OP_CODES.OP_PUSHDATA_HEX_LE(evmAddr.substring(2, evmAddr.length))
+        ]
+      }
 
-  //   const transferDomain: TransferDomain = {
-  //     items: [{
-  //       src:
-  //       {
-  //         address: script,
-  //         domain: 2, // <-- same domain
-  //         amount: {
-  //           token: 0,
-  //           amount: new BigNumber(10),
-  //         },
-  //         data: [0]
-  //       },
-  //       dst: {
-  //         address: script,
-  //         domain: 2, // <-- same domain
-  //         amount: {
-  //           token: 0,
-  //           amount: new BigNumber(10),
-  //         },
-  //         data: [0]
-  //       },
-  //     }]
-  //   }
-
-  //   const txn = await builder.account.transferDomain(transferDomain, script);
-
-  //   const promise = sendTransaction(testing.container, txn)
-
-  //   await expect(promise).rejects.toThrow(DeFiDRpcError)
-  //   await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Cannot transfer inside same domain (code 16)')
-  // });
-
-  // it("should fail if amount is different", async () => {
-  //   const script = await providers.elliptic.script(); // TODO(Pierre): Check if this is the correct dvm address to use
-
-  //   const transferDomain: TransferDomain = {
-  //     items: [{
-  //       src:
-  //       {
-  //         address: script,
-  //         domain: 2,
-  //         amount: {
-  //           token: 0,
-  //           amount: new BigNumber(1), // <-- not match
-  //         },
-  //         data: [0]
-  //       },
-  //       dst: {
-  //         address: script,
-  //         domain: 3,
-  //         amount: {
-  //           token: 0,
-  //           amount: new BigNumber(2), // <-- not match
-  //         },
-  //         data: [0]
-  //       },
-  //     }]
-  //   }
-
-  //   const txn = await builder.account.transferDomain(transferDomain, script);
-  //   const promise = sendTransaction(testing.container, txn)
-
-  //   await expect(promise).rejects.toThrow(DeFiDRpcError)
-  //   await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Source amount must be equal to destination amount (code 16)')
-  // });
-
-  // it("should fail if transfer other than DFI token", async () => {
-  //   const script = await providers.elliptic.script(); // TODO(Pierre): Check if this is the correct dvm address to use
-
-  //   const transferDomain: TransferDomain = {
-  //     items: [{
-  //       src:
-  //       {
-  //         address: script,
-  //         domain: 2,
-  //         amount: {
-  //           token: 1, // <- not DFI
-  //           amount: new BigNumber(3),
-  //         },
-  //         data: [0]
-  //       },
-  //       dst: {
-  //         address: script,
-  //         domain: 3,
-  //         amount: {
-  //           token: 1, // <- not DFI
-  //           amount: new BigNumber(3),
-  //         },
-  //         data: [0]
-  //       },
-  //     }]
-  //   }
-
-  //   const txn = await builder.account.transferDomain(transferDomain, script);
-  //   const promise = sendTransaction(testing.container, txn)
-
-  //   await expect(promise).rejects.toThrow(DeFiDRpcError)
-  //   await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: For transferdomain, only DFI token is currently supported (code 16)')
-  // });
-
-  it('should transfer domain from DVM to EVM', async () => {
-    const script = await providers.elliptic.script()
-    // const script = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript()
-    const evmScript = {
-      stack: [
-        OP_CODES.OP_16,
-        OP_CODES.OP_PUSHDATA_HEX_LE(evmAddr.substring(2, evmAddr.length - 1))
-      ]
-    }
-
-    const transferDomain: TransferDomain = {
-      items: [{
-        src:
-        {
-          address: script,
-          domain: 2, // TransferDomainType.DVM
-          amount: {
-            token: 0,
-            amount: new BigNumber(3)
+      const transferDomain: TransferDomain = {
+        items: [{
+          src:
+          {
+            address: dvmScript,
+            amount: {
+              token: 0,
+              amount: new BigNumber(10)
+            },
+            domain: TRANSFER_DOMAIN_TYPE.DVM // <-- same domain
           },
-          data: [0]
-        },
-        dst: {
-          address: evmScript,
-          domain: 3, // TransferDomainType.EVM
-          amount: {
-            token: 0,
-            amount: new BigNumber(3)
-          },
-          data: [0]
-        }
-      }]
-    }
+          dst: {
+            address: evmScript,
+            amount: {
+              token: 0,
+              amount: new BigNumber(10)
+            },
+            domain: TRANSFER_DOMAIN_TYPE.DVM // <-- same domain
+          }
+        }]
+      }
 
-    const txn = await builder.account.transferDomain(transferDomain, script)
-    const outs = await sendTransaction(container, txn)
-    console.log({ outs })
+      const txn = await builder.account.transferDomain(transferDomain, dvmScript)
+
+      const promise = sendTransaction(testing.container, txn)
+
+      await expect(promise).rejects.toThrow(DeFiDRpcError)
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Cannot transfer inside same domain (code 16)')
+    })
+
+    it('should fail if amount is different', async () => {
+      const dvmScript = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript()
+      const evmScript = {
+        stack: [
+          OP_CODES.OP_16,
+          OP_CODES.OP_PUSHDATA_HEX_LE(evmAddr.substring(2, evmAddr.length))
+        ]
+      }
+
+      const transferDomain: TransferDomain = {
+        items: [{
+          src:
+          {
+            address: dvmScript,
+            domain: TRANSFER_DOMAIN_TYPE.DVM,
+            amount: {
+              token: 0,
+              amount: new BigNumber(1) // <-- not match
+            }
+          },
+          dst: {
+            address: evmScript,
+            domain: TRANSFER_DOMAIN_TYPE.EVM,
+            amount: {
+              token: 0,
+              amount: new BigNumber(2) // <-- not match
+            }
+          }
+        }]
+      }
+
+      const txn = await builder.account.transferDomain(transferDomain, dvmScript)
+      const promise = sendTransaction(testing.container, txn)
+
+      await expect(promise).rejects.toThrow(DeFiDRpcError)
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Source amount must be equal to destination amount (code 16)')
+    })
+
+    it('should fail if transfer other than DFI token', async () => {
+      const dvmScript = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript()
+      const evmScript = {
+        stack: [
+          OP_CODES.OP_16,
+          OP_CODES.OP_PUSHDATA_HEX_LE(evmAddr.substring(2, evmAddr.length))
+        ]
+      }
+      const transferDomain: TransferDomain = {
+        items: [{
+          src:
+          {
+            address: dvmScript,
+            domain: TRANSFER_DOMAIN_TYPE.DVM,
+            amount: {
+              token: 1, // <- not DFI
+              amount: new BigNumber(3)
+            }
+          },
+          dst: {
+            address: evmScript,
+            domain: TRANSFER_DOMAIN_TYPE.EVM,
+            amount: {
+              token: 1, // <- not DFI
+              amount: new BigNumber(3)
+            }
+          }
+        }]
+      }
+
+      const txn = await builder.account.transferDomain(transferDomain, dvmScript)
+      const promise = sendTransaction(testing.container, txn)
+
+      await expect(promise).rejects.toThrow(DeFiDRpcError)
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: For transferdomain, only DFI token is currently supported (code 16)')
+    })
+
+    it('(dvm -> evm) should fail if source address and source domain are not match', async () => {
+      const dvmScript = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript()
+      const evmScript = {
+        stack: [
+          OP_CODES.OP_16,
+          OP_CODES.OP_PUSHDATA_HEX_LE(evmAddr.substring(2, evmAddr.length))
+        ]
+      }
+
+      const transferDomain: TransferDomain = {
+        items: [{
+          src:
+          {
+            address: evmScript, // <- not match
+            domain: TRANSFER_DOMAIN_TYPE.DVM,
+            amount: {
+              token: 0,
+              amount: new BigNumber(3)
+            }
+          },
+          dst: {
+            address: dvmScript,
+            domain: TRANSFER_DOMAIN_TYPE.EVM,
+            amount: {
+              token: 0,
+              amount: new BigNumber(3)
+            }
+          }
+        }]
+      }
+
+      const txn = await builder.account.transferDomain(transferDomain, dvmScript)
+      const promise = sendTransaction(testing.container, txn)
+
+      await expect(promise).rejects.toThrow(DeFiDRpcError)
+      await expect(promise).rejects.toThrow('TransferDomainTx: Src address must not be an ETH address in case of "DVM" domain (code 16)')
+    })
+
+    it('(evm -> dvm) should fail if source address and source domain are not match', async () => {
+      const dvmScript = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript()
+
+      const transferDomain: TransferDomain = {
+        items: [{
+          src:
+          {
+            address: dvmScript, // <- not match
+            amount: {
+              token: 0,
+              amount: new BigNumber(3)
+            },
+            domain: TRANSFER_DOMAIN_TYPE.EVM // <- not match
+          },
+          dst: {
+            address: dvmScript,
+            amount: {
+              token: 0,
+              amount: new BigNumber(3)
+            },
+            domain: TRANSFER_DOMAIN_TYPE.DVM
+          }
+        }]
+      }
+
+      const txn = await builder.account.transferDomain(transferDomain, dvmScript)
+      const promise = sendTransaction(testing.container, txn)
+
+      await expect(promise).rejects.toThrow(DeFiDRpcError)
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Src address must be an ETH address in case of "EVM" domain (code 16)')
+    })
+
+    it('(dvm -> evm) should fail if destination address and destination domain are not match', async () => {
+      const dvmScript = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript()
+
+      const transferDomain: TransferDomain = {
+        items: [{
+          src:
+          {
+            address: dvmScript,
+            amount: {
+              token: 0,
+              amount: new BigNumber(3)
+            },
+            domain: TRANSFER_DOMAIN_TYPE.DVM
+          },
+          dst: {
+            address: dvmScript, // <- not match
+            amount: {
+              token: 0,
+              amount: new BigNumber(3)
+            },
+            domain: TRANSFER_DOMAIN_TYPE.EVM // <- not match
+          }
+        }]
+      }
+
+      const txn = await builder.account.transferDomain(transferDomain, dvmScript)
+      const promise = sendTransaction(testing.container, txn)
+
+      await expect(promise).rejects.toThrow(DeFiDRpcError)
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Dst address must be an ETH address in case of "EVM" domain (code 16)')
+    })
+
+    it('(evm -> dvm) should fail if destination address and destination domain are not match', async () => {
+      const evmScript = {
+        stack: [
+          OP_CODES.OP_16,
+          OP_CODES.OP_PUSHDATA_HEX_LE(evmAddr.substring(2, evmAddr.length))
+        ]
+      }
+      const dvmScript = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript()
+
+      const transferDomain: TransferDomain = {
+        items: [{
+          src:
+          {
+            address: evmScript,
+            amount: {
+              token: 0,
+              amount: new BigNumber(3)
+            },
+            domain: TRANSFER_DOMAIN_TYPE.EVM
+          },
+          dst: {
+            address: evmScript, // <- not match
+            amount: {
+              token: 0,
+              amount: new BigNumber(3)
+            },
+            domain: TRANSFER_DOMAIN_TYPE.DVM // <- not match
+          }
+        }]
+      }
+
+      const txn = await builder.account.transferDomain(transferDomain, dvmScript)
+      const promise = sendTransaction(testing.container, txn)
+
+      await expect(promise).rejects.toThrow(DeFiDRpcError)
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Dst address must be an ETH address in case of "EVM" domain (code 16)')
+    })
+
+    it('(dvm -> evm) should fail if address is not owned', async () => {
+      const invalidDvmScript = P2WPKH.fromAddress(RegTest, await testing.container.getNewAddress(), P2WPKH).getScript()
+
+      const evmScript = {
+        stack: [
+          OP_CODES.OP_16,
+          OP_CODES.OP_PUSHDATA_HEX_LE(evmAddr.substring(2, evmAddr.length))
+        ]
+      }
+
+      const transferDomain: TransferDomain = {
+        items: [{
+          src:
+          {
+            address: invalidDvmScript,
+            amount: {
+              token: 0,
+              amount: new BigNumber(3)
+            },
+            domain: TRANSFER_DOMAIN_TYPE.DVM
+          },
+          dst: {
+            address: evmScript,
+            amount: {
+              token: 0,
+              amount: new BigNumber(3)
+            },
+            domain: TRANSFER_DOMAIN_TYPE.EVM
+          }
+        }]
+      }
+
+      const txn = await builder.account.transferDomain(transferDomain, invalidDvmScript)
+      const promise = sendTransaction(testing.container, txn)
+
+      await expect(promise).rejects.toThrow(DeFiDRpcError)
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: tx must have at least one input from account owner (code 16)')
+    })
   })
 })
