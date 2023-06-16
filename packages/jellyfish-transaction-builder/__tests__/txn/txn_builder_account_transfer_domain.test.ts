@@ -284,7 +284,8 @@ describe('transferDomain', () => {
       await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Dst address must be an ETH address in case of "EVM" domain (code 16)')
     })
 
-    it('(evm -> dvm) should fail if destination address and destination domain are not match', async () => {
+    // WIP
+    it.only('(evm -> dvm) should fail if destination address and destination domain are not match', async () => {
       const evmScript = {
         stack: [
           OP_CODES.OP_16,
@@ -360,5 +361,103 @@ describe('transferDomain', () => {
       await expect(promise).rejects.toThrow(DeFiDRpcError)
       await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: tx must have at least one input from account owner (code 16)')
     })
+  })
+
+  // WIP
+  it('should transfer domain from DVM to EVM', async () => {
+    const dvmScript = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript()
+    const evmScript = {
+      stack: [
+        OP_CODES.OP_16,
+        OP_CODES.OP_PUSHDATA_HEX_LE(evmAddr.substring(2, evmAddr.length))
+      ]
+    }
+
+    const transferDomain: TransferDomain = {
+      items: [{
+        src:
+        {
+          address: dvmScript,
+          domain: TRANSFER_DOMAIN_TYPE.DVM,
+          amount: {
+            token: 0,
+            amount: new BigNumber(3)
+          },
+          data: [0]
+        },
+        dst: {
+          address: evmScript,
+          domain: TRANSFER_DOMAIN_TYPE.EVM, // TransferDomainType.EVM
+          amount: {
+            token: 0,
+            amount: new BigNumber(3)
+          },
+          data: [0]
+        }
+      }]
+    }
+
+    const txn = await builder.account.transferDomain(transferDomain, dvmScript)
+    const outs = await sendTransaction(container, txn)
+    const encoded: string = OP_CODES.OP_DEFI_TX_TRANSFER_DOMAIN(transferDomain).asBuffer().toString('hex')
+    const expectedTransferDomainScript = `6a${encoded}`
+
+    expect(outs.length).toStrictEqual(2)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[0].n).toStrictEqual(0)
+    expect(outs[0].tokenId).toStrictEqual(0)
+    expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 4466547838')).toStrictEqual(true)
+    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedTransferDomainScript)
+    expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
+
+    expect(outs[1].value).toEqual(expect.any(Number))
+    expect(outs[1].n).toStrictEqual(1)
+    expect(outs[1].tokenId).toStrictEqual(0)
+    expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(dvmAddr)
+
+    // Test account
+    // const accAfter = await testing.rpc.account.getAccount(dvmAddr)
+    // console.log({ accAfter: JSON.stringify(accAfter) })
+  })
+
+  // WIP
+  it('should transfer domain from EVM to DVM', async () => {
+    // const script = await providers.elliptic.script()
+    const script = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript()
+
+    const evmScript = {
+      stack: [
+        OP_CODES.OP_16,
+        OP_CODES.OP_PUSHDATA_HEX_LE(evmAddr.substring(2, evmAddr.length))
+      ]
+    }
+    const transferDomain: TransferDomain = {
+      items: [{
+        src:
+        {
+          address: evmScript,
+          domain: TRANSFER_DOMAIN_TYPE.EVM,
+          amount: {
+            token: 0,
+            amount: new BigNumber(3)
+          },
+          data: [0]
+        },
+        dst: {
+          address: script,
+          domain: TRANSFER_DOMAIN_TYPE.DVM,
+          amount: {
+            token: 0,
+            amount: new BigNumber(3)
+          },
+          data: [0]
+        }
+      }]
+    }
+
+    const txn = await builder.account.transferDomain(transferDomain, script)
+    const outs = await sendTransaction(container, txn)
+    console.log({ outs })
   })
 })
