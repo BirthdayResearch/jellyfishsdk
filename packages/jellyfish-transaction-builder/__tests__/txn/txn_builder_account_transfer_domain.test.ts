@@ -11,7 +11,7 @@ import {
   TransferDomain
 } from '@defichain/jellyfish-transaction'
 import { WIF } from '@defichain/jellyfish-crypto'
-import { P2WPKH, getEvmScript } from '@defichain/jellyfish-address'
+import { P2WPKH } from '@defichain/jellyfish-address'
 
 const TRANSFER_DOMAIN_TYPE = {
   DVM: 2,
@@ -45,9 +45,10 @@ describe('transferDomain', () => {
     providers.setEllipticPair(WIF.asEllipticPair(RegTestFoundationKeys[0].owner.privKey))
 
     dvmAddr = await providers.getAddress()
-    evmAddr = await container.getNewAddress('eth', 'eth')
-    dvmScript = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript()
-    evmScript = getEvmScript(evmAddr.substring(2, evmAddr.length))
+    evmAddr = await providers.getEvmAddress()
+    dvmScript = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript() // await providers.elliptic.script()
+    evmScript = await providers.elliptic.evmScript()
+    console.log({ evmAddr, evmScript })
 
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
@@ -95,7 +96,6 @@ describe('transferDomain', () => {
       }
 
       const txn = await builder.account.transferDomain(transferDomain, dvmScript)
-
       const promise = sendTransaction(testing.container, txn)
 
       await expect(promise).rejects.toThrow(DeFiDRpcError)
@@ -382,7 +382,7 @@ describe('transferDomain', () => {
   })
 
   // WIP
-  it.skip('should transfer domain from EVM to DVM', async () => {
+  it.only('should transfer domain from EVM to DVM', async () => {
     const transferDomain: TransferDomain = {
       items: [{
         src:
