@@ -194,7 +194,7 @@ describe('transferDomain', () => {
           src:
           {
             address: evmScript, // <- not match
-            domain: TRANSFER_DOMAIN_TYPE.DVM,
+            domain: TRANSFER_DOMAIN_TYPE.DVM, // <- not match
             amount: {
               token: 0,
               amount: new BigNumber(3)
@@ -387,7 +387,7 @@ describe('transferDomain', () => {
         },
         dst: {
           address: evmScript,
-          domain: TRANSFER_DOMAIN_TYPE.EVM, // TransferDomainType.EVM
+          domain: TRANSFER_DOMAIN_TYPE.EVM,
           amount: {
             token: 0,
             amount: new BigNumber(3)
@@ -420,11 +420,11 @@ describe('transferDomain', () => {
     const [dvmBalanceAfter0, tokenIdAfter0] = dvmAccAfter[0].split('@')
     expect(tokenIdBefore0).toStrictEqual(tokenIdAfter0)
 
-    // check: dvm balance is transfered
+    // check: dvm balance is transferred
     expect(new BigNumber(dvmBalanceAfter0))
       .toStrictEqual(new BigNumber(dvmBalanceBefore0).minus(3))
 
-    // check: evm balance = dvm balance - tranferred
+    // check: evm balance = dvm balance - transferred
     const withoutEthRes = await testing.rpc.account.getTokenBalances({}, false)
     const [withoutEth] = withoutEthRes[0].split('@')
 
