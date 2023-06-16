@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { Bech32, EllipticPair, HASH160, WIF } from '@defichain/jellyfish-crypto'
+import { Bech32, EllipticPair, Evm, HASH160, KECCAK256, WIF } from '@defichain/jellyfish-crypto'
 import { EllipticPairProvider, FeeRateProvider, Prevout, PrevoutProvider } from '../src'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { OP_CODES, Script } from '@defichain/jellyfish-transaction'
@@ -86,6 +86,15 @@ export class MockEllipticPairProvider implements EllipticPairProvider {
     }
   }
 
+  async evmScript (): Promise<Script> {
+    return {
+      stack: [
+        OP_CODES.OP_16,
+        OP_CODES.OP_PUSHDATA_HEX_LE(KECCAK256(await this.ellipticPair.publicKey()))
+      ]
+    }
+  }
+
   get (prevout: Prevout): EllipticPair {
     return this.ellipticPair
   }
@@ -129,6 +138,11 @@ export class MockProviders {
   async getAddress (): Promise<string> {
     const pubKey = await this.ellipticPair.publicKey()
     return Bech32.fromPubKey(pubKey, 'bcrt', 0x00)
+  }
+
+  async getEvmAddress (): Promise<string> {
+    const pubKey = await this.ellipticPair.publicKey()
+    return Evm.fromPubKey(pubKey)
   }
 
   async setupMocks (): Promise<void> {
