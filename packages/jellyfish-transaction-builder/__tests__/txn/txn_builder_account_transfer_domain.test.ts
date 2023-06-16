@@ -11,7 +11,7 @@ import {
   TransferDomain
 } from '@defichain/jellyfish-transaction'
 import { WIF } from '@defichain/jellyfish-crypto'
-import { P2WPKH } from '@defichain/jellyfish-address'
+import { P2WPKH, getEvmScript } from '@defichain/jellyfish-address'
 
 const TRANSFER_DOMAIN_TYPE = {
   DVM: 2,
@@ -27,6 +27,7 @@ let builder: P2WPKHTransactionBuilder
 let dvmAddr: string
 let evmAddr: string
 let dvmScript: Script
+let evmScript: Script
 
 describe('transferDomain', () => {
   beforeAll(async () => {
@@ -46,6 +47,7 @@ describe('transferDomain', () => {
     dvmAddr = await providers.getAddress()
     evmAddr = await container.getNewAddress('eth', 'eth')
     dvmScript = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript()
+    evmScript = getEvmScript(evmAddr.substring(2, evmAddr.length))
 
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
@@ -70,13 +72,6 @@ describe('transferDomain', () => {
 
   describe('transferDomain failed', () => {
     it('should fail if transfer within same domain', async () => {
-      const evmScript = {
-        stack: [
-          OP_CODES.OP_16,
-          OP_CODES.OP_PUSHDATA_HEX_LE(evmAddr.substring(2, evmAddr.length))
-        ]
-      }
-
       const transferDomain: TransferDomain = {
         items: [{
           src:
@@ -108,13 +103,6 @@ describe('transferDomain', () => {
     })
 
     it('should fail if amount is different', async () => {
-      const evmScript = {
-        stack: [
-          OP_CODES.OP_16,
-          OP_CODES.OP_PUSHDATA_HEX_LE(evmAddr.substring(2, evmAddr.length))
-        ]
-      }
-
       const transferDomain: TransferDomain = {
         items: [{
           src:
@@ -145,12 +133,6 @@ describe('transferDomain', () => {
     })
 
     it('should fail if transfer other than DFI token', async () => {
-      const evmScript = {
-        stack: [
-          OP_CODES.OP_16,
-          OP_CODES.OP_PUSHDATA_HEX_LE(evmAddr.substring(2, evmAddr.length))
-        ]
-      }
       const transferDomain: TransferDomain = {
         items: [{
           src:
@@ -181,13 +163,6 @@ describe('transferDomain', () => {
     })
 
     it('(dvm -> evm) should fail if source address and source domain are not match', async () => {
-      const evmScript = {
-        stack: [
-          OP_CODES.OP_16,
-          OP_CODES.OP_PUSHDATA_HEX_LE(evmAddr.substring(2, evmAddr.length))
-        ]
-      }
-
       const transferDomain: TransferDomain = {
         items: [{
           src:
@@ -279,13 +254,6 @@ describe('transferDomain', () => {
 
     // WIP
     it.skip('(evm -> dvm) should fail if destination address and destination domain are not match', async () => {
-      const evmScript = {
-        stack: [
-          OP_CODES.OP_16,
-          OP_CODES.OP_PUSHDATA_HEX_LE(evmAddr.substring(2, evmAddr.length))
-        ]
-      }
-
       const transferDomain: TransferDomain = {
         items: [{
           src:
@@ -317,13 +285,6 @@ describe('transferDomain', () => {
 
     it('(dvm -> evm) should fail if address is not owned', async () => {
       const invalidDvmScript = P2WPKH.fromAddress(RegTest, await testing.container.getNewAddress(), P2WPKH).getScript()
-
-      const evmScript = {
-        stack: [
-          OP_CODES.OP_16,
-          OP_CODES.OP_PUSHDATA_HEX_LE(evmAddr.substring(2, evmAddr.length))
-        ]
-      }
 
       const transferDomain: TransferDomain = {
         items: [{
@@ -358,13 +319,6 @@ describe('transferDomain', () => {
   it('should transfer domain from DVM to EVM', async () => {
     const dvmAccBefore = await testing.rpc.account.getAccount(dvmAddr)
     const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[0].split('@')
-
-    const evmScript = {
-      stack: [
-        OP_CODES.OP_16,
-        OP_CODES.OP_PUSHDATA_HEX_LE(evmAddr.substring(2, evmAddr.length))
-      ]
-    }
 
     const transferDomain: TransferDomain = {
       items: [{
@@ -429,12 +383,6 @@ describe('transferDomain', () => {
 
   // WIP
   it.skip('should transfer domain from EVM to DVM', async () => {
-    const evmScript = {
-      stack: [
-        OP_CODES.OP_16,
-        OP_CODES.OP_PUSHDATA_HEX_LE(evmAddr.substring(2, evmAddr.length))
-      ]
-    }
     const transferDomain: TransferDomain = {
       items: [{
         src:
