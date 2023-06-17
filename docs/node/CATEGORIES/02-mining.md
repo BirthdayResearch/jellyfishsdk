@@ -83,3 +83,13 @@ enum EstimateMode {
   CONSERVATIVE = 'CONSERVATIVE'
 }
 ```
+
+## submitBlock
+
+Attempts to submit new block to network.
+See https://en.bitcoin.it/wiki/BIP_0022 for full specification.
+
+```ts title="client.mining.submitBlock()"
+interface mining {
+  submitBlock (hexdata: string, dummy: string): Promise<void>
+}
