@@ -87,7 +87,7 @@ describe.skip('setgovheight', () => {
       const govVars: any[][] = await testing.rpc.call('listgovs', [], 'bignumber')
       expect(govVars.length).toBeGreaterThan(0)
       const liqSplits = govVars.find(gv => gv[0].LP_SPLITS !== undefined)
-      expect(liqSplits).not.toBeUndefined()
+      expect(liqSplits).toBeDefined()
       expect(liqSplits?.length).toStrictEqual(2)
       const [current, next] = liqSplits as any[]
       expect(current.LP_SPLITS['3'].toString()).toStrictEqual('0.7')

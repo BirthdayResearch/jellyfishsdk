@@ -25,8 +25,8 @@ export class Address {
    * List account history
    *
    * @param {string} address to list account history
-   * @param {string} size of account history
-   * @param {string} next set of account history
+   * @param {string} [size=30] to query
+   * @param {string} [next] set of account history
    * @return {Promise<ApiPagedResponse<AddressHistory>>}
    */
   async listAccountHistory (address: string, size: number = 30, next?: string): Promise<ApiPagedResponse<AddressHistory>> {
@@ -58,8 +58,8 @@ export class Address {
    * List all tokens balance belonging to an address.
    *
    * @param {string} address bech32/legacy/b58 formatted address
-   * @param {number} size to query
-   * @param {number} next token for next slice of AddressToken
+   * @param {number} [size=30] to query
+   * @param {number} [next] token for next slice of AddressToken
    * @return {Promise<ApiPagedResponse<AddressToken>>}
    */
   async listToken (address: string, size: number = 30, next?: string): Promise<ApiPagedResponse<AddressToken>> {
@@ -70,8 +70,8 @@ export class Address {
    * List all vaults belonging to an address.
    *
    * @param {string} address bech32/legacy/b58 formatted address
-   * @param {number} size of vaults to query
-   * @param {string} next set of vaults
+   * @param {number} [size=30] of vaults to query
+   * @param {string} [next] set of vaults
    * @return {Promise<ApiPagedResponse<LoanVaultActive | LoanVaultLiquidated>>}
    */
   async listVault (address: string, size: number = 30, next?: string): Promise<ApiPagedResponse<LoanVaultActive | LoanVaultLiquidated>> {
@@ -82,8 +82,8 @@ export class Address {
    * List all transaction activity belonging to an address.
    *
    * @param {string} address bech32/legacy/b58 formatted address
-   * @param {number} size to query
-   * @param {number} next token for next slice of AddressActivity
+   * @param {number} [size=30] to query
+   * @param {number} [next] token for next slice of AddressActivity
    * @return {Promise<ApiPagedResponse<AddressActivity>>}
    */
   async listTransaction (address: string, size: number = 30, next?: string): Promise<ApiPagedResponse<AddressActivity>> {
@@ -94,12 +94,24 @@ export class Address {
    * List all unspent belonging to an address.
    *
    * @param {string} address bech32/legacy/b58 formatted address
-   * @param {number} size to query
-   * @param {number} next token for next slice of AddressUnspent
+   * @param {number} [size=30] to query
+   * @param {number} [next] token for next slice of AddressUnspent
    * @return {Promise<ApiPagedResponse<AddressUnspent>>}
    */
   async listTransactionUnspent (address: string, size: number = 30, next?: string): Promise<ApiPagedResponse<AddressUnspent>> {
     return await this.client.requestList('GET', `address/${address}/transactions/unspent`, size, next)
+  }
+
+  /**
+   * List future swap
+   *
+   * @param {string} address to list future swap
+   * @param {string} [size=30] to query
+   * @param {string} [next] token for next slice of FutureSwap
+   * @return {Promise<ApiPagedResponse<FutureSwap>>}
+   */
+  async listFutureSwap (address: string, size: number = 30, next?: string): Promise<ApiPagedResponse<FutureSwap>> {
+    return await this.client.requestList('GET', `address/${address}/future/swaps`, size, next)
   }
 }
 
@@ -216,5 +228,23 @@ export interface AddressHistory {
     height: number
     hash?: string
     time?: number
+  }
+}
+
+export interface FutureSwap {
+  id: string
+  key: string
+  sort: string
+  source: {
+    token: number
+    amount: string
+  }
+  destination: number
+  withdraw: boolean
+  block: {
+    hash: string
+    height: number
+    medianTime: number
+    time: number
   }
 }

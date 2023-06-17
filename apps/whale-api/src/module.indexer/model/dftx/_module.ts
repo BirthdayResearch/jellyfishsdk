@@ -14,6 +14,7 @@ import { CompositeSwapIndexer } from './composite.swap'
 import { ActivePriceIndexer } from './active.price'
 import { PlaceAuctionBidIndexer } from './place.auction.bid'
 import { PoolSwapAggregatedIndexer } from './pool.swap.aggregated'
+import { SetFutureSwapIndexer } from './set.future.swap'
 import { PoolPairPathMapping } from './pool.pair.path.mapping'
 
 const indexers = [
@@ -29,7 +30,8 @@ const indexers = [
   PoolSwapAggregatedIndexer,
   CompositeSwapIndexer,
   ActivePriceIndexer,
-  PlaceAuctionBidIndexer
+  PlaceAuctionBidIndexer,
+  SetFutureSwapIndexer
 ]
 
 @Module({

@@ -17,6 +17,7 @@ import { CompositeSwapIndexer } from './dftx/composite.swap'
 import { ActivePriceIndexer } from './dftx/active.price'
 import { PlaceAuctionBidIndexer } from './dftx/place.auction.bid'
 import { PoolSwapAggregatedIndexer } from './dftx/pool.swap.aggregated'
+import { SetFutureSwapIndexer } from './dftx/set.future.swap'
 
 @Injectable()
 export class MainDfTxIndexer extends Indexer {
@@ -36,7 +37,8 @@ export class MainDfTxIndexer extends Indexer {
     compositeSwapIndexer: CompositeSwapIndexer,
     poolSwapIntervalIndexer: PoolSwapAggregatedIndexer,
     activePriceIndexer: ActivePriceIndexer,
-    placeAuctionBidIndexer: PlaceAuctionBidIndexer
+    placeAuctionBidIndexer: PlaceAuctionBidIndexer,
+    setFutureSwapIndexer: SetFutureSwapIndexer
   ) {
     super()
     this.indexers = [
@@ -52,7 +54,8 @@ export class MainDfTxIndexer extends Indexer {
       compositeSwapIndexer,
       poolSwapIntervalIndexer,
       activePriceIndexer,
-      placeAuctionBidIndexer
+      placeAuctionBidIndexer,
+      setFutureSwapIndexer
     ]
   }
 
