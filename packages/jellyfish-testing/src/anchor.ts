@@ -1,8 +1,9 @@
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { TestingGroup } from './testing'
 
 export class TestingGroupAnchor {
   constructor (
-    private readonly testingGroup: TestingGroup
+    private readonly testingGroup: TestingGroup<MasterNodeRegTestContainer>
   ) {
   }
 
