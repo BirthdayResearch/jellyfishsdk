@@ -275,6 +275,17 @@ export class Blockchain {
   }
 
   /**
+   * Retrieve a BIP 157 content filter for a particular block.
+   *
+   * @param {string} blockHash The hash of the block.
+   * @param {string} [filterType] The type name of the filter. Defaults to basic.
+   * @return {Promise<BlockFilter>}
+   */
+  async getBlockFilter (blockHash: string, filterType: string = 'basic'): Promise<BlockFilter> {
+    return await this.client.call('getblockfilter', [blockHash, filterType], 'number')
+  }
+
+  /**
    * Wait for any new block
    *
    * @param {number} [timeout=30000] in millis
@@ -539,4 +550,9 @@ export interface ChainTxStats {
   window_tx_count: number
   window_interval: number
   txrate: number
+}
+
+export interface BlockFilter {
+  filter: string
+  header: string
 }
