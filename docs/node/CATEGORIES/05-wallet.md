@@ -414,3 +414,49 @@ interface wallet {
   signMessage (address: string, message: string): Promise<string>
 }
 ```
+
+## encryptWallet
+
+Encrypts the wallet for the first time using a custom ‘passphrase’. Transactions related to private keys will thereafter require a passphrase before execution.
+
+To unlock the wallet, use [walletPassphrase](#walletPassphrase)
+
+```ts title="client.wallet.encryptWallet()"
+interface wallet {
+  encryptWallet (passphrase: string): Promise<string>
+}
+```
+
+## walletPassphrase
+
+Stores the wallet decryption key in memory for ‘timeout’ seconds. Calling `walletPassphrase` when wallet is unlocked will set a new unlock time that overrides the old setting.
+
+To encrypt the wallet for the first time, use [encryptWallet](#encryptWallet)
+
+```ts title="client.wallet.walletPassphrase()"
+interface wallet {
+  walletPassphrase (passphrase: string, timeout: number): Promise<void>
+}
+```
+
+## walletPassphraseChange
+
+Changes the wallet passphrase from ‘oldpassphrase’ to ‘newpassphrase’.
+
+```ts title="client.wallet.walletPassphraseChange()"
+interface wallet {
+  walletPassphraseChange (oldpassphrase: string, newpassphrase: string): Promise<void>
+}
+```
+
+## walletLock
+
+Removes the wallet encryption key from memory, locking the wallet.
+
+After locking the wallet, `walletPassphrase` must be called again to use methods that requires an unlocked wallet.
+
+```ts title="client.wallet.walletLock()"
+interface wallet {
+  walletLock (): Promise<void>
+}
+```
