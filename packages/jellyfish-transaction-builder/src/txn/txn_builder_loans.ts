@@ -14,7 +14,8 @@ import {
   TakeLoan,
   PaybackLoan,
   PaybackLoanV2,
-  PlaceAuctionBid
+  PlaceAuctionBid,
+  PaybackWithCollateral
 } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 import { BigNumber } from '@defichain/jellyfish-json'
@@ -235,6 +236,20 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
   async placeAuctionBid (placeAuctionBid: PlaceAuctionBid, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_AUCTION_BID(placeAuctionBid),
+      changeScript
+    )
+  }
+
+  /**
+   * Return loan with vault's collaterals
+   *
+   * @param {PaybackWithCollateral} paybackWithCollateral txn to create
+   * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
+   * @returns {Promise<TransactionSegWit>}
+   */
+  async paybackWithCollateral (paybackWithCollateral: PaybackWithCollateral, changeScript: Script): Promise<TransactionSegWit> {
+    return await super.createDeFiTx(
+      OP_CODES.OP_DEFI_TX_PAYBACK_WITH_COLLATERAL(paybackWithCollateral),
       changeScript
     )
   }

@@ -266,6 +266,28 @@ export class CPaybackLoanV2 extends ComposableBuffer<PaybackLoanV2> {
 }
 
 /**
+ * PaybackWithCollateral DeFi Transaction
+ */
+export interface PaybackWithCollateral {
+  vaultId: string // --------------------| 32 bytes, Vault Id
+}
+
+/**
+ * Composable PaybackWithCollateral, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CPaybackWithCollateral extends ComposableBuffer<PaybackWithCollateral> {
+  static OP_CODE = 0x57 // 'W'
+  static OP_NAME = 'OP_DEFI_TX_PAYBACK_WITH_COLLATERAL'
+
+  composers (pwc: PaybackWithCollateral): BufferComposer[] {
+    return [
+      ComposableBuffer.hexBEBufferLE(32, () => pwc.vaultId, v => pwc.vaultId = v)
+    ]
+  }
+}
+
+/**
  * @deprecated
  */
 export * from './dftx_vault'
