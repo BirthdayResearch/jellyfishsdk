@@ -578,8 +578,8 @@ describe('withdrawFromVault with 50% DUSD or DFI collaterals', () => {
     }, bobVaultScript)
     let outs = await sendTransaction(bob.container, txn)
     expect(outs[0].value).toStrictEqual(0)
-    expect(outs[1].value).toBeLessThan(20)
-    expect(outs[1].value).toBeGreaterThan(19.999)
+    expect(outs[1].value).toBeLessThan(10)
+    expect(outs[1].value).toBeGreaterThan(9.999)
     expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(bobVaultAddr)
 
     // remove dusd collateral, new total collateral = 5000 USD
@@ -590,8 +590,8 @@ describe('withdrawFromVault with 50% DUSD or DFI collaterals', () => {
     }, bobVaultScript)
     outs = await sendTransaction(bob.container, txn)
     expect(outs[0].value).toStrictEqual(0)
-    expect(outs[1].value).toBeLessThan(20)
-    expect(outs[1].value).toBeGreaterThan(19.999)
+    expect(outs[1].value).toBeLessThan(10)
+    expect(outs[1].value).toBeGreaterThan(9.999)
     expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(bobVaultAddr)
 
     // remove btc collateral, new total collateral = 0 USD
@@ -602,8 +602,8 @@ describe('withdrawFromVault with 50% DUSD or DFI collaterals', () => {
     }, bobVaultScript)
     outs = await sendTransaction(bob.container, txn)
     expect(outs[0].value).toStrictEqual(0)
-    expect(outs[1].value).toBeLessThan(20)
-    expect(outs[1].value).toBeGreaterThan(19.999)
+    expect(outs[1].value).toBeLessThan(10)
+    expect(outs[1].value).toBeGreaterThan(9.999)
     expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(bobVaultAddr)
 
     await tGroup.waitForSync()
@@ -739,8 +739,8 @@ describe('withdrawFromVault with 50% DUSD or DFI collaterals', () => {
     }, bobVaultScript)
     const outs = await sendTransaction(bob.container, txn)
     expect(outs[0].value).toStrictEqual(0)
-    expect(outs[1].value).toBeLessThan(20)
-    expect(outs[1].value).toBeGreaterThan(19.999)
+    expect(outs[1].value).toBeLessThan(10)
+    expect(outs[1].value).toBeGreaterThan(9.999)
     expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(bobVaultAddr)
 
     await tGroup.waitForSync()
