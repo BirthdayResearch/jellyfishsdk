@@ -21,5 +21,5 @@ it('should double sha256 with dSHA256', () => {
 it('should keccak256 with KECCAK256', () => {
   const buffer = Buffer.from('1286647f7440111ab928bdea4daa42533639c4567d81eca0fff622fb6438eae31cee4e0c53581dacc579fde09f5a25150703e9efd8d2c5ecbbda619d4ca104e6', 'hex')
   const hashed = KECCAK256(buffer)
-  expect(hashed).toStrictEqual('9b8a4af42140d8a4c153a822f02571a1dd037e89')
+  expect(hashed.toString('hex')).toStrictEqual('8bf885ce24b542db49bade8e9b8a4af42140d8a4c153a822f02571a1dd037e89')
 })

@@ -87,10 +87,11 @@ export class MockEllipticPairProvider implements EllipticPairProvider {
   }
 
   async evmScript (): Promise<Script> {
+    const hash = KECCAK256(await this.ellipticPair.publicKey())
     return {
       stack: [
         OP_CODES.OP_16,
-        OP_CODES.OP_PUSHDATA_HEX_LE(KECCAK256(await this.ellipticPair.publicKey()))
+        OP_CODES.OP_PUSHDATA(hash.subarray(hash.length - 20), 'little')
       ]
     }
   }

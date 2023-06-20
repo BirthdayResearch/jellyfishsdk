@@ -1,5 +1,5 @@
-import { keccak256 } from 'js-sha3'
 import createHash from 'create-hash'
+import createKeccakHash from 'keccak'
 
 /**
  * @param {Buffer} buffer to RIPEMD160(buffer)
@@ -30,9 +30,8 @@ export function dSHA256 (buffer: Buffer): Buffer {
 }
 
 /**
- * @param {Buffer} buffer to keccak256(buffer)
+ * @param {Buffer} buffer to KECCAK256(buffer)
  */
-export function KECCAK256 (buffer: Buffer): string {
-  const hash = keccak256(buffer)
-  return hash.slice(hash.length - 40) // grab the last 20 bytes (40 chars)
+export function KECCAK256 (buffer: Buffer): Buffer {
+  return createKeccakHash('keccak256').update(buffer).digest()
 }
