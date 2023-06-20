@@ -25,14 +25,15 @@ function toAddress (hash: Buffer): string {
 
 export const Evm = {
   /**
-   * @param {Buffer} pubKey to format into Eth
-   * @return {string} eth checksum address
+   * @param {Buffer} uncompressed pubKey to format into Eth
+   * @return {string} eth encoded address
    */
-  fromPubKey (pubKey: Buffer): string {
-    if (pubKey.length !== 33) {
+  fromUnPubKey (unPubKey: Buffer): string {
+    if (unPubKey.length !== 65) {
       throw new Error('InvalidPubKeyLength')
     }
-    const hash = KECCAK256(pubKey)
+    const sub = unPubKey.subarray(1, 65)
+    const hash = KECCAK256(sub)
     return toChecksumAddress(toAddress(hash))
   }
 }

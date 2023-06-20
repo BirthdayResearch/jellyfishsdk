@@ -65,6 +65,10 @@ export abstract class WalletAccount implements WalletEllipticPair {
     return await this.walletEllipticPair.publicKey()
   }
 
+  async unPublicKey (): Promise<Buffer> {
+    return await this.walletEllipticPair.unPublicKey()
+  }
+
   async privateKey (): Promise<Buffer> {
     return await this.walletEllipticPair.privateKey()
   }
