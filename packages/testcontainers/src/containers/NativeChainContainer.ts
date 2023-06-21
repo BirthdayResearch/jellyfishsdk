@@ -1,5 +1,4 @@
-import { GenericContainer, StartedTestContainer } from 'testcontainers'
-import { AbstractStartedContainer } from 'testcontainers/dist/modules/abstract-started-container'
+import { GenericContainer, StartedTestContainer, AbstractStartedContainer } from 'testcontainers'
 import {
   getNetwork,
   MasterNodeKey,
@@ -7,10 +6,10 @@ import {
   NetworkName,
   RegTestFoundationKeys
 } from '@defichain/jellyfish-network'
-import { RestartOptions } from 'testcontainers/dist/test-container'
+import { RestartOptions } from 'testcontainers/dist/src/test-container'
 import { NativeChainRpc } from './NativeChainRpc'
 import { NativeChainWaitFor } from './NativeChainWaitFor'
-import { ExecResult } from 'testcontainers/dist/docker/types'
+import { ExecResult } from 'testcontainers/dist/src/docker/types'
 
 /**
  * DeFiChain NativeChain node managed in docker
@@ -23,7 +22,7 @@ export class NativeChainContainer extends GenericContainer {
     image: string = NativeChainContainer.image
   ) {
     super(image)
-    this.name = this.generateName()
+    this.opts.name = this.generateName()
   }
 
   static get image (): string {
@@ -168,8 +167,8 @@ export class NativeChainContainer extends GenericContainer {
    * Create container and start it immediately waiting for NativeChain to be ready
    */
   public async start (): Promise<StartedNativeChainContainer> {
-    this.withExposedPorts(...(this.hasExposedPorts ? this.ports : Object.values(this.blockchainNetwork.ports)))
-      .withCommand(this.command.length > 0 ? this.command.concat(this.addedCmds) : this.generateCmd())
+    this.withExposedPorts(...(this.hasExposedPorts ? this.opts.exposedPorts : Object.values(this.blockchainNetwork.ports)))
+      .withCommand(this.opts.command.length > 0 ? this.opts.command.concat(this.addedCmds) : this.generateCmd())
 
     const config = {
       rpcUser: this.rpcUser,

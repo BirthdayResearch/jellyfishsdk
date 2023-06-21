@@ -1,5 +1,4 @@
-import { GenericContainer, StartedNetwork } from 'testcontainers'
-import { AbstractStartedContainer } from 'testcontainers/dist/modules/abstract-started-container'
+import { GenericContainer, StartedNetwork, AbstractStartedContainer } from 'testcontainers'
 import { waitForCondition } from '../../utils'
 import { StartedNativeChainContainer } from '../NativeChainContainer'
 import fetch from 'cross-fetch'
