@@ -70,7 +70,7 @@ export class ICXSetup {
   async setupICXFlag (): Promise<void> {
     await this.client.masternode.setGov({
       ATTRIBUTES: {
-        'v0/params/feature/evm': 'true'
+        'v0/params/feature/icx': 'true'
       }
     })
     await this.container.generate(1)
