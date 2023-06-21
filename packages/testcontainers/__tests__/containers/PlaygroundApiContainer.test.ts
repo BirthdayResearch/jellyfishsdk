@@ -35,9 +35,9 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-  // await whale.stop()
-  // await defid.stop()
-  // await playground.stop()
+  await whale.stop()
+  await defid.stop()
+  await playground.stop()
 })
 
 it('should playground.waitForReady()', async () => {
