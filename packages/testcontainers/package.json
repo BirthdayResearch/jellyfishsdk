@@ -19,7 +19,7 @@
     "dockerode": "^3.3.5",
     "tar-fs": "^2.1.1",
     "uuid": "^9.0.0",
-    "testcontainers": "^9.1.3"
+    "testcontainers": "^9.9.0"
   },
   "peerDependencies": {
     "@types/tar-fs": "^2.0.1",

@@ -2,7 +2,6 @@
   <dictionary name="fuxing">
     <words>
       <w>accounttoaccount</w>
-      <w>transferdomain</w>
       <w>accounttoutxos</w>
       <w>acindex</w>
       <w>addpoolliquidity</w>
@@ -282,6 +281,7 @@
       <w>timelock</w>
       <w>toaltstack</w>
       <w>tradeable</w>
+      <w>transferdomain</w>
       <w>tsla</w>
       <w>txcount</w>
       <w>txid</w>
