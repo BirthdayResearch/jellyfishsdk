@@ -159,5 +159,12 @@ export class SetupGov extends PlaygroundSetup<Record<string, any>> {
       }
     })
     await this.generate(1)
+
+    await this.client.masternode.setGov({
+      ATTRIBUTES: {
+        'v0/params/feature/icx': 'true'
+      }
+    })
+    await this.generate(1)
   }
 }
