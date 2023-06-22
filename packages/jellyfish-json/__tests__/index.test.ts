@@ -68,7 +68,7 @@ describe('stringify', () => {
     const string = JellyfishJSON.stringify({
       bigint: new BigInt('120000000000000001')
     })
-    expect(string).toStrictEqual('{"bigint":120000000000000001n}')
+    expect(string).toStrictEqual('{"bigint":120000000000000001}')
   })
 })
 
