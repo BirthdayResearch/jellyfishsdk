@@ -54,6 +54,14 @@ export class MnemonicHdNode implements WalletHdNode {
   }
 
   /**
+   * @return Promise<Buffer> uncompressed public key
+   */
+  async unPublicKey (): Promise<Buffer> {
+    // set an empty Buffer due to unimplemented on bip32.BIP32Interface
+    return Buffer.alloc(0)
+  }
+
+  /**
    * @return Promise<Buffer> privateKey of the WalletHdNode
    */
   async privateKey (): Promise<Buffer> {
