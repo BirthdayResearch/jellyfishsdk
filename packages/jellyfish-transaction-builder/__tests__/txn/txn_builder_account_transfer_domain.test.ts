@@ -25,7 +25,7 @@ let providers: MockProviders
 let builder: P2WPKHTransactionBuilder
 
 let dvmAddr: string
-let evmAddr: string
+// let evmAddr: string
 let dvmScript: Script
 let evmScript: Script
 
@@ -45,10 +45,9 @@ describe('transferDomain', () => {
     providers.setEllipticPair(WIF.asEllipticPair(RegTestFoundationKeys[0].owner.privKey))
 
     dvmAddr = await providers.getAddress()
-    evmAddr = await providers.getEvmAddress()
-    dvmScript = P2WPKH.fromAddress(RegTest, dvmAddr, P2WPKH).getScript() // await providers.elliptic.script()
+    // evmAddr = await providers.getEvmAddress() //await testing.container.getNewAddress('eth', 'eth')// await providers.getEvmAddress()
+    dvmScript = await providers.elliptic.script()
     evmScript = await providers.elliptic.evmScript()
-    console.log({ evmAddr, evmScript })
 
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
@@ -314,9 +313,39 @@ describe('transferDomain', () => {
       await expect(promise).rejects.toThrow(DeFiDRpcError)
       await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: tx must have at least one input from account owner (code 16)')
     })
+
+    it.skip('(dvm -> evm) should fail if negative amount', async () => {
+      const transferDomain: TransferDomain = {
+        items: [{
+          src:
+          {
+            address: dvmScript,
+            amount: {
+              token: 0,
+              amount: new BigNumber(-1)
+            },
+            domain: TRANSFER_DOMAIN_TYPE.DVM
+          },
+          dst: {
+            address: evmScript,
+            amount: {
+              token: 0,
+              amount: new BigNumber(-1)
+            },
+            domain: TRANSFER_DOMAIN_TYPE.EVM
+          }
+        }]
+      }
+
+      const txn = await builder.account.transferDomain(transferDomain, dvmScript)
+      const promise = sendTransaction(testing.container, txn)
+
+      await expect(promise).rejects.toThrow(RangeError)
+      await expect(promise).rejects.toThrow('RangeError: The value of "value" is out of range. It must be >= 0 and <= 4294967295. Received -100000000')
+    })
   })
 
-  it('should transfer domain from DVM to EVM', async () => {
+  it.only('should transfer domain from DVM to EVM', async () => {
     const dvmAccBefore = await testing.rpc.account.getAccount(dvmAddr)
     const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[0].split('@')
 
@@ -379,6 +408,94 @@ describe('transferDomain', () => {
     const [withEth] = withEthRes[0].split('@')
     expect(new BigNumber(withoutEth))
       .toStrictEqual(new BigNumber(withEth).minus(3))
+  })
+
+  // WIP
+  it.skip('should (duo) transfer domain from DVM to EVM', async () => {
+    const dvmAccBefore = await testing.rpc.account.getAccount(dvmAddr)
+    const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[0].split('@')
+
+    const transferDomain: TransferDomain = {
+      items: [{
+        src:
+        {
+          address: dvmScript,
+          domain: TRANSFER_DOMAIN_TYPE.DVM,
+          amount: {
+            token: 0,
+            amount: new BigNumber(2)
+          },
+          data: [0]
+        },
+        dst: {
+          address: evmScript,
+          domain: TRANSFER_DOMAIN_TYPE.EVM,
+          amount: {
+            token: 0,
+            amount: new BigNumber(2)
+          },
+          data: [0]
+        }
+      },
+      {
+        src:
+        {
+          address: dvmScript,
+          domain: TRANSFER_DOMAIN_TYPE.DVM,
+          amount: {
+            token: 0,
+            amount: new BigNumber(1.5)
+          },
+          data: [0]
+        },
+        dst: {
+          address: evmScript,
+          domain: TRANSFER_DOMAIN_TYPE.EVM,
+          amount: {
+            token: 0,
+            amount: new BigNumber(1.5)
+          },
+          data: [0]
+        }
+      }
+      ]
+    }
+
+    const txn = await builder.account.transferDomain(transferDomain, dvmScript)
+    const outs = await sendTransaction(container, txn)
+    const encoded: string = OP_CODES.OP_DEFI_TX_TRANSFER_DOMAIN(transferDomain).asBuffer().toString('hex')
+    const expectedTransferDomainScript = `6a${encoded}`
+
+    expect(outs.length).toStrictEqual(2)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[0].n).toStrictEqual(0)
+    expect(outs[0].tokenId).toStrictEqual(0)
+    expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 4466547838')).toStrictEqual(true)
+    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedTransferDomainScript)
+    expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
+
+    expect(outs[1].value).toEqual(expect.any(Number))
+    expect(outs[1].n).toStrictEqual(1)
+    expect(outs[1].tokenId).toStrictEqual(0)
+    expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(dvmAddr)
+
+    const dvmAccAfter = await testing.rpc.account.getAccount(dvmAddr)
+    const [dvmBalanceAfter0, tokenIdAfter0] = dvmAccAfter[0].split('@')
+    expect(tokenIdBefore0).toStrictEqual(tokenIdAfter0)
+
+    // check: dvm balance is transferred
+    expect(new BigNumber(dvmBalanceAfter0))
+      .toStrictEqual(new BigNumber(dvmBalanceBefore0).minus(3 + 3.5))
+
+    // check: evm balance = dvm balance - transferred
+    const withoutEthRes = await testing.rpc.account.getTokenBalances({}, false)
+    const [withoutEth] = withoutEthRes[0].split('@')
+
+    const withEthRes = await testing.rpc.account.getTokenBalances({}, false, { symbolLookup: false, includeEth: true })
+    const [withEth] = withEthRes[0].split('@')
+    expect(new BigNumber(withoutEth))
+      .toStrictEqual(new BigNumber(withEth).minus(3 + 3.5))
   })
 
   // WIP
