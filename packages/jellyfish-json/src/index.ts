@@ -71,6 +71,9 @@ export const JellyfishJSON = {
       if (value instanceof BigNumber) {
         return new LosslessNumber(value.toString())
       }
+      if (typeof value === 'bigint') {
+        return new LosslessNumber(value.toString())
+      }
       return value
     }
 
