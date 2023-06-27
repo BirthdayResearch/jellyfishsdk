@@ -44,6 +44,11 @@ const pairs: Record<string, Pair> = {
 beforeEach(async () => {
   await container.start()
   await container.waitForWalletCoinbaseMaturity()
+  await testing.rpc.masternode.setGov({
+    ATTRIBUTES: {
+      'v0/params/feature/icx': 'true'
+    }
+  })
   jsonRpc = new JsonRpcClient(await container.getCachedRpcUrl())
 
   providers = await getProviders(container)
