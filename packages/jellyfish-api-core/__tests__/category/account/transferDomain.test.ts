@@ -118,7 +118,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('Src address must not be an ETH address in case of "DVM" domain')
+      await expect(promise).rejects.toThrow('Src address must be a legacy or Bech32 address in case of "DVM" domain')
     })
 
     it('(evm -> dvm) should fail if source address and source domain are not match', async () => {
@@ -156,7 +156,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('Dst address must be an ETH address in case of "EVM" domain')
+      await expect(promise).rejects.toThrow('Dst address must be a legacy or Bech32 address in case of "DVM" domain')
     })
 
     it('(evm -> dvm) should fail if destination address and destination domain are not match', async () => {

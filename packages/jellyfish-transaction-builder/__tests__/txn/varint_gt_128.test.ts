@@ -44,11 +44,6 @@ const pairs: Record<string, Pair> = {
 beforeEach(async () => {
   await container.start()
   await container.waitForWalletCoinbaseMaturity()
-  await testing.rpc.masternode.setGov({
-    ATTRIBUTES: {
-      'v0/params/feature/icx': 'true'
-    }
-  })
   jsonRpc = new JsonRpcClient(await container.getCachedRpcUrl())
 
   providers = await getProviders(container)
@@ -115,6 +110,11 @@ beforeEach(async () => {
 
   // Prep 1000 DFI Token for testing
   await testing.token.dfi({ amount: 1000 })
+  await testing.rpc.masternode.setGov({
+    ATTRIBUTES: {
+      'v0/params/feature/icx': 'true'
+    }
+  })
   await testing.generate(1)
 })
 
