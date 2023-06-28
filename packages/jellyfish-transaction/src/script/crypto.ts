@@ -19,6 +19,15 @@ export class OP_SHA1 extends StaticCode {
 }
 
 /**
+ * The input is hashed using SHA-3.
+ */
+export class OP_SHA3 extends StaticCode {
+  constructor () {
+    super(0xc0, 'OP_SHA3')
+  }
+}
+
+/**
  * The input is hashed using SHA-256.
  */
 export class OP_SHA256 extends StaticCode {

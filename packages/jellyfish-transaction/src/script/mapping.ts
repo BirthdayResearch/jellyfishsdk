@@ -135,6 +135,7 @@ import {
   CUpdateMasternode,
   UpdateMasternode
 } from './dftx/dftx_masternode'
+import { CEvmTx, EvmTx } from './dftx/dftx_evmtx'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -640,6 +641,17 @@ export const OP_CODES = {
       data: placeAuctionBid
     })
   },
+  /**
+   * EVM TX
+   */
+  OP_DEFI_TX_EVM_TX: (evmTx: EvmTx): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CEvmTx.OP_CODE,
+      name: CEvmTx.OP_NAME,
+      data: evmTx
+    })
+  },
   OP_0: new constants.OP_0(),
   OP_FALSE: new constants.OP_FALSE(),
   /**
@@ -770,6 +782,7 @@ export const OP_CODES = {
   // crypto
   OP_RIPEMD160: new crypto.OP_RIPEMD160(),
   OP_SHA1: new crypto.OP_SHA1(),
+  OP_SHA3: new crypto.OP_SHA3(),
   OP_SHA256: new crypto.OP_SHA256(),
   OP_HASH160: new crypto.OP_HASH160(),
   OP_HASH256: new crypto.OP_HASH256(),
@@ -899,6 +912,7 @@ const HEX_MAPPING: {
   // crypto
   0xa6: OP_CODES.OP_RIPEMD160,
   0xa7: OP_CODES.OP_SHA1,
+  0xc0: OP_CODES.OP_SHA3,
   0xa8: OP_CODES.OP_SHA256,
   0xa9: OP_CODES.OP_HASH160,
   0xaa: OP_CODES.OP_HASH256,
