@@ -67,6 +67,15 @@ export class ICXSetup {
     await createToken(this.container, symbolBTC, createTokenOptions)
   }
 
+  async setupICXFlag (): Promise<void> {
+    await this.client.masternode.setGov({
+      ATTRIBUTES: {
+        'v0/params/feature/icx': 'true'
+      }
+    })
+    await this.container.generate(1)
+  }
+
   async initializeTokensIds (): Promise<void> {
     let tokenInfo = await this.container.call('gettoken', [symbolBTC])
     idBTC = Object.keys(tokenInfo)[0]

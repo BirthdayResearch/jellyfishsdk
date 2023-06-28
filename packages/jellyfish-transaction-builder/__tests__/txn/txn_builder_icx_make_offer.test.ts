@@ -16,6 +16,11 @@ describe('make ICX offer', () => {
   beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
+    await testing.rpc.masternode.setGov({
+      ATTRIBUTES: {
+        'v0/params/feature/icx': 'true'
+      }
+    })
 
     providers = await getProviders(testing.container)
     providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[0].owner.privKey)) // set it to testing.container default

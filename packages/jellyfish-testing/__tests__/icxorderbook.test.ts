@@ -11,7 +11,11 @@ describe('ICX', () => {
   beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
-
+    await testing.rpc.masternode.setGov({
+      ATTRIBUTES: {
+        'v0/params/feature/icx': 'true'
+      }
+    })
     await testing.icxorderbook.createAccounts()
     await testing.rpc.account.utxosToAccount({ [testing.icxorderbook.accountDFI]: `${500}@${testing.icxorderbook.symbolDFI}` })
     await testing.rpc.account.utxosToAccount({ [testing.icxorderbook.accountBTC]: `${10}@${testing.icxorderbook.symbolDFI}` }) // for fee

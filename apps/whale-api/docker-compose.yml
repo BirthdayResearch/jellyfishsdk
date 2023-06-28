@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   defi-blockchain:
-    image: defi/defichain:master-b6fc51097
+    image: defi/defichain:master-c14a2ba13
     ports:
       - "19554:19554"
     command: >

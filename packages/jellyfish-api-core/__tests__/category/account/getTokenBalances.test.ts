@@ -101,7 +101,7 @@ describe('Account', () => {
     }
   })
 
-  it('should getTokenBlaances with including eth', async () => {
+  it('should getTokenBalances with including eth', async () => {
     await client.masternode.setGov({
       ATTRIBUTES: {
         'v0/params/feature/evm': 'true'

@@ -183,7 +183,8 @@ it('should have gov set', async () => {
       'v0/token/17/fixed_interval_price_id': 'TR50/USD',
       'v0/token/17/loan_minting_enabled': 'true',
       'v0/token/17/loan_minting_interest': '3',
-      'v0/params/feature/evm': 'true'
+      'v0/params/feature/evm': 'true',
+      'v0/params/feature/icx': 'true'
     })
   })
 

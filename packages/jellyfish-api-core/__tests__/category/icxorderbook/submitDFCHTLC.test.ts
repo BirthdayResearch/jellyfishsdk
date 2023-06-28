@@ -37,6 +37,7 @@ describe('ICXOrderBook.submitDFCHTLC', () => {
     await icxSetup.createBTCDFIPool()
     await icxSetup.addLiquidityToBTCDFIPool(1, 100)
     await icxSetup.setTakerFee(0.001)
+    await icxSetup.setupICXFlag()
   })
 
   afterAll(async () => {
