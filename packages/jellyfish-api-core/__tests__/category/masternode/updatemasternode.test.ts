@@ -297,7 +297,7 @@ describe('Update Masternode', () => {
         ownerAddress: ownerAddressNew
       })
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('Owner address must be P2PKH or P2WPKH type\', code: -32600, method: updatemasternode')
+      await expect(promise).rejects.toThrow(`ownerAddress (${ownerAddressNew}) does not refer to a P2PKH or P2WPKH address`)
     }
 
     {
@@ -332,7 +332,7 @@ describe('Update Masternode', () => {
       })
 
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('Owner address must be P2PKH or P2WPKH type\', code: -32600, method: updatemasternode')
+      await expect(promise).rejects.toThrow(`ownerAddress (${invalidAddress}) does not refer to a P2PKH or P2WPKH address`)
     }
 
     {
@@ -352,7 +352,7 @@ describe('Update Masternode', () => {
       })
 
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('Reward address must be P2PKH or P2WPKH type\', code: -32600, method: updatemasternode')
+      await expect(promise).rejects.toThrow(`rewardAddress (${invalidAddress}) does not refer to a P2SH, P2PKH or P2WPKH address`)
     }
   })
 
