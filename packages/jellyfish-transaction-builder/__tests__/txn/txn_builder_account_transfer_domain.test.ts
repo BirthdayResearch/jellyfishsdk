@@ -25,7 +25,6 @@ let providers: MockProviders
 let builder: P2WPKHTransactionBuilder
 
 let dvmAddr: string
-// let evmAddr: string
 let dvmScript: Script
 let evmScript: Script
 
@@ -45,7 +44,6 @@ describe('transferDomain', () => {
     providers.setEllipticPair(WIF.asEllipticPair(RegTestFoundationKeys[0].owner.privKey))
 
     dvmAddr = await providers.getAddress()
-    // evmAddr = await providers.getEvmAddress() //await testing.container.getNewAddress('eth', 'eth')// await providers.getEvmAddress()
     dvmScript = await providers.elliptic.script()
     evmScript = await providers.elliptic.evmScript()
 
@@ -188,7 +186,7 @@ describe('transferDomain', () => {
       const promise = sendTransaction(testing.container, txn)
 
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('TransferDomainTx: Src address must not be an ETH address in case of "DVM" domain (code 16)')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Src address must be a legacy or Bech32 address in case of "DVM" domain (code 16)\', code: -26')
     })
 
     it('(evm -> dvm) should fail if source address and source domain are not match', async () => {
@@ -218,7 +216,7 @@ describe('transferDomain', () => {
       const promise = sendTransaction(testing.container, txn)
 
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Src address must be an ETH address in case of "EVM" domain (code 16)')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Src address must be an ETH address in case of "EVM" domain (code 16)\', code: -26')
     })
 
     it('(dvm -> evm) should fail if destination address and destination domain are not match', async () => {
@@ -252,7 +250,7 @@ describe('transferDomain', () => {
     })
 
     // WIP
-    it.skip('(evm -> dvm) should fail if destination address and destination domain are not match', async () => {
+    it('(evm -> dvm) should fail if destination address and destination domain are not match', async () => {
       const transferDomain: TransferDomain = {
         items: [{
           src:
@@ -279,7 +277,7 @@ describe('transferDomain', () => {
       const promise = sendTransaction(testing.container, txn)
 
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Dst address must be an ETH address in case of "EVM" domain (code 16)')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Dst address must be a legacy or Bech32 address in case of "DVM" domain (code 16)\', code: -26')
     })
 
     it('(dvm -> evm) should fail if address is not owned', async () => {
@@ -322,7 +320,7 @@ describe('transferDomain', () => {
             address: dvmScript,
             amount: {
               token: 0,
-              amount: new BigNumber(-1)
+              amount: new BigNumber('-1')
             },
             domain: TRANSFER_DOMAIN_TYPE.DVM
           },
@@ -330,7 +328,7 @@ describe('transferDomain', () => {
             address: evmScript,
             amount: {
               token: 0,
-              amount: new BigNumber(-1)
+              amount: new BigNumber('-1')
             },
             domain: TRANSFER_DOMAIN_TYPE.EVM
           }
@@ -345,7 +343,8 @@ describe('transferDomain', () => {
     })
   })
 
-  it.only('should transfer domain from DVM to EVM', async () => {
+  // WIP - getTokenBalances for eth is not returning with the eth value yet
+  it.skip('should transfer domain from DVM to EVM', async () => {
     const dvmAccBefore = await testing.rpc.account.getAccount(dvmAddr)
     const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[0].split('@')
 
@@ -410,7 +409,7 @@ describe('transferDomain', () => {
       .toStrictEqual(new BigNumber(withEth).minus(3))
   })
 
-  // WIP
+  // WIP - getTokenBalances for eth is not returning with the eth value yet
   it.skip('should (duo) transfer domain from DVM to EVM', async () => {
     const dvmAccBefore = await testing.rpc.account.getAccount(dvmAddr)
     const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[0].split('@')
@@ -498,8 +497,8 @@ describe('transferDomain', () => {
       .toStrictEqual(new BigNumber(withEth).minus(3 + 3.5))
   })
 
-  // WIP
-  it.only('should transfer domain from EVM to DVM', async () => {
+  // WIP - getTokenBalances for eth is not returning with the eth value yet
+  it.skip('should transfer domain from EVM to DVM', async () => {
     const transferDomain: TransferDomain = {
       items: [{
         src:
