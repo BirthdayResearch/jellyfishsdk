@@ -47,14 +47,12 @@ describe('transferDomain', () => {
     dvmScript = await providers.elliptic.script()
     evmScript = await providers.elliptic.evmScript()
 
-    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
-
     await testing.token.dfi({ address: dvmAddr, amount: 12 })
     await testing.generate(1)
 
     // Fund 100 DFI UTXO
     await fundEllipticPair(testing.container, providers.ellipticPair, 100)
-    await providers.setupMocks()
+    await providers.setupMocks(true)
 
     builder = new P2WPKHTransactionBuilder(
       providers.fee,
@@ -249,7 +247,6 @@ describe('transferDomain', () => {
       await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Dst address must be an ETH address in case of "EVM" domain (code 16)')
     })
 
-    // WIP
     it('(evm -> dvm) should fail if destination address and destination domain are not match', async () => {
       const transferDomain: TransferDomain = {
         items: [{
@@ -343,8 +340,7 @@ describe('transferDomain', () => {
     })
   })
 
-  // WIP - getTokenBalances for eth is not returning with the eth value yet
-  it.skip('should transfer domain from DVM to EVM', async () => {
+  it('should transfer domain from DVM to EVM', async () => {
     const dvmAccBefore = await testing.rpc.account.getAccount(dvmAddr)
     const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[0].split('@')
 
@@ -400,7 +396,7 @@ describe('transferDomain', () => {
       .toStrictEqual(new BigNumber(dvmBalanceBefore0).minus(3))
 
     // check: evm balance = dvm balance - transferred
-    const withoutEthRes = await testing.rpc.account.getTokenBalances({}, false)
+    const withoutEthRes = await testing.rpc.account.getTokenBalances({}, false, { symbolLookup: false, includeEth: false })
     const [withoutEth] = withoutEthRes[0].split('@')
 
     const withEthRes = await testing.rpc.account.getTokenBalances({}, false, { symbolLookup: false, includeEth: true })
@@ -409,7 +405,6 @@ describe('transferDomain', () => {
       .toStrictEqual(new BigNumber(withEth).minus(3))
   })
 
-  // WIP - getTokenBalances for eth is not returning with the eth value yet
   it.skip('should (duo) transfer domain from DVM to EVM', async () => {
     const dvmAccBefore = await testing.rpc.account.getAccount(dvmAddr)
     const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[0].split('@')
@@ -497,8 +492,10 @@ describe('transferDomain', () => {
       .toStrictEqual(new BigNumber(withEth).minus(3 + 3.5))
   })
 
-  // WIP - getTokenBalances for eth is not returning with the eth value yet
-  it.skip('should transfer domain from EVM to DVM', async () => {
+  it('should transfer domain from EVM to DVM', async () => {
+    const dvmAccBefore = await testing.rpc.account.getAccount(dvmAddr)
+    const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[0].split('@')
+
     const transferDomain: TransferDomain = {
       items: [{
         src:
@@ -525,6 +522,36 @@ describe('transferDomain', () => {
 
     const txn = await builder.account.transferDomain(transferDomain, dvmScript)
     const outs = await sendTransaction(container, txn)
-    console.log({ outs })
+    const encoded: string = OP_CODES.OP_DEFI_TX_TRANSFER_DOMAIN(transferDomain).asBuffer().toString('hex')
+    const expectedTransferDomainScript = `6a${encoded}`
+
+    expect(outs.length).toStrictEqual(2)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[0].n).toStrictEqual(0)
+    expect(outs[0].tokenId).toStrictEqual(0)
+    expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 4466547838')).toStrictEqual(true)
+    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedTransferDomainScript)
+    expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
+
+    expect(outs[1].value).toEqual(expect.any(Number))
+    expect(outs[1].n).toStrictEqual(1)
+    expect(outs[1].tokenId).toStrictEqual(0)
+    expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(dvmAddr)
+
+    const dvmAccAfter = await testing.rpc.account.getAccount(dvmAddr)
+    const [dvmBalanceAfter0, tokenIdAfter0] = dvmAccAfter[0].split('@')
+    expect(tokenIdBefore0).toStrictEqual(tokenIdAfter0)
+
+    // check: dev balance is updated
+    expect(new BigNumber(dvmBalanceAfter0))
+      .toStrictEqual(new BigNumber(dvmBalanceBefore0).plus(3))
+
+    // check evm balance to be equal to zero
+    const withoutEthRes = await testing.rpc.account.getTokenBalances({}, false)
+    const [withoutEth] = withoutEthRes[0].split('@')
+    const withEthRes = await testing.rpc.account.getTokenBalances({}, false, { symbolLookup: false, includeEth: true })
+    const [withEth] = withEthRes[0].split('@')
+    expect(new BigNumber(withoutEth)).toStrictEqual(new BigNumber(withEth))
   })
 })

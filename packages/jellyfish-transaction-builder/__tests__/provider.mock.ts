@@ -146,9 +146,15 @@ export class MockProviders {
     return Eth.fromPubKeyUncompressed(pubKeyUncompressed)
   }
 
-  async setupMocks (): Promise<void> {
+  async setupMocks (evm = false): Promise<void> {
     // full nodes need importprivkey or else it can't list unspent
-    const wif = WIF.encode(0xef, await this.ellipticPair.privateKey())
-    await this.container.call('importprivkey', [wif])
+    const privKey = await this.ellipticPair.privateKey()
+    try {
+      evm
+        ? await this.container.call('importprivkey', [privKey.toString('hex')])
+        : await this.container.call('importprivkey', [WIF.encode(0xef, privKey)])
+    } catch (err) {
+      console.log('err: ', err)
+    }
   }
 }
