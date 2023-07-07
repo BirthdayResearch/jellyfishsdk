@@ -308,36 +308,6 @@ describe('transferDomain', () => {
       await expect(promise).rejects.toThrow(DeFiDRpcError)
       await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: tx must have at least one input from account owner (code 16)')
     })
-
-    it.skip('(dvm -> evm) should fail if negative amount', async () => {
-      const transferDomain: TransferDomain = {
-        items: [{
-          src:
-          {
-            address: dvmScript,
-            amount: {
-              token: 0,
-              amount: new BigNumber('-1')
-            },
-            domain: TRANSFER_DOMAIN_TYPE.DVM
-          },
-          dst: {
-            address: evmScript,
-            amount: {
-              token: 0,
-              amount: new BigNumber('-1')
-            },
-            domain: TRANSFER_DOMAIN_TYPE.EVM
-          }
-        }]
-      }
-
-      const txn = await builder.account.transferDomain(transferDomain, dvmScript)
-      const promise = sendTransaction(testing.container, txn)
-
-      await expect(promise).rejects.toThrow(RangeError)
-      await expect(promise).rejects.toThrow('RangeError: The value of "value" is out of range. It must be >= 0 and <= 4294967295. Received -100000000')
-    })
   })
 
   it('should transfer domain from DVM to EVM', async () => {
