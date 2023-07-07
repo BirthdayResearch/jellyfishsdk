@@ -1,6 +1,6 @@
 import { OP_CODES, Script, Transaction, TransactionSegWit, Vout } from '@defichain/jellyfish-transaction'
 import { WalletEllipticPair } from './wallet_elliptic_pair'
-import { Bech32, HASH160 } from '@defichain/jellyfish-crypto'
+import { Bech32, Evm, HASH160 } from '@defichain/jellyfish-crypto'
 import { Network } from '@defichain/jellyfish-network'
 import { fromAddress } from '@defichain/jellyfish-address'
 
@@ -35,6 +35,27 @@ export abstract class WalletAccount implements WalletEllipticPair {
       stack: [
         OP_CODES.OP_0,
         OP_CODES.OP_PUSHDATA(HASH160(pubKey), 'little')
+      ]
+    }
+  }
+
+  /**
+   * @return {Promise<string>} EVM address of this account.
+   */
+  async getEvmAddress (): Promise<string> {
+    const unPubKey = await this.walletEllipticPair.unPublicKey()
+    return Evm.fromUnPubKey(unPubKey)
+  }
+
+  /**
+   * @return {Promise<Script>} EVM script of this account.
+   */
+  async getEvmScript (): Promise<Script> {
+    const unPubKey = await this.walletEllipticPair.unPublicKey()
+    return {
+      stack: [
+        OP_CODES.OP_16,
+        OP_CODES.OP_PUSHDATA_HEX_LE(Evm.fromUnPubKey(unPubKey).substring(2))
       ]
     }
   }
