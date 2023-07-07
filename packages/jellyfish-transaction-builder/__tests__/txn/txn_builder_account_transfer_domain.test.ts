@@ -468,7 +468,7 @@ describe('transferDomain', () => {
     expect(new BigNumber(withoutEth)).toStrictEqual(new BigNumber(withEth))
   })
 
-  it.skip('should (duo) transfer domain from DVM to EVM', async () => {
+  it('should (duo) transfer domain from DVM to EVM', async () => {
     const dvmAccBefore = await testing.rpc.account.getAccount(dvmAddr)
     const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[0].split('@')
 
@@ -543,7 +543,7 @@ describe('transferDomain', () => {
 
     // check: dvm balance is transferred
     expect(new BigNumber(dvmBalanceAfter0))
-      .toStrictEqual(new BigNumber(dvmBalanceBefore0).minus(3 + 3.5))
+      .toStrictEqual(new BigNumber(dvmBalanceBefore0).minus(2 + 1.5))
 
     // check: evm balance = dvm balance - transferred
     const withoutEthRes = await testing.rpc.account.getTokenBalances({}, false)
@@ -552,6 +552,207 @@ describe('transferDomain', () => {
     const withEthRes = await testing.rpc.account.getTokenBalances({}, false, { symbolLookup: false, includeEth: true })
     const [withEth] = withEthRes[0].split('@')
     expect(new BigNumber(withoutEth))
-      .toStrictEqual(new BigNumber(withEth).minus(3 + 3.5))
+      .toStrictEqual(new BigNumber(withEth).minus(2 + 1.5))
+  })
+
+  it('should (duo) transfer domain from EVM to DVM', async () => {
+    const dvmAccBefore = await testing.rpc.account.getAccount(dvmAddr)
+    const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[0].split('@')
+
+    const transferDomain: TransferDomain = {
+      items: [{
+        src:
+        {
+          address: evmScript,
+          domain: TRANSFER_DOMAIN_TYPE.EVM,
+          amount: {
+            token: 0,
+            amount: new BigNumber(2)
+          },
+          data: [0]
+        },
+        dst: {
+          address: dvmScript,
+          domain: TRANSFER_DOMAIN_TYPE.DVM,
+          amount: {
+            token: 0,
+            amount: new BigNumber(2)
+          },
+          data: [0]
+        }
+      },
+      {
+        src:
+        {
+          address: evmScript,
+          domain: TRANSFER_DOMAIN_TYPE.EVM,
+          amount: {
+            token: 0,
+            amount: new BigNumber(1.5)
+          },
+          data: [0]
+        },
+        dst: {
+          address: dvmScript,
+          domain: TRANSFER_DOMAIN_TYPE.DVM,
+          amount: {
+            token: 0,
+            amount: new BigNumber(1.5)
+          },
+          data: [0]
+        }
+      }
+      ]
+    }
+
+    const txn = await builder.account.transferDomain(transferDomain, dvmScript)
+    const outs = await sendTransaction(container, txn)
+    const encoded: string = OP_CODES.OP_DEFI_TX_TRANSFER_DOMAIN(transferDomain).asBuffer().toString('hex')
+    const expectedTransferDomainScript = `6a${encoded}`
+
+    expect(outs.length).toStrictEqual(2)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[0].n).toStrictEqual(0)
+    expect(outs[0].tokenId).toStrictEqual(0)
+    expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 4466547838')).toStrictEqual(true)
+    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedTransferDomainScript)
+    expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
+
+    expect(outs[1].value).toEqual(expect.any(Number))
+    expect(outs[1].n).toStrictEqual(1)
+    expect(outs[1].tokenId).toStrictEqual(0)
+    expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(dvmAddr)
+
+    const dvmAccAfter = await testing.rpc.account.getAccount(dvmAddr)
+    const [dvmBalanceAfter0, tokenIdAfter0] = dvmAccAfter[0].split('@')
+    expect(tokenIdBefore0).toStrictEqual(tokenIdAfter0)
+
+    expect(new BigNumber(dvmBalanceAfter0))
+      .toStrictEqual(new BigNumber(dvmBalanceBefore0).plus(2 + 1.5))
+
+    const withoutEthRes = await testing.rpc.account.getTokenBalances({}, false)
+    const [withoutEth] = withoutEthRes[0].split('@')
+
+    const withEthRes = await testing.rpc.account.getTokenBalances({}, false, { symbolLookup: false, includeEth: true })
+    const [withEth] = withEthRes[0].split('@')
+    expect(new BigNumber(withoutEth)).toStrictEqual(new BigNumber(withEth))
+  })
+
+  it('should (duo-diff) Transfer Domain from EVM to DVM and DVM to EVM', async () => {
+    // transfer some to evm first
+    {
+      const transferDomain: TransferDomain = {
+        items: [{
+          src:
+          {
+            address: dvmScript,
+            domain: TRANSFER_DOMAIN_TYPE.DVM,
+            amount: {
+              token: 0,
+              amount: new BigNumber(3)
+            },
+            data: [0]
+          },
+          dst: {
+            address: evmScript,
+            domain: TRANSFER_DOMAIN_TYPE.EVM,
+            amount: {
+              token: 0,
+              amount: new BigNumber(3)
+            },
+            data: [0]
+          }
+        }]
+      }
+
+      const txn = await builder.account.transferDomain(transferDomain, dvmScript)
+      await sendTransaction(container, txn)
+    }
+
+    const dvmAccBefore = await testing.rpc.account.getAccount(dvmAddr)
+    const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[0].split('@')
+
+    // start
+    const transferDomain: TransferDomain = {
+      items: [{
+        src:
+        {
+          address: dvmScript,
+          domain: TRANSFER_DOMAIN_TYPE.DVM,
+          amount: {
+            token: 0,
+            amount: new BigNumber(4)
+          },
+          data: [0]
+        },
+        dst: {
+          address: evmScript,
+          domain: TRANSFER_DOMAIN_TYPE.EVM,
+          amount: {
+            token: 0,
+            amount: new BigNumber(4)
+          },
+          data: [0]
+        }
+      },
+      {
+        src:
+        {
+          address: evmScript,
+          domain: TRANSFER_DOMAIN_TYPE.EVM,
+          amount: {
+            token: 0,
+            amount: new BigNumber(3)
+          },
+          data: [0]
+        },
+        dst: {
+          address: dvmScript,
+          domain: TRANSFER_DOMAIN_TYPE.DVM,
+          amount: {
+            token: 0,
+            amount: new BigNumber(3)
+          },
+          data: [0]
+        }
+      }
+      ]
+    }
+
+    const txn = await builder.account.transferDomain(transferDomain, dvmScript)
+    const outs = await sendTransaction(container, txn)
+    const encoded: string = OP_CODES.OP_DEFI_TX_TRANSFER_DOMAIN(transferDomain).asBuffer().toString('hex')
+    const expectedTransferDomainScript = `6a${encoded}`
+
+    expect(outs.length).toStrictEqual(2)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[0].n).toStrictEqual(0)
+    expect(outs[0].tokenId).toStrictEqual(0)
+    expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 4466547838')).toStrictEqual(true)
+    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedTransferDomainScript)
+    expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
+
+    expect(outs[1].value).toEqual(expect.any(Number))
+    expect(outs[1].n).toStrictEqual(1)
+    expect(outs[1].tokenId).toStrictEqual(0)
+    expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(dvmAddr)
+
+    const dvmAccAfter = await testing.rpc.account.getAccount(dvmAddr)
+    const [dvmBalanceAfter0, tokenIdAfter0] = dvmAccAfter[0].split('@')
+    expect(tokenIdBefore0).toStrictEqual(tokenIdAfter0)
+
+    // check: dvm balance is transferred
+    expect(new BigNumber(dvmBalanceAfter0))
+      .toStrictEqual(new BigNumber(dvmBalanceBefore0).plus(3 - 4))
+
+    // check: evm balance = dvm balance - transferred
+    const withoutEthRes = await testing.rpc.account.getTokenBalances({}, false)
+    const [withoutEth] = withoutEthRes[0].split('@')
+
+    const withEthRes = await testing.rpc.account.getTokenBalances({}, false, { symbolLookup: false, includeEth: true })
+    const [withEth] = withEthRes[0].split('@')
+    expect(new BigNumber(withoutEth).plus(4)).toStrictEqual(new BigNumber(withEth))
   })
 })
