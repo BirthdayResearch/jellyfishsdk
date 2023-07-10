@@ -28,7 +28,7 @@ export const Eth = {
    * @param {Buffer} uncompressed pubKey to format into Eth
    * @return {string} eth encoded address
    */
-  fromUnPubKey (unPubKey: Buffer): string {
+  fromPubKeyUncompressed (unPubKey: Buffer): string {
     if (unPubKey.length !== 65) {
       throw new Error('InvalidPubKeyLength')
     }

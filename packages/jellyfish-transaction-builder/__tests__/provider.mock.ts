@@ -91,7 +91,7 @@ export class MockEllipticPairProvider implements EllipticPairProvider {
     return {
       stack: [
         OP_CODES.OP_16,
-        OP_CODES.OP_PUSHDATA_HEX_LE(Eth.fromUnPubKey(unPubKey).substring(2))
+        OP_CODES.OP_PUSHDATA_HEX_LE(Eth.fromPubKeyUncompressed(unPubKey).substring(2))
       ]
     }
   }
@@ -143,7 +143,7 @@ export class MockProviders {
 
   async getEvmAddress (): Promise<string> {
     const unPubKey = await this.ellipticPair.unPublicKey()
-    return Eth.fromUnPubKey(unPubKey)
+    return Eth.fromPubKeyUncompressed(unPubKey)
   }
 
   async setupMocks (): Promise<void> {
