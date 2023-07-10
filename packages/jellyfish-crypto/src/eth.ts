@@ -23,7 +23,7 @@ function toAddress (hash: Buffer): string {
   return `0x${sliced}`
 }
 
-export const Evm = {
+export const Eth = {
   /**
    * @param {Buffer} uncompressed pubKey to format into Eth
    * @return {string} eth encoded address
