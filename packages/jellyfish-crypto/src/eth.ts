@@ -30,7 +30,7 @@ export const Eth = {
    */
   fromPubKeyUncompressed (pubKeyUncompressed: Buffer): string {
     if (pubKeyUncompressed.length !== 65) {
-      throw new Error('InvalidPubKeyLength')
+      throw new Error('InvalidUncompressedPubKeyLength')
     }
     const sub = pubKeyUncompressed.subarray(1, 65)
     const hash = KECCAK256(sub)

@@ -10,7 +10,7 @@ it('should reject invalid length uncompressed public key', () => {
   expect(() => {
     // @ts-expect_error
     Eth.fromPubKeyUncompressed(Buffer.from(keypair.pubKeyUncompressed, 'hex').subarray(1))
-  }).toThrow('InvalidUnPubKeyLength')
+  }).toThrow('InvalidUncompressedPubKeyLength')
 })
 
 it('should convert evm address to checksum address', () => {
