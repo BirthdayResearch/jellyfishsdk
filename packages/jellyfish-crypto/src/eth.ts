@@ -28,11 +28,11 @@ export const Eth = {
    * @param {Buffer} uncompressed pubKey to format into Eth
    * @return {string} eth encoded address
    */
-  fromPubKeyUncompressed (unPubKey: Buffer): string {
-    if (unPubKey.length !== 65) {
+  fromPubKeyUncompressed (pubKeyUncompressed: Buffer): string {
+    if (pubKeyUncompressed.length !== 65) {
       throw new Error('InvalidPubKeyLength')
     }
-    const sub = unPubKey.subarray(1, 65)
+    const sub = pubKeyUncompressed.subarray(1, 65)
     const hash = KECCAK256(sub)
     return toChecksumAddress(toAddress(hash))
   }

@@ -49,7 +49,7 @@ export interface EllipticPair {
 class SECP256K1 implements EllipticPair {
   private readonly privKey: Buffer
   private readonly pubKey: Buffer
-  private readonly unPubKey: Buffer
+  private readonly pubKeyUncompressed: Buffer
 
   constructor (privKey: Buffer) {
     this.privKey = privKey
@@ -59,11 +59,11 @@ class SECP256K1 implements EllipticPair {
     }
     this.pubKey = pubKey
 
-    const unPubKey = ecc.pointFromScalar(privKey, false)
-    if (unPubKey === null) {
+    const pubKeyUncompressed = ecc.pointFromScalar(privKey, false)
+    if (pubKeyUncompressed === null) {
       throw new Error('point at infinity')
     }
-    this.unPubKey = unPubKey
+    this.pubKeyUncompressed = pubKeyUncompressed
   }
 
   async privateKey (): Promise<Buffer> {
@@ -75,7 +75,7 @@ class SECP256K1 implements EllipticPair {
   }
 
   async publicKeyUncompressed (): Promise<Buffer> {
-    return this.unPubKey
+    return this.pubKeyUncompressed
   }
 
   async sign (hash: Buffer): Promise<Buffer> {

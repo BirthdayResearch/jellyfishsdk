@@ -18,9 +18,9 @@ describe('WalletClassic', () => {
   })
 
   it('should get uncompressed public key', async () => {
-    const unPubKey = await wallet.publicKeyUncompressed()
-    expect(unPubKey.length).toStrictEqual(65)
-    expect(unPubKey.toString('hex')).toStrictEqual('042b60b1d1ec292c4de571baaf9a776137fac1b69da89e9a4274880aa71b9d48901a01f4fb3f75e75ce118335fdd452b0638bc108981766a79c5f2b1d7b3ac558e')
+    const pubKeyUncompressed = await wallet.publicKeyUncompressed()
+    expect(pubKeyUncompressed.length).toStrictEqual(65)
+    expect(pubKeyUncompressed.toString('hex')).toStrictEqual('042b60b1d1ec292c4de571baaf9a776137fac1b69da89e9a4274880aa71b9d48901a01f4fb3f75e75ce118335fdd452b0638bc108981766a79c5f2b1d7b3ac558e')
   })
 
   it('should get private key', async () => {

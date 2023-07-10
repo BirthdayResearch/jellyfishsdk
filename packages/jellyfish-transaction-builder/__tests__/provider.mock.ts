@@ -87,11 +87,11 @@ export class MockEllipticPairProvider implements EllipticPairProvider {
   }
 
   async evmScript (): Promise<Script> {
-    const unPubKey = await this.ellipticPair.publicKeyUncompressed()
+    const pubKeyUncompressed = await this.ellipticPair.publicKeyUncompressed()
     return {
       stack: [
         OP_CODES.OP_16,
-        OP_CODES.OP_PUSHDATA_HEX_LE(Eth.fromPubKeyUncompressed(unPubKey).substring(2))
+        OP_CODES.OP_PUSHDATA_HEX_LE(Eth.fromPubKeyUncompressed(pubKeyUncompressed).substring(2))
       ]
     }
   }
@@ -142,8 +142,8 @@ export class MockProviders {
   }
 
   async getEvmAddress (): Promise<string> {
-    const unPubKey = await this.ellipticPair.publicKeyUncompressed()
-    return Eth.fromPubKeyUncompressed(unPubKey)
+    const pubKeyUncompressed = await this.ellipticPair.publicKeyUncompressed()
+    return Eth.fromPubKeyUncompressed(pubKeyUncompressed)
   }
 
   async setupMocks (): Promise<void> {
