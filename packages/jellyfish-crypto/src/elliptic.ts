@@ -19,7 +19,7 @@ export interface EllipticPair {
   /**
    * @return {Promise<Buffer>} uncompressed public key
    */
-  unPublicKey: () => Promise<Buffer>
+  publicKeyUncompressed: () => Promise<Buffer>
 
   /**
    * Allowed to fail if EllipticPair does not provide hardware key
@@ -74,7 +74,7 @@ class SECP256K1 implements EllipticPair {
     return this.pubKey
   }
 
-  async unPublicKey (): Promise<Buffer> {
+  async publicKeyUncompressed (): Promise<Buffer> {
     return this.unPubKey
   }
 

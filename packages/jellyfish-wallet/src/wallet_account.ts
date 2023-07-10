@@ -43,7 +43,7 @@ export abstract class WalletAccount implements WalletEllipticPair {
    * @return {Promise<string>} EVM address of this account.
    */
   async getEvmAddress (): Promise<string> {
-    const unPubKey = await this.walletEllipticPair.unPublicKey()
+    const unPubKey = await this.walletEllipticPair.publicKeyUncompressed()
     return Eth.fromPubKeyUncompressed(unPubKey)
   }
 
@@ -51,7 +51,7 @@ export abstract class WalletAccount implements WalletEllipticPair {
    * @return {Promise<Script>} EVM script of this account.
    */
   async getEvmScript (): Promise<Script> {
-    const unPubKey = await this.walletEllipticPair.unPublicKey()
+    const unPubKey = await this.walletEllipticPair.publicKeyUncompressed()
     return {
       stack: [
         OP_CODES.OP_16,
@@ -86,8 +86,8 @@ export abstract class WalletAccount implements WalletEllipticPair {
     return await this.walletEllipticPair.publicKey()
   }
 
-  async unPublicKey (): Promise<Buffer> {
-    return await this.walletEllipticPair.unPublicKey()
+  async publicKeyUncompressed (): Promise<Buffer> {
+    return await this.walletEllipticPair.publicKeyUncompressed()
   }
 
   async privateKey (): Promise<Buffer> {

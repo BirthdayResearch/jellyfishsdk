@@ -56,7 +56,7 @@ export class MnemonicHdNode implements WalletHdNode {
   /**
    * @return Promise<Buffer> uncompressed public key
    */
-  async unPublicKey (): Promise<Buffer> {
+  async publicKeyUncompressed (): Promise<Buffer> {
     // NOTE(canonbrother):
     // https://bitcoin.stackexchange.com/questions/114777/why-do-compressed-and-uncompressed-public-keys-have-to-produce-different-address
     // > BIP32 (a common mechanism form generating wallet keys deterministically, introduced in 2013) only supports compressed keys.
