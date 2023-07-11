@@ -1,4 +1,5 @@
 import createHmac from 'create-hmac'
+import { pointCompress } from 'tiny-secp256k1'
 import * as bip32 from 'bip32'
 import { WalletHdNode, WalletHdNodeProvider } from '@defichain/jellyfish-wallet'
 import { DERSignature } from '@defichain/jellyfish-crypto'
@@ -57,10 +58,8 @@ export class MnemonicHdNode implements WalletHdNode {
    * @return Promise<Buffer> uncompressed public key
    */
   async publicKeyUncompressed (): Promise<Buffer> {
-    // NOTE(canonbrother):
-    // https://bitcoin.stackexchange.com/questions/114777/why-do-compressed-and-uncompressed-public-keys-have-to-produce-different-address
-    // > BIP32 (a common mechanism form generating wallet keys deterministically, introduced in 2013) only supports compressed keys.
-    throw new Error('Unimplemented due to Mnemonic Hd Node(bip32) only supports compressed keys.')
+    const node = await this.deriveNode()
+    return Buffer.from(pointCompress(node.publicKey, false))
   }
 
   /**
