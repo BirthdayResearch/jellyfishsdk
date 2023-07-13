@@ -309,14 +309,15 @@ describe('Update Masternode', () => {
       await expect(promise).rejects.toThrow(`operatorAddress (${operatorAddress}) does not refer to a P2PKH or P2WPKH address`)
     }
 
-    {
-      const rewardAddress = await client.wallet.getNewAddress('', AddressType.P2SH_SEGWIT)
-      const promise = client.masternode.updateMasternode(masternodeId, {
-        rewardAddress
-      })
-      await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('Reward address must be P2PKH or P2WPKH type\', code: -32600, method: updatemasternode')
-    }
+    // Updated: P2SH is allowed for rewardAddress - https://github.com/DeFiCh/ain/pull/1664
+    // {
+    //   const rewardAddress = await client.wallet.getNewAddress('', AddressType.P2SH_SEGWIT)
+    //   const promise = client.masternode.updateMasternode(masternodeId, {
+    //     rewardAddress
+    //   })
+    //   await expect(promise).rejects.toThrow(RpcApiError)
+    //   await expect(promise).rejects.toThrow('Reward address must be P2PKH or P2WPKH type\', code: -32600, method: updatemasternode')
+    // }
   })
 
   it('should be failed as invalid address is not allowed', async () => {

@@ -20,6 +20,13 @@ export class WalletClassic implements WalletEllipticPair {
   }
 
   /**
+   * @return {Promise<Buffer>} uncompressed public key
+   */
+  async publicKeyUncompressed (): Promise<Buffer> {
+    return await this.ellipticPair.publicKeyUncompressed()
+  }
+
+  /**
    * @return {Promise<Buffer>} privateKey
    */
   async privateKey (): Promise<Buffer> {

@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   defi-blockchain:
-    image: defi/defichain:master-c14a2ba13
+    image: defi/defichain:master-8594d0aec
     ports:
       - "19554:19554"
     command: >
@@ -42,6 +42,7 @@ services:
       -grandcentralheight=16
       -grandcentralepilogueheight=17
       -nextnetworkupgradeheight=18
+      -changiintermediateheight=18
       -regtest-skip-loan-collateral-validation
       -regtest-minttoken-simulate-mainnet=0
 

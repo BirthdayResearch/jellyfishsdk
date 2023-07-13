@@ -20,6 +20,7 @@
     "bs58": "^4.0.1",
     "create-hash": "^1.2.0",
     "randombytes": "^2.1.0",
+    "keccak": "^3.0.3",
     "tiny-secp256k1": "^1.1.6",
     "wif": "^2.0.6"
   },
@@ -30,6 +31,7 @@
     "@types/bech32": "1.1.4",
     "@types/bs58": "4.0.1",
     "@types/create-hash": "1.2.2",
+    "@types/keccak": "^3.0.1",
     "@types/randombytes": "2.0.0",
     "@types/tiny-secp256k1": "1.0.0",
     "@types/wif": "2.0.2"

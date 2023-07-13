@@ -1,4 +1,5 @@
 import createHmac from 'create-hmac'
+import { pointCompress } from 'tiny-secp256k1'
 import * as bip32 from 'bip32'
 import { WalletHdNode, WalletHdNodeProvider } from '@defichain/jellyfish-wallet'
 import { DERSignature } from '@defichain/jellyfish-crypto'
@@ -51,6 +52,14 @@ export class MnemonicHdNode implements WalletHdNode {
   async publicKey (): Promise<Buffer> {
     const node = await this.deriveNode()
     return node.publicKey
+  }
+
+  /**
+   * @return Promise<Buffer> uncompressed public key
+   */
+  async publicKeyUncompressed (): Promise<Buffer> {
+    const node = await this.deriveNode()
+    return Buffer.from(pointCompress(node.publicKey, false))
   }
 
   /**

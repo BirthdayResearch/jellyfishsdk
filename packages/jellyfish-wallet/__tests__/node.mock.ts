@@ -21,6 +21,10 @@ export class TestNode implements WalletHdNode {
     return await this.ellipticPair.publicKey()
   }
 
+  async publicKeyUncompressed (): Promise<Buffer> {
+    return await this.ellipticPair.publicKeyUncompressed()
+  }
+
   async privateKey (): Promise<Buffer> {
     return await this.ellipticPair.privateKey()
   }

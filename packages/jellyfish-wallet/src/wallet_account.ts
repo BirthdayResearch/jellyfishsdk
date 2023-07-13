@@ -1,6 +1,6 @@
 import { OP_CODES, Script, Transaction, TransactionSegWit, Vout } from '@defichain/jellyfish-transaction'
 import { WalletEllipticPair } from './wallet_elliptic_pair'
-import { Bech32, HASH160 } from '@defichain/jellyfish-crypto'
+import { Bech32, Eth, HASH160 } from '@defichain/jellyfish-crypto'
 import { Network } from '@defichain/jellyfish-network'
 import { fromAddress } from '@defichain/jellyfish-address'
 
@@ -40,6 +40,27 @@ export abstract class WalletAccount implements WalletEllipticPair {
   }
 
   /**
+   * @return {Promise<string>} EVM address of this account.
+   */
+  async getEvmAddress (): Promise<string> {
+    const pubKeyUncompressed = await this.walletEllipticPair.publicKeyUncompressed()
+    return Eth.fromPubKeyUncompressed(pubKeyUncompressed)
+  }
+
+  /**
+   * @return {Promise<Script>} EVM script of this account.
+   */
+  async getEvmScript (): Promise<Script> {
+    const pubKeyUncompressed = await this.walletEllipticPair.publicKeyUncompressed()
+    return {
+      stack: [
+        OP_CODES.OP_16,
+        OP_CODES.OP_PUSHDATA_HEX_LE(Eth.fromPubKeyUncompressed(pubKeyUncompressed).substring(2))
+      ]
+    }
+  }
+
+  /**
    * Convert address to script, this validate that you are sending to the same network.
    * It uses jellyfish-address under the hood.
    *
@@ -63,6 +84,10 @@ export abstract class WalletAccount implements WalletEllipticPair {
 
   async publicKey (): Promise<Buffer> {
     return await this.walletEllipticPair.publicKey()
+  }
+
+  async publicKeyUncompressed (): Promise<Buffer> {
+    return await this.walletEllipticPair.publicKeyUncompressed()
   }
 
   async privateKey (): Promise<Buffer> {

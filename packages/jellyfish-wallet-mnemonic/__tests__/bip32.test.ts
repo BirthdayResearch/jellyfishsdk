@@ -237,6 +237,7 @@ describe('24 words: abandon x23 art', () => {
   describe('44\'/1129\'/1\'/0/0', () => {
     let node: MnemonicHdNode
     const pubKey = '032a530c06df4a2b4e50863da169733d57ec07c598f8188e5a0341952fa2580075'
+    const pubKeyUncompressed = '042a530c06df4a2b4e50863da169733d57ec07c598f8188e5a0341952fa258007543f40fa0d2e62bb27a3da96e0bf76d045179a205bd76f65642f57372ea149561'
 
     beforeEach(() => {
       node = provider.derive('44\'/1129\'/1\'/0/0')
@@ -245,6 +246,11 @@ describe('24 words: abandon x23 art', () => {
     it('should derive pub key', async () => {
       const derivedPubKey = await node.publicKey()
       expect(derivedPubKey.toString('hex')).toStrictEqual(pubKey)
+    })
+
+    it('should derive pub key uncompressed', async () => {
+      const derivedPubKeyUncompressed = await node.publicKeyUncompressed()
+      expect(derivedPubKeyUncompressed.toString('hex')).toStrictEqual(pubKeyUncompressed)
     })
 
     it('should derive priv key', async () => {
