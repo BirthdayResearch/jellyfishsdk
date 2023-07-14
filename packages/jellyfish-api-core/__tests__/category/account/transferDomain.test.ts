@@ -319,11 +319,11 @@ describe('TransferDomain', () => {
     const [dvmBalance1, tokenId1] = dvmAcc1[0].split('@')
     expect(tokenId1).toStrictEqual(tokenId0)
 
-    // check: dvm balance is transfered
+    // check: dvm balance is transferred
     expect(new BigNumber(dvmBalance1))
       .toStrictEqual(new BigNumber(dvmBalance0).minus(3))
 
-    // check: evm balance = dvm balance - tranferred
+    // check: evm balance = dvm balance - transferred
     const withoutEthRes = await client.account.getTokenBalances({}, false)
     const [withoutEth] = withoutEthRes[0].split('@')
 
@@ -408,11 +408,11 @@ describe('TransferDomain', () => {
     const [dvmBalance1, tokenId1] = dvmAcc1[0].split('@')
     expect(tokenId1).toStrictEqual(tokenId0)
 
-    // check: dvm balance is transfered
+    // check: dvm balance is transferred
     expect(new BigNumber(dvmBalance1))
       .toStrictEqual(new BigNumber(dvmBalance0).minus(3 + 4))
 
-    // check: evm balance = dvm balance - tranferred
+    // check: evm balance = dvm balance - transferred
     const withoutEthRes = await client.account.getTokenBalances({}, false)
     const [withoutEth] = withoutEthRes[0].split('@')
 

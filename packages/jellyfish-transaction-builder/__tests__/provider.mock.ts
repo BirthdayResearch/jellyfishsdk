@@ -146,9 +146,20 @@ export class MockProviders {
     return Eth.fromPubKeyUncompressed(pubKeyUncompressed)
   }
 
-  async setupMocks (): Promise<void> {
+  async setupMocks (evm = false): Promise<void> {
     // full nodes need importprivkey or else it can't list unspent
-    const wif = WIF.encode(0xef, await this.ellipticPair.privateKey())
-    await this.container.call('importprivkey', [wif])
+    const privKey = await this.ellipticPair.privateKey()
+
+    // TODO(canonbrother): try..catch to skip the err to allow import raw privkey again to support evm addr
+    // due to wif was imported beforehand
+    // https://github.com/BirthdayResearch/jellyfishsdk/blob/60ebb395ce78ca8d395ede56f90e46c18c0da935/packages/testcontainers/src/containers/RegTestContainer/Masternode.ts#L59-L60
+    // remove once auto import is done
+    try {
+      evm
+        ? await this.container.call('importprivkey', [privKey.toString('hex')])
+        : await this.container.call('importprivkey', [WIF.encode(0xef, privKey)])
+    } catch (err) {
+      console.log('err: ', err)
+    }
   }
 }
