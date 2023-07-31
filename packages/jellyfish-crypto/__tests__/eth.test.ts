@@ -29,3 +29,8 @@ it('should convert evm address to script', () => {
     ]
   })
 })
+
+it('should return undefined script for invalid eth address', () => {
+  const evmScript = Eth.fromAddress('0xabc123')
+  expect(evmScript).toStrictEqual(undefined)
+})
