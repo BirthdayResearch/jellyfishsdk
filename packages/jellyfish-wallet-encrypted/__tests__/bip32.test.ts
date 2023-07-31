@@ -101,6 +101,11 @@ describe('24 words: random with passphrase "random" (exact same test in jellyfis
       expect(derivedPubKey.length).toStrictEqual(33)
     })
 
+    it('should derive pub key uncompressed', async () => {
+      const derivedPubKeyUncompressed = await node.publicKeyUncompressed()
+      expect(derivedPubKeyUncompressed.length).toStrictEqual(65)
+    })
+
     it('should derive priv key', async () => {
       const derivedPrivKey = await node.privateKey()
       expect(derivedPrivKey.length).toStrictEqual(32)
@@ -227,6 +232,11 @@ describe('24 words: abandon x23 art with passphrase "jellyfish-wallet-encrypted"
       expect(derivedPubKey.toString('hex')).toStrictEqual('0357e2eb9dee0792a24c7a9047bd05e28acd7a9275bc2b33916b1e434993f5db96')
     })
 
+    it('should derive pub key uncompressed', async () => {
+      const derivedPubKey = await node.publicKeyUncompressed()
+      expect(derivedPubKey.toString('hex')).toStrictEqual('0457e2eb9dee0792a24c7a9047bd05e28acd7a9275bc2b33916b1e434993f5db967f9c7f228e5a015fbd7d1c1bd744af6099ec3ffc37815cf982c5a70dd438ba63')
+    })
+
     it('should derive priv key', async () => {
       const privKey = await node.privateKey()
       expect(privKey.toString('hex')).toStrictEqual('c168700046e2cdfab52f5da5d5975ecaaaffa45c5b174100a0dab260a252cd43')
@@ -271,6 +281,11 @@ describe('24 words: abandon x23 art with passphrase "jellyfish-wallet-encrypted"
     it('should derive pub key', async () => {
       const derivedPubKey = await node.publicKey()
       expect(derivedPubKey.toString('hex')).toStrictEqual('02dc83dda8b4e068d45fe63eaa12f2abbe4391569ffd25b031229275f9eb1f2efd')
+    })
+
+    it('should derive pub key uncompressed', async () => {
+      const derivedPubKey = await node.publicKeyUncompressed()
+      expect(derivedPubKey.toString('hex')).toStrictEqual('04dc83dda8b4e068d45fe63eaa12f2abbe4391569ffd25b031229275f9eb1f2efd3fce4ab6ff5a0903f2304e0772e2cc3ed1779e1d61ae6a08416ca0f425fba51e')
     })
 
     it('should derive priv key', async () => {
