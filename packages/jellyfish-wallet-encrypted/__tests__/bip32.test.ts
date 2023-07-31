@@ -166,12 +166,6 @@ describe('24 words: abandon x23 art with passphrase "jellyfish-wallet-encrypted"
       await expect(promise).rejects.toThrowError('Missing private key for hardened child key')
     })
 
-    it('should derive pub key uncompressed', async () => {
-      const pubKeyUncompressed = '044849fafd49b531a2b8a101993c34ea5c70bdc094fd4fc45d2fca2068d2143553e34595e90fe1f08ecab8cfa94d6eb8a46ece4a41856b090be147f1243def0397'
-      const derivedPubKeyUncompressed = await node.publicKeyUncompressed()
-      expect(derivedPubKeyUncompressed.toString('hex')).toStrictEqual(pubKeyUncompressed)
-    })
-
     it('should derive priv key', async () => {
       const privKey = await node.privateKey()
       expect(privKey.toString('hex')).toStrictEqual('b5b25c4628c5bb31a673ee8d1ab4c378ae50df2b173cf99d26cfe7848d834628')
@@ -197,6 +191,11 @@ describe('24 words: abandon x23 art with passphrase "jellyfish-wallet-encrypted"
 
     it('should derive pub key', async () => {
       const promise = node.publicKey()
+      await expect(promise).rejects.toThrowError('Missing private key for hardened child key')
+    })
+
+    it('should derive pub key uncompressed', async () => {
+      const promise = node.publicKeyUncompressed()
       await expect(promise).rejects.toThrowError('Missing private key for hardened child key')
     })
 
