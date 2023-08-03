@@ -183,19 +183,19 @@ export interface BurnData {
    */
   dfipaybacktokens: string[]
   /**
-   * Amount of paybacks
+   * Amount of paybacks; formatted as AMOUNT@SYMBOL
    */
   paybackfees: string[]
   /**
-   * Amount of tokens that are paid back
+   * Amount of tokens that are paid back; formatted as AMOUNT@SYMBOL
    */
   paybacktokens: string[]
   /**
-   * Amount of tokens burned due to futureswap
+   * Amount of tokens burned due to futureswap; formatted as AMOUNT@SYMBOL
    */
   dfip2203: string[]
   /**
-   * Amount of tokens burned due to DFI-to-DUSD swap
+   * Amount of tokens burned due to DFI-to-DUSD swap; formatted as AMOUNT@SYMBOL
    */
   dfip2206f: string[]
 }
