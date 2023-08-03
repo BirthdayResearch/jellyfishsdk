@@ -143,7 +143,7 @@ export interface SupplyData {
 export interface BurnData {
   address: string
   /**
-   * Amount send to burn address
+   * Amount of DFI send to burn address
    */
   amount: number
   /**
@@ -151,19 +151,19 @@ export interface BurnData {
    */
   tokens: string[]
   /**
-   * Amount collected via fee burn
+   * Amount of DFI collected via fee burn
    */
   feeburn: number
   /**
-   * Amount collected via emission burn
+   * Amount of DFI collected via emission burn
    */
   emissionburn: number
   /**
-   * Amount collected via auction burn
+   * Amount of DFI collected via auction burn
    */
   auctionburn: number
   /**
-   * Value of burn after payback
+   * Value of burn after payback (in DFI)
    */
   paybackburn: number
   /**
