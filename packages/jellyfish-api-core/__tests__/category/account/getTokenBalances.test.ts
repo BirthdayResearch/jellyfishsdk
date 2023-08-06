@@ -104,7 +104,11 @@ describe('Account', () => {
   it('should getTokenBalances with including eth', async () => {
     await client.masternode.setGov({
       ATTRIBUTES: {
-        'v0/params/feature/evm': 'true'
+        'v0/params/feature/evm': 'true',
+        'v0/params/feature/transferdomain': 'true',
+        'v0/transferdomain/dvm-evm/enabled': 'true',
+        'v0/transferdomain/dvm-evm/dat-enabled': 'true',
+        'v0/transferdomain/evm-dvm/dat-enabled': 'true'
       }
     })
     await container.generate(1)
