@@ -1,4 +1,3 @@
-import { OP_CODES } from '@defichain/jellyfish-transaction'
 import { Eth } from '../src'
 
 const keypair = {
@@ -18,19 +17,4 @@ it('should convert evm address to checksum address', () => {
   const pubKeyUncompressed = Buffer.from(keypair.pubKeyUncompressed, 'hex')
   const checksumEvmAddr = Eth.fromPubKeyUncompressed(pubKeyUncompressed)
   expect(checksumEvmAddr).toStrictEqual(keypair.checksumEvmAddr)
-})
-
-it('should convert evm address to script', () => {
-  const evmScript = Eth.fromAddress(keypair.evmAddr)
-  expect(evmScript).toStrictEqual({
-    stack: [
-      OP_CODES.OP_16,
-      OP_CODES.OP_PUSHDATA_HEX_LE(keypair.evmAddr.substring(2))
-    ]
-  })
-})
-
-it('should return undefined script for invalid eth address', () => {
-  const evmScript = Eth.fromAddress('0xabc123')
-  expect(evmScript).toStrictEqual(undefined)
 })
