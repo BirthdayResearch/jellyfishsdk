@@ -14,6 +14,7 @@ export * from './p2pkh'
 export * from './p2sh'
 export * from './p2wpkh'
 export * from './p2wsh'
+export * from './eth'
 
 /**
  * When insist to use the "network" decoded from raw address, instead of passing one based on running application environment
