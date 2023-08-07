@@ -4,7 +4,7 @@ import { TransferDomainType } from '../../../src/category/account'
 import BigNumber from 'bignumber.js'
 
 describe('EVM feature flags', () => {
-  let dvmAddr: string, evmAddr: string
+  let dvmAddr: string, evmAddr: string, evmAddrTo: string
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -13,12 +13,12 @@ describe('EVM feature flags', () => {
       {
         src: {
           address: dvmAddr,
-          amount: '3@DFI',
+          amount: '5@DFI',
           domain: TransferDomainType.DVM
         },
         dst: {
           address: evmAddr,
-          amount: '3@DFI',
+          amount: '5@DFI',
           domain: TransferDomainType.EVM
         }
       }
@@ -45,12 +45,25 @@ describe('EVM feature flags', () => {
     return txid
   }
 
+  async function createEvmTx (nonce: number): Promise<string> {
+    const evmTxHash = await client.evm.evmtx({
+      from: evmAddr,
+      to: evmAddrTo,
+      value: new BigNumber(0.05),
+      gasPrice: 23,
+      gasLimit: 23000,
+      nonce
+    })
+    return evmTxHash
+  }
+
   beforeAll(async () => {
     await container.start()
     await container.waitForWalletCoinbaseMaturity()
 
     dvmAddr = await container.getNewAddress('dfiAddress', 'legacy')
     evmAddr = await container.getNewAddress('eth', 'eth')
+    evmAddrTo = await container.getNewAddress('eth', 'eth')
 
     await container.call('utxostoaccount', [{ [dvmAddr]: '100@0' }])
     await container.generate(1)
@@ -88,7 +101,7 @@ describe('EVM feature flags', () => {
       expect(newEvmAddr).toBeDefined()
     })
 
-    it.only('should still successfully get eth balance', async () => {
+    it('should still successfully get eth balance', async () => {
       const dvmBalances = await client.account.getTokenBalances({}, false)
       const [dvmBalance] = dvmBalances[0].split('@')
       const evmBalances = await client.account.getTokenBalances({}, false, { includeEth: true })
@@ -124,6 +137,18 @@ describe('EVM feature flags', () => {
       expect(typeof txid).toStrictEqual('string')
       expect(txid.length).toStrictEqual(64)
     })
+
+    it('should successfully create a new EVM transaction (EvmTx)', async () => {
+      // send fund to source evm address
+      await dvmToEvmTransferDomain()
+      await container.generate(1)
+
+      const evmTxHash = await createEvmTx(0)
+      await container.generate(1)
+      const blockHash: string = await client.blockchain.getBestBlockHash()
+      const txs = await client.blockchain.getBlock(blockHash, 1)
+      expect(txs.tx[1]).toStrictEqual(evmTxHash)
+    })
   })
 
   describe('gov attr v0/params/feature/evm is set to false', () => {
@@ -144,6 +169,11 @@ describe('EVM feature flags', () => {
 
     it('should fail EVM to DVM transferDomain', async () => {
       const promise = evmToDvmTransferDomain()
+      await expect(promise).rejects.toThrow('Cannot create tx, EVM is not enabled')
+    })
+
+    it('should fail creation of new EVM transaction (EvmTx)', async () => {
+      const promise = createEvmTx(1)
       await expect(promise).rejects.toThrow('Cannot create tx, EVM is not enabled')
     })
   })
@@ -167,6 +197,14 @@ describe('EVM feature flags', () => {
     it('should fail EVM to DVM transferDomain', async () => {
       const promise = evmToDvmTransferDomain()
       await expect(promise).rejects.toThrow('Cannot create tx, transfer domain is not enabled')
+    })
+
+    it('should still successfully create new EVM transaction (EvmTx)', async () => {
+      const evmTxHash = await createEvmTx(1)
+      await container.generate(1)
+      const blockHash: string = await client.blockchain.getBestBlockHash()
+      const txs = await client.blockchain.getBlock(blockHash, 1)
+      expect(txs.tx[1]).toStrictEqual(evmTxHash)
     })
   })
 
