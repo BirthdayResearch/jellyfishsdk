@@ -33,7 +33,7 @@ export const Eth = {
       throw new Error('InvalidUncompressedPubKeyLength')
     }
     const sub = pubKeyUncompressed.subarray(1, 65)
-    const hash = KECCAK256(sub)
+    const hash = KECCAK256(Buffer.from(sub))
     return toChecksumAddress(toAddress(hash))
   }
 }
