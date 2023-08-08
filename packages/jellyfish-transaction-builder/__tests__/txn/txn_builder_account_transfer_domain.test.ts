@@ -38,6 +38,7 @@ describe('transferDomain', () => {
         'v0/params/feature/evm': 'true',
         'v0/params/feature/transferdomain': 'true',
         'v0/transferdomain/dvm-evm/enabled': 'true',
+        'v0/transferdomain/evm-dvm/enabled': 'true',
         'v0/transferdomain/dvm-evm/dat-enabled': 'true',
         'v0/transferdomain/evm-dvm/dat-enabled': 'true'
       }
