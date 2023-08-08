@@ -61,17 +61,8 @@ describe('transferDomain', () => {
       tradeable: true,
       collateralAddress: dvmAddr
     })
-    await testing.token.create({
-      symbol: 'ETH',
-      name: 'ETH',
-      isDAT: true,
-      mintable: true,
-      tradeable: true,
-      collateralAddress: dvmAddr
-    })
     await container.generate(1)
     await testing.token.mint({ amount: '10', symbol: 'BTC' })
-    await testing.token.mint({ amount: '10', symbol: 'ETH' })
     await testing.generate(1)
 
     // Fund 100 DFI UTXO
