@@ -84,7 +84,7 @@ describe('EVM feature flags', () => {
   })
 
   describe('all gov attrs for EVM is set to false', () => {
-    beforeAll(async () => {
+    it('should still successfully get eth address', async () => {
       await client.masternode.setGov({
         ATTRIBUTES: {
           'v0/params/feature/evm': 'false',
@@ -94,9 +94,7 @@ describe('EVM feature flags', () => {
         }
       })
       await container.generate(1)
-    })
 
-    it('should still successfully get eth address', async () => {
       const newEvmAddr = await container.getNewAddress('eth', 'eth')
       expect(newEvmAddr).toBeDefined()
       expect(newEvmAddr).toMatch(/^0x[a-fA-F0-9]{40}$/gm)
@@ -104,9 +102,35 @@ describe('EVM feature flags', () => {
     })
 
     it('should still successfully get eth balance', async () => {
-      const evmBalances = await client.account.getTokenBalances({}, false, { includeEth: true })
-      const [evmBalance] = evmBalances[0].split('@')
-      expect(evmBalance).toBeDefined()
+      await client.masternode.setGov({
+        ATTRIBUTES: {
+          'v0/params/feature/evm': 'true',
+          'v0/params/feature/transferdomain': 'true',
+          'v0/transferdomain/dvm-evm/enabled': 'true',
+          'v0/transferdomain/evm-dvm/enabled': 'true'
+        }
+      })
+      await container.generate(1)
+      await dvmToEvmTransferDomain()
+      await container.generate(1)
+      const withoutDvmBalances = await client.account.getTokenBalances({}, false)
+      const [withoutDvmBalance] = withoutDvmBalances[0].split('@')
+
+      // Disable EVM and try to get ETH balance
+      await client.masternode.setGov({
+        ATTRIBUTES: {
+          'v0/params/feature/evm': 'false',
+          'v0/params/feature/transferdomain': 'false',
+          'v0/transferdomain/dvm-evm/enabled': 'false',
+          'v0/transferdomain/evm-dvm/enabled': 'false'
+        }
+      })
+      await container.generate(1)
+      const withEvmBalances = await client.account.getTokenBalances({}, false, { includeEth: true })
+      const [withEvmBalance] = withEvmBalances[0].split('@')
+      expect(withEvmBalance).toBeDefined()
+      expect(new BigNumber(withoutDvmBalance))
+        .toStrictEqual(new BigNumber(withEvmBalance).minus(5))
     })
   })
 
