@@ -1,4 +1,5 @@
 import { WalletHdNodeProvider } from '@defichain/jellyfish-wallet'
+import { pointCompress } from 'tiny-secp256k1'
 import * as bip32 from 'bip32'
 import { Bip32Options, MnemonicHdNode, MnemonicHdNodeProvider } from '@defichain/jellyfish-wallet-mnemonic'
 import { PrivateKeyEncryption } from './encryption'
@@ -39,6 +40,14 @@ export class EncryptedMnemonicHdNode extends MnemonicHdNode {
     return bip32.fromPublicKey(this.rootPubKey, this.chainCode, this.options)
       .derivePath(this.path)
       .publicKey
+  }
+
+  /**
+   * @return Promise<Buffer> uncompressed public key
+   */
+  async publicKeyUncompressed (): Promise<Buffer> {
+    const publicKey = await this.publicKey()
+    return Buffer.from(pointCompress(publicKey, false))
   }
 }
 
