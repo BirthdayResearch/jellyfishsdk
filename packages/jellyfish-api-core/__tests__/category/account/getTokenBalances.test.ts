@@ -114,7 +114,7 @@ describe('Account', () => {
     })
     await container.generate(1)
 
-    const dvmAddr = await container.call('getnewaddress')
+    const dvmAddr = await container.getNewAddress('dvm', 'legacy')
     const evmAddr = await container.getNewAddress('eth', 'eth')
 
     await container.call('utxostoaccount', [{ [dvmAddr]: '100@0' }])

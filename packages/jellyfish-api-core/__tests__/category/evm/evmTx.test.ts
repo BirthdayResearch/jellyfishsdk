@@ -34,7 +34,7 @@ describe('EVMTX', () => {
       }
     })
     await container.generate(1)
-    dfiAddress = await container.call('getnewaddress')
+    dfiAddress = await container.call('getnewaddress', ['', 'legacy'])
     await container.call('utxostoaccount', [{ [dfiAddress]: '105@DFI' }])
     await container.generate(1)
     ethAddress = await container.call('getnewaddress', ['', 'eth'])
