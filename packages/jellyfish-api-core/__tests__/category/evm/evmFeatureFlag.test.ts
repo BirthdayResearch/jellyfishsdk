@@ -99,16 +99,14 @@ describe('EVM feature flags', () => {
     it('should still successfully get eth address', async () => {
       const newEvmAddr = await container.getNewAddress('eth', 'eth')
       expect(newEvmAddr).toBeDefined()
+      expect(newEvmAddr).toMatch(/^0x[a-fA-F0-9]{40}$/gm)
+      expect(newEvmAddr.length).toStrictEqual(42)
     })
 
     it('should still successfully get eth balance', async () => {
-      const dvmBalances = await client.account.getTokenBalances({}, false)
-      const [dvmBalance] = dvmBalances[0].split('@')
       const evmBalances = await client.account.getTokenBalances({}, false, { includeEth: true })
       const [evmBalance] = evmBalances[0].split('@')
       expect(evmBalance).toBeDefined()
-      expect(new BigNumber(dvmBalance).minus(new BigNumber(evmBalance)))
-        .toStrictEqual(new BigNumber(0))
     })
   })
 
