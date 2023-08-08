@@ -445,65 +445,39 @@ describe('TransferDomain', () => {
       .toStrictEqual(new BigNumber(currentBalance).plus(3))
   })
 
-  it('should (duo) Transfer Domain from DVM to EVM', async () => {
-    const dvmAcc = await client.account.getAccount(dvmAddr)
-    const [dvmBalance0, tokenId0] = dvmAcc[0].split('@')
-    const prevBalance = await getEVMBalances(client)
-
-    const txid1 = await client.account.transferDomain([
+  it('should fail (duo) Transfer Domain from DVM to EVM', async () => {
+    const promise = client.account.transferDomain([
       {
         src: {
           address: dvmAddr,
-          amount: '3@DFI',
+          amount: '1@DFI',
           domain: TransferDomainType.DVM
         },
         dst: {
           address: evmAddr,
-          amount: '3@DFI',
+          amount: '1@DFI',
           domain: TransferDomainType.EVM
         }
-      }
-    ])
-    expect(typeof txid1).toStrictEqual('string')
-    expect(txid1.length).toStrictEqual(64)
-    const txid2 = await client.account.transferDomain([
+      },
       {
         src: {
           address: dvmAddr,
-          amount: '4@DFI',
+          amount: '1@DFI',
           domain: TransferDomainType.DVM
         },
         dst: {
           address: evmAddr,
-          amount: '4@DFI',
+          amount: '1@DFI',
           domain: TransferDomainType.EVM
         }
       }
     ])
-    expect(typeof txid2).toStrictEqual('string')
-    expect(txid2.length).toStrictEqual(64)
-    await container.generate(1)
-
-    const dvmAcc1 = await client.account.getAccount(dvmAddr)
-    const [dvmBalance1, tokenId1] = dvmAcc1[0].split('@')
-    expect(tokenId1).toStrictEqual(tokenId0)
-
-    // check: dvm balance is transferred
-    expect(new BigNumber(dvmBalance0))
-      .toStrictEqual(new BigNumber(dvmBalance1).plus(3 + 4))
-
-    // check EVM balance
-    const currentBalance = await getEVMBalances(client)
-    expect(new BigNumber(prevBalance))
-      .toStrictEqual(new BigNumber(currentBalance).minus(3 + 4))
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('TransferDomain currently only supports a single transfer per transaction')
   })
 
-  it('should (duo) Transfer Domain from EVM to DVM', async () => {
-    const dvmAcc = await client.account.getAccount(dvmAddr)
-    const [dvmBalance0, tokenId0] = dvmAcc[0].split('@')
-    const prevBalance = await getEVMBalances(client)
-
-    const txid1 = await client.account.transferDomain([
+  it('should fail (duo) Transfer Domain from EVM to DVM', async () => {
+    const promise = client.account.transferDomain([
       {
         src: {
           address: evmAddr,
@@ -515,11 +489,7 @@ describe('TransferDomain', () => {
           amount: '3@DFI',
           domain: TransferDomainType.DVM
         }
-      }
-    ])
-    expect(typeof txid1).toStrictEqual('string')
-    expect(txid1.length).toStrictEqual(64)
-    const txid2 = await client.account.transferDomain([
+      },
       {
         src: {
           address: evmAddr,
@@ -533,90 +503,8 @@ describe('TransferDomain', () => {
         }
       }
     ])
-    expect(typeof txid2).toStrictEqual('string')
-    expect(txid2.length).toStrictEqual(64)
-    await container.generate(1)
-
-    const dvmAcc1 = await client.account.getAccount(dvmAddr)
-    const [dvmBalance1, tokenId1] = dvmAcc1[0].split('@')
-    expect(tokenId1).toStrictEqual(tokenId0)
-    expect(new BigNumber(dvmBalance0))
-      .toStrictEqual(new BigNumber(dvmBalance1).minus(3 + 4))
-
-    // check EVM balance
-    const currentBalance = await getEVMBalances(client)
-    expect(new BigNumber(prevBalance))
-      .toStrictEqual(new BigNumber(currentBalance).plus(3 + 4))
-  })
-
-  it('should (duo-diff) Transfer Domain from EVM to DVM and DVM to EVM', async () => {
-    // transfer some to evm first
-    await client.account.transferDomain([
-      {
-        src: {
-          address: dvmAddr,
-          amount: '3@DFI',
-          domain: TransferDomainType.DVM
-        },
-        dst: {
-          address: evmAddr,
-          amount: '3@DFI',
-          domain: TransferDomainType.EVM
-        }
-      }
-    ])
-    await container.generate(1)
-
-    const dvmAcc = await client.account.getAccount(dvmAddr)
-    const [dvmBalance0, tokenId0] = dvmAcc[0].split('@')
-    const prevBalance = await getEVMBalances(client)
-
-    // start
-    const txid1 = await client.account.transferDomain([
-      {
-        src: {
-          address: dvmAddr,
-          amount: '4@DFI',
-          domain: TransferDomainType.DVM
-        },
-        dst: {
-          address: evmAddr,
-          amount: '4@DFI',
-          domain: TransferDomainType.EVM
-        }
-      }
-    ])
-    expect(typeof txid1).toStrictEqual('string')
-    expect(txid1.length).toStrictEqual(64)
-    const txid2 = await client.account.transferDomain([
-      {
-        src: {
-          address: evmAddr,
-          amount: '3@DFI',
-          domain: TransferDomainType.EVM
-        },
-        dst: {
-          address: dvmAddr,
-          amount: '3@DFI',
-          domain: TransferDomainType.DVM
-        }
-      }
-    ])
-    expect(typeof txid2).toStrictEqual('string')
-    expect(txid2.length).toStrictEqual(64)
-
-    await container.generate(1)
-
-    const dvmAcc1 = await client.account.getAccount(dvmAddr)
-    const [dvmBalance1, tokenId1] = dvmAcc1[0].split('@')
-    expect(tokenId1).toStrictEqual(tokenId0)
-
-    expect(new BigNumber(dvmBalance1))
-      .toStrictEqual(new BigNumber(dvmBalance0).plus(3 - 4))
-
-    const currentBalance = await getEVMBalances(client)
-    expect(new BigNumber(prevBalance))
-      .toStrictEqual(new BigNumber(currentBalance).plus(3 - 4))
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('TransferDomain currently only supports a single transfer per transaction')
   })
 })
 
