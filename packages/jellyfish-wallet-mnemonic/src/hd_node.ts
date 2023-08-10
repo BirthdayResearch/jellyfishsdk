@@ -58,8 +58,8 @@ export class MnemonicHdNode implements WalletHdNode {
    * @return Promise<Buffer> uncompressed public key
    */
   async publicKeyUncompressed (): Promise<Buffer> {
-    const node = await this.deriveNode()
-    return Buffer.from(pointCompress(node.publicKey, false))
+    const publicKey = await this.publicKey()
+    return Buffer.from(pointCompress(publicKey, false))
   }
 
   /**
