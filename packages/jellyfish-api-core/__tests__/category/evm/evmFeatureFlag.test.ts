@@ -111,12 +111,14 @@ describe('EVM feature flags', () => {
         }
       })
       await container.generate(1)
+
       await dvmToEvmTransferDomain()
       await container.generate(1)
+
       const withoutDvmBalances = await client.account.getTokenBalances({}, false)
       const [withoutDvmBalance] = withoutDvmBalances[0].split('@')
 
-      // Disable EVM and try to get ETH balance
+      // disable EVM and try to get ETH balance
       await client.masternode.setGov({
         ATTRIBUTES: {
           'v0/params/feature/evm': 'false',
@@ -126,6 +128,7 @@ describe('EVM feature flags', () => {
         }
       })
       await container.generate(1)
+
       const withEvmBalances = await client.account.getTokenBalances({}, false, { includeEth: true })
       const [withEvmBalance] = withEvmBalances[0].split('@')
       expect(withEvmBalance).toBeDefined()
@@ -167,6 +170,7 @@ describe('EVM feature flags', () => {
 
       const evmTxHash = await createEvmTx(0)
       await container.generate(1)
+
       const blockHash: string = await client.blockchain.getBestBlockHash()
       const txs = await client.blockchain.getBlock(blockHash, 1)
       expect(txs.tx[1]).toStrictEqual(evmTxHash)
@@ -224,6 +228,7 @@ describe('EVM feature flags', () => {
     it('should still successfully create new EVM transaction (EvmTx)', async () => {
       const evmTxHash = await createEvmTx(1)
       await container.generate(1)
+
       const blockHash: string = await client.blockchain.getBestBlockHash()
       const txs = await client.blockchain.getBlock(blockHash, 1)
       expect(txs.tx[1]).toStrictEqual(evmTxHash)
