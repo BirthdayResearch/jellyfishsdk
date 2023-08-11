@@ -316,11 +316,7 @@ describe('TransferDomain', () => {
     })
 
     it('should not transfer if custom (isDAT = false) token is transferred', async () => {
-      const dvmAcc = await getAccountValues(client, dvmAddr)
-      const tokenId = 'DESC#128'
-      const dvmBalance0 = dvmAcc[tokenId]
-
-      const txid = await client.account.transferDomain([
+      const promise = client.account.transferDomain([
         {
           src: {
             address: dvmAddr,
@@ -334,16 +330,8 @@ describe('TransferDomain', () => {
           }
         }
       ])
-      expect(typeof txid).toStrictEqual('string')
-      expect(txid.length).toStrictEqual(64)
-      await container.generate(1)
-
-      const dvmAcc1 = await getAccountValues(client, dvmAddr)
-      const dvmBalance1 = dvmAcc1[tokenId]
-
-      // check: dvm balance is not transferred
-      expect(new BigNumber(dvmBalance0))
-        .toStrictEqual(new BigNumber(dvmBalance1))
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('Non-DAT or LP tokens are not supported for transferdomain')
     })
 
     it('should not transfer if loan token is transferred', async () => {

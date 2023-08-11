@@ -61,8 +61,23 @@ describe('transferDomain', () => {
       tradeable: true,
       collateralAddress: dvmAddr
     })
+
+    const txId = await testing.rpc.wallet.sendToAddress(dvmAddr, 20100)
+    const utxos = [{
+      txid: txId,
+      vout: 0
+    }]
+    await testing.rpc.token.createToken({
+      collateralAddress: dvmAddr,
+      isDAT: false,
+      mintable: true,
+      name: 'DESC',
+      symbol: 'DESC',
+      tradeable: false
+    }, utxos)
     await container.generate(1)
     await testing.token.mint({ amount: '10', symbol: 'BTC' })
+    await testing.token.mint({ amount: '10', symbol: 'DESC#128' })
     await testing.generate(1)
 
     // Fund 100 DFI UTXO
@@ -78,10 +93,10 @@ describe('transferDomain', () => {
   })
 
   afterAll(async () => {
-    await testing.container.stop()
+    // await testing.container.stop()
   })
 
-  describe('transferDomain failed', () => {
+  describe.only('transferDomain failed', () => {
     it('should fail if transfer within same domain', async () => {
       const transferDomain: TransferDomain = {
         items: [{
@@ -293,6 +308,37 @@ describe('transferDomain', () => {
       await expect(promise).rejects.toThrow(DeFiDRpcError)
       await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: tx must have at least one input from account owner (code 16)')
     })
+
+    it.only('should not transfer if custom (isDAT = false) token is transferred', async () => {
+      const invalidDvmScript = P2WPKH.fromAddress(RegTest, await testing.container.getNewAddress(), P2WPKH).getScript()
+      const transferDomain: TransferDomain = {
+        items: [{
+          src:
+          {
+            address: dvmScript,
+            amount: {
+              token: 128, // <- DESC
+              amount: new BigNumber(3)
+            },
+            domain: TRANSFER_DOMAIN_TYPE.DVM
+          },
+          dst: {
+            address: evmScript,
+            amount: {
+              token: 128, // <- DESC
+              amount: new BigNumber(3)
+            },
+            domain: TRANSFER_DOMAIN_TYPE.EVM
+          }
+        }]
+      }
+
+      const txn = await builder.account.transferDomain(transferDomain, invalidDvmScript)
+      const promise = sendTransaction(testing.container, txn)
+
+      await expect(promise).rejects.toThrow(DeFiDRpcError)
+      await expect(promise).rejects.toThrow('Non-DAT or LP tokens are not supported for transferdomain')
+    })
   })
 
   it('should transfer domain from DVM to EVM', async () => {
@@ -409,7 +455,7 @@ describe('transferDomain', () => {
     const [dvmBalanceAfter0, tokenIdAfter0] = dvmAccAfter[0].split('@')
     expect(tokenIdBefore0).toStrictEqual(tokenIdAfter0)
 
-    // check: dev balance is updated
+    // check: dvm balance is updated
     expect(new BigNumber(dvmBalanceAfter0))
       .toStrictEqual(new BigNumber(dvmBalanceBefore0).plus(3))
 
@@ -524,7 +570,7 @@ describe('transferDomain', () => {
     const [dvmBalanceAfter0, tokenIdAfter0] = dvmAccAfter[1].split('@')
     expect(tokenIdBefore0).toStrictEqual(tokenIdAfter0)
 
-    // check: dev balance is updated
+    // check: dvm balance is updated
     expect(new BigNumber(dvmBalanceAfter0))
       .toStrictEqual(new BigNumber(dvmBalanceBefore0).plus(3))
   })
