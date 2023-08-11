@@ -45,13 +45,19 @@ export class TxnBuilderGovernance extends P2WPKHTxnBuilder {
     }
     let creationFee = new BigNumber('5')
     if (this.network.name === 'mainnet') {
-      creationFee = new BigNumber('50')
-    }
-    if (this.network.name === 'testnet') {
-      creationFee = new BigNumber('50')
-    }
-    if (createVoc.options === 1) {
-      creationFee = new BigNumber('5000')
+      if (createVoc.options === 1) {
+        creationFee = new BigNumber('5000')
+      } else {
+        creationFee = new BigNumber('50')
+      }
+    } else if (this.network.name === 'testnet') {
+      if (createVoc.options === 1) {
+        creationFee = new BigNumber('50')
+      } else {
+        creationFee = new BigNumber('50')
+      }
+    } else if (createVoc.options === 1) { //so we can test it with regtest params
+      creationFee = new BigNumber('10000')
     }
     return await this.createDeFiTx(
       OP_CODES.OP_DEFI_TX_CREATE_VOC(createVoc),
