@@ -56,7 +56,7 @@ export class TxnBuilderGovernance extends P2WPKHTxnBuilder {
       } else {
         creationFee = new BigNumber('50')
       }
-    } else if (createVoc.options === 1) { //so we can test it with regtest params
+    } else if (createVoc.options === 1) {
       creationFee = new BigNumber('10000')
     }
     return await this.createDeFiTx(
