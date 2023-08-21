@@ -71,6 +71,11 @@ export class SetupLoanCollateral extends PlaygroundSetup<SetCollateralToken> {
         token: 'EUROC',
         fixedIntervalPriceId: 'EUROC/USD',
         factor: new BigNumber('1')
+      },
+      {
+        token: 'MATIC',
+        fixedIntervalPriceId: 'MATIC/USD',
+        factor: new BigNumber('1')
       }
     ]
   }
