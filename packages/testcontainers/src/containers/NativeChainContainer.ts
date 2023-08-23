@@ -90,6 +90,9 @@ export class NativeChainContainer extends GenericContainer {
       '-rpcbind=0.0.0.0',
       '-rpcworkqueue=512'
     ],
+    changi: [
+      '-changi=1'
+    ],
     testnet: [
       '-testnet=1'
     ],
