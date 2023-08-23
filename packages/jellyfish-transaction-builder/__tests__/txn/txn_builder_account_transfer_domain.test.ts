@@ -93,7 +93,7 @@ describe('transferDomain', () => {
   })
 
   afterAll(async () => {
-    // await testing.container.stop()
+    await testing.container.stop()
   })
 
   describe.only('transferDomain failed', () => {
@@ -309,7 +309,7 @@ describe('transferDomain', () => {
       await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: tx must have at least one input from account owner (code 16)')
     })
 
-    it.only('should not transfer if custom (isDAT = false) token is transferred', async () => {
+    it('should not transfer if custom (isDAT = false) token is transferred', async () => {
       const invalidDvmScript = P2WPKH.fromAddress(RegTest, await testing.container.getNewAddress(), P2WPKH).getScript()
       const transferDomain: TransferDomain = {
         items: [{
