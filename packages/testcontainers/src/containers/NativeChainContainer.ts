@@ -122,7 +122,6 @@ export class NativeChainContainer extends GenericContainer {
       '-grandcentralheight=16',
       '-grandcentralepilogueheight=17',
       '-nextnetworkupgradeheight=18',
-      '-changiintermediateheight=19',
       '-regtest-skip-loan-collateral-validation',
       '-regtest-minttoken-simulate-mainnet=0'
     ],

@@ -183,8 +183,15 @@ it('should have gov set', async () => {
       'v0/token/17/fixed_interval_price_id': 'TR50/USD',
       'v0/token/17/loan_minting_enabled': 'true',
       'v0/token/17/loan_minting_interest': '3',
+      'v0/params/feature/icx': 'true',
       'v0/params/feature/evm': 'true',
-      'v0/params/feature/icx': 'true'
+      'v0/params/feature/transferdomain': 'true',
+      'v0/transferdomain/dvm-evm/enabled': 'true',
+      'v0/transferdomain/dvm-evm/src-formats': ['p2pkh', 'bech32'],
+      'v0/transferdomain/dvm-evm/dest-formats': ['erc55'],
+      'v0/transferdomain/evm-dvm/src-formats': ['erc55'],
+      'v0/transferdomain/evm-dvm/auth-formats': ['bech32-erc55'],
+      'v0/transferdomain/evm-dvm/dest-formats': ['p2pkh', 'bech32']
     })
   })
 

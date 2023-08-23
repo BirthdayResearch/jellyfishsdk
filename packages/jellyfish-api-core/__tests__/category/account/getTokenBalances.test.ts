@@ -104,13 +104,21 @@ describe('Account', () => {
   it('should getTokenBalances with including eth', async () => {
     await client.masternode.setGov({
       ATTRIBUTES: {
-        'v0/params/feature/evm': 'true'
+        // Enable evm
+        'v0/params/feature/evm': 'true',
+        'v0/params/feature/transferdomain': 'true',
+        'v0/transferdomain/dvm-evm/enabled': 'true',
+        'v0/transferdomain/dvm-evm/src-formats': ['p2pkh', 'bech32'],
+        'v0/transferdomain/dvm-evm/dest-formats': ['erc55'],
+        'v0/transferdomain/evm-dvm/src-formats': ['erc55'],
+        'v0/transferdomain/evm-dvm/auth-formats': ['bech32-erc55'],
+        'v0/transferdomain/evm-dvm/dest-formats': ['p2pkh', 'bech32']
       }
     })
-    await container.generate(1)
+    await container.generate(2)
 
-    const dvmAddr = await container.call('getnewaddress')
-    const evmAddr = await container.getNewAddress('eth', 'eth')
+    const dvmAddr = await container.call('getnewaddress', ['', 'bech32'])
+    const evmAddr = await container.getNewAddress('erc55', 'erc55')
 
     await container.call('utxostoaccount', [{ [dvmAddr]: '100@0' }])
     await container.generate(1)
