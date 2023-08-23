@@ -96,7 +96,7 @@ describe('transferDomain', () => {
     await testing.container.stop()
   })
 
-  describe.only('transferDomain failed', () => {
+  describe('transferDomain failed', () => {
     it('should fail if transfer within same domain', async () => {
       const transferDomain: TransferDomain = {
         items: [{
