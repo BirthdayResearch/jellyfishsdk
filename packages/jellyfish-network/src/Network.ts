@@ -134,22 +134,11 @@ export const RegTest: Network = {
 /**
  * Changi specific DeFi configuration.
  */
-// todo(pierregee): update once got the details
 export const Changi: Network = {
+  ...TestNet,
   name: 'changi',
-  bech32: {
-    hrp: 'bcrt'
-  },
-  bip32: {
-    publicPrefix: 0x043587cf,
-    privatePrefix: 0x04358394
-  },
-  wifPrefix: 0xef,
-  pubKeyHashPrefix: 0x6f,
-  scriptHashPrefix: 0xc4,
-  messagePrefix: '\x15Defi Signed Message:\n',
   ports: {
-    rpc: 19554,
-    p2p: 19555
+    rpc: 20554,
+    p2p: 20555
   }
 }
