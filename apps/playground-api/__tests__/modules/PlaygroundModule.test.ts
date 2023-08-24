@@ -62,7 +62,7 @@ it('should have loan collateral tokens', async () => {
 it('should have gov set', async () => {
   const gov = await testing.container.call('getgov', ['ATTRIBUTES'])
   expect(gov).toStrictEqual({
-    ATTRIBUTES: expect.objectContaining({
+    ATTRIBUTES: {
       'v0/consortium/1/members': {
         '01': {
           backingId: 'backing_address_btc_1_c',
@@ -103,8 +103,6 @@ it('should have gov set', async () => {
       'v0/consortium/1/mint_limit_daily': '5',
       'v0/consortium/2/mint_limit': '20',
       'v0/consortium/2/mint_limit_daily': '10',
-      'v0/live/economy/dfip2203_burned': [],
-      'v0/live/economy/dfip2203_minted': [],
       'v0/live/economy/evm/block/fee_burnt': 0,
       'v0/live/economy/evm/block/fee_burnt_max': 0,
       'v0/live/economy/evm/block/fee_burnt_max_hash': expect.any(String),
@@ -116,7 +114,7 @@ it('should have gov set', async () => {
       'v0/live/economy/evm/block/fee_priority_min': 92233720368.54776,
       'v0/live/economy/evm/block/fee_priority_min_hash': '0000000000000000000000000000000000000000000000000000000000000000',
       'v0/live/economy/loans': [
-        '40.00000000@DUSD'
+        '20.00000000@DUSD'
       ],
       'v0/params/dfip2203/active': 'true',
       'v0/params/dfip2203/block_period': '20',
@@ -215,7 +213,7 @@ it('should have gov set', async () => {
       'v0/transferdomain/evm-dvm/src-formats': ['erc55'],
       'v0/transferdomain/evm-dvm/auth-formats': ['bech32-erc55'],
       'v0/transferdomain/evm-dvm/dest-formats': ['bech32', 'p2pkh']
-    })
+    }
   })
 
   async function waitForPriceValid (): Promise<void> {
