@@ -29,6 +29,12 @@ const MasternodeConsensusParams = {
     newActivationDelay: 1008,
     resignDelay: 60,
     newResignDelay: 2 * 1008
+  },
+  changi: {
+    activationDelay: 10,
+    newActivationDelay: 1008,
+    resignDelay: 60,
+    newResignDelay: 2 * 1008
   }
 }
 
