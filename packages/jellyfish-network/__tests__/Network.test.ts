@@ -26,6 +26,11 @@ describe('getNetwork', () => {
     expect(getNetwork('regtest').name).toStrictEqual('regtest')
     expect(getNetwork('regtest').bech32.hrp).toStrictEqual('bcrt')
   })
+
+  it('should get changi', () => {
+    expect(getNetwork('changi').name).toStrictEqual('changi')
+    expect(getNetwork('changi').bech32.hrp).toStrictEqual('bcrt')
+  })
 })
 
 it('should match MainNet network', () => {
