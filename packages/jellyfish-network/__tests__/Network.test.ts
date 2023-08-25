@@ -29,7 +29,7 @@ describe('getNetwork', () => {
 
   it('should get changi', () => {
     expect(getNetwork('changi').name).toStrictEqual('changi')
-    expect(getNetwork('changi').bech32.hrp).toStrictEqual('bcrt')
+    expect(getNetwork('changi').bech32.hrp).toStrictEqual('tf')
   })
 })
 
