@@ -6,7 +6,7 @@ import { NativeChainRpc } from '../index'
 /**
  * Types of network as per https://github.com/DeFiCh/ain/blob/bc231241/src/chainparams.cpp#L825-L836
  */
-type Network = 'mainnet' | 'testnet' | 'devnet' | 'regtest'
+type Network = 'mainnet' | 'testnet' | 'devnet' | 'regtest' | 'changi'
 
 /**
  * Mandatory options to start defid with
