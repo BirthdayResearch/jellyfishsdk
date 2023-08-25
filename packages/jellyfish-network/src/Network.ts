@@ -48,6 +48,8 @@ export function getNetwork (network: NetworkName): Network {
       return DevNet
     case 'regtest':
       return RegTest
+    case 'changi':
+      return Changi
     default:
       throw new Error(`${network as string} network not found`)
   }
