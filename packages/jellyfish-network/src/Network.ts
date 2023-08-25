@@ -106,8 +106,8 @@ export const DevNet: Network = {
   ...TestNet,
   name: 'devnet',
   ports: {
-    rpc: 20554,
-    p2p: 20555
+    rpc: 21554,
+    p2p: 21555
   }
 }
 
