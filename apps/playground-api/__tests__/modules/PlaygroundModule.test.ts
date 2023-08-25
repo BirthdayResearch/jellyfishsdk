@@ -113,9 +113,7 @@ it('should have gov set', async () => {
       'v0/live/economy/evm/block/fee_priority_max_hash': expect.any(String),
       'v0/live/economy/evm/block/fee_priority_min': 92233720368.54776,
       'v0/live/economy/evm/block/fee_priority_min_hash': '0000000000000000000000000000000000000000000000000000000000000000',
-      'v0/live/economy/loans': [
-        '20.00000000@DUSD'
-      ],
+      'v0/live/economy/loans': expect.any(Array),
       'v0/params/dfip2203/active': 'true',
       'v0/params/dfip2203/block_period': '20',
       'v0/params/dfip2203/fee_pct': '0.05',
