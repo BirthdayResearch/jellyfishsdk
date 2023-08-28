@@ -22,8 +22,8 @@ jobs:
         with:
           script: |
             const semver = context.payload.release.tag_name;
-            echo "The value is ${{ context.ref.replace }}"
-            echo "The value is ${{ context.payload.release }}"
+            echo "The value is ${{ context.ref }}"
+            echo "The value is ${{ context.payload }}"
             if (semver.match(/^v[0-9]+\.[0-9]+\.[0-9]+$/) === null) {
               throw new Error(
                 `Release Violation: Provided version '${semver}' is not valid semver.`
