@@ -74,8 +74,6 @@ describe('TransferDomain', () => {
   })
 
   describe('transferDomain failed', () => {
-    it('(dvm -> evm) should fail if transfer pool pair', async () => {})
-
     it('(dvm -> evm) should fail if src address is invalid', async () => {
       const promise = client.account.transferDomain([
         {
@@ -649,7 +647,7 @@ describe('TransferDomain', () => {
       await expect(promise).rejects.toThrow(RpcApiError)
       await expect(promise).rejects.toThrow(
         "RpcApiError: 'Test TransferDomainTx execution failed:\n" +
-          "Non-DAT or LP tokens are not supported for transferdomain', code: -32600, method: transferdomain"
+        "Non-DAT or LP tokens are not supported for transferdomain', code: -32600, method: transferdomain"
       )
     })
 
@@ -672,7 +670,7 @@ describe('TransferDomain', () => {
       await expect(promise).rejects.toThrow(RpcApiError)
       await expect(promise).rejects.toThrow(
         "RpcApiError: 'Test TransferDomainTx execution failed:\n" +
-          "Non-DAT or LP tokens are not supported for transferdomain', code: -32600, method: transferdomain"
+        "Non-DAT or LP tokens are not supported for transferdomain', code: -32600, method: transferdomain"
       )
     })
 
@@ -706,6 +704,51 @@ describe('TransferDomain', () => {
       await expect(promise).rejects.toThrow(RpcApiError)
       await expect(promise).rejects.toThrow(
         'TransferDomain currently only supports a single transfer per transaction'
+      )
+    })
+
+    it('(evm -> dvm) should fail if LP token is transferred', async () => {
+      const promise = client.account.transferDomain([
+        {
+          src: {
+            address: evmAddr,
+            amount: '10@DFI-DBTC',
+            domain: TransferDomainType.EVM
+          },
+          dst: {
+            address: dvmAddr,
+            amount: '10@DFI-DBTC',
+            domain: TransferDomainType.DVM
+          }
+        }
+      ])
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow(
+        "RpcApiError: 'Test TransferDomainTx execution failed:\n" +
+        "Non-DAT or LP tokens are not supported for transferdomain', code: -32600, method: transferdomain"
+      )
+    })
+
+    it('(dvm -> evm) should fail if LP token is transferred', async () => {
+      // Using created pool pair from "(evm -> dvm) should fail if LP token is transferred" test
+      const promise = client.account.transferDomain([
+        {
+          src: {
+            address: dvmAddr,
+            amount: '10@DFI-DBTC',
+            domain: TransferDomainType.DVM
+          },
+          dst: {
+            address: evmAddr,
+            amount: '10@DFI-DBTC',
+            domain: TransferDomainType.EVM
+          }
+        }
+      ])
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow(
+        "RpcApiError: 'Test TransferDomainTx execution failed:\n" +
+        "Non-DAT or LP tokens are not supported for transferdomain', code: -32600, method: transferdomain"
       )
     })
 
