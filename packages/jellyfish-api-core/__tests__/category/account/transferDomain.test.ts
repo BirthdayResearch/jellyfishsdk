@@ -56,6 +56,18 @@ describe('TransferDomain', () => {
       collateralAddress: dvmAddr
     }])
     await container.generate(1)
+
+    // Create LP tokens
+    const metadata = {
+      tokenA: 'DFI',
+      tokenB: 'BTC',
+      commission: 1,
+      status: true,
+      ownerAddress: dvmAddr
+    }
+    await client.poolpair.createPoolPair(metadata)
+    await container.generate(1)
+
     await container.call('minttokens', ['10@BTC'])
     await container.call('minttokens', ['10@ETH'])
     await container.call('minttokens', ['10@DESC#128'])
@@ -566,16 +578,6 @@ describe('TransferDomain', () => {
     })
 
     it('(evm -> dvm) should fail if LP token is transferred', async () => {
-      const metadata = {
-        tokenA: 'DFI',
-        tokenB: 'BTC',
-        commission: 1,
-        status: true,
-        ownerAddress: dvmAddr
-      }
-      await client.poolpair.createPoolPair(metadata)
-
-      await container.generate(1)
       const promise = client.account.transferDomain([
         {
           src: {
@@ -598,7 +600,6 @@ describe('TransferDomain', () => {
     })
 
     it('(dvm -> evm) should fail if LP token is transferred', async () => {
-      // Using created pool pair from "(evm -> dvm) should fail if LP token is transferred" test
       const promise = client.account.transferDomain([
         {
           src: {
