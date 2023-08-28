@@ -974,7 +974,7 @@ async function createLoanToken (container: MasterNodeRegTestContainer, address: 
 
   { // Vault Deposit Collateral
     await container.call('deposittovault', [vaultId, address, '10000@DFI'])
-    await container.generate(1)
+    await container.generate(10)
   }
 
   { // Take Loan
