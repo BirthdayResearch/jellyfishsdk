@@ -1,7 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { TransferDomainType } from '../../../src/category/account'
-import { RpcApiError } from '@defichain/jellyfish-api-core'
+import { RpcApiError } from '@defichain/jellyfish-api-core/dist/index'
 import BigNumber from 'bignumber.js'
 
 describe('TransferDomain', () => {
@@ -31,36 +31,30 @@ describe('TransferDomain', () => {
     await container.call('utxostoaccount', [{ [dvmAddr]: '100000@0' }])
     await container.generate(1)
 
-    await container.call('createtoken', [
-      {
-        symbol: 'BTC',
-        name: 'BTC',
-        isDAT: true,
-        mintable: true,
-        tradeable: true,
-        collateralAddress: dvmAddr
-      }
-    ])
-    await container.call('createtoken', [
-      {
-        symbol: 'ETH',
-        name: 'ETH',
-        isDAT: true,
-        mintable: true,
-        tradeable: true,
-        collateralAddress: dvmAddr
-      }
-    ])
-    await container.call('createtoken', [
-      {
-        name: 'DESC',
-        symbol: 'DESC',
-        isDAT: false,
-        mintable: true,
-        tradeable: true,
-        collateralAddress: dvmAddr
-      }
-    ])
+    await container.call('createtoken', [{
+      symbol: 'BTC',
+      name: 'BTC',
+      isDAT: true,
+      mintable: true,
+      tradeable: true,
+      collateralAddress: dvmAddr
+    }])
+    await container.call('createtoken', [{
+      symbol: 'ETH',
+      name: 'ETH',
+      isDAT: true,
+      mintable: true,
+      tradeable: true,
+      collateralAddress: dvmAddr
+    }])
+    await container.call('createtoken', [{
+      name: 'DESC',
+      symbol: 'DESC',
+      isDAT: false,
+      mintable: true,
+      tradeable: true,
+      collateralAddress: dvmAddr
+    }])
     await container.generate(1)
     await container.call('minttokens', ['10@BTC'])
     await container.call('minttokens', ['10@ETH'])
@@ -90,9 +84,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(
-        'recipient (invalid) does not refer to any valid address'
-      )
+      await expect(promise).rejects.toThrow('recipient (invalid) does not refer to any valid address')
     })
 
     it('(dvm -> evm) should fail if dst address is invalid', async () => {
@@ -111,9 +103,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(
-        'recipient (invalid) does not refer to any valid address'
-      )
+      await expect(promise).rejects.toThrow('recipient (invalid) does not refer to any valid address')
     })
 
     it('(evm -> dvm) should fail if src address is invalid', async () => {
@@ -132,9 +122,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(
-        'recipient (invalid) does not refer to any valid address'
-      )
+      await expect(promise).rejects.toThrow('recipient (invalid) does not refer to any valid address')
     })
 
     it('(evm -> dvm) should fail if dst address is invalid', async () => {
@@ -153,9 +141,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(
-        'recipient (invalid) does not refer to any valid address'
-      )
+      await expect(promise).rejects.toThrow('recipient (invalid) does not refer to any valid address')
     })
 
     it('(dvm -> evm) should fail if src address is not legacy or Bech32 address in case of "DVM" domain', async () => {
@@ -174,9 +160,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(
-        'Src address must be a legacy or Bech32 address in case of "DVM" domain'
-      )
+      await expect(promise).rejects.toThrow('Src address must be a legacy or Bech32 address in case of "DVM" domain')
     })
 
     it('(evm -> dvm) should fail if dst address is not legacy or Bech32 address in case of "DVM domain', async () => {
@@ -195,9 +179,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(
-        'Dst address must be a legacy or Bech32 address in case of "DVM" domain'
-      )
+      await expect(promise).rejects.toThrow('Dst address must be a legacy or Bech32 address in case of "DVM" domain')
     })
 
     it('(dvm -> evm) should fail if dst address is not ERC55 address in case of "EVM" domain', async () => {
@@ -212,13 +194,12 @@ describe('TransferDomain', () => {
             address: dvmAddr, // <- not match
             amount: '3@DFI',
             domain: TransferDomainType.EVM // <- not match
+
           }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(
-        'Dst address must be an ERC55 address in case of "EVM" domain'
-      )
+      await expect(promise).rejects.toThrow('Dst address must be an ERC55 address in case of "EVM" domain')
     })
 
     it('(evm -> dvm) should fail if src address is not ERC55 address in case of "EVM" domain', async () => {
@@ -237,9 +218,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(
-        'Src address must be an ERC55 address in case of "EVM" domain'
-      )
+      await expect(promise).rejects.toThrow('Src address must be an ERC55 address in case of "EVM" domain')
     })
 
     it('(dvm -> evm) should fail if amount value is invalid', async () => {
@@ -296,9 +275,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(
-        'Source token and destination token must be the same'
-      )
+      await expect(promise).rejects.toThrow('Source token and destination token must be the same')
     })
 
     it('(evm -> dvm) should fail if amount symbol is different', async () => {
@@ -317,9 +294,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(
-        'Source token and destination token must be the same'
-      )
+      await expect(promise).rejects.toThrow('Source token and destination token must be the same')
     })
 
     it('(dvm -> evm) should fail if amount value is different', async () => {
@@ -338,9 +313,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(
-        'Source amount must be equal to destination amount'
-      )
+      await expect(promise).rejects.toThrow('Source amount must be equal to destination amount')
     })
 
     it('(evm -> dvm) should fail if amount value is different', async () => {
@@ -359,9 +332,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(
-        'Source amount must be equal to destination amount'
-      )
+      await expect(promise).rejects.toThrow('Source amount must be equal to destination amount')
     })
 
     it('(dvm -> evm) should fail if negative amount', async () => {
@@ -409,6 +380,7 @@ describe('TransferDomain', () => {
             address: dvmAddr,
             amount: '3@DFI',
             domain: TransferDomainType.DVM
+
           },
           dst: {
             address: evmAddr,
@@ -428,6 +400,7 @@ describe('TransferDomain', () => {
             address: dvmAddr,
             amount: '3@DFI',
             domain: 1 // invalid
+
           },
           dst: {
             address: evmAddr,
@@ -437,9 +410,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(
-        'Invalid parameters, src argument "domain" must be either 2 (DFI token to EVM) or 3 (EVM to DFI token)'
-      )
+      await expect(promise).rejects.toThrow('Invalid parameters, src argument "domain" must be either 2 (DFI token to EVM) or 3 (EVM to DFI token)')
     })
 
     it('(evm -> invalid) should fail if dst domain is invalid', async () => {
@@ -477,9 +448,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(
-        'Invalid parameters, src argument "domain" must be either 2 (DFI token to EVM) or 3 (EVM to DFI token)'
-      )
+      await expect(promise).rejects.toThrow('Invalid parameters, src argument "domain" must be either 2 (DFI token to EVM) or 3 (EVM to DFI token)')
     })
 
     it('(dvm -> dvm) should fail if transfer within same domain', async () => {
@@ -498,9 +467,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(
-        'Cannot transfer inside same domain'
-      )
+      await expect(promise).rejects.toThrow('Cannot transfer inside same domain')
     })
 
     it('(evm -> evm) should fail if transfer within same domain', async () => {
@@ -519,9 +486,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(
-        'Cannot transfer inside same domain'
-      )
+      await expect(promise).rejects.toThrow('Cannot transfer inside same domain')
     })
 
     it('(dvm -> evm) should fail if insufficient balance', async () => {
@@ -540,9 +505,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(
-        'amount 90000.00000000 is less than 999999.00000000'
-      )
+      await expect(promise).rejects.toThrow('amount 90000.00000000 is less than 999999.00000000')
     })
 
     it('(evm -> dvm) should fail if insufficient balance', async () => {
@@ -561,9 +524,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(
-        `Not enough balance in ${evmAddr} to cover "EVM" domain transfer`
-      )
+      await expect(promise).rejects.toThrow(`Not enough balance in ${evmAddr} to cover "EVM" domain transfer`)
     })
 
     it('(dvm -> evm) should fail if custom (isDAT = false) token is transferred', async () => {
@@ -582,9 +543,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(
-        'Non-DAT or LP tokens are not supported for transferdomain'
-      )
+      await expect(promise).rejects.toThrow('Non-DAT or LP tokens are not supported for transferdomain')
     })
 
     it('(evm -> dvm) should fail if custom (isDAT = false) token is transferred', async () => {
@@ -603,9 +562,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(
-        'Non-DAT or LP tokens are not supported for transferdomain'
-      )
+      await expect(promise).rejects.toThrow('Non-DAT or LP tokens are not supported for transferdomain')
     })
 
     it('(evm -> dvm) should fail if LP token is transferred', async () => {
@@ -702,54 +659,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(
-        'TransferDomain currently only supports a single transfer per transaction'
-      )
-    })
-
-    it('(evm -> dvm) should fail if LP token is transferred', async () => {
-      const promise = client.account.transferDomain([
-        {
-          src: {
-            address: evmAddr,
-            amount: '10@DFI-DBTC',
-            domain: TransferDomainType.EVM
-          },
-          dst: {
-            address: dvmAddr,
-            amount: '10@DFI-DBTC',
-            domain: TransferDomainType.DVM
-          }
-        }
-      ])
-      await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(
-        "RpcApiError: 'Test TransferDomainTx execution failed:\n" +
-        "Non-DAT or LP tokens are not supported for transferdomain', code: -32600, method: transferdomain"
-      )
-    })
-
-    it('(dvm -> evm) should fail if LP token is transferred', async () => {
-      // Using created pool pair from "(evm -> dvm) should fail if LP token is transferred" test
-      const promise = client.account.transferDomain([
-        {
-          src: {
-            address: dvmAddr,
-            amount: '10@DFI-DBTC',
-            domain: TransferDomainType.DVM
-          },
-          dst: {
-            address: evmAddr,
-            amount: '10@DFI-DBTC',
-            domain: TransferDomainType.EVM
-          }
-        }
-      ])
-      await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(
-        "RpcApiError: 'Test TransferDomainTx execution failed:\n" +
-        "Non-DAT or LP tokens are not supported for transferdomain', code: -32600, method: transferdomain"
-      )
+      await expect(promise).rejects.toThrow('TransferDomain currently only supports a single transfer per transaction')
     })
 
     it('(evm -> dvm) should fail if (duo) transfer domain', async () => {
@@ -780,9 +690,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(
-        'TransferDomain currently only supports a single transfer per transaction'
-      )
+      await expect(promise).rejects.toThrow('TransferDomain currently only supports a single transfer per transaction')
     })
   })
 
@@ -814,15 +722,13 @@ describe('TransferDomain', () => {
     const dvmBalance1 = dvmAcc1[tokenId]
 
     // check: dvm balance is transferred
-    expect(new BigNumber(dvmBalance0)).toStrictEqual(
-      new BigNumber(dvmBalance1).plus(3)
-    )
+    expect(new BigNumber(dvmBalance0))
+      .toStrictEqual(new BigNumber(dvmBalance1).plus(3))
 
     // check: evm balance = dvm balance - transferred
     const currentBalance = await getEVMBalances(client)
-    expect(new BigNumber(prevBalance)).toStrictEqual(
-      new BigNumber(currentBalance).minus(3)
-    )
+    expect(new BigNumber(prevBalance))
+      .toStrictEqual(new BigNumber(currentBalance).minus(3))
   })
 
   it('(dvm -> evm) should transfer domain - dToken', async () => {
@@ -852,9 +758,8 @@ describe('TransferDomain', () => {
     const btcBalance1 = dvmAcc1[btcTokenId]
 
     // check: BTC balance is transferred
-    expect(new BigNumber(btcBalance1)).toStrictEqual(
-      new BigNumber(btcBalance).minus(3)
-    )
+    expect(new BigNumber(btcBalance1))
+      .toStrictEqual(new BigNumber(btcBalance).minus(3))
   })
 
   it('(evm -> dvm) should transfer domain - DFI', async () => {
@@ -883,15 +788,13 @@ describe('TransferDomain', () => {
 
     const dvmAcc1 = await getAccountValues(client, dvmAddr)
     const dvmBalance1 = dvmAcc1[tokenId]
-    expect(new BigNumber(dvmBalance0)).toStrictEqual(
-      new BigNumber(dvmBalance1).minus(3)
-    )
+    expect(new BigNumber(dvmBalance0))
+      .toStrictEqual(new BigNumber(dvmBalance1).minus(3))
 
     // check EVM balance
     const currentBalance = await getEVMBalances(client)
-    expect(new BigNumber(prevBalance)).toStrictEqual(
-      new BigNumber(currentBalance).plus(3)
-    )
+    expect(new BigNumber(prevBalance))
+      .toStrictEqual(new BigNumber(currentBalance).plus(3))
   })
 
   it('(evm -> dvm) should transfer domain - dToken', async () => {
@@ -904,6 +807,7 @@ describe('TransferDomain', () => {
           address: evmAddr,
           amount: '3@BTC',
           domain: TransferDomainType.EVM
+
         },
         dst: {
           address: dvmAddr,
@@ -921,9 +825,8 @@ describe('TransferDomain', () => {
     const btcBalance1 = dvmAcc1[btcTokenId]
 
     // check: BTC balance is transferred
-    expect(new BigNumber(btcBalance1)).toStrictEqual(
-      new BigNumber(btcBalance).plus(3)
-    )
+    expect(new BigNumber(btcBalance1))
+      .toStrictEqual(new BigNumber(btcBalance).plus(3))
   })
 
   it('(dvm -> evm) should transfer domain - loan token', async () => {
@@ -953,9 +856,8 @@ describe('TransferDomain', () => {
     const dvmBalance1 = dvmAcc1[tokenId]
 
     // check dvm balance is transferred
-    expect(new BigNumber(dvmBalance1)).toStrictEqual(
-      new BigNumber(dvmBalance0).minus(3)
-    )
+    expect(new BigNumber(dvmBalance1))
+      .toStrictEqual(new BigNumber(dvmBalance0).minus(3))
   })
 
   it('(evm -> dvm) should transfer domain - loan token', async () => {
@@ -974,6 +876,7 @@ describe('TransferDomain', () => {
           address: dvmAddr,
           amount: '3@AAPL',
           domain: TransferDomainType.DVM
+
         }
       }
     ])
@@ -985,165 +888,110 @@ describe('TransferDomain', () => {
     const dvmBalance1 = dvmAcc1[tokenId]
 
     // check dvm balance is received
-    expect(new BigNumber(dvmBalance1)).toStrictEqual(
-      new BigNumber(dvmBalance0).plus(3)
-    )
+    expect(new BigNumber(dvmBalance1))
+      .toStrictEqual(new BigNumber(dvmBalance0).plus(3))
   })
 })
 
-async function getEVMBalances (
-  client: ContainerAdapterClient
-): Promise<BigNumber> {
+async function getEVMBalances (client: ContainerAdapterClient): Promise<BigNumber> {
   const withoutEthRes = await client.account.getTokenBalances({}, false)
   const [withoutEth] = withoutEthRes[0].split('@')
-  const withEthRes = await client.account.getTokenBalances({}, false, {
-    symbolLookup: false,
-    includeEth: true
-  })
+  const withEthRes = await client.account.getTokenBalances({}, false, { symbolLookup: false, includeEth: true })
   const [withEth] = withEthRes[0].split('@')
   return new BigNumber(withEth).minus(withoutEth)
 }
 
-async function createLoanToken (
-  container: MasterNodeRegTestContainer,
-  address: string
-): Promise<void> {
+async function createLoanToken (container: MasterNodeRegTestContainer, address: string): Promise<void> {
   let vaultId
-  {
-    // Oracle setup
+  { // Oracle setup
     const priceFeeds = [
       { token: 'DFI', currency: 'USD' },
       { token: 'AAPL', currency: 'USD' }
     ]
-    const oracleId1 = await container.call('appointoracle', [
-      address,
-      priceFeeds,
-      1
-    ])
+    const oracleId1 = await container.call('appointoracle', [address, priceFeeds, 1])
     await container.generate(1)
     const timestamp1 = Math.floor(new Date().getTime() / 1000)
-    await container.call('setoracledata', [
-      oracleId1,
-      timestamp1,
-      [{ tokenAmount: '1@DFI', currency: 'USD' }],
-      []
-    ])
-    await container.call('setoracledata', [
-      oracleId1,
-      timestamp1,
-      [{ tokenAmount: '1@AAPL', currency: 'USD' }],
-      []
-    ])
+    await container.call('setoracledata', [oracleId1, timestamp1, [
+      { tokenAmount: '1@DFI', currency: 'USD' }
+    ], []])
+    await container.call('setoracledata', [oracleId1, timestamp1, [
+      { tokenAmount: '1@AAPL', currency: 'USD' }
+    ], []])
     await container.generate(1)
 
-    const oracleId2 = await container.call('appointoracle', [
-      address,
-      priceFeeds,
-      1
-    ])
+    const oracleId2 = await container.call('appointoracle', [address, priceFeeds, 1])
     await container.generate(1)
 
     const timestamp2 = Math.floor(new Date().getTime() / 1000)
-    await container.call('setoracledata', [
-      oracleId2,
-      timestamp2,
-      [{ tokenAmount: '1@DFI', currency: 'USD' }],
-      []
-    ])
-    await container.call('setoracledata', [
-      oracleId2,
-      timestamp2,
-      [{ tokenAmount: '1@AAPL', currency: 'USD' }],
-      []
-    ])
+    await container.call('setoracledata', [oracleId2, timestamp2, [
+      { tokenAmount: '1@DFI', currency: 'USD' }
+    ], []])
+    await container.call('setoracledata', [oracleId2, timestamp2, [
+      { tokenAmount: '1@AAPL', currency: 'USD' }
+    ], []])
     await container.generate(1)
 
-    const oracleId3 = await container.call('appointoracle', [
-      address,
-      priceFeeds,
-      1
-    ])
+    const oracleId3 = await container.call('appointoracle', [address, priceFeeds, 1])
     await container.generate(1)
 
     const timestamp3 = Math.floor(new Date().getTime() / 1000)
-    await container.call('setoracledata', [
-      oracleId3,
-      timestamp3,
-      [{ tokenAmount: '1@DFI', currency: 'USD' }],
-      []
-    ])
-    await container.call('setoracledata', [
-      oracleId3,
-      timestamp3,
-      [{ tokenAmount: '1@AAPL', currency: 'USD' }],
-      []
-    ])
+    await container.call('setoracledata', [oracleId3, timestamp3, [
+      { tokenAmount: '1@DFI', currency: 'USD' }
+    ], []])
+    await container.call('setoracledata', [oracleId3, timestamp3, [
+      { tokenAmount: '1@AAPL', currency: 'USD' }
+    ], []])
     await container.generate(1)
   }
 
-  {
-    // Loan Scheme
+  { // Loan Scheme
     await container.call('createloanscheme', [100, 1, 'default'])
     await container.generate(1)
   }
 
-  {
-    // Collateral Tokens
+  { // Collateral Tokens
     const blockCount = await container.getBlockCount()
-    await container.call('setcollateraltoken', [
-      {
-        token: 'DFI',
-        factor: new BigNumber(1),
-        fixedIntervalPriceId: 'DFI/USD',
-        activateAfterBlock: blockCount + 1
-      }
-    ])
+    await container.call('setcollateraltoken', [{
+      token: 'DFI',
+      factor: new BigNumber(1),
+      fixedIntervalPriceId: 'DFI/USD',
+      activateAfterBlock: blockCount + 1
+    }])
     await container.generate(30)
   }
 
-  {
-    // Loan Tokens
-    await container.call('setloantoken', [
-      {
-        symbol: 'AAPL',
-        name: 'APPLE',
-        fixedIntervalPriceId: 'AAPL/USD',
-        mintable: true,
-        interest: new BigNumber(0.01)
-      }
-    ])
+  { // Loan Tokens
+    await container.call('setloantoken', [{
+      symbol: 'AAPL',
+      name: 'APPLE',
+      fixedIntervalPriceId: 'AAPL/USD',
+      mintable: true,
+      interest: new BigNumber(0.01)
+    }])
 
     await container.generate(1)
   }
 
-  {
-    // Vault Empty
+  { // Vault Empty
     vaultId = await container.call('createvault', [address, 'default'])
     await container.generate(1)
   }
 
-  {
-    // Vault Deposit Collateral
+  { // Vault Deposit Collateral
     await container.call('deposittovault', [vaultId, address, '10000@DFI'])
     await container.generate(1)
   }
 
-  {
-    // Take Loan
-    await container.call('takeloan', [
-      {
-        vaultId: vaultId,
-        amounts: '30@AAPL'
-      }
-    ])
+  { // Take Loan
+    await container.call('takeloan', [{
+      vaultId: vaultId,
+      amounts: '30@AAPL'
+    }])
     await container.generate(1)
   }
 }
 
-async function getAccountValues (
-  client: ContainerAdapterClient,
-  address: string
-): Promise<{ [symbol: string]: string }> {
+async function getAccountValues (client: ContainerAdapterClient, address: string): Promise<{ [symbol: string]: string }> {
   const values = await client.account.getAccount(address)
   return values.reduce((res: { [symbol: string]: string }, current: string) => {
     const [value, symbol] = current.split('@')
@@ -1152,21 +1000,4 @@ async function getAccountValues (
       [symbol]: value
     }
   }, {})
-}
-
-async function createToken (
-  container: MasterNodeRegTestContainer,
-  symbol: string
-): Promise<void> {
-  const address = await container.call('getnewaddress')
-  const metadata = {
-    symbol,
-    name: symbol,
-    isDAT: true,
-    mintable: true,
-    tradeable: true,
-    collateralAddress: address
-  }
-  await container.call('createtoken', [metadata])
-  await container.generate(1)
 }
