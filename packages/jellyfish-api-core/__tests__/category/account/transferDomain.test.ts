@@ -1001,3 +1001,20 @@ async function getAccountValues (client: ContainerAdapterClient, address: string
     }
   }, {})
 }
+
+async function createToken (
+  container: MasterNodeRegTestContainer,
+  symbol: string
+): Promise<void> {
+  const address = await container.call('getnewaddress')
+  const metadata = {
+    symbol,
+    name: symbol,
+    isDAT: true,
+    mintable: true,
+    tradeable: true,
+    collateralAddress: address
+  }
+  await container.call('createtoken', [metadata])
+  await container.generate(1)
+}
