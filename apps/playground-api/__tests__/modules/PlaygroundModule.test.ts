@@ -189,7 +189,7 @@ it('should have gov set', async () => {
       'v0/token/17/loan_payback_fee_pct/15': '0.01',
       'v0/token/17/fixed_interval_price_id': 'TS25/USD',
       'v0/token/17/loan_minting_enabled': 'true',
-      'v0/token/17/loan_minting_interest': '3',
+      'v0/token/17/loan_minting_interest': '2',
       'v0/token/18/payback_dfi': 'true',
       'v0/token/18/payback_dfi_fee_pct': '0.01',
       'v0/token/18/loan_payback/14': 'true',
