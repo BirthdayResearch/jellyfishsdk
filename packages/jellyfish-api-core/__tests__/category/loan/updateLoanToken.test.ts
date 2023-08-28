@@ -143,7 +143,7 @@ describe('Loan updateLoanToken', () => {
 
   it('should not updateLoanToken if symbol is an empty string', async () => {
     const promise = testing.rpc.loan.updateLoanToken('Token1', { symbol: '' })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateLoanTokenTx execution failed:\ntoken symbol should be non-empty and starts with a letter\', code: -32600, method: updateloantoken')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateLoanTokenTx execution failed:\nInvalid token symbol. Valid: Start with an alphabet, non-empty, not contain # or /\', code: -32600, method: updateloantoken')
   })
 
   it('should not updateLoanToken if the symbol is used in other token', async () => {

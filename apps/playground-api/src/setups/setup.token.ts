@@ -142,6 +142,17 @@ export class SetupToken extends PlaygroundSetup<TokenSetup> {
           collateralAddress: PlaygroundSetup.address
         },
         amount: 200000000
+      },
+      {
+        create: {
+          symbol: 'MATIC',
+          name: 'Playground MATIC',
+          isDAT: true,
+          mintable: true,
+          tradeable: true,
+          collateralAddress: PlaygroundSetup.address
+        },
+        amount: 100000000
       }
     ]
   }

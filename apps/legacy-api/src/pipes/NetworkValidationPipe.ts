@@ -5,7 +5,7 @@ import {
   PipeTransform
 } from '@nestjs/common'
 
-export type SupportedNetwork = 'mainnet' | 'testnet' | 'devnet' | 'regtest'
+export type SupportedNetwork = 'mainnet' | 'testnet' | 'devnet' | 'regtest' | 'changi'
 
 @Injectable()
 export class NetworkValidationPipe implements PipeTransform {
@@ -14,7 +14,8 @@ export class NetworkValidationPipe implements PipeTransform {
     'mainnet',
     'testnet',
     'devnet',
-    'regtest'
+    'regtest',
+    'changi'
   ])
 
   transform (value: any, metadata: ArgumentMetadata): any {

@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   defi-blockchain:
-    image: defi/defichain:4.0.0-beta10
+    image: defi/defichain:4.0.0-beta10-ocean
     ports:
       - "19554:19554"
     command: >

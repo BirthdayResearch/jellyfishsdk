@@ -104,7 +104,7 @@ describe('Loan setLoanToken', () => {
       symbol: '',
       fixedIntervalPriceId: 'Token2/USD'
     })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test SetLoanTokenTx execution failed:\ntoken symbol should be non-empty and starts with a letter\', code: -32600, method: setloantoken')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test SetLoanTokenTx execution failed:\nInvalid token symbol. Valid: Start with an alphabet, non-empty, not contain # or /\', code: -32600, method: setloantoken')
   })
 
   it('should not setLoanToken if the symbol is used in other token', async () => {

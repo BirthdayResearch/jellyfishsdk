@@ -599,56 +599,58 @@ it('should setCollateralToken, takeLoan and paybackLoan', async () => {
   await providers.setupMocks()
   const script = await providers.elliptic.script()
 
+  // not allowed for non-DAT token
   // test DCT token on `setCollateralToken`
-  {
-    await fundEllipticPair(container, providers.ellipticPair, 10)
+  // {
+  //   await fundEllipticPair(container, providers.ellipticPair, 10)
 
-    const txn = await builder.loans.setCollateralToken({
-      token: 128,
-      factor: new BigNumber(1),
-      currencyPair: { token: 'FISH#128', currency: 'USD' },
-      activateAfterBlock: 0
-    }, script)
+  //   const txn = await builder.loans.setCollateralToken({
+  //     token: 128,
+  //     factor: new BigNumber(1),
+  //     currencyPair: { token: 'FISH#128', currency: 'USD' },
+  //     activateAfterBlock: 0
+  //   }, script)
 
-    // Ensure the created txn is correct.
-    const outs = await sendTransaction(container, txn)
-    expect(outs[0].value).toStrictEqual(0)
+  //   // Ensure the created txn is correct.
+  //   const outs = await sendTransaction(container, txn)
+  //   expect(outs[0].value).toStrictEqual(0)
 
-    const col = await testing.rpc.loan.getCollateralToken('FISH#128')
-    expect(col).toStrictEqual({
-      token: 'FISH#128',
-      tokenId: expect.stringMatching(/[0-f]{64}/),
-      factor: new BigNumber(1),
-      fixedIntervalPriceId: 'FISH#128/USD'
-    })
-  }
+  //   const col = await testing.rpc.loan.getCollateralToken('FISH#128')
+  //   expect(col).toStrictEqual({
+  //     token: 'FISH#128',
+  //     tokenId: expect.stringMatching(/[0-f]{64}/),
+  //     factor: new BigNumber(1),
+  //     fixedIntervalPriceId: 'FISH#128/USD'
+  //   })
+  // }
 
+  // not allowed for non-DAT token
   // test >128 DAT token on `setCollateralToken`
-  {
-    await fundEllipticPair(container, providers.ellipticPair, 10)
+  // {
+  //   await fundEllipticPair(container, providers.ellipticPair, 10)
 
-    const catId = Number(await testing.token.getTokenId('CAT'))
-    expect(catId).toBeGreaterThan(128)
+  //   const catId = Number(await testing.token.getTokenId('CAT'))
+  //   expect(catId).toBeGreaterThan(128)
 
-    const txn = await builder.loans.setCollateralToken({
-      token: catId,
-      factor: new BigNumber(1),
-      currencyPair: { token: 'CAT', currency: 'USD' },
-      activateAfterBlock: 0
-    }, script)
+  //   const txn = await builder.loans.setCollateralToken({
+  //     token: catId,
+  //     factor: new BigNumber(1),
+  //     currencyPair: { token: 'CAT', currency: 'USD' },
+  //     activateAfterBlock: 0
+  //   }, script)
 
-    // Ensure the created txn is correct.
-    const outs = await sendTransaction(container, txn)
-    expect(outs[0].value).toStrictEqual(0)
+  //   // Ensure the created txn is correct.
+  //   const outs = await sendTransaction(container, txn)
+  //   expect(outs[0].value).toStrictEqual(0)
 
-    const col = await testing.rpc.loan.getCollateralToken('CAT')
-    expect(col).toStrictEqual({
-      token: 'CAT',
-      tokenId: expect.stringMatching(/[0-f]{64}/),
-      factor: new BigNumber(1),
-      fixedIntervalPriceId: 'CAT/USD'
-    })
-  }
+  //   const col = await testing.rpc.loan.getCollateralToken('CAT')
+  //   expect(col).toStrictEqual({
+  //     token: 'CAT',
+  //     tokenId: expect.stringMatching(/[0-f]{64}/),
+  //     factor: new BigNumber(1),
+  //     fixedIntervalPriceId: 'CAT/USD'
+  //   })
+  // }
 
   await testing.rpc.loan.createLoanScheme({
     minColRatio: 150,

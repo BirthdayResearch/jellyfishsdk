@@ -144,6 +144,12 @@ export class OracleBot {
       amount: new BigNumber(1),
       change: new BigNumber(0),
       direction: PriceDirection.STABLE
+    },
+    {
+      token: 'MATIC',
+      amount: new BigNumber(1),
+      change: new BigNumber(0),
+      direction: PriceDirection.STABLE
     }
   ]
 

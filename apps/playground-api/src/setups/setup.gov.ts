@@ -14,54 +14,54 @@ export class SetupGov extends PlaygroundSetup<Record<string, any>> {
         ATTRIBUTES: {
           // dfi pay dtoken
           // DFI pay DUSD
-          'v0/token/13/payback_dfi': 'true',
-          'v0/token/13/payback_dfi_fee_pct': '0.01',
+          'v0/token/14/payback_dfi': 'true',
+          'v0/token/14/payback_dfi_fee_pct': '0.01',
 
           // DFI pay TR50
-          'v0/token/17/payback_dfi': 'true',
-          'v0/token/17/payback_dfi_fee_pct': '0.01',
+          'v0/token/18/payback_dfi': 'true',
+          'v0/token/18/payback_dfi_fee_pct': '0.01',
 
           // dtoken (DUSD) pay dtoken #1
           // DUSD pay TD10
-          'v0/token/15/loan_payback/13': 'true',
-          'v0/token/15/loan_payback_fee_pct/13': '0.01',
-
-          // DUSD pay TU10
-          'v0/token/14/loan_payback/13': 'true',
-          'v0/token/14/loan_payback_fee_pct/13': '0.01',
-
-          // DUSD pay TR50
-          'v0/token/17/loan_payback/13': 'true',
-          'v0/token/17/loan_payback_fee_pct/13': '0.01',
-
-          // dtoken pay dtoken #2
-          // TD10 pay DUSD
-          'v0/token/13/loan_payback/15': 'true',
-          'v0/token/13/loan_payback_fee_pct/15': '0.01',
-
-          // TD10 pay TR50
-          'v0/token/17/loan_payback/15': 'true',
-          'v0/token/17/loan_payback_fee_pct/15': '0.01',
-
-          // TU10 pay TS25
           'v0/token/16/loan_payback/14': 'true',
           'v0/token/16/loan_payback_fee_pct/14': '0.01',
 
+          // DUSD pay TU10
+          'v0/token/15/loan_payback/14': 'true',
+          'v0/token/15/loan_payback_fee_pct/14': '0.01',
+
+          // DUSD pay TR50
+          'v0/token/18/loan_payback/14': 'true',
+          'v0/token/18/loan_payback_fee_pct/14': '0.01',
+
+          // dtoken pay dtoken #2
+          // TD10 pay DUSD
+          'v0/token/14/loan_payback/16': 'true',
+          'v0/token/14/loan_payback_fee_pct/16': '0.01',
+
+          // TD10 pay TR50
+          'v0/token/18/loan_payback/16': 'true',
+          'v0/token/18/loan_payback_fee_pct/16': '0.01',
+
+          // TU10 pay TS25
+          'v0/token/17/loan_payback/15': 'true',
+          'v0/token/17/loan_payback_fee_pct/15': '0.01',
+
           // cToken pay dToken
           // BTC pay TD10
-          'v0/token/15/loan_payback/1': 'true',
-          'v0/token/15/loan_payback_fee_pct/1': '0.01',
+          'v0/token/16/loan_payback/1': 'true',
+          'v0/token/16/loan_payback_fee_pct/1': '0.01',
 
           // BTC pay DUSD
-          'v0/token/13/loan_payback/1': 'true',
-          'v0/token/13/loan_payback_fee_pct/1': '0.01',
+          'v0/token/14/loan_payback/1': 'true',
+          'v0/token/14/loan_payback_fee_pct/1': '0.01',
 
           // CU10 pay TU10
-          'v0/token/14/loan_payback/6': 'true',
-          'v0/token/14/loan_payback_fee_pct/6': '0.01',
+          'v0/token/15/loan_payback/6': 'true',
+          'v0/token/15/loan_payback_fee_pct/6': '0.01',
 
           // Unloop mechanism for DUSD
-          'v0/token/13/loan_payback_collateral': 'true',
+          'v0/token/14/loan_payback_collateral': 'true',
 
           // On-chain governance
           'v0/params/feature/gov': 'true',
@@ -160,7 +160,12 @@ export class SetupGov extends PlaygroundSetup<Record<string, any>> {
         'v0/transferdomain/dvm-evm/enabled': 'true',
         'v0/transferdomain/evm-dvm/enabled': 'true',
         'v0/transferdomain/dvm-evm/dat-enabled': 'true',
-        'v0/transferdomain/evm-dvm/dat-enabled': 'true'
+        'v0/transferdomain/evm-dvm/dat-enabled': 'true',
+        'v0/transferdomain/dvm-evm/src-formats': ['p2pkh', 'bech32'],
+        'v0/transferdomain/dvm-evm/dest-formats': ['erc55'],
+        'v0/transferdomain/evm-dvm/src-formats': ['erc55'],
+        'v0/transferdomain/evm-dvm/auth-formats': ['bech32-erc55'],
+        'v0/transferdomain/evm-dvm/dest-formats': ['p2pkh', 'bech32']
       }
     })
     await this.generate(1)
