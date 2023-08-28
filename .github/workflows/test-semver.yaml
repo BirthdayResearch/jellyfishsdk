@@ -22,16 +22,14 @@ jobs:
         with:
           script: |
             const semver = require('semver')
-            const version = context.payload
-            const semver = context.ref.replace('refs/tags/v', '')
             console.log(`test1-ref: ${context.ref}`)
             console.log(`test2-payload-release: ${context.payload.release}`)
             console.log(`test3-action: ${context.action}`)
-            
-            if (semver.match(/^[0-9]+\.[0-9]+\.[0-9]+$/)) {
-              return semver
+            const version = context.payload.release.tag_name
+            if (!semver.valid(version)) {
+              throw new Error('not semver')
             }
-            throw new Error('not semver')
+            return version.replace("v", "")
           result-encoding: string
 
       - run: npm ci
