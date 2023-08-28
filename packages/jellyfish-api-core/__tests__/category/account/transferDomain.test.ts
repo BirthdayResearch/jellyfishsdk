@@ -1,7 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { TransferDomainType } from '../../../src/category/account'
-import { RpcApiError } from '@defichain/jellyfish-api-core/dist/index'
+import { RpcApiError } from '@defichain/jellyfish-api-core'
 import BigNumber from 'bignumber.js'
 
 describe('TransferDomain', () => {
@@ -566,37 +566,26 @@ describe('TransferDomain', () => {
     })
 
     it('(evm -> dvm) should fail if LP token is transferred', async () => {
-      await createToken(container, 'DBTC')
-      const poolpairsBefore = await client.poolpair.listPoolPairs()
-      const poolpairsLengthBefore = Object.keys(poolpairsBefore).length
-      const address = await container.call('getnewaddress')
-
       const metadata = {
         tokenA: 'DFI',
-        tokenB: 'DBTC',
+        tokenB: 'BTC',
         commission: 1,
         status: true,
-        ownerAddress: address
+        ownerAddress: dvmAddr
       }
-      const data = await client.poolpair.createPoolPair(metadata)
-      expect(typeof data).toStrictEqual('string')
+      await client.poolpair.createPoolPair(metadata)
 
       await container.generate(1)
-      const poolpairsAfter = await client.poolpair.listPoolPairs()
-      expect(Object.keys(poolpairsAfter).length).toStrictEqual(
-        poolpairsLengthBefore + 1
-      )
-
       const promise = client.account.transferDomain([
         {
           src: {
             address: evmAddr,
-            amount: '10@DFI-DBTC',
+            amount: '10@DFI-BTC',
             domain: TransferDomainType.EVM
           },
           dst: {
             address: dvmAddr,
-            amount: '10@DFI-DBTC',
+            amount: '10@DFI-BTC',
             domain: TransferDomainType.DVM
           }
         }
@@ -614,12 +603,12 @@ describe('TransferDomain', () => {
         {
           src: {
             address: dvmAddr,
-            amount: '10@DFI-DBTC',
+            amount: '10@DFI-BTC',
             domain: TransferDomainType.DVM
           },
           dst: {
             address: evmAddr,
-            amount: '10@DFI-DBTC',
+            amount: '10@DFI-BTC',
             domain: TransferDomainType.EVM
           }
         }
@@ -1000,21 +989,4 @@ async function getAccountValues (client: ContainerAdapterClient, address: string
       [symbol]: value
     }
   }, {})
-}
-
-async function createToken (
-  container: MasterNodeRegTestContainer,
-  symbol: string
-): Promise<void> {
-  const address = await container.call('getnewaddress')
-  const metadata = {
-    symbol,
-    name: symbol,
-    isDAT: true,
-    mintable: true,
-    tradeable: true,
-    collateralAddress: address
-  }
-  await container.call('createtoken', [metadata])
-  await container.generate(1)
 }
