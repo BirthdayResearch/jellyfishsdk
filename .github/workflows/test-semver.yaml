@@ -3,7 +3,7 @@ name: Test Semver
 on: 
   push:
     branches:
-      -pierre-semver-tetst
+      - pierregee/semver-test
 
 jobs:
   npm:
