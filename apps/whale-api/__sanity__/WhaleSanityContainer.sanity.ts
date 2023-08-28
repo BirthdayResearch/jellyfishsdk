@@ -164,6 +164,7 @@ describe('/rpc/getblock', () => {
     difficulty: 4.656542373906925e-10,
     hash: 'd744db74fb70ed42767ae028a129365fb4d7de54ba1b6575fb047490554f8a7b',
     height: 0,
+    masternode: '0000000000000000000000000000000000000000000000000000000000000000',
     mediantime: 1579045065,
     merkleroot: '5615dbbb379da893dd694e02d25a7955e1b7471db55f42bbd82b5d3f5bdb8d38',
     mintedBlocks: 0,
@@ -172,7 +173,8 @@ describe('/rpc/getblock', () => {
     nonutxo: [
       {
         AnchorReward: 0.2,
-        IncentiveFunding: 20
+        Burnt: 0,
+        CommunityDevelopmentFunds: 0
       }
     ],
     size: 1424,

@@ -62,7 +62,7 @@ it('should have loan collateral tokens', async () => {
 it('should have gov set', async () => {
   const gov = await testing.container.call('getgov', ['ATTRIBUTES'])
   expect(gov).toStrictEqual({
-    ATTRIBUTES: expect.objectContaining({
+    ATTRIBUTES: {
       'v0/consortium/1/members': {
         '01': {
           backingId: 'backing_address_btc_1_c',
@@ -103,9 +103,22 @@ it('should have gov set', async () => {
       'v0/consortium/1/mint_limit_daily': '5',
       'v0/consortium/2/mint_limit': '20',
       'v0/consortium/2/mint_limit_daily': '10',
+      'v0/live/economy/evm/block/fee_burnt': 0,
+      'v0/live/economy/evm/block/fee_burnt_max': 0,
+      'v0/live/economy/evm/block/fee_burnt_max_hash': expect.any(String),
+      'v0/live/economy/evm/block/fee_burnt_min': 92233720368.54776,
+      'v0/live/economy/evm/block/fee_burnt_min_hash': '0000000000000000000000000000000000000000000000000000000000000000',
+      'v0/live/economy/evm/block/fee_priority': 0,
+      'v0/live/economy/evm/block/fee_priority_max': 0,
+      'v0/live/economy/evm/block/fee_priority_max_hash': expect.any(String),
+      'v0/live/economy/evm/block/fee_priority_min': 92233720368.54776,
+      'v0/live/economy/evm/block/fee_priority_min_hash': '0000000000000000000000000000000000000000000000000000000000000000',
+      'v0/live/economy/loans': expect.any(Array),
       'v0/params/dfip2203/active': 'true',
-      'v0/params/dfip2203/reward_pct': '0.05',
       'v0/params/dfip2203/block_period': '20',
+      'v0/params/dfip2203/fee_pct': '0.05',
+      'v0/params/dfip2203/reward_pct': '0.05',
+      'v0/params/feature/consortium': 'true',
       'v0/params/feature/gov': 'true',
       'v0/token/0/fixed_interval_price_id': 'DFI/USD',
       'v0/token/0/loan_collateral_enabled': 'true',
@@ -176,7 +189,7 @@ it('should have gov set', async () => {
       'v0/token/17/loan_payback_fee_pct/15': '0.01',
       'v0/token/17/fixed_interval_price_id': 'TS25/USD',
       'v0/token/17/loan_minting_enabled': 'true',
-      'v0/token/17/loan_minting_interest': '2',
+      'v0/token/17/loan_minting_interest': '3',
       'v0/token/18/payback_dfi': 'true',
       'v0/token/18/payback_dfi_fee_pct': '0.01',
       'v0/token/18/loan_payback/14': 'true',
@@ -186,11 +199,22 @@ it('should have gov set', async () => {
       'v0/token/18/fixed_interval_price_id': 'TR50/USD',
       'v0/token/18/loan_minting_enabled': 'true',
       'v0/token/18/loan_minting_interest': '3',
-      'v0/params/feature/evm': 'true',
       'v0/params/feature/icx': 'true',
-      'v0/params/feature/consortium': 'true',
-      'v0/params/dfip2203/fee_pct': '0.05'
-    })
+      'v0/params/feature/evm': 'true',
+      'v0/params/feature/transferdomain': 'true',
+      'v0/params/foundation/members': [
+        'bcrt1qyrfrpadwgw7p5eh3e9h3jmu4kwlz4prx73cqny',
+        'bcrt1qyeuu9rvq8a67j86pzvh5897afdmdjpyankp4mu',
+        'msER9bmJjyEemRpQoS8YYVL21VyZZrSgQ7',
+        'mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU'
+      ],
+      'v0/transferdomain/dvm-evm/enabled': 'true',
+      'v0/transferdomain/dvm-evm/src-formats': ['bech32', 'p2pkh'],
+      'v0/transferdomain/dvm-evm/dest-formats': ['erc55'],
+      'v0/transferdomain/evm-dvm/src-formats': ['erc55'],
+      'v0/transferdomain/evm-dvm/auth-formats': ['bech32-erc55'],
+      'v0/transferdomain/evm-dvm/dest-formats': ['bech32', 'p2pkh']
+    }
   })
 
   async function waitForPriceValid (): Promise<void> {

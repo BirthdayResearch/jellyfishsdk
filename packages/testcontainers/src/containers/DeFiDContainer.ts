@@ -6,7 +6,7 @@ import { NativeChainRpc } from '../index'
 /**
  * Types of network as per https://github.com/DeFiCh/ain/blob/bc231241/src/chainparams.cpp#L825-L836
  */
-type Network = 'mainnet' | 'testnet' | 'devnet' | 'regtest'
+type Network = 'mainnet' | 'testnet' | 'devnet' | 'regtest' | 'changi'
 
 /**
  * Mandatory options to start defid with
@@ -36,7 +36,7 @@ export abstract class DeFiDContainer extends DockerContainer {
     if (process?.env?.DEFICHAIN_DOCKER_IMAGE !== undefined) {
       return process.env.DEFICHAIN_DOCKER_IMAGE
     }
-    return 'defi/defichain:master-91a01aea0' // renovate.json regexManagers
+    return 'defi/defichain:4.0.0-beta10-ocean' // renovate.json regexManagers
   }
 
   public static readonly DefaultStartOptions = {
