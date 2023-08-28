@@ -22,11 +22,10 @@ jobs:
         with:
           script: |
             const semver = context.ref.replace('refs/tags/v', '')
-            console.log(`test1: ${context.ref}`)
-            console.log(`test2: ${context.payload}`)
-            console.log(`test3: ${context.payload.release}`)
-            console.log(`test4: ${context.payload.repository}`)
-            console.log(`test5: ${context.payload.eventName}`)
+            console.log(`test1-ref: ${context.ref}`)
+            console.log(`test2-head_ref: ${context.head_ref}`)
+            console.log(`test3-base_ref: ${context.base_ref}`)
+            console.log(`test4-action: ${context.action}`)
             
             if (semver.match(/^[0-9]+\.[0-9]+\.[0-9]+$/)) {
               return semver
