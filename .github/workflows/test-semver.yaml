@@ -1,0 +1,47 @@
+name: Test Semver
+
+on: 
+  push:
+    branches:
+      -pierre-semver-tetst
+
+jobs:
+  npm:
+    name: NPM
+    runs-on: ubuntu-latest
+    environment: NPM Release Publishing
+    steps:
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+
+      - uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
+        with:
+          node-version-file: '.nvmrc'
+
+      - uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
+        id: version
+        with:
+          script: |
+            const semver = context.payload.release.tag_name;
+            if (semver.match(/^v[0-9]+\.[0-9]+\.[0-9]+$/) === null) {
+              throw new Error(
+                `Release Violation: Provided version '${semver}' is not valid semver.`
+              );
+            }
+            return semver
+          result-encoding: string
+
+      - run: npm ci
+      - run: npm run all:build
+      - run: npm run all:version ${{ steps.version.outputs.result }}
+
+      # # Because lerna doesn't update peers deps, although using it "wrongly" this behavior ensures all jellyfish deps are aligned.
+      # - name: find and replace peerDependencies
+      #   run: |
+      #     find packages/*/package.json -type f -exec sed -i 's#    "defichain": "^0.0.0"#    "defichain": "^${{ steps.version.outputs.result }}"#g' {} \;
+
+      # - name: Publish
+      #   run: |
+      #     npm config set //registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN
+      #     npm run all:publish
+      #   env:
+      #     NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
