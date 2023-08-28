@@ -5,7 +5,6 @@
  *
  */
 
-const semver = require('semver')
 module.exports = ({ context }) => {
   if (context.eventName === 'release') {
     return getReleaseTag(context)
