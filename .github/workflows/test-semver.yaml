@@ -25,6 +25,8 @@ jobs:
             console.log(`test1: ${context.ref}`)
             console.log(`test2: ${context.payload}`)
             console.log(`test3: ${context.payload.release}`)
+            console.log(`test4: ${context.payload.repository}`)
+            console.log(`test5: ${context.payload.eventName}`)
             
             if (semver.match(/^[0-9]+\.[0-9]+\.[0-9]+$/)) {
               return semver
