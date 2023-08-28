@@ -45,5 +45,8 @@
     "*.{ts,js}": [
       "eslint --fix"
     ]
+  },
+  "dependencies": {
+    "semver": "^7.5.4"
   }
 }
