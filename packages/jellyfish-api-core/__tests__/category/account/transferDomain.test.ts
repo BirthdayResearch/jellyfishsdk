@@ -181,22 +181,58 @@ describe('TransferDomain', () => {
     })
 
     it('(evm -> dvm) should fail if dst address is not legacy or Bech32 address in case of "DVM domain', async () => {
+      const addressP2SH = await container.getNewAddress('address', 'p2sh-segwit')
+      // initially transfer DFI
+      await client.account.transferDomain([
+        {
+          src: {
+            address: dvmAddr, // invalid
+            amount: '1@DFI',
+            domain: TransferDomainType.DVM
+          },
+          dst: {
+            address: evmAddr,
+            amount: '1@DFI',
+            domain: TransferDomainType.EVM
+          }
+        }
+      ])
+      await container.generate(1)
+
       const promise = client.account.transferDomain([
         {
           src: {
             address: evmAddr,
-            amount: '3@DFI',
+            amount: '1@DFI',
             domain: TransferDomainType.EVM
           },
           dst: {
-            address: evmAddr, // <- not match
-            amount: '3@DFI',
-            domain: TransferDomainType.DVM // <- not match
+            address: addressP2SH, // <- non legacy or Bech32 addres
+            amount: '1@DFI',
+            domain: TransferDomainType.DVM
           }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
       await expect(promise).rejects.toThrow('Dst address must be a legacy or Bech32 address in case of "DVM" domain')
+      await container.generate(1)
+
+      // revert transfer
+      await client.account.transferDomain([
+        {
+          src: {
+            address: evmAddr,
+            amount: '1@DFI',
+            domain: TransferDomainType.EVM
+          },
+          dst: {
+            address: dvmAddr, // invalid
+            amount: '1@DFI',
+            domain: TransferDomainType.DVM
+          }
+        }
+      ])
+      await container.generate(2)
     })
 
     it('(dvm -> evm) should fail if dst address is not ERC55 address in case of "EVM" domain', async () => {
