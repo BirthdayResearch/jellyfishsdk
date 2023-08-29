@@ -226,7 +226,7 @@ describe('TransferDomain', () => {
             domain: TransferDomainType.EVM
           },
           dst: {
-            address: dvmAddr, // invalid
+            address: dvmAddr,
             amount: '1@DFI',
             domain: TransferDomainType.DVM
           }
