@@ -186,7 +186,7 @@ describe('TransferDomain', () => {
       await client.account.transferDomain([
         {
           src: {
-            address: dvmAddr, // invalid
+            address: dvmAddr,
             amount: '1@DFI',
             domain: TransferDomainType.DVM
           },
