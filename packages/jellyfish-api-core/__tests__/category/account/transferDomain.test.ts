@@ -5,7 +5,7 @@ import { RpcApiError } from '@defichain/jellyfish-api-core'
 import BigNumber from 'bignumber.js'
 
 describe('TransferDomain', () => {
-  let dvmAddr: string, evmAddr: string
+  let dvmAddr: string, evmAddr: string, p2shAddr: string
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -32,6 +32,8 @@ describe('TransferDomain', () => {
 
     dvmAddr = await container.getNewAddress('address1', 'legacy')
     evmAddr = await container.getNewAddress('erc55', 'erc55')
+
+    p2shAddr = await container.getNewAddress('address', 'p2sh-segwit')
 
     await container.call('utxostoaccount', [{ [dvmAddr]: '100000@0' }])
     await container.generate(1)
@@ -165,7 +167,7 @@ describe('TransferDomain', () => {
       const promise = client.account.transferDomain([
         {
           src: {
-            address: evmAddr, // <- not match
+            address: p2shAddr, // <- non legacy or Bech32 addres
             amount: '3@DFI',
             domain: TransferDomainType.DVM
           },
@@ -181,24 +183,6 @@ describe('TransferDomain', () => {
     })
 
     it('(evm -> dvm) should fail if dst address is not legacy or Bech32 address in case of "DVM" domain', async () => {
-      const addressP2SH = await container.getNewAddress('address', 'p2sh-segwit')
-      // initially transfer DFI
-      await client.account.transferDomain([
-        {
-          src: {
-            address: dvmAddr,
-            amount: '1@DFI',
-            domain: TransferDomainType.DVM
-          },
-          dst: {
-            address: evmAddr,
-            amount: '1@DFI',
-            domain: TransferDomainType.EVM
-          }
-        }
-      ])
-      await container.generate(1)
-
       const promise = client.account.transferDomain([
         {
           src: {
@@ -207,7 +191,7 @@ describe('TransferDomain', () => {
             domain: TransferDomainType.EVM
           },
           dst: {
-            address: addressP2SH, // <- non legacy or Bech32 addres
+            address: p2shAddr, // <- non legacy or Bech32 addres
             amount: '1@DFI',
             domain: TransferDomainType.DVM
           }
@@ -215,24 +199,6 @@ describe('TransferDomain', () => {
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
       await expect(promise).rejects.toThrow('Dst address must be a legacy or Bech32 address in case of "DVM" domain')
-      await container.generate(1)
-
-      // revert transfer
-      await client.account.transferDomain([
-        {
-          src: {
-            address: evmAddr,
-            amount: '1@DFI',
-            domain: TransferDomainType.EVM
-          },
-          dst: {
-            address: dvmAddr,
-            amount: '1@DFI',
-            domain: TransferDomainType.DVM
-          }
-        }
-      ])
-      await container.generate(2)
     })
 
     it('(dvm -> evm) should fail if dst address is not ERC55 address in case of "EVM" domain', async () => {
@@ -618,28 +584,6 @@ describe('TransferDomain', () => {
       await expect(promise).rejects.toThrow('Non-DAT or LP tokens are not supported for transferdomain')
     })
 
-    it('(evm -> dvm) should fail if LP token is transferred', async () => {
-      const promise = client.account.transferDomain([
-        {
-          src: {
-            address: evmAddr,
-            amount: '10@DFI-BTC',
-            domain: TransferDomainType.EVM
-          },
-          dst: {
-            address: dvmAddr,
-            amount: '10@DFI-BTC',
-            domain: TransferDomainType.DVM
-          }
-        }
-      ])
-      await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(
-        "RpcApiError: 'Test TransferDomainTx execution failed:\n" +
-        "Non-DAT or LP tokens are not supported for transferdomain', code: -32600, method: transferdomain"
-      )
-    })
-
     it('(dvm -> evm) should fail if LP token is transferred', async () => {
       const promise = client.account.transferDomain([
         {
@@ -652,6 +596,28 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '10@DFI-BTC',
             domain: TransferDomainType.EVM
+          }
+        }
+      ])
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow(
+        "RpcApiError: 'Test TransferDomainTx execution failed:\n" +
+        "Non-DAT or LP tokens are not supported for transferdomain', code: -32600, method: transferdomain"
+      )
+    })
+
+    it('(evm -> dvm) should fail if LP token is transferred', async () => {
+      const promise = client.account.transferDomain([
+        {
+          src: {
+            address: evmAddr,
+            amount: '10@DFI-BTC',
+            domain: TransferDomainType.EVM
+          },
+          dst: {
+            address: dvmAddr,
+            amount: '10@DFI-BTC',
+            domain: TransferDomainType.DVM
           }
         }
       ])
