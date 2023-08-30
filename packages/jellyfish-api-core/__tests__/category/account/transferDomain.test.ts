@@ -167,7 +167,7 @@ describe('TransferDomain', () => {
           src: {
             address: evmAddr, // <- not match
             amount: '3@DFI',
-            domain: TransferDomainType.DVM // <- not match
+            domain: TransferDomainType.DVM
           },
           dst: {
             address: evmAddr,
