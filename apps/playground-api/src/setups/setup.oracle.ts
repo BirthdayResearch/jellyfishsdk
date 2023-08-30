@@ -87,6 +87,10 @@ const FEEDS: OraclePriceFeed[] = [
   {
     token: 'EUROC',
     currency: 'USD'
+  },
+  {
+    token: 'MATIC',
+    currency: 'USD'
   }
 ]
 

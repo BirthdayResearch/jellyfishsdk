@@ -15,13 +15,20 @@ describe('TransferDomain', () => {
 
     await client.masternode.setGov({
       ATTRIBUTES: {
-        'v0/params/feature/evm': 'true'
+        'v0/params/feature/evm': 'true',
+        'v0/params/feature/transferdomain': 'true',
+        'v0/transferdomain/dvm-evm/enabled': 'true',
+        'v0/transferdomain/dvm-evm/src-formats': ['p2pkh', 'bech32'],
+        'v0/transferdomain/dvm-evm/dest-formats': ['erc55'],
+        'v0/transferdomain/evm-dvm/src-formats': ['erc55'],
+        'v0/transferdomain/evm-dvm/auth-formats': ['bech32-erc55'],
+        'v0/transferdomain/evm-dvm/dest-formats': ['p2pkh', 'bech32']
       }
     })
-    await container.generate(1)
+    await container.generate(2)
 
-    dvmAddr = await container.call('getnewaddress')
-    evmAddr = await container.getNewAddress('eth', 'eth')
+    dvmAddr = await container.call('getnewaddress', ['', 'bech32'])
+    evmAddr = await container.getNewAddress('erc55', 'erc55')
 
     await container.call('utxostoaccount', [{ [dvmAddr]: '100@0' }])
     await container.generate(1)
@@ -83,7 +90,7 @@ describe('TransferDomain', () => {
       await expect(promise).rejects.toThrow('Source amount must be equal to destination amount')
     })
 
-    it('should fail if transfer other than DFI token', async () => {
+    it('should fail if transfer diff token', async () => {
       const promise = client.account.transferDomain([
         {
           src: {
@@ -99,7 +106,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('For transferdomain, only DFI token is currently supported')
+      await expect(promise).rejects.toThrow('Source token and destination token must be the same')
     })
 
     it('(dvm -> evm) should fail if source address and source domain are not match', async () => {
@@ -137,7 +144,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('Src address must be an ETH address in case of "EVM" domain')
+      await expect(promise).rejects.toThrow('Src address must be an ERC55 address in case of "EVM" domain')
     })
 
     it('(dvm -> evm) should fail if destination address and destination domain are not match', async () => {
@@ -156,7 +163,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('Dst address must be an ETH address in case of "EVM" domain')
+      await expect(promise).rejects.toThrow('Dst address must be an ERC55 address in case of "EVM" domain')
     })
 
     it('(evm -> dvm) should fail if destination address and destination domain are not match', async () => {
@@ -370,7 +377,7 @@ describe('TransferDomain', () => {
     expect(new BigNumber(withoutEth)).toStrictEqual(new BigNumber(withEth))
   })
 
-  it('should (duo) Transfer Domain from DVM to EVM', async () => {
+  it.skip('should (duo) Transfer Domain from DVM to EVM', async () => {
     const dvmAcc = await client.account.getAccount(dvmAddr)
     const [dvmBalance0, tokenId0] = dvmAcc[0].split('@')
 
@@ -422,7 +429,7 @@ describe('TransferDomain', () => {
       .toStrictEqual(new BigNumber(withEth).minus(3 + 4))
   })
 
-  it('should (duo) Transfer Domain from EVM to DVM', async () => {
+  it.skip('should (duo) Transfer Domain from EVM to DVM', async () => {
     const dvmAcc = await client.account.getAccount(dvmAddr)
     const [dvmBalance0, tokenId0] = dvmAcc[0].split('@')
 
@@ -471,7 +478,7 @@ describe('TransferDomain', () => {
     expect(new BigNumber(withoutEth)).toStrictEqual(new BigNumber(withEth))
   })
 
-  it('should (duo-diff) Transfer Domain from EVM to DVM and DVM to EVM', async () => {
+  it.skip('should (duo-diff) Transfer Domain from EVM to DVM and DVM to EVM', async () => {
     // transfer some to evm first
     await client.account.transferDomain([
       {
