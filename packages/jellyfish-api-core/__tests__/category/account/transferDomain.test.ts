@@ -180,13 +180,13 @@ describe('TransferDomain', () => {
       await expect(promise).rejects.toThrow('Src address must be a legacy or Bech32 address in case of "DVM" domain')
     })
 
-    it('(evm -> dvm) should fail if dst address is not legacy or Bech32 address in case of "DVM domain', async () => {
+    it('(evm -> dvm) should fail if dst address is not legacy or Bech32 address in case of "DVM" domain', async () => {
       const addressP2SH = await container.getNewAddress('address', 'p2sh-segwit')
       // initially transfer DFI
       await client.account.transferDomain([
         {
           src: {
-            address: dvmAddr, // invalid
+            address: dvmAddr,
             amount: '1@DFI',
             domain: TransferDomainType.DVM
           },
@@ -226,7 +226,7 @@ describe('TransferDomain', () => {
             domain: TransferDomainType.EVM
           },
           dst: {
-            address: dvmAddr, // invalid
+            address: dvmAddr,
             amount: '1@DFI',
             domain: TransferDomainType.DVM
           }
