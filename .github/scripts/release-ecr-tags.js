@@ -13,9 +13,10 @@ module.exports = ({ context }) => {
 }
 
 function getReleaseTag(context) {
-  const semver = context.payload.release.tag_name
-  if (semver.match(/^v[0-9]+\.[0-9]+\.[0-9]+$/) === null) {
+  const semver = require("semver");
+  const version = context.payload.release.tag_name;
+  if (!semver.valid(version)) {
     throw new Error(`Release Violation: Provided version '${semver}' is not valid semver.`)
   }
-  return semver.replace('v','')
+  return version.replace('v','')
 }

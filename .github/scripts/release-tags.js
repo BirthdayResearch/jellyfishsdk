@@ -55,11 +55,12 @@ function getDomain(context) {
 }
 
 function getReleaseTag(domain, app, context) {
-  const semver = context.payload.release.tag_name
-  if (semver.match(/^v[0-9]+\.[0-9]+\.[0-9]+$/) === null) {
-    throw new Error(`Release Violation: Provided version '${semver}' is not valid semver.`)
+  const semver = require("semver");
+  const version = context.payload.release.tag_name;
+  if (!semver.valid(version)) {
+    throw new Error(`Release Violation: Provided version '${version}' is not valid semver.`)
   }
-  return `ghcr.io/${domain}/${app}:latest,ghcr.io/${domain}/${app}:${semver.replace('v','')}`
+  return `ghcr.io/${domain}/${app}:latest,ghcr.io/${domain}/${app}:${version.replace('v','')}`
 }
 
 function getMainTag(domain, app, { sha }) {

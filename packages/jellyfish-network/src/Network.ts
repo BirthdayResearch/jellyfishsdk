@@ -8,7 +8,7 @@ export type NetworkName = Network['name']
  * They can be found in DeFiCh/ain project in file chainparams.cpp, under base58Prefixes
  */
 export interface Network {
-  name: 'mainnet' | 'testnet' | 'regtest' | 'devnet'
+  name: 'mainnet' | 'testnet' | 'regtest' | 'devnet' | 'changi'
   bech32: {
     /** bech32 human readable part */
     hrp: 'df' | 'tf' | 'bcrt'
@@ -48,6 +48,8 @@ export function getNetwork (network: NetworkName): Network {
       return DevNet
     case 'regtest':
       return RegTest
+    case 'changi':
+      return Changi
     default:
       throw new Error(`${network as string} network not found`)
   }
@@ -104,8 +106,8 @@ export const DevNet: Network = {
   ...TestNet,
   name: 'devnet',
   ports: {
-    rpc: 20554,
-    p2p: 20555
+    rpc: 21554,
+    p2p: 21555
   }
 }
 
@@ -128,5 +130,17 @@ export const RegTest: Network = {
   ports: {
     rpc: 19554,
     p2p: 19555
+  }
+}
+
+/**
+ * Changi specific DeFi configuration.
+ */
+export const Changi: Network = {
+  ...TestNet,
+  name: 'changi',
+  ports: {
+    rpc: 20554,
+    p2p: 20555
   }
 }

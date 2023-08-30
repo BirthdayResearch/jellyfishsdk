@@ -29,7 +29,7 @@ export class NativeChainContainer extends GenericContainer {
     if (process?.env?.DEFICHAIN_DOCKER_IMAGE !== undefined) {
       return process.env.DEFICHAIN_DOCKER_IMAGE
     }
-    return 'defi/defichain:master-91a01aea0' // renovate.json regexManagers
+    return 'defi/defichain:4.0.0-beta10-ocean' // renovate.json regexManagers
   }
 
   public static readonly PREFIX = 'defichain-testcontainers-'
@@ -90,6 +90,9 @@ export class NativeChainContainer extends GenericContainer {
       '-rpcbind=0.0.0.0',
       '-rpcworkqueue=512'
     ],
+    changi: [
+      '-changi=1'
+    ],
     testnet: [
       '-testnet=1'
     ],
@@ -119,7 +122,6 @@ export class NativeChainContainer extends GenericContainer {
       '-grandcentralheight=16',
       '-grandcentralepilogueheight=17',
       '-nextnetworkupgradeheight=18',
-      '-changiintermediateheight=19',
       '-regtest-skip-loan-collateral-validation',
       '-regtest-minttoken-simulate-mainnet=0'
     ],

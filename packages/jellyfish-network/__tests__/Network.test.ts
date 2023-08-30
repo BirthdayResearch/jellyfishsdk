@@ -1,4 +1,4 @@
-import { Network, MainNet, RegTest, TestNet, DevNet, getNetwork } from '../src'
+import { Network, MainNet, RegTest, TestNet, DevNet, Changi, getNetwork } from '../src'
 
 it('should be exported', () => {
   const network: Network = MainNet
@@ -25,6 +25,11 @@ describe('getNetwork', () => {
   it('should get regtest', () => {
     expect(getNetwork('regtest').name).toStrictEqual('regtest')
     expect(getNetwork('regtest').bech32.hrp).toStrictEqual('bcrt')
+  })
+
+  it('should get changi', () => {
+    expect(getNetwork('changi').name).toStrictEqual('changi')
+    expect(getNetwork('changi').bech32.hrp).toStrictEqual('tf')
   })
 })
 
@@ -70,4 +75,15 @@ it('should match RegTest network', () => {
   expect(RegTest.pubKeyHashPrefix).toStrictEqual(0x6f)
   expect(RegTest.scriptHashPrefix).toStrictEqual(0xc4)
   expect(RegTest.messagePrefix).toStrictEqual('\x15Defi Signed Message:\n')
+})
+
+it('should match Changi network', () => {
+  expect(Changi.name).toStrictEqual('changi')
+  expect(Changi.bech32.hrp).toStrictEqual('tf')
+  expect(Changi.bip32.publicPrefix).toStrictEqual(0x043587cf)
+  expect(Changi.bip32.privatePrefix).toStrictEqual(0x04358394)
+  expect(Changi.wifPrefix).toStrictEqual(0xef)
+  expect(Changi.pubKeyHashPrefix).toStrictEqual(0xf)
+  expect(Changi.scriptHashPrefix).toStrictEqual(0x80)
+  expect(Changi.messagePrefix).toStrictEqual('\x15Defi Signed Message:\n')
 })

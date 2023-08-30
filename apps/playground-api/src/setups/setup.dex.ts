@@ -235,6 +235,22 @@ export class SetupDex extends PlaygroundSetup<PoolPairSetup> {
         utxoToAccount: {
           [PlaygroundSetup.address]: '2000@0'
         }
+      },
+      {
+        symbol: 'MATIC-DFI',
+        create: {
+          tokenA: 'MATIC',
+          tokenB: 'DFI',
+          commission: 0,
+          status: true,
+          ownerAddress: PlaygroundSetup.address
+        },
+        add: {
+          '*': ['3000@DFI', '30000000@MATIC']
+        },
+        utxoToAccount: {
+          [PlaygroundSetup.address]: '3000@0'
+        }
       }
     ]
   }
@@ -269,13 +285,17 @@ export class SetupDex extends PlaygroundSetup<PoolPairSetup> {
     const poolPairs = await this.client.poolpair.listPoolPairs()
     const poolPairIds = Object.keys(poolPairs)
 
-    // apply `toFixed(8)` due to 1 / 16 = 0.0625 which is valid amount on setgov
+    // apply `toFixed(8)` due to 1 / 17 = 0.05882353 which is valid amount on setgov
     const splits = Number(new BigNumber(1 / poolPairIds.length).toFixed(8))
 
     const lpSplits: any = {}
     for (const k in poolPairs) {
       lpSplits[parseInt(k)] = splits
     }
+    // to fix: LP_SPLITS: total = 0.9996 vs expected 100000000', code: -32600, method: setgov
+    // 0.05882353 * 17 !== 100000000
+    const lstKey = Object.keys(lpSplits)[0]
+    lpSplits[lstKey] = Number(new BigNumber(lpSplits[lstKey]).minus(0.00000001).toFixed(8))
     await this.client.masternode.setGov({ LP_SPLITS: lpSplits })
     await this.generate(1)
   }

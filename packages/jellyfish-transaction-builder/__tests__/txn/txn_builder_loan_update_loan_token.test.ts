@@ -188,7 +188,7 @@ describe('loan.updateLoanToken()', () => {
       tokenTx: loanTokenId
     }, script)
     const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'UpdateLoanTokenTx: token symbol should be non-empty and starts with a letter (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'UpdateLoanTokenTx: Invalid token symbol. Valid: Start with an alphabet, non-empty, not contain # or / (code 16)\', code: -26')
   })
 
   it('should not updateLoanToken if the symbol is used in other token', async () => {
