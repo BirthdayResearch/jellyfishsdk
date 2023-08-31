@@ -42,7 +42,8 @@ export class MethodWhitelist implements PipeTransform {
     'getrawtransaction',
     'getgovproposal',
     'listgovproposals',
-    'listgovproposalvotes'
+    'listgovproposalvotes',
+    'vmmap'
   ]
 
   transform (value: string, metadata: ArgumentMetadata): string {
