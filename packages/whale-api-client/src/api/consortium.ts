@@ -25,10 +25,52 @@ export class Consortium {
   async getMemberStats (memberid: string): Promise<MemberStatsInfo[]> {
     return await this.client.requestData('GET', `consortium/stats/${memberid}`)
   }
+
+  /**
+   *  Gets the transaction history of consortium members.
+   *
+   * @param {number} [pageIndex] The starting index for pagination
+   * @param {number} [limit] How many transactions to fetch
+   * @param {string} [searchTerm] Search term, can be a transaction id, member/owner address or name
+   * @return {Promise<ConsortiumTransactionResponse[]>}
+    */
+  async getTransactionHistory (next?: number, size?: number, searchTerm?: string): Promise<ConsortiumTransactionResponse> {
+    const query = []
+
+    if (next !== undefined) {
+      query.push(`next=${next}`)
+    }
+
+    if (size !== undefined) {
+      query.push(`size=${size}`)
+    }
+
+    if (searchTerm !== undefined) {
+      query.push(`searchTerm=${searchTerm}`)
+    }
+
+    return await this.client.requestData('GET', `consortium/transactions?${query.join('&')}`)
+  }
+}
+
+export interface ConsortiumTransactionResponse {
+  transactions: Transaction[]
+  total: number
+}
+
+export interface Transaction {
+  type: 'Mint' | 'Burn'
+  member: string
+  tokenAmounts: Array<{ token: string, amount: string }>
+  txId: string
+  address: string
+  block: number
 }
 
 export interface MemberDetail {
-  backingId: string
+  id: string
+  backingId?: string
+  ownerAddress: string
   name: string
 }
 
