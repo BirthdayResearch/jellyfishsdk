@@ -79,7 +79,7 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a4b4466547838' // OP_RETURN(0x6a) (length 76 = 0x4b) CDfTx.SIGNATURE(0x44665478) CTransferDomain.OP_CODE(0x38)
+const header = '6a4b4466547838' // OP_RETURN(0x6a) (length 75 = 0x4b) CDfTx.SIGNATURE(0x44665478) CTransferDomain.OP_CODE(0x38)
 // TransferDomain[0].OP_H160 (0xa9)
 // TransferDomain[0].OP_PUSHDATA_HEX_LE (0x5da8fc155086aba13fc48b4eabf2d38ab39a4fbc)
 // TransferDomain[0].OP_EQUAL (0x87)
@@ -107,7 +107,7 @@ const transferDomain: TransferDomain = {
       },
       amount: { token: 0, amount: new BigNumber(3) },
       domain: 2, // TransferDomainType.DVM
-      data: [0] // `[0]` is undefined as empty byte will be inserted
+      data: new Uint8Array([0])
     },
     dst: {
       address: {
@@ -118,7 +118,7 @@ const transferDomain: TransferDomain = {
       },
       amount: { token: 0, amount: new BigNumber(3) },
       domain: 3, // TransferDomainType.EVM
-      data: [0] // `[0]` is undefined as empty byte will be inserted
+      data: new Uint8Array([0])
     }
   }]
 }

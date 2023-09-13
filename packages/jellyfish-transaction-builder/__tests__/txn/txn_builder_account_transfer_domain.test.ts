@@ -108,6 +108,7 @@ describe('transferDomain', () => {
           src:
           {
             address: dvmScript,
+            data: new Uint8Array([0]),
             amount: {
               token: 0,
               amount: new BigNumber(10)
@@ -116,6 +117,7 @@ describe('transferDomain', () => {
           },
           dst: {
             address: evmScript,
+            data: new Uint8Array([0]),
             amount: {
               token: 0,
               amount: new BigNumber(10)
@@ -138,6 +140,7 @@ describe('transferDomain', () => {
           src:
           {
             address: dvmScript,
+            data: new Uint8Array([0]),
             domain: TRANSFER_DOMAIN_TYPE.DVM,
             amount: {
               token: 0,
@@ -146,6 +149,7 @@ describe('transferDomain', () => {
           },
           dst: {
             address: evmScript,
+            data: new Uint8Array([0]),
             domain: TRANSFER_DOMAIN_TYPE.EVM,
             amount: {
               token: 0,
@@ -168,6 +172,7 @@ describe('transferDomain', () => {
           src:
           {
             address: evmScript, // <- not match
+            data: new Uint8Array([0]),
             domain: TRANSFER_DOMAIN_TYPE.DVM, // <- not match
             amount: {
               token: 0,
@@ -176,6 +181,7 @@ describe('transferDomain', () => {
           },
           dst: {
             address: dvmScript,
+            data: new Uint8Array([0]),
             domain: TRANSFER_DOMAIN_TYPE.EVM,
             amount: {
               token: 0,
@@ -198,6 +204,7 @@ describe('transferDomain', () => {
           src:
           {
             address: dvmScript, // <- not match
+            data: new Uint8Array([0]),
             amount: {
               token: 0,
               amount: new BigNumber(3)
@@ -206,6 +213,7 @@ describe('transferDomain', () => {
           },
           dst: {
             address: dvmScript,
+            data: new Uint8Array([0]),
             amount: {
               token: 0,
               amount: new BigNumber(3)
@@ -228,6 +236,7 @@ describe('transferDomain', () => {
           src:
           {
             address: dvmScript,
+            data: new Uint8Array([0]),
             amount: {
               token: 0,
               amount: new BigNumber(3)
@@ -236,6 +245,7 @@ describe('transferDomain', () => {
           },
           dst: {
             address: dvmScript, // <- not match
+            data: new Uint8Array([0]),
             amount: {
               token: 0,
               amount: new BigNumber(3)
@@ -262,6 +272,7 @@ describe('transferDomain', () => {
               token: 0,
               amount: new BigNumber(3)
             },
+            data: new Uint8Array([0]),
             domain: TRANSFER_DOMAIN_TYPE.EVM
           },
           dst: {
@@ -270,6 +281,7 @@ describe('transferDomain', () => {
               token: 0,
               amount: new BigNumber(3)
             },
+            data: new Uint8Array([0]),
             domain: TRANSFER_DOMAIN_TYPE.DVM // <- not match
           }
         }]
@@ -294,6 +306,7 @@ describe('transferDomain', () => {
               token: 0,
               amount: new BigNumber(3)
             },
+            data: new Uint8Array([0]),
             domain: TRANSFER_DOMAIN_TYPE.DVM
           },
           dst: {
@@ -302,6 +315,7 @@ describe('transferDomain', () => {
               token: 0,
               amount: new BigNumber(3)
             },
+            data: new Uint8Array([0]),
             domain: TRANSFER_DOMAIN_TYPE.EVM
           }
         }]
@@ -325,6 +339,7 @@ describe('transferDomain', () => {
               token: 128, // <- DESC
               amount: new BigNumber(3)
             },
+            data: new Uint8Array([0]),
             domain: TRANSFER_DOMAIN_TYPE.DVM
           },
           dst: {
@@ -333,6 +348,7 @@ describe('transferDomain', () => {
               token: 128, // <- DESC
               amount: new BigNumber(3)
             },
+            data: new Uint8Array([0]),
             domain: TRANSFER_DOMAIN_TYPE.EVM
           }
         }]
@@ -361,7 +377,7 @@ describe('transferDomain', () => {
             token: 0,
             amount: new BigNumber(3)
           },
-          data: [0]
+          data: new Uint8Array([0])
         },
         dst: {
           address: evmScript,
@@ -370,7 +386,7 @@ describe('transferDomain', () => {
             token: 0,
             amount: new BigNumber(3)
           },
-          data: [0]
+          data: new Uint8Array([0])
         }
       }]
     }
@@ -423,7 +439,7 @@ describe('transferDomain', () => {
             token: 0,
             amount: new BigNumber(3)
           },
-          data: [0]
+          data: new Uint8Array([0])
         },
         dst: {
           address: dvmScript,
@@ -432,7 +448,7 @@ describe('transferDomain', () => {
             token: 0,
             amount: new BigNumber(3)
           },
-          data: [0]
+          data: new Uint8Array([0])
         }
       }]
     }
@@ -479,6 +495,7 @@ describe('transferDomain', () => {
         src:
         {
           address: dvmScript,
+          data: new Uint8Array([0]),
           domain: TRANSFER_DOMAIN_TYPE.DVM,
           amount: {
             token: 1, // <- BTC
@@ -487,6 +504,7 @@ describe('transferDomain', () => {
         },
         dst: {
           address: evmScript,
+          data: new Uint8Array([0]),
           domain: TRANSFER_DOMAIN_TYPE.EVM,
           amount: {
             token: 1, // <- BTC
@@ -538,7 +556,7 @@ describe('transferDomain', () => {
             token: 1,
             amount: new BigNumber(3)
           },
-          data: [0]
+          data: new Uint8Array([0])
         },
         dst: {
           address: dvmScript,
@@ -547,7 +565,7 @@ describe('transferDomain', () => {
             token: 1,
             amount: new BigNumber(3)
           },
-          data: [0]
+          data: new Uint8Array([0])
         }
       }]
     }
@@ -590,7 +608,7 @@ describe('transferDomain', () => {
             token: 0,
             amount: new BigNumber(2)
           },
-          data: [0]
+          data: new Uint8Array([0])
         },
         dst: {
           address: evmScript,
@@ -599,7 +617,7 @@ describe('transferDomain', () => {
             token: 0,
             amount: new BigNumber(2)
           },
-          data: [0]
+          data: new Uint8Array([0])
         }
       }, {
         src:
@@ -610,7 +628,7 @@ describe('transferDomain', () => {
             token: 0,
             amount: new BigNumber(1.5)
           },
-          data: [0]
+          data: new Uint8Array([0])
         },
         dst: {
           address: evmScript,
@@ -619,7 +637,7 @@ describe('transferDomain', () => {
             token: 0,
             amount: new BigNumber(1.5)
           },
-          data: [0]
+          data: new Uint8Array([0])
         }
       }]
     }
@@ -642,7 +660,7 @@ describe('transferDomain', () => {
             token: 0,
             amount: new BigNumber(2)
           },
-          data: [0]
+          data: new Uint8Array([0])
         },
         dst: {
           address: dvmScript,
@@ -651,7 +669,7 @@ describe('transferDomain', () => {
             token: 0,
             amount: new BigNumber(2)
           },
-          data: [0]
+          data: new Uint8Array([0])
         }
       },
       {
@@ -663,7 +681,7 @@ describe('transferDomain', () => {
             token: 0,
             amount: new BigNumber(1.5)
           },
-          data: [0]
+          data: new Uint8Array([0])
         },
         dst: {
           address: dvmScript,
@@ -672,7 +690,7 @@ describe('transferDomain', () => {
             token: 0,
             amount: new BigNumber(1.5)
           },
-          data: [0]
+          data: new Uint8Array([0])
         }
       }
       ]
@@ -698,7 +716,7 @@ describe('transferDomain', () => {
               token: 0,
               amount: new BigNumber(3)
             },
-            data: [0]
+            data: new Uint8Array([0])
           },
           dst: {
             address: evmScript,
@@ -707,7 +725,7 @@ describe('transferDomain', () => {
               token: 0,
               amount: new BigNumber(3)
             },
-            data: [0]
+            data: new Uint8Array([0])
           }
         }]
       }
@@ -727,7 +745,7 @@ describe('transferDomain', () => {
             token: 0,
             amount: new BigNumber(4)
           },
-          data: [0]
+          data: new Uint8Array([0])
         },
         dst: {
           address: evmScript,
@@ -736,7 +754,7 @@ describe('transferDomain', () => {
             token: 0,
             amount: new BigNumber(4)
           },
-          data: [0]
+          data: new Uint8Array([0])
         }
       },
       {
@@ -748,7 +766,7 @@ describe('transferDomain', () => {
             token: 0,
             amount: new BigNumber(3)
           },
-          data: [0]
+          data: new Uint8Array([0])
         },
         dst: {
           address: dvmScript,
@@ -757,7 +775,7 @@ describe('transferDomain', () => {
             token: 0,
             amount: new BigNumber(3)
           },
-          data: [0]
+          data: new Uint8Array([0])
         }
       }
       ]

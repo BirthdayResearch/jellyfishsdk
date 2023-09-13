@@ -107,7 +107,7 @@ export interface TransferDomainItem {
   address: Script // ----------------------| n = VarUInt{1-9 bytes}, + n bytes
   amount: TokenBalanceVarInt // -----------| VarUInt{1-9 bytes} for token Id + 8 bytes for amount, in amount@token format
   domain: number // -----------------------| 1 byte unsigned, 0x0 (NONE), 0x1 (UTXO), 0x2 (DVM), 0x3 (EVM)
-  data?: number[] // ----------------------| 1 byte unsigned array, currently unused
+  data: Uint8Array // ---------------------| uint8 vector for evm and utxo data
 }
 
 /**
@@ -126,15 +126,11 @@ export class CTransferDomainItem extends ComposableBuffer<TransferDomainItem> {
           if (buffer.remaining() > 0) {
             array.push(buffer.readUInt8())
           }
-          tdi.data = array
+          tdi.data = new Uint8Array(array)
         },
         toBuffer: (buffer: SmartBuffer): void => {
-          if (tdi.data !== undefined) {
-            for (let i = 0; i < tdi.data.length; i += 1) {
-              buffer.writeUInt8(tdi.data[i])
-            }
-          } else {
-            buffer.writeUInt8(0x00)
+          for (let i = 0; i < tdi.data.length; i += 1) {
+            buffer.writeUInt8(tdi.data[i])
           }
         }
       }
