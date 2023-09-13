@@ -14,6 +14,7 @@
     "build": "tsc -b ./tsconfig.build.json"
   },
   "dependencies": {
+    "ethers": "^6.7.1",
     "@defichain/jellyfish-crypto": "^0.0.0",
     "@defichain/jellyfish-transaction": "^0.0.0",
     "@defichain/jellyfish-transaction-signature": "^0.0.0"
