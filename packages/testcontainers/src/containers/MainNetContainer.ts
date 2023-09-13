@@ -13,4 +13,8 @@ export class MainNetContainer extends DeFiDContainer {
   async getRpcPort (): Promise<string> {
     return await this.getPort('8554/tcp')
   }
+
+  async getEvmRpcPort (): Promise<string> {
+    return await this.getPort('8551/tcp')
+  }
 }
