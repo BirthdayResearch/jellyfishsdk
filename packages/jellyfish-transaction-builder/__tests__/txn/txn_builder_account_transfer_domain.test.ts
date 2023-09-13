@@ -3,6 +3,7 @@ import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { fundEllipticPair, sendTransaction } from '../test.utils'
 import BigNumber from 'bignumber.js'
+import { ethers } from 'ethers'
 import { Testing } from '@defichain/jellyfish-testing'
 import { RegTest, RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import {
@@ -12,6 +13,7 @@ import {
 } from '@defichain/jellyfish-transaction'
 import { WIF } from '@defichain/jellyfish-crypto'
 import { P2WPKH } from '@defichain/jellyfish-address'
+import TransferDomainSol from '../../../../artifacts/contracts/TransferDomain.sol/TransferDomain.json'
 
 const TRANSFER_DOMAIN_TYPE = {
   DVM: 2,
@@ -25,6 +27,7 @@ let providers: MockProviders
 let builder: P2WPKHTransactionBuilder
 
 let dvmAddr: string
+let evmAddr: string
 let dvmScript: Script
 let evmScript: Script
 
@@ -54,6 +57,7 @@ describe('transferDomain', () => {
     providers.setEllipticPair(WIF.asEllipticPair(RegTestFoundationKeys[0].owner.privKey))
 
     dvmAddr = await providers.getAddress()
+    evmAddr = await providers.getEvmAddress()
     dvmScript = await providers.elliptic.script()
     evmScript = await providers.elliptic.evmScript()
 
@@ -362,10 +366,43 @@ describe('transferDomain', () => {
     })
   })
 
-  it('should transfer domain from DVM to EVM', async () => {
+  it.only('should transfer domain from DVM to EVM', async () => {
     const dvmAccBefore = await testing.rpc.account.getAccount(dvmAddr)
     const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[0].split('@')
     const prevBalance = await getEVMBalances(testing)
+
+    let evmSignedTx = new Uint8Array([0])
+    {
+      const url = await testing.container.getCachedEvmRpcUrl()
+      const rpc: ethers.JsonRpcProvider = new ethers.JsonRpcProvider(url)
+
+      const evmPrivKey = await testing.container.call('dumpprivkey', [evmAddr])
+
+      const wallet: ethers.Wallet = new ethers.Wallet(evmPrivKey)
+      const iface = new ethers.Interface(TransferDomainSol.abi)
+      // EvmIn
+      const from = evmAddr
+      const to = evmAddr
+      const amount = 30_000_000_000 // 30 gwei
+      const native = dvmAddr
+      const data = iface.encodeFunctionData('transfer', [from, to, amount, native])
+
+      const fee = await rpc.getFeeData()
+      const count = await rpc.getTransactionCount(evmAddr)
+      const tx: ethers.TransactionRequest = {
+        nonce: count + 1,
+        value: 0,
+        data: data,
+        gasLimit: 100_000,
+        gasPrice: fee.gasPrice // base fee
+      }
+
+      const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
+      console.log('signed: ', signed)
+
+      evmSignedTx = new Uint8Array(Buffer.from(signed, 'hex'))
+      console.log('evmSignedTx: ', evmSignedTx)
+    }
 
     const transferDomain: TransferDomain = {
       items: [{
@@ -386,7 +423,7 @@ describe('transferDomain', () => {
             token: 0,
             amount: new BigNumber(3)
           },
-          data: new Uint8Array([0])
+          data: evmSignedTx
         }
       }]
     }
