@@ -386,10 +386,14 @@ describe('transferDomain', () => {
       const amount = 30_000_000_000 // 30 gwei
       const native = dvmAddr
       const data = iface.encodeFunctionData('transfer', [from, to, amount, native])
+      console.log('data: ', data)
 
+      const { chainId } = await rpc.getNetwork()
       const fee = await rpc.getFeeData()
       const count = await rpc.getTransactionCount(evmAddr)
       const tx: ethers.TransactionRequest = {
+        to: '0x0000000000000000000000000000000000000302',
+        chainId: chainId,
         nonce: count + 1,
         value: 0,
         data: data,
