@@ -1,4 +1,4 @@
-import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
+import { BufferComposer, ComposableBuffer, readCompactSize, writeCompactSize } from '@defichain/jellyfish-buffer'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
 import { CScriptBalances, CTokenBalance, CTokenBalanceVarInt, ScriptBalances, TokenBalanceUInt32, TokenBalanceVarInt } from './dftx_balance'
@@ -122,13 +122,15 @@ export class CTransferDomainItem extends ComposableBuffer<TransferDomainItem> {
       ComposableBuffer.uInt8(() => tdi.domain, v => tdi.domain = v),
       {
         fromBuffer: (buffer: SmartBuffer): void => {
+          const length = readCompactSize(buffer)
           const array: number[] = []
-          if (buffer.remaining() > 0) {
+          for (let i = 0; i < length; i += 1) {
             array.push(buffer.readUInt8())
           }
           tdi.data = new Uint8Array(array)
         },
         toBuffer: (buffer: SmartBuffer): void => {
+          writeCompactSize(tdi.data.length, buffer)
           for (let i = 0; i < tdi.data.length; i += 1) {
             buffer.writeUInt8(tdi.data[i])
           }
