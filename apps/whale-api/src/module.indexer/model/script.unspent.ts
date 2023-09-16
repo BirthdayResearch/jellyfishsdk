@@ -5,6 +5,7 @@ import { HexEncoder } from '../../module.model/_hex.encoder'
 import { TransactionVout, TransactionVoutMapper } from '../../module.model/transaction.vout'
 import { Transaction, TransactionMapper } from '../../module.model/transaction'
 import { NotFoundIndexerError } from '../error'
+import { NULL_TX_ID } from '../constants'
 
 @Injectable()
 export class ScriptUnspentIndexer extends Indexer {
@@ -32,8 +33,8 @@ export class ScriptUnspentIndexer extends Indexer {
   }
 
   async invalidate (block: RawBlock): Promise<void> {
-    for (const txn of block.tx) {
-      for (const vin of txn.vin) {
+    for (const blockTxn of block.tx) {
+      for (const vin of blockTxn.vin) {
         if (vin.coinbase !== undefined) {
           continue
         }
@@ -41,16 +42,20 @@ export class ScriptUnspentIndexer extends Indexer {
         const txn = await this.transactionMapper.get(vin.txid)
         const vout = await this.voutMapper.get(vin.txid, vin.vout)
         if (txn === undefined) {
+          if (vin.txid === NULL_TX_ID) {
+            continue
+          }
+
           throw new NotFoundIndexerError('invalidate', 'Transaction', vin.txid)
         }
         if (vout === undefined) {
-          throw new NotFoundIndexerError('invalidate', 'TransactionVout', `${vin.txid} - ${vin.vout}`)
+          throw new NotFoundIndexerError('invalidate', 'TransactionVout - unspent', `${vin.txid} - ${vin.vout}`)
         }
         await this.unspentMapper.put(this.mapInvalidated(txn, vout))
       }
 
-      for (const vout of txn.vout) {
-        await this.unspentMapper.delete(txn.txid + HexEncoder.encodeVoutIndex(vout.n))
+      for (const vout of blockTxn.vout) {
+        await this.unspentMapper.delete(blockTxn.txid + HexEncoder.encodeVoutIndex(vout.n))
       }
     }
   }

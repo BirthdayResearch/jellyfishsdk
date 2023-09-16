@@ -5,6 +5,7 @@ import { TransactionVout } from '../../module.model/transaction.vout'
 import { HexEncoder } from '../../module.model/_hex.encoder'
 import { VoutFinder } from './_vout_finder'
 import { NotFoundIndexerError } from '../error'
+import { NULL_TX_ID } from '../constants'
 
 @Injectable()
 export class TransactionVinIndexer extends Indexer {
@@ -23,7 +24,11 @@ export class TransactionVinIndexer extends Indexer {
         } else {
           const vout = await this.voutFinder.findVout(block, vin.txid, vin.vout)
           if (vout === undefined) {
-            throw new NotFoundIndexerError('index', 'TransactionVout', `${vin.txid} - ${vin.vout}`)
+            if (vin.txid === NULL_TX_ID) {
+              continue
+            }
+
+            throw new NotFoundIndexerError('index', 'TransactionVout - vin', `${vin.txid} - ${vin.vout}`)
           }
           await this.vinMapper.put(this.map(txn, vin, vout))
         }

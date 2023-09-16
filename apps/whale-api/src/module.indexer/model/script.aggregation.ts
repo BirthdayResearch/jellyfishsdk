@@ -5,6 +5,7 @@ import { VoutFinder } from './_vout_finder'
 import { HexEncoder } from '../../module.model/_hex.encoder'
 import BigNumber from 'bignumber.js'
 import { NotFoundIndexerError } from '../error'
+import { NULL_TX_ID } from '../constants'
 
 @Injectable()
 export class ScriptAggregationIndexer extends Indexer {
@@ -34,7 +35,11 @@ export class ScriptAggregationIndexer extends Indexer {
 
         const vout = await this.voutFinder.findVout(block, vin.txid, vin.vout)
         if (vout === undefined) {
-          throw new NotFoundIndexerError('index', 'TransactionVout', `${vin.txid} - ${vin.vout}`)
+          if (vin.txid === NULL_TX_ID) {
+            continue
+          }
+
+          throw new NotFoundIndexerError('index', 'TransactionVout - aggregation', `${vin.txid} - ${vin.vout}`)
         }
 
         // Spent (REMOVE)
@@ -83,7 +88,11 @@ export class ScriptAggregationIndexer extends Indexer {
 
         const vout = await this.voutFinder.findVout(block, vin.txid, vin.vout)
         if (vout === undefined) {
-          throw new NotFoundIndexerError('invalidate', 'TransactionVout', `${vin.txid} - ${vin.vout}`)
+          if (vin.txid === NULL_TX_ID) {
+            continue
+          }
+
+          throw new NotFoundIndexerError('invalidate', 'TransactionVout3', `${vin.txid} - ${vin.vout}`)
         }
         hidList.add(HexEncoder.asSHA256(vout.script.hex))
       }
