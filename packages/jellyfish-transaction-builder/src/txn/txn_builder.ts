@@ -50,7 +50,7 @@ export abstract class P2WPKHTxnBuilder {
    * @param {number} [options.minimumAmount] default = 0, minimum value of each UTXO
    * @param {number} [options.maximumAmount] default is 'unlimited', maximum value of each UTXO
    * @param {number} [options.maximumCount] default is 'unlimited', maximum number of UTXOs
-   * @param {number} [options.minimumSumAmount] default is 'unlimited', minimum sum valie of all UTXOs
+   * @param {number} [options.minimumSumAmount] default is 'unlimited', minimum sum value of all UTXOs
    * @param {string} [options.tokenId] default is 'all', filter by token
    * @return {Promise<Prevouts>}
    */
@@ -109,7 +109,7 @@ export abstract class P2WPKHTxnBuilder {
    * @param {number} [options.minimumAmount] default = 0, minimum value of each UTXO
    * @param {number} [options.maximumAmount] default is 'unlimited', maximum value of each UTXO
    * @param {number} [options.maximumCount] default is 'unlimited', maximum number of UTXOs
-   * @param {number} [options.minimumSumAmount] default is 'unlimited', minimum sum valie of all UTXOs
+   * @param {number} [options.minimumSumAmount] default is 'unlimited', minimum sum value of all UTXOs
    * @param {string} [options.tokenId] default is 'all', filter by token
    */
   async createDeFiTx (
