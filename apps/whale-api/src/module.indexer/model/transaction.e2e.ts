@@ -130,11 +130,11 @@ describe('EVM txn indexing', () => {
     await container.call('transferdomain', [dvmToEvmTransfer])
     await container.generate(1)
 
-    const tx4 = await evmTx({ testing, from: ethAddress, to: toEthAddress, value: amount.ONE, nonce: 4 })
-    const tx0 = await evmTx({ testing, from: ethAddress, to: toEthAddress, value: amount.ONE, nonce: 0 })
-    const tx2 = await evmTx({ testing, from: ethAddress, to: toEthAddress, value: amount.ONE, nonce: 2 })
-    const tx1 = await evmTx({ testing, from: ethAddress, to: toEthAddress, value: amount.ONE, nonce: 1 })
-    const tx3 = await evmTx({ testing, from: ethAddress, to: toEthAddress, value: amount.ONE, nonce: 3 })
+    const tx4 = await createEVMTx({ testing, from: ethAddress, to: toEthAddress, value: amount.ONE, nonce: 4 })
+    const tx0 = await createEVMTx({ testing, from: ethAddress, to: toEthAddress, value: amount.ONE, nonce: 0 })
+    const tx2 = await createEVMTx({ testing, from: ethAddress, to: toEthAddress, value: amount.ONE, nonce: 2 })
+    const tx1 = await createEVMTx({ testing, from: ethAddress, to: toEthAddress, value: amount.ONE, nonce: 1 })
+    const tx3 = await createEVMTx({ testing, from: ethAddress, to: toEthAddress, value: amount.ONE, nonce: 3 })
 
     await container.generate(1)
     const blockHash: string = await testing.rpc.blockchain.getBestBlockHash()
@@ -172,7 +172,7 @@ describe('EVM txn indexing', () => {
   })
 })
 
-async function evmTx ({ testing, from, to, value, nonce }: {
+async function createEVMTx ({ testing, from, to, value, nonce }: {
   testing: Testing
   from: string
   to: string
