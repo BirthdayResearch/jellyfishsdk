@@ -3,7 +3,7 @@ import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { fundEllipticPair, sendTransaction } from '../test.utils'
 import BigNumber from 'bignumber.js'
-import { ethers } from 'ethers'
+import { Interface, ethers } from 'ethers'
 import { Testing } from '@defichain/jellyfish-testing'
 import { RegTest, RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import {
@@ -29,6 +29,10 @@ let providers: MockProviders
 let builder: P2WPKHTransactionBuilder
 
 let evmRpcUrl: string
+let rpc: ethers.JsonRpcProvider
+let wallet: ethers.Wallet
+let iface: Interface
+
 let dvmAddr: string
 let evmAddr: string
 let dvmScript: Script
@@ -63,11 +67,16 @@ describe('transferDomain', () => {
     await fundEllipticPair(testing.container, providers.ellipticPair, 100)
     await providers.setupMocks(true)
 
-    evmRpcUrl = await testing.container.getCachedEvmRpcUrl()
     dvmAddr = await providers.getAddress()
     evmAddr = await providers.getEvmAddress()
     dvmScript = await providers.elliptic.script()
     evmScript = await providers.elliptic.evmScript()
+
+    const evmPrivKey = await testing.container.call('dumpprivkey', [evmAddr])
+    wallet = new ethers.Wallet(evmPrivKey)
+    iface = new ethers.Interface(TransferDomainSol.abi)
+    evmRpcUrl = await testing.container.getCachedEvmRpcUrl()
+    rpc = new ethers.JsonRpcProvider(evmRpcUrl)
 
     await testing.token.dfi({ address: dvmAddr, amount: 12 })
     await testing.token.create({
@@ -365,18 +374,13 @@ describe('transferDomain', () => {
     })
   })
 
-  it.only('should transfer domain from DVM to EVM', async () => {
+  it('should transfer domain from DVM to EVM', async () => {
     const dvmAccBefore = await testing.rpc.account.getAccount(dvmAddr)
     const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[0].split('@')
     const prevBalance = await getEVMBalances(testing)
 
     let evmTx = new Uint8Array([0])
-    const rpc: ethers.JsonRpcProvider = new ethers.JsonRpcProvider(evmRpcUrl)
     {
-      const evmPrivKey = await testing.container.call('dumpprivkey', [evmAddr])
-
-      const wallet: ethers.Wallet = new ethers.Wallet(evmPrivKey)
-      const iface = new ethers.Interface(TransferDomainSol.abi)
       // EvmIn
       const from = evmAddr
       const to = evmAddr
