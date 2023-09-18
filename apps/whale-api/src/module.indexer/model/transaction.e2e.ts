@@ -84,10 +84,7 @@ describe('EVM txn indexing', () => {
     ONE: 1,
     HUNDRED: 100
   }
-  const txGas = {
-    gasPrice: 21,
-    gasLimit: 21000
-  }
+
   beforeAll(async () => {
     await container.generate(100)
     await waitForIndexedHeight(app, 100)
@@ -132,23 +129,39 @@ describe('EVM txn indexing', () => {
     ]
     await container.call('transferdomain', [dvmToEvmTransfer])
     await container.generate(1)
-    const evmTxHash = await testing.rpc.evm.evmtx({
-      from: ethAddress,
-      to: toEthAddress,
-      value: new BigNumber(amount.ONE),
-      nonce: 0,
-      ...txGas
-    })
+
+    const tx4 = await evmTx({ testing, from: ethAddress, to: toEthAddress, value: amount.ONE, nonce: 4 })
+    const tx0 = await evmTx({ testing, from: ethAddress, to: toEthAddress, value: amount.ONE, nonce: 0 })
+    const tx2 = await evmTx({ testing, from: ethAddress, to: toEthAddress, value: amount.ONE, nonce: 2 })
+    const tx1 = await evmTx({ testing, from: ethAddress, to: toEthAddress, value: amount.ONE, nonce: 1 })
+    const tx3 = await evmTx({ testing, from: ethAddress, to: toEthAddress, value: amount.ONE, nonce: 3 })
+
     await container.generate(1)
     const blockHash: string = await testing.rpc.blockchain.getBestBlockHash()
     const blockDetails = await testing.rpc.blockchain.getBlock(blockHash, 1)
-    expect(blockDetails.tx[1]).toStrictEqual(evmTxHash)
+
+    // validate sorted txn list
+    expect(blockDetails.tx[1]).toStrictEqual(tx0)
+    expect(blockDetails.tx[2]).toStrictEqual(tx1)
+    expect(blockDetails.tx[3]).toStrictEqual(tx2)
+    expect(blockDetails.tx[4]).toStrictEqual(tx3)
+    expect(blockDetails.tx[5]).toStrictEqual(tx4)
+
     await container.generate(1)
     await waitForIndexedHeight(app, blockDetails.height)
 
+    const transactionMapper = app.get(TransactionMapper)
     const blockMapper = app.get(BlockMapper)
     const block = await blockMapper.getByHeight(blockDetails.height)
     await expectTransactions(block!.hash, block!.transactionCount)
+    const transactions = await transactionMapper.queryByBlockHash(block!.hash, 100)
+
+    // validate mapped txn list
+    expect(transactions[1].id).toStrictEqual(tx0)
+    expect(transactions[2].id).toStrictEqual(tx1)
+    expect(transactions[3].id).toStrictEqual(tx2)
+    expect(transactions[4].id).toStrictEqual(tx3)
+    expect(transactions[5].id).toStrictEqual(tx4)
 
     // Wait for next block to get indexed
     await container.generate(1)
@@ -158,3 +171,20 @@ describe('EVM txn indexing', () => {
     await waitForIndexedHeight(app, newBlockDetails.height)
   })
 })
+
+async function evmTx ({ testing, from, to, value, nonce }: {
+  testing: Testing
+  from: string
+  to: string
+  value: number
+  nonce: number
+}): Promise<string> {
+  return await testing.rpc.evm.evmtx({
+    from,
+    to,
+    nonce,
+    gasPrice: 21,
+    gasLimit: 21000,
+    value: new BigNumber(value)
+  })
+}
