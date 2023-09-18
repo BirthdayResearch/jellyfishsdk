@@ -390,10 +390,12 @@ describe('transferDomain', () => {
 
       const fee = await rpc.getFeeData()
       const count = await rpc.getTransactionCount(evmAddr)
+      const { chainId } = await rpc.getNetwork()
       const tx: ethers.TransactionRequest = {
         to: '0x0000000000000000000000000000000000000302',
         nonce: count + 1,
         value: 0,
+        chainId: chainId,
         data: data,
         gasLimit: 100_000,
         gasPrice: fee.gasPrice // base fee
