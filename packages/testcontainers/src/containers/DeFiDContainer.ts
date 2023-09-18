@@ -88,6 +88,9 @@ export abstract class DeFiDContainer extends DockerContainer {
       Image: this.image,
       Tty: true,
       Cmd: this.getCmd(this.startOptions),
+      Env: [
+        'RUST_LOG=debug'
+      ],
       HostConfig: {
         PublishAllPorts: true
       }
