@@ -16,6 +16,7 @@ import { P2WPKH } from '@defichain/jellyfish-address'
 import TransferDomainSol from '../../../../artifacts/contracts/TransferDomain.sol/TransferDomain.json'
 
 const TD_CONTRACT_ADDR = '0x0000000000000000000000000000000000000302'
+const DST_20_CONTRACT_ADDR_BTC = '0xff00000000000000000000000000000000000001'
 
 const TRANSFER_DOMAIN_TYPE = {
   DVM: 2,
@@ -31,7 +32,7 @@ let builder: P2WPKHTransactionBuilder
 let evmRpcUrl: string
 let rpc: ethers.JsonRpcProvider
 let wallet: ethers.Wallet
-let iface: Interface
+let tdFace: Interface
 
 let dvmAddr: string
 let evmAddr: string
@@ -74,7 +75,7 @@ describe('transferDomain', () => {
 
     const evmPrivKey = await testing.container.call('dumpprivkey', [evmAddr])
     wallet = new ethers.Wallet(evmPrivKey)
-    iface = new ethers.Interface(TransferDomainSol.abi)
+    tdFace = new ethers.Interface(TransferDomainSol.abi)
     evmRpcUrl = await testing.container.getCachedEvmRpcUrl()
     rpc = new ethers.JsonRpcProvider(evmRpcUrl)
 
@@ -386,7 +387,7 @@ describe('transferDomain', () => {
       const to = evmAddr
       const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
       const native = dvmAddr
-      const data = iface.encodeFunctionData('transfer', [from, to, amount, native])
+      const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
 
       const tx: ethers.TransactionRequest = {
         to: TD_CONTRACT_ADDR,
@@ -474,7 +475,7 @@ describe('transferDomain', () => {
       const to = TD_CONTRACT_ADDR
       const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
       const native = dvmAddr
-      const data = iface.encodeFunctionData('transfer', [from, to, amount, native])
+      const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
 
       const tx: ethers.TransactionRequest = {
         to: TD_CONTRACT_ADDR,
@@ -552,31 +553,55 @@ describe('transferDomain', () => {
     const dvmAccBefore = await testing.rpc.account.getAccount(dvmAddr)
     const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[1].split('@')
 
+    let evmTx = new Uint8Array([0])
+    {
+      // EvmIn
+      const from = evmAddr
+      const to = evmAddr
+      const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
+      const native = dvmAddr
+      const data = tdFace.encodeFunctionData('bridgeDST20', [DST_20_CONTRACT_ADDR_BTC, from, to, amount, native])
+
+      const tx: ethers.TransactionRequest = {
+        to: TD_CONTRACT_ADDR,
+        nonce: await rpc.getTransactionCount(evmAddr),
+        value: 0,
+        chainId: (await rpc.getNetwork()).chainId,
+        data: data,
+        gasLimit: 100_000,
+        gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+      }
+
+      const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
+
+      evmTx = new Uint8Array(Buffer.from(signed, 'hex'))
+    }
+
     const transferDomain: TransferDomain = {
       items: [{
         src:
         {
           address: dvmScript,
-          data: new Uint8Array([0]),
           domain: TRANSFER_DOMAIN_TYPE.DVM,
           amount: {
             token: 1, // <- BTC
             amount: new BigNumber(3)
-          }
+          },
+          data: new Uint8Array([0])
         },
         dst: {
           address: evmScript,
-          data: new Uint8Array([0]),
           domain: TRANSFER_DOMAIN_TYPE.EVM,
           amount: {
             token: 1, // <- BTC
             amount: new BigNumber(3)
-          }
+          },
+          data: evmTx
         }
       }]
     }
 
-    const txn = await builder.account.transferDomain(transferDomain, dvmScript)
+    const txn = await builder.account.transferDomain(transferDomain, dvmScript, { maximumAmount: 50 })
     const outs = await sendTransaction(container, txn)
     const encoded: string = OP_CODES.OP_DEFI_TX_TRANSFER_DOMAIN(transferDomain).asBuffer().toString('hex')
     const expectedTransferDomainScript = `6a${encoded}`
