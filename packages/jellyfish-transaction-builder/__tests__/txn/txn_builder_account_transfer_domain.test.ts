@@ -69,6 +69,7 @@ describe('transferDomain', () => {
     dvmScript = await providers.elliptic.script()
     evmScript = await providers.elliptic.evmScript()
 
+    await testing.token.dfi({ address: dvmAddr, amount: 12 })
     await testing.token.create({
       symbol: 'BTC',
       name: 'BTC',
@@ -86,6 +87,7 @@ describe('transferDomain', () => {
       collateralAddress: dvmAddr
     })
     await container.generate(1)
+
     await testing.token.mint({ amount: '10', symbol: 'BTC' })
     await testing.token.mint({ amount: '10', symbol: 'DESC#128' })
     await testing.generate(1)
@@ -421,7 +423,7 @@ describe('transferDomain', () => {
       }]
     }
 
-    const txn = await builder.account.transferDomain(transferDomain, dvmScript)
+    const txn = await builder.account.transferDomain(transferDomain, dvmScript, { maximumCount: 1 })
     const outs = await sendTransaction(container, txn)
     const encoded: string = OP_CODES.OP_DEFI_TX_TRANSFER_DOMAIN(transferDomain).asBuffer().toString('hex')
     const expectedTransferDomainScript = `6a${encoded}`

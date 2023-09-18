@@ -4,6 +4,7 @@ import { EllipticPairProvider, FeeRateProvider, Prevout, PrevoutProvider } from 
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { OP_CODES, Script } from '@defichain/jellyfish-transaction'
 import { randomEllipticPair } from './test.utils'
+import { ListUnspentQueryOptions } from '@defichain/jellyfish-api-core/dist/category/wallet'
 
 export class MockFeeRateProvider implements FeeRateProvider {
   constructor (
@@ -38,7 +39,7 @@ export class MockPrevoutProvider implements PrevoutProvider {
     })
   }
 
-  async collect (minBalance: BigNumber): Promise<Prevout[]> {
+  async collect (minBalance: BigNumber, options?: ListUnspentQueryOptions): Promise<Prevout[]> {
     const pubKey = await this.ellipticPair.publicKey()
     const address = Bech32.fromPubKey(pubKey, 'bcrt')
 
@@ -47,7 +48,7 @@ export class MockPrevoutProvider implements PrevoutProvider {
     //  will appear sometimes. Likely due to race conditions in bitcoin code,
     //  e.g. -reindex when importprivkey.
     const unspent: any[] = await this.container.call('listunspent', [
-      1, 9999999, [address], true
+      1, 9999999, [address], true, options
     ])
 
     return unspent.map((utxo: any): Prevout => {
