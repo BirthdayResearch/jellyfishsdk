@@ -26,7 +26,7 @@ export class TransactionVinIndexer extends Indexer {
         } else {
           const vout = await this.voutFinder.findVout(block, vin.txid, vin.vout)
           if (vout === undefined) {
-            throw new NotFoundIndexerError('index', 'TransactionVout - vin', `${vin.txid} - ${vin.vout}`)
+            throw new NotFoundIndexerError('index', 'TransactionVout', `${vin.txid} - ${vin.vout}`)
           }
           await this.vinMapper.put(this.map(txn, vin, vout))
         }

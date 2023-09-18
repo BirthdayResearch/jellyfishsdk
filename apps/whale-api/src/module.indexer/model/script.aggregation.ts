@@ -88,7 +88,7 @@ export class ScriptAggregationIndexer extends Indexer {
 
         const vout = await this.voutFinder.findVout(block, vin.txid, vin.vout)
         if (vout === undefined) {
-          throw new NotFoundIndexerError('invalidate', 'TransactionVout3', `${vin.txid} - ${vin.vout}`)
+          throw new NotFoundIndexerError('invalidate', 'TransactionVout', `${vin.txid} - ${vin.vout}`)
         }
         hidList.add(HexEncoder.asSHA256(vout.script.hex))
       }

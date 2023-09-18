@@ -49,7 +49,7 @@ export class ScriptUnspentIndexer extends Indexer {
           throw new NotFoundIndexerError('invalidate', 'Transaction', vin.txid)
         }
         if (vout === undefined) {
-          throw new NotFoundIndexerError('invalidate', 'TransactionVout - unspent', `${vin.txid} - ${vin.vout}`)
+          throw new NotFoundIndexerError('invalidate', 'TransactionVout', `${vin.txid} - ${vin.vout}`)
         }
         await this.unspentMapper.put(this.mapInvalidated(txn, vout))
       }
