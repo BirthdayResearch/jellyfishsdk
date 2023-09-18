@@ -426,8 +426,10 @@ describe('transferDomain', () => {
         }
       }]
     }
-
-    const txn = await builder.account.transferDomain(transferDomain, dvmScript, { maximumCount: 1 })
+    // NOTE(canonbrother): `maximumAmount` is a workaround to grab only single vin
+    // since maximumCount behaviour does not return by provided value
+    // but catch up total utxos of the tokenId
+    const txn = await builder.account.transferDomain(transferDomain, dvmScript, { maximumAmount: 50 })
     const outs = await sendTransaction(container, txn)
     const encoded: string = OP_CODES.OP_DEFI_TX_TRANSFER_DOMAIN(transferDomain).asBuffer().toString('hex')
     const expectedTransferDomainScript = `6a${encoded}`
@@ -465,6 +467,30 @@ describe('transferDomain', () => {
     const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[0].split('@')
     const prevBalance = await getEVMBalances(testing)
 
+    let evmTx = new Uint8Array([0])
+    {
+      // EvmOut
+      const from = evmAddr
+      const to = TD_CONTRACT_ADDR
+      const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
+      const native = dvmAddr
+      const data = iface.encodeFunctionData('transfer', [from, to, amount, native])
+
+      const tx: ethers.TransactionRequest = {
+        to: TD_CONTRACT_ADDR,
+        nonce: await rpc.getTransactionCount(evmAddr),
+        value: 0,
+        chainId: (await rpc.getNetwork()).chainId,
+        data: data,
+        gasLimit: 100_000,
+        gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+      }
+
+      const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
+
+      evmTx = new Uint8Array(Buffer.from(signed, 'hex'))
+    }
+
     const transferDomain: TransferDomain = {
       items: [{
         src:
@@ -484,12 +510,12 @@ describe('transferDomain', () => {
             token: 0,
             amount: new BigNumber(3)
           },
-          data: new Uint8Array([0])
+          data: evmTx
         }
       }]
     }
 
-    const txn = await builder.account.transferDomain(transferDomain, dvmScript)
+    const txn = await builder.account.transferDomain(transferDomain, dvmScript, { maximumAmount: 50 })
     const outs = await sendTransaction(container, txn)
     const encoded: string = OP_CODES.OP_DEFI_TX_TRANSFER_DOMAIN(transferDomain).asBuffer().toString('hex')
     const expectedTransferDomainScript = `6a${encoded}`
