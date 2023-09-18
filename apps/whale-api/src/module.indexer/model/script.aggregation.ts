@@ -5,7 +5,7 @@ import { VoutFinder } from './_vout_finder'
 import { HexEncoder } from '../../module.model/_hex.encoder'
 import BigNumber from 'bignumber.js'
 import { NotFoundIndexerError } from '../error'
-import { NULL_TX_ID } from '../constants'
+import { checkIfEvmTx } from '../helper'
 
 @Injectable()
 export class ScriptAggregationIndexer extends Indexer {
@@ -28,7 +28,7 @@ export class ScriptAggregationIndexer extends Indexer {
     }
 
     for (const txn of block.tx) {
-      const isEvmTx = txn.vin.length === 2 && txn.vin.every(vin => vin.txid === NULL_TX_ID)
+      const isEvmTx = checkIfEvmTx(txn)
 
       for (const vin of txn.vin) {
         if (vin.coinbase !== undefined || isEvmTx) {
@@ -37,7 +37,7 @@ export class ScriptAggregationIndexer extends Indexer {
 
         const vout = await this.voutFinder.findVout(block, vin.txid, vin.vout)
         if (vout === undefined) {
-          throw new NotFoundIndexerError('index', 'TransactionVout - aggregation', `${vin.txid} - ${vin.vout}`)
+          throw new NotFoundIndexerError('index', 'TransactionVout', `${vin.txid} - ${vin.vout}`)
         }
 
         // Spent (REMOVE)
@@ -79,7 +79,7 @@ export class ScriptAggregationIndexer extends Indexer {
     const hidList = new Set<string>()
 
     for (const txn of block.tx) {
-      const isEvmTx = txn.vin.length === 2 && txn.vin.every(vin => vin.txid === NULL_TX_ID)
+      const isEvmTx = checkIfEvmTx(txn)
 
       for (const vin of txn.vin) {
         if (vin.coinbase !== undefined || isEvmTx) {
