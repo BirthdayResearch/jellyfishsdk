@@ -116,7 +116,7 @@ describe('transferDomain', () => {
 
   describe('transferDomain failed', () => {
     it('should fail if transfer within same domain', async () => {
-      let evmTx = new Uint8Array([0])
+      let evmTx = new Uint8Array([])
       {
         // EvmIn
         const from = evmAddr
@@ -172,7 +172,7 @@ describe('transferDomain', () => {
     })
 
     it('should fail if amount is different', async () => {
-      let evmTx = new Uint8Array([0])
+      let evmTx = new Uint8Array([])
       {
         // EvmIn
         const from = evmAddr
@@ -228,7 +228,7 @@ describe('transferDomain', () => {
     })
 
     it('(dvm -> evm) should fail if source address and source domain are not match', async () => {
-      let evmTx = new Uint8Array([0])
+      let evmTx = new Uint8Array([])
       {
         // EvmIn
         const from = evmAddr
@@ -284,7 +284,7 @@ describe('transferDomain', () => {
     })
 
     it('(evm -> dvm) should fail if source address and source domain are not match', async () => {
-      let evmTx = new Uint8Array([0])
+      let evmTx = new Uint8Array([])
       {
         // EvmOut
         const from = evmAddr
@@ -340,7 +340,7 @@ describe('transferDomain', () => {
     })
 
     it('(dvm -> evm) should fail if destination address and destination domain are not match', async () => {
-      let evmTx = new Uint8Array([0])
+      let evmTx = new Uint8Array([])
       {
         // EvmIn
         const from = evmAddr
@@ -396,7 +396,7 @@ describe('transferDomain', () => {
     })
 
     it('(evm -> dvm) should fail if destination address and destination domain are not match', async () => {
-      let evmTx = new Uint8Array([0])
+      let evmTx = new Uint8Array([])
       {
         // EvmOut
         const from = evmAddr
@@ -452,7 +452,7 @@ describe('transferDomain', () => {
     })
 
     it('(dvm -> evm) should fail if address is not owned', async () => {
-      let evmTx = new Uint8Array([0])
+      let evmTx = new Uint8Array([])
       {
         // EvmIn
         const from = evmAddr
@@ -510,7 +510,7 @@ describe('transferDomain', () => {
     })
 
     it('should not transfer if custom (isDAT = false) token is transferred', async () => {
-      let evmTx = new Uint8Array([0])
+      let evmTx = new Uint8Array([])
       {
         // EvmIn
         const from = evmAddr
@@ -572,7 +572,7 @@ describe('transferDomain', () => {
     const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[0].split('@')
     const prevBalance = await getEVMBalances(testing)
 
-    let evmTx = new Uint8Array([0])
+    let evmTx = new Uint8Array([])
     {
       // EvmIn
       const from = evmAddr
@@ -660,7 +660,7 @@ describe('transferDomain', () => {
     const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[0].split('@')
     const prevBalance = await getEVMBalances(testing)
 
-    let evmTx = new Uint8Array([0])
+    let evmTx = new Uint8Array([])
     {
       // EvmOut
       const from = evmAddr
@@ -745,7 +745,7 @@ describe('transferDomain', () => {
     const dvmAccBefore = await testing.rpc.account.getAccount(dvmAddr)
     const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[1].split('@')
 
-    let evmTx = new Uint8Array([0])
+    let evmTx = new Uint8Array([])
     {
       // EvmIn
       const from = evmAddr
@@ -825,7 +825,7 @@ describe('transferDomain', () => {
     const dvmAccBefore = await testing.rpc.account.getAccount(dvmAddr)
     const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[1].split('@')
 
-    let evmTx = new Uint8Array([0])
+    let evmTx = new Uint8Array([])
     {
       // EvmOut
       const from = evmAddr
@@ -902,7 +902,7 @@ describe('transferDomain', () => {
   })
 
   it('should fail (duo) transfer domain from DVM to EVM', async () => {
-    let evmTx = new Uint8Array([0])
+    let evmTx = new Uint8Array([])
     {
       // EvmIn
       const from = evmAddr
@@ -1001,7 +1001,7 @@ describe('transferDomain', () => {
   })
 
   it('should fail (duo) transfer domain from EVM to DVM', async () => {
-    let evmTx = new Uint8Array([0])
+    let evmTx = new Uint8Array([])
     {
       // EvmOut
       const from = evmAddr
@@ -1102,7 +1102,7 @@ describe('transferDomain', () => {
   })
 
   it('should fail (duo-diff) Transfer Domain from EVM to DVM and DVM to EVM', async () => {
-    let evmTx = new Uint8Array([0])
+    let evmTx = new Uint8Array([])
     {
       // EvmIn
       const from = evmAddr
@@ -1201,8 +1201,6 @@ describe('transferDomain', () => {
     await expect(promise).rejects.toThrow('TransferDomain currently only supports a single transfer per transaction')
   })
 })
-
-// async function constructEvmTx (): Promise
 
 async function getEVMBalances (testing: Testing): Promise<BigNumber> {
   const withoutEthRes = await testing.rpc.account.getTokenBalances({}, false)
