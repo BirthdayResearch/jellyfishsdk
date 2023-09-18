@@ -42,8 +42,10 @@ export class ScriptActivityIndexer extends Indexer {
 
   async invalidate (block: RawBlock): Promise<void> {
     for (const txn of block.tx) {
+      const isEvmTx = checkIfEvmTx(txn)
+
       for (const vin of txn.vin) {
-        if (vin.coinbase !== undefined) {
+        if (vin.coinbase !== undefined || isEvmTx) {
           continue
         }
 
