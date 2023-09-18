@@ -15,6 +15,8 @@ import { WIF } from '@defichain/jellyfish-crypto'
 import { P2WPKH } from '@defichain/jellyfish-address'
 import TransferDomainSol from '../../../../artifacts/contracts/TransferDomain.sol/TransferDomain.json'
 
+const TD_CONTRACT_ADDR = '0x0000000000000000000000000000000000000302'
+
 const TRANSFER_DOMAIN_TYPE = {
   DVM: 2,
   EVM: 3
@@ -26,6 +28,7 @@ const testing = Testing.create(container)
 let providers: MockProviders
 let builder: P2WPKHTransactionBuilder
 
+let evmRpcUrl: string
 let dvmAddr: string
 let evmAddr: string
 let dvmScript: Script
@@ -56,12 +59,16 @@ describe('transferDomain', () => {
     providers = await getProviders(testing.container)
     providers.setEllipticPair(WIF.asEllipticPair(RegTestFoundationKeys[0].owner.privKey))
 
+    // Fund 100 DFI UTXO
+    await fundEllipticPair(testing.container, providers.ellipticPair, 100)
+    await providers.setupMocks(true)
+
+    evmRpcUrl = await testing.container.getCachedEvmRpcUrl()
     dvmAddr = await providers.getAddress()
     evmAddr = await providers.getEvmAddress()
     dvmScript = await providers.elliptic.script()
     evmScript = await providers.elliptic.evmScript()
 
-    await testing.token.dfi({ address: dvmAddr, amount: 12 })
     await testing.token.create({
       symbol: 'BTC',
       name: 'BTC',
@@ -70,28 +77,18 @@ describe('transferDomain', () => {
       tradeable: true,
       collateralAddress: dvmAddr
     })
-
-    const txId = await testing.rpc.wallet.sendToAddress(dvmAddr, 20100)
-    const utxos = [{
-      txid: txId,
-      vout: 0
-    }]
-    await testing.rpc.token.createToken({
-      collateralAddress: dvmAddr,
+    await testing.token.create({
+      symbol: 'DESC',
+      name: 'DESC',
       isDAT: false,
       mintable: true,
-      name: 'DESC',
-      symbol: 'DESC',
-      tradeable: false
-    }, utxos)
+      tradeable: false,
+      collateralAddress: dvmAddr
+    })
     await container.generate(1)
     await testing.token.mint({ amount: '10', symbol: 'BTC' })
     await testing.token.mint({ amount: '10', symbol: 'DESC#128' })
     await testing.generate(1)
-
-    // Fund 100 DFI UTXO
-    await fundEllipticPair(testing.container, providers.ellipticPair, 100)
-    await providers.setupMocks(true)
 
     builder = new P2WPKHTransactionBuilder(
       providers.fee,
@@ -371,11 +368,9 @@ describe('transferDomain', () => {
     const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[0].split('@')
     const prevBalance = await getEVMBalances(testing)
 
-    let evmSignedTx = new Uint8Array([0])
+    let evmTx = new Uint8Array([0])
+    const rpc: ethers.JsonRpcProvider = new ethers.JsonRpcProvider(evmRpcUrl)
     {
-      const url = await testing.container.getCachedEvmRpcUrl()
-      const rpc: ethers.JsonRpcProvider = new ethers.JsonRpcProvider(url)
-
       const evmPrivKey = await testing.container.call('dumpprivkey', [evmAddr])
 
       const wallet: ethers.Wallet = new ethers.Wallet(evmPrivKey)
@@ -386,26 +381,20 @@ describe('transferDomain', () => {
       const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
       const native = dvmAddr
       const data = iface.encodeFunctionData('transfer', [from, to, amount, native])
-      console.log('data: ', data)
 
-      const fee = await rpc.getFeeData()
-      const count = await rpc.getTransactionCount(evmAddr)
-      const { chainId } = await rpc.getNetwork()
       const tx: ethers.TransactionRequest = {
-        to: '0x0000000000000000000000000000000000000302',
-        nonce: count,
+        to: TD_CONTRACT_ADDR,
+        nonce: await rpc.getTransactionCount(evmAddr),
         value: 0,
-        chainId: chainId,
+        chainId: (await rpc.getNetwork()).chainId,
         data: data,
         gasLimit: 100_000,
-        gasPrice: fee.gasPrice // base fee
+        gasPrice: (await rpc.getFeeData()).gasPrice // base fee
       }
 
       const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
-      console.log('signed: ', signed)
 
-      evmSignedTx = new Uint8Array(Buffer.from(signed, 'hex'))
-      console.log('evmSignedTx: ', evmSignedTx)
+      evmTx = new Uint8Array(Buffer.from(signed, 'hex'))
     }
 
     const transferDomain: TransferDomain = {
@@ -427,7 +416,7 @@ describe('transferDomain', () => {
             token: 0,
             amount: new BigNumber(3)
           },
-          data: evmSignedTx
+          data: evmTx
         }
       }]
     }
