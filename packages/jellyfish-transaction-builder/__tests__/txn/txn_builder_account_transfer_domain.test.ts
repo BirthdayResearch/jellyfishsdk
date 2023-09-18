@@ -393,7 +393,7 @@ describe('transferDomain', () => {
       const { chainId } = await rpc.getNetwork()
       const tx: ethers.TransactionRequest = {
         to: '0x0000000000000000000000000000000000000302',
-        nonce: count + 1,
+        nonce: count,
         value: 0,
         chainId: chainId,
         data: data,
