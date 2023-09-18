@@ -37,7 +37,7 @@ export class ScriptAggregationIndexer extends Indexer {
 
         const vout = await this.voutFinder.findVout(block, vin.txid, vin.vout)
         if (vout === undefined) {
-          throw new NotFoundIndexerError('index', 'TransactionVout - aggregation', `${vin.txid} - ${vin.vout}`)
+          throw new NotFoundIndexerError('index', 'TransactionVout', `${vin.txid} - ${vin.vout}`)
         }
 
         // Spent (REMOVE)

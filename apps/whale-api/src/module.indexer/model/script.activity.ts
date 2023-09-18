@@ -26,7 +26,7 @@ export class ScriptActivityIndexer extends Indexer {
         }
         const vout = await this.voutFinder.findVout(block, vin.txid, vin.vout)
         if (vout === undefined) {
-          throw new NotFoundIndexerError('index', 'TransactionVout - activity', `${vin.txid} - ${vin.vout}`)
+          throw new NotFoundIndexerError('index', 'TransactionVout', `${vin.txid} - ${vin.vout}`)
         }
         await this.mapper.put(this.mapVin(block, txn, vin, vout))
       }
