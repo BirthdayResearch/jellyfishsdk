@@ -28,17 +28,15 @@ export class ScriptAggregationIndexer extends Indexer {
     }
 
     for (const txn of block.tx) {
+      const isEvmTx = txn.vin.length === 2 && txn.vin.every(vin => vin.txid === NULL_TX_ID)
+
       for (const vin of txn.vin) {
-        if (vin.coinbase !== undefined) {
+        if (vin.coinbase !== undefined || isEvmTx) {
           continue
         }
 
         const vout = await this.voutFinder.findVout(block, vin.txid, vin.vout)
         if (vout === undefined) {
-          if (vin.txid === NULL_TX_ID) {
-            continue
-          }
-
           throw new NotFoundIndexerError('index', 'TransactionVout - aggregation', `${vin.txid} - ${vin.vout}`)
         }
 
@@ -81,17 +79,15 @@ export class ScriptAggregationIndexer extends Indexer {
     const hidList = new Set<string>()
 
     for (const txn of block.tx) {
+      const isEvmTx = txn.vin.length === 2 && txn.vin.every(vin => vin.txid === NULL_TX_ID)
+
       for (const vin of txn.vin) {
-        if (vin.coinbase !== undefined) {
+        if (vin.coinbase !== undefined || isEvmTx) {
           continue
         }
 
         const vout = await this.voutFinder.findVout(block, vin.txid, vin.vout)
         if (vout === undefined) {
-          if (vin.txid === NULL_TX_ID) {
-            continue
-          }
-
           throw new NotFoundIndexerError('invalidate', 'TransactionVout3', `${vin.txid} - ${vin.vout}`)
         }
         hidList.add(HexEncoder.asSHA256(vout.script.hex))

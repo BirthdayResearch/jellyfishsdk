@@ -18,16 +18,14 @@ export class TransactionVinIndexer extends Indexer {
 
   async index (block: RawBlock): Promise<void> {
     for (const txn of block.tx) {
+      const isEvmTx = txn.vin.length === 2 && txn.vin.every(vin => vin.txid === NULL_TX_ID)
+
       for (const vin of txn.vin) {
-        if (vin.coinbase !== undefined) {
+        if (vin.coinbase !== undefined || isEvmTx) {
           await this.vinMapper.put(this.map(txn, vin, undefined))
         } else {
           const vout = await this.voutFinder.findVout(block, vin.txid, vin.vout)
           if (vout === undefined) {
-            if (vin.txid === NULL_TX_ID) {
-              continue
-            }
-
             throw new NotFoundIndexerError('index', 'TransactionVout - vin', `${vin.txid} - ${vin.vout}`)
           }
           await this.vinMapper.put(this.map(txn, vin, vout))

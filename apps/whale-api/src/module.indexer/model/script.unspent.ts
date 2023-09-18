@@ -19,8 +19,10 @@ export class ScriptUnspentIndexer extends Indexer {
 
   async index (block: RawBlock): Promise<void> {
     for (const txn of block.tx) {
+      const isEvmTx = txn.vin.length === 2 && txn.vin.every(vin => vin.txid === NULL_TX_ID)
+
       for (const vin of txn.vin) {
-        if (vin.coinbase !== undefined) {
+        if (vin.coinbase !== undefined || isEvmTx) {
           continue
         }
         await this.unspentMapper.delete(vin.txid + HexEncoder.encodeVoutIndex(vin.vout))
@@ -33,19 +35,17 @@ export class ScriptUnspentIndexer extends Indexer {
   }
 
   async invalidate (block: RawBlock): Promise<void> {
-    for (const blockTxn of block.tx) {
-      for (const vin of blockTxn.vin) {
-        if (vin.coinbase !== undefined) {
+    for (const txn of block.tx) {
+      const isEvmTx = txn.vin.length === 2 && txn.vin.every(vin => vin.txid === NULL_TX_ID)
+
+      for (const vin of txn.vin) {
+        if (vin.coinbase !== undefined || isEvmTx) {
           continue
         }
 
         const txn = await this.transactionMapper.get(vin.txid)
         const vout = await this.voutMapper.get(vin.txid, vin.vout)
         if (txn === undefined) {
-          if (vin.txid === NULL_TX_ID) {
-            continue
-          }
-
           throw new NotFoundIndexerError('invalidate', 'Transaction', vin.txid)
         }
         if (vout === undefined) {
@@ -54,8 +54,8 @@ export class ScriptUnspentIndexer extends Indexer {
         await this.unspentMapper.put(this.mapInvalidated(txn, vout))
       }
 
-      for (const vout of blockTxn.vout) {
-        await this.unspentMapper.delete(blockTxn.txid + HexEncoder.encodeVoutIndex(vout.n))
+      for (const vout of txn.vout) {
+        await this.unspentMapper.delete(txn.txid + HexEncoder.encodeVoutIndex(vout.n))
       }
     }
   }
