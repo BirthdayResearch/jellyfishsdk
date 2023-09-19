@@ -527,8 +527,8 @@ describe('TransferDomain', () => {
       await expect(promise).rejects.toThrow('amount 90000.00000000 is less than 999999.00000000')
     })
 
-    it.skip('(evm -> dvm) should fail if insufficient balance', async () => {
-      await client.account.transferDomain([
+    it('(evm -> dvm) should fail if insufficient balance', async () => {
+      const promise = client.account.transferDomain([
         {
           src: {
             address: evmAddr,
@@ -542,9 +542,8 @@ describe('TransferDomain', () => {
           }
         }
       ])
-      await container.generate(1)
-      // await expect(promise).rejects.toThrow(RpcApiError)
-      // await expect(promise).rejects.toThrow(`Not enough balance in ${evmAddr} to cover "EVM" domain transfer`)
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow(`Not enough balance in ${evmAddr} to cover "EVM" domain transfer`)
     })
 
     it('(dvm -> evm) should fail if custom (isDAT = false) token is transferred', async () => {
