@@ -20,6 +20,7 @@ COPY packages ./packages
 COPY apps ./apps
 
 RUN npm ci
+RUN npm run compile
 RUN npm run build --workspace=apps
 
 ARG APP
