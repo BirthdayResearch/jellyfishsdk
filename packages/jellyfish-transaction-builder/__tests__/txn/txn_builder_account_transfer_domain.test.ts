@@ -15,7 +15,7 @@ import { WIF } from '@defichain/jellyfish-crypto'
 import { P2WPKH } from '@defichain/jellyfish-address'
 import TransferDomainSol from '../../../../artifacts/contracts/TransferDomain.sol/TransferDomain.json'
 
-const TD_CONTRACT_ADDR = '0x0000000000000000000000000000000000000302'
+const TD_CONTRACT_ADDR = '0xdf00000000000000000000000000000000000001'
 const DST_20_CONTRACT_ADDR_BTC = '0xff00000000000000000000000000000000000001'
 
 const TRANSFER_DOMAIN_TYPE = {
@@ -694,7 +694,7 @@ describe('transferDomain', () => {
             token: 0,
             amount: new BigNumber(3)
           },
-          data: new Uint8Array([])
+          data: evmTx
         },
         dst: {
           address: dvmScript,
@@ -703,7 +703,7 @@ describe('transferDomain', () => {
             token: 0,
             amount: new BigNumber(3)
           },
-          data: evmTx
+          data: new Uint8Array([])
         }
       }]
     }
@@ -859,7 +859,7 @@ describe('transferDomain', () => {
             token: 1,
             amount: new BigNumber(3)
           },
-          data: new Uint8Array([])
+          data: evmTx
         },
         dst: {
           address: dvmScript,
@@ -868,7 +868,7 @@ describe('transferDomain', () => {
             token: 1,
             amount: new BigNumber(3)
           },
-          data: evmTx
+          data: new Uint8Array([])
         }
       }]
     }
