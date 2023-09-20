@@ -18,6 +18,7 @@ COPY package-lock.json ./
 
 COPY packages ./packages
 COPY apps ./apps
+COPY contracts ./
 
 RUN npm ci
 RUN npm run compile
