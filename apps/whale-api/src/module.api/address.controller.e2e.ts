@@ -4,7 +4,6 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, stopTestingApp, waitForAddressTxCount, waitForIndexedHeight } from '../e2e.module'
 import { createSignedTxnHex, createToken, mintTokens, sendTokensToAddress } from '@defichain/testing'
 import { WIF } from '@defichain/jellyfish-crypto'
-import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { Testing } from '@defichain/jellyfish-testing'
 import { ForbiddenException } from '@nestjs/common'
 import BigNumber from 'bignumber.js'
@@ -1077,11 +1076,8 @@ describe('listTokens', () => {
     expect(first.page?.next).toStrictEqual('2')
   })
 
-  it('should throw error while listTokens with invalid address', async () => {
-    await expect(controller.listTokens('invalid', { size: 30 }))
-      .rejects.toThrow(RpcApiError)
-
-    await expect(controller.listTokens('invalid', { size: 30 }))
-      .rejects.toThrow('recipient (invalid) does not refer to any valid address')
+  it('should return empty and page undefined while listTokens with invalid address', async () => {
+    const tokens = await controller.listTokens('invalid', { size: 30 })
+    expect(tokens).toStrictEqual(expect.objectContaining({ data: [], page: undefined }))
   })
 })
