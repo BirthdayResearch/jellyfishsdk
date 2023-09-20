@@ -19,6 +19,7 @@ COPY package-lock.json ./
 COPY packages ./packages
 COPY apps ./apps
 COPY contracts ./
+COPY hardhat.config.js ./
 
 RUN npm ci
 RUN npm run compile
