@@ -29,7 +29,7 @@ export class NativeChainContainer extends GenericContainer {
     if (process?.env?.DEFICHAIN_DOCKER_IMAGE !== undefined) {
       return process.env.DEFICHAIN_DOCKER_IMAGE
     }
-    return 'defi/defichain:4.0.0-beta12' // renovate.json regexManagers
+    return 'defi/defichain:master-4430349b5f' // renovate.json regexManagers
   }
 
   public static readonly PREFIX = 'defichain-testcontainers-'
