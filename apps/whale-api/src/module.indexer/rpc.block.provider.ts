@@ -46,6 +46,12 @@ export class RPCBlockProvider {
       try {
         const status = await this.statusMapper.get()
         this.logger.log(`[Cycle] - status: ${JSON.stringify(status)}`)
+        if (status?.status === Status.ERROR && status.height === 1541254) {
+          this.logger.log('Setting status mapper to previous block...')
+          const currentBlock = await this.client.blockchain.getBlock(status.hash, 2)
+          const prevBlock = await this.client.blockchain.getBlock(currentBlock.previousblockhash, 2)
+          await this.statusMapper.put(prevBlock.hash, prevBlock.height, Status.INDEXING)
+        }
         await this.cleanup()
         this.indexing = await this.synchronize()
       } catch (err) {
