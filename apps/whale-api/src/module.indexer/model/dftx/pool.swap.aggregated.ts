@@ -1,7 +1,7 @@
 import { DfTxIndexer, DfTxTransaction } from './_abstract'
 import { PoolSwap } from '@defichain/jellyfish-transaction'
 import { RawBlock } from '../_abstract'
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { PoolSwapAggregated, PoolSwapAggregatedMapper } from '../../../module.model/pool.swap.aggregated'
 import { PoolPairInfoWithId } from '../../../module.api/cache/defid.cache'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
@@ -20,6 +20,7 @@ export const AggregatedIntervals: PoolSwapAggregatedInterval[] = [
 export class PoolSwapAggregatedIndexer extends DfTxIndexer<PoolSwap> {
   OP_CODE: number = 0
 
+  private readonly logger = new Logger(PoolSwapAggregatedIndexer.name)
   constructor (
     private readonly aggregatedMapper: PoolSwapAggregatedMapper,
     private readonly rpcClient: JsonRpcClient
@@ -28,7 +29,10 @@ export class PoolSwapAggregatedIndexer extends DfTxIndexer<PoolSwap> {
   }
 
   async indexBlockStart (block: RawBlock): Promise<void> {
+    this.logger.log(`[Pool.Swap.Aggregated] Index Block starting at block hash: ${block.hash} - height: ${block.height} - rawblock: ${JSON.stringify(block)}`)
+
     const poolPairs = await this.getPoolPairs(block)
+    this.logger.log(`[Pool.Swap.Aggregated] Poolpairs: ${JSON.stringify(poolPairs)}`)
 
     for (const interval of AggregatedIntervals) {
       for (const poolPair of poolPairs) {
@@ -43,6 +47,7 @@ export class PoolSwapAggregatedIndexer extends DfTxIndexer<PoolSwap> {
         await this.createNewBucket(block, Number(poolPair.id), interval)
       }
     }
+    this.logger.log(`[Pool.Swap.Aggregated] Index Block ended for block hash: ${block.hash} - height: ${block.height} - rawblock: ${JSON.stringify(block)}`)
   }
 
   private async createNewBucket (block: RawBlock, poolPairId: number, interval: PoolSwapAggregatedInterval): Promise<void> {

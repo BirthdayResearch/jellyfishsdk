@@ -57,6 +57,7 @@ export class MainDfTxIndexer extends Indexer {
   }
 
   async index (block: RawBlock): Promise<void> {
+    this.logger.log(`[DFTX] Index starting at block hash: ${block.hash} - height: ${block.height} - rawblock: ${JSON.stringify(block)}`)
     for (const indexer of this.indexers) {
       await indexer.indexBlockStart(block)
     }
@@ -72,9 +73,11 @@ export class MainDfTxIndexer extends Indexer {
     for (const indexer of this.indexers) {
       await indexer.indexBlockEnd(block)
     }
+    this.logger.log(`[DFTX] Index ended for block hash: ${block.hash} - height: ${block.height} - rawblock: ${JSON.stringify(block)}`)
   }
 
   async invalidate (block: RawBlock): Promise<void> {
+    this.logger.log(`[DFTX] Invalidate starting at block hash: ${block.hash} - height: ${block.height} - rawblock: ${JSON.stringify(block)}`)
     // When invalidating reverse the order of block indexing
     for (const indexer of this.indexers) {
       await indexer.invalidateBlockEnd(block)
@@ -82,6 +85,7 @@ export class MainDfTxIndexer extends Indexer {
 
     // Invalidate backwards
     const transactions = this.getDfTxTransactions(block).reverse()
+    this.logger.log(`[DFTX] Transactions ${JSON.stringify(transactions)}`)
     for (const transaction of transactions) {
       const filtered = this.indexers.filter(value => transaction.dftx.type === value.OP_CODE).reverse()
       for (const indexer of filtered) {
@@ -92,6 +96,7 @@ export class MainDfTxIndexer extends Indexer {
     for (const indexer of this.indexers) {
       await indexer.invalidateBlockStart(block)
     }
+    this.logger.log(`[DFTX] Invalidate ended for block hash: ${block.hash} - height: ${block.height} - rawblock: ${JSON.stringify(block)}`)
   }
 
   private getDfTxTransactions (block: RawBlock): Array<DfTxTransaction<any>> {

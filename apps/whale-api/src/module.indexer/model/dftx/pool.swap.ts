@@ -27,12 +27,15 @@ export class PoolSwapIndexer extends DfTxIndexer<PoolSwap> {
   }
 
   async indexTransaction (block: RawBlock, transaction: DfTxTransaction<PoolSwap>): Promise<void> {
+    this.logger.log(`[Pool.Swap] Index Transaction starting at block hash: ${block.hash} - height: ${block.height} - transaction: ${JSON.stringify(transaction)}`)
     const data = transaction.dftx.data
     const poolPair = await this.getPair(data.fromTokenId, data.toTokenId)
     await this.indexSwap(block, transaction, poolPair.id, data.fromTokenId, data.fromAmount)
+    this.logger.log(`[Pool.Swap] Index Transaction ended for block hash: ${block.hash} - height: ${block.height}`)
   }
 
   async indexSwap (block: RawBlock, transaction: DfTxTransaction<any>, poolPairId: string, fromTokenId: number, fromAmount: BigNumber): Promise<void> {
+    this.logger.log(`[Pool.Swap] Invalidate Swap starting for transaction: ${JSON.stringify(transaction)} - poolPairId: ${poolPairId} - fromTokenId: ${fromTokenId} - fromAmount: ${fromAmount.toString()}`)
     await this.poolSwapMapper.put({
       id: `${poolPairId}-${transaction.txn.txid}`,
       txid: transaction.txn.txid,
@@ -62,15 +65,19 @@ export class PoolSwapIndexer extends DfTxIndexer<PoolSwap> {
       aggregate.aggregated.amounts[`${fromTokenId}`] = amount.plus(fromAmount).toFixed(8)
       await this.aggregatedMapper.put(aggregate)
     }
+    this.logger.log(`[Pool.Swap] Invalidate Swap ended for transaction: ${JSON.stringify(transaction)} - poolPairId: ${poolPairId} - fromTokenId: ${fromTokenId} - fromAmount: ${fromAmount.toString()}`)
   }
 
   async invalidateTransaction (_: RawBlock, transaction: DfTxTransaction<PoolSwap>): Promise<void> {
+    this.logger.log(`[Pool.Swap] Invalidate Transaction starting at block hash: ${_.hash} - height: ${_.height} - transaction: ${JSON.stringify(transaction)}`)
     const data = transaction.dftx.data
     const poolPair = await this.getPair(data.fromTokenId, data.toTokenId)
     await this.invalidateSwap(transaction, poolPair.id, data.fromTokenId, data.fromAmount)
+    this.logger.log(`[Pool.Swap] Invalidate Transaction ended for block hash: ${_.hash} - height: ${_.height} - txid: ${transaction.txn.txid} - poolPair: ${JSON.stringify(poolPair)}`)
   }
 
   async invalidateSwap (transaction: DfTxTransaction<any>, poolPairId: string, fromTokenId: number, fromAmount: BigNumber): Promise<void> {
+    this.logger.log(`[Pool.Swap] Invalidate Swap starting for transaction: ${JSON.stringify(transaction)} - poolPairId: ${poolPairId} - fromTokenId: ${fromTokenId} - fromAmount: ${fromAmount.toString()}`)
     await this.poolSwapMapper.delete(`${poolPairId}-${transaction.txn.txid}`)
 
     for (const interval of AggregatedIntervals) {
@@ -86,10 +93,12 @@ export class PoolSwapIndexer extends DfTxIndexer<PoolSwap> {
       aggregate.aggregated.amounts[`${fromTokenId}`] = amount.minus(fromAmount).toFixed(8)
       await this.aggregatedMapper.put(aggregate)
     }
+    this.logger.log(`[Pool.Swap] Invalidate Swap ended for transaction: ${JSON.stringify(transaction)} - poolPairId: ${poolPairId} - fromTokenId: ${fromTokenId} - fromAmount: ${fromAmount.toString()}`)
   }
 
   async getPair (tokenA: number, tokenB: number): Promise<PoolPairInfoWithId> {
     const pair = await this.poolPairPathMapping.findPair(tokenA, tokenB)
+    this.logger.log(`[Pool.Swap] GetPair - pair: ${JSON.stringify(pair)}`)
     if (pair !== undefined) {
       return pair
     }

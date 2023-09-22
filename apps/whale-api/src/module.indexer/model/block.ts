@@ -1,20 +1,25 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { Indexer, RawBlock } from './_abstract'
 import { Block, BlockMapper } from '../../module.model/block'
 
 @Injectable()
 export class BlockIndexer extends Indexer {
+  private readonly logger = new Logger(BlockIndexer.name)
   constructor (private readonly mapper: BlockMapper) {
     super()
   }
 
   async index (block: RawBlock): Promise<void> {
+    this.logger.log(`[Block] Index starting at block hash: ${block.hash} - height: ${block.height} - rawblock: ${JSON.stringify(block)}`)
     const reward = block.tx[0].vout[0].value.toFixed(8)
     await this.mapper.put(this.map(block, reward))
+    this.logger.log(`[Block] Index ended for block hash: ${block.hash} - height: ${block.height} - rawblock: ${JSON.stringify(block)}`)
   }
 
   async invalidate (block: RawBlock): Promise<void> {
+    this.logger.log(`[Block] Invalidate starting at block hash: ${block.hash} - height: ${block.height} - rawblock: ${JSON.stringify(block)}`)
     await this.mapper.delete(block.hash)
+    this.logger.log(`[Block] Invalidate ended for block hash: ${block.hash} - height: ${block.height} - rawblock: ${JSON.stringify(block)}`)
   }
 
   map (block: RawBlock, reward: string): Block {

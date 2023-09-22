@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { defid, Indexer, RawBlock } from './_abstract'
 import { TransactionVin, TransactionVinMapper } from '../../module.model/transaction.vin'
 import { TransactionVout } from '../../module.model/transaction.vout'
@@ -9,6 +9,7 @@ import { checkIfEvmTx } from '../helper'
 
 @Injectable()
 export class TransactionVinIndexer extends Indexer {
+  private readonly logger = new Logger(TransactionVinIndexer.name)
   constructor (
     private readonly vinMapper: TransactionVinMapper,
     private readonly voutFinder: VoutFinder
@@ -17,13 +18,17 @@ export class TransactionVinIndexer extends Indexer {
   }
 
   async index (block: RawBlock): Promise<void> {
+    this.logger.log(`[Transaction.Vin] Index starting at block hash: ${block.hash} - height: ${block.height} - rawblock: ${JSON.stringify(block)}`)
     for (const txn of block.tx) {
+      this.logger.log(`[Transaction.Vin] ${block.height} - txid: ${txn.txid}`)
       const isEvmTx = checkIfEvmTx(txn)
 
       for (const vin of txn.vin) {
         if (vin.coinbase !== undefined || isEvmTx) {
+          this.logger.log(`[Transaction.Vin] vinMapper txn: ${JSON.stringify(txn)} - vin: ${JSON.stringify(vin)}`)
           await this.vinMapper.put(this.map(txn, vin, undefined))
         } else {
+          this.logger.log(`[Transaction.Vin] voutFinder txn: ${JSON.stringify(txn)} - vin: ${JSON.stringify(vin)}`)
           const vout = await this.voutFinder.findVout(block, vin.txid, vin.vout)
           if (vout === undefined) {
             throw new NotFoundIndexerError('index', 'TransactionVout', `${vin.txid} - ${vin.vout}`)
@@ -32,14 +37,17 @@ export class TransactionVinIndexer extends Indexer {
         }
       }
     }
+    this.logger.log(`[Transaction.Vin] Index ended for block hash: ${block.hash} - height: ${block.height} - rawblock: ${JSON.stringify(block)}`)
   }
 
   async invalidate (block: RawBlock): Promise<void> {
+    this.logger.log(`[Transaction.Vin] Invalidate starting at block hash: ${block.hash} - height: ${block.height} - rawblock: ${JSON.stringify(block)}`)
     for (const txn of block.tx) {
       for (const vin of txn.vin) {
         await this.vinMapper.delete(this.mapId(txn, vin))
       }
     }
+    this.logger.log(`[Transaction.Vin] Invalidate ended for block hash: ${block.hash} - height: ${block.height} - rawblock: ${JSON.stringify(block)}`)
   }
 
   map (txn: defid.Transaction, vin: defid.Vin, vout?: TransactionVout): TransactionVin {

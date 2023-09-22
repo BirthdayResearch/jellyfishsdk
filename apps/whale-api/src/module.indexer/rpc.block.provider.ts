@@ -44,6 +44,8 @@ export class RPCBlockProvider {
       }
 
       try {
+        const status = await this.statusMapper.get()
+        this.logger.log(`[Cycle] - status: ${JSON.stringify(status)}`)
         await this.cleanup()
         this.indexing = await this.synchronize()
       } catch (err) {
@@ -72,6 +74,8 @@ export class RPCBlockProvider {
    */
   private async synchronize (): Promise<boolean> {
     const indexed = await this.blockMapper.getHighest()
+    const status = await this.statusMapper.get()
+    this.logger.log(`[Synchronize] - status: ${JSON.stringify(status)} - indexed: ${JSON.stringify(indexed)}`)
     if (indexed === undefined) {
       return await this.indexGenesis()
     }
@@ -87,9 +91,20 @@ export class RPCBlockProvider {
     }
 
     const nextBlock = await this.client.blockchain.getBlock(nextHash, 2)
+    const prevBlockHash = nextBlock.previousblockhash
+    this.logger.log(`[Synchronize] - status: ${JSON.stringify(status)} - nextBlock: ${JSON.stringify(nextBlock)} - prevBlockHash: ${prevBlockHash}`)
     if (await RPCBlockProvider.isBestChain(indexed, nextBlock)) {
+      this.logger.log(`[Synchronize] BEST CHAIN. Index... - status: ${JSON.stringify(status)} - nextBlock: ${JSON.stringify(nextBlock)} - prevBlockHash: ${prevBlockHash}`)
       await this.index(nextBlock)
     } else {
+      this.logger.log(`[Synchronize] NOT BEST CHAIN. Invalidate... - status: ${JSON.stringify(status)} - indexedBlock: ${JSON.stringify(this.index)}`)
+      if (nextBlock.height === 1541254) {
+        this.logger.log('RETRY INDEXING FOR PREVIOUS BLOCK..')
+        const prevBlock = await this.client.blockchain.getBlock(prevBlockHash, 2)
+        this.logger.log(`RETRY INDEXING FOR PREVIOUS BLOCK ${JSON.stringify(prevBlock)}`)
+        await this.index(prevBlock)
+      }
+
       await this.invalidate(indexed.hash, indexed.height)
     }
     return true
