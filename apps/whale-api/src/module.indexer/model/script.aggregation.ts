@@ -5,7 +5,6 @@ import { VoutFinder } from './_vout_finder'
 import { HexEncoder } from '../../module.model/_hex.encoder'
 import BigNumber from 'bignumber.js'
 import { NotFoundIndexerError } from '../error'
-import { checkIfEvmTx } from '../helper'
 
 @Injectable()
 export class ScriptAggregationIndexer extends Indexer {
@@ -28,10 +27,8 @@ export class ScriptAggregationIndexer extends Indexer {
     }
 
     for (const txn of block.tx) {
-      const isEvmTx = checkIfEvmTx(txn)
-
       for (const vin of txn.vin) {
-        if (vin.coinbase !== undefined || isEvmTx) {
+        if (vin.coinbase !== undefined) {
           continue
         }
 
@@ -79,10 +76,8 @@ export class ScriptAggregationIndexer extends Indexer {
     const hidList = new Set<string>()
 
     for (const txn of block.tx) {
-      const isEvmTx = checkIfEvmTx(txn)
-
       for (const vin of txn.vin) {
-        if (vin.coinbase !== undefined || isEvmTx) {
+        if (vin.coinbase !== undefined) {
           continue
         }
 

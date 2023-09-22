@@ -5,7 +5,6 @@ import { HexEncoder } from '../../module.model/_hex.encoder'
 import { TransactionVout } from '../../module.model/transaction.vout'
 import { VoutFinder } from './_vout_finder'
 import { NotFoundIndexerError } from '../error'
-import { checkIfEvmTx } from '../helper'
 
 @Injectable()
 export class ScriptActivityIndexer extends Indexer {
@@ -18,10 +17,8 @@ export class ScriptActivityIndexer extends Indexer {
 
   async index (block: RawBlock): Promise<void> {
     for (const txn of block.tx) {
-      const isEvmTx = checkIfEvmTx(txn)
-
       for (const vin of txn.vin) {
-        if (vin.coinbase !== undefined || isEvmTx) {
+        if (vin.coinbase !== undefined) {
           continue
         }
         const vout = await this.voutFinder.findVout(block, vin.txid, vin.vout)
@@ -42,10 +39,8 @@ export class ScriptActivityIndexer extends Indexer {
 
   async invalidate (block: RawBlock): Promise<void> {
     for (const txn of block.tx) {
-      const isEvmTx = checkIfEvmTx(txn)
-
       for (const vin of txn.vin) {
-        if (vin.coinbase !== undefined || isEvmTx) {
+        if (vin.coinbase !== undefined) {
           continue
         }
 

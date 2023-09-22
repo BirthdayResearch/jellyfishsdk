@@ -5,7 +5,6 @@ import { HexEncoder } from '../../module.model/_hex.encoder'
 import { TransactionVout, TransactionVoutMapper } from '../../module.model/transaction.vout'
 import { Transaction, TransactionMapper } from '../../module.model/transaction'
 import { NotFoundIndexerError } from '../error'
-import { checkIfEvmTx } from '../helper'
 
 @Injectable()
 export class ScriptUnspentIndexer extends Indexer {
@@ -19,10 +18,8 @@ export class ScriptUnspentIndexer extends Indexer {
 
   async index (block: RawBlock): Promise<void> {
     for (const txn of block.tx) {
-      const isEvmTx = checkIfEvmTx(txn)
-
       for (const vin of txn.vin) {
-        if (vin.coinbase !== undefined || isEvmTx) {
+        if (vin.coinbase !== undefined) {
           continue
         }
         await this.unspentMapper.delete(vin.txid + HexEncoder.encodeVoutIndex(vin.vout))
@@ -36,10 +33,8 @@ export class ScriptUnspentIndexer extends Indexer {
 
   async invalidate (block: RawBlock): Promise<void> {
     for (const txn of block.tx) {
-      const isEvmTx = checkIfEvmTx(txn)
-
       for (const vin of txn.vin) {
-        if (vin.coinbase !== undefined || isEvmTx) {
+        if (vin.coinbase !== undefined) {
           continue
         }
 
