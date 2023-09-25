@@ -18,7 +18,7 @@ export const Eth = {
     return {
       stack: [
         OP_CODES.OP_16,
-        OP_CODES.OP_PUSHDATA_HEX_LE(address.substring(2))
+        OP_CODES.OP_PUSHDATA_HEX_BE(address.substring(2))
       ]
     }
   }

@@ -12,7 +12,7 @@ it('should convert evm address to script', () => {
   expect(evmScript).toStrictEqual({
     stack: [
       OP_CODES.OP_16,
-      OP_CODES.OP_PUSHDATA_HEX_LE(keypair.evmAddr.substring(2))
+      OP_CODES.OP_PUSHDATA_HEX_BE(keypair.evmAddr.substring(2))
     ]
   })
 })
