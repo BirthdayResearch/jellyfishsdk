@@ -16,7 +16,7 @@
   "dependencies": {
     "@defichain/jellyfish-wallet": "^0.0.0",
     "@defichain/jellyfish-transaction": "^0.0.0",
-    "bip32": "^2.0.6",
+    "bip32": "^4.0.0",
     "bip39": "^3.0.4",
     "create-hmac": "^1.1.7"
   },
