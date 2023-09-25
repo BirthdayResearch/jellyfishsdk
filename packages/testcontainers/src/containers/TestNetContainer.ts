@@ -17,4 +17,8 @@ export class TestNetContainer extends DeFiDContainer {
   async getRpcPort (): Promise<string> {
     return await this.getPort('18554/tcp')
   }
+
+  async getEvmRpcPort (): Promise<string> {
+    return await this.getPort('18551/tcp')
+  }
 }

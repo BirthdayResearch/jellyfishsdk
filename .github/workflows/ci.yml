@@ -23,6 +23,7 @@ jobs:
           cache: 'npm'
 
       - run: npm ci
+      - run: npm run compile
       - run: npm run all:build
 
   test:
@@ -43,6 +44,7 @@ jobs:
           cache: 'npm'
 
       - run: npm ci
+      - run: npm run compile
       - run: npm run ci:test
         env:
           GH_INSTANCE_INDEX: ${{ matrix.instance }}
@@ -64,6 +66,7 @@ jobs:
           cache: 'npm'
 
       - run: npm ci
+      - run: npm run compile
       - run: npm run sanity
 
   lint:
@@ -78,6 +81,7 @@ jobs:
           cache: 'npm'
 
       - run: npm ci
+      - run: npm run compile
       - run: npx --no-install eslint .
 
   docker-buildx:

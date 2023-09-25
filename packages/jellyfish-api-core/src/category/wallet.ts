@@ -94,7 +94,7 @@ export class Wallet {
    * @param {number} [options.queryOptions.minimumAmount] default = 0, minimum value of each UTXO
    * @param {number} [options.queryOptions.maximumAmount] default is 'unlimited', maximum value of each UTXO
    * @param {number} [options.queryOptions.maximumCount] default is 'unlimited', maximum number of UTXOs
-   * @param {number} [options.queryOptions.minimumSumAmount] default is 'unlimited', minimum sum valie of all UTXOs
+   * @param {number} [options.queryOptions.minimumSumAmount] default is 'unlimited', minimum sum value of all UTXOs
    * @param {string} [options.queryOptions.tokenId] default is 'all', filter by token
    * @return {Promise<UTXO[]>}
    */
