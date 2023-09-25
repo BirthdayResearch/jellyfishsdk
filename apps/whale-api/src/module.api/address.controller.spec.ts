@@ -1,7 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { AddressController } from './address.controller'
 import { createToken, mintTokens, sendTokensToAddress } from '@defichain/testing'
-import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { Testing } from '@defichain/jellyfish-testing'
 import BigNumber from 'bignumber.js'
 import { createTestingApp, stopTestingApp } from '../e2e.module'
@@ -175,11 +174,8 @@ describe('listTokens', () => {
     expect(first.page?.next).toStrictEqual('2')
   })
 
-  it('should throw error while listTokens with invalid address', async () => {
-    await expect(controller.listTokens('invalid', { size: 30 }))
-      .rejects.toThrow(RpcApiError)
-
-    await expect(controller.listTokens('invalid', { size: 30 }))
-      .rejects.toThrow('recipient (invalid) does not refer to any valid address')
+  it('should return empty and page undefined while listTokens with invalid address', async () => {
+    const tokens = await controller.listTokens('invalid', { size: 30 })
+    expect(tokens).toStrictEqual(expect.objectContaining({ data: [], page: undefined }))
   })
 })

@@ -25,6 +25,7 @@ jobs:
           script: return require('./.github/scripts/release-ecr-tags.js')({ context })
           result-encoding: string
 
+      - run: npm run compile
       - run: npm run all:build
       - run: npm run all:version ${{ steps.version.outputs.result }}
 

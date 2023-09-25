@@ -63,4 +63,8 @@ export class RegTestContainer extends DeFiDContainer {
   async getRpcPort (): Promise<string> {
     return await this.getPort('19554/tcp')
   }
+
+  async getEvmRpcPort (): Promise<string> {
+    return await this.getPort('19551/tcp')
+  }
 }

@@ -210,6 +210,8 @@ async function _fetch (method: Method, url: string, controller: AbortController,
     headers: method !== 'GET' ? { 'Content-Type': 'application/json' } : {},
     body: body,
     cache: 'no-cache',
+    // eslint-disable-next-line
+    // @ts-ignore
     signal: controller.signal
   })
 

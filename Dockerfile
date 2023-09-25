@@ -1,4 +1,4 @@
-FROM node:16-alpine3.13
+FROM node:18-alpine3.18
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 # Add curl to use docker healthcheck capability
@@ -18,8 +18,11 @@ COPY package-lock.json ./
 
 COPY packages ./packages
 COPY apps ./apps
+COPY contracts ./
+COPY hardhat.config.js ./
 
 RUN npm ci
+RUN npm run compile
 RUN npm run build --workspace=apps
 
 ARG APP

@@ -1,4 +1,4 @@
-import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
+import { BufferComposer, ComposableBuffer, readCompactSize, writeCompactSize } from '@defichain/jellyfish-buffer'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
 import { CScriptBalances, CTokenBalance, CTokenBalanceVarInt, ScriptBalances, TokenBalanceUInt32, TokenBalanceVarInt } from './dftx_balance'
@@ -107,7 +107,7 @@ export interface TransferDomainItem {
   address: Script // ----------------------| n = VarUInt{1-9 bytes}, + n bytes
   amount: TokenBalanceVarInt // -----------| VarUInt{1-9 bytes} for token Id + 8 bytes for amount, in amount@token format
   domain: number // -----------------------| 1 byte unsigned, 0x0 (NONE), 0x1 (UTXO), 0x2 (DVM), 0x3 (EVM)
-  data?: number[] // ----------------------| 1 byte unsigned array, currently unused
+  data: Uint8Array // ---------------------| uint8 vector for evm and utxo data
 }
 
 /**
@@ -122,19 +122,17 @@ export class CTransferDomainItem extends ComposableBuffer<TransferDomainItem> {
       ComposableBuffer.uInt8(() => tdi.domain, v => tdi.domain = v),
       {
         fromBuffer: (buffer: SmartBuffer): void => {
+          const length = readCompactSize(buffer)
           const array: number[] = []
-          if (buffer.remaining() > 0) {
+          for (let i = 0; i < length; i += 1) {
             array.push(buffer.readUInt8())
           }
-          tdi.data = array
+          tdi.data = new Uint8Array(array)
         },
         toBuffer: (buffer: SmartBuffer): void => {
-          if (tdi.data !== undefined) {
-            for (let i = 0; i < tdi.data.length; i += 1) {
-              buffer.writeUInt8(tdi.data[i])
-            }
-          } else {
-            buffer.writeUInt8(0x00)
+          writeCompactSize(tdi.data.length, buffer)
+          for (let i = 0; i < tdi.data.length; i += 1) {
+            buffer.writeUInt8(tdi.data[i])
           }
         }
       }
