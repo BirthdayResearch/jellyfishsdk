@@ -1,4 +1,4 @@
-import { OP_CODES } from '@defichain/jellyfish-transaction'
+import { OP_CODES, Script } from '@defichain/jellyfish-transaction'
 import { Eth } from '../src'
 
 const keypair = {
@@ -20,4 +20,26 @@ it('should convert evm address to script', () => {
 it('should return undefined script for invalid eth address', () => {
   const evmScript = Eth.fromAddress('0xabc123')
   expect(evmScript).toStrictEqual(undefined)
+})
+
+it('should convert evm script to address', () => {
+  const script: Script = {
+    stack: [
+      OP_CODES.OP_16,
+      OP_CODES.OP_PUSHDATA_HEX_BE(keypair.evmAddr.substring(2))
+    ]
+  }
+  const evmAddress = Eth.fromScript(script)
+  expect(evmAddress).toStrictEqual(keypair.evmAddr.substring(2))
+})
+
+it('should return undefined address for invalid evm script', () => {
+  const script: Script = {
+    stack: [
+      OP_CODES.OP_0,
+      OP_CODES.OP_PUSHDATA_HEX_BE(keypair.evmAddr.substring(2))
+    ]
+  }
+  const evmAddress = Eth.fromScript(script)
+  expect(evmAddress).toStrictEqual(undefined)
 })
