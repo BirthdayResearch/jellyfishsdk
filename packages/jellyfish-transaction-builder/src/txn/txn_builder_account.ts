@@ -5,7 +5,7 @@ import {
 } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 import { TxnBuilderError, TxnBuilderErrorType } from './txn_builder_error'
-import { ListUnspentQueryOptions } from '@defichain/jellyfish-api-core/dist/category/wallet'
+import { ListUnspentQueryOptions } from '@defichain/jellyfish-api-core/src/category/wallet'
 
 export class TxnBuilderAccount extends P2WPKHTxnBuilder {
   /**
