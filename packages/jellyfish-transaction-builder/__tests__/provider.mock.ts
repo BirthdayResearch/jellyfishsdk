@@ -4,7 +4,7 @@ import { EllipticPairProvider, FeeRateProvider, Prevout, PrevoutProvider } from 
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { OP_CODES, Script } from '@defichain/jellyfish-transaction'
 import { randomEllipticPair } from './test.utils'
-import { ListUnspentQueryOptions } from '@defichain/jellyfish-api-core/dist/category/wallet'
+import { ListUnspentQueryOptions } from '@defichain/jellyfish-api-core/src/category/wallet'
 
 export class MockFeeRateProvider implements FeeRateProvider {
   constructor (
