@@ -1,10 +1,9 @@
 import BigNumber from 'bignumber.js'
 import { Bech32, EllipticPair, Eth, HASH160, WIF } from '@defichain/jellyfish-crypto'
-import { EllipticPairProvider, FeeRateProvider, Prevout, PrevoutProvider } from '../src'
+import { EllipticPairProvider, FeeRateProvider, ListUnspentQueryOptions, Prevout, PrevoutProvider } from '../src'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { OP_CODES, Script } from '@defichain/jellyfish-transaction'
 import { randomEllipticPair } from './test.utils'
-import { ListUnspentQueryOptions } from '@defichain/jellyfish-api-core/src/category/wallet'
 
 export class MockFeeRateProvider implements FeeRateProvider {
   constructor (

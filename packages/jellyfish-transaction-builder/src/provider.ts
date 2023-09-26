@@ -1,13 +1,20 @@
 import BigNumber from 'bignumber.js'
 import { EllipticPair } from '@defichain/jellyfish-crypto'
 import { Vout } from '@defichain/jellyfish-transaction'
-import { ListUnspentQueryOptions } from '@defichain/jellyfish-api-core/src/category/wallet'
 
 export interface FeeRateProvider {
   /**
    * @return {BigNumber} fee rate estimate in DFI/KB
    */
   estimate: () => Promise<BigNumber>
+}
+
+export interface ListUnspentQueryOptions {
+  minimumAmount?: number
+  maximumAmount?: number
+  maximumCount?: number
+  minimumSumAmount?: number
+  tokenId?: string
 }
 
 export interface PrevoutProvider {
