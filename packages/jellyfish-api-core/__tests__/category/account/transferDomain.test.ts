@@ -527,9 +527,8 @@ describe('TransferDomain', () => {
       await expect(promise).rejects.toThrow('amount 90000.00000000 is less than 999999.00000000')
     })
 
-    // TODO(canonbrother): check again here after pull the later version
-    it.skip('(evm -> dvm) should fail if insufficient balance', async () => {
-      const promise = client.account.transferDomain([
+    it('(evm -> dvm) should not fail if insufficient balance but tx remained in mempool', async () => {
+      const txid = await client.account.transferDomain([
         {
           src: {
             address: evmAddr,
@@ -543,8 +542,12 @@ describe('TransferDomain', () => {
           }
         }
       ])
-      await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(`Not enough balance in ${evmAddr} to cover "EVM" domain transfer`)
+      const mempool: string[] = await container.call('getrawmempool')
+      await container.generate(1)
+      const found = mempool.find((m: string) => m === txid)
+      expect(found).toBeDefined()
+
+      await container.call('clearmempool')
     })
 
     it('(dvm -> evm) should fail if custom (isDAT = false) token is transferred', async () => {
@@ -729,37 +732,6 @@ describe('TransferDomain', () => {
       .toStrictEqual(new BigNumber(currentBalance).minus(3))
   })
 
-  it('(dvm -> evm) should transfer domain - dToken', async () => {
-    const dvmAcc = await getAccountValues(client, dvmAddr)
-    const btcTokenId = 'BTC'
-    const btcBalance = dvmAcc[btcTokenId]
-    const txid1 = await client.account.transferDomain([
-      {
-        src: {
-          address: dvmAddr,
-          amount: '3@BTC',
-          domain: TransferDomainType.DVM
-        },
-        dst: {
-          address: evmAddr,
-          amount: '3@BTC',
-          domain: TransferDomainType.EVM
-        }
-      }
-    ])
-    expect(typeof txid1).toStrictEqual('string')
-    expect(txid1.length).toStrictEqual(64)
-
-    await container.generate(1)
-
-    const dvmAcc1 = await getAccountValues(client, dvmAddr)
-    const btcBalance1 = dvmAcc1[btcTokenId]
-
-    // check: BTC balance is transferred
-    expect(new BigNumber(btcBalance1))
-      .toStrictEqual(new BigNumber(btcBalance).minus(3))
-  })
-
   it('(evm -> dvm) should transfer domain - DFI', async () => {
     const dvmAcc = await getAccountValues(client, dvmAddr)
     const tokenId = 'DFI'
@@ -793,6 +765,37 @@ describe('TransferDomain', () => {
     const currentBalance = await getEVMBalances(client)
     expect(new BigNumber(prevBalance))
       .toStrictEqual(new BigNumber(currentBalance).plus(3))
+  })
+
+  it('(dvm -> evm) should transfer domain - dToken', async () => {
+    const dvmAcc = await getAccountValues(client, dvmAddr)
+    const btcTokenId = 'BTC'
+    const btcBalance = dvmAcc[btcTokenId]
+    const txid1 = await client.account.transferDomain([
+      {
+        src: {
+          address: dvmAddr,
+          amount: '3@BTC',
+          domain: TransferDomainType.DVM
+        },
+        dst: {
+          address: evmAddr,
+          amount: '3@BTC',
+          domain: TransferDomainType.EVM
+        }
+      }
+    ])
+    expect(typeof txid1).toStrictEqual('string')
+    expect(txid1.length).toStrictEqual(64)
+
+    await container.generate(1)
+
+    const dvmAcc1 = await getAccountValues(client, dvmAddr)
+    const btcBalance1 = dvmAcc1[btcTokenId]
+
+    // check: BTC balance is transferred
+    expect(new BigNumber(btcBalance1))
+      .toStrictEqual(new BigNumber(btcBalance).minus(3))
   })
 
   it('(evm -> dvm) should transfer domain - dToken', async () => {
