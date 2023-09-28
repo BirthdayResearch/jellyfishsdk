@@ -3,7 +3,7 @@ import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { fundEllipticPair, sendTransaction } from '../test.utils'
 import BigNumber from 'bignumber.js'
-import { Interface, ethers } from 'ethers'
+import { Interface, ethers, parseUnits } from 'ethers'
 import { Testing } from '@defichain/jellyfish-testing'
 import { RegTest, RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import {
@@ -14,6 +14,7 @@ import {
 import { WIF } from '@defichain/jellyfish-crypto'
 import { P2WPKH } from '@defichain/jellyfish-address'
 import TransferDomainImplV1 from '../../../../artifacts/contracts/TransferDomainImplV1.sol/TransferDomainImplV1.json'
+import DST20ImplV1 from '../../../../artifacts/contracts/DST20ImplV1.sol/DST20ImplV1.json'
 
 const TD_CONTRACT_ADDR = '0xdf00000000000000000000000000000000000001'
 const DST_20_CONTRACT_ADDR_BTC = '0xff00000000000000000000000000000000000001'
@@ -73,11 +74,11 @@ describe('transferDomain', () => {
     dvmScript = await providers.elliptic.script()
     evmScript = await providers.elliptic.evmScript()
 
-    const evmPrivKey = await testing.container.call('dumpprivkey', [evmAddr])
-    wallet = new ethers.Wallet(evmPrivKey)
     tdFace = new ethers.Interface(TransferDomainImplV1.abi)
     evmRpcUrl = await testing.container.getCachedEvmRpcUrl()
     rpc = new ethers.JsonRpcProvider(evmRpcUrl)
+    const evmPrivKey = await testing.container.call('dumpprivkey', [evmAddr])
+    wallet = new ethers.Wallet(evmPrivKey, rpc)
 
     await testing.token.dfi({ address: dvmAddr, amount: 12 })
     await testing.token.create({
@@ -108,6 +109,21 @@ describe('transferDomain', () => {
       providers.elliptic,
       RegTest
     )
+
+    // Create DST20 contract
+    const contract = new ethers.Contract(DST_20_CONTRACT_ADDR_BTC, DST20ImplV1.abi, wallet)
+    // Replace with the address you want to approve and the amount
+    const spenderAddress = TD_CONTRACT_ADDR
+    const amountToApprove = parseUnits('100', 18) // Approve 100 tokens
+
+    // Perform the "approve" function
+    const tx = await contract.approve(spenderAddress, amountToApprove, { gasPrice: parseUnits('5000', 'gwei') })
+    // const tx = await contract.approve(spenderAddress, amountToApprove, { gasPrice: parseUnits('5000', 'gwei') }) // with higher gas, still fails
+
+    console.log('Approval transaction hash:', tx.hash)
+    // Wait for the transaction to be mined
+    await tx.wait()
+    console.log('Waited - Approval transaction hash:', tx.hash)
   })
 
   afterAll(async () => {
