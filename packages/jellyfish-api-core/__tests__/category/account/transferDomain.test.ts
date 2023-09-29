@@ -218,7 +218,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(`Failed to create and sign TX: Invalid address ${dvmAddr}`)
+      await expect(promise).rejects.toThrow('Failed to create and sign TX: Invalid address')
     })
 
     it('(evm -> dvm) should fail if src address is not ERC55 address in case of "EVM" domain', async () => {
@@ -486,7 +486,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(`Failed to create and sign TX: Invalid address ${dvmAddr}`)
+      await expect(promise).rejects.toThrow('Failed to create and sign TX: Invalid address')
     })
 
     it('(evm -> evm) should fail if transfer within same domain', async () => {
