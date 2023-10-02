@@ -124,15 +124,16 @@ describe('transferDomain', () => {
         const amount = '0x8ac7230489e80000' // 10_000_000_000_000_000_000
         const native = dvmAddr
         const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
 
         const tx: ethers.TransactionRequest = {
           to: TD_CONTRACT_ADDR,
-          nonce: await rpc.getTransactionCount(evmAddr),
-          value: 0,
-          chainId: (await rpc.getNetwork()).chainId,
+          nonce: nonce,
           data: data,
-          gasLimit: 100_000,
-          gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
         }
 
         const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -180,15 +181,16 @@ describe('transferDomain', () => {
         const amount = '0x1bc16d674ec80000' // 2_000_000_000_000_000_000
         const native = dvmAddr
         const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
 
         const tx: ethers.TransactionRequest = {
           to: TD_CONTRACT_ADDR,
-          nonce: await rpc.getTransactionCount(evmAddr),
-          value: 0,
-          chainId: (await rpc.getNetwork()).chainId,
+          nonce: nonce,
           data: data,
-          gasLimit: 100_000,
-          gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
         }
 
         const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -236,15 +238,16 @@ describe('transferDomain', () => {
         const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
         const native = dvmAddr
         const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
 
         const tx: ethers.TransactionRequest = {
           to: TD_CONTRACT_ADDR,
-          nonce: await rpc.getTransactionCount(evmAddr),
-          value: 0,
-          chainId: (await rpc.getNetwork()).chainId,
+          nonce: nonce,
           data: data,
-          gasLimit: 100_000,
-          gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
         }
 
         const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -292,15 +295,16 @@ describe('transferDomain', () => {
         const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
         const native = dvmAddr
         const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
 
         const tx: ethers.TransactionRequest = {
           to: TD_CONTRACT_ADDR,
-          nonce: await rpc.getTransactionCount(evmAddr),
-          value: 0,
-          chainId: (await rpc.getNetwork()).chainId,
+          nonce: nonce,
           data: data,
-          gasLimit: 100_000,
-          gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
         }
 
         const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -348,15 +352,16 @@ describe('transferDomain', () => {
         const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
         const native = dvmAddr
         const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
 
         const tx: ethers.TransactionRequest = {
           to: TD_CONTRACT_ADDR,
-          nonce: await rpc.getTransactionCount(evmAddr),
-          value: 0,
-          chainId: (await rpc.getNetwork()).chainId,
+          nonce: nonce,
           data: data,
-          gasLimit: 100_000,
-          gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
         }
 
         const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -404,15 +409,16 @@ describe('transferDomain', () => {
         const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
         const native = dvmAddr
         const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
 
         const tx: ethers.TransactionRequest = {
           to: TD_CONTRACT_ADDR,
-          nonce: await rpc.getTransactionCount(evmAddr),
-          value: 0,
-          chainId: (await rpc.getNetwork()).chainId,
+          nonce: nonce,
           data: data,
-          gasLimit: 100_000,
-          gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
         }
 
         const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -460,15 +466,16 @@ describe('transferDomain', () => {
         const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
         const native = dvmAddr
         const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
 
         const tx: ethers.TransactionRequest = {
           to: TD_CONTRACT_ADDR,
-          nonce: await rpc.getTransactionCount(evmAddr),
-          value: 0,
-          chainId: (await rpc.getNetwork()).chainId,
+          nonce: nonce,
           data: data,
-          gasLimit: 100_000,
-          gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
         }
 
         const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -518,15 +525,16 @@ describe('transferDomain', () => {
         const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
         const native = dvmAddr
         const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
 
         const tx: ethers.TransactionRequest = {
           to: TD_CONTRACT_ADDR,
-          nonce: await rpc.getTransactionCount(evmAddr),
-          value: 0,
-          chainId: (await rpc.getNetwork()).chainId,
+          nonce: nonce,
           data: data,
-          gasLimit: 100_000,
-          gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
         }
 
         const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -575,15 +583,16 @@ describe('transferDomain', () => {
         const amount = '0x1bc16d674ec80000' // 2_000_000_000_000_000_000
         const native = dvmAddr
         const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
 
         const tx: ethers.TransactionRequest = {
           to: TD_CONTRACT_ADDR,
-          nonce: await rpc.getTransactionCount(evmAddr),
-          value: 0,
-          chainId: (await rpc.getNetwork()).chainId,
+          nonce: nonce,
           data: data,
-          gasLimit: 100_000,
-          gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
         }
 
         const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -599,15 +608,16 @@ describe('transferDomain', () => {
         const amount = '0x14d1120d7b160000' // 1_500_000_000_000_000_000
         const native = dvmAddr
         const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
 
         const tx: ethers.TransactionRequest = {
           to: TD_CONTRACT_ADDR,
-          nonce: await rpc.getTransactionCount(evmAddr),
-          value: 0,
-          chainId: (await rpc.getNetwork()).chainId,
+          nonce: nonce,
           data: data,
-          gasLimit: 100_000,
-          gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
         }
 
         const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -674,15 +684,16 @@ describe('transferDomain', () => {
         const amount = '0x1bc16d674ec80000' // 2_000_000_000_000_000_000
         const native = dvmAddr
         const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
 
         const tx: ethers.TransactionRequest = {
           to: TD_CONTRACT_ADDR,
-          nonce: await rpc.getTransactionCount(evmAddr),
-          value: 0,
-          chainId: (await rpc.getNetwork()).chainId,
+          nonce: nonce,
           data: data,
-          gasLimit: 100_000,
-          gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
         }
 
         const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -698,15 +709,16 @@ describe('transferDomain', () => {
         const amount = '0x14d1120d7b160000' // 1_500_000_000_000_000_000
         const native = dvmAddr
         const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
 
         const tx: ethers.TransactionRequest = {
           to: TD_CONTRACT_ADDR,
-          nonce: await rpc.getTransactionCount(evmAddr),
-          value: 0,
-          chainId: (await rpc.getNetwork()).chainId,
+          nonce: nonce,
           data: data,
-          gasLimit: 100_000,
-          gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
         }
 
         const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -775,15 +787,16 @@ describe('transferDomain', () => {
         const amount = '0x3782dace9d900000' // 4_000_000_000_000_000_000
         const native = dvmAddr
         const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
 
         const tx: ethers.TransactionRequest = {
           to: TD_CONTRACT_ADDR,
-          nonce: await rpc.getTransactionCount(evmAddr),
-          value: 0,
-          chainId: (await rpc.getNetwork()).chainId,
+          nonce: nonce,
           data: data,
-          gasLimit: 100_000,
-          gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
         }
 
         const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -799,15 +812,16 @@ describe('transferDomain', () => {
         const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
         const native = dvmAddr
         const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
 
         const tx: ethers.TransactionRequest = {
           to: TD_CONTRACT_ADDR,
-          nonce: await rpc.getTransactionCount(evmAddr),
-          value: 0,
-          chainId: (await rpc.getNetwork()).chainId,
+          nonce: nonce,
           data: data,
-          gasLimit: 100_000,
-          gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
         }
 
         const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -879,15 +893,16 @@ describe('transferDomain', () => {
       const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
       const native = dvmAddr
       const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+      const nonce = await rpc.getTransactionCount(evmAddr)
 
       const tx: ethers.TransactionRequest = {
         to: TD_CONTRACT_ADDR,
-        nonce: await rpc.getTransactionCount(evmAddr),
-        value: 0,
-        chainId: (await rpc.getNetwork()).chainId,
+        nonce: nonce,
         data: data,
-        gasLimit: 100_000,
-        gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+        chainId: (await rpc.getNetwork()).chainId,
+        value: 0,
+        gasLimit: 0,
+        gasPrice: 0
       }
 
       const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -962,15 +977,16 @@ describe('transferDomain', () => {
       const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
       const native = dvmAddr
       const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+      const nonce = await rpc.getTransactionCount(evmAddr)
 
       const tx: ethers.TransactionRequest = {
         to: TD_CONTRACT_ADDR,
-        nonce: await rpc.getTransactionCount(evmAddr),
-        value: 0,
-        chainId: (await rpc.getNetwork()).chainId,
+        nonce: nonce,
         data: data,
-        gasLimit: 100_000,
-        gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+        chainId: (await rpc.getNetwork()).chainId,
+        value: 0,
+        gasLimit: 0,
+        gasPrice: 0
       }
 
       const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -1137,7 +1153,7 @@ describe('transferDomain', () => {
         chainId: (await rpc.getNetwork()).chainId,
         value: 0,
         gasLimit: 0,
-        gasPrice: 0 // base fee
+        gasPrice: 0
       }
 
       const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
