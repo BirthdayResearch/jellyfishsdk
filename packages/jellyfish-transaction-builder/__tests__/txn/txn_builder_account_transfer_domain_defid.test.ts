@@ -9,7 +9,7 @@ import {
   , CTransactionSegWit
 } from '@defichain/jellyfish-transaction'
 import { WIF } from '@defichain/jellyfish-crypto'
-import TransferDomainImplV1 from '../../../../artifacts/contracts/TransferDomainImplV1.sol/TransferDomainV1.json'
+import TransferDomainV1 from '../../../../artifacts/contracts/TransferDomainV1.sol/TransferDomainV1.json'
 import { SmartBuffer } from 'smart-buffer'
 import { describeWithDefid, generate } from '../util'
 
@@ -78,7 +78,7 @@ describeWithDefid('transferDomain', (context) => {
 
     const evmPrivKey = await context.client.wallet.dumpPrivKey(evmAddr)
     wallet = new ethers.Wallet(evmPrivKey)
-    tdFace = new ethers.Interface(TransferDomainImplV1.abi)
+    tdFace = new ethers.Interface(TransferDomainV1.abi)
 
     let evmTx = new Uint8Array([])
     {
