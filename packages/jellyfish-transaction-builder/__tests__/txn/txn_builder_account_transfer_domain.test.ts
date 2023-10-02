@@ -13,7 +13,7 @@ import {
 } from '@defichain/jellyfish-transaction'
 import { WIF } from '@defichain/jellyfish-crypto'
 import { P2WPKH } from '@defichain/jellyfish-address'
-import TransferDomainImplV1 from '../../../../artifacts/contracts/TransferDomainImplV1.sol/TransferDomainV1.json'
+import TransferDomainV1 from '../../../../artifacts/contracts/TransferDomainV1.sol/TransferDomainV1.json'
 
 const TD_CONTRACT_ADDR = '0xdf00000000000000000000000000000000000001'
 const DST_20_CONTRACT_ADDR_BTC = '0xff00000000000000000000000000000000000001'
@@ -75,7 +75,7 @@ describe('transferDomain', () => {
 
     const evmPrivKey = await testing.container.call('dumpprivkey', [evmAddr])
     wallet = new ethers.Wallet(evmPrivKey)
-    tdFace = new ethers.Interface(TransferDomainImplV1.abi)
+    tdFace = new ethers.Interface(TransferDomainV1.abi)
     evmRpcUrl = await testing.container.getCachedEvmRpcUrl()
     rpc = new ethers.JsonRpcProvider(evmRpcUrl)
 
