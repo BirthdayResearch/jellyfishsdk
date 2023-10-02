@@ -73,6 +73,30 @@ describe('transferDomain', () => {
     evmAddr = await providers.getEvmAddress()
     dvmScript = await providers.elliptic.script()
     evmScript = await providers.elliptic.evmScript()
+    console.log('dvmAddr: ', dvmAddr)
+    console.log('evmAddr: ', evmAddr)
+    console.log('dvmScript: ', dvmScript)
+    console.log('evmScript: ', evmScript)
+    // dvmAddr:  bcrt1qkd5pflfxry9nyx4fskqf9yayzfeulc2709p7x8
+    // evmAddr:  0x0a06DE8AbC3f15359EC0dfe32394C8B8f09e828F
+    // dvmScript:  {
+    //   stack: [
+    //     OP_0 { type: 'OP_0', code: 0 },
+    //     OP_PUSHDATA {
+    //       type: 'OP_PUSHDATA',
+    //       hex: 'b36814fd26190b321aa985809293a41273cfe15e'
+    //     }
+    //   ]
+    // }
+    // evmScript:  {
+    //   stack: [
+    //     OP_16 { type: 'OP_16', code: 96 },
+    //     OP_PUSHDATA {
+    //       type: 'OP_PUSHDATA',
+    //       hex: '8f829ef0b8c89423e3dfc09e35153fbc8ade060a'
+    //     }
+    //   ]
+    // }
 
     const evmPrivKey = await testing.container.call('dumpprivkey', [evmAddr])
     wallet = new ethers.Wallet(evmPrivKey)
@@ -1090,6 +1114,7 @@ describe('transferDomain', () => {
       }
 
       const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
+      console.log('signed: ', signed)
 
       evmTx = new Uint8Array(Buffer.from(signed, 'hex'))
     }

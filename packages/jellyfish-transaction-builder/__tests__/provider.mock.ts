@@ -4,15 +4,21 @@ import { EllipticPairProvider, FeeRateProvider, ListUnspentQueryOptions, Prevout
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { OP_CODES, Script } from '@defichain/jellyfish-transaction'
 import { randomEllipticPair } from './test.utils'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 export class MockFeeRateProvider implements FeeRateProvider {
   constructor (
-    public readonly container: MasterNodeRegTestContainer
+    public readonly context: MasterNodeRegTestContainer | JsonRpcClient
   ) {
   }
 
   async estimate (): Promise<BigNumber> {
-    const result = await this.container.call('estimatesmartfee', [1])
+    let result
+    if (this.context instanceof MasterNodeRegTestContainer) {
+      result = await this.context.call('estimatesmartfee', [1])
+    } else {
+      result = await this.context.call('estimatesmartfee', [1], 'number')
+    }
     if (result.errors !== undefined && result.errors.length > 0) {
       return new BigNumber('0.00005000')
     }
@@ -22,16 +28,23 @@ export class MockFeeRateProvider implements FeeRateProvider {
 
 export class MockPrevoutProvider implements PrevoutProvider {
   constructor (
-    public readonly container: MasterNodeRegTestContainer,
+    public readonly context: MasterNodeRegTestContainer | JsonRpcClient,
     public ellipticPair: EllipticPair
   ) {
   }
 
   async all (): Promise<Prevout[]> {
     const pubKey = await this.ellipticPair.publicKey()
-    const unspent: any[] = await this.container.call('listunspent', [
-      1, 9999999, [Bech32.fromPubKey(pubKey, 'bcrt')]
-    ])
+    let unspent: any[]
+    if (this.context instanceof MasterNodeRegTestContainer) {
+      unspent = await this.context.call('listunspent', [
+        1, 9999999, [Bech32.fromPubKey(pubKey, 'bcrt')]
+      ])
+    } else {
+      unspent = await this.context.call('listunspent', [
+        1, 9999999, [Bech32.fromPubKey(pubKey, 'bcrt')]
+      ], 'number')
+    }
 
     return unspent.map((utxo: any): Prevout => {
       return MockPrevoutProvider.mapPrevout(utxo, pubKey)
@@ -41,14 +54,24 @@ export class MockPrevoutProvider implements PrevoutProvider {
   async collect (minBalance: BigNumber, options?: ListUnspentQueryOptions): Promise<Prevout[]> {
     const pubKey = await this.ellipticPair.publicKey()
     const address = Bech32.fromPubKey(pubKey, 'bcrt')
+    console.log('collect address: ', address)
 
     // TODO(fuxingloh): minimumSumAmount behavior is weirdly inconsistent, listunspent will always
     //  return the correct result without providing options. However, with 'minimumSumAmount', it
     //  will appear sometimes. Likely due to race conditions in bitcoin code,
     //  e.g. -reindex when importprivkey.
-    const unspent: any[] = await this.container.call('listunspent', [
-      1, 9999999, [address], true, options
-    ])
+    let unspent: any[]
+    if (this.context instanceof MasterNodeRegTestContainer) {
+      unspent = await this.context.call('listunspent', [
+        1, 9999999, [address], true, options
+      ])
+    } else {
+      console.log('collect client')
+      unspent = await this.context.call('listunspent', [
+        1, 9999999, [address], true, options
+      ], 'number')
+    }
+    console.log('unspent: ', unspent)
 
     return unspent.map((utxo: any): Prevout => {
       return MockPrevoutProvider.mapPrevout(utxo, pubKey)
@@ -101,8 +124,8 @@ export class MockEllipticPairProvider implements EllipticPairProvider {
   }
 }
 
-export async function getProviders (container: MasterNodeRegTestContainer): Promise<MockProviders> {
-  return new MockProviders(container)
+export async function getProviders (context: MasterNodeRegTestContainer | JsonRpcClient): Promise<MockProviders> {
+  return new MockProviders(context)
 }
 
 export class MockProviders {
@@ -111,10 +134,10 @@ export class MockProviders {
   elliptic: MockEllipticPairProvider
   ellipticPair: EllipticPair = randomEllipticPair()
 
-  constructor (readonly container: MasterNodeRegTestContainer) {
-    this.fee = new MockFeeRateProvider(container)
+  constructor (readonly context: MasterNodeRegTestContainer | JsonRpcClient) {
+    this.fee = new MockFeeRateProvider(context)
     this.elliptic = new MockEllipticPairProvider(this.ellipticPair)
-    this.prevout = new MockPrevoutProvider(container, this.ellipticPair)
+    this.prevout = new MockPrevoutProvider(context, this.ellipticPair)
   }
 
   /**
@@ -149,17 +172,8 @@ export class MockProviders {
   async setupMocks (evm = false): Promise<void> {
     // full nodes need importprivkey or else it can't list unspent
     const privKey = await this.ellipticPair.privateKey()
-
-    // TODO(canonbrother): try..catch to skip the err to allow import raw privkey again to support evm addr
-    // due to wif was imported beforehand
-    // https://github.com/BirthdayResearch/jellyfishsdk/blob/60ebb395ce78ca8d395ede56f90e46c18c0da935/packages/testcontainers/src/containers/RegTestContainer/Masternode.ts#L59-L60
-    // remove once auto import is done
-    try {
-      evm
-        ? await this.container.call('importprivkey', [privKey.toString('hex')])
-        : await this.container.call('importprivkey', [WIF.encode(0xef, privKey)])
-    } catch (err) {
-      console.log('err: ', err)
-    }
+    evm
+      ? await this.context.call('importprivkey', [privKey.toString('hex')], 'number')
+      : await this.context.call('importprivkey', [WIF.encode(0xef, privKey)], 'number')
   }
 }
