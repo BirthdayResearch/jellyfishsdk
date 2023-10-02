@@ -13,7 +13,7 @@ import {
 } from '@defichain/jellyfish-transaction'
 import { WIF } from '@defichain/jellyfish-crypto'
 import { P2WPKH } from '@defichain/jellyfish-address'
-import TransferDomainImplV1 from '../../../../artifacts/contracts/TransferDomainImplV1.sol/TransferDomainImplV1.json'
+import TransferDomainImplV1 from '../../../../artifacts/contracts/TransferDomainImplV1.sol/TransferDomainV1.json'
 
 const TD_CONTRACT_ADDR = '0xdf00000000000000000000000000000000000001'
 const DST_20_CONTRACT_ADDR_BTC = '0xff00000000000000000000000000000000000001'
@@ -111,7 +111,7 @@ describe('transferDomain', () => {
   })
 
   afterAll(async () => {
-    // await testing.container.stop()
+    await testing.container.stop()
   })
 
   describe('transferDomain failed', () => {
@@ -1035,27 +1035,28 @@ describe('transferDomain', () => {
       .toStrictEqual(new BigNumber(currentBalance).plus(3))
   })
 
-  it.only('should transfer domain dToken from DVM to EVM', async () => {
+  it('should transfer domain dToken from DVM to EVM', async () => {
     const dvmAccBefore = await testing.rpc.account.getAccount(dvmAddr)
     const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[1].split('@')
 
     let evmTx = new Uint8Array([])
     {
       // EvmIn
-      const from = evmAddr
+      const from = TD_CONTRACT_ADDR
       const to = evmAddr
       const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
       const native = dvmAddr
       const data = tdFace.encodeFunctionData('transferDST20', [DST_20_CONTRACT_ADDR_BTC, from, to, amount, native])
+      const nonce = await rpc.getTransactionCount(evmAddr)
 
       const tx: ethers.TransactionRequest = {
         to: TD_CONTRACT_ADDR,
-        nonce: await rpc.getTransactionCount(evmAddr),
-        value: 0,
-        chainId: (await rpc.getNetwork()).chainId,
+        nonce: nonce,
         data: data,
-        gasLimit: 100_000,
-        gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+        chainId: (await rpc.getNetwork()).chainId,
+        value: 0,
+        gasLimit: 0,
+        gasPrice: 0
       }
 
       const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -1127,15 +1128,16 @@ describe('transferDomain', () => {
       const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
       const native = dvmAddr
       const data = tdFace.encodeFunctionData('transferDST20', [DST_20_CONTRACT_ADDR_BTC, from, to, amount, native])
+      const nonce = await rpc.getTransactionCount(evmAddr)
 
       const tx: ethers.TransactionRequest = {
         to: TD_CONTRACT_ADDR,
-        nonce: await rpc.getTransactionCount(evmAddr),
-        value: 0,
-        chainId: (await rpc.getNetwork()).chainId,
+        nonce: nonce,
         data: data,
-        gasLimit: 100_000,
-        gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+        chainId: (await rpc.getNetwork()).chainId,
+        value: 0,
+        gasLimit: 0,
+        gasPrice: 0 // base fee
       }
 
       const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
