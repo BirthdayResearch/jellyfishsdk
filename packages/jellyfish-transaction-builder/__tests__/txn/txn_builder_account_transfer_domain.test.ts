@@ -888,18 +888,20 @@ describe('transferDomain', () => {
     let evmTx = new Uint8Array([])
     {
       // EvmIn
-      const from = evmAddr
+      const from = TD_CONTRACT_ADDR
       const to = evmAddr
       const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
       const native = dvmAddr
       const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
       const nonce = await rpc.getTransactionCount(evmAddr)
+      console.log('nonce: ', nonce)
 
       const tx: ethers.TransactionRequest = {
         to: TD_CONTRACT_ADDR,
         nonce: nonce,
         data: data,
         chainId: (await rpc.getNetwork()).chainId,
+        type: 0,
         value: 0,
         gasLimit: 0,
         gasPrice: 0
@@ -962,6 +964,9 @@ describe('transferDomain', () => {
     // check: dvm balance is transferred
     expect(new BigNumber(dvmBalanceAfter0))
       .toStrictEqual(new BigNumber(dvmBalanceBefore0).minus(3))
+
+    const nonce = await rpc.getTransactionCount(evmAddr)
+    console.log('nonce: ', nonce)
   })
 
   it('should transfer domain from EVM to DVM', async () => {
@@ -978,12 +983,14 @@ describe('transferDomain', () => {
       const native = dvmAddr
       const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
       const nonce = await rpc.getTransactionCount(evmAddr)
+      console.log('nonce: ', nonce)
 
       const tx: ethers.TransactionRequest = {
         to: TD_CONTRACT_ADDR,
         nonce: nonce,
         data: data,
         chainId: (await rpc.getNetwork()).chainId,
+        type: 0,
         value: 0,
         gasLimit: 0,
         gasPrice: 0
@@ -1049,6 +1056,9 @@ describe('transferDomain', () => {
     const currentBalance = await getEVMBalances(testing)
     expect(new BigNumber(prevBalance))
       .toStrictEqual(new BigNumber(currentBalance).plus(3))
+
+    const nonce = await rpc.getTransactionCount(evmAddr)
+    console.log('nonce1: ', nonce)
   })
 
   it('should transfer domain dToken from DVM to EVM', async () => {
@@ -1064,12 +1074,14 @@ describe('transferDomain', () => {
       const native = dvmAddr
       const data = tdFace.encodeFunctionData('transferDST20', [DST_20_CONTRACT_ADDR_BTC, from, to, amount, native])
       const nonce = await rpc.getTransactionCount(evmAddr)
+      console.log('nonce: ', nonce)
 
       const tx: ethers.TransactionRequest = {
         to: TD_CONTRACT_ADDR,
         nonce: nonce,
         data: data,
         chainId: (await rpc.getNetwork()).chainId,
+        type: 0,
         value: 0,
         gasLimit: 0,
         gasPrice: 0
@@ -1130,6 +1142,9 @@ describe('transferDomain', () => {
     // check: dvm balance is transferred
     expect(new BigNumber(dvmBalanceAfter0))
       .toStrictEqual(new BigNumber(dvmBalanceBefore0).minus(3))
+
+    const nonce = await rpc.getTransactionCount(evmAddr)
+    console.log('nonce2: ', nonce)
   })
 
   it('should transfer domain dToken from EVM to DVM', async () => {
@@ -1145,12 +1160,14 @@ describe('transferDomain', () => {
       const native = dvmAddr
       const data = tdFace.encodeFunctionData('transferDST20', [DST_20_CONTRACT_ADDR_BTC, from, to, amount, native])
       const nonce = await rpc.getTransactionCount(evmAddr)
+      console.log('nonce: ', nonce)
 
       const tx: ethers.TransactionRequest = {
         to: TD_CONTRACT_ADDR,
         nonce: nonce,
         data: data,
         chainId: (await rpc.getNetwork()).chainId,
+        type: 0,
         value: 0,
         gasLimit: 0,
         gasPrice: 0
@@ -1211,6 +1228,9 @@ describe('transferDomain', () => {
     // check: dvm balance is updated
     expect(new BigNumber(dvmBalanceAfter0))
       .toStrictEqual(new BigNumber(dvmBalanceBefore0).plus(3))
+
+    const nonce = await rpc.getTransactionCount(evmAddr)
+    console.log('nonce3: ', nonce)
   })
 })
 
