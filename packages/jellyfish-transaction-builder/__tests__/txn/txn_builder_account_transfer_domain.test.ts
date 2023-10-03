@@ -13,9 +13,10 @@ import {
 } from '@defichain/jellyfish-transaction'
 import { WIF } from '@defichain/jellyfish-crypto'
 import { P2WPKH } from '@defichain/jellyfish-address'
-import TransferDomainSol from '../../../../artifacts/contracts/TransferDomain.sol/TransferDomain.json'
+import TransferDomainV1 from '../../../../artifacts/contracts/TransferDomainV1.sol/TransferDomainV1.json'
+import waitForExpect from 'wait-for-expect'
 
-const TD_CONTRACT_ADDR = '0x0000000000000000000000000000000000000302'
+const TD_CONTRACT_ADDR = '0xdf00000000000000000000000000000000000001'
 const DST_20_CONTRACT_ADDR_BTC = '0xff00000000000000000000000000000000000001'
 
 const TRANSFER_DOMAIN_TYPE = {
@@ -75,7 +76,7 @@ describe('transferDomain', () => {
 
     const evmPrivKey = await testing.container.call('dumpprivkey', [evmAddr])
     wallet = new ethers.Wallet(evmPrivKey)
-    tdFace = new ethers.Interface(TransferDomainSol.abi)
+    tdFace = new ethers.Interface(TransferDomainV1.abi)
     evmRpcUrl = await testing.container.getCachedEvmRpcUrl()
     rpc = new ethers.JsonRpcProvider(evmRpcUrl)
 
@@ -124,15 +125,16 @@ describe('transferDomain', () => {
         const amount = '0x8ac7230489e80000' // 10_000_000_000_000_000_000
         const native = dvmAddr
         const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
 
         const tx: ethers.TransactionRequest = {
           to: TD_CONTRACT_ADDR,
-          nonce: await rpc.getTransactionCount(evmAddr),
-          value: 0,
-          chainId: (await rpc.getNetwork()).chainId,
+          nonce: nonce,
           data: data,
-          gasLimit: 100_000,
-          gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
         }
 
         const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -180,15 +182,16 @@ describe('transferDomain', () => {
         const amount = '0x1bc16d674ec80000' // 2_000_000_000_000_000_000
         const native = dvmAddr
         const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
 
         const tx: ethers.TransactionRequest = {
           to: TD_CONTRACT_ADDR,
-          nonce: await rpc.getTransactionCount(evmAddr),
-          value: 0,
-          chainId: (await rpc.getNetwork()).chainId,
+          nonce: nonce,
           data: data,
-          gasLimit: 100_000,
-          gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
         }
 
         const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -236,15 +239,16 @@ describe('transferDomain', () => {
         const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
         const native = dvmAddr
         const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
 
         const tx: ethers.TransactionRequest = {
           to: TD_CONTRACT_ADDR,
-          nonce: await rpc.getTransactionCount(evmAddr),
-          value: 0,
-          chainId: (await rpc.getNetwork()).chainId,
+          nonce: nonce,
           data: data,
-          gasLimit: 100_000,
-          gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
         }
 
         const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -292,15 +296,16 @@ describe('transferDomain', () => {
         const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
         const native = dvmAddr
         const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
 
         const tx: ethers.TransactionRequest = {
           to: TD_CONTRACT_ADDR,
-          nonce: await rpc.getTransactionCount(evmAddr),
-          value: 0,
-          chainId: (await rpc.getNetwork()).chainId,
+          nonce: nonce,
           data: data,
-          gasLimit: 100_000,
-          gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
         }
 
         const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -348,15 +353,16 @@ describe('transferDomain', () => {
         const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
         const native = dvmAddr
         const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
 
         const tx: ethers.TransactionRequest = {
           to: TD_CONTRACT_ADDR,
-          nonce: await rpc.getTransactionCount(evmAddr),
-          value: 0,
-          chainId: (await rpc.getNetwork()).chainId,
+          nonce: nonce,
           data: data,
-          gasLimit: 100_000,
-          gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
         }
 
         const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -404,15 +410,16 @@ describe('transferDomain', () => {
         const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
         const native = dvmAddr
         const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
 
         const tx: ethers.TransactionRequest = {
           to: TD_CONTRACT_ADDR,
-          nonce: await rpc.getTransactionCount(evmAddr),
-          value: 0,
-          chainId: (await rpc.getNetwork()).chainId,
+          nonce: nonce,
           data: data,
-          gasLimit: 100_000,
-          gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
         }
 
         const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -460,15 +467,16 @@ describe('transferDomain', () => {
         const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
         const native = dvmAddr
         const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
 
         const tx: ethers.TransactionRequest = {
           to: TD_CONTRACT_ADDR,
-          nonce: await rpc.getTransactionCount(evmAddr),
-          value: 0,
-          chainId: (await rpc.getNetwork()).chainId,
+          nonce: nonce,
           data: data,
-          gasLimit: 100_000,
-          gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
         }
 
         const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -518,15 +526,16 @@ describe('transferDomain', () => {
         const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
         const native = dvmAddr
         const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
 
         const tx: ethers.TransactionRequest = {
           to: TD_CONTRACT_ADDR,
-          nonce: await rpc.getTransactionCount(evmAddr),
-          value: 0,
-          chainId: (await rpc.getNetwork()).chainId,
+          nonce: nonce,
           data: data,
-          gasLimit: 100_000,
-          gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
         }
 
         const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -565,30 +574,337 @@ describe('transferDomain', () => {
       await expect(promise).rejects.toThrow(DeFiDRpcError)
       await expect(promise).rejects.toThrow('Non-DAT or LP tokens are not supported for transferdomain')
     })
+
+    it('should fail (duo) transfer domain from DVM to EVM', async () => {
+      let evmTx = new Uint8Array([])
+      {
+        // EvmIn
+        const from = evmAddr
+        const to = evmAddr
+        const amount = '0x1bc16d674ec80000' // 2_000_000_000_000_000_000
+        const native = dvmAddr
+        const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
+
+        const tx: ethers.TransactionRequest = {
+          to: TD_CONTRACT_ADDR,
+          nonce: nonce,
+          data: data,
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
+        }
+
+        const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
+
+        evmTx = new Uint8Array(Buffer.from(signed, 'hex'))
+      }
+
+      let evmTx1 = new Uint8Array([0])
+      {
+        // EvmIn
+        const from = evmAddr
+        const to = evmAddr
+        const amount = '0x14d1120d7b160000' // 1_500_000_000_000_000_000
+        const native = dvmAddr
+        const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
+
+        const tx: ethers.TransactionRequest = {
+          to: TD_CONTRACT_ADDR,
+          nonce: nonce,
+          data: data,
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
+        }
+
+        const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
+
+        evmTx1 = new Uint8Array(Buffer.from(signed, 'hex'))
+      }
+
+      const transferDomain: TransferDomain = {
+        items: [{
+          src: {
+            address: dvmScript,
+            domain: TRANSFER_DOMAIN_TYPE.DVM,
+            amount: {
+              token: 0,
+              amount: new BigNumber(2)
+            },
+            data: new Uint8Array([])
+          },
+          dst: {
+            address: evmScript,
+            domain: TRANSFER_DOMAIN_TYPE.EVM,
+            amount: {
+              token: 0,
+              amount: new BigNumber(2)
+            },
+            data: evmTx
+          }
+        }, {
+          src:
+          {
+            address: dvmScript,
+            domain: TRANSFER_DOMAIN_TYPE.DVM,
+            amount: {
+              token: 0,
+              amount: new BigNumber(1.5)
+            },
+            data: new Uint8Array([])
+          },
+          dst: {
+            address: evmScript,
+            domain: TRANSFER_DOMAIN_TYPE.EVM,
+            amount: {
+              token: 0,
+              amount: new BigNumber(1.5)
+            },
+            data: evmTx1
+          }
+        }]
+      }
+
+      const txn = await builder.account.transferDomain(transferDomain, dvmScript, { maximumAmount: 50 })
+      const promise = sendTransaction(testing.container, txn)
+
+      await expect(promise).rejects.toThrow(DeFiDRpcError)
+      await expect(promise).rejects.toThrow('TransferDomain currently only supports a single transfer per transaction')
+    })
+
+    it('should fail (duo) transfer domain from EVM to DVM', async () => {
+      let evmTx = new Uint8Array([])
+      {
+        // EvmOut
+        const from = evmAddr
+        const to = TD_CONTRACT_ADDR
+        const amount = '0x1bc16d674ec80000' // 2_000_000_000_000_000_000
+        const native = dvmAddr
+        const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
+
+        const tx: ethers.TransactionRequest = {
+          to: TD_CONTRACT_ADDR,
+          nonce: nonce,
+          data: data,
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
+        }
+
+        const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
+
+        evmTx = new Uint8Array(Buffer.from(signed, 'hex'))
+      }
+
+      let evmTx1 = new Uint8Array([0])
+      {
+        // EvmOut
+        const from = evmAddr
+        const to = TD_CONTRACT_ADDR
+        const amount = '0x14d1120d7b160000' // 1_500_000_000_000_000_000
+        const native = dvmAddr
+        const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
+
+        const tx: ethers.TransactionRequest = {
+          to: TD_CONTRACT_ADDR,
+          nonce: nonce,
+          data: data,
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
+        }
+
+        const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
+
+        evmTx1 = new Uint8Array(Buffer.from(signed, 'hex'))
+      }
+      const transferDomain: TransferDomain = {
+        items: [{
+          src:
+          {
+            address: evmScript,
+            domain: TRANSFER_DOMAIN_TYPE.EVM,
+            amount: {
+              token: 0,
+              amount: new BigNumber(2)
+            },
+            data: new Uint8Array([])
+          },
+          dst: {
+            address: dvmScript,
+            domain: TRANSFER_DOMAIN_TYPE.DVM,
+            amount: {
+              token: 0,
+              amount: new BigNumber(2)
+            },
+            data: evmTx
+          }
+        },
+        {
+          src:
+          {
+            address: evmScript,
+            domain: TRANSFER_DOMAIN_TYPE.EVM,
+            amount: {
+              token: 0,
+              amount: new BigNumber(1.5)
+            },
+            data: new Uint8Array([])
+          },
+          dst: {
+            address: dvmScript,
+            domain: TRANSFER_DOMAIN_TYPE.DVM,
+            amount: {
+              token: 0,
+              amount: new BigNumber(1.5)
+            },
+            data: evmTx1
+          }
+        }
+        ]
+      }
+
+      const txn = await builder.account.transferDomain(transferDomain, dvmScript)
+      const promise = sendTransaction(testing.container, txn)
+
+      await expect(promise).rejects.toThrow(DeFiDRpcError)
+      await expect(promise).rejects.toThrow('TransferDomain currently only supports a single transfer per transaction')
+    })
+
+    it('should fail (duo-diff) Transfer Domain from EVM to DVM and DVM to EVM', async () => {
+      let evmTx = new Uint8Array([])
+      {
+        // EvmIn
+        const from = evmAddr
+        const to = evmAddr
+        const amount = '0x3782dace9d900000' // 4_000_000_000_000_000_000
+        const native = dvmAddr
+        const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
+
+        const tx: ethers.TransactionRequest = {
+          to: TD_CONTRACT_ADDR,
+          nonce: nonce,
+          data: data,
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
+        }
+
+        const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
+
+        evmTx = new Uint8Array(Buffer.from(signed, 'hex'))
+      }
+
+      let evmTx1 = new Uint8Array([0])
+      {
+        // EvmOut
+        const from = evmAddr
+        const to = TD_CONTRACT_ADDR
+        const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
+        const native = dvmAddr
+        const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+        const nonce = await rpc.getTransactionCount(evmAddr)
+
+        const tx: ethers.TransactionRequest = {
+          to: TD_CONTRACT_ADDR,
+          nonce: nonce,
+          data: data,
+          chainId: (await rpc.getNetwork()).chainId,
+          value: 0,
+          gasLimit: 0,
+          gasPrice: 0
+        }
+
+        const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
+
+        evmTx1 = new Uint8Array(Buffer.from(signed, 'hex'))
+      }
+      const transferDomain: TransferDomain = {
+        items: [{
+          src:
+          {
+            address: dvmScript,
+            domain: TRANSFER_DOMAIN_TYPE.DVM,
+            amount: {
+              token: 0,
+              amount: new BigNumber(4)
+            },
+            data: new Uint8Array([])
+          },
+          dst: {
+            address: evmScript,
+            domain: TRANSFER_DOMAIN_TYPE.EVM,
+            amount: {
+              token: 0,
+              amount: new BigNumber(4)
+            },
+            data: evmTx
+          }
+        },
+        {
+          src:
+          {
+            address: evmScript,
+            domain: TRANSFER_DOMAIN_TYPE.EVM,
+            amount: {
+              token: 0,
+              amount: new BigNumber(3)
+            },
+            data: new Uint8Array([])
+          },
+          dst: {
+            address: dvmScript,
+            domain: TRANSFER_DOMAIN_TYPE.DVM,
+            amount: {
+              token: 0,
+              amount: new BigNumber(3)
+            },
+            data: evmTx1
+          }
+        }
+        ]
+      }
+
+      const txn = await builder.account.transferDomain(transferDomain, dvmScript, { maximumAmount: 50 })
+      const promise = sendTransaction(testing.container, txn)
+      await expect(promise).rejects.toThrow(DeFiDRpcError)
+      await expect(promise).rejects.toThrow('TransferDomain currently only supports a single transfer per transaction')
+    })
   })
 
   it('should transfer domain from DVM to EVM', async () => {
     const dvmAccBefore = await testing.rpc.account.getAccount(dvmAddr)
     const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[0].split('@')
-    const prevBalance = await getEVMBalances(testing)
 
     let evmTx = new Uint8Array([])
     {
       // EvmIn
-      const from = evmAddr
+      const from = TD_CONTRACT_ADDR
       const to = evmAddr
       const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
       const native = dvmAddr
       const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+      const nonce = await rpc.getTransactionCount(evmAddr)
 
       const tx: ethers.TransactionRequest = {
         to: TD_CONTRACT_ADDR,
-        nonce: await rpc.getTransactionCount(evmAddr),
-        value: 0,
-        chainId: (await rpc.getNetwork()).chainId,
+        nonce: nonce,
         data: data,
-        gasLimit: 100_000,
-        gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+        chainId: (await rpc.getNetwork()).chainId,
+        type: 0,
+        value: 0,
+        gasLimit: 0,
+        gasPrice: 0
       }
 
       const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -648,15 +964,14 @@ describe('transferDomain', () => {
     // check: dvm balance is transferred
     expect(new BigNumber(dvmBalanceAfter0))
       .toStrictEqual(new BigNumber(dvmBalanceBefore0).minus(3))
-
-    // check: evm balance = dvm balance - transferred
-    const currentBalance = await getEVMBalances(testing)
-    expect(new BigNumber(prevBalance))
-      .toStrictEqual(new BigNumber(currentBalance).minus(3))
   })
 
-  // TODO(canonbrother): flaky
-  it.skip('should transfer domain from EVM to DVM', async () => {
+  it('should transfer domain from EVM to DVM', async () => {
+    await waitForExpect(async () => {
+      const nonce = await rpc.getTransactionCount(evmAddr)
+      expect(nonce).toStrictEqual(1)
+    }, 100_000)
+
     const dvmAccBefore = await testing.rpc.account.getAccount(dvmAddr)
     const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[0].split('@')
     const prevBalance = await getEVMBalances(testing)
@@ -669,15 +984,17 @@ describe('transferDomain', () => {
       const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
       const native = dvmAddr
       const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
+      const nonce = await rpc.getTransactionCount(evmAddr)
 
       const tx: ethers.TransactionRequest = {
         to: TD_CONTRACT_ADDR,
-        nonce: await rpc.getTransactionCount(evmAddr),
-        value: 0,
-        chainId: (await rpc.getNetwork()).chainId,
+        nonce: nonce,
         data: data,
-        gasLimit: 100_000,
-        gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+        chainId: (await rpc.getNetwork()).chainId,
+        type: 0,
+        value: 0,
+        gasLimit: 0,
+        gasPrice: 0
       }
 
       const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -743,26 +1060,33 @@ describe('transferDomain', () => {
   })
 
   it('should transfer domain dToken from DVM to EVM', async () => {
+    await waitForExpect(async () => {
+      const nonce = await rpc.getTransactionCount(evmAddr)
+      expect(nonce).toStrictEqual(2)
+    }, 100_000)
+
     const dvmAccBefore = await testing.rpc.account.getAccount(dvmAddr)
     const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[1].split('@')
 
     let evmTx = new Uint8Array([])
     {
       // EvmIn
-      const from = evmAddr
+      const from = TD_CONTRACT_ADDR
       const to = evmAddr
       const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
       const native = dvmAddr
-      const data = tdFace.encodeFunctionData('bridgeDST20', [DST_20_CONTRACT_ADDR_BTC, from, to, amount, native])
+      const data = tdFace.encodeFunctionData('transferDST20', [DST_20_CONTRACT_ADDR_BTC, from, to, amount, native])
+      const nonce = await rpc.getTransactionCount(evmAddr)
 
       const tx: ethers.TransactionRequest = {
         to: TD_CONTRACT_ADDR,
-        nonce: await rpc.getTransactionCount(evmAddr),
-        value: 0,
-        chainId: (await rpc.getNetwork()).chainId,
+        nonce: nonce,
         data: data,
-        gasLimit: 100_000,
-        gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+        chainId: (await rpc.getNetwork()).chainId,
+        type: 0,
+        value: 0,
+        gasLimit: 0,
+        gasPrice: 0
       }
 
       const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -822,8 +1146,12 @@ describe('transferDomain', () => {
       .toStrictEqual(new BigNumber(dvmBalanceBefore0).minus(3))
   })
 
-  // TODO(canonbrother): flaky
-  it.skip('should transfer domain dToken from EVM to DVM', async () => {
+  it('should transfer domain dToken from EVM to DVM', async () => {
+    await waitForExpect(async () => {
+      const nonce = await rpc.getTransactionCount(evmAddr)
+      expect(nonce).toStrictEqual(3)
+    }, 100_000)
+
     const dvmAccBefore = await testing.rpc.account.getAccount(dvmAddr)
     const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[1].split('@')
 
@@ -834,16 +1162,18 @@ describe('transferDomain', () => {
       const to = TD_CONTRACT_ADDR
       const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
       const native = dvmAddr
-      const data = tdFace.encodeFunctionData('bridgeDST20', [DST_20_CONTRACT_ADDR_BTC, from, to, amount, native])
+      const data = tdFace.encodeFunctionData('transferDST20', [DST_20_CONTRACT_ADDR_BTC, from, to, amount, native])
+      const nonce = await rpc.getTransactionCount(evmAddr)
 
       const tx: ethers.TransactionRequest = {
         to: TD_CONTRACT_ADDR,
-        nonce: await rpc.getTransactionCount(evmAddr),
-        value: 0,
-        chainId: (await rpc.getNetwork()).chainId,
+        nonce: nonce,
         data: data,
-        gasLimit: 100_000,
-        gasPrice: (await rpc.getFeeData()).gasPrice // base fee
+        chainId: (await rpc.getNetwork()).chainId,
+        type: 0,
+        value: 0,
+        gasLimit: 0,
+        gasPrice: 0
       }
 
       const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
@@ -901,306 +1231,6 @@ describe('transferDomain', () => {
     // check: dvm balance is updated
     expect(new BigNumber(dvmBalanceAfter0))
       .toStrictEqual(new BigNumber(dvmBalanceBefore0).plus(3))
-  })
-
-  it('should fail (duo) transfer domain from DVM to EVM', async () => {
-    let evmTx = new Uint8Array([])
-    {
-      // EvmIn
-      const from = evmAddr
-      const to = evmAddr
-      const amount = '0x1bc16d674ec80000' // 2_000_000_000_000_000_000
-      const native = dvmAddr
-      const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
-
-      const tx: ethers.TransactionRequest = {
-        to: TD_CONTRACT_ADDR,
-        nonce: await rpc.getTransactionCount(evmAddr),
-        value: 0,
-        chainId: (await rpc.getNetwork()).chainId,
-        data: data,
-        gasLimit: 100_000,
-        gasPrice: (await rpc.getFeeData()).gasPrice // base fee
-      }
-
-      const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
-
-      evmTx = new Uint8Array(Buffer.from(signed, 'hex'))
-    }
-
-    let evmTx1 = new Uint8Array([0])
-    {
-      // EvmIn
-      const from = evmAddr
-      const to = evmAddr
-      const amount = '0x14d1120d7b160000' // 1_500_000_000_000_000_000
-      const native = dvmAddr
-      const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
-
-      const tx: ethers.TransactionRequest = {
-        to: TD_CONTRACT_ADDR,
-        nonce: await rpc.getTransactionCount(evmAddr),
-        value: 0,
-        chainId: (await rpc.getNetwork()).chainId,
-        data: data,
-        gasLimit: 100_000,
-        gasPrice: (await rpc.getFeeData()).gasPrice // base fee
-      }
-
-      const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
-
-      evmTx1 = new Uint8Array(Buffer.from(signed, 'hex'))
-    }
-
-    const transferDomain: TransferDomain = {
-      items: [{
-        src: {
-          address: dvmScript,
-          domain: TRANSFER_DOMAIN_TYPE.DVM,
-          amount: {
-            token: 0,
-            amount: new BigNumber(2)
-          },
-          data: new Uint8Array([])
-        },
-        dst: {
-          address: evmScript,
-          domain: TRANSFER_DOMAIN_TYPE.EVM,
-          amount: {
-            token: 0,
-            amount: new BigNumber(2)
-          },
-          data: evmTx
-        }
-      }, {
-        src:
-        {
-          address: dvmScript,
-          domain: TRANSFER_DOMAIN_TYPE.DVM,
-          amount: {
-            token: 0,
-            amount: new BigNumber(1.5)
-          },
-          data: new Uint8Array([])
-        },
-        dst: {
-          address: evmScript,
-          domain: TRANSFER_DOMAIN_TYPE.EVM,
-          amount: {
-            token: 0,
-            amount: new BigNumber(1.5)
-          },
-          data: evmTx1
-        }
-      }]
-    }
-
-    const txn = await builder.account.transferDomain(transferDomain, dvmScript, { maximumAmount: 50 })
-    const promise = sendTransaction(testing.container, txn)
-
-    await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('TransferDomain currently only supports a single transfer per transaction')
-  })
-
-  it('should fail (duo) transfer domain from EVM to DVM', async () => {
-    let evmTx = new Uint8Array([])
-    {
-      // EvmOut
-      const from = evmAddr
-      const to = TD_CONTRACT_ADDR
-      const amount = '0x1bc16d674ec80000' // 2_000_000_000_000_000_000
-      const native = dvmAddr
-      const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
-
-      const tx: ethers.TransactionRequest = {
-        to: TD_CONTRACT_ADDR,
-        nonce: await rpc.getTransactionCount(evmAddr),
-        value: 0,
-        chainId: (await rpc.getNetwork()).chainId,
-        data: data,
-        gasLimit: 100_000,
-        gasPrice: (await rpc.getFeeData()).gasPrice // base fee
-      }
-
-      const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
-
-      evmTx = new Uint8Array(Buffer.from(signed, 'hex'))
-    }
-
-    let evmTx1 = new Uint8Array([0])
-    {
-      // EvmOut
-      const from = evmAddr
-      const to = TD_CONTRACT_ADDR
-      const amount = '0x14d1120d7b160000' // 1_500_000_000_000_000_000
-      const native = dvmAddr
-      const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
-
-      const tx: ethers.TransactionRequest = {
-        to: TD_CONTRACT_ADDR,
-        nonce: await rpc.getTransactionCount(evmAddr),
-        value: 0,
-        chainId: (await rpc.getNetwork()).chainId,
-        data: data,
-        gasLimit: 100_000,
-        gasPrice: (await rpc.getFeeData()).gasPrice // base fee
-      }
-
-      const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
-
-      evmTx1 = new Uint8Array(Buffer.from(signed, 'hex'))
-    }
-    const transferDomain: TransferDomain = {
-      items: [{
-        src:
-        {
-          address: evmScript,
-          domain: TRANSFER_DOMAIN_TYPE.EVM,
-          amount: {
-            token: 0,
-            amount: new BigNumber(2)
-          },
-          data: new Uint8Array([])
-        },
-        dst: {
-          address: dvmScript,
-          domain: TRANSFER_DOMAIN_TYPE.DVM,
-          amount: {
-            token: 0,
-            amount: new BigNumber(2)
-          },
-          data: evmTx
-        }
-      },
-      {
-        src:
-        {
-          address: evmScript,
-          domain: TRANSFER_DOMAIN_TYPE.EVM,
-          amount: {
-            token: 0,
-            amount: new BigNumber(1.5)
-          },
-          data: new Uint8Array([])
-        },
-        dst: {
-          address: dvmScript,
-          domain: TRANSFER_DOMAIN_TYPE.DVM,
-          amount: {
-            token: 0,
-            amount: new BigNumber(1.5)
-          },
-          data: evmTx1
-        }
-      }
-      ]
-    }
-
-    const txn = await builder.account.transferDomain(transferDomain, dvmScript)
-    const promise = sendTransaction(testing.container, txn)
-
-    await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('TransferDomain currently only supports a single transfer per transaction')
-  })
-
-  it('should fail (duo-diff) Transfer Domain from EVM to DVM and DVM to EVM', async () => {
-    let evmTx = new Uint8Array([])
-    {
-      // EvmIn
-      const from = evmAddr
-      const to = evmAddr
-      const amount = '0x3782dace9d900000' // 4_000_000_000_000_000_000
-      const native = dvmAddr
-      const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
-
-      const tx: ethers.TransactionRequest = {
-        to: TD_CONTRACT_ADDR,
-        nonce: await rpc.getTransactionCount(evmAddr),
-        value: 0,
-        chainId: (await rpc.getNetwork()).chainId,
-        data: data,
-        gasLimit: 100_000,
-        gasPrice: (await rpc.getFeeData()).gasPrice // base fee
-      }
-
-      const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
-
-      evmTx = new Uint8Array(Buffer.from(signed, 'hex'))
-    }
-
-    let evmTx1 = new Uint8Array([0])
-    {
-      // EvmOut
-      const from = evmAddr
-      const to = TD_CONTRACT_ADDR
-      const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
-      const native = dvmAddr
-      const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
-
-      const tx: ethers.TransactionRequest = {
-        to: TD_CONTRACT_ADDR,
-        nonce: await rpc.getTransactionCount(evmAddr),
-        value: 0,
-        chainId: (await rpc.getNetwork()).chainId,
-        data: data,
-        gasLimit: 100_000,
-        gasPrice: (await rpc.getFeeData()).gasPrice // base fee
-      }
-
-      const signed = (await wallet.signTransaction(tx)).substring(2) // rm prefix `0x`
-
-      evmTx1 = new Uint8Array(Buffer.from(signed, 'hex'))
-    }
-    const transferDomain: TransferDomain = {
-      items: [{
-        src:
-        {
-          address: dvmScript,
-          domain: TRANSFER_DOMAIN_TYPE.DVM,
-          amount: {
-            token: 0,
-            amount: new BigNumber(4)
-          },
-          data: new Uint8Array([])
-        },
-        dst: {
-          address: evmScript,
-          domain: TRANSFER_DOMAIN_TYPE.EVM,
-          amount: {
-            token: 0,
-            amount: new BigNumber(4)
-          },
-          data: evmTx
-        }
-      },
-      {
-        src:
-        {
-          address: evmScript,
-          domain: TRANSFER_DOMAIN_TYPE.EVM,
-          amount: {
-            token: 0,
-            amount: new BigNumber(3)
-          },
-          data: new Uint8Array([])
-        },
-        dst: {
-          address: dvmScript,
-          domain: TRANSFER_DOMAIN_TYPE.DVM,
-          amount: {
-            token: 0,
-            amount: new BigNumber(3)
-          },
-          data: evmTx1
-        }
-      }
-      ]
-    }
-
-    const txn = await builder.account.transferDomain(transferDomain, dvmScript, { maximumAmount: 50 })
-    const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('TransferDomain currently only supports a single transfer per transaction')
   })
 })
 
