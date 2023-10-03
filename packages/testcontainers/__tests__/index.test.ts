@@ -52,7 +52,7 @@ describe('regtest', () => {
 })
 
 describe('regtest: override docker image', () => {
-  const container = new TestNetContainer('defi/defichain:1.6.4')
+  const container = new TestNetContainer('defi/defichain:4.0.0-beta12')
 
   afterAll(async () => {
     await container.stop()

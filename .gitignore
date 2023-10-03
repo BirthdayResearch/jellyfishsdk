@@ -44,3 +44,7 @@ tsconfig.build.tsbuildinfo
 # Level
 .level
 .leveldb
+
+# sol
+artifacts
+cache

@@ -21,7 +21,11 @@ export class TransactionVinIndexer extends Indexer {
       const isEvmTx = checkIfEvmTx(txn)
 
       for (const vin of txn.vin) {
-        if (vin.coinbase !== undefined || isEvmTx) {
+        if (isEvmTx) {
+          continue
+        }
+
+        if (vin.coinbase !== undefined) {
           await this.vinMapper.put(this.map(txn, vin, undefined))
         } else {
           const vout = await this.voutFinder.findVout(block, vin.txid, vin.vout)

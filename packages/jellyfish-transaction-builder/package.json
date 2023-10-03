@@ -16,7 +16,8 @@
   "dependencies": {
     "@defichain/jellyfish-crypto": "^0.0.0",
     "@defichain/jellyfish-transaction": "^0.0.0",
-    "@defichain/jellyfish-transaction-signature": "^0.0.0"
+    "@defichain/jellyfish-transaction-signature": "^0.0.0",
+    "ethers": "^6.7.1"
   },
   "peerDependencies": {
     "defichain": "^0.0.0"

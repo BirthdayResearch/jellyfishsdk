@@ -9,6 +9,14 @@ export interface FeeRateProvider {
   estimate: () => Promise<BigNumber>
 }
 
+export interface ListUnspentQueryOptions {
+  minimumAmount?: number
+  maximumAmount?: number
+  maximumCount?: number
+  minimumSumAmount?: number
+  tokenId?: string
+}
+
 export interface PrevoutProvider {
   /**
    * @return {Prevout[]} all outputs to create transaction, aka to send all.
@@ -22,9 +30,15 @@ export interface PrevoutProvider {
    *
    * @param {BigNumber} minBalance of balance combined in a Prevout required for a single transaction.
    * required to create transaction.
+   * @param {ListUnspentOptions} [options]
+   * @param {number} [options.minimumAmount] default = 0, minimum value of each UTXO
+   * @param {number} [options.maximumAmount] default is 'unlimited', maximum value of each UTXO
+   * @param {number} [options.maximumCount] default is 'unlimited', maximum number of UTXOs
+   * @param {number} [options.minimumSumAmount] default is 'unlimited', minimum sum value of all UTXOs
+   * @param {string} [options.tokenId] default is 'all', filter by token
    * @return {Prevout[]} selected all required for creating the transaction
    */
-  collect: (minBalance: BigNumber) => Promise<Prevout[]>
+  collect: (minBalance: BigNumber, options?: ListUnspentQueryOptions) => Promise<Prevout[]>
 }
 
 /**

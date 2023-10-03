@@ -2,7 +2,8 @@ version: "3.7"
 
 services:
   defi-blockchain:
-    image: defi/defichain:4.0.0-beta11
+    image: defi/defichain:4.0.0-beta13
+
     ports:
       - "19554:19554"
     command: >

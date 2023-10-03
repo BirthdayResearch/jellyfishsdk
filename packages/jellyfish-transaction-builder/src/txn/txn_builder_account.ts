@@ -5,6 +5,7 @@ import {
 } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 import { TxnBuilderError, TxnBuilderErrorType } from './txn_builder_error'
+import { ListUnspentQueryOptions } from '../provider'
 
 export class TxnBuilderAccount extends P2WPKHTxnBuilder {
   /**
@@ -144,13 +145,21 @@ export class TxnBuilderAccount extends P2WPKHTxnBuilder {
   *
   * @param {TransferDomain} transferDomain txn to create
   * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
+  * @param {ListUnspentOptions} [options]
+  * @param {number} [options.minimumAmount] default = 0, minimum value of each UTXO
+  * @param {number} [options.maximumAmount] default is 'unlimited', maximum value of each UTXO
+  * @param {number} [options.maximumCount] default is 'unlimited', maximum number of UTXOs
+  * @param {number} [options.minimumSumAmount] default is 'unlimited', minimum sum value of all UTXOs
+  * @param {string} [options.tokenId] default is 'all', filter by token
   * @returns {Promise<TransactionSegWit>}
   */
 
-  async transferDomain (transferDomain: TransferDomain, changeScript: Script): Promise<TransactionSegWit> {
+  async transferDomain (transferDomain: TransferDomain, changeScript: Script, options: ListUnspentQueryOptions = {}): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_TRANSFER_DOMAIN(transferDomain),
-      changeScript
+      changeScript,
+      new BigNumber(0),
+      options
     )
   }
 }

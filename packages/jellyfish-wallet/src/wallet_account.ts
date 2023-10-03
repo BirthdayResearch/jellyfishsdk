@@ -55,7 +55,7 @@ export abstract class WalletAccount implements WalletEllipticPair {
     return {
       stack: [
         OP_CODES.OP_16,
-        OP_CODES.OP_PUSHDATA_HEX_LE(Eth.fromPubKeyUncompressed(pubKeyUncompressed).substring(2))
+        OP_CODES.OP_PUSHDATA_HEX_BE(Eth.fromPubKeyUncompressed(pubKeyUncompressed).substring(2))
       ]
     }
   }

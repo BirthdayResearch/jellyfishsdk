@@ -36,7 +36,7 @@ export abstract class DeFiDContainer extends DockerContainer {
     if (process?.env?.DEFICHAIN_DOCKER_IMAGE !== undefined) {
       return process.env.DEFICHAIN_DOCKER_IMAGE
     }
-    return 'defi/defichain:4.0.0-beta11' // renovate.json regexManagers
+    return 'defi/defichain:4.0.0-beta13' // renovate.json regexManagers
   }
 
   public static readonly DefaultStartOptions = {
@@ -46,6 +46,7 @@ export abstract class DeFiDContainer extends DockerContainer {
 
   protected startOptions?: StartOptions
   protected cachedRpcUrl?: string
+  protected cachedEvmRpcUrl?: string
 
   /**
    * @param {Network} network of the container
@@ -69,6 +70,7 @@ export abstract class DeFiDContainer extends DockerContainer {
       '-printtoconsole',
       '-rpcallowip=0.0.0.0/0',
       '-rpcbind=0.0.0.0',
+      '-ethrpcbind=0.0.0.0',
       '-rpcworkqueue=512',
       `-rpcuser=${opts.user!}`,
       `-rpcpassword=${opts.password!}`
@@ -86,6 +88,9 @@ export abstract class DeFiDContainer extends DockerContainer {
       Image: this.image,
       Tty: true,
       Cmd: this.getCmd(this.startOptions),
+      Env: [
+        'RUST_LOG=debug'
+      ],
       HostConfig: {
         PublishAllPorts: true
       }
@@ -121,6 +126,8 @@ export abstract class DeFiDContainer extends DockerContainer {
    */
   public abstract getRpcPort (): Promise<string>
 
+  public abstract getEvmRpcPort (): Promise<string>
+
   /**
    * Get host machine url used for defid rpc calls with auth
    * TODO(fuxingloh): not a great design when network config changed, the url and ports get refresh
@@ -133,6 +140,16 @@ export abstract class DeFiDContainer extends DockerContainer {
       this.cachedRpcUrl = `http://${user}:${password}@127.0.0.1:${port}/`
     }
     return this.cachedRpcUrl
+  }
+
+  async getCachedEvmRpcUrl (): Promise<string> {
+    if (this.cachedEvmRpcUrl === undefined) {
+      const port = await this.getEvmRpcPort()
+      const user = this.startOptions!.user!
+      const password = this.startOptions!.password!
+      this.cachedEvmRpcUrl = `http://${user}:${password}@127.0.0.1:${port}/`
+    }
+    return this.cachedEvmRpcUrl
   }
 
   /**
