@@ -88,11 +88,15 @@ describeWithDefid('transferDomain', (context) => {
       const amount = '0x29a2241af62c0000' // 3_000_000_000_000_000_000
       const native = dvmAddr
       const data = tdFace.encodeFunctionData('transferDST20', [DST_20_CONTRACT_ADDR_BTC, from, to, amount, native])
+      const nonce = await context.ethersjs.getTransactionCount(evmAddr)
       console.log('data: ', data)
 
       const tx: ethers.TransactionRequest = {
         to: TD_CONTRACT_ADDR,
+        nonce: nonce,
         data: data,
+        chainId: (await context.ethersjs.getNetwork()).chainId,
+        type: 0,
         value: 0,
         gasLimit: 0,
         gasPrice: 0 // base fee

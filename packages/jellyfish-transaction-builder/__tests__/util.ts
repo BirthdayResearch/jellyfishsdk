@@ -203,7 +203,7 @@ export async function startDefid(): Promise<{
 
 export function describeWithDefid(
 	title: string,
-	cb: (context: { web3: Web3; client: JsonRpcClient }) => void,
+	cb: (context: { web3: Web3; client: JsonRpcClient, ethersjs: ethers.JsonRpcProvider }) => void,
 ) {
 	describe(title, () => {
 		let binary: ChildProcess;

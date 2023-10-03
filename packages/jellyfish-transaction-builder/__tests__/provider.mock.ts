@@ -54,7 +54,6 @@ export class MockPrevoutProvider implements PrevoutProvider {
   async collect (minBalance: BigNumber, options?: ListUnspentQueryOptions): Promise<Prevout[]> {
     const pubKey = await this.ellipticPair.publicKey()
     const address = Bech32.fromPubKey(pubKey, 'bcrt')
-    console.log('collect address: ', address)
 
     // TODO(fuxingloh): minimumSumAmount behavior is weirdly inconsistent, listunspent will always
     //  return the correct result without providing options. However, with 'minimumSumAmount', it
@@ -66,12 +65,10 @@ export class MockPrevoutProvider implements PrevoutProvider {
         1, 9999999, [address], true, options
       ])
     } else {
-      console.log('collect client')
       unspent = await this.context.call('listunspent', [
         1, 9999999, [address], true, options
       ], 'number')
     }
-    console.log('unspent: ', unspent)
 
     return unspent.map((utxo: any): Prevout => {
       return MockPrevoutProvider.mapPrevout(utxo, pubKey)
