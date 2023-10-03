@@ -14,6 +14,7 @@ import {
 import { WIF } from '@defichain/jellyfish-crypto'
 import { P2WPKH } from '@defichain/jellyfish-address'
 import TransferDomainV1 from '../../../../artifacts/contracts/TransferDomainV1.sol/TransferDomainV1.json'
+import waitForExpect from 'wait-for-expect'
 
 const TD_CONTRACT_ADDR = '0xdf00000000000000000000000000000000000001'
 const DST_20_CONTRACT_ADDR_BTC = '0xff00000000000000000000000000000000000001'
@@ -894,7 +895,6 @@ describe('transferDomain', () => {
       const native = dvmAddr
       const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
       const nonce = await rpc.getTransactionCount(evmAddr)
-      console.log('nonce: ', nonce)
 
       const tx: ethers.TransactionRequest = {
         to: TD_CONTRACT_ADDR,
@@ -964,12 +964,14 @@ describe('transferDomain', () => {
     // check: dvm balance is transferred
     expect(new BigNumber(dvmBalanceAfter0))
       .toStrictEqual(new BigNumber(dvmBalanceBefore0).minus(3))
-
-    const nonce = await rpc.getTransactionCount(evmAddr)
-    console.log('nonce: ', nonce)
   })
 
   it('should transfer domain from EVM to DVM', async () => {
+    await waitForExpect(async () => {
+      const nonce = await rpc.getTransactionCount(evmAddr)
+      expect(nonce).toStrictEqual(1)
+    }, 100_000)
+
     const dvmAccBefore = await testing.rpc.account.getAccount(dvmAddr)
     const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[0].split('@')
     const prevBalance = await getEVMBalances(testing)
@@ -983,7 +985,6 @@ describe('transferDomain', () => {
       const native = dvmAddr
       const data = tdFace.encodeFunctionData('transfer', [from, to, amount, native])
       const nonce = await rpc.getTransactionCount(evmAddr)
-      console.log('nonce: ', nonce)
 
       const tx: ethers.TransactionRequest = {
         to: TD_CONTRACT_ADDR,
@@ -1056,12 +1057,14 @@ describe('transferDomain', () => {
     const currentBalance = await getEVMBalances(testing)
     expect(new BigNumber(prevBalance))
       .toStrictEqual(new BigNumber(currentBalance).plus(3))
-
-    const nonce = await rpc.getTransactionCount(evmAddr)
-    console.log('nonce1: ', nonce)
   })
 
   it('should transfer domain dToken from DVM to EVM', async () => {
+    await waitForExpect(async () => {
+      const nonce = await rpc.getTransactionCount(evmAddr)
+      expect(nonce).toStrictEqual(2)
+    }, 100_000)
+
     const dvmAccBefore = await testing.rpc.account.getAccount(dvmAddr)
     const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[1].split('@')
 
@@ -1074,7 +1077,6 @@ describe('transferDomain', () => {
       const native = dvmAddr
       const data = tdFace.encodeFunctionData('transferDST20', [DST_20_CONTRACT_ADDR_BTC, from, to, amount, native])
       const nonce = await rpc.getTransactionCount(evmAddr)
-      console.log('nonce: ', nonce)
 
       const tx: ethers.TransactionRequest = {
         to: TD_CONTRACT_ADDR,
@@ -1142,12 +1144,14 @@ describe('transferDomain', () => {
     // check: dvm balance is transferred
     expect(new BigNumber(dvmBalanceAfter0))
       .toStrictEqual(new BigNumber(dvmBalanceBefore0).minus(3))
-
-    const nonce = await rpc.getTransactionCount(evmAddr)
-    console.log('nonce2: ', nonce)
   })
 
   it('should transfer domain dToken from EVM to DVM', async () => {
+    await waitForExpect(async () => {
+      const nonce = await rpc.getTransactionCount(evmAddr)
+      expect(nonce).toStrictEqual(3)
+    }, 100_000)
+
     const dvmAccBefore = await testing.rpc.account.getAccount(dvmAddr)
     const [dvmBalanceBefore0, tokenIdBefore0] = dvmAccBefore[1].split('@')
 
@@ -1160,7 +1164,6 @@ describe('transferDomain', () => {
       const native = dvmAddr
       const data = tdFace.encodeFunctionData('transferDST20', [DST_20_CONTRACT_ADDR_BTC, from, to, amount, native])
       const nonce = await rpc.getTransactionCount(evmAddr)
-      console.log('nonce: ', nonce)
 
       const tx: ethers.TransactionRequest = {
         to: TD_CONTRACT_ADDR,
@@ -1228,9 +1231,6 @@ describe('transferDomain', () => {
     // check: dvm balance is updated
     expect(new BigNumber(dvmBalanceAfter0))
       .toStrictEqual(new BigNumber(dvmBalanceBefore0).plus(3))
-
-    const nonce = await rpc.getTransactionCount(evmAddr)
-    console.log('nonce3: ', nonce)
   })
 })
 
