@@ -121,7 +121,7 @@ export class NativeChainContainer extends GenericContainer {
       '-fortcanningepilogueheight=15',
       '-grandcentralheight=16',
       '-grandcentralepilogueheight=17',
-      '-nextnetworkupgradeheight=18',
+      '-metachainheight=18',
       '-regtest-skip-loan-collateral-validation',
       '-regtest-minttoken-simulate-mainnet=0'
     ],
