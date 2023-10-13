@@ -145,7 +145,7 @@ export class TxnBuilderAccount extends P2WPKHTxnBuilder {
   *
   * @param {TransferDomain} transferDomain txn to create
   * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
-  * @param {Prevout[]} utxos to send unspent to after deducting the (converted + fees)
+  * @param {Prevout[]} utxos to be speficically provided if needed
   * @returns {Promise<TransactionSegWit>}
   */
 
