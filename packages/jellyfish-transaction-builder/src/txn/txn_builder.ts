@@ -98,7 +98,7 @@ export abstract class P2WPKHTxnBuilder {
    * @param {OP_DEFI_TX} opDeFiTx to create
    * @param {Script} changeScript to send unspent to after deducting the fees
    * @param {BigNumber} [outValue=0] for the opDeFiTx, usually always be 0.
-   * @param {Prevout[]} [utxos=[]] for the opDeFiTx, usually always be 0.
+   * @param {Prevout[]} [utxos=[]] provide it if you want to spent specific UTXOs
    */
   async createDeFiTx (
     opDeFiTx: OP_DEFI_TX,
