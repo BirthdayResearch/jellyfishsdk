@@ -200,6 +200,7 @@ it('should have gov set', async () => {
       'v0/token/18/loan_minting_enabled': 'true',
       'v0/token/18/loan_minting_interest': '3',
       'v0/params/feature/icx': 'true',
+      'v0/vaults/dusd-vault/enabled': 'true',
       'v0/params/feature/evm': 'true',
       'v0/transferdomain/dvm-evm/dat-enabled': 'true',
       'v0/transferdomain/evm-dvm/dat-enabled': 'true',
