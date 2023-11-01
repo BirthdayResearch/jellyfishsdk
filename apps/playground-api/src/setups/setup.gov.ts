@@ -63,6 +63,9 @@ export class SetupGov extends PlaygroundSetup<Record<string, any>> {
           // Unloop mechanism for DUSD
           'v0/token/14/loan_payback_collateral': 'true',
 
+          // Enable DUSD loop for loan
+          'v0/vaults/dusd-vault/enabled': 'true',
+
           // On-chain governance
           'v0/params/feature/gov': 'true',
 
