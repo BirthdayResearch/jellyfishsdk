@@ -181,7 +181,7 @@ describe('SetGov v0/locks/token', () => {
     await testing.generate(1)
   }
 
-  it.only('should lock and unlock loan token', async () => {
+  it('should lock and unlock loan token', async () => {
     {
       const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
       expect(attributes.ATTRIBUTES[`v0/locks/token/${tslaId}`]).toBeUndefined()
