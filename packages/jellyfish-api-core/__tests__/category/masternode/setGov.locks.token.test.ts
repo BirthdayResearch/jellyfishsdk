@@ -251,24 +251,23 @@ describe('SetGov v0/locks/token', () => {
       expect(attributes.ATTRIBUTES[`v0/locks/token/${tslaId}`]).toStrictEqual('false')
     }
 
-    // TODO(canonbrother): bug on 4.0.0-rc2, check on 4.0.0-stable later
-    // // Lock invalid loan token string
-    // await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/locks/token/abc': 'true' } })
-    // await testing.generate(1)
+    // Lock invalid loan token string
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/locks/token/abc': 'true' } })
+    await testing.generate(1)
 
-    // {
-    //   const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
-    //   expect(attributes.ATTRIBUTES['v0/locks/token/abc']).toBeUndefined()
-    // }
+    {
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributes.ATTRIBUTES['v0/locks/token/abc']).toBeUndefined()
+    }
 
-    // // Unlock invalid loan token string
-    // await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/locks/token/abc': 'false' } })
-    // await testing.generate(1)
+    // Unlock invalid loan token string
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/locks/token/abc': 'false' } })
+    await testing.generate(1)
 
-    // {
-    //   const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
-    //   expect(attributes.ATTRIBUTES['v0/locks/token/abc']).toBeUndefined()
-    // }
+    {
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributes.ATTRIBUTES['v0/locks/token/abc']).toBeUndefined()
+    }
   })
 
   it('should update loan token if loan token is unlocked', async () => {
