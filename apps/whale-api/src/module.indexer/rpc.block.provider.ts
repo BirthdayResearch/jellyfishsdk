@@ -90,7 +90,28 @@ export class RPCBlockProvider {
     if (await RPCBlockProvider.isBestChain(indexed, nextBlock)) {
       await this.index(nextBlock)
     } else {
-      await this.invalidate(indexed.hash, indexed.height)
+      // Retry indexing the previous block before invalidating it
+      const MAX_RETRIES = 3
+      let prevBlockIndexedSuccessfully = false
+      let prevBlockRetryCount = 0
+
+      while (!prevBlockIndexedSuccessfully && prevBlockRetryCount < MAX_RETRIES) {
+        try {
+          this.logger.log(`Retrying indexing block ${indexed.height} - Attempt ${prevBlockRetryCount + 1}`)
+          const previousBlock = await this.client.blockchain.getBlock(indexed.hash, 2)
+          await this.index(previousBlock)
+          prevBlockIndexedSuccessfully = true
+        } catch (error) {
+          this.logger.error(`Error indexing the previous block - ${indexed.height}`)
+          prevBlockRetryCount++
+        }
+      }
+
+      if (!prevBlockIndexedSuccessfully) {
+        // If all retries for indexing the previous block fail, invalidate it
+        await this.invalidate(indexed.hash, indexed.height)
+        this.logger.error('All retries for indexing the previous block have failed. The block has been invalidated.')
+      }
     }
     return true
   }
@@ -100,7 +121,7 @@ export class RPCBlockProvider {
    * @param {defid.Block<Transaction>} nextBlock to check previous block hash
    */
   private static async isBestChain (indexed: Block, nextBlock: defid.Block<defid.Transaction>): Promise<boolean> {
-    return nextBlock.previousblockhash === indexed.hash
+    return indexed.hash === nextBlock.previousblockhash
   }
 
   public async indexGenesis (): Promise<boolean> {
