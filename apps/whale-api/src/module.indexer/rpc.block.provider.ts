@@ -44,6 +44,15 @@ export class RPCBlockProvider {
       }
 
       try {
+        const status = await this.statusMapper.get()
+        this.logger.log(`[Start Cycle] - status: ${JSON.stringify(status)}`)
+        if (status?.status === Status.ERROR) {
+          this.logger.log('Setting status mapper to previous block...')
+          const currentBlock = await this.client.blockchain.getBlock(status.hash, 2)
+          const prevBlock = await this.client.blockchain.getBlock(currentBlock.previousblockhash, 2)
+          await this.statusMapper.put(prevBlock.hash, prevBlock.height, Status.INDEXING)
+        }
+
         await this.cleanup()
         this.indexing = await this.synchronize()
       } catch (err) {
@@ -88,8 +97,10 @@ export class RPCBlockProvider {
 
     const nextBlock = await this.client.blockchain.getBlock(nextHash, 2)
     if (await RPCBlockProvider.isBestChain(indexed, nextBlock)) {
+      this.logger.log(`[Synchronize] BEST CHAIN. Indexing next block ${nextBlock.height}...`)
       await this.index(nextBlock)
     } else {
+      this.logger.log(`[Synchronize] NOT BEST CHAIN. Indexing prev block ${indexed.height}...`)
       // Retry indexing the previous block before invalidating it
       const MAX_RETRIES = 3
       let prevBlockIndexedSuccessfully = false
