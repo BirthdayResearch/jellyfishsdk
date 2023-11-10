@@ -45,15 +45,6 @@ export class RPCBlockProvider {
       }
 
       try {
-        const status = await this.statusMapper.get()
-        this.logger.log(`[Start Indexing] - status: ${status?.status ?? ''}`)
-        if (status?.status === Status.REINDEX) {
-          const currentBlock = await this.client.blockchain.getBlock(status.hash, 2)
-          const prevBlock = await this.client.blockchain.getBlock(currentBlock.previousblockhash, 2)
-          this.logger.log(`Reindexing previous block ${prevBlock.height} ...`)
-          await this.statusMapper.put(prevBlock.hash, prevBlock.height, Status.INDEXING)
-        }
-
         await this.cleanup()
         this.indexing = await this.synchronize()
       } catch (err) {
@@ -98,32 +89,9 @@ export class RPCBlockProvider {
 
     const nextBlock = await this.client.blockchain.getBlock(nextHash, 2)
     if (await RPCBlockProvider.isBestChain(indexed, nextBlock)) {
-      this.logger.log(`[Synchronize - best chain] Indexing next block ${nextBlock.height}...`)
       await this.index(nextBlock)
     } else {
-      this.logger.log(`[Synchronize - not the best chain] Indexing prev block ${indexed.height}...`)
-      // Retry indexing the previous block before invalidating it
-      const MAX_RETRIES = 3
-      let prevBlockIndexedSuccessfully = false
-      let prevBlockRetryCount = 0
-
-      while (!prevBlockIndexedSuccessfully && prevBlockRetryCount < MAX_RETRIES) {
-        try {
-          this.logger.log(`Retrying indexing block ${indexed.height} - Attempt ${prevBlockRetryCount + 1}`)
-          const previousBlock = await this.client.blockchain.getBlock(indexed.hash, 2)
-          await this.index(previousBlock)
-          prevBlockIndexedSuccessfully = true
-        } catch (error) {
-          this.logger.error(`Error indexing the previous block - ${indexed.height}`)
-          prevBlockRetryCount++
-        }
-      }
-
-      if (!prevBlockIndexedSuccessfully) {
-        // If all retries for indexing the previous block fail, invalidate it
-        await this.invalidate(indexed.hash, indexed.height)
-        this.logger.error('All retries for indexing the previous block have failed. The block has been invalidated.')
-      }
+      await this.invalidate(indexed.hash, indexed.height)
     }
     return true
   }
