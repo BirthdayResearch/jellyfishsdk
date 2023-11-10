@@ -6,6 +6,7 @@ import { Block, BlockMapper } from '../module.model/block'
 import { IndexStatusMapper, Status } from './status'
 import { waitForCondition } from '@defichain/testcontainers/dist/utils'
 import { blockchain as defid, RpcApiError } from '@defichain/jellyfish-api-core'
+import { NotFoundIndexerError } from './error'
 
 @Injectable()
 export class RPCBlockProvider {
@@ -45,11 +46,11 @@ export class RPCBlockProvider {
 
       try {
         const status = await this.statusMapper.get()
-        this.logger.log(`[Start Cycle] - status: ${JSON.stringify(status)}`)
-        if (status?.status === Status.ERROR) {
-          this.logger.log('Setting status mapper to previous block...')
+        this.logger.log(`[Start Indexing] - status: ${status?.status ?? ''}`)
+        if (status?.status === Status.REINDEX) {
           const currentBlock = await this.client.blockchain.getBlock(status.hash, 2)
           const prevBlock = await this.client.blockchain.getBlock(currentBlock.previousblockhash, 2)
+          this.logger.log(`Reindexing previous block ${prevBlock.height} ...`)
           await this.statusMapper.put(prevBlock.hash, prevBlock.height, Status.INDEXING)
         }
 
@@ -97,10 +98,10 @@ export class RPCBlockProvider {
 
     const nextBlock = await this.client.blockchain.getBlock(nextHash, 2)
     if (await RPCBlockProvider.isBestChain(indexed, nextBlock)) {
-      this.logger.log(`[Synchronize] BEST CHAIN. Indexing next block ${nextBlock.height}...`)
+      this.logger.log(`[Synchronize - best chain] Indexing next block ${nextBlock.height}...`)
       await this.index(nextBlock)
     } else {
-      this.logger.log(`[Synchronize] NOT BEST CHAIN. Indexing prev block ${indexed.height}...`)
+      this.logger.log(`[Synchronize - not the best chain] Indexing prev block ${indexed.height}...`)
       // Retry indexing the previous block before invalidating it
       const MAX_RETRIES = 3
       let prevBlockIndexedSuccessfully = false
@@ -153,6 +154,7 @@ export class RPCBlockProvider {
     switch (status.status) {
       case Status.INVALIDATED:
       case Status.INDEXED:
+      case Status.REINDEX:
         return
     }
 
@@ -181,7 +183,11 @@ export class RPCBlockProvider {
       await this.indexer.invalidate(hash)
       await this.statusMapper.put(hash, height, Status.INVALIDATED)
     } catch (err) {
-      await this.statusMapper.put(hash, height, Status.ERROR)
+      if (err instanceof NotFoundIndexerError) {
+        await this.statusMapper.put(hash, height, Status.REINDEX)
+      } else {
+        await this.statusMapper.put(hash, height, Status.ERROR)
+      }
       throw err
     }
   }
