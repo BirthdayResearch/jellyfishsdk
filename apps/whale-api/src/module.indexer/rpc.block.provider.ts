@@ -91,6 +91,7 @@ export class RPCBlockProvider {
     if (await RPCBlockProvider.isBestChain(indexed, nextBlock)) {
       await this.index(nextBlock)
     } else {
+      this.logger.error(`indexedBlock{height: ${indexed.height}, hash: ${indexed.hash}}, nextBlock{height: ${nextBlock.height}, prevHash: ${nextBlock.previousblockhash}}`)
       await this.invalidate(indexed.hash, indexed.height)
     }
     return true
