@@ -4,7 +4,6 @@ import { RawBlock } from '../_abstract'
 import { Inject, Injectable } from '@nestjs/common'
 import { NetworkName } from '@defichain/jellyfish-network'
 import BigNumber from 'bignumber.js'
-import { IndexerError } from '../../error'
 import { PoolPairPathMapping } from './pool.pair.path.mapping'
 import { PoolSwapIndexer } from './pool.swap'
 
@@ -51,10 +50,6 @@ export class CompositeSwapIndexer extends DfTxIndexer<CompositeSwap> {
 
     const poolSwap = compositeSwap.poolSwap
     const pair = await this.poolPairPathMapping.findPair(poolSwap.fromTokenId, poolSwap.toTokenId)
-    if (pair !== undefined) {
-      return [{ id: Number(pair.id) }]
-    }
-
-    throw new IndexerError(`Pool for pair ${poolSwap.fromTokenId}, ${poolSwap.toTokenId} not found in PoolPairPathMapping`)
+    return [{ id: Number(pair.id) }]
   }
 }
