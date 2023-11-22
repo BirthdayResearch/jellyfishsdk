@@ -39,6 +39,10 @@ it('should delete and be deleted', async () => {
   await spec.shouldDelete(database)
 })
 
+it('should dump', async () => {
+  await spec.shouldDump(database)
+})
+
 it('should query by partition pagination', async () => {
   await spec.shouldQueryPartitionPagination(database)
 })

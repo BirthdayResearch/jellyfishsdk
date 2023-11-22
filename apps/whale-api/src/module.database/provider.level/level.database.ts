@@ -24,6 +24,22 @@ export abstract class LevelUpDatabase extends Database {
     await this.root.close()
   }
 
+  async dump (): Promise<Array<Record<string, any>>> {
+    const items: any[] = []
+    return await new Promise((resolve, reject) => {
+      this.root.createReadStream({ keyAsBuffer: false, valueAsBuffer: false })
+        .on('data', function (data) {
+          items.push(data)
+        }).on('error', function (err) {
+          reject(err)
+        }).on('close', function () {
+          reject(new Error('stream closed'))
+        }).on('end', function () {
+          resolve(items)
+        })
+    })
+  }
+
   /**
    * Sub index space for model indexes.
    */
