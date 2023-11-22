@@ -12,6 +12,9 @@ export function AppConfiguration (): any {
     /**
      * Allows you to override whale endpoint version.
      */
+    enable: {
+      index: process.env.WHALE_ENABLE_INDEX
+    },
     version: process.env.WHALE_VERSION,
     network: process.env.WHALE_NETWORK,
     defid: {
@@ -30,6 +33,7 @@ export function AppConfiguration (): any {
 export function ENV_VALIDATION_SCHEMA (): any {
   return Joi.object({
     NODE_ENV: Joi.string().optional(),
+    WHALE_ENABLE_INDEX: Joi.bool().optional(),
     WHALE_VERSION: Joi.string().optional(),
     WHALE_NETWORK: Joi.string().valid('mainnet', 'testnet', 'regtest', 'devnet', 'changi').default('regtest'),
     WHALE_DEFID_URL: Joi.string().optional(),

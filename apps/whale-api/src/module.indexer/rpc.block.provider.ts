@@ -33,6 +33,10 @@ export class RPCBlockProvider {
       return
     }
 
+    if (process.env.WHALE_ENABLE_INDEX === 'false') {
+      return
+    }
+
     if (this.indexing) {
       return
     }
