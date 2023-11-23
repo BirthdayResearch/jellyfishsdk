@@ -32,15 +32,24 @@ export abstract class LevelUpDatabase extends Database {
     csv.pipe(writer)
 
     return await new Promise((resolve, reject) => {
-      this.root.createReadStream({ keyAsBuffer: false, valueAsBuffer: false })
+      console.time('dumpdb done in: ')
+      this.root.createReadStream() // query stream
         .on('data', function (data) {
-          csv.write(data)
+          void (async () => {
+            const ok = csv.write(data)
+            if (!ok) {
+              await new Promise((resolve) => {
+                csv.once('drain', resolve)
+              })
+            }
+          })()
         }).on('error', function (err) {
           reject(err)
         }).on('close', function () {
           reject(new Error('stream closed'))
         }).on('end', function () {
           resolve(csv.end())
+          console.timeEnd('dumpdb done in: ')
         })
     })
   }
