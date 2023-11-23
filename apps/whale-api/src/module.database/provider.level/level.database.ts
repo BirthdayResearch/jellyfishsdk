@@ -1,3 +1,5 @@
+import fs from 'fs'
+import { format } from '@fast-csv/format'
 import sub from 'subleveldown'
 import level from 'level'
 import { LevelUp } from 'levelup'
@@ -24,18 +26,21 @@ export abstract class LevelUpDatabase extends Database {
     await this.root.close()
   }
 
-  async dump (): Promise<Array<Record<string, any>>> {
-    const items: any[] = []
+  async dump (): Promise<any> {
+    const writer = fs.createWriteStream('out.csv')
+    const csv = format()
+    csv.pipe(writer)
+
     return await new Promise((resolve, reject) => {
       this.root.createReadStream({ keyAsBuffer: false, valueAsBuffer: false })
         .on('data', function (data) {
-          items.push(data)
+          csv.write(data)
         }).on('error', function (err) {
           reject(err)
         }).on('close', function () {
           reject(new Error('stream closed'))
         }).on('end', function () {
-          resolve(items)
+          resolve(csv.end())
         })
     })
   }
