@@ -11,10 +11,10 @@ export class DebugController {
   }
 
   @Get('/dumpdb')
-  async dumpDb (): Promise<Array<Record<string, any>>> {
+  async dumpDb (): Promise<void> {
     if (process.env.WHALE_DEBUG === undefined) {
       throw new ForbiddenException('Debug mode is not enabled')
     }
-    return await this.database.dump()
+    await this.database.dump()
   }
 }
