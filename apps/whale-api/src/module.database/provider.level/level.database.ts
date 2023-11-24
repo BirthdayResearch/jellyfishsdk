@@ -27,7 +27,7 @@ export abstract class LevelUpDatabase extends Database {
     await this.root.close()
   }
 
-  async dump (): Promise<any> {
+  async dump (): Promise<boolean> {
     let id = 0
     const maxSize = 500_000
     const dir = path.join(process.cwd(), 'dump')

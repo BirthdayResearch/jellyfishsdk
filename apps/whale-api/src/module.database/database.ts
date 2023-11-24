@@ -39,7 +39,7 @@ export abstract class Database {
     id: string
   ): Promise<void>
 
-  abstract dump (): Promise<Array<Record<string, any>>>
+  abstract dump (): Promise<boolean>
 }
 
 export enum SortOrder {
