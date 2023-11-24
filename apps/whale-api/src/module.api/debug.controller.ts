@@ -1,12 +1,10 @@
-import { Controller, ForbiddenException, Get, Inject } from '@nestjs/common'
-import { NetworkName } from '@defichain/jellyfish-network'
+import { Controller, ForbiddenException, Get } from '@nestjs/common'
 import { Database } from '../module.database/database'
 
 @Controller('/debug')
 export class DebugController {
   constructor (
-    protected readonly database: Database,
-    @Inject('NETWORK') protected readonly network: NetworkName
+    protected readonly database: Database
   ) {
   }
 
