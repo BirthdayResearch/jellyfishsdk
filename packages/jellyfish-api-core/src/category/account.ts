@@ -63,7 +63,8 @@ export enum TransferDomainType {
 
 export enum TransferDomainKey {
   SRC = 'src',
-  DST = 'dst'
+  DST = 'dst',
+  SINGLE_KEY_CHECK = 'singlekeycheck'
 }
 
 /**
@@ -296,16 +297,17 @@ export class Account {
   /**
    * Create an transfer domain transaction submitted to a connected node.
    *
-   * @param {Array<Record<TransferDomainKey, TransferDomainInfo>>} payload[]
-   * @param {Record<TransferDomainKey, TransferDomainInfo>} payload
+   * @param {Array<Record<TransferDomainKey, TransferDomainInfo | number | boolean>>} payload[]
+   * @param {Record<TransferDomainKey, TransferDomainInfo | number | boolean>} payload
    * @param {TransferDomainInfo} info
    * @param {string} info.address
    * @param {string} info.amount
    * @param {TransferDomainType} info.domain
    * @param {string} [info.data] optional data, note: currently its not used
+   * @param {boolean} [singleKeyCheck=true] by default true
    * @return {Promise<string>}
    */
-  async transferDomain (payload: Array<Record<TransferDomainKey, TransferDomainInfo>>): Promise<string> {
+  async transferDomain (payload: Array<Record<TransferDomainKey, TransferDomainInfo | number | boolean>>): Promise<string> {
     return await this.client.call('transferdomain', [payload], 'number')
   }
 

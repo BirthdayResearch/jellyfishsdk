@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { TransferDomainType } from '../../../src/category/account'
+import { TransferDomainKey, TransferDomainType } from '../../../src/category/account'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 import BigNumber from 'bignumber.js'
 
@@ -99,7 +99,8 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '3@DFI',
             domain: TransferDomainType.EVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -118,7 +119,8 @@ describe('TransferDomain', () => {
             address: 'invalid', // invalid
             amount: '3@DFI',
             domain: TransferDomainType.EVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -137,7 +139,8 @@ describe('TransferDomain', () => {
             address: 'invalid', // invalid
             amount: '3@DFI',
             domain: TransferDomainType.DVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -156,7 +159,8 @@ describe('TransferDomain', () => {
             address: 'invalid', // invalid
             amount: '3@DFI',
             domain: TransferDomainType.DVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -175,7 +179,8 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '3@DFI',
             domain: TransferDomainType.EVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -194,7 +199,8 @@ describe('TransferDomain', () => {
             address: p2shAddr, // <- non legacy or Bech32 addres
             amount: '1@DFI',
             domain: TransferDomainType.DVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -213,8 +219,8 @@ describe('TransferDomain', () => {
             address: dvmAddr, // <- not a valid ERC55 address
             amount: '3@DFI',
             domain: TransferDomainType.EVM
-
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -233,7 +239,8 @@ describe('TransferDomain', () => {
             address: dvmAddr,
             amount: '3@DFI',
             domain: TransferDomainType.DVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -252,7 +259,8 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: 'invalid@DFI', // invalid amount
             domain: TransferDomainType.EVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -271,7 +279,8 @@ describe('TransferDomain', () => {
             address: dvmAddr,
             amount: 'invalid@DFI', // invalid amount
             domain: TransferDomainType.DVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -290,7 +299,8 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '3@BTC', // not match
             domain: TransferDomainType.EVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -309,7 +319,8 @@ describe('TransferDomain', () => {
             address: dvmAddr,
             amount: '3@BTC', // not match
             domain: TransferDomainType.DVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -328,7 +339,8 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '3@DFI', // not match
             domain: TransferDomainType.EVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -347,7 +359,8 @@ describe('TransferDomain', () => {
             address: dvmAddr,
             amount: '3@BTC', // not match
             domain: TransferDomainType.DVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -366,7 +379,8 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '-1@DFI', // invalid
             domain: TransferDomainType.EVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -385,7 +399,8 @@ describe('TransferDomain', () => {
             address: dvmAddr,
             amount: '-1@DFI', // invalid
             domain: TransferDomainType.DVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -405,7 +420,8 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '3@DFI',
             domain: 1 // invalid
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -425,7 +441,8 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '3@DFI',
             domain: TransferDomainType.DVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -444,7 +461,8 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '3@DFI',
             domain: 1 // invalid
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -463,7 +481,8 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '3@DFI',
             domain: TransferDomainType.EVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -482,7 +501,8 @@ describe('TransferDomain', () => {
             address: dvmAddr,
             amount: '3@DFI',
             domain: TransferDomainType.DVM // same domain
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -501,7 +521,8 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '3@DFI',
             domain: TransferDomainType.EVM // same domain
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -520,7 +541,8 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '999999@DFI',
             domain: TransferDomainType.EVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -539,7 +561,8 @@ describe('TransferDomain', () => {
             address: dvmAddr,
             amount: '99999999@DFI',
             domain: TransferDomainType.DVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       const mempool: string[] = await container.call('getrawmempool')
@@ -562,7 +585,8 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '3@DESC#128',
             domain: TransferDomainType.EVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -581,7 +605,8 @@ describe('TransferDomain', () => {
             address: dvmAddr,
             amount: '3@DESC#128',
             domain: TransferDomainType.DVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -600,7 +625,8 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '10@DFI-BTC',
             domain: TransferDomainType.EVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -622,7 +648,8 @@ describe('TransferDomain', () => {
             address: dvmAddr,
             amount: '10@DFI-BTC',
             domain: TransferDomainType.DVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -644,7 +671,8 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '1@DFI',
             domain: TransferDomainType.EVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         },
         {
           src: {
@@ -656,7 +684,8 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '1@DFI',
             domain: TransferDomainType.EVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -675,7 +704,8 @@ describe('TransferDomain', () => {
             address: dvmAddr,
             amount: '3@DFI',
             domain: TransferDomainType.DVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         },
         {
           src: {
@@ -687,7 +717,8 @@ describe('TransferDomain', () => {
             address: dvmAddr,
             amount: '4@DFI',
             domain: TransferDomainType.DVM
-          }
+          },
+          [TransferDomainKey.SINGLE_KEY_CHECK]: false
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -712,7 +743,8 @@ describe('TransferDomain', () => {
           address: evmAddr,
           amount: '3@DFI',
           domain: TransferDomainType.EVM
-        }
+        },
+        [TransferDomainKey.SINGLE_KEY_CHECK]: false
       }
     ])
     expect(typeof txid).toStrictEqual('string')
@@ -748,7 +780,8 @@ describe('TransferDomain', () => {
           address: dvmAddr,
           amount: '3@DFI',
           domain: TransferDomainType.DVM
-        }
+        },
+        [TransferDomainKey.SINGLE_KEY_CHECK]: false
       }
     ])
     expect(typeof txid).toStrictEqual('string')
@@ -782,7 +815,8 @@ describe('TransferDomain', () => {
           address: evmAddr,
           amount: '3@BTC',
           domain: TransferDomainType.EVM
-        }
+        },
+        [TransferDomainKey.SINGLE_KEY_CHECK]: false
       }
     ])
     expect(typeof txid1).toStrictEqual('string')
@@ -814,7 +848,8 @@ describe('TransferDomain', () => {
           address: dvmAddr,
           amount: '3@BTC',
           domain: TransferDomainType.DVM
-        }
+        },
+        [TransferDomainKey.SINGLE_KEY_CHECK]: false
       }
     ])
     expect(typeof txid1).toStrictEqual('string')
@@ -846,7 +881,8 @@ describe('TransferDomain', () => {
           address: evmAddr,
           amount: '3@AAPL',
           domain: TransferDomainType.EVM
-        }
+        },
+        [TransferDomainKey.SINGLE_KEY_CHECK]: false
       }
     ])
     expect(typeof txid).toStrictEqual('string')
@@ -877,8 +913,8 @@ describe('TransferDomain', () => {
           address: dvmAddr,
           amount: '3@AAPL',
           domain: TransferDomainType.DVM
-
-        }
+        },
+        [TransferDomainKey.SINGLE_KEY_CHECK]: false
       }
     ])
     expect(typeof txid).toStrictEqual('string')
