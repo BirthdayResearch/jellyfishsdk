@@ -68,7 +68,6 @@ export enum TransferDomainKey {
 
 export enum TransferDomainOptionalKey {
   SINGLE_KEY_CHECK = 'singlekeycheck',
-  NONCE = 'nonce'
 }
 
 /**
@@ -308,9 +307,8 @@ export class Account {
    * @param {string} info.amount
    * @param {TransferDomainType} info.domain
    * @param {string} [info.data] optional data, note: currently its not used
-   * @param {TransferDomainOptionalInfo} optional info
-   * @param {nonce} [nonce]
-   * @param {boolean} [singleKeyCheck=true] by default true
+   * @param {TransferDomainOptionalInfo} optionalInfo
+   * @param {boolean} [optionalInfo.singleKeyCheck=true]
    * @return {Promise<string>}
    */
   async transferDomain (payload: Array<Record<TransferDomainKey, TransferDomainInfo> | Record<TransferDomainOptionalKey, TransferDomainOptionalInfo>>): Promise<string> {
@@ -736,5 +734,4 @@ export interface TransferDomainInfo {
 
 export interface TransferDomainOptionalInfo {
   singleKeyCheck: true
-  nonce?: boolean
 }
