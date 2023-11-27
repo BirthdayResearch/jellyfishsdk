@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { TransferDomainKey, TransferDomainType } from '../../../src/category/account'
+import { TransferDomainType, TransferDomainOptionalInfo } from '../../../src/category/account'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 import BigNumber from 'bignumber.js'
 
@@ -100,7 +100,7 @@ describe('TransferDomain', () => {
             amount: '3@DFI',
             domain: TransferDomainType.EVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -120,7 +120,7 @@ describe('TransferDomain', () => {
             amount: '3@DFI',
             domain: TransferDomainType.EVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -140,7 +140,7 @@ describe('TransferDomain', () => {
             amount: '3@DFI',
             domain: TransferDomainType.DVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -160,7 +160,7 @@ describe('TransferDomain', () => {
             amount: '3@DFI',
             domain: TransferDomainType.DVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -180,7 +180,7 @@ describe('TransferDomain', () => {
             amount: '3@DFI',
             domain: TransferDomainType.EVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -200,7 +200,7 @@ describe('TransferDomain', () => {
             amount: '1@DFI',
             domain: TransferDomainType.DVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -220,7 +220,7 @@ describe('TransferDomain', () => {
             amount: '3@DFI',
             domain: TransferDomainType.EVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -240,7 +240,7 @@ describe('TransferDomain', () => {
             amount: '3@DFI',
             domain: TransferDomainType.DVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -260,7 +260,7 @@ describe('TransferDomain', () => {
             amount: 'invalid@DFI', // invalid amount
             domain: TransferDomainType.EVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -280,7 +280,7 @@ describe('TransferDomain', () => {
             amount: 'invalid@DFI', // invalid amount
             domain: TransferDomainType.DVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -300,7 +300,7 @@ describe('TransferDomain', () => {
             amount: '3@BTC', // not match
             domain: TransferDomainType.EVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -320,7 +320,7 @@ describe('TransferDomain', () => {
             amount: '3@BTC', // not match
             domain: TransferDomainType.DVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -340,7 +340,7 @@ describe('TransferDomain', () => {
             amount: '3@DFI', // not match
             domain: TransferDomainType.EVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -360,7 +360,7 @@ describe('TransferDomain', () => {
             amount: '3@BTC', // not match
             domain: TransferDomainType.DVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -380,7 +380,7 @@ describe('TransferDomain', () => {
             amount: '-1@DFI', // invalid
             domain: TransferDomainType.EVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -400,7 +400,7 @@ describe('TransferDomain', () => {
             amount: '-1@DFI', // invalid
             domain: TransferDomainType.DVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -421,7 +421,7 @@ describe('TransferDomain', () => {
             amount: '3@DFI',
             domain: 1 // invalid
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -442,7 +442,7 @@ describe('TransferDomain', () => {
             amount: '3@DFI',
             domain: TransferDomainType.DVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -462,7 +462,7 @@ describe('TransferDomain', () => {
             amount: '3@DFI',
             domain: 1 // invalid
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -482,7 +482,7 @@ describe('TransferDomain', () => {
             amount: '3@DFI',
             domain: TransferDomainType.EVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -502,7 +502,7 @@ describe('TransferDomain', () => {
             amount: '3@DFI',
             domain: TransferDomainType.DVM // same domain
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -522,7 +522,7 @@ describe('TransferDomain', () => {
             amount: '3@DFI',
             domain: TransferDomainType.EVM // same domain
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -542,7 +542,7 @@ describe('TransferDomain', () => {
             amount: '999999@DFI',
             domain: TransferDomainType.EVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -562,7 +562,7 @@ describe('TransferDomain', () => {
             amount: '99999999@DFI',
             domain: TransferDomainType.DVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       const mempool: string[] = await container.call('getrawmempool')
@@ -586,7 +586,7 @@ describe('TransferDomain', () => {
             amount: '3@DESC#128',
             domain: TransferDomainType.EVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -606,7 +606,7 @@ describe('TransferDomain', () => {
             amount: '3@DESC#128',
             domain: TransferDomainType.DVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -626,7 +626,7 @@ describe('TransferDomain', () => {
             amount: '10@DFI-BTC',
             domain: TransferDomainType.EVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -649,7 +649,7 @@ describe('TransferDomain', () => {
             amount: '10@DFI-BTC',
             domain: TransferDomainType.DVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -672,7 +672,7 @@ describe('TransferDomain', () => {
             amount: '1@DFI',
             domain: TransferDomainType.EVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         },
         {
           src: {
@@ -685,7 +685,7 @@ describe('TransferDomain', () => {
             amount: '1@DFI',
             domain: TransferDomainType.EVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -705,7 +705,7 @@ describe('TransferDomain', () => {
             amount: '3@DFI',
             domain: TransferDomainType.DVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         },
         {
           src: {
@@ -718,7 +718,7 @@ describe('TransferDomain', () => {
             amount: '4@DFI',
             domain: TransferDomainType.DVM
           },
-          [TransferDomainKey.SINGLE_KEY_CHECK]: false
+          singlekeycheck: false as unknown as TransferDomainOptionalInfo
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -744,7 +744,7 @@ describe('TransferDomain', () => {
           amount: '3@DFI',
           domain: TransferDomainType.EVM
         },
-        [TransferDomainKey.SINGLE_KEY_CHECK]: false
+        singlekeycheck: false as unknown as TransferDomainOptionalInfo
       }
     ])
     expect(typeof txid).toStrictEqual('string')
@@ -781,7 +781,7 @@ describe('TransferDomain', () => {
           amount: '3@DFI',
           domain: TransferDomainType.DVM
         },
-        [TransferDomainKey.SINGLE_KEY_CHECK]: false
+        singlekeycheck: false as unknown as TransferDomainOptionalInfo
       }
     ])
     expect(typeof txid).toStrictEqual('string')
@@ -816,7 +816,7 @@ describe('TransferDomain', () => {
           amount: '3@BTC',
           domain: TransferDomainType.EVM
         },
-        [TransferDomainKey.SINGLE_KEY_CHECK]: false
+        singlekeycheck: false as unknown as TransferDomainOptionalInfo
       }
     ])
     expect(typeof txid1).toStrictEqual('string')
@@ -849,7 +849,7 @@ describe('TransferDomain', () => {
           amount: '3@BTC',
           domain: TransferDomainType.DVM
         },
-        [TransferDomainKey.SINGLE_KEY_CHECK]: false
+        singlekeycheck: false as unknown as TransferDomainOptionalInfo
       }
     ])
     expect(typeof txid1).toStrictEqual('string')
@@ -882,7 +882,7 @@ describe('TransferDomain', () => {
           amount: '3@AAPL',
           domain: TransferDomainType.EVM
         },
-        [TransferDomainKey.SINGLE_KEY_CHECK]: false
+        singlekeycheck: false as unknown as TransferDomainOptionalInfo
       }
     ])
     expect(typeof txid).toStrictEqual('string')
@@ -914,7 +914,7 @@ describe('TransferDomain', () => {
           amount: '3@AAPL',
           domain: TransferDomainType.DVM
         },
-        [TransferDomainKey.SINGLE_KEY_CHECK]: false
+        singlekeycheck: false as unknown as TransferDomainOptionalInfo
       }
     ])
     expect(typeof txid).toStrictEqual('string')
