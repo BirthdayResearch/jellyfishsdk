@@ -3,7 +3,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { Testing } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '@defichain/jellyfish-api-core/dist/index'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { TransferDomainType } from '../../../src/category/account'
+import { TransferDomainType, TransferDomainOptionalInfo } from '../../../src/category/account'
 import BigNumber from 'bignumber.js'
 
 describe('EVMTX', () => {
@@ -69,7 +69,8 @@ describe('EVMTX', () => {
           address: ethAddress,
           amount: `${amount.HUNDRED}@DFI`,
           domain: TransferDomainType.EVM
-        }
+        },
+        singlekeycheck: false as unknown as TransferDomainOptionalInfo
       }
     ]
     await container.call('transferdomain', [dvmToEvmTransfer])
