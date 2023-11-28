@@ -36,7 +36,8 @@ export enum Status {
   INDEXED = 'INDEXED',
   INVALIDATING = 'INVALIDATING',
   INVALIDATED = 'INVALIDATED',
-  ERROR = 'ERROR'
+  ERROR = 'ERROR',
+  REINDEX = 'REINDEX'
 }
 
 export interface IndexStatus extends Model {
