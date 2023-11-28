@@ -117,7 +117,7 @@ export async function startDefid(): Promise<{
 		'-fortcanninggreatworldheight=94',
 		'-fortcanningepilogueheight=96',
 		'-grandcentralheight=101',
-		'-nextnetworkupgradeheight=105',
+		'-metachainheight=105',
 		'-subsidytest=1',
 		'-txindex=1',
 	];

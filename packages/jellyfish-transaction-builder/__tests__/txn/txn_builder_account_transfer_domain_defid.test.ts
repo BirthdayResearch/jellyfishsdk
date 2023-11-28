@@ -135,7 +135,7 @@ describeWithDefid('transferDomain', (context) => {
     await context.client.wallet.sendToAddress(dvmAddr, 30)
     await generate(context.client, 1)
 
-    const txn = await builder.account.transferDomain(transferDomain, dvmScript, { maximumAmount: 50 })
+    const txn = await builder.account.transferDomain(transferDomain, dvmScript)
     const buffer = new SmartBuffer()
     new CTransactionSegWit(txn).toBuffer(buffer)
     const hex = buffer.toBuffer().toString('hex')
