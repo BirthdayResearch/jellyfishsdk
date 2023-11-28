@@ -1,21 +1,18 @@
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { MasterNodeRegTestContainer, StartFlags } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { TransferDomainType, TransferDomainOptionalInfo } from '../../../src/category/account'
+import { TransferDomainType } from '../../../src/category/account'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 import BigNumber from 'bignumber.js'
 
 describe('TransferDomain', () => {
-  let dvmAddr: string
-  let evmAddr: string
-  let legacyAddr: string
-  let legacyErc55Addr: string
-  let p2shAddr: string
-
+  let dvmAddr: string, evmAddr: string, p2shAddr: string
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
+  // add `-tdsinglekeycheck` for backward compatibility
+  const startFlags: StartFlags[] = [{ name: 'tdsinglekeycheck', value: 0 }]
 
   beforeAll(async () => {
-    await container.start()
+    await container.start({ startFlags })
     await container.waitForWalletCoinbaseMaturity()
 
     await client.masternode.setGov({
@@ -37,10 +34,6 @@ describe('TransferDomain', () => {
 
     dvmAddr = await container.getNewAddress('address1', 'legacy')
     evmAddr = await container.getNewAddress('erc55', 'erc55')
-
-    // same key address
-    legacyAddr = await container.getNewAddress('legacy', 'legacy')
-    legacyErc55Addr = (await container.call('addressmap', [legacyAddr, 1])).format.erc55
 
     p2shAddr = await container.getNewAddress('address', 'p2sh-segwit')
 
@@ -108,8 +101,7 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '3@DFI',
             domain: TransferDomainType.EVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -128,8 +120,7 @@ describe('TransferDomain', () => {
             address: 'invalid', // invalid
             amount: '3@DFI',
             domain: TransferDomainType.EVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -148,8 +139,7 @@ describe('TransferDomain', () => {
             address: 'invalid', // invalid
             amount: '3@DFI',
             domain: TransferDomainType.DVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -168,8 +158,7 @@ describe('TransferDomain', () => {
             address: 'invalid', // invalid
             amount: '3@DFI',
             domain: TransferDomainType.DVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -188,8 +177,7 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '3@DFI',
             domain: TransferDomainType.EVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -208,8 +196,7 @@ describe('TransferDomain', () => {
             address: p2shAddr, // <- non legacy or Bech32 addres
             amount: '1@DFI',
             domain: TransferDomainType.DVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -228,8 +215,8 @@ describe('TransferDomain', () => {
             address: dvmAddr, // <- not a valid ERC55 address
             amount: '3@DFI',
             domain: TransferDomainType.EVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -248,8 +235,7 @@ describe('TransferDomain', () => {
             address: dvmAddr,
             amount: '3@DFI',
             domain: TransferDomainType.DVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -268,8 +254,7 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: 'invalid@DFI', // invalid amount
             domain: TransferDomainType.EVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -288,8 +273,7 @@ describe('TransferDomain', () => {
             address: dvmAddr,
             amount: 'invalid@DFI', // invalid amount
             domain: TransferDomainType.DVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -308,8 +292,7 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '3@BTC', // not match
             domain: TransferDomainType.EVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -328,8 +311,7 @@ describe('TransferDomain', () => {
             address: dvmAddr,
             amount: '3@BTC', // not match
             domain: TransferDomainType.DVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -348,8 +330,7 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '3@DFI', // not match
             domain: TransferDomainType.EVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -368,8 +349,7 @@ describe('TransferDomain', () => {
             address: dvmAddr,
             amount: '3@BTC', // not match
             domain: TransferDomainType.DVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -388,8 +368,7 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '-1@DFI', // invalid
             domain: TransferDomainType.EVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -408,8 +387,7 @@ describe('TransferDomain', () => {
             address: dvmAddr,
             amount: '-1@DFI', // invalid
             domain: TransferDomainType.DVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -429,8 +407,7 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '3@DFI',
             domain: 1 // invalid
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -450,8 +427,7 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '3@DFI',
             domain: TransferDomainType.DVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -470,8 +446,7 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '3@DFI',
             domain: 1 // invalid
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -490,8 +465,7 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '3@DFI',
             domain: TransferDomainType.EVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -510,8 +484,7 @@ describe('TransferDomain', () => {
             address: dvmAddr,
             amount: '3@DFI',
             domain: TransferDomainType.DVM // same domain
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -530,8 +503,7 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '3@DFI',
             domain: TransferDomainType.EVM // same domain
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -550,8 +522,7 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '999999@DFI',
             domain: TransferDomainType.EVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -570,8 +541,7 @@ describe('TransferDomain', () => {
             address: dvmAddr,
             amount: '99999999@DFI',
             domain: TransferDomainType.DVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       const mempool: string[] = await container.call('getrawmempool')
@@ -594,8 +564,7 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '3@DESC#128',
             domain: TransferDomainType.EVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -614,8 +583,7 @@ describe('TransferDomain', () => {
             address: dvmAddr,
             amount: '3@DESC#128',
             domain: TransferDomainType.DVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -634,8 +602,7 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '10@DFI-BTC',
             domain: TransferDomainType.EVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -657,8 +624,7 @@ describe('TransferDomain', () => {
             address: dvmAddr,
             amount: '10@DFI-BTC',
             domain: TransferDomainType.DVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -680,8 +646,7 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '1@DFI',
             domain: TransferDomainType.EVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         },
         {
           src: {
@@ -693,8 +658,7 @@ describe('TransferDomain', () => {
             address: evmAddr,
             amount: '1@DFI',
             domain: TransferDomainType.EVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
@@ -713,8 +677,7 @@ describe('TransferDomain', () => {
             address: dvmAddr,
             amount: '3@DFI',
             domain: TransferDomainType.DVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
+          }
         },
         {
           src: {
@@ -726,31 +689,11 @@ describe('TransferDomain', () => {
             address: dvmAddr,
             amount: '4@DFI',
             domain: TransferDomainType.DVM
-          },
-          singlekeycheck: false as unknown as TransferDomainOptionalInfo
-        }
-      ])
-      await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('TransferDomain currently only supports a single transfer per transaction')
-    })
-
-    it('(dvm -> evm) should fail as different key', async () => {
-      const promise = client.account.transferDomain([
-        {
-          src: {
-            address: dvmAddr,
-            amount: '3@DFI',
-            domain: TransferDomainType.DVM
-          },
-          dst: {
-            address: evmAddr,
-            amount: '3@DFI',
-            domain: TransferDomainType.EVM
           }
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('Dst address does not match source key')
+      await expect(promise).rejects.toThrow('TransferDomain currently only supports a single transfer per transaction')
     })
   })
 
@@ -771,8 +714,7 @@ describe('TransferDomain', () => {
           address: evmAddr,
           amount: '3@DFI',
           domain: TransferDomainType.EVM
-        },
-        singlekeycheck: false as unknown as TransferDomainOptionalInfo
+        }
       }
     ])
     expect(typeof txid).toStrictEqual('string')
@@ -808,8 +750,7 @@ describe('TransferDomain', () => {
           address: dvmAddr,
           amount: '3@DFI',
           domain: TransferDomainType.DVM
-        },
-        singlekeycheck: false as unknown as TransferDomainOptionalInfo
+        }
       }
     ])
     expect(typeof txid).toStrictEqual('string')
@@ -843,8 +784,7 @@ describe('TransferDomain', () => {
           address: evmAddr,
           amount: '3@BTC',
           domain: TransferDomainType.EVM
-        },
-        singlekeycheck: false as unknown as TransferDomainOptionalInfo
+        }
       }
     ])
     expect(typeof txid1).toStrictEqual('string')
@@ -876,8 +816,7 @@ describe('TransferDomain', () => {
           address: dvmAddr,
           amount: '3@BTC',
           domain: TransferDomainType.DVM
-        },
-        singlekeycheck: false as unknown as TransferDomainOptionalInfo
+        }
       }
     ])
     expect(typeof txid1).toStrictEqual('string')
@@ -909,8 +848,7 @@ describe('TransferDomain', () => {
           address: evmAddr,
           amount: '3@AAPL',
           domain: TransferDomainType.EVM
-        },
-        singlekeycheck: false as unknown as TransferDomainOptionalInfo
+        }
       }
     ])
     expect(typeof txid).toStrictEqual('string')
@@ -941,8 +879,8 @@ describe('TransferDomain', () => {
           address: dvmAddr,
           amount: '3@AAPL',
           domain: TransferDomainType.DVM
-        },
-        singlekeycheck: false as unknown as TransferDomainOptionalInfo
+
+        }
       }
     ])
     expect(typeof txid).toStrictEqual('string')
@@ -955,203 +893,6 @@ describe('TransferDomain', () => {
     // check dvm balance is received
     expect(new BigNumber(dvmBalance1))
       .toStrictEqual(new BigNumber(dvmBalance0).plus(3))
-  })
-
-  it('(dvm -> evm) should transfer domain - DFI - singleKeyCheck', async () => {
-    await client.account.accountToAccount(dvmAddr, { [legacyAddr]: '2@DFI' })
-    await container.generate(1)
-
-    const legacyAcc = await getAccountValues(client, legacyAddr)
-    const tokenId = 'DFI'
-    const legacyBalance0 = legacyAcc[tokenId]
-    const prevBalance = await getEVMBalances(client)
-
-    await client.account.transferDomain([
-      {
-        src: {
-          address: legacyAddr,
-          amount: '1@DFI',
-          domain: TransferDomainType.DVM
-        },
-        dst: {
-          address: legacyErc55Addr,
-          amount: '1@DFI',
-          domain: TransferDomainType.EVM
-        }
-      }
-    ])
-    await container.generate(1)
-
-    const legacyAcc1 = await getAccountValues(client, legacyAddr)
-    const legacyBalance1 = legacyAcc1[tokenId]
-
-    // check: dvm balance is transferred
-    expect(new BigNumber(legacyBalance0))
-      .toStrictEqual(new BigNumber(legacyBalance1).plus(1))
-
-    // check: evm balance = dvm balance - transferred
-    const currentBalance = await getEVMBalances(client)
-    expect(new BigNumber(prevBalance))
-      .toStrictEqual(new BigNumber(currentBalance).minus(1))
-  })
-
-  it('(evm -> dvm) should transfer domain - DFI - singleKeyCheck', async () => {
-    const legacyAcc = await getAccountValues(client, legacyAddr)
-    const tokenId = 'DFI'
-    const legacyBalance0 = legacyAcc[tokenId]
-    const prevBalance = await getEVMBalances(client)
-
-    await client.account.transferDomain([
-      {
-        src: {
-          address: legacyErc55Addr,
-          amount: '1@DFI',
-          domain: TransferDomainType.EVM
-        },
-        dst: {
-          address: legacyAddr,
-          amount: '1@DFI',
-          domain: TransferDomainType.DVM
-        }
-      }
-    ])
-    await container.generate(1)
-
-    const legacyAcc1 = await getAccountValues(client, legacyAddr)
-    const legacyBalance1 = legacyAcc1[tokenId]
-    expect(new BigNumber(legacyBalance0))
-      .toStrictEqual(new BigNumber(legacyBalance1).minus(1))
-
-    // check EVM balance
-    const currentBalance = await getEVMBalances(client)
-    expect(new BigNumber(prevBalance))
-      .toStrictEqual(new BigNumber(currentBalance).plus(1))
-  })
-
-  it('(dvm -> evm) should transfer domain - dToken - singleKeyCheck', async () => {
-    await client.account.accountToAccount(dvmAddr, { [legacyAddr]: '2@BTC' })
-    await container.generate(1)
-
-    const legacyAcc = await getAccountValues(client, legacyAddr)
-    const btcTokenId = 'BTC'
-    const legacyBalance = legacyAcc[btcTokenId]
-
-    await client.account.transferDomain([
-      {
-        src: {
-          address: legacyAddr,
-          amount: '1@BTC',
-          domain: TransferDomainType.DVM
-        },
-        dst: {
-          address: legacyErc55Addr,
-          amount: '1@BTC',
-          domain: TransferDomainType.EVM
-        }
-      }
-    ])
-    await container.generate(1)
-
-    const legacyAcc1 = await getAccountValues(client, legacyAddr)
-    const legacyBalance1 = legacyAcc1[btcTokenId]
-
-    // check: BTC balance is transferred
-    expect(new BigNumber(legacyBalance1))
-      .toStrictEqual(new BigNumber(legacyBalance).minus(1))
-  })
-
-  it('(evm -> dvm) should transfer domain - dToken - singleKeyCheck', async () => {
-    const legacyAcc = await getAccountValues(client, legacyAddr)
-    const tokenId = 'BTC'
-    const legacyBalance = legacyAcc[tokenId]
-
-    await client.account.transferDomain([
-      {
-        src: {
-          address: legacyErc55Addr,
-          amount: '1@BTC',
-          domain: TransferDomainType.EVM
-        },
-        dst: {
-          address: legacyAddr,
-          amount: '1@BTC',
-          domain: TransferDomainType.DVM
-        }
-      }
-    ])
-    await container.generate(1)
-
-    const legacyAcc1 = await getAccountValues(client, legacyAddr)
-    const legacyBalance1 = legacyAcc1[tokenId]
-    expect(new BigNumber(legacyBalance))
-      .toStrictEqual(new BigNumber(legacyBalance1).minus(1))
-
-    // check: BTC balance is transferred
-    expect(new BigNumber(legacyBalance1))
-      .toStrictEqual(new BigNumber(legacyBalance).plus(1))
-  })
-
-  it('(dvm -> evm) should transfer domain - loan token - singleKeyCheck', async () => {
-    await client.account.accountToAccount(dvmAddr, { [legacyAddr]: '2@AAPL' })
-    await container.generate(1)
-
-    const legacyAcc = await getAccountValues(client, legacyAddr)
-    const tokenId = 'AAPL'
-    const legacyBalance = legacyAcc[tokenId]
-
-    await client.account.transferDomain([
-      {
-        src: {
-          address: legacyAddr,
-          amount: '1@AAPL',
-          domain: TransferDomainType.DVM
-        },
-        dst: {
-          address: legacyErc55Addr,
-          amount: '1@AAPL',
-          domain: TransferDomainType.EVM
-        }
-      }
-    ])
-    await container.generate(1)
-
-    const legacyAcc1 = await getAccountValues(client, legacyAddr)
-    const legacyBalance1 = legacyAcc1[tokenId]
-
-    // check: AAPL balance is transferred
-    expect(new BigNumber(legacyBalance1))
-      .toStrictEqual(new BigNumber(legacyBalance).minus(1))
-  })
-
-  it('(evm -> dvm) should transfer domain - loan token - singleKeyCheck', async () => {
-    const legacyAcc = await getAccountValues(client, legacyAddr)
-    const tokenId = 'AAPL'
-    const legacyBalance = legacyAcc[tokenId]
-
-    await client.account.transferDomain([
-      {
-        src: {
-          address: legacyErc55Addr,
-          amount: '1@AAPL',
-          domain: TransferDomainType.EVM
-        },
-        dst: {
-          address: legacyAddr,
-          amount: '1@AAPL',
-          domain: TransferDomainType.DVM
-        }
-      }
-    ])
-    await container.generate(1)
-
-    const legacyAcc1 = await getAccountValues(client, legacyAddr)
-    const legacyBalance1 = legacyAcc1[tokenId]
-    expect(new BigNumber(legacyBalance))
-      .toStrictEqual(new BigNumber(legacyBalance1).minus(1))
-
-    // check: AAPL balance is transferred
-    expect(new BigNumber(legacyBalance1))
-      .toStrictEqual(new BigNumber(legacyBalance).plus(1))
   })
 })
 
