@@ -1,3 +1,4 @@
+import fs from 'fs'
 import { Test, TestingModule } from '@nestjs/testing'
 import { AppModule } from './app.module'
 import { ConfigService } from '@nestjs/config'
@@ -10,6 +11,7 @@ import waitForExpect from 'wait-for-expect'
 import { addressToHid } from './module.api/address.controller'
 import { ScriptAggregationMapper } from './module.model/script.aggregation'
 import { TestingGroup } from '@defichain/jellyfish-testing'
+import { DefidBin, DAddressController, DBlockController } from './e2e.defid.module'
 
 /**
  * Configures an end-to-end testing app integrated with all modules.
@@ -19,7 +21,16 @@ import { TestingGroup } from '@defichain/jellyfish-testing'
  * @param {MasterNodeRegTestContainer} container to provide defid client
  * @return Promise<NestFastifyApplication> with initialization
  */
-export async function createTestingApp (container: MasterNodeRegTestContainer): Promise<NestFastifyApplication> {
+export async function createTestingApp (container: MasterNodeRegTestContainer): Promise<NestFastifyApplication | DefidBin> {
+  if (process.env.DEFID !== undefined) {
+    const defid = new DefidBin(
+      new DAddressController(),
+      new DBlockController()
+    )
+    await defid.start()
+    return defid
+  }
+
   const url = await container.getCachedRpcUrl()
   const module = await createTestingModule(url)
 
@@ -38,15 +49,25 @@ export async function createTestingApp (container: MasterNodeRegTestContainer): 
  * @param {MasterNodeRegTestContainer | TestingGroup} container to provide defid client
  * @param {NestFastifyApplication} app to close
  */
-export async function stopTestingApp (container: MasterNodeRegTestContainer | TestingGroup, app: NestFastifyApplication): Promise<void> {
+export async function stopTestingApp (container: MasterNodeRegTestContainer | TestingGroup, app: NestFastifyApplication | DefidBin): Promise<void> {
   try {
-    const indexer = app.get(RPCBlockProvider)
-    await indexer.stop()
-    await app.close()
+    if (app instanceof DefidBin) {
+      const interval = setInterval(() => {
+        if (app.binary?.pid !== undefined && !isRunning(app.binary?.pid)) {
+          clearInterval(interval)
+          fs.rmdirSync(app.tmpDir, { recursive: true })
+        }
+      }, 500)
+      app.binary?.kill()
+    } else {
+      const indexer = app.get(RPCBlockProvider)
+      await indexer.stop()
+      await app.close()
+    }
   } finally {
     await new Promise((resolve) => {
       // Wait 2000ms between indexer cycle time to prevent database error
-      setTimeout(_ => resolve(0), 500)
+      setTimeout((_: any) => resolve(0), 500)
     })
 
     if (container instanceof MasterNodeRegTestContainer) {
@@ -54,6 +75,14 @@ export async function stopTestingApp (container: MasterNodeRegTestContainer | Te
     } else {
       await container.stop()
     }
+  }
+}
+
+function isRunning (pid: number): boolean {
+  try {
+    return process.kill(pid, 0)
+  } catch (err: any) {
+    return err.code === 'EPERM'
   }
 }
 
@@ -82,7 +111,13 @@ export async function waitForIndexedHeightLatest (app: NestFastifyApplication, c
  * @param {number} height to wait for
  * @param {number} [timeout=30000]
  */
-export async function waitForIndexedHeight (app: NestFastifyApplication, height: number, timeout: number = 30000): Promise<void> {
+export async function waitForIndexedHeight (app: NestFastifyApplication | DefidBin, height: number, timeout: number = 30000): Promise<void> {
+  if (app instanceof DefidBin) {
+    await waitForExpect(async () => {
+      // get index from DefidBin
+    })
+    return
+  }
   const blockMapper = app.get(BlockMapper)
   await waitForExpect(async () => {
     const block = await blockMapper.getHighest()
