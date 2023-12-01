@@ -188,7 +188,7 @@ enum TransferDomainOptionalKey {
 }
 
 interface TransferDomainOptionalInfo {
-  singleKeyCheck: true
+  singleKeyCheck: boolean
 }
 ```
 

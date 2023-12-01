@@ -733,5 +733,5 @@ export interface TransferDomainInfo {
 }
 
 export interface TransferDomainOptionalInfo {
-  singleKeyCheck: true
+  singleKeyCheck: boolean
 }
