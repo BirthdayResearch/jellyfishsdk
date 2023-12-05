@@ -33,6 +33,11 @@ export async function shouldGetById (database: Database): Promise<void> {
   }
 }
 
+export async function shouldDump (database: Database): Promise<void> {
+  const dump = await database.dump()
+  expect(dump).toBeTruthy()
+}
+
 export async function shouldGetByPartitionKey (database: Database): Promise<void> {
   const index = PartitionMapping.index
   for (const data of PARTITIONS) {

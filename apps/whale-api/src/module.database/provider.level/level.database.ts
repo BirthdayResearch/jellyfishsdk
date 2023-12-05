@@ -1,3 +1,6 @@
+import fs from 'fs'
+import path from 'path'
+import { format } from '@fast-csv/format'
 import sub from 'subleveldown'
 import level from 'level'
 import { LevelUp } from 'levelup'
@@ -22,6 +25,40 @@ export abstract class LevelUpDatabase extends Database {
 
   async close (): Promise<void> {
     await this.root.close()
+  }
+
+  async dump (): Promise<boolean> {
+    let id = 0
+    const maxSize = 500_000
+    const dir = path.join(process.cwd(), 'dump')
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir)
+    }
+    let items: string[] = []
+    return await new Promise((resolve, reject) => {
+      console.time('dump done in: ')
+      this.root.createReadStream() // query stream
+        .on('data', function (data) {
+          items.push(data)
+          if (items.length >= maxSize) {
+            const writer = fs.createWriteStream(`${dir}/dump-${id}.csv`)
+            const csv = format()
+            csv.pipe(writer)
+            items.forEach(i => csv.write(i))
+            csv.end()
+
+            items = []
+            id += 1
+          }
+        }).on('error', function (err) {
+          reject(err)
+        }).on('close', function () {
+          reject(new Error('stream closed'))
+        }).on('end', function () {
+          resolve(true)
+          console.timeEnd('dump done in: ')
+        })
+    })
   }
 
   /**
