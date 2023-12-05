@@ -159,7 +159,12 @@ Create a transfer domain transaction submitted to a connected node.
 
 ```ts title="client.account.transferDomain()"
 interface account {
-  transferDomain (payload: Array<Record<string, TransferDomainInfo>>): Promise<string>
+  transferDomain (payload: Array<Record<TransferDomainKey, TransferDomainInfo> | Record<TransferDomainOptionalKey, TransferDomainOptionalInfo>>): Promise<string>
+}
+
+enum TransferDomainKey {
+  SRC = 'src',
+  DST = 'dst'
 }
 
 interface TransferDomainInfo {
@@ -176,7 +181,15 @@ enum TransferDomainType {
   DVM = 2,
   /** type for EVM To DVM Token transfer */
   EVM = 3,
-};
+}
+
+enum TransferDomainOptionalKey {
+  SINGLE_KEY_CHECK = 'singlekeycheck',
+}
+
+interface TransferDomainOptionalInfo {
+  singleKeyCheck: boolean
+}
 ```
 
 ## accountToUtxos
