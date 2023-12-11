@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid'
 import fs from 'fs'
 import { ChildProcess, spawn } from 'child_process'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers/dist/index'
 
 const PORT = 3002
 const ENDPOINT = `http://127.0.0.1:${PORT}`
@@ -274,6 +275,7 @@ export class DefidBin {
   binary: ChildProcess | null = null
 
   public constructor (
+    readonly container: MasterNodeRegTestContainer,
     readonly addressController: DAddressController,
     readonly blockController: DBlockController
   ) {

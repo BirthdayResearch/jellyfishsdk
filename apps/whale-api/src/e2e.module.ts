@@ -24,6 +24,7 @@ import { DefidBin, DAddressController, DBlockController } from './e2e.defid.modu
 export async function createTestingApp (container: MasterNodeRegTestContainer): Promise<NestFastifyApplication | DefidBin> {
   if (process.env.DEFID !== undefined) {
     const defid = new DefidBin(
+      container,
       new DAddressController(),
       new DBlockController()
     )
@@ -114,15 +115,18 @@ export async function waitForIndexedHeightLatest (app: NestFastifyApplication, c
 export async function waitForIndexedHeight (app: NestFastifyApplication | DefidBin, height: number, timeout: number = 30000): Promise<void> {
   if (app instanceof DefidBin) {
     await waitForExpect(async () => {
-      // get index from DefidBin
-    })
-    return
+      // TODO(): maybe get index from DefidBin
+      const count = await app.container.getBlockCount()
+      await expect(count).toBeGreaterThan(height)
+      await await app.container.generate(1)
+    }, timeout)
+  } else {
+    const blockMapper = app.get(BlockMapper)
+    await waitForExpect(async () => {
+      const block = await blockMapper.getHighest()
+      await expect(block?.height).toBeGreaterThan(height)
+    }, timeout)
   }
-  const blockMapper = app.get(BlockMapper)
-  await waitForExpect(async () => {
-    const block = await blockMapper.getHighest()
-    await expect(block?.height).toBeGreaterThan(height)
-  }, timeout)
   await new Promise((resolve) => setTimeout(resolve, 1000))
 }
 
