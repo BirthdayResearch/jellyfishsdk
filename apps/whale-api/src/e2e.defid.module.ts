@@ -38,167 +38,6 @@ class DefidOceanApi {
 
 export class DefidOceanController {
   protected readonly api: DefidOceanApi = new DefidOceanApi()
-
-  // ======== FeeController ========
-  async estimateFee () {
-    return await this.api.get('/fee/estimate')
-  }
-
-  // ======== MasternodeController ========
-  async listMasternodes (query: OceanListQuery = { size: 30 }) {
-    if (query.next !== undefined) {
-      return await this.api.get(`/masternodes?size=${query.size}&next=${query.next}`)
-    }
-    return await this.api.get(`/masternodes?size=${query.size}`)
-  }
-
-  async getMasternode (id: string) {
-    return await this.api.get(`/masternodes/${id}`)
-  }
-
-  // ======== OracleController ========
-  async listOracles (query: OceanListQuery = { size: 30 }) {
-    if (query.next !== undefined) {
-      return await this.api.get(`/oracles?size=${query.size}&next=${query.next}`)
-    }
-    return await this.api.get(`/oracles?size=${query.size}`)
-  }
-
-  async getPriceFeed (id: string, key: string) {
-    return await this.api.get(`/oracles/${id}/${key}/feed`)
-  }
-
-  async getOracleByAddress (address: string) {
-    return await this.api.get(`/oracles/${address}`)
-  }
-
-  // ======== PoolPairController ========
-  async listPoolPairs (query: OceanListQuery = { size: 30 }) {
-    if (query.next !== undefined) {
-      return await this.api.get(`/poolpairs?size=${query.size}&next=${query.next}`)
-    }
-    return await this.api.get(`/poolpairs?size=${query.size}`)
-  }
-
-  async getPoolPair (id: string) {
-    return await this.api.get(`/poolpairs/${id}`)
-  }
-
-  async listPoolSwaps (id: string, query: OceanListQuery = { size: 30 }) {
-    if (query.next !== undefined) {
-      return await this.api.get(`/poolpairs/${id}/swaps?size=${query.size}&next=${query.next}`)
-    }
-    return await this.api.get(`/poolpairs/${id}/swaps?size=${query.size}`)
-  }
-
-  async listPoolSwapsVerbose (id: string, query: OceanListQuery = { size: 30 }) {
-    if (query.next !== undefined) {
-      return await this.api.get(`/poolpairs/${id}/swaps/verbose?size=${query.size}&next=${query.next}`)
-    }
-    return await this.api.get(`/poolpairs/${id}/swaps/verbose?size=${query.size}`)
-  }
-
-  async listPoolSwapsAggregate (id: string, interval: number, query: OceanListQuery = { size: 30 }) {
-    if (query.next !== undefined) {
-      return await this.api.get(`/poolpairs/${id}/swaps/aggregate/${interval}?size=${query.size}&next=${query.next}`)
-    }
-    return await this.api.get(`/poolpairs/${id}/swaps/aggregate/${interval}?size=${query.size}`)
-  }
-
-  async getSwappableTokens (id: string) {
-    return await this.api.get(`/poolpairs/paths/swappable/${id}`)
-  }
-
-  async getBestPath (fromTokenId: string, toTokenId: string) {
-    return await this.api.get(`/poolpairs/paths/best/from/${fromTokenId}/to/${toTokenId}`)
-  }
-
-  async listPaths (fromTokenId: string, toTokenId: string) {
-    return await this.api.get(`/poolpairs/paths/from/${fromTokenId}/to/${toTokenId}`)
-  }
-
-  async listDexPrices (denomination: string) {
-    return await this.api.get(`/poolpairs/dexprices?denomination=${denomination}`)
-  }
-
-  // ======== PriceController ========
-  async listPrices (query: OceanListQuery = { size: 30 }) {
-    if (query.next !== undefined) {
-      return await this.api.get(`/prices?size=${query.size}&next=${query.next}`)
-    }
-    return await this.api.get(`/prices?size=${query.size}`)
-  }
-
-  async getPrice (id: string) {
-    return await this.api.get(`/prices/${id}`)
-  }
-
-  async getFeedActive (id: string) {
-    return await this.api.get(`/prices/${id}/feed/active`)
-  }
-
-  async getFeed (id: string) {
-    return await this.api.get(`/prices/${id}/feed`)
-  }
-
-  async getFeedWithInterval (id: string, interval: number) {
-    return await this.api.get(`/prices/${id}/feed/interval/${interval}`)
-  }
-
-  async get_oracles (id: string) {
-    return await this.api.get(`/prices/${id}/oracles`)
-  }
-
-  // ======== RawTxController ========
-  // async sendRawtx() {
-  //   return this.post(`/rawtx/send`)
-  // }
-  async testRawtx () {
-    return await this.api.get('/rawtx/test')
-  }
-
-  async getRawtx (id: string) {
-    return await this.api.get(`/rawtx/${id}`)
-  }
-
-  // ======== StatController ========
-  async getStats () {
-    return await this.api.get('/stats')
-  }
-
-  async getRewardDistribution () {
-    return await this.api.get('/stats/reward/distribution')
-  }
-
-  async getSupply () {
-    return await this.api.get('/stats/supply')
-  }
-
-  async getBurn () {
-    return await this.api.get('/stats/burn')
-  }
-
-  // ======== TokenController ========
-  async listTokens () {
-    return await this.api.get('/tokens')
-  }
-
-  async getToken (id: string) {
-    return await this.api.get(`/tokens/${id}`)
-  }
-
-  // ======== TransactionController ========
-  async getTransaction (id: string) {
-    return await this.api.get(`/transactions/${id}`)
-  }
-
-  async getVins (id: string) {
-    return await this.api.get(`/transactions/${id}/vins`)
-  }
-
-  async getVouts (id: string) {
-    return await this.api.get(`/transactions/${id}/vouts`)
-  }
 }
 
 export class DAddressController extends DefidOceanController {
@@ -270,6 +109,177 @@ export class DBlockController extends DefidOceanController {
   }
 }
 
+export class DFeeController extends DefidOceanController {
+  async estimate () {
+    return await this.api.get('/fee/estimate')
+  }
+}
+
+export class DMasternodeController extends DefidOceanController {
+  async list (query: OceanListQuery = { size: 30 }) {
+    if (query.next !== undefined) {
+      return await this.api.get(`/masternodes?size=${query.size}&next=${query.next}`)
+    }
+    return await this.api.get(`/masternodes?size=${query.size}`)
+  }
+
+  async get (id: string) {
+    return await this.api.get(`/masternodes/${id}`)
+  }
+}
+
+export class DOracleController extends DefidOceanController {
+  async list (query: OceanListQuery = { size: 30 }) {
+    if (query.next !== undefined) {
+      return await this.api.get(`/oracles?size=${query.size}&next=${query.next}`)
+    }
+    return await this.api.get(`/oracles?size=${query.size}`)
+  }
+
+  async getPriceFeed (id: string, key: string) {
+    return await this.api.get(`/oracles/${id}/${key}/feed`)
+  }
+
+  async getOracleByAddress (address: string) {
+    return await this.api.get(`/oracles/${address}`)
+  }
+}
+
+export class DPoolPairController extends DefidOceanController {
+  async list (query: OceanListQuery = { size: 30 }) {
+    if (query.next !== undefined) {
+      return await this.api.get(`/poolpairs?size=${query.size}&next=${query.next}`)
+    }
+    return await this.api.get(`/poolpairs?size=${query.size}`)
+  }
+
+  async get (id: string) {
+    return await this.api.get(`/poolpairs/${id}`)
+  }
+
+  async listPoolSwaps (id: string, query: OceanListQuery = { size: 30 }) {
+    if (query.next !== undefined) {
+      return await this.api.get(`/poolpairs/${id}/swaps?size=${query.size}&next=${query.next}`)
+    }
+    return await this.api.get(`/poolpairs/${id}/swaps?size=${query.size}`)
+  }
+
+  async listPoolSwapsVerbose (id: string, query: OceanListQuery = { size: 30 }) {
+    if (query.next !== undefined) {
+      return await this.api.get(`/poolpairs/${id}/swaps/verbose?size=${query.size}&next=${query.next}`)
+    }
+    return await this.api.get(`/poolpairs/${id}/swaps/verbose?size=${query.size}`)
+  }
+
+  async listPoolSwapsAggregate (id: string, interval: number, query: OceanListQuery = { size: 30 }) {
+    if (query.next !== undefined) {
+      return await this.api.get(`/poolpairs/${id}/swaps/aggregate/${interval}?size=${query.size}&next=${query.next}`)
+    }
+    return await this.api.get(`/poolpairs/${id}/swaps/aggregate/${interval}?size=${query.size}`)
+  }
+
+  async getSwappableTokens (id: string) {
+    return await this.api.get(`/poolpairs/paths/swappable/${id}`)
+  }
+
+  async getBestPath (fromTokenId: string, toTokenId: string) {
+    return await this.api.get(`/poolpairs/paths/best/from/${fromTokenId}/to/${toTokenId}`)
+  }
+
+  async listPaths (fromTokenId: string, toTokenId: string) {
+    return await this.api.get(`/poolpairs/paths/from/${fromTokenId}/to/${toTokenId}`)
+  }
+
+  async listDexPrices (denomination: string) {
+    return await this.api.get(`/poolpairs/dexprices?denomination=${denomination}`)
+  }
+}
+
+export class DPriceController extends DefidOceanController {
+  async list (query: OceanListQuery = { size: 30 }) {
+    if (query.next !== undefined) {
+      return await this.api.get(`/prices?size=${query.size}&next=${query.next}`)
+    }
+    return await this.api.get(`/prices?size=${query.size}`)
+  }
+
+  async get (id: string) {
+    return await this.api.get(`/prices/${id}`)
+  }
+
+  async getFeedActive (id: string) {
+    return await this.api.get(`/prices/${id}/feed/active`)
+  }
+
+  async getFeed (id: string) {
+    return await this.api.get(`/prices/${id}/feed`)
+  }
+
+  async getFeedWithInterval (id: string, interval: number) {
+    return await this.api.get(`/prices/${id}/feed/interval/${interval}`)
+  }
+
+  async listPriceOracles (id: string) {
+    return await this.api.get(`/prices/${id}/oracles`)
+  }
+}
+
+export class DRawTxController extends DefidOceanController {
+  async sendRawtx () {
+    return await this.api.post('/rawtx/send')
+  }
+
+  async testRawtx () {
+    return await this.api.get('/rawtx/test')
+  }
+
+  async getRawtx (id: string) {
+    return await this.api.get(`/rawtx/${id}`)
+  }
+}
+
+export class DStateController extends DefidOceanController {
+  async get () {
+    return await this.api.get('/stats')
+  }
+
+  async getRewardDistribution () {
+    return await this.api.get('/stats/reward/distribution')
+  }
+
+  async getSupply () {
+    return await this.api.get('/stats/supply')
+  }
+
+  async getBurn () {
+    return await this.api.get('/stats/burn')
+  }
+}
+
+export class DTokenController extends DefidOceanController {
+  async list () {
+    return await this.api.get('/tokens')
+  }
+
+  async get (id: string) {
+    return await this.api.get(`/tokens/${id}`)
+  }
+}
+
+export class DTransactionController extends DefidOceanController {
+  async get (id: string) {
+    return await this.api.get(`/transactions/${id}`)
+  }
+
+  async getVins (id: string) {
+    return await this.api.get(`/transactions/${id}/vins`)
+  }
+
+  async getVouts (id: string) {
+    return await this.api.get(`/transactions/${id}/vouts`)
+  }
+}
+
 export class DefidBin {
   tmpDir: string = `/tmp/${uuidv4()}`
   binary: ChildProcess | null = null
@@ -277,7 +287,14 @@ export class DefidBin {
   public constructor (
     readonly container: MasterNodeRegTestContainer,
     readonly addressController: DAddressController,
-    readonly blockController: DBlockController
+    readonly blockController: DBlockController,
+    readonly feeController: DFeeController,
+    readonly masternodeController: DMasternodeController,
+    readonly oracleController: DOracleController,
+    readonly poolPairController: DPoolPairController,
+    readonly priceController: DPriceController,
+    readonly transactionController: DTransactionController,
+    readonly tokenController: DTokenController
   ) {
   }
 
