@@ -151,6 +151,7 @@ export async function waitForIndexedTimestamp (container: MasterNodeRegTestConta
   }, timeout)
 }
 
+// TODO(): handle DefidBin
 export async function waitForAddressTxCount (app: NestFastifyApplication | DefidBin, address: string, txCount: number, timeout: number = 15000): Promise<void> {
   if (app instanceof DefidBin) {
     return
