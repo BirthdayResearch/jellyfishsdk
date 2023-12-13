@@ -7,6 +7,7 @@ import fs from 'fs'
 import { ChildProcess, spawn } from 'child_process'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers/dist/index'
+import { ApiPagedResponse } from './module.api/_core/api.paged.response'
 
 const PORT = 3002
 const ENDPOINT = `http://127.0.0.1:${PORT}`
