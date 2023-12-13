@@ -151,7 +151,10 @@ export async function waitForIndexedTimestamp (container: MasterNodeRegTestConta
   }, timeout)
 }
 
-export async function waitForAddressTxCount (app: NestFastifyApplication, address: string, txCount: number, timeout: number = 15000): Promise<void> {
+export async function waitForAddressTxCount (app: NestFastifyApplication | DefidBin, address: string, txCount: number, timeout: number = 15000): Promise<void> {
+  if (app instanceof DefidBin) {
+    return
+  }
   const hid = addressToHid('regtest', address)
   const aggregationMapper = app.get(ScriptAggregationMapper)
   await waitForExpect(async () => {
