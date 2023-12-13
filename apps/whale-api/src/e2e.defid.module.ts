@@ -13,7 +13,7 @@ const PORT = 3002
 const ENDPOINT = `http://127.0.0.1:${PORT}`
 const SPAWNING_TIME = 120_000
 
-interface OceanListQuery {
+export interface OceanListQuery {
   size: number
   next?: string
 }
@@ -23,8 +23,7 @@ class DefidOceanApi {
     const res = await fetch(`${ENDPOINT}${path}`, {
       method: 'GET'
     })
-    // return await res.json()
-    return res
+    return await res.json()
   }
 
   async post (path: string, data?: any): Promise<any> {
@@ -32,8 +31,7 @@ class DefidOceanApi {
       method: 'POST',
       body: JSON.stringify(data)
     })
-    // return await res.json()
-    return res
+    return await res.json()
   }
 }
 
