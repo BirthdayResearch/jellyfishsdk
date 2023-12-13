@@ -60,28 +60,28 @@ export class DAddressController extends DefidOceanController {
     return await this.api.get(`/address/${address}/aggregation`)
   }
 
-  async listAddressTokens (address: string, query: OceanListQuery = { size: 30 }) {
+  async listTokens (address: string, query: OceanListQuery = { size: 30 }) {
     if (query.next !== undefined) {
       return await this.api.get(`/address/${address}/tokens?size=${query.size}&next=${query.next}`)
     }
     return await this.api.get(`/address/${address}/tokens?size=${query.size}`)
   }
 
-  async listAddressVaults (address: string, query: OceanListQuery = { size: 30 }) {
+  async listVaults (address: string, query: OceanListQuery = { size: 30 }) {
     if (query.next !== undefined) {
       return await this.api.get(`/address/${address}/vaults?size=${query.size}&next=${query.next}`)
     }
     return await this.api.get(`/address/${address}/vaults?size=${query.size}`)
   }
 
-  async listAddressTransactions (address: string, query: OceanListQuery = { size: 30 }) {
+  async listTransactions (address: string, query: OceanListQuery = { size: 30 }) {
     if (query.next !== undefined) {
       return await this.api.get(`/address/${address}/transactions?size=${query.size}&next=${query.next}`)
     }
     return await this.api.get(`/address/${address}/transactions?size=${query.size}`)
   }
 
-  async listAddressTransactionsUnspent (address: string, query: OceanListQuery = { size: 30 }) {
+  async listTransactionsUnspent (address: string, query: OceanListQuery = { size: 30 }) {
     if (query.next !== undefined) {
       return await this.api.get(`/address/${address}/transactions/unspent?size=${query.size}&next=${query.next}`)
     }
@@ -90,11 +90,11 @@ export class DAddressController extends DefidOceanController {
 }
 
 export class DBlockController extends DefidOceanController {
-  async list (query: OceanListQuery = { size: 30 }): Promise<any> {
+  async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<any>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/blocks/transactions?size=${query.size}&next=${query.next}`)
+      return await this.api.get(`/blocks?size=${query.size}&next=${query.next}`)
     }
-    return await this.api.get(`/blocks/transactions?size=${query.size}`)
+    return await this.api.get(`/blocks?size=${query.size}`)
   }
 
   async get (id: string): Promise<any> {
