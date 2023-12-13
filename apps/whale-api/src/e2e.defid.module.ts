@@ -9,6 +9,14 @@ import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers/dist/index'
 import { ApiPagedResponse } from './module.api/_core/api.paged.response'
 
+import { AddressToken, AddressHistory } from '@defichain/whale-api-client/dist/api/address'
+import { Block } from './module.model/block'
+import { ScriptActivity } from './module.model/script.activity'
+import { ScriptAggregation } from './module.model/script.aggregation'
+import { ScriptUnspent } from './module.model/script.unspent'
+import { Transaction } from './module.model/transaction'
+import { LoanVaultActive, LoanVaultLiquidated } from '@defichain/whale-api-client/dist/api/loan'
+
 const PORT = 3002
 const ENDPOINT = `http://127.0.0.1:${PORT}`
 const SPAWNING_TIME = 120_000
@@ -40,47 +48,47 @@ export class DefidOceanController {
 }
 
 export class DAddressController extends DefidOceanController {
-  async getAccountHistory (address: string, height: number, txno: number) {
+  async getAccountHistory (address: string, height: number, txno: number): Promise<AddressHistory> {
     return await this.api.get(`/address/${address}/history/${height}/${txno}`)
   }
 
-  async listAccountHistory (address: string, query: OceanListQuery = { size: 30 }) {
+  async listAccountHistory (address: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<AddressHistory>> {
     if (query.next !== undefined) {
       return await this.api.get(`/address/${address}/history?size=${query.size}&next=${query.next}`)
     }
     return await this.api.get(`/address/${address}/history?size=${query.size}`)
   }
 
-  async getBalance (address: string) {
+  async getBalance (address: string): Promise<string> {
     return await this.api.get(`/address/${address}/balance`)
   }
 
-  async getAggregation (address: string) {
+  async getAggregation (address: string): Promise<ScriptAggregation | undefined> {
     return await this.api.get(`/address/${address}/aggregation`)
   }
 
-  async listTokens (address: string, query: OceanListQuery = { size: 30 }) {
+  async listTokens (address: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<AddressToken>> {
     if (query.next !== undefined) {
       return await this.api.get(`/address/${address}/tokens?size=${query.size}&next=${query.next}`)
     }
     return await this.api.get(`/address/${address}/tokens?size=${query.size}`)
   }
 
-  async listVaults (address: string, query: OceanListQuery = { size: 30 }) {
+  async listVaults (address: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<LoanVaultActive | LoanVaultLiquidated>> {
     if (query.next !== undefined) {
       return await this.api.get(`/address/${address}/vaults?size=${query.size}&next=${query.next}`)
     }
     return await this.api.get(`/address/${address}/vaults?size=${query.size}`)
   }
 
-  async listTransactions (address: string, query: OceanListQuery = { size: 30 }) {
+  async listTransactions (address: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<ScriptActivity>> {
     if (query.next !== undefined) {
       return await this.api.get(`/address/${address}/transactions?size=${query.size}&next=${query.next}`)
     }
     return await this.api.get(`/address/${address}/transactions?size=${query.size}`)
   }
 
-  async listTransactionsUnspent (address: string, query: OceanListQuery = { size: 30 }) {
+  async listTransactionsUnspent (address: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<ScriptUnspent>> {
     if (query.next !== undefined) {
       return await this.api.get(`/address/${address}/transactions/unspent?size=${query.size}&next=${query.next}`)
     }
@@ -89,18 +97,18 @@ export class DAddressController extends DefidOceanController {
 }
 
 export class DBlockController extends DefidOceanController {
-  async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<any>> {
+  async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<Block>> {
     if (query.next !== undefined) {
       return await this.api.get(`/blocks?size=${query.size}&next=${query.next}`)
     }
     return await this.api.get(`/blocks?size=${query.size}`)
   }
 
-  async get (id: string): Promise<any> {
+  async get (id: string): Promise<Block | undefined> {
     return await this.api.get(`/blocks/${id}`)
   }
 
-  async getTransactions (hash: string, query: OceanListQuery = { size: 30 }): Promise<any> {
+  async getTransactions (hash: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<Transaction>> {
     if (query.next !== undefined) {
       return await this.api.get(`/blocks/${hash}/transactions?size=${query.size}&next=${query.next}`)
     }
