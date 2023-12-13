@@ -11,6 +11,22 @@ import { ApiPagedResponse } from './module.api/_core/api.paged.response'
 
 import { AddressToken, AddressHistory } from '@defichain/whale-api-client/dist/api/address'
 import { Block } from './module.model/block'
+import { MasternodeData } from '@defichain/whale-api-client/dist/api/masternodes'
+import {
+  AllSwappableTokensResult,
+  BestSwapPathResult, DexPricesResult,
+  PoolPairData,
+  PoolSwapAggregatedData,
+  PoolSwapData,
+  SwapPathsResult
+} from '@defichain/whale-api-client/dist/api/poolpairs'
+import { Oracle } from './module.model/oracle'
+import { OraclePriceAggregated } from './module.model/oracle.price.aggregated'
+import { OraclePriceFeed } from './module.model/oracle.price.feed'
+import { OraclePriceActive } from './module.model/oracle.price.active'
+import { PriceTicker } from './module.model/price.ticker'
+import { PriceFeedInterval, PriceOracle } from '@defichain/whale-api-client/dist/api/prices'
+import { RawTransaction } from '@defichain/jellyfish-api-core/dist/category/rawtx'
 import { ScriptActivity } from './module.model/script.activity'
 import { ScriptAggregation } from './module.model/script.aggregation'
 import { ScriptUnspent } from './module.model/script.unspent'
@@ -24,6 +40,10 @@ const SPAWNING_TIME = 120_000
 export interface OceanListQuery {
   size: number
   next?: string
+}
+
+export interface OceanRawTxQuery {
+  verbose: boolean
 }
 
 class DefidOceanApi {
@@ -117,131 +137,132 @@ export class DBlockController extends DefidOceanController {
 }
 
 export class DFeeController extends DefidOceanController {
-  async estimate () {
+  async estimate (): Promise<number> {
     return await this.api.get('/fee/estimate')
   }
 }
 
 export class DMasternodeController extends DefidOceanController {
-  async list (query: OceanListQuery = { size: 30 }) {
+  async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<MasternodeData>> {
     if (query.next !== undefined) {
       return await this.api.get(`/masternodes?size=${query.size}&next=${query.next}`)
     }
     return await this.api.get(`/masternodes?size=${query.size}`)
   }
 
-  async get (id: string) {
+  async get (id: string): Promise<MasternodeData> {
     return await this.api.get(`/masternodes/${id}`)
   }
 }
 
 export class DOracleController extends DefidOceanController {
-  async list (query: OceanListQuery = { size: 30 }) {
+  async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<Oracle>> {
     if (query.next !== undefined) {
       return await this.api.get(`/oracles?size=${query.size}&next=${query.next}`)
     }
     return await this.api.get(`/oracles?size=${query.size}`)
   }
 
-  async getPriceFeed (id: string, key: string) {
+  async getPriceFeed (id: string, key: string): Promise<ApiPagedResponse<OraclePriceFeed>> {
     return await this.api.get(`/oracles/${id}/${key}/feed`)
   }
 
-  async getOracleByAddress (address: string) {
+  async getOracleByAddress (address: string): Promise<Oracle> {
     return await this.api.get(`/oracles/${address}`)
   }
 }
 
 export class DPoolPairController extends DefidOceanController {
-  async list (query: OceanListQuery = { size: 30 }) {
+  async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<PoolPairData>> {
     if (query.next !== undefined) {
       return await this.api.get(`/poolpairs?size=${query.size}&next=${query.next}`)
     }
     return await this.api.get(`/poolpairs?size=${query.size}`)
   }
 
-  async get (id: string) {
+  async get (id: string): Promise<PoolPairData> {
     return await this.api.get(`/poolpairs/${id}`)
   }
 
-  async listPoolSwaps (id: string, query: OceanListQuery = { size: 30 }) {
+  async listPoolSwaps (id: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<PoolSwapData>> {
     if (query.next !== undefined) {
       return await this.api.get(`/poolpairs/${id}/swaps?size=${query.size}&next=${query.next}`)
     }
     return await this.api.get(`/poolpairs/${id}/swaps?size=${query.size}`)
   }
 
-  async listPoolSwapsVerbose (id: string, query: OceanListQuery = { size: 30 }) {
+  async listPoolSwapsVerbose (id: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<PoolSwapData>> {
     if (query.next !== undefined) {
       return await this.api.get(`/poolpairs/${id}/swaps/verbose?size=${query.size}&next=${query.next}`)
     }
     return await this.api.get(`/poolpairs/${id}/swaps/verbose?size=${query.size}`)
   }
 
-  async listPoolSwapsAggregate (id: string, interval: number, query: OceanListQuery = { size: 30 }) {
+  async listPoolSwapsAggregate (id: string, interval: number, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<PoolSwapAggregatedData>> {
     if (query.next !== undefined) {
       return await this.api.get(`/poolpairs/${id}/swaps/aggregate/${interval}?size=${query.size}&next=${query.next}`)
     }
     return await this.api.get(`/poolpairs/${id}/swaps/aggregate/${interval}?size=${query.size}`)
   }
 
-  async getSwappableTokens (id: string) {
+  async listSwappableTokens (id: string): Promise<AllSwappableTokensResult> {
     return await this.api.get(`/poolpairs/paths/swappable/${id}`)
   }
 
-  async getBestPath (fromTokenId: string, toTokenId: string) {
-    return await this.api.get(`/poolpairs/paths/best/from/${fromTokenId}/to/${toTokenId}`)
-  }
-
-  async listPaths (fromTokenId: string, toTokenId: string) {
+  async listPaths (fromTokenId: string, toTokenId: string): Promise<SwapPathsResult> {
     return await this.api.get(`/poolpairs/paths/from/${fromTokenId}/to/${toTokenId}`)
   }
 
-  async listDexPrices (denomination: string) {
+  async getBestPath (fromTokenId: string, toTokenId: string): Promise<BestSwapPathResult> {
+    return await this.api.get(`/poolpairs/paths/best/from/${fromTokenId}/to/${toTokenId}`)
+  }
+
+  async listDexPrices (denomination: string): Promise<DexPricesResult> {
     return await this.api.get(`/poolpairs/dexprices?denomination=${denomination}`)
   }
 }
 
 export class DPriceController extends DefidOceanController {
-  async list (query: OceanListQuery = { size: 30 }) {
+  async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<PriceTicker>> {
     if (query.next !== undefined) {
       return await this.api.get(`/prices?size=${query.size}&next=${query.next}`)
     }
     return await this.api.get(`/prices?size=${query.size}`)
   }
 
-  async get (id: string) {
+  async get (id: string): Promise<PriceTicker | undefined> {
     return await this.api.get(`/prices/${id}`)
   }
 
-  async getFeedActive (id: string) {
-    return await this.api.get(`/prices/${id}/feed/active`)
-  }
-
-  async getFeed (id: string) {
+  async getFeed (id: string): Promise<ApiPagedResponse<OraclePriceAggregated>> {
     return await this.api.get(`/prices/${id}/feed`)
   }
 
-  async getFeedWithInterval (id: string, interval: number) {
+  async getFeedActive (id: string): Promise<ApiPagedResponse<OraclePriceActive>> {
+    return await this.api.get(`/prices/${id}/feed/active`)
+  }
+
+  async getFeedWithInterval (id: string, interval: number): Promise<ApiPagedResponse<PriceFeedInterval>> {
     return await this.api.get(`/prices/${id}/feed/interval/${interval}`)
   }
 
-  async listPriceOracles (id: string) {
+  async listPriceOracles (id: string): Promise<ApiPagedResponse<PriceOracle>> {
     return await this.api.get(`/prices/${id}/oracles`)
   }
 }
 
 export class DRawTxController extends DefidOceanController {
-  async sendRawtx () {
+  async send (): Promise<string> {
     return await this.api.post('/rawtx/send')
   }
 
-  async testRawtx () {
+  async test (): Promise<void> {
     return await this.api.get('/rawtx/test')
   }
 
-  async getRawtx (id: string) {
-    return await this.api.get(`/rawtx/${id}`)
+  async get (id: string, query: OceanRawTxQuery = { verbose: false }): Promise<string | RawTransaction> {
+    /* eslint-disable-next-line @typescript-eslint/restrict-template-expressions */
+    return await this.api.get(`/rawtx/${id}?verbose=${query.verbose}`)
   }
 }
 
