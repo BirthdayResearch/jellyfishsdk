@@ -2,10 +2,11 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { StatsController } from './stats.controller'
 import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../e2e.module'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
+import { DefidBin, DStatsController } from '../e2e.defid.module'
 
 const container = new MasterNodeRegTestContainer()
-let app: NestFastifyApplication
-let controller: StatsController
+let app: NestFastifyApplication | DefidBin
+let controller: StatsController | DStatsController
 
 beforeAll(async () => {
   await container.start()
@@ -14,7 +15,11 @@ beforeAll(async () => {
   app = await createTestingApp(container)
   await waitForIndexedHeight(app, 100)
 
-  controller = app.get<StatsController>(StatsController)
+  if (app instanceof DefidBin) {
+    controller = app.statsController
+  } else {
+    controller = app.get(StatsController)
+  }
 })
 
 afterAll(async () => {
