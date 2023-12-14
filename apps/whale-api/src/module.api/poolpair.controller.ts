@@ -109,7 +109,7 @@ export class PoolPairController {
    * @param {PaginationQuery} query with size restricted to 20
    * @param {number} query.size
    * @param {string} [query.next]
-   * @return {Promise<ApiPagedResponse<PoolPairData>>}
+   * @return {Promise<ApiPagedResponse<PoolSwapData>>}
    */
   @Get('/:id/swaps/verbose')
   async listPoolSwapsVerbose (
@@ -140,7 +140,7 @@ export class PoolPairController {
    * @param {PaginationQuery} query
    * @param {number} query.size
    * @param {string} [query.next]
-   * @return {Promise<ApiPagedResponse<PoolPairData>>}
+   * @return {Promise<ApiPagedResponse<PoolSwapAggregatedData>>}
    */
   @Get('/:id/swaps/aggregate/:interval')
   async listPoolSwapAggregates (
