@@ -1,5 +1,6 @@
 /* eslint-disable  @typescript-eslint/explicit-function-return-type */
 /* eslint-disable  @typescript-eslint/no-misused-promises */
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 
 import { fetch } from 'cross-fetch'
 import { v4 as uuidv4 } from 'uuid'
@@ -20,7 +21,9 @@ import {
   PoolSwapData,
   SwapPathsResult
 } from '@defichain/whale-api-client/dist/api/poolpairs'
+import { GovernanceProposal, ProposalVotesResult } from '@defichain/whale-api-client/dist/api/governance'
 import { LoanVaultActive, LoanVaultLiquidated } from '@defichain/whale-api-client/dist/api/loan'
+import { MasternodeType } from '@defichain/jellyfish-api-core/dist/category/governance'
 import { Oracle } from './module.model/oracle'
 import { OraclePriceAggregated } from './module.model/oracle.price.aggregated'
 import { OraclePriceFeed } from './module.model/oracle.price.feed'
@@ -48,6 +51,13 @@ export interface OceanListQuery {
 
 export interface OceanRawTxQuery {
   verbose: boolean
+}
+
+export interface OceanProposalQuery {
+  masternode?: MasternodeType | string
+  cycle?: number
+  all?: boolean
+  query?: OceanListQuery
 }
 
 class DefidOceanApi {
@@ -143,6 +153,33 @@ export class DBlockController extends DefidOceanController {
 export class DFeeController extends DefidOceanController {
   async estimate (): Promise<number> {
     return await this.api.get('/fee/estimate')
+  }
+}
+
+export class DGovernanceController extends DefidOceanController {
+  async listProposals (): Promise<ApiPagedResponse<GovernanceProposal>> {
+    return await this.api.get('/governance/proposals')
+  }
+
+  async getProposal (id: string): Promise<GovernanceProposal> {
+    return await this.api.get(`/governance/proposals/${id}`)
+  }
+
+  async listProposalVotes (id: string, query: OceanProposalQuery): Promise<ApiPagedResponse<ProposalVotesResult>> {
+    const q = {
+      masternode: MasternodeType.MINE,
+      cycle: 0,
+      all: false,
+      query: {
+        size: 30
+      },
+      ...query
+    }
+    const qStr = `masternode=${q.masternode}&cycle=${q.cycle}&all=${q.all}&size=${q.query?.size}`
+    if (q?.query?.next !== undefined) {
+      return await this.api.get(`/governance/proposals/${id}/votes?${qStr}&next=${q.query.next}`)
+    }
+    return await this.api.get(`/governance/proposals/${id}/votes?${qStr}`)
   }
 }
 
@@ -265,7 +302,6 @@ export class DRawTxController extends DefidOceanController {
   }
 
   async get (id: string, query: OceanRawTxQuery = { verbose: false }): Promise<string | RawTransaction> {
-    /* eslint-disable-next-line @typescript-eslint/restrict-template-expressions */
     return await this.api.get(`/rawtx/${id}?verbose=${query.verbose}`)
   }
 }
@@ -321,6 +357,7 @@ export class DefidBin {
     readonly addressController: DAddressController,
     readonly blockController: DBlockController,
     readonly feeController: DFeeController,
+    readonly governanceController: DGovernanceController,
     readonly masternodeController: DMasternodeController,
     readonly oracleController: DOracleController,
     readonly poolPairController: DPoolPairController,

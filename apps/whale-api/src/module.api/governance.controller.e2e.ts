@@ -11,6 +11,7 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import BigNumber from 'bignumber.js'
 import { createTestingApp, stopTestingApp } from '../e2e.module'
 import { GovernanceController } from './governance.controller'
+import { DefidBin, DGovernanceController } from '../e2e.defid.module'
 
 class MultiOperatorGovernanceMasterNodeRegTestContainer extends MasterNodeRegTestContainer {
   protected getCmd (opts: StartOptions): string[] {
@@ -22,8 +23,8 @@ class MultiOperatorGovernanceMasterNodeRegTestContainer extends MasterNodeRegTes
   }
 }
 const container = new MultiOperatorGovernanceMasterNodeRegTestContainer()
-let app: NestFastifyApplication
-let controller: GovernanceController
+let app: NestFastifyApplication | DefidBin
+let controller: GovernanceController | DGovernanceController
 const testing = Testing.create(container)
 let cfpProposalId: string
 let vocProposalId: string
@@ -39,7 +40,11 @@ describe('governance - listProposals and getProposal', () => {
     ])
     await testing.container.generate(1)
     app = await createTestingApp(container)
-    controller = app.get(GovernanceController)
+    if (app instanceof DefidBin) {
+      controller = app.governanceController
+    } else {
+      controller = app.get(GovernanceController)
+    }
 
     // Create 1 CFP + 1 VOC
     payoutAddress = await testing.generateAddress()
@@ -259,7 +264,11 @@ describe('governance - listProposalVotes', () => {
     ])
     await testing.container.generate(1)
     app = await createTestingApp(container)
-    controller = app.get(GovernanceController)
+    if (app instanceof DefidBin) {
+      controller = app.governanceController
+    } else {
+      controller = app.get(GovernanceController)
+    }
 
     /**
      * Import the private keys of the masternode_operator in order to be able to mint blocks and vote on proposals.
