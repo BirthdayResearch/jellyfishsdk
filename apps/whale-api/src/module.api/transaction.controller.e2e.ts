@@ -4,10 +4,11 @@ import { TransactionController } from './transaction.controller'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../e2e.module'
 import { NotFoundException } from '@nestjs/common'
+import { DTransactionController, DefidBin } from '../e2e.defid.module'
 
 const container = new MasterNodeRegTestContainer()
-let app: NestFastifyApplication
-let controller: TransactionController
+let app: NestFastifyApplication | DefidBin
+let controller: TransactionController | DTransactionController
 let client: JsonRpcClient
 
 beforeAll(async () => {
@@ -16,7 +17,11 @@ beforeAll(async () => {
   await container.waitForWalletBalanceGTE(100)
 
   app = await createTestingApp(container)
-  controller = app.get<TransactionController>(TransactionController)
+  if (app instanceof DefidBin) {
+    controller = app.transactionController
+  } else {
+    controller = app.get<TransactionController>(TransactionController)
+  }
   client = new JsonRpcClient(await container.getCachedRpcUrl())
 
   await waitForIndexedHeight(app, 100)

@@ -4,10 +4,11 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../e2e.module'
 import { createPoolPair, createToken } from '@defichain/testing'
 import { NotFoundException } from '@nestjs/common'
+import { DTokenController, DefidBin } from '../e2e.defid.module'
 
 const container = new MasterNodeRegTestContainer()
-let app: NestFastifyApplication
-let controller: TokenController
+let app: NestFastifyApplication | DefidBin
+let controller: TokenController | DTokenController
 
 beforeAll(async () => {
   await container.start()
@@ -15,7 +16,11 @@ beforeAll(async () => {
   await container.waitForWalletBalanceGTE(100)
 
   app = await createTestingApp(container)
-  controller = app.get(TokenController)
+  if (app instanceof DefidBin) {
+    controller = app.tokenController
+  } else {
+    controller = app.get(TokenController)
+  }
 
   await waitForIndexedHeight(app, 100)
 

@@ -23,7 +23,8 @@ import {
   DPriceController,
   DStatsController,
   DTransactionController,
-  DTokenController
+  DTokenController,
+  DRawTxController
 } from './e2e.defid.module'
 
 /**
@@ -48,6 +49,7 @@ export async function createTestingApp (container: MasterNodeRegTestContainer): 
       new DOracleController(),
       new DPoolPairController(),
       new DPriceController(),
+      new DRawTxController(),
       new DStatsController(),
       new DTransactionController(),
       new DTokenController()

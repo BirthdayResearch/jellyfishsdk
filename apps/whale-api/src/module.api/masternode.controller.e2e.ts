@@ -6,11 +6,12 @@ import { MasternodeController } from './masternode.controller'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasternodeState } from '@defichain/whale-api-client/dist/api/masternodes'
 import { MasternodeTimeLock } from '@defichain/jellyfish-api-core/dist/category/masternode'
+import { DefidBin, DMasternodeController } from '../e2e.defid.module'
 
 describe('list', () => {
   const container = new MasterNodeRegTestContainer()
-  let app: NestFastifyApplication
-  let controller: MasternodeController
+  let app: NestFastifyApplication | DefidBin
+  let controller: MasternodeController | DMasternodeController
   let client: JsonRpcClient
 
   beforeAll(async () => {
@@ -18,7 +19,11 @@ describe('list', () => {
 
     app = await createTestingApp(container)
     client = new JsonRpcClient(await container.getCachedRpcUrl())
-    controller = app.get(MasternodeController)
+    if (app instanceof DefidBin) {
+      controller = app.masternodeController
+    } else {
+      controller = app.get(MasternodeController)
+    }
 
     await container.generate(1)
     const height = await client.blockchain.getBlockCount()
@@ -58,8 +63,8 @@ describe('list', () => {
 
 describe('get', () => {
   const container = new MasterNodeRegTestContainer()
-  let app: NestFastifyApplication
-  let controller: MasternodeController
+  let app: NestFastifyApplication | DefidBin
+  let controller: MasternodeController | DMasternodeController
   let client: JsonRpcClient
 
   beforeAll(async () => {
@@ -67,7 +72,11 @@ describe('get', () => {
 
     app = await createTestingApp(container)
     client = new JsonRpcClient(await container.getCachedRpcUrl())
-    controller = app.get(MasternodeController)
+    if (app instanceof DefidBin) {
+      controller = app.masternodeController
+    } else {
+      controller = app.get(MasternodeController)
+    }
 
     await container.generate(1)
     const height = await client.blockchain.getBlockCount()
@@ -105,8 +114,8 @@ describe('get', () => {
 
 describe('resign', () => {
   const container = new DelayedEunosPayaTestContainer()
-  let app: NestFastifyApplication
-  let controller: MasternodeController
+  let app: NestFastifyApplication | DefidBin
+  let controller: MasternodeController | DMasternodeController
   let client: JsonRpcClient
 
   beforeAll(async () => {
@@ -115,7 +124,11 @@ describe('resign', () => {
 
     app = await createTestingApp(container)
     client = new JsonRpcClient(await container.getCachedRpcUrl())
-    controller = app.get(MasternodeController)
+    if (app instanceof DefidBin) {
+      controller = app.masternodeController
+    } else {
+      controller = app.get(MasternodeController)
+    }
 
     await container.generate(1)
     const height = await client.blockchain.getBlockCount()
@@ -154,8 +167,8 @@ describe('resign', () => {
 
 describe('timelock', () => {
   const container = new MasterNodeRegTestContainer()
-  let app: NestFastifyApplication
-  let controller: MasternodeController
+  let app: NestFastifyApplication | DefidBin
+  let controller: MasternodeController | DMasternodeController
   let client: JsonRpcClient
 
   beforeAll(async () => {
@@ -164,7 +177,11 @@ describe('timelock', () => {
 
     app = await createTestingApp(container)
     client = new JsonRpcClient(await container.getCachedRpcUrl())
-    controller = app.get(MasternodeController)
+    if (app instanceof DefidBin) {
+      controller = app.masternodeController
+    } else {
+      controller = app.get(MasternodeController)
+    }
 
     await container.generate(1)
     const height = await client.blockchain.getBlockCount()

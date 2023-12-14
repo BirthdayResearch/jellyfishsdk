@@ -7,10 +7,11 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, stopTestingApp } from '../e2e.module'
 import { RawtxController } from './rawtx.controller'
 import { NotFoundException } from '@nestjs/common'
+import { DRawTxController, DefidBin } from '../e2e.defid.module'
 
 const container = new MasterNodeRegTestContainer()
-let app: NestFastifyApplication
-let controller: RawtxController
+let app: NestFastifyApplication | DefidBin
+let controller: RawtxController | DRawTxController
 
 beforeAll(async () => {
   await container.start()
@@ -18,7 +19,11 @@ beforeAll(async () => {
   await container.waitForWalletBalanceGTE(100)
 
   app = await createTestingApp(container)
-  controller = app.get<RawtxController>(RawtxController)
+  if (app instanceof DefidBin) {
+    controller = app.rawTxController
+  } else {
+    controller = app.get<RawtxController>(RawtxController)
+  }
 })
 
 afterAll(async () => {

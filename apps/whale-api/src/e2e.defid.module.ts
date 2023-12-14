@@ -362,6 +362,7 @@ export class DefidBin {
     readonly oracleController: DOracleController,
     readonly poolPairController: DPoolPairController,
     readonly priceController: DPriceController,
+    readonly rawTxController: DRawTxController,
     readonly statsController: DStatsController,
     readonly transactionController: DTransactionController,
     readonly tokenController: DTokenController
