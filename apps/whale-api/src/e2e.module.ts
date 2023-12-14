@@ -21,6 +21,8 @@ import { DefidBin, DAddressController, DBlockController, DFeeController, DMaster
  * @param {MasterNodeRegTestContainer} container to provide defid client
  * @return Promise<NestFastifyApplication> with initialization
  */
+export async function createTestingApp (container: MasterNodeRegTestContainer): Promise<NestFastifyApplication>
+export async function createTestingApp (container: MasterNodeRegTestContainer): Promise<DefidBin>
 export async function createTestingApp (container: MasterNodeRegTestContainer): Promise<NestFastifyApplication | DefidBin> {
   if (process.env.DEFID !== undefined) {
     const defid = new DefidBin(
