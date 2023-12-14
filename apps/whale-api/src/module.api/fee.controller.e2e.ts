@@ -3,10 +3,11 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, stopTestingApp } from '../e2e.module'
 import { FeeController } from './fee.controller'
+import { DefidBin, DFeeController } from '../e2e.defid.module'
 
 const container = new MasterNodeRegTestContainer()
-let app: NestFastifyApplication
-let controller: FeeController
+let app: NestFastifyApplication | DefidBin
+let controller: FeeController | DFeeController
 let client: JsonRpcClient
 
 beforeAll(async () => {
@@ -15,7 +16,11 @@ beforeAll(async () => {
   await container.waitForWalletBalanceGTE(100)
 
   app = await createTestingApp(container)
-  controller = app.get<FeeController>(FeeController)
+  if (app instanceof DefidBin) {
+    controller = app.feeController
+  } else {
+    controller = app.get<FeeController>(FeeController)
+  }
   client = new JsonRpcClient(await container.getCachedRpcUrl())
 })
 
