@@ -11,7 +11,19 @@ import waitForExpect from 'wait-for-expect'
 import { addressToHid } from './module.api/address.controller'
 import { ScriptAggregationMapper } from './module.model/script.aggregation'
 import { TestingGroup } from '@defichain/jellyfish-testing'
-import { DefidBin, DAddressController, DBlockController, DFeeController, DMasternodeController, DOracleController, DPoolPairController, DPriceController, DTransactionController, DTokenController } from './e2e.defid.module'
+import {
+  DefidBin,
+  DAddressController,
+  DBlockController,
+  DFeeController,
+  DMasternodeController,
+  DOracleController,
+  DPoolPairController,
+  DPriceController,
+  DStatsController,
+  DTransactionController,
+  DTokenController
+} from './e2e.defid.module'
 
 /**
  * Configures an end-to-end testing app integrated with all modules.
@@ -34,6 +46,7 @@ export async function createTestingApp (container: MasterNodeRegTestContainer): 
       new DOracleController(),
       new DPoolPairController(),
       new DPriceController(),
+      new DStatsController(),
       new DTransactionController(),
       new DTokenController()
     )

@@ -20,6 +20,7 @@ import {
   PoolSwapData,
   SwapPathsResult
 } from '@defichain/whale-api-client/dist/api/poolpairs'
+import { LoanVaultActive, LoanVaultLiquidated } from '@defichain/whale-api-client/dist/api/loan'
 import { Oracle } from './module.model/oracle'
 import { OraclePriceAggregated } from './module.model/oracle.price.aggregated'
 import { OraclePriceFeed } from './module.model/oracle.price.feed'
@@ -30,8 +31,11 @@ import { RawTransaction } from '@defichain/jellyfish-api-core/dist/category/rawt
 import { ScriptActivity } from './module.model/script.activity'
 import { ScriptAggregation } from './module.model/script.aggregation'
 import { ScriptUnspent } from './module.model/script.unspent'
+import { BurnData, RewardDistributionData, StatsData, SupplyData } from '@defichain/whale-api-client/dist/api/stats'
+import { TokenData } from '@defichain/whale-api-client/dist/api/tokens'
 import { Transaction } from './module.model/transaction'
-import { LoanVaultActive, LoanVaultLiquidated } from '@defichain/whale-api-client/dist/api/loan'
+import { TransactionVin } from './module.model/transaction.vin'
+import { TransactionVout } from './module.model/transaction.vout'
 
 const PORT = 3002
 const ENDPOINT = `http://127.0.0.1:${PORT}`
@@ -266,44 +270,44 @@ export class DRawTxController extends DefidOceanController {
   }
 }
 
-export class DStateController extends DefidOceanController {
-  async get () {
+export class DStatsController extends DefidOceanController {
+  async get (): Promise<StatsData> {
     return await this.api.get('/stats')
   }
 
-  async getRewardDistribution () {
-    return await this.api.get('/stats/reward/distribution')
-  }
-
-  async getSupply () {
+  async getSupply (): Promise<SupplyData> {
     return await this.api.get('/stats/supply')
   }
 
-  async getBurn () {
+  async getBurn (): Promise<BurnData> {
     return await this.api.get('/stats/burn')
+  }
+
+  async getRewardDistribution (): Promise<RewardDistributionData> {
+    return await this.api.get('/stats/reward/distribution')
   }
 }
 
 export class DTokenController extends DefidOceanController {
-  async list () {
+  async list (): Promise<ApiPagedResponse<TokenData>> {
     return await this.api.get('/tokens')
   }
 
-  async get (id: string) {
+  async get (id: string): Promise<TokenData> {
     return await this.api.get(`/tokens/${id}`)
   }
 }
 
 export class DTransactionController extends DefidOceanController {
-  async get (id: string) {
+  async get (id: string): Promise<Transaction> {
     return await this.api.get(`/transactions/${id}`)
   }
 
-  async getVins (id: string) {
+  async getVins (id: string): Promise<ApiPagedResponse<TransactionVin>> {
     return await this.api.get(`/transactions/${id}/vins`)
   }
 
-  async getVouts (id: string) {
+  async getVouts (id: string): Promise<ApiPagedResponse<TransactionVout>> {
     return await this.api.get(`/transactions/${id}/vouts`)
   }
 }
@@ -321,6 +325,7 @@ export class DefidBin {
     readonly oracleController: DOracleController,
     readonly poolPairController: DPoolPairController,
     readonly priceController: DPriceController,
+    readonly statsController: DStatsController,
     readonly transactionController: DTransactionController,
     readonly tokenController: DTokenController
   ) {
