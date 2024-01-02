@@ -379,6 +379,7 @@ export class DefidBin {
     const args = [
       `-datadir=${this.tmpDir}`,
       '-regtest',
+      '-oceanarchive',
       '-printtoconsole',
       '-gen=0',
       '-rpcuser=test',
