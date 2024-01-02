@@ -166,12 +166,13 @@ export class DGovernanceController extends DefidOceanController {
   }
 
   async listProposalVotes (id: string, query: OceanProposalQuery): Promise<ApiPagedResponse<ProposalVotesResult>> {
-    const q = {
+    const q: OceanProposalQuery = {
       masternode: MasternodeType.MINE,
       cycle: 0,
       all: false,
       query: {
-        size: 30
+        size: 30,
+        next: undefined
       },
       ...query
     }
