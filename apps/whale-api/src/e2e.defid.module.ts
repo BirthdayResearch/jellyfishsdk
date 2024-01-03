@@ -302,8 +302,8 @@ export class DRawTxController extends DefidOceanController {
     return await this.api.get('/rawtx/test')
   }
 
-  async get (id: string, query: OceanRawTxQuery = { verbose: false }): Promise<string | RawTransaction> {
-    return await this.api.get(`/rawtx/${id}?verbose=${query.verbose}`)
+  async get (id: string, verbose = false): Promise<string | RawTransaction> {
+    return await this.api.get(`/rawtx/${id}?verbose=${verbose}`)
   }
 }
 
