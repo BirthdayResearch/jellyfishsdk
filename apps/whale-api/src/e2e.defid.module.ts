@@ -165,22 +165,17 @@ export class DGovernanceController extends DefidOceanController {
     return await this.api.get(`/governance/proposals/${id}`)
   }
 
-  async listProposalVotes (id: string, query: OceanProposalQuery): Promise<ApiPagedResponse<ProposalVotesResult>> {
-    const q: OceanProposalQuery = {
-      masternode: MasternodeType.MINE,
-      cycle: 0,
-      all: false,
-      query: {
-        size: 30,
-        next: undefined
-      },
-      ...query
+  async listProposalVotes (
+    id: string,
+    masternode = MasternodeType.MINE,
+    cycle = 0,
+    all = false,
+    query: OceanListQuery = { size: 30 }
+  ): Promise<ApiPagedResponse<ProposalVotesResult>> {
+    if (query.next !== undefined) {
+      return await this.api.get(`/governance/proposals/${id}/votes?masternode=${masternode}&cycle=${cycle}&all=${all}&size=${query.size}&next=${query.next}`)
     }
-    const qStr = `masternode=${q.masternode}&cycle=${q.cycle}&all=${q.all}&size=${q.query?.size}`
-    if (q?.query?.next !== undefined) {
-      return await this.api.get(`/governance/proposals/${id}/votes?${qStr}&next=${q.query.next}`)
-    }
-    return await this.api.get(`/governance/proposals/${id}/votes?${qStr}`)
+    return await this.api.get(`/governance/proposals/${id}/votes?masternode=${masternode}&cycle=${cycle}&all=${all}&size=${query.size}`)
   }
 }
 
