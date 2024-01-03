@@ -444,6 +444,9 @@ export class DefidBin {
 
         /* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */
         if (chunk.toString().match(/addcon thread start/)) {
+          // wait for ocean
+          await new Promise((resolve) => setTimeout(resolve, 1000))
+
           try {
             const res = await this.blockController.get('0')
             console.log('[DefidBin.start()] blockController.get res: ', res)
