@@ -425,6 +425,47 @@ export class DefidRpc {
     }, timeout, 100, 'waitForBlockHeight')
   }
 
+  async blockHeight (height: number, timeout: number = 590000): Promise<void> {
+    return await waitForCondition(async () => {
+      const count = await this.getBlockCount()
+      if (count > height) {
+        return true
+      }
+      await this.generate(1)
+      return false
+    }, timeout, 100, 'waitForBlockHeight')
+  }
+
+  async waitForWalletCoinbaseMaturity (timeout: number = 180000, mockTime: boolean = true): Promise<void> {
+    if (!mockTime) {
+      return await this.blockHeight(100, timeout)
+    }
+
+    let fakeTime: number = 1579045065
+    await this.call('setmocktime', [fakeTime])
+
+    const intervalId = setInterval(() => {
+      fakeTime += 3
+      void this.call('setmocktime', [fakeTime])
+    }, 200)
+
+    await this.blockHeight(100, timeout)
+
+    clearInterval(intervalId)
+    await this.call('setmocktime', [0])
+  }
+
+  async waitForWalletBalanceGTE (balance: number, timeout: number = 300000): Promise<void> {
+    return await waitForCondition(async () => {
+      const getbalance = await this.call('getbalance')
+      if (getbalance >= balance) {
+        return true
+      }
+      await this.generate(1)
+      return false
+    }, timeout, 100, 'waitForWalletBalanceGTE')
+  }
+
   async getNewAddress (label: string = '', addressType: 'legacy' | 'p2sh-segwit' | 'bech32' | 'eth' | string = 'bech32'): Promise<string> {
     return await this.call('getnewaddress', [label, addressType])
   }
