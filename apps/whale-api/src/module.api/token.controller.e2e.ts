@@ -4,33 +4,44 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../e2e.module'
 import { createPoolPair, createToken } from '@defichain/testing'
 import { NotFoundException } from '@nestjs/common'
-import { DTokenController, DefidBin } from '../e2e.defid.module'
+import { DTokenController, DefidBin, DefidRpc } from '../e2e.defid.module'
 
-const container = new MasterNodeRegTestContainer()
+let container: MasterNodeRegTestContainer | DefidRpc
 let app: NestFastifyApplication | DefidBin
 let controller: TokenController | DTokenController
 
 beforeAll(async () => {
-  await container.start()
-  await container.waitForWalletCoinbaseMaturity()
-  await container.waitForWalletBalanceGTE(100)
-
-  app = await createTestingApp(container)
-  if (app instanceof DefidBin) {
-    controller = app.tokenController
+  if (process.env.DEFID !== undefined) {
+    app = new DefidBin()
+    await app.start()
+    container = app.rpc
+    controller = app.ocean.tokenController
+    await container.waitForWalletCoinbaseMaturity()
+    await container.waitForWalletBalanceGTE(100)
+    await waitForIndexedHeight(app, 100)
+    await container.createToken('DBTC')
+    await container.createToken('DETH')
+    await container.createPoolPair('DBTC', 'DETH')
   } else {
+    container = new MasterNodeRegTestContainer()
+    await container.start()
+    app = await createTestingApp(container)
     controller = app.get(TokenController)
+    await container.waitForWalletCoinbaseMaturity()
+    await container.waitForWalletBalanceGTE(100)
+    await waitForIndexedHeight(app, 100)
+    await createToken(container, 'DBTC')
+    await createToken(container, 'DETH')
+    await createPoolPair(container, 'DBTC', 'DETH')
   }
-
-  await waitForIndexedHeight(app, 100)
-
-  await createToken(container, 'DBTC')
-  await createToken(container, 'DETH')
-  await createPoolPair(container, 'DBTC', 'DETH')
 })
 
 afterAll(async () => {
-  await stopTestingApp(container, app)
+  if (process.env.DEFID !== undefined) {
+    await (app as DefidBin).stop()
+    return
+  }
+  await stopTestingApp(container as MasterNodeRegTestContainer, app as NestFastifyApplication)
 })
 
 describe('list', () => {

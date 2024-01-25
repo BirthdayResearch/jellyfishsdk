@@ -473,6 +473,37 @@ export class DefidRpc {
   async getBlockCount (): Promise<number> {
     return await this.call('getblockcount', [])
   }
+
+  async createToken (symbol: string, options?: CreateTokenOptions): Promise<number> {
+    const metadata = {
+      symbol,
+      name: options?.name ?? symbol,
+      isDAT: options?.isDAT ?? true,
+      mintable: options?.mintable ?? true,
+      tradeable: options?.tradeable ?? true,
+      collateralAddress: options?.collateralAddress ?? await this.getNewAddress()
+    }
+
+    await this.waitForWalletBalanceGTE(101)
+    await this.call('create', [metadata])
+    await this.generate(1)
+
+    const res = await this.call('gettoken', [symbol])
+    return Number.parseInt(Object.keys(res)[0])
+  }
+
+  async createPoolPair (aToken: string, bToken: string, options?: CreatePoolPairOptions): Promise<string> {
+    const metadata = {
+      tokenA: aToken,
+      tokenB: bToken,
+      commission: options?.commission ?? 0,
+      status: options?.status ?? true,
+      ownerAddress: options?.ownerAddress ?? await this.getNewAddress()
+    }
+    const txid = await this.call('createpoolpair', [metadata, options?.utxos])
+    await this.generate(1)
+    return txid
+  }
 }
 
 export class DefidBin {
@@ -618,4 +649,24 @@ export class DefidBin {
       return err.code === 'EPERM'
     }
   }
+}
+
+interface CreateTokenOptions {
+  name?: string
+  isDAT?: boolean
+  mintable?: boolean
+  tradeable?: boolean
+  collateralAddress?: string
+}
+
+interface CreatePoolPairOptions {
+  commission?: number
+  status?: boolean
+  ownerAddress?: string
+  utxos?: UTXO[]
+}
+
+interface UTXO {
+  txid: string
+  vout: number
 }
