@@ -3,26 +3,33 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../e2e.module'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { DBlockController, DefidBin } from '../e2e.defid.module'
+import { DBlockController, DefidBin, DefidRpc } from '../e2e.defid.module'
 
-const container = new MasterNodeRegTestContainer()
 let app: NestFastifyApplication | DefidBin
+let container: MasterNodeRegTestContainer | DefidRpc
 let controller: BlockController | DBlockController
 let client: JsonRpcClient
 
 beforeAll(async () => {
-  await container.start()
-  await container.waitForBlockHeight(101)
-
-  app = await createTestingApp(container)
-
-  await waitForIndexedHeight(app, 100)
-  if (app instanceof DefidBin) {
-    controller = app.blockController
+  if (process.env.DEFID !== undefined) {
+    app = new DefidBin()
+    await app.start()
+    container = app.rpc
+    controller = app.ocean.blockController
+    await container.waitForBlockHeight(101)
+    // await waitForIndexedHeight(app, 100)
+    client = new JsonRpcClient(container.getCachedRpcUrl())
   } else {
+    container = new MasterNodeRegTestContainer()
+    await container.start()
+    await container.waitForBlockHeight(101)
+
+    app = await createTestingApp(container)
+
+    await waitForIndexedHeight(app, 100)
     controller = app.get(BlockController)
+    client = new JsonRpcClient(await container.getCachedRpcUrl())
   }
-  client = new JsonRpcClient(await container.getCachedRpcUrl())
 
   const address = await container.getNewAddress()
   for (let i = 0; i < 4; i += 1) {
@@ -34,7 +41,11 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-  await stopTestingApp(container, app)
+  if (process.env.DEFID !== undefined) {
+    await (app as DefidBin).stop()
+    return
+  }
+  await stopTestingApp(container as MasterNodeRegTestContainer, app as NestFastifyApplication)
 })
 
 describe('get', () => {

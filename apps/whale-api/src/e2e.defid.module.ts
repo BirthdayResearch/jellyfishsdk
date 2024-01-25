@@ -7,7 +7,6 @@ import { v4 as uuidv4 } from 'uuid'
 import fs from 'fs'
 import { ChildProcess, spawn } from 'child_process'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers/dist/index'
 import { ApiPagedResponse } from './module.api/_core/api.paged.response'
 
 import { AddressToken, AddressHistory } from '@defichain/whale-api-client/dist/api/address'
@@ -39,10 +38,9 @@ import { TokenData } from '@defichain/whale-api-client/dist/api/tokens'
 import { Transaction } from './module.model/transaction'
 import { TransactionVin } from './module.model/transaction.vin'
 import { TransactionVout } from './module.model/transaction.vout'
+import { DeFiDRpcError, waitForCondition } from '@defichain/testcontainers'
 
-const PORT = 3002
-const ENDPOINT = `http://127.0.0.1:${PORT}`
-const SPAWNING_TIME = 120_000
+const SPAWNING_TIME = 180_000
 
 export interface OceanListQuery {
   size: number
@@ -61,15 +59,17 @@ export interface OceanProposalQuery {
 }
 
 class DefidOceanApi {
+  endpoint = 'http://127.0.0.1:3002'
+
   async get (path: string): Promise<any> {
-    const res = await fetch(`${ENDPOINT}${path}`, {
+    const res = await fetch(`${this.endpoint}${path}`, {
       method: 'GET'
     })
     return await res.json()
   }
 
   async post (path: string, data?: any): Promise<any> {
-    const res = await fetch(`${ENDPOINT}${path}`, {
+    const res = await fetch(`${this.endpoint}${path}`, {
       method: 'POST',
       body: JSON.stringify(data)
     })
@@ -344,12 +344,8 @@ export class DTransactionController extends DefidOceanController {
   }
 }
 
-export class DefidBin {
-  tmpDir: string = `/tmp/${uuidv4()}`
-  binary: ChildProcess | null = null
-
-  public constructor (
-    readonly container: MasterNodeRegTestContainer,
+export class DefidOcean {
+  constructor (
     readonly addressController: DAddressController,
     readonly blockController: DBlockController,
     readonly feeController: DFeeController,
@@ -364,6 +360,98 @@ export class DefidBin {
     readonly tokenController: DTokenController
   ) {
   }
+}
+
+export class DefidRpc {
+  rpcUrl = 'http://test:test@127.0.0.1:19554'
+
+  getCachedRpcUrl (): string {
+    return this.rpcUrl
+  }
+
+  async call (method: string, params: any = []): Promise<any> {
+    const body = JSON.stringify({
+      jsonrpc: '1.0',
+      id: Math.floor(Math.random() * 100000000000000),
+      method: method,
+      params: params
+    })
+
+    const text = await this.post(body)
+    const {
+      result,
+      error
+    } = JSON.parse(text)
+
+    if (error !== undefined && error !== null) {
+      throw new DeFiDRpcError(error)
+    }
+
+    return result
+  }
+
+  async post (body: string): Promise<string> {
+    const response = await fetch(this.rpcUrl, {
+      method: 'POST',
+      body: body
+    })
+    return await response.text()
+  }
+
+  async generate (
+    nblocks: number,
+    address?: string | undefined,
+    maxTries: number = 1000000
+  ): Promise<void> {
+    if (address === undefined) {
+      address = await this.call('getnewaddress')
+    }
+    for (let minted = 0, tries = 0; minted < nblocks && tries < maxTries; tries++) {
+      const result = await this.call('generatetoaddress', [1, address, 1])
+      if (result === 1) {
+        minted += 1
+      }
+    }
+  }
+
+  async waitForBlockHeight (height: number, timeout = 590000): Promise<void> {
+    return await waitForCondition(async () => {
+      const count = await this.getBlockCount()
+      if (count > height) {
+        return true
+      }
+      await this.generate(1)
+      return false
+    }, timeout, 100, 'waitForBlockHeight')
+  }
+
+  async getNewAddress (label: string = '', addressType: 'legacy' | 'p2sh-segwit' | 'bech32' | 'eth' | string = 'bech32'): Promise<string> {
+    return await this.call('getnewaddress', [label, addressType])
+  }
+
+  async getBlockCount (): Promise<number> {
+    return await this.call('getblockcount', [])
+  }
+}
+
+export class DefidBin {
+  tmpDir: string = `/tmp/${uuidv4()}`
+  binary: ChildProcess | null = null
+  rpc = new DefidRpc()
+  ocean = new DefidOcean(
+    new DAddressController(),
+    new DBlockController(),
+    new DFeeController(),
+    new DGovernanceController(),
+    new DMasternodeController(),
+    new DOracleController(),
+    new DPoolPairController(),
+    new DPriceController(),
+    new DRawTxController(),
+    new DStatsController(),
+    new DTransactionController(),
+    new DTokenController()
+  )
 
   async start (): Promise<void> {
     fs.mkdirSync(this.tmpDir)
@@ -375,7 +463,6 @@ export class DefidBin {
     const args = [
       `-datadir=${this.tmpDir}`,
       '-regtest',
-      '-oceanarchive',
       '-printtoconsole',
       '-gen=0',
       '-rpcuser=test',
@@ -389,7 +476,8 @@ export class DefidBin {
       '-txnotokens=0',
       '-logtimemicros',
       '-txindex=1',
-      '-acindex=1'
+      '-acindex=1',
+      '-oceanarchive'
     ]
 
     const extraArgs = [
@@ -443,8 +531,9 @@ export class DefidBin {
           await new Promise((resolve) => setTimeout(resolve, 1000))
 
           try {
-            const res = await this.blockController.get('0')
-            console.log('[DefidBin.start()] blockController.get res: ', res)
+            // TODO(canonbrother): blockController.get(0)
+            const res = await this.ocean.blockController.list({ size: 1 })
+            console.log('[DefidBin.start()] blockController.list res: ', res)
           } catch (err) {
             console.log('[DefidBin.start()] blockController.get err: ', err)
           }
@@ -454,7 +543,9 @@ export class DefidBin {
           binary.stderr.off('data', onData)
           binary.stdout.off('data', onData)
 
-          // import privkey
+          await this.rpc.call('importprivkey', [RegTestFoundationKeys[1].owner.privKey])
+          await this.rpc.call('importprivkey', [RegTestFoundationKeys[1].operator.privKey])
+
           // setgov
           // generate(2)
 
@@ -467,5 +558,23 @@ export class DefidBin {
     })
 
     this.binary = binary
+  }
+
+  async stop (): Promise<void> {
+    const interval = setInterval(() => {
+      if (this.binary?.pid !== undefined && !this.isRunning(this.binary?.pid)) {
+        clearInterval(interval)
+        fs.rmdirSync(this.tmpDir, { recursive: true })
+      }
+    }, 500)
+    this.binary?.kill()
+  }
+
+  private isRunning (pid: number): boolean {
+    try {
+      return process.kill(pid, 0)
+    } catch (err: any) {
+      return err.code === 'EPERM'
+    }
   }
 }

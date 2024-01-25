@@ -1,4 +1,3 @@
-import fs from 'fs'
 import { Test, TestingModule } from '@nestjs/testing'
 import { AppModule } from './app.module'
 import { ConfigService } from '@nestjs/config'
@@ -11,21 +10,7 @@ import waitForExpect from 'wait-for-expect'
 import { addressToHid } from './module.api/address.controller'
 import { ScriptAggregationMapper } from './module.model/script.aggregation'
 import { TestingGroup } from '@defichain/jellyfish-testing'
-import {
-  DefidBin,
-  DAddressController,
-  DBlockController,
-  DFeeController,
-  DGovernanceController,
-  DMasternodeController,
-  DOracleController,
-  DPoolPairController,
-  DPriceController,
-  DStatsController,
-  DTransactionController,
-  DTokenController,
-  DRawTxController
-} from './e2e.defid.module'
+import { DefidBin } from './e2e.defid.module'
 
 /**
  * Configures an end-to-end testing app integrated with all modules.
@@ -35,29 +20,7 @@ import {
  * @param {MasterNodeRegTestContainer} container to provide defid client
  * @return Promise<NestFastifyApplication> with initialization
  */
-export async function createTestingApp (container: MasterNodeRegTestContainer): Promise<NestFastifyApplication>
-export async function createTestingApp (container: MasterNodeRegTestContainer): Promise<DefidBin>
-export async function createTestingApp (container: MasterNodeRegTestContainer): Promise<NestFastifyApplication | DefidBin> {
-  if (process.env.DEFID !== undefined) {
-    const defid = new DefidBin(
-      container,
-      new DAddressController(),
-      new DBlockController(),
-      new DFeeController(),
-      new DGovernanceController(),
-      new DMasternodeController(),
-      new DOracleController(),
-      new DPoolPairController(),
-      new DPriceController(),
-      new DRawTxController(),
-      new DStatsController(),
-      new DTransactionController(),
-      new DTokenController()
-    )
-    await defid.start()
-    return defid
-  }
-
+export async function createTestingApp (container: MasterNodeRegTestContainer): Promise<NestFastifyApplication> {
   const url = await container.getCachedRpcUrl()
   const module = await createTestingModule(url)
 
@@ -76,21 +39,11 @@ export async function createTestingApp (container: MasterNodeRegTestContainer): 
  * @param {MasterNodeRegTestContainer | TestingGroup} container to provide defid client
  * @param {NestFastifyApplication} app to close
  */
-export async function stopTestingApp (container: MasterNodeRegTestContainer | TestingGroup, app: NestFastifyApplication | DefidBin): Promise<void> {
+export async function stopTestingApp (container: MasterNodeRegTestContainer | TestingGroup, app: NestFastifyApplication): Promise<void> {
   try {
-    if (app instanceof DefidBin) {
-      const interval = setInterval(() => {
-        if (app.binary?.pid !== undefined && !isRunning(app.binary?.pid)) {
-          clearInterval(interval)
-          fs.rmdirSync(app.tmpDir, { recursive: true })
-        }
-      }, 500)
-      app.binary?.kill()
-    } else {
-      const indexer = app.get(RPCBlockProvider)
-      await indexer.stop()
-      await app.close()
-    }
+    const indexer = app.get(RPCBlockProvider)
+    await indexer.stop()
+    await app.close()
   } finally {
     await new Promise((resolve) => {
       // Wait 2000ms between indexer cycle time to prevent database error
@@ -102,14 +55,6 @@ export async function stopTestingApp (container: MasterNodeRegTestContainer | Te
     } else {
       await container.stop()
     }
-  }
-}
-
-function isRunning (pid: number): boolean {
-  try {
-    return process.kill(pid, 0)
-  } catch (err: any) {
-    return err.code === 'EPERM'
   }
 }
 
@@ -141,16 +86,16 @@ export async function waitForIndexedHeightLatest (app: NestFastifyApplication, c
 export async function waitForIndexedHeight (app: NestFastifyApplication | DefidBin, height: number, timeout: number = 30000): Promise<void> {
   if (app instanceof DefidBin) {
     await waitForExpect(async () => {
-      // TODO(): maybe get index from DefidBin
-      const count = await app.container.getBlockCount()
-      await expect(count).toBeGreaterThan(height)
-      await await app.container.generate(1)
+      // TODO(canonbrother): ocean getblockcount
+      // const count = await app.ocean.getBlockCount()
+      // expect(count).toBeGreaterThan(height)
+      // await app.rpc.generate(1)
     }, timeout)
   } else {
     const blockMapper = app.get(BlockMapper)
     await waitForExpect(async () => {
       const block = await blockMapper.getHighest()
-      await expect(block?.height).toBeGreaterThan(height)
+      expect(block?.height).toBeGreaterThan(height)
     }, timeout)
   }
   await new Promise((resolve) => setTimeout(resolve, 1000))
