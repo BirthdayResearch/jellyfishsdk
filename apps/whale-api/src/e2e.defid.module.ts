@@ -159,6 +159,10 @@ export class DBlockController extends DefidOceanController {
     }
     return await this.api.get(`/blocks/${hash}/transactions?size=${query.size}`)
   }
+
+  async getHighest (): Promise<Block | undefined> {
+    return await this.api.get('/blocks/highest')
+  }
 }
 
 export class DFeeController extends DefidOceanController {

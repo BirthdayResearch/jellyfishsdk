@@ -86,10 +86,9 @@ export async function waitForIndexedHeightLatest (app: NestFastifyApplication, c
 export async function waitForIndexedHeight (app: NestFastifyApplication | DefidBin, height: number, timeout: number = 30000): Promise<void> {
   if (app instanceof DefidBin) {
     await waitForExpect(async () => {
-      // TODO(canonbrother): ocean getblockcount
-      // const count = await app.ocean.getBlockCount()
-      // expect(count).toBeGreaterThan(height)
-      // await app.rpc.generate(1)
+      const block = await app.ocean.blockController.getHighest()
+      expect(block?.height).toBeGreaterThan(height)
+      await app.rpc.generate(1)
     }, timeout)
   } else {
     const blockMapper = app.get(BlockMapper)
