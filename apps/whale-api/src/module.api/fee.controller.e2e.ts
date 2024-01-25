@@ -3,29 +3,39 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, stopTestingApp } from '../e2e.module'
 import { FeeController } from './fee.controller'
-import { DefidBin, DFeeController } from '../e2e.defid.module'
+import { DefidBin, DefidRpc, DFeeController } from '../e2e.defid.module'
 
-const container = new MasterNodeRegTestContainer()
+let container: MasterNodeRegTestContainer | DefidRpc
 let app: NestFastifyApplication | DefidBin
 let controller: FeeController | DFeeController
 let client: JsonRpcClient
 
 beforeAll(async () => {
-  await container.start()
-  await container.waitForWalletCoinbaseMaturity()
-  await container.waitForWalletBalanceGTE(100)
-
-  app = await createTestingApp(container)
-  if (app instanceof DefidBin) {
-    controller = app.feeController
+  if (process.env.DEFID !== undefined) {
+    app = new DefidBin()
+    await app.start()
+    container = app.rpc
+    controller = app.ocean.feeController
+    await container.waitForWalletCoinbaseMaturity()
+    await container.waitForWalletBalanceGTE(100)
   } else {
+    container = new MasterNodeRegTestContainer()
+    await container.start()
+    await container.waitForWalletCoinbaseMaturity()
+    await container.waitForWalletBalanceGTE(100)
+    app = await createTestingApp(container)
     controller = app.get<FeeController>(FeeController)
   }
+
   client = new JsonRpcClient(await container.getCachedRpcUrl())
 })
 
 afterAll(async () => {
-  await stopTestingApp(container, app)
+  if (process.env.DEFID !== undefined) {
+    await (app as DefidBin).stop()
+    return
+  }
+  await stopTestingApp(container as MasterNodeRegTestContainer, app as NestFastifyApplication)
 })
 
 describe('fee/estimate', () => {
