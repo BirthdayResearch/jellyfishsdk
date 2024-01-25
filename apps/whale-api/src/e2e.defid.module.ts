@@ -39,6 +39,7 @@ import { Transaction } from './module.model/transaction'
 import { TransactionVin } from './module.model/transaction.vin'
 import { TransactionVout } from './module.model/transaction.vout'
 import { DeFiDRpcError, waitForCondition } from '@defichain/testcontainers'
+import { isSHA256Hash, parseHeight } from './module.api/block.controller'
 
 const SPAWNING_TIME = 180_000
 
@@ -133,16 +134,26 @@ export class DAddressController extends DefidOceanController {
 export class DBlockController extends DefidOceanController {
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<Block>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/blocks?size=${query.size}&next=${query.next}`)
+      const next = parseHeight(query.next)
+      return await this.api.get(`/blocks?size=${query.size}&next=${next}`)
     }
     return await this.api.get(`/blocks?size=${query.size}`)
   }
 
-  async get (id: string): Promise<Block | undefined> {
-    return await this.api.get(`/blocks/${id}`)
+  async get (hashOrHeight: string): Promise<Block | undefined> {
+    const height = parseHeight(hashOrHeight)
+    if (height !== undefined) {
+      return await this.api.get(`/blocks/${height}`)
+    }
+    if (isSHA256Hash(hashOrHeight)) {
+      return await this.api.get(`/blocks/${hashOrHeight}`)
+    }
   }
 
   async getTransactions (hash: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<Transaction>> {
+    if (!isSHA256Hash(hash)) {
+      return ApiPagedResponse.empty()
+    }
     if (query.next !== undefined) {
       return await this.api.get(`/blocks/${hash}/transactions?size=${query.size}&next=${query.next}`)
     }
