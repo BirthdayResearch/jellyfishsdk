@@ -41,6 +41,7 @@ import { DeFiDRpcError, waitForCondition } from '@defichain/testcontainers'
 import { isSHA256Hash, parseHeight } from './module.api/block.controller'
 import { ClientOptions, defaultOptions } from '@defichain/jellyfish-api-jsonrpc'
 import { ClientApiError } from '@defichain/jellyfish-api-core/dist/index'
+import waitForExpect from 'wait-for-expect'
 
 const SPAWNING_TIME = 180_000
 
@@ -695,6 +696,16 @@ export class DefidBin {
     } catch (err: any) {
       return err.code === 'EPERM'
     }
+  }
+
+  async waitForIndexedHeight (height: number, timeout: number = 30000): Promise<void> {
+    await waitForExpect(async () => {
+      // TODO(canonbrother): return Block{} instead of Data{Block{}}
+      const block: any = await this.ocean.blockController.getHighest()
+      expect(block?.data.height).toBeGreaterThan(height)
+      await this.rpc.generate(1)
+    }, timeout)
+    await new Promise((resolve) => setTimeout(resolve, 1000))
   }
 }
 
