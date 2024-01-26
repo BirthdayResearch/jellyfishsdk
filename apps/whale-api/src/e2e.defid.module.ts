@@ -202,8 +202,8 @@ export class DBlockController extends DefidOceanController {
 }
 
 export class DFeeController extends DefidOceanController {
-  async estimate (): Promise<number> {
-    return await this.api.get('/fee/estimate')
+  async estimate (target: number = 10): Promise<number> {
+    return await this.api.get(`/fee/estimate?confirmationTarget=${target}`)
   }
 }
 

@@ -1,26 +1,26 @@
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp, stopTestingApp } from '../../e2e.module'
-import { FeeController } from '../fee.controller'
+import { DFeeController, DefidBin, DefidRpc } from '../../e2e.defid.module'
 
-const container = new MasterNodeRegTestContainer()
-let app: NestFastifyApplication
-let controller: FeeController
+let container: DefidRpc
+let app: DefidBin
+let controller: DFeeController
 let client: JsonRpcClient
 
 beforeAll(async () => {
-  await container.start()
+  app = new DefidBin()
+  await app.start()
+  controller = app.ocean.feeController
+  container = app.rpc
   await container.waitForWalletCoinbaseMaturity()
   await container.waitForWalletBalanceGTE(100)
 
-  app = await createTestingApp(container)
-  controller = app.get<FeeController>(FeeController)
-  client = new JsonRpcClient(await container.getCachedRpcUrl())
+  client = new JsonRpcClient(container.getCachedRpcUrl())
+
+  await app.waitForIndexedHeight(100)
 })
 
 afterAll(async () => {
-  await stopTestingApp(container, app)
+  await app.stop()
 })
 
 describe('fee/estimate', () => {
