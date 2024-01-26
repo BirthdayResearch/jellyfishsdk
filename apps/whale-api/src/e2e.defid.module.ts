@@ -168,8 +168,9 @@ export class DAddressController extends DefidOceanController {
 export class DBlockController extends DefidOceanController {
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<Block>> {
     if (query.next !== undefined) {
-      const next = parseHeight(query.next)
-      return await this.api.get(`/blocks?size=${query.size}&next=${next}`)
+      // TODO(canonbrother): `next` should be height, not hash
+      // const next = parseHeight(query.next)
+      return await this.api.get(`/blocks?size=${query.size}&next=${query.next}`)
     }
     return await this.api.get(`/blocks?size=${query.size}`)
   }
