@@ -73,15 +73,17 @@ class DefidOceanApi { // ApiClient
     const res = await this.fetchTimeout(`${this.url}${path}`, {
       method: 'GET'
     })
-    return await res.json()
+    const { data } = await res.json()
+    return data
   }
 
-  async post (path: string, data?: any): Promise<any> {
+  async post (path: string, body?: any): Promise<any> {
     const res = await this.fetchTimeout(`${this.url}${path}`, {
       method: 'POST',
-      body: JSON.stringify(data)
+      body: JSON.stringify(body)
     })
-    return await res.json()
+    const { data } = await res.json()
+    return data
   }
 
   private async fetchTimeout (path: string, init: any): Promise<Response> {
@@ -194,8 +196,7 @@ export class DBlockController extends DefidOceanController {
   }
 
   async getHighest (): Promise<Block | undefined> {
-    const { data } = await this.api.get('/blocks/highest')
-    return data as Block
+    return await this.api.get('/blocks/highest')
   }
 }
 
