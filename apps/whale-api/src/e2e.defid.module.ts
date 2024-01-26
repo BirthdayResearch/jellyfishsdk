@@ -194,7 +194,8 @@ export class DBlockController extends DefidOceanController {
   }
 
   async getHighest (): Promise<Block | undefined> {
-    return await this.api.get('/blocks/highest')
+    const { data } = await this.api.get('/blocks/highest')
+    return data as Block
   }
 }
 
@@ -706,9 +707,8 @@ export class DefidBin {
 
   async waitForIndexedHeight (height: number, timeout: number = 30000): Promise<void> {
     await waitForExpect(async () => {
-      // TODO(canonbrother): return Block{} instead of Data{Block{}}
-      const block: any = await this.ocean.blockController.getHighest()
-      expect(block?.data.height).toBeGreaterThan(height)
+      const block = await this.ocean.blockController.getHighest()
+      expect(block?.height).toBeGreaterThan(height)
       await this.rpc.generate(1)
     }, timeout)
     await new Promise((resolve) => setTimeout(resolve, 1000))
