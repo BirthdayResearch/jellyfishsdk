@@ -1,45 +1,35 @@
 import { ListProposalsStatus, ListProposalsType, MasternodeType, VoteDecision } from '@defichain/jellyfish-api-core/dist/category/governance'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
-import { Testing } from '@defichain/jellyfish-testing'
-import { MasterNodeRegTestContainer, StartOptions } from '@defichain/testcontainers'
 import {
   GovernanceProposalStatus,
   GovernanceProposalType,
   ProposalVoteResultType
 } from '@defichain/whale-api-client/dist/api/governance'
-import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import BigNumber from 'bignumber.js'
-import { createTestingApp, stopTestingApp } from '../../e2e.module'
-import { GovernanceController } from '../governance.controller'
+import { DGovernanceController, DefidBin, DefidRpc } from '../../e2e.defid.module'
 
-class MultiOperatorGovernanceMasterNodeRegTestContainer extends MasterNodeRegTestContainer {
-  protected getCmd (opts: StartOptions): string[] {
-    return [
-      ...super.getCmd(opts),
-      `-masternode_operator=${RegTestFoundationKeys[1].operator.address}`,
-      `-masternode_operator=${RegTestFoundationKeys[2].operator.address}`
-    ]
-  }
-}
-const container = new MultiOperatorGovernanceMasterNodeRegTestContainer()
-let app: NestFastifyApplication
-let controller: GovernanceController
-const testing = Testing.create(container)
+let testing: DefidRpc
+let app: DefidBin
+let controller: DGovernanceController
 let cfpProposalId: string
 let vocProposalId: string
 let payoutAddress: string
 
 describe('governance - listProposals and getProposal', () => {
   beforeAll(async () => {
-    await testing.container.start()
-    await testing.container.waitForWalletCoinbaseMaturity()
-    await testing.container.waitForWalletBalanceGTE(100)
-    await testing.container.call('setgov', [
+    app = new DefidBin()
+    await app.start([
+      `-masternode_operator=${RegTestFoundationKeys[2].operator.address}`,
+      `-masternode_operator=${RegTestFoundationKeys[3].operator.address}`
+    ])
+    controller = app.ocean.governanceController
+    testing = app.rpc
+    await app.waitForWalletCoinbaseMaturity()
+    await app.waitForWalletBalanceGTE(100)
+    await app.call('setgov', [
       { ATTRIBUTES: { 'v0/params/feature/gov': 'true' } }
     ])
-    await testing.container.generate(1)
-    app = await createTestingApp(container)
-    controller = app.get(GovernanceController)
+    await app.generate(1)
 
     // Create 1 CFP + 1 VOC
     payoutAddress = await testing.generateAddress()
@@ -50,17 +40,17 @@ describe('governance - listProposals and getProposal', () => {
       payoutAddress: payoutAddress,
       cycles: 2
     })
-    await testing.container.generate(1)
+    await app.generate(1)
 
     vocProposalId = await testing.rpc.governance.createGovVoc({
       title: 'VOC proposal',
       context: 'github'
     })
-    await testing.container.generate(1)
+    await app.generate(1)
   })
 
   afterAll(async () => {
-    await stopTestingApp(container, app)
+    await app.stop()
   })
 
   // Listing related tests
@@ -251,15 +241,19 @@ describe('governance - listProposals and getProposal', () => {
 
 describe('governance - listProposalVotes', () => {
   beforeAll(async () => {
-    await testing.container.start()
-    await testing.container.waitForWalletCoinbaseMaturity()
-    await testing.container.waitForWalletBalanceGTE(100)
-    await testing.container.call('setgov', [
+    app = new DefidBin()
+    await app.start([
+      `-masternode_operator=${RegTestFoundationKeys[2].operator.address}`,
+      `-masternode_operator=${RegTestFoundationKeys[3].operator.address}`
+    ])
+    controller = app.ocean.governanceController
+    testing = app.rpc
+    await app.waitForWalletCoinbaseMaturity()
+    await app.waitForWalletBalanceGTE(100)
+    await app.call('setgov', [
       { ATTRIBUTES: { 'v0/params/feature/gov': 'true' } }
     ])
-    await testing.container.generate(1)
-    app = await createTestingApp(container)
-    controller = app.get(GovernanceController)
+    await app.generate(1)
 
     /**
      * Import the private keys of the masternode_operator in order to be able to mint blocks and vote on proposals.
@@ -279,13 +273,13 @@ describe('governance - listProposalVotes', () => {
       payoutAddress: payoutAddress,
       cycles: 2
     })
-    await testing.container.generate(1)
+    await app.generate(1)
 
     vocProposalId = await testing.rpc.governance.createGovVoc({
       title: 'VOC proposal',
       context: 'github'
     })
-    await testing.container.generate(1)
+    await app.generate(1)
 
     // Vote on CFP
     await testing.rpc.governance.voteGov({
@@ -293,13 +287,13 @@ describe('governance - listProposalVotes', () => {
       masternodeId: await getVotableMasternodeId(),
       decision: VoteDecision.YES
     })
-    await testing.container.generate(1)
+    await app.generate(1)
 
     // Expires cycle 1
     const creationHeight = await testing.rpc.governance.getGovProposal(cfpProposalId).then(proposal => proposal.creationHeight)
     const votingPeriod = 70
     const cycle1 = creationHeight + (votingPeriod - creationHeight % votingPeriod) + votingPeriod
-    await testing.container.generate(cycle1 - await testing.container.getBlockCount())
+    await app.generate(cycle1 - await app.getBlockCount())
 
     // Vote on cycle 2
     const masternodes = await testing.rpc.masternode.listMasternodes()
@@ -307,7 +301,7 @@ describe('governance - listProposalVotes', () => {
     let index = 0
     for (const [id, data] of Object.entries(masternodes)) {
       if (data.operatorIsMine) {
-        await testing.container.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
+        await app.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
         await testing.rpc.governance.voteGov({
           proposalId: cfpProposalId,
           masternodeId: id,
@@ -316,11 +310,11 @@ describe('governance - listProposalVotes', () => {
         index++ // all masternodes vote in second cycle
       }
     }
-    await testing.container.generate(1)
+    await app.generate(1)
   })
 
   afterAll(async () => {
-    await stopTestingApp(container, app)
+    await app.stop()
   })
 
   it('should listProposalVotes', async () => {

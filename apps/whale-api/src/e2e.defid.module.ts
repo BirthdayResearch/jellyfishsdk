@@ -22,7 +22,7 @@ import {
 } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { GovernanceProposal, ProposalVotesResult } from '@defichain/whale-api-client/dist/api/governance'
 import { CollateralToken, LoanScheme, LoanToken, LoanVaultActive, LoanVaultLiquidated } from '@defichain/whale-api-client/dist/api/loan'
-import { MasternodeType } from '@defichain/jellyfish-api-core/dist/category/governance'
+import { ListProposalsStatus, ListProposalsType, MasternodeType } from '@defichain/jellyfish-api-core/dist/category/governance'
 import { Oracle } from './module.model/oracle'
 import { OraclePriceAggregated } from './module.model/oracle.price.aggregated'
 import { OraclePriceFeed } from './module.model/oracle.price.feed'
@@ -220,8 +220,17 @@ export class DFeeController extends DefidOceanController {
 }
 
 export class DGovernanceController extends DefidOceanController {
-  async listProposals (): Promise<ApiPagedResponse<GovernanceProposal>> {
-    return await this.api.get('/governance/proposals')
+  async listProposals (
+    status: ListProposalsStatus = ListProposalsStatus.ALL,
+    type: ListProposalsType = ListProposalsType.ALL,
+    cycle: number = 0,
+    all: boolean = false,
+    query: OceanListQuery = { size: 30 }
+  ): Promise<ApiPagedResponse<GovernanceProposal>> {
+    if (query.next !== undefined) {
+      return await this.api.get(`/governance/proposals?status=${status}&type=${type}&cycle=${cycle}&all=${all}&size=${query.size}&next=${query.next}`)
+    }
+    return await this.api.get(`/governance/proposals?status=${status}&type=${type}&cycle=${cycle}&all=${all}&size=${query.size}`)
   }
 
   async getProposal (id: string): Promise<GovernanceProposal> {
@@ -652,7 +661,7 @@ export class DefidBin {
     new DTokenController()
   )
 
-  async start (): Promise<void> {
+  async start (opts: string[] = []): Promise<void> {
     fs.mkdirSync(this.tmpDir)
 
     if (process.env.DEFID === undefined) {
@@ -676,7 +685,8 @@ export class DefidBin {
       '-logtimemicros',
       '-txindex=1',
       '-acindex=1',
-      '-oceanarchive'
+      '-oceanarchive',
+      ...opts
     ]
 
     const extraArgs = [
