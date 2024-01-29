@@ -2,11 +2,12 @@
 /* eslint-disable  @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 
+import BigNumber from 'bignumber.js'
 import { fetch } from 'cross-fetch'
 import { v4 as uuidv4 } from 'uuid'
 import fs from 'fs'
 import { ChildProcess, spawn } from 'child_process'
-import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
+import { RegTestFoundationKeys, RegTest } from '@defichain/jellyfish-network'
 import { ApiPagedResponse } from './module.api/_core/api.paged.response'
 import { AddressToken, AddressHistory } from '@defichain/whale-api-client/dist/api/address'
 import { Block } from './module.model/block'
@@ -39,9 +40,14 @@ import { TransactionVin } from './module.model/transaction.vin'
 import { TransactionVout } from './module.model/transaction.vout'
 import { DeFiDRpcError, waitForCondition } from '@defichain/testcontainers'
 import { isSHA256Hash, parseHeight } from './module.api/block.controller'
-import { ClientOptions, defaultOptions } from '@defichain/jellyfish-api-jsonrpc'
+import { ClientOptions, JsonRpcClient, defaultOptions } from '@defichain/jellyfish-api-jsonrpc'
 import { ClientApiError } from '@defichain/jellyfish-api-core/dist/index'
 import waitForExpect from 'wait-for-expect'
+import { TestingPoolPairAdd, TestingPoolPairCreate, TestingPoolPairRemove, TestingTokenBurn, TestingTokenCreate, TestingTokenDFI, TestingTokenMint, TestingTokenSend } from '@defichain/jellyfish-testing'
+import { poolpair } from '@defichain/jellyfish-api-core'
+import { addressToHid } from './module.api/address.controller'
+import { Bech32, Elliptic, HRP, WIF } from '@defichain/jellyfish-crypto'
+import { CreatePoolPairOptions, CreateTokenOptions, CreateSignedTxnHexOptions, MintTokensOptions, UtxosToAccountOptions } from '@defichain/testing'
 
 const SPAWNING_TIME = 180_000
 
@@ -419,154 +425,147 @@ export class DefidOcean {
   }
 }
 
+export class DefidRpcToken {
+  constructor (private readonly defid: DefidBin, private readonly rpc: DefidRpcClient) {
+  }
+
+  async create (options: TestingTokenCreate): Promise<string> {
+    await this.defid.waitForWalletBalanceGTE(101) // token creation fee
+
+    return await this.rpc.token.createToken({
+      name: options.symbol,
+      isDAT: true,
+      mintable: true,
+      tradeable: true,
+      collateralAddress: await this.defid.getNewAddress(),
+      ...options
+    })
+  }
+
+  async dfi (options: TestingTokenDFI): Promise<string> {
+    const { amount, address } = options
+    await this.defid.waitForWalletBalanceGTE(new BigNumber(amount).toNumber())
+
+    const to = address ?? await this.defid.getNewAddress()
+    const account = `${new BigNumber(amount).toFixed(8)}@0`
+    return await this.rpc.account.utxosToAccount({ [to]: account })
+  }
+
+  async mint (options: TestingTokenMint): Promise<string> {
+    const { amount, symbol } = options
+    const account = `${new BigNumber(amount).toFixed(8)}@${symbol}`
+    return await this.rpc.token.mintTokens({ amounts: [account] })
+  }
+
+  async send (options: TestingTokenSend): Promise<string> {
+    const { address, amount, symbol } = options
+    const account = `${new BigNumber(amount).toFixed(8)}@${symbol}`
+    const to = { [address]: [account] }
+    return await this.rpc.account.sendTokensToAddress({}, to)
+  }
+
+  async getTokenId (symbol: string): Promise<string> {
+    const tokenInfo = await this.rpc.token.getToken(symbol)
+    return Object.keys(tokenInfo)[0]
+  }
+
+  async burn (options: TestingTokenBurn): Promise<string> {
+    const { amount, symbol, from, context } = options
+    const account = `${new BigNumber(amount).toFixed(8)}@${symbol}`
+    return await this.rpc.token.burnTokens(account, from, context)
+  }
+}
+
+export class DefidRpcPoolPair {
+  constructor (
+    private readonly defid: DefidBin,
+    private readonly rpc: DefidRpcClient
+  ) {
+  }
+
+  async get (symbol: string): Promise<poolpair.PoolPairInfo> {
+    const values = await this.rpc.poolpair.getPoolPair(symbol, true)
+    return Object.values(values)[0]
+  }
+
+  async create (options: TestingPoolPairCreate): Promise<string> {
+    return await this.rpc.poolpair.createPoolPair({
+      commission: 0,
+      status: true,
+      ownerAddress: await this.defid.getNewAddress(),
+      ...options
+    })
+  }
+
+  async add (options: TestingPoolPairAdd): Promise<string> {
+    const accountA = `${new BigNumber(options.a.amount).toFixed(8)}@${options.a.symbol}`
+    const accountB = `${new BigNumber(options.b.amount).toFixed(8)}@${options.b.symbol}`
+    const from = { '*': [accountA, accountB] }
+    const address = options.address ?? await this.defid.getNewAddress()
+    return await this.rpc.poolpair.addPoolLiquidity(from, address)
+  }
+
+  async remove (options: TestingPoolPairRemove): Promise<string> {
+    const { address, symbol, amount } = options
+    const account = `${new BigNumber(amount).toFixed(8)}@${symbol}`
+    return await this.rpc.poolpair.removePoolLiquidity(address, account)
+  }
+
+  async swap (options: poolpair.PoolSwapMetadata): Promise<string> {
+    return await this.rpc.poolpair.poolSwap(options)
+  }
+}
+
+export class DefidRpcClient extends JsonRpcClient {
+}
+
 export class DefidRpc {
-  rpcUrl = 'http://test:test@127.0.0.1:19554'
+  readonly token = new DefidRpcToken(this.defid, this.rpc)
+  readonly poolpair = new DefidRpcPoolPair(this.defid, this.rpc)
 
-  getCachedRpcUrl (): string {
-    return this.rpcUrl
+  private readonly addresses: Record<string, string> = {}
+
+  constructor (
+    private readonly defid: DefidBin,
+    readonly rpc: DefidRpcClient
+  ) {
   }
 
-  async call (method: string, params: any = []): Promise<any> {
-    const body = JSON.stringify({
-      jsonrpc: '1.0',
-      id: Math.floor(Math.random() * 100000000000000),
-      method: method,
-      params: params
-    })
+  async generate (n: number): Promise<void> {
+    await this.defid.generate(n)
+  }
 
-    const text = await this.post(body)
-    const {
-      result,
-      error
-    } = JSON.parse(text)
+  async address (key: number | string): Promise<string> {
+    key = key.toString()
+    if (this.addresses[key] === undefined) {
+      this.addresses[key] = await this.generateAddress()
+    }
+    return this.addresses[key]
+  }
 
-    if (error !== undefined && error !== null) {
-      throw new DeFiDRpcError(error)
+  generateAddress (): Promise<string>
+  generateAddress (n: 1): Promise<string>
+  generateAddress (n: number): Promise<string[]>
+
+  async generateAddress (n?: number): Promise<string | string[]> {
+    if (n === undefined || n === 1) {
+      return await this.defid.getNewAddress()
     }
 
-    return result
-  }
-
-  async post (body: string): Promise<string> {
-    const response = await fetch(this.rpcUrl, {
-      method: 'POST',
-      body: body
-    })
-    return await response.text()
-  }
-
-  async generate (
-    nblocks: number,
-    address?: string | undefined,
-    maxTries: number = 1000000
-  ): Promise<void> {
-    if (address === undefined) {
-      address = await this.call('getnewaddress')
+    const addresses: string[] = []
+    for (let i = 0; i < n; i++) {
+      addresses[i] = await this.defid.getNewAddress()
     }
-    for (let minted = 0, tries = 0; minted < nblocks && tries < maxTries; tries++) {
-      const result = await this.call('generatetoaddress', [1, address, 1])
-      if (result === 1) {
-        minted += 1
-      }
-    }
-  }
-
-  async waitForBlockHeight (height: number, timeout = 590000): Promise<void> {
-    return await waitForCondition(async () => {
-      const count = await this.getBlockCount()
-      if (count > height) {
-        return true
-      }
-      await this.generate(1)
-      return false
-    }, timeout, 100, 'waitForBlockHeight')
-  }
-
-  async blockHeight (height: number, timeout: number = 590000): Promise<void> {
-    return await waitForCondition(async () => {
-      const count = await this.getBlockCount()
-      if (count > height) {
-        return true
-      }
-      await this.generate(1)
-      return false
-    }, timeout, 100, 'waitForBlockHeight')
-  }
-
-  async waitForWalletCoinbaseMaturity (timeout: number = 180000, mockTime: boolean = true): Promise<void> {
-    if (!mockTime) {
-      return await this.blockHeight(100, timeout)
-    }
-
-    let fakeTime: number = 1579045065
-    await this.call('setmocktime', [fakeTime])
-
-    const intervalId = setInterval(() => {
-      fakeTime += 3
-      void this.call('setmocktime', [fakeTime])
-    }, 200)
-
-    await this.blockHeight(100, timeout)
-
-    clearInterval(intervalId)
-    await this.call('setmocktime', [0])
-  }
-
-  async waitForWalletBalanceGTE (balance: number, timeout: number = 300000): Promise<void> {
-    return await waitForCondition(async () => {
-      const getbalance = await this.call('getbalance')
-      if (getbalance >= balance) {
-        return true
-      }
-      await this.generate(1)
-      return false
-    }, timeout, 100, 'waitForWalletBalanceGTE')
-  }
-
-  async getNewAddress (label: string = '', addressType: 'legacy' | 'p2sh-segwit' | 'bech32' | 'eth' | string = 'bech32'): Promise<string> {
-    return await this.call('getnewaddress', [label, addressType])
-  }
-
-  async getBlockCount (): Promise<number> {
-    return await this.call('getblockcount', [])
-  }
-
-  async createToken (symbol: string, options?: CreateTokenOptions): Promise<number> {
-    const metadata = {
-      symbol,
-      name: options?.name ?? symbol,
-      isDAT: options?.isDAT ?? true,
-      mintable: options?.mintable ?? true,
-      tradeable: options?.tradeable ?? true,
-      collateralAddress: options?.collateralAddress ?? await this.getNewAddress()
-    }
-
-    await this.waitForWalletBalanceGTE(101)
-    await this.call('create', [metadata])
-    await this.generate(1)
-
-    const res = await this.call('gettoken', [symbol])
-    return Number.parseInt(Object.keys(res)[0])
-  }
-
-  async createPoolPair (aToken: string, bToken: string, options?: CreatePoolPairOptions): Promise<string> {
-    const metadata = {
-      tokenA: aToken,
-      tokenB: bToken,
-      commission: options?.commission ?? 0,
-      status: options?.status ?? true,
-      ownerAddress: options?.ownerAddress ?? await this.getNewAddress()
-    }
-    const txid = await this.call('createpoolpair', [metadata, options?.utxos])
-    await this.generate(1)
-    return txid
+    return addresses
   }
 }
 
 export class DefidBin {
   tmpDir: string = `/tmp/${uuidv4()}`
+  url = 'http://test:test@127.0.0.1:19554'
   binary: ChildProcess | null = null
-  rpc = new DefidRpc()
+  client = new DefidRpcClient(this.url)
+  rpc = new DefidRpc(this, this.client)
   ocean = new DefidOcean(
     new DAddressController(),
     new DBlockController(),
@@ -672,8 +671,8 @@ export class DefidBin {
           binary.stderr.off('data', onData)
           binary.stdout.off('data', onData)
 
-          await this.rpc.call('importprivkey', [RegTestFoundationKeys[1].owner.privKey])
-          await this.rpc.call('importprivkey', [RegTestFoundationKeys[1].operator.privKey])
+          await this.call('importprivkey', [RegTestFoundationKeys[1].owner.privKey])
+          await this.call('importprivkey', [RegTestFoundationKeys[1].operator.privKey])
 
           // setgov
           // generate(2)
@@ -707,32 +706,245 @@ export class DefidBin {
     }
   }
 
+  async call (method: string, params: any = []): Promise<any> {
+    const body = JSON.stringify({
+      jsonrpc: '1.0',
+      id: Math.floor(Math.random() * 100000000000000),
+      method: method,
+      params: params
+    })
+
+    const text = await this.post(body)
+    const {
+      result,
+      error
+    } = JSON.parse(text)
+
+    if (error !== undefined && error !== null) {
+      throw new DeFiDRpcError(error)
+    }
+
+    return result
+  }
+
+  async post (body: string): Promise<string> {
+    const response = await fetch(this.url, {
+      method: 'POST',
+      body: body
+    })
+    return await response.text()
+  }
+
+  async generate (
+    nblocks: number,
+    address?: string | undefined,
+    maxTries: number = 1000000
+  ): Promise<void> {
+    if (address === undefined) {
+      address = await this.call('getnewaddress')
+    }
+    for (let minted = 0, tries = 0; minted < nblocks && tries < maxTries; tries++) {
+      const result = await this.call('generatetoaddress', [1, address, 1])
+      if (result === 1) {
+        minted += 1
+      }
+    }
+  }
+
+  async blockHeight (height: number, timeout: number = 590000): Promise<void> {
+    return await waitForCondition(async () => {
+      const count = await this.getBlockCount()
+      if (count > height) {
+        return true
+      }
+      await this.generate(1)
+      return false
+    }, timeout, 100, 'waitForBlockHeight')
+  }
+
+  async waitForBlockHeight (height: number, timeout = 590000): Promise<void> {
+    return await waitForCondition(async () => {
+      const count = await this.getBlockCount()
+      if (count > height) {
+        return true
+      }
+      await this.generate(1)
+      return false
+    }, timeout, 100, 'waitForBlockHeight')
+  }
+
   async waitForIndexedHeight (height: number, timeout: number = 30000): Promise<void> {
     await waitForExpect(async () => {
       const block = await this.ocean.blockController.getHighest()
       expect(block?.height).toBeGreaterThan(height)
-      await this.rpc.generate(1)
+      await this.generate(1)
     }, timeout)
     await new Promise((resolve) => setTimeout(resolve, 1000))
   }
-}
 
-interface CreateTokenOptions {
-  name?: string
-  isDAT?: boolean
-  mintable?: boolean
-  tradeable?: boolean
-  collateralAddress?: string
-}
+  async waitForWalletCoinbaseMaturity (timeout: number = 180000, mockTime: boolean = true): Promise<void> {
+    if (!mockTime) {
+      return await this.blockHeight(100, timeout)
+    }
 
-interface CreatePoolPairOptions {
-  commission?: number
-  status?: boolean
-  ownerAddress?: string
-  utxos?: UTXO[]
-}
+    let fakeTime: number = 1579045065
+    await this.call('setmocktime', [fakeTime])
 
-interface UTXO {
-  txid: string
-  vout: number
+    const intervalId = setInterval(() => {
+      fakeTime += 3
+      void this.call('setmocktime', [fakeTime])
+    }, 200)
+
+    await this.blockHeight(100, timeout)
+
+    clearInterval(intervalId)
+    await this.call('setmocktime', [0])
+  }
+
+  async waitForAddressTxCount (address: string, txCount: number, timeout: number = 15000): Promise<void> {
+    const hid = addressToHid('regtest', address)
+    console.log('hid: ', hid)
+    // const aggregationMapper = app.get(ScriptAggregationMapper)
+    await waitForExpect(async () => {
+      // const agg = await aggregationMapper.getLatest(hid)
+      // expect(agg?.statistic.txCount).toStrictEqual(txCount)
+    }, timeout)
+  }
+
+  async waitForWalletBalanceGTE (balance: number, timeout: number = 300000): Promise<void> {
+    return await waitForCondition(async () => {
+      const getbalance = await this.call('getbalance')
+      if (getbalance >= balance) {
+        return true
+      }
+      await this.generate(1)
+      return false
+    }, timeout, 100, 'waitForWalletBalanceGTE')
+  }
+
+  async fundAddress (address: string, amount: number): Promise<{ txid: string, vout: number }> {
+    const txid = await this.call('sendtoaddress', [address, amount])
+    await this.generate(1)
+
+    const { vout }: {
+      vout: Array<{
+        n: number
+        scriptPubKey: {
+          addresses: string[]
+        }
+      }>
+    } = await this.call('getrawtransaction', [txid, true])
+    for (const out of vout) {
+      if (out.scriptPubKey.addresses.includes(address)) {
+        return {
+          txid,
+          vout: out.n
+        }
+      }
+    }
+    throw new Error('getrawtransaction will always return the required vout')
+  }
+
+  async getNewAddress (label: string = '', addressType: 'legacy' | 'p2sh-segwit' | 'bech32' | 'eth' | string = 'bech32'): Promise<string> {
+    return await this.call('getnewaddress', [label, addressType])
+  }
+
+  async getBlockCount (): Promise<number> {
+    return await this.call('getblockcount', [])
+  }
+
+  async utxosToAccount (
+    amount: number,
+    options?: UtxosToAccountOptions
+  ): Promise<void> {
+    await this.waitForWalletBalanceGTE(amount + 0.1)
+
+    const address = options?.address ?? await this.getNewAddress()
+    const payload: { [key: string]: string } = {}
+    payload[address] = `${amount.toString()}@0`
+    await this.call('utxostoaccount', [payload])
+    await this.generate(1)
+  }
+
+  async sendTokensToAddress (
+    address: string,
+    amount: number,
+    symbol: string
+  ): Promise<string> {
+    const txid = await this.call('sendtokenstoaddress', [{}, { [address]: [`${amount}@${symbol}`] }])
+    await this.generate(1)
+    return txid
+  }
+
+  async createToken (symbol: string, options?: CreateTokenOptions): Promise<number> {
+    const metadata = {
+      symbol,
+      name: options?.name ?? symbol,
+      isDAT: options?.isDAT ?? true,
+      mintable: options?.mintable ?? true,
+      tradeable: options?.tradeable ?? true,
+      collateralAddress: options?.collateralAddress ?? await this.getNewAddress()
+    }
+
+    await this.waitForWalletBalanceGTE(101)
+    await this.call('createtoken', [metadata])
+    await this.generate(1)
+
+    const res = await this.call('gettoken', [symbol])
+    return Number.parseInt(Object.keys(res)[0])
+  }
+
+  async mintTokens (
+    symbol: string,
+    options?: MintTokensOptions
+  ): Promise<string> {
+    const address = options?.address ?? await this.getNewAddress()
+    const utxoAmount = options?.utxoAmount ?? 2000
+    const mintAmount = options?.mintAmount ?? 2000
+
+    await this.utxosToAccount(utxoAmount, { address })
+
+    const hashed = await this.call('minttokens', [`${mintAmount}@${symbol}`])
+    await this.generate(1)
+
+    return hashed
+  }
+
+  async createPoolPair (aToken: string, bToken: string, options?: CreatePoolPairOptions): Promise<string> {
+    const metadata = {
+      tokenA: aToken,
+      tokenB: bToken,
+      commission: options?.commission ?? 0,
+      status: options?.status ?? true,
+      ownerAddress: options?.ownerAddress ?? await this.getNewAddress()
+    }
+    const txid = await this.call('createpoolpair', [metadata, options?.utxos])
+    await this.generate(1)
+    return txid
+  }
+
+  async createSignedTxnHex (
+    aAmount: number,
+    bAmount: number,
+    options: CreateSignedTxnHexOptions = {
+      aEllipticPair: Elliptic.fromPrivKey(Buffer.alloc(32, Math.random().toString(), 'ascii')),
+      bEllipticPair: Elliptic.fromPrivKey(Buffer.alloc(32, Math.random().toString(), 'ascii'))
+    }
+  ): Promise<string> {
+    const aBech32 = Bech32.fromPubKey(await options.aEllipticPair.publicKey(), RegTest.bech32.hrp as HRP)
+    const bBech32 = Bech32.fromPubKey(await options.bEllipticPair.publicKey(), RegTest.bech32.hrp as HRP)
+
+    const { txid, vout } = await this.fundAddress(aBech32, aAmount)
+    const inputs = [{ txid: txid, vout: vout }]
+
+    const unsigned = await this.call('createrawtransaction', [inputs, {
+      [bBech32]: new BigNumber(bAmount)
+    }])
+
+    const signed = await this.call('signrawtransactionwithkey', [unsigned, [
+      WIF.encode(RegTest.wifPrefix, await options.aEllipticPair.privateKey())
+    ]])
+
+    return signed.hex
+  }
 }
