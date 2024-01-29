@@ -1,33 +1,32 @@
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp, DelayedEunosPayaTestContainer, stopTestingApp, waitForIndexedHeight } from '../../e2e.module'
 import { NotFoundException } from '@nestjs/common'
-import { MasternodeController } from '../masternode.controller'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasternodeState } from '@defichain/whale-api-client/dist/api/masternodes'
 import { MasternodeTimeLock } from '@defichain/jellyfish-api-core/dist/category/masternode'
+import { DefidBin, DefidRpc, DMasternodeController } from '../../e2e.defid.module'
+
+let container: DefidRpc
+let app: DefidBin
+let controller: DMasternodeController
+let client: JsonRpcClient
 
 describe('list', () => {
-  const container = new MasterNodeRegTestContainer()
-  let app: NestFastifyApplication
-  let controller: MasternodeController
-  let client: JsonRpcClient
-
   beforeAll(async () => {
-    await container.start()
-
-    app = await createTestingApp(container)
-    client = new JsonRpcClient(await container.getCachedRpcUrl())
-    controller = app.get(MasternodeController)
+    app = new DefidBin()
+    await app.start()
+    controller = app.ocean.masternodeController
+    container = app.rpc
+    await app.waitForBlockHeight(101)
+    await app.waitForIndexedHeight(100)
+    client = new JsonRpcClient(app.url)
 
     await container.generate(1)
     const height = await client.blockchain.getBlockCount()
     await container.generate(1)
-    await waitForIndexedHeight(app, height)
+    await app.waitForIndexedHeight(height)
   })
 
   afterAll(async () => {
-    await stopTestingApp(container, app)
+    await app.stop()
   })
 
   it('should list masternodes', async () => {
@@ -57,26 +56,22 @@ describe('list', () => {
 })
 
 describe('get', () => {
-  const container = new MasterNodeRegTestContainer()
-  let app: NestFastifyApplication
-  let controller: MasternodeController
-  let client: JsonRpcClient
-
   beforeAll(async () => {
-    await container.start()
-
-    app = await createTestingApp(container)
-    client = new JsonRpcClient(await container.getCachedRpcUrl())
-    controller = app.get(MasternodeController)
+    app = new DefidBin()
+    await app.start()
+    controller = app.ocean.masternodeController
+    container = app.rpc
+    await app.waitForBlockHeight(101)
+    client = new JsonRpcClient(app.url)
 
     await container.generate(1)
     const height = await client.blockchain.getBlockCount()
     await container.generate(1)
-    await waitForIndexedHeight(app, height)
+    await app.waitForIndexedHeight(height)
   })
 
   afterAll(async () => {
-    await stopTestingApp(container, app)
+    await app.stop()
   })
 
   it('should get a masternode with id', async () => {
@@ -92,7 +87,7 @@ describe('get', () => {
     expect.assertions(2)
     try {
       await controller.get('8d4d987dee688e400a0cdc899386f243250d3656d802231755ab4d28178c9816')
-    } catch (err) {
+    } catch (err: any) {
       expect(err).toBeInstanceOf(NotFoundException)
       expect(err.response).toStrictEqual({
         statusCode: 404,
@@ -104,27 +99,22 @@ describe('get', () => {
 })
 
 describe('resign', () => {
-  const container = new DelayedEunosPayaTestContainer()
-  let app: NestFastifyApplication
-  let controller: MasternodeController
-  let client: JsonRpcClient
-
   beforeAll(async () => {
-    await container.start()
-    await container.waitForWalletCoinbaseMaturity()
-
-    app = await createTestingApp(container)
-    client = new JsonRpcClient(await container.getCachedRpcUrl())
-    controller = app.get(MasternodeController)
+    app = new DefidBin()
+    await app.start()
+    controller = app.ocean.masternodeController
+    container = app.rpc
+    await app.waitForBlockHeight(101)
+    client = new JsonRpcClient(app.url)
 
     await container.generate(1)
     const height = await client.blockchain.getBlockCount()
     await container.generate(1)
-    await waitForIndexedHeight(app, height)
+    await app.waitForIndexedHeight(height)
   })
 
   afterAll(async () => {
-    await stopTestingApp(container, app)
+    await app.stop()
   })
 
   it('should get masternode with pre-resigned state', async () => {
@@ -136,14 +126,14 @@ describe('resign', () => {
 
     const height = await client.blockchain.getBlockCount()
     await container.generate(1)
-    await waitForIndexedHeight(app, height)
+    await app.waitForIndexedHeight(height)
 
     const resignTx = await client.masternode.resignMasternode(masternodeId)
 
     await container.generate(1)
     const resignHeight = await client.blockchain.getBlockCount()
     await container.generate(1)
-    await waitForIndexedHeight(app, resignHeight)
+    await app.waitForIndexedHeight(resignHeight)
 
     const result = await controller.get(masternodeId)
     expect(result.state).toStrictEqual(MasternodeState.PRE_RESIGNED)
@@ -153,27 +143,22 @@ describe('resign', () => {
 })
 
 describe('timelock', () => {
-  const container = new MasterNodeRegTestContainer()
-  let app: NestFastifyApplication
-  let controller: MasternodeController
-  let client: JsonRpcClient
-
   beforeAll(async () => {
-    await container.start()
-    await container.waitForWalletCoinbaseMaturity()
-
-    app = await createTestingApp(container)
-    client = new JsonRpcClient(await container.getCachedRpcUrl())
-    controller = app.get(MasternodeController)
+    app = new DefidBin()
+    await app.start()
+    controller = app.ocean.masternodeController
+    container = app.rpc
+    await app.waitForBlockHeight(101)
+    client = new JsonRpcClient(app.url)
 
     await container.generate(1)
     const height = await client.blockchain.getBlockCount()
     await container.generate(1)
-    await waitForIndexedHeight(app, height)
+    await app.waitForIndexedHeight(height)
   })
 
   afterAll(async () => {
-    await stopTestingApp(container, app)
+    await app.stop()
   })
 
   it('should get masternode with timelock', async () => {
@@ -188,7 +173,7 @@ describe('timelock', () => {
     await container.generate(1)
     const height = await client.blockchain.getBlockCount()
     await container.generate(1)
-    await waitForIndexedHeight(app, height)
+    await app.waitForIndexedHeight(height)
 
     const result = await controller.get(masternodeId)
     expect(result.timelock).toStrictEqual(520)
