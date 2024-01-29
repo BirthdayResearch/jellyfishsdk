@@ -11,10 +11,10 @@ beforeAll(async () => {
   await app.start()
   controller = app.ocean.feeController
   container = app.rpc
-  await container.waitForWalletCoinbaseMaturity()
-  await container.waitForWalletBalanceGTE(100)
+  await app.waitForWalletCoinbaseMaturity()
+  await app.waitForWalletBalanceGTE(100)
 
-  client = new JsonRpcClient(container.getCachedRpcUrl())
+  client = new JsonRpcClient(app.url)
 
   await app.waitForIndexedHeight(100)
 })

@@ -12,10 +12,10 @@ beforeAll(async () => {
   await app.start()
   controller = app.ocean.transactionController
   container = app.rpc
-  await container.waitForWalletCoinbaseMaturity()
-  await container.waitForWalletBalanceGTE(100)
+  await app.waitForWalletCoinbaseMaturity()
+  await app.waitForWalletBalanceGTE(100)
 
-  client = new JsonRpcClient(container.getCachedRpcUrl())
+  client = new JsonRpcClient(app.url)
 
   await app.waitForIndexedHeight(100)
 })
@@ -28,7 +28,7 @@ describe('get', () => {
   let txid: string
 
   async function setup (): Promise<void> {
-    const address = await container.getNewAddress()
+    const address = await app.getNewAddress()
     const metadata = {
       symbol: 'ETH',
       name: 'ETH',
@@ -38,11 +38,11 @@ describe('get', () => {
       collateralAddress: address
     }
 
-    txid = await container.call('createtoken', [metadata])
+    txid = await app.call('createtoken', [metadata])
 
     await container.generate(1)
 
-    const height = await container.call('getblockcount')
+    const height = await app.call('getblockcount')
 
     await container.generate(1)
 
@@ -94,7 +94,7 @@ describe('get', () => {
 
 describe('getVins', () => {
   it('should return list of vin', async () => {
-    const blockHash = await container.call('getblockhash', [100])
+    const blockHash = await app.call('getblockhash', [100])
     const block = await client.blockchain.getBlock(blockHash, 2)
 
     const txid = block.tx[0].txid
@@ -104,7 +104,7 @@ describe('getVins', () => {
   })
 
   it('should return list of vin when next is out of range', async () => {
-    const blockHash = await container.call('getblockhash', [100])
+    const blockHash = await app.call('getblockhash', [100])
     const block = await client.blockchain.getBlock(blockHash, 2)
 
     const txid = block.tx[0].txid
@@ -123,7 +123,7 @@ describe('getVins', () => {
 
 describe('getVouts', () => {
   it('should return list of vout', async () => {
-    const blockHash = await container.call('getblockhash', [37])
+    const blockHash = await app.call('getblockhash', [37])
     const block = await client.blockchain.getBlock(blockHash, 2)
 
     const txid = block.tx[0].txid
@@ -133,7 +133,7 @@ describe('getVouts', () => {
   })
 
   it.skip('should return list of vout when next is out of range', async () => {
-    const blockHash = await container.call('getblockhash', [37])
+    const blockHash = await app.call('getblockhash', [37])
     const block = await client.blockchain.getBlock(blockHash, 2)
 
     const txid = block.tx[0].txid
