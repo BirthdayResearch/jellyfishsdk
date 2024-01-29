@@ -1,165 +1,165 @@
-import { AddressController } from '../address.controller'
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp, stopTestingApp, waitForAddressTxCount, waitForIndexedHeight } from '../../e2e.module'
-import { createSignedTxnHex, createToken, mintTokens, sendTokensToAddress } from '@defichain/testing'
 import { WIF } from '@defichain/jellyfish-crypto'
-import { Testing } from '@defichain/jellyfish-testing'
 import { ForbiddenException } from '@nestjs/common'
 import BigNumber from 'bignumber.js'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
+import { DAddressController, DefidBin, DefidRpc } from '../../e2e.defid.module'
 
-const container = new MasterNodeRegTestContainer()
-let app: NestFastifyApplication
-let controller: AddressController
-const testing = Testing.create(container)
+let testing: DefidRpc
+let app: DefidBin
+let controller: DAddressController
+
 let colAddr: string
 let usdcAddr: string
 let poolAddr: string
 let emptyAddr: string
 let dfiUsdc
 
+async function setup (): Promise<void> {
+  colAddr = await testing.generateAddress()
+  usdcAddr = await testing.generateAddress()
+  poolAddr = await testing.generateAddress()
+  emptyAddr = await testing.generateAddress()
+
+  await testing.token.dfi({
+    address: colAddr,
+    amount: 20000
+  })
+  await testing.generate(1)
+
+  await testing.token.create({
+    symbol: 'USDC',
+    collateralAddress: colAddr
+  })
+  await testing.generate(1)
+
+  await testing.token.mint({
+    symbol: 'USDC',
+    amount: 10000
+  })
+  await testing.generate(1)
+
+  await testing.rpc.account.accountToAccount(colAddr, { [usdcAddr]: '10000@USDC' })
+  await testing.generate(1)
+
+  await testing.rpc.poolpair.createPoolPair({
+    tokenA: 'DFI',
+    tokenB: 'USDC',
+    commission: 0,
+    status: true,
+    ownerAddress: poolAddr
+  })
+  await testing.generate(1)
+
+  const poolPairsKeys = Object.keys(await testing.rpc.poolpair.listPoolPairs())
+  expect(poolPairsKeys.length).toStrictEqual(1)
+  dfiUsdc = poolPairsKeys[0]
+
+  // set LP_SPLIT, make LM gain rewards, MANDATORY
+  // ensure `no_rewards` flag turned on
+  // ensure do not get response without txid
+  await app.call('setgov', [{ LP_SPLITS: { [dfiUsdc]: 1.0 } }])
+  await testing.generate(1)
+
+  await testing.rpc.poolpair.addPoolLiquidity({
+    [colAddr]: '5000@DFI',
+    [usdcAddr]: '5000@USDC'
+  }, poolAddr)
+  await testing.generate(1)
+
+  await testing.rpc.poolpair.poolSwap({
+    from: colAddr,
+    tokenFrom: 'DFI',
+    amountFrom: 555,
+    to: usdcAddr,
+    tokenTo: 'USDC'
+  })
+  await testing.generate(1)
+
+  await testing.rpc.poolpair.removePoolLiquidity(poolAddr, '2@DFI-USDC')
+  await testing.generate(1)
+
+  // for testing same block pagination
+  await testing.token.create({
+    symbol: 'APE',
+    collateralAddress: colAddr
+  })
+  await testing.generate(1)
+
+  await testing.token.create({
+    symbol: 'CAT',
+    collateralAddress: colAddr
+  })
+  await testing.token.create({
+    symbol: 'DOG',
+    collateralAddress: colAddr
+  })
+  await testing.generate(1)
+
+  await testing.token.create({
+    symbol: 'ELF',
+    collateralAddress: colAddr
+  })
+  await testing.token.create({
+    symbol: 'FOX',
+    collateralAddress: colAddr
+  })
+  await testing.token.create({
+    symbol: 'RAT',
+    collateralAddress: colAddr
+  })
+  await testing.token.create({
+    symbol: 'BEE',
+    collateralAddress: colAddr
+  })
+  await testing.token.create({
+    symbol: 'COW',
+    collateralAddress: colAddr
+  })
+  await testing.token.create({
+    symbol: 'OWL',
+    collateralAddress: colAddr
+  })
+  await testing.token.create({
+    symbol: 'ELK',
+    collateralAddress: colAddr
+  })
+  await testing.generate(1)
+
+  await testing.token.create({
+    symbol: 'PIG',
+    collateralAddress: colAddr
+  })
+  await testing.token.create({
+    symbol: 'KOI',
+    collateralAddress: colAddr
+  })
+  await testing.token.create({
+    symbol: 'FLY',
+    collateralAddress: colAddr
+  })
+  await testing.generate(1)
+
+  await testing.generate(1)
+
+  // to test rewards listing (only needed if `no_rewards` flag disabled)
+  // const height = await testing.container.getBlockCount()
+  // await testing.container.waitForBlockHeight(Math.max(500, height))
+}
+
 describe('listAccountHistory', () => {
   beforeAll(async () => {
-    await container.start()
-    await container.waitForWalletCoinbaseMaturity()
+    app = new DefidBin()
+    await app.start()
+    controller = app.ocean.addressController
+    testing = app.rpc
+    await app.waitForWalletCoinbaseMaturity()
+    await app.waitForWalletBalanceGTE(100)
 
-    colAddr = await testing.generateAddress()
-    usdcAddr = await testing.generateAddress()
-    poolAddr = await testing.generateAddress()
-    emptyAddr = await testing.generateAddress()
-
-    await testing.token.dfi({
-      address: colAddr,
-      amount: 20000
-    })
-    await testing.generate(1)
-
-    await testing.token.create({
-      symbol: 'USDC',
-      collateralAddress: colAddr
-    })
-    await testing.generate(1)
-
-    await testing.token.mint({
-      symbol: 'USDC',
-      amount: 10000
-    })
-    await testing.generate(1)
-
-    await testing.rpc.account.accountToAccount(colAddr, { [usdcAddr]: '10000@USDC' })
-    await testing.generate(1)
-
-    await testing.rpc.poolpair.createPoolPair({
-      tokenA: 'DFI',
-      tokenB: 'USDC',
-      commission: 0,
-      status: true,
-      ownerAddress: poolAddr
-    })
-    await testing.generate(1)
-
-    const poolPairsKeys = Object.keys(await testing.rpc.poolpair.listPoolPairs())
-    expect(poolPairsKeys.length).toStrictEqual(1)
-    dfiUsdc = poolPairsKeys[0]
-
-    // set LP_SPLIT, make LM gain rewards, MANDATORY
-    // ensure `no_rewards` flag turned on
-    // ensure do not get response without txid
-    await testing.container.call('setgov', [{ LP_SPLITS: { [dfiUsdc]: 1.0 } }])
-    await container.generate(1)
-
-    await testing.rpc.poolpair.addPoolLiquidity({
-      [colAddr]: '5000@DFI',
-      [usdcAddr]: '5000@USDC'
-    }, poolAddr)
-    await testing.generate(1)
-
-    await testing.rpc.poolpair.poolSwap({
-      from: colAddr,
-      tokenFrom: 'DFI',
-      amountFrom: 555,
-      to: usdcAddr,
-      tokenTo: 'USDC'
-    })
-    await testing.generate(1)
-
-    await testing.rpc.poolpair.removePoolLiquidity(poolAddr, '2@DFI-USDC')
-    await testing.generate(1)
-
-    // for testing same block pagination
-    await testing.token.create({
-      symbol: 'APE',
-      collateralAddress: colAddr
-    })
-    await testing.generate(1)
-
-    await testing.token.create({
-      symbol: 'CAT',
-      collateralAddress: colAddr
-    })
-    await testing.token.create({
-      symbol: 'DOG',
-      collateralAddress: colAddr
-    })
-    await testing.generate(1)
-
-    await testing.token.create({
-      symbol: 'ELF',
-      collateralAddress: colAddr
-    })
-    await testing.token.create({
-      symbol: 'FOX',
-      collateralAddress: colAddr
-    })
-    await testing.token.create({
-      symbol: 'RAT',
-      collateralAddress: colAddr
-    })
-    await testing.token.create({
-      symbol: 'BEE',
-      collateralAddress: colAddr
-    })
-    await testing.token.create({
-      symbol: 'COW',
-      collateralAddress: colAddr
-    })
-    await testing.token.create({
-      symbol: 'OWL',
-      collateralAddress: colAddr
-    })
-    await testing.token.create({
-      symbol: 'ELK',
-      collateralAddress: colAddr
-    })
-    await testing.generate(1)
-
-    await testing.token.create({
-      symbol: 'PIG',
-      collateralAddress: colAddr
-    })
-    await testing.token.create({
-      symbol: 'KOI',
-      collateralAddress: colAddr
-    })
-    await testing.token.create({
-      symbol: 'FLY',
-      collateralAddress: colAddr
-    })
-    await testing.generate(1)
-
-    app = await createTestingApp(container)
-    controller = app.get(AddressController)
-
-    await testing.generate(1)
-
-    // to test rewards listing (only needed if `no_rewards` flag disabled)
-    // const height = await testing.container.getBlockCount()
-    // await testing.container.waitForBlockHeight(Math.max(500, height))
+    await setup()
   })
 
   afterAll(async () => {
-    await stopTestingApp(container, app)
+    await app.stop()
   })
 
   it('should not listAccountHistory with mine filter', async () => {
@@ -270,141 +270,11 @@ describe('listAccountHistory', () => {
 
 describe('getAccount', () => {
   beforeAll(async () => {
-    await container.start()
-    await container.waitForWalletCoinbaseMaturity()
-
-    colAddr = await testing.generateAddress()
-    usdcAddr = await testing.generateAddress()
-    poolAddr = await testing.generateAddress()
-    emptyAddr = await testing.generateAddress()
-
-    await testing.token.dfi({
-      address: colAddr,
-      amount: 20000
-    })
-    await testing.generate(1)
-
-    await testing.token.create({
-      symbol: 'USDC',
-      collateralAddress: colAddr
-    })
-    await testing.generate(1)
-
-    await testing.token.mint({
-      symbol: 'USDC',
-      amount: 10000
-    })
-    await testing.generate(1)
-
-    await testing.rpc.account.accountToAccount(colAddr, { [usdcAddr]: '10000@USDC' })
-    await testing.generate(1)
-
-    await testing.rpc.poolpair.createPoolPair({
-      tokenA: 'DFI',
-      tokenB: 'USDC',
-      commission: 0,
-      status: true,
-      ownerAddress: poolAddr
-    })
-    await testing.generate(1)
-
-    const poolPairsKeys = Object.keys(await testing.rpc.poolpair.listPoolPairs())
-    expect(poolPairsKeys.length).toStrictEqual(1)
-    dfiUsdc = poolPairsKeys[0]
-
-    // set LP_SPLIT, make LM gain rewards, MANDATORY
-    // ensure `no_rewards` flag turned on
-    // ensure do not get response without txid
-    await testing.container.call('setgov', [{ LP_SPLITS: { [dfiUsdc]: 1.0 } }])
-    await container.generate(1)
-
-    await testing.rpc.poolpair.addPoolLiquidity({
-      [colAddr]: '5000@DFI',
-      [usdcAddr]: '5000@USDC'
-    }, poolAddr)
-    await testing.generate(1)
-
-    await testing.rpc.poolpair.poolSwap({
-      from: colAddr,
-      tokenFrom: 'DFI',
-      amountFrom: 555,
-      to: usdcAddr,
-      tokenTo: 'USDC'
-    })
-    await testing.generate(1)
-
-    await testing.rpc.poolpair.removePoolLiquidity(poolAddr, '2@DFI-USDC')
-    await testing.generate(1)
-
-    // for testing same block pagination
-    await testing.token.create({
-      symbol: 'APE',
-      collateralAddress: colAddr
-    })
-    await testing.generate(1)
-
-    await testing.token.create({
-      symbol: 'CAT',
-      collateralAddress: colAddr
-    })
-    await testing.token.create({
-      symbol: 'DOG',
-      collateralAddress: colAddr
-    })
-    await testing.generate(1)
-
-    await testing.token.create({
-      symbol: 'ELF',
-      collateralAddress: colAddr
-    })
-    await testing.token.create({
-      symbol: 'FOX',
-      collateralAddress: colAddr
-    })
-    await testing.token.create({
-      symbol: 'RAT',
-      collateralAddress: colAddr
-    })
-    await testing.token.create({
-      symbol: 'BEE',
-      collateralAddress: colAddr
-    })
-    await testing.token.create({
-      symbol: 'COW',
-      collateralAddress: colAddr
-    })
-    await testing.token.create({
-      symbol: 'OWL',
-      collateralAddress: colAddr
-    })
-    await testing.token.create({
-      symbol: 'ELK',
-      collateralAddress: colAddr
-    })
-    await testing.generate(1)
-
-    await testing.token.create({
-      symbol: 'PIG',
-      collateralAddress: colAddr
-    })
-    await testing.token.create({
-      symbol: 'KOI',
-      collateralAddress: colAddr
-    })
-    await testing.token.create({
-      symbol: 'FLY',
-      collateralAddress: colAddr
-    })
-    await testing.generate(1)
-
-    app = await createTestingApp(container)
-    controller = app.get(AddressController)
-
-    await testing.generate(1)
+    await setup()
   })
 
   afterAll(async () => {
-    await stopTestingApp(container, app)
+    await app.stop()
   })
 
   it('should getAccount', async () => {
@@ -432,18 +302,18 @@ describe('getAccount', () => {
   })
 
   it('should be failed for non-existence data', async () => {
-    const promise = controller.getAccountHistory(await container.getNewAddress(), Number(`${'0'.repeat(64)}`), 1)
+    const promise = controller.getAccountHistory(await app.getNewAddress(), Number(`${'0'.repeat(64)}`), 1)
     await expect(promise).rejects.toThrow('Record not found')
   })
 
   it('should be failed as invalid height', async () => {
     { // NaN
-      const promise = controller.getAccountHistory(await container.getNewAddress(), Number('NotANumber'), 1)
+      const promise = controller.getAccountHistory(await app.getNewAddress(), Number('NotANumber'), 1)
       await expect(promise).rejects.toThrow('JSON value is not an integer as expected')
     }
 
     { // negative height
-      const promise = controller.getAccountHistory(await container.getNewAddress(), -1, 1)
+      const promise = controller.getAccountHistory(await app.getNewAddress(), -1, 1)
       await expect(promise).rejects.toThrow('Record not found')
     }
   })
@@ -457,7 +327,7 @@ describe('getAccount', () => {
       }
     }
 
-    const operatorAccHistory = await container.call('listaccounthistory', [RegTestFoundationKeys[0].operator.address])
+    const operatorAccHistory = await app.call('listaccounthistory', [RegTestFoundationKeys[0].operator.address])
     for (const h of operatorAccHistory) {
       if (['blockReward'].includes(h.type)) {
         const promise = controller.getAccountHistory(RegTestFoundationKeys[0].operator.address, h.blockHeight, h.txn)
@@ -469,22 +339,19 @@ describe('getAccount', () => {
 
 describe('getBalance', () => {
   beforeAll(async () => {
-    await container.start()
-    await container.waitForWalletCoinbaseMaturity()
-    await container.waitForWalletBalanceGTE(100)
+    app = new DefidBin()
+    await app.start()
+    controller = app.ocean.addressController
 
-    app = await createTestingApp(container)
-    controller = app.get(AddressController)
-
-    await waitForIndexedHeight(app, 100)
+    await app.waitForIndexedHeight(100)
   })
 
   afterAll(async () => {
-    await stopTestingApp(container, app)
+    await app.stop()
   })
 
   it('getBalance should be zero', async () => {
-    const address = await container.getNewAddress()
+    const address = await app.getNewAddress()
     const balance = await controller.getBalance(address)
     expect(balance).toStrictEqual('0.00000000')
   })
@@ -492,28 +359,28 @@ describe('getBalance', () => {
   it('should getBalance non zero with bech32 address', async () => {
     const address = 'bcrt1qf5v8n3kfe6v5mharuvj0qnr7g74xnu9leut39r'
 
-    await container.fundAddress(address, 1.23)
-    await waitForAddressTxCount(app, address, 1)
+    await app.fundAddress(address, 1.23)
+    await app.waitForAddressTxCount(address, 1)
 
     const balance = await controller.getBalance(address)
     expect(balance).toStrictEqual('1.23000000')
   })
 
   it('should getBalance non zero with legacy address', async () => {
-    const address = await container.getNewAddress('', 'legacy')
+    const address = await app.getNewAddress('', 'legacy')
 
-    await container.fundAddress(address, 0.00100000)
-    await waitForAddressTxCount(app, address, 1)
+    await app.fundAddress(address, 0.00100000)
+    await app.waitForAddressTxCount(address, 1)
 
     const balance = await controller.getBalance(address)
     expect(balance).toStrictEqual('0.00100000')
   })
 
   it('should getBalance non zero with p2sh-segwit address', async () => {
-    const address = await container.getNewAddress('', 'p2sh-segwit')
+    const address = await app.getNewAddress('', 'p2sh-segwit')
 
-    await container.fundAddress(address, 10.99999999)
-    await waitForAddressTxCount(app, address, 1)
+    await app.fundAddress(address, 10.99999999)
+    await app.waitForAddressTxCount(address, 1)
 
     const balance = await controller.getBalance(address)
     expect(balance).toStrictEqual('10.99999999')
@@ -526,10 +393,10 @@ describe('getBalance', () => {
   it('should sum getBalance', async () => {
     const address = 'bcrt1qeq2g82kj99mqfvnwc2g5w0azzd298q0t84tc6s'
 
-    await container.fundAddress(address, 0.12340001)
-    await container.fundAddress(address, 4.32412313)
-    await container.fundAddress(address, 12.93719381)
-    await waitForAddressTxCount(app, address, 3)
+    await app.fundAddress(address, 0.12340001)
+    await app.fundAddress(address, 4.32412313)
+    await app.fundAddress(address, 12.93719381)
+    await app.waitForAddressTxCount(address, 3)
 
     const balance = await controller.getBalance(address)
     expect(balance).toStrictEqual('17.38471695')
@@ -538,27 +405,27 @@ describe('getBalance', () => {
 
 describe('getAggregation', () => {
   beforeAll(async () => {
-    await container.start()
-    await container.waitForWalletCoinbaseMaturity()
-    await container.waitForWalletBalanceGTE(100)
+    app = new DefidBin()
+    await app.start()
+    controller = app.ocean.addressController
+    testing = app.rpc
+    await app.waitForWalletCoinbaseMaturity()
+    await app.waitForWalletBalanceGTE(100)
 
-    app = await createTestingApp(container)
-    controller = app.get(AddressController)
-
-    await waitForIndexedHeight(app, 100)
+    await app.waitForIndexedHeight(100)
   })
 
   afterAll(async () => {
-    await stopTestingApp(container, app)
+    await app.stop()
   })
 
   it('should aggregate 3 txn', async () => {
     const address = 'bcrt1qxvvp3tz5u8t90nwwjzsalha66zk9em95tgn3fk'
 
-    await container.fundAddress(address, 0.12340001)
-    await container.fundAddress(address, 4.32412313)
-    await container.fundAddress(address, 12.93719381)
-    await waitForAddressTxCount(app, address, 3)
+    await app.fundAddress(address, 0.12340001)
+    await app.fundAddress(address, 4.32412313)
+    await app.fundAddress(address, 12.93719381)
+    await app.waitForAddressTxCount(address, 3)
 
     const agg = await controller.getAggregation(address)
     expect(agg).toStrictEqual({
@@ -594,35 +461,34 @@ describe('getAggregation', () => {
 
 describe('listTransactions', () => {
   beforeAll(async () => {
-    await container.start()
-    await container.waitForWalletCoinbaseMaturity()
-    await container.waitForWalletBalanceGTE(100)
+    app = new DefidBin()
+    await app.start()
+    controller = app.ocean.addressController
+    testing = app.rpc
+    await app.waitForWalletCoinbaseMaturity()
+    await app.waitForWalletBalanceGTE(100)
 
-    app = await createTestingApp(container)
-    controller = app.get(AddressController)
+    await app.waitForIndexedHeight(100)
 
-    await waitForIndexedHeight(app, 100)
+    await app.fundAddress(addressA.bech32, 34)
+    await app.fundAddress(addressA.bech32, 0.12340001)
+    await app.fundAddress(addressA.bech32, 1.32412313)
+    await app.fundAddress(addressA.bech32, 2.93719381)
 
-    await container.waitForWalletBalanceGTE(100)
-    await container.fundAddress(addressA.bech32, 34)
-    await container.fundAddress(addressA.bech32, 0.12340001)
-    await container.fundAddress(addressA.bech32, 1.32412313)
-    await container.fundAddress(addressA.bech32, 2.93719381)
-
-    await container.call('sendrawtransaction', [
+    await app.call('sendrawtransaction', [
       // This create vin & vout with 9.5
-      await createSignedTxnHex(container, 9.5, 9.4999, options)
+      await app.createSignedTxnHex(9.5, 9.4999, options)
     ])
-    await container.call('sendrawtransaction', [
+    await app.call('sendrawtransaction', [
       // This create vin & vout with 1.123
-      await createSignedTxnHex(container, 1.123, 1.1228, options)
+      await app.createSignedTxnHex(1.123, 1.1228, options)
     ])
-    await container.generate(1)
-    await waitForAddressTxCount(app, addressB.bech32, 2)
+    await app.generate(1)
+    await app.waitForAddressTxCount(addressB.bech32, 2)
   })
 
   afterAll(async () => {
-    await stopTestingApp(container, app)
+    await app.stop()
   })
 
   const addressA = {
@@ -754,35 +620,34 @@ describe('listTransactions', () => {
 
 describe('listTransactionsUnspent', () => {
   beforeAll(async () => {
-    await container.start()
-    await container.waitForWalletCoinbaseMaturity()
-    await container.waitForWalletBalanceGTE(100)
+    app = new DefidBin()
+    await app.start()
+    controller = app.ocean.addressController
+    testing = app.rpc
+    await app.waitForWalletCoinbaseMaturity()
+    await app.waitForWalletBalanceGTE(100)
 
-    app = await createTestingApp(container)
-    controller = app.get(AddressController)
+    await app.waitForIndexedHeight(100)
 
-    await waitForIndexedHeight(app, 100)
+    await app.fundAddress(addressA.bech32, 34)
+    await app.fundAddress(addressA.bech32, 0.12340001)
+    await app.fundAddress(addressA.bech32, 1.32412313)
+    await app.fundAddress(addressA.bech32, 2.93719381)
 
-    await container.waitForWalletBalanceGTE(100)
-    await container.fundAddress(addressA.bech32, 34)
-    await container.fundAddress(addressA.bech32, 0.12340001)
-    await container.fundAddress(addressA.bech32, 1.32412313)
-    await container.fundAddress(addressA.bech32, 2.93719381)
-
-    await container.call('sendrawtransaction', [
+    await app.call('sendrawtransaction', [
       // This create vin & vout with 9.5
-      await createSignedTxnHex(container, 9.5, 9.4999, options)
+      await app.createSignedTxnHex(9.5, 9.4999, options)
     ])
-    await container.call('sendrawtransaction', [
+    await app.call('sendrawtransaction', [
       // This create vin & vout with 1.123
-      await createSignedTxnHex(container, 1.123, 1.1228, options)
+      await app.createSignedTxnHex(1.123, 1.1228, options)
     ])
-    await container.generate(1)
-    await waitForAddressTxCount(app, addressB.bech32, 2)
+    await app.generate(1)
+    await app.waitForAddressTxCount(addressB.bech32, 2)
   })
 
   afterAll(async () => {
-    await stopTestingApp(container, app)
+    await app.stop()
   })
 
   const addressA = {
@@ -983,28 +848,28 @@ describe('listTokens', () => {
   }
 
   beforeAll(async () => {
-    await container.start()
-    await container.waitForWalletCoinbaseMaturity()
-    await container.waitForWalletBalanceGTE(100)
+    app = new DefidBin()
+    await app.start()
+    controller = app.ocean.addressController
+    testing = app.rpc
+    await app.waitForWalletCoinbaseMaturity()
+    await app.waitForWalletBalanceGTE(100)
 
-    app = await createTestingApp(container)
-    controller = app.get(AddressController)
-
-    await waitForIndexedHeight(app, 100)
+    await app.waitForIndexedHeight(100)
 
     for (const token of tokens) {
-      await container.waitForWalletBalanceGTE(110)
-      await createToken(container, token)
-      await mintTokens(container, token, { mintAmount: 1000 })
-      await sendTokensToAddress(container, address, 10, token)
+      await app.waitForWalletBalanceGTE(110)
+      await app.createToken(token)
+      await app.mintTokens(token, { mintAmount: 1000 })
+      await app.sendTokensToAddress(address, 10, token)
     }
-    await container.generate(1)
+    await app.generate(1)
 
     await setupLoanToken()
   })
 
   afterAll(async () => {
-    await stopTestingApp(container, app)
+    await app.stop()
   })
 
   const address = 'bcrt1qf5v8n3kfe6v5mharuvj0qnr7g74xnu9leut39r'
