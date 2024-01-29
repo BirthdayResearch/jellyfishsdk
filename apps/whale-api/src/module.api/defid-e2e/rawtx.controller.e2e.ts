@@ -1,32 +1,28 @@
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { createSignedTxnHex } from '@defichain/testing'
 import { Bech32, Elliptic, HRP } from '@defichain/jellyfish-crypto'
 import { RegTest } from '@defichain/jellyfish-network'
 import { BadRequestApiException } from '../_core/api.error'
-import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp, stopTestingApp } from '../../e2e.module'
-import { RawtxController } from '../rawtx.controller'
 import { NotFoundException } from '@nestjs/common'
+import { DRawTxController, DefidBin, DefidRpc } from '../../e2e.defid.module'
 
-const container = new MasterNodeRegTestContainer()
-let app: NestFastifyApplication
-let controller: RawtxController
+let container: DefidRpc
+let app: DefidBin
+let controller: DRawTxController
 
 beforeAll(async () => {
-  await container.start()
-  await container.waitForWalletCoinbaseMaturity()
-  await container.waitForWalletBalanceGTE(100)
-
-  app = await createTestingApp(container)
-  controller = app.get<RawtxController>(RawtxController)
+  app = new DefidBin()
+  await app.start()
+  controller = app.ocean.rawTxController
+  container = app.rpc
+  await app.waitForWalletCoinbaseMaturity()
+  await app.waitForWalletBalanceGTE(100)
 })
 
 afterAll(async () => {
-  await stopTestingApp(container, app)
+  await app.stop()
 })
 
 async function expectTxn (txid: string, amount: number, pubKey: Buffer): Promise<void> {
-  const details = await container.call('gettxout', [txid, 0])
+  const details = await app.call('gettxout', [txid, 0])
 
   expect(details.value.toString(10)).toStrictEqual(amount.toString())
   expect(details.scriptPubKey.addresses[0]).toStrictEqual(
@@ -36,14 +32,14 @@ async function expectTxn (txid: string, amount: number, pubKey: Buffer): Promise
 
 describe('test', () => {
   it('should accept valid txn', async () => {
-    const hex = await createSignedTxnHex(container, 10, 9.9999)
+    const hex = await app.createSignedTxnHex(10, 9.9999)
     await controller.test({
       hex: hex
     })
   })
 
   it('should accept valid txn with given maxFeeRate', async () => {
-    const hex = await createSignedTxnHex(container, 10, 9.995)
+    const hex = await app.createSignedTxnHex(10, 9.995)
     await controller.test({
       hex: hex,
       maxFeeRate: 0.05
@@ -54,7 +50,7 @@ describe('test', () => {
     expect.assertions(2)
     try {
       await controller.test({ hex: '0400000100881133bb11aa00cc' })
-    } catch (err) {
+    } catch (err: any) {
       expect(err).toBeInstanceOf(BadRequestApiException)
       expect(err.response.error).toStrictEqual({
         code: 400,
@@ -66,13 +62,13 @@ describe('test', () => {
   })
 
   it('should throw BadRequestError due to high fees', async () => {
-    const hex = await createSignedTxnHex(container, 10, 9)
+    const hex = await app.createSignedTxnHex(10, 9)
     expect.assertions(2)
     try {
       await controller.test({
         hex: hex, maxFeeRate: 1.0
       })
-    } catch (err) {
+    } catch (err: any) {
       expect(err).toBeInstanceOf(BadRequestApiException)
       expect(err.response.error).toStrictEqual({
         code: 400,
@@ -89,7 +85,7 @@ describe('send', () => {
     const aPair = Elliptic.fromPrivKey(Buffer.alloc(32, Math.random().toString(), 'ascii'))
     const bPair = Elliptic.fromPrivKey(Buffer.alloc(32, Math.random().toString(), 'ascii'))
 
-    const hex = await createSignedTxnHex(container, 10, 9.9999, { aEllipticPair: aPair, bEllipticPair: bPair })
+    const hex = await app.createSignedTxnHex(10, 9.9999, { aEllipticPair: aPair, bEllipticPair: bPair })
     const txid = await controller.send({
       hex: hex
     })
@@ -102,7 +98,7 @@ describe('send', () => {
     const aPair = Elliptic.fromPrivKey(Buffer.alloc(32, Math.random().toString(), 'ascii'))
     const bPair = Elliptic.fromPrivKey(Buffer.alloc(32, Math.random().toString(), 'ascii'))
 
-    const hex = await createSignedTxnHex(container, 10, 9.995, { aEllipticPair: aPair, bEllipticPair: bPair })
+    const hex = await app.createSignedTxnHex(10, 9.995, { aEllipticPair: aPair, bEllipticPair: bPair })
     const txid = await controller.send({
       hex: hex,
       maxFeeRate: 0.05
@@ -118,7 +114,7 @@ describe('send', () => {
       await controller.send({
         hex: '0400000100881133bb11aa00cc'
       })
-    } catch (err) {
+    } catch (err: any) {
       expect(err).toBeInstanceOf(BadRequestApiException)
       expect(err.response.error).toStrictEqual({
         code: 400,
@@ -130,13 +126,13 @@ describe('send', () => {
   })
 
   it('should throw BadRequestException due to high fees', async () => {
-    const hex = await createSignedTxnHex(container, 10, 9)
+    const hex = await app.createSignedTxnHex(10, 9)
     expect.assertions(2)
     try {
       await controller.send({
         hex: hex, maxFeeRate: 1
       })
-    } catch (err) {
+    } catch (err: any) {
       expect(err).toBeInstanceOf(BadRequestApiException)
       expect(err.response.error).toStrictEqual({
         code: 400,
@@ -150,7 +146,7 @@ describe('send', () => {
 
 describe('get', () => {
   it('should accept valid txn and return hex', async () => {
-    const hex = await createSignedTxnHex(container, 10, 9.9999)
+    const hex = await app.createSignedTxnHex(10, 9.9999)
     const txid = await controller.send({
       hex: hex
     })
@@ -163,7 +159,7 @@ describe('get', () => {
   it('should throw NotFoundException due to tx id not found', async () => {
     try {
       await controller.get('4f9f92b4b2cade30393ecfcd0656db06e57f6edb0a176452b2fecf361dd3a061', false)
-    } catch (err) {
+    } catch (err: any) {
       expect(err).toBeInstanceOf(NotFoundException)
       expect(err.response.error).toStrictEqual('Not Found')
     }

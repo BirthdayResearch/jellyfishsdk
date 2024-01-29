@@ -68,6 +68,11 @@ export interface OceanProposalQuery {
   query?: OceanListQuery
 }
 
+interface RawTxDto {
+  hex: string
+  maxFeeRate?: number
+}
+
 class DefidOceanApi { // ApiClient
   protected readonly url = 'http://127.0.0.1:3002'
   protected readonly options: ClientOptions
@@ -407,12 +412,12 @@ export class DPriceController extends DefidOceanController {
 }
 
 export class DRawTxController extends DefidOceanController {
-  async send (): Promise<string> {
-    return await this.api.post('/rawtx/send')
+  async send (rawTxDto: RawTxDto): Promise<string> {
+    return await this.api.post('/rawtx/send', rawTxDto)
   }
 
-  async test (): Promise<void> {
-    return await this.api.get('/rawtx/test')
+  async test (rawTxDto: RawTxDto): Promise<void> {
+    return await this.api.post('/rawtx/test', rawTxDto)
   }
 
   async get (id: string, verbose = false): Promise<string | RawTransaction> {
