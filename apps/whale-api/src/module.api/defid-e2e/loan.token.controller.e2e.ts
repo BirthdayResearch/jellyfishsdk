@@ -1,25 +1,20 @@
-import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp, stopTestingApp } from '../../e2e.module'
 import BigNumber from 'bignumber.js'
-import { LoanMasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { LoanController } from '../loan.controller'
 import { NotFoundException } from '@nestjs/common'
-import { Testing } from '@defichain/jellyfish-testing'
+import { DLoanController, DefidBin, DefidRpc } from '../../e2e.defid.module'
 
-const container = new LoanMasterNodeRegTestContainer()
-let app: NestFastifyApplication
-let controller: LoanController
+let testing: DefidRpc
+let app: DefidBin
+let controller: DLoanController
 
 beforeAll(async () => {
-  await container.start()
-  await container.waitForWalletCoinbaseMaturity()
-  await container.waitForWalletBalanceGTE(100)
+  app = new DefidBin()
+  await app.start()
+  controller = app.ocean.loanController
+  testing = app.rpc
+  await app.waitForBlockHeight(101)
+  await app.waitForIndexedHeight(100)
 
-  app = await createTestingApp(container)
-  const testing = Testing.create(container)
-  controller = app.get(LoanController)
-
-  const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [
+  const oracleId = await app.call('appointoracle', [await testing.generateAddress(), [
     { token: 'AAPL', currency: 'USD' },
     { token: 'TSLA', currency: 'USD' },
     { token: 'MSFT', currency: 'USD' },
@@ -33,7 +28,7 @@ beforeAll(async () => {
   await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '4.5@FB', currency: 'USD' }] })
   await testing.generate(1)
 
-  await testing.container.call('setloantoken', [{
+  await app.call('setloantoken', [{
     symbol: 'AAPL',
     fixedIntervalPriceId: 'AAPL/USD',
     mintable: false,
@@ -41,7 +36,7 @@ beforeAll(async () => {
   }])
   await testing.generate(1)
 
-  await testing.container.call('setloantoken', [{
+  await app.call('setloantoken', [{
     symbol: 'TSLA',
     fixedIntervalPriceId: 'TSLA/USD',
     mintable: false,
@@ -49,7 +44,7 @@ beforeAll(async () => {
   }])
   await testing.generate(1)
 
-  await testing.container.call('setloantoken', [{
+  await app.call('setloantoken', [{
     symbol: 'MSFT',
     fixedIntervalPriceId: 'MSFT/USD',
     mintable: false,
@@ -57,7 +52,7 @@ beforeAll(async () => {
   }])
   await testing.generate(1)
 
-  await testing.container.call('setloantoken', [{
+  await app.call('setloantoken', [{
     symbol: 'FB',
     fixedIntervalPriceId: 'FB/USD',
     mintable: false,
@@ -67,7 +62,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-  await stopTestingApp(container, app)
+  await app.stop()
 })
 
 describe('list', () => {
@@ -182,7 +177,7 @@ describe('get', () => {
     expect.assertions(2)
     try {
       await controller.getLoanToken('999')
-    } catch (err) {
+    } catch (err: any) {
       expect(err).toBeInstanceOf(NotFoundException)
       expect(err.response).toStrictEqual({
         statusCode: 404,
