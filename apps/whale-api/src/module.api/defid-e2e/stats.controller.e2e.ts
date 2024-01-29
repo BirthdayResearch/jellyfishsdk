@@ -1,29 +1,24 @@
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { StatsController } from '../stats.controller'
-import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../../e2e.module'
-import { NestFastifyApplication } from '@nestjs/platform-fastify'
+import { DStatsController, DefidBin, DefidRpc } from '../../e2e.defid.module'
 
-const container = new MasterNodeRegTestContainer()
-let app: NestFastifyApplication
-let controller: StatsController
+let container: DefidRpc
+let app: DefidBin
+let controller: DStatsController
 
 beforeAll(async () => {
-  await container.start()
-  await container.waitForWalletCoinbaseMaturity()
-
-  app = await createTestingApp(container)
-  await waitForIndexedHeight(app, 100)
-
-  controller = app.get<StatsController>(StatsController)
+  app = new DefidBin()
+  await app.start()
+  controller = app.ocean.statsController
+  container = app.rpc
+  await app.waitForIndexedHeight(100)
 })
 
 afterAll(async () => {
-  await stopTestingApp(container, app)
+  await app.stop()
 })
 
 it('should getRewardDistribution', async () => {
   await container.generate(10)
-  await waitForIndexedHeight(app, 110)
+  await app.waitForIndexedHeight(110)
 
   const data = await controller.getRewardDistribution()
   expect(data).toStrictEqual({
