@@ -1,55 +1,50 @@
-import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp, stopTestingApp } from '../../e2e.module'
 import BigNumber from 'bignumber.js'
-import { LoanMasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { LoanController } from '../loan.controller'
 import { NotFoundException } from '@nestjs/common'
-import { Testing } from '@defichain/jellyfish-testing'
+import { DLoanController, DefidBin, DefidRpc } from '../../e2e.defid.module'
 
-const container = new LoanMasterNodeRegTestContainer()
-let app: NestFastifyApplication
-let controller: LoanController
+let testing: DefidRpc
+let app: DefidBin
+let controller: DLoanController
 
 beforeAll(async () => {
-  await container.start()
-  await container.waitForWalletCoinbaseMaturity()
-  await container.waitForWalletBalanceGTE(100)
-
-  app = await createTestingApp(container)
-  const testing = Testing.create(container)
-  controller = app.get(LoanController)
+  app = new DefidBin()
+  await app.start()
+  controller = app.ocean.loanController
+  testing = app.rpc
+  await app.waitForBlockHeight(101)
+  await app.waitForIndexedHeight(100)
 
   await testing.rpc.loan.createLoanScheme({
     minColRatio: 100,
     interestRate: new BigNumber(6.5),
     id: 'default'
   })
-  await container.generate(1)
+  await app.generate(1)
 
   await testing.rpc.loan.createLoanScheme({
     minColRatio: 150,
     interestRate: new BigNumber(5.5),
     id: 'scheme1'
   })
-  await container.generate(1)
+  await app.generate(1)
 
   await testing.rpc.loan.createLoanScheme({
     minColRatio: 200,
     interestRate: new BigNumber(4.5),
     id: 'scheme2'
   })
-  await container.generate(1)
+  await app.generate(1)
 
   await testing.rpc.loan.createLoanScheme({
     minColRatio: 250,
     interestRate: new BigNumber(3.5),
     id: 'scheme3'
   })
-  await container.generate(1)
+  await app.generate(1)
 })
 
 afterAll(async () => {
-  await stopTestingApp(container, app)
+  await app.stop()
 })
 
 describe('loan', () => {
@@ -133,7 +128,7 @@ describe('get', () => {
     expect.assertions(2)
     try {
       await controller.getScheme('999')
-    } catch (err) {
+    } catch (err: any) {
       expect(err).toBeInstanceOf(NotFoundException)
       expect(err.response).toStrictEqual({
         statusCode: 404,
