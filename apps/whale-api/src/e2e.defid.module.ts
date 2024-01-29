@@ -85,8 +85,7 @@ class DefidOceanApi { // ApiClient
     const res = await this.fetchTimeout(`${this.url}${path}`, {
       method: 'GET'
     })
-    const { data } = await res.json()
-    return data
+    return await res.json()
   }
 
   async post (path: string, body?: any): Promise<any> {
@@ -94,8 +93,7 @@ class DefidOceanApi { // ApiClient
       method: 'POST',
       body: JSON.stringify(body)
     })
-    const { data } = await res.json()
-    return data
+    return await res.json()
   }
 
   private async fetchTimeout (path: string, init: any): Promise<Response> {
