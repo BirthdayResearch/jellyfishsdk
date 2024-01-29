@@ -12,13 +12,13 @@ beforeAll(async () => {
   await app.start()
   controller = app.ocean.blockController
   container = app.rpc
-  await container.waitForBlockHeight(101)
+  await app.waitForBlockHeight(101)
   await app.waitForIndexedHeight(100)
-  client = new JsonRpcClient(container.getCachedRpcUrl())
+  client = new JsonRpcClient(app.url)
 
-  const address = await container.getNewAddress()
+  const address = await app.getNewAddress()
   for (let i = 0; i < 4; i += 1) {
-    await container.call('sendtoaddress', [address, 0.1])
+    await app.call('sendtoaddress', [address, 0.1])
   }
 
   await container.generate(3)
@@ -31,7 +31,7 @@ afterAll(async () => {
 
 describe('get', () => {
   it('should get block based on hash', async () => {
-    const blockHash = await container.call('getblockhash', [100])
+    const blockHash = await app.call('getblockhash', [100])
     const block = await controller.get(blockHash)
     expect(block?.height).toStrictEqual(100)
     expect(block?.hash).toStrictEqual(blockHash)
@@ -91,7 +91,7 @@ describe('list', () => {
 
 describe('getTransactions', () => {
   it('should get transactions from a block by hash', async () => {
-    const blockHash = await container.call('getblockhash', [100])
+    const blockHash = await app.call('getblockhash', [100])
     const paginatedTransactions = await controller.getTransactions(blockHash, { size: 30 })
 
     expect(paginatedTransactions.data.length).toBeGreaterThanOrEqual(1)
@@ -117,7 +117,7 @@ describe('getTransactions', () => {
   })
 
   it('should list transactions in the right order', async () => {
-    const blockHash = await container.call('getblockhash', [103])
+    const blockHash = await app.call('getblockhash', [103])
     const paginatedTransactions = await controller.getTransactions(blockHash, { size: 30 })
 
     expect(paginatedTransactions.data.length).toBeGreaterThanOrEqual(4)
