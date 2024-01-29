@@ -1,27 +1,22 @@
-import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp, stopTestingApp } from '../../e2e.module'
-import { LoanMasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { LoanController } from '../loan.controller'
 import { NotFoundException } from '@nestjs/common'
-import { Testing } from '@defichain/jellyfish-testing'
 import BigNumber from 'bignumber.js'
 import { LoanVaultState } from '@defichain/whale-api-client/dist/api/loan'
+import { DLoanController, DefidBin, DefidRpc } from '../../e2e.defid.module'
 
-const container = new LoanMasterNodeRegTestContainer()
-let app: NestFastifyApplication
-let controller: LoanController
+let testing: DefidRpc
+let app: DefidBin
+let controller: DLoanController
 
 let address1: string
 let vaultId1: string
 
 beforeAll(async () => {
-  await container.start()
-  await container.waitForWalletCoinbaseMaturity()
-  await container.waitForWalletBalanceGTE(100)
-
-  app = await createTestingApp(container)
-  const testing = Testing.create(container)
-  controller = app.get(LoanController)
+  app = new DefidBin()
+  await app.start()
+  controller = app.ocean.loanController
+  testing = app.rpc
+  await app.waitForWalletCoinbaseMaturity()
+  await app.waitForWalletBalanceGTE(100)
 
   // loan schemes
   await testing.rpc.loan.createLoanScheme({
@@ -66,7 +61,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-  await stopTestingApp(container, app)
+  await app.stop()
 })
 
 describe('loan', () => {
@@ -125,7 +120,7 @@ describe('get', () => {
     expect.assertions(4)
     try {
       await controller.getVault('0530ab29a9f09416a014a4219f186f1d5d530e9a270a9f941275b3972b43ebb7')
-    } catch (err) {
+    } catch (err: any) {
       expect(err).toBeInstanceOf(NotFoundException)
       expect(err.response).toStrictEqual({
         statusCode: 404,
@@ -136,7 +131,7 @@ describe('get', () => {
 
     try {
       await controller.getVault('999')
-    } catch (err) {
+    } catch (err: any) {
       expect(err).toBeInstanceOf(NotFoundException)
       expect(err.response).toStrictEqual({
         statusCode: 404,
