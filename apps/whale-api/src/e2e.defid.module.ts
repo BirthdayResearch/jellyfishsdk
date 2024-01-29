@@ -239,9 +239,9 @@ export class DGovernanceController extends DefidOceanController {
 
   async listProposalVotes (
     id: string,
-    masternode = MasternodeType.MINE,
-    cycle = 0,
-    all = false,
+    masternode: MasternodeType = MasternodeType.MINE,
+    cycle: number = 0,
+    all: boolean = false,
     query: OceanListQuery = { size: 30 }
   ): Promise<ApiPagedResponse<ProposalVotesResult>> {
     if (query.next !== undefined) {
