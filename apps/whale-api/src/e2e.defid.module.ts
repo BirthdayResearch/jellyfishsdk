@@ -378,8 +378,11 @@ export class DStatsController extends DefidOceanController {
 }
 
 export class DTokenController extends DefidOceanController {
-  async list (): Promise<ApiPagedResponse<TokenData>> {
-    return await this.api.get('/tokens')
+  async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<TokenData>> {
+    if (query.next !== undefined) {
+      return await this.api.get(`/tokens?size=${query.size}&next=${query.next}`)
+    }
+    return await this.api.get(`/tokens?size=${query.size}`)
   }
 
   async get (id: string): Promise<TokenData> {

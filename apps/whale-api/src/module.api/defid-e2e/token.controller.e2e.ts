@@ -1,31 +1,23 @@
-import { TokenController } from '../token.controller'
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../../e2e.module'
-import { createPoolPair, createToken } from '@defichain/testing'
 import { NotFoundException } from '@nestjs/common'
+import { DTokenController, DefidBin } from '../../e2e.defid.module'
 
-const container = new MasterNodeRegTestContainer()
-let app: NestFastifyApplication
-let controller: TokenController
+let app: DefidBin
+let controller: DTokenController
 
 beforeAll(async () => {
-  await container.start()
-  await container.waitForWalletCoinbaseMaturity()
-  await container.waitForWalletBalanceGTE(100)
+  app = new DefidBin()
+  await app.start()
+  controller = app.ocean.tokenController
+  await app.waitForBlockHeight(101)
+  await app.waitForIndexedHeight(100)
 
-  app = await createTestingApp(container)
-  controller = app.get(TokenController)
-
-  await waitForIndexedHeight(app, 100)
-
-  await createToken(container, 'DBTC')
-  await createToken(container, 'DETH')
-  await createPoolPair(container, 'DBTC', 'DETH')
+  await app.createToken('DBTC')
+  await app.createToken('DETH')
+  await app.createPoolPair('DBTC', 'DETH')
 })
 
 afterAll(async () => {
-  await stopTestingApp(container, app)
+  await app.stop()
 })
 
 describe('list', () => {
