@@ -21,7 +21,7 @@ import {
   SwapPathsResult
 } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { GovernanceProposal, ProposalVotesResult } from '@defichain/whale-api-client/dist/api/governance'
-import { LoanVaultActive, LoanVaultLiquidated } from '@defichain/whale-api-client/dist/api/loan'
+import { CollateralToken, LoanScheme, LoanToken, LoanVaultActive, LoanVaultLiquidated } from '@defichain/whale-api-client/dist/api/loan'
 import { MasternodeType } from '@defichain/jellyfish-api-core/dist/category/governance'
 import { Oracle } from './module.model/oracle'
 import { OraclePriceAggregated } from './module.model/oracle.price.aggregated'
@@ -48,6 +48,7 @@ import { poolpair } from '@defichain/jellyfish-api-core'
 import { addressToHid } from './module.api/address.controller'
 import { Bech32, Elliptic, HRP, WIF } from '@defichain/jellyfish-crypto'
 import { AddPoolLiquidityMetadata, CreatePoolPairOptions, CreateTokenOptions, CreateSignedTxnHexOptions, MintTokensOptions, UtxosToAccountOptions } from '@defichain/testing'
+import { VaultAuctionBatchHistory } from './module.model/vault.auction.batch.history'
 
 const SPAWNING_TIME = 180_000
 
@@ -236,6 +237,66 @@ export class DGovernanceController extends DefidOceanController {
   }
 }
 
+export class DLoanController extends DefidOceanController {
+  async listScheme (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<LoanScheme>> {
+    if (query.next !== undefined) {
+      return await this.api.get(`/loans/schemes?size=${query.size}&next=${query.next}`)
+    }
+    return await this.api.get(`/loans/schemes?size=${query.size}`)
+  }
+
+  async getScheme (id: string): Promise<LoanScheme> {
+    return await this.api.get(`/loans/scheme/${id}`)
+  }
+
+  async listCollateral (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<CollateralToken>> {
+    if (query.next !== undefined) {
+      return await this.api.get(`/loans/collaterals?size=${query.size}&next=${query.next}`)
+    }
+    return await this.api.get(`/loans/collaterals?size=${query.size}`)
+  }
+
+  async getCollateral (id: string): Promise<ApiPagedResponse<CollateralToken>> {
+    return await this.api.get(`/loans/collaterals/${id}`)
+  }
+
+  async listLoanToken (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<LoanToken>> {
+    if (query.next !== undefined) {
+      return await this.api.get(`/loans/tokens?size=${query.size}&next=${query.next}`)
+    }
+    return await this.api.get(`/loans/tokens?size=${query.size}`)
+  }
+
+  async getLoanToken (id: string): Promise<ApiPagedResponse<LoanToken>> {
+    return await this.api.get(`/loans/tokens/${id}`)
+  }
+
+  async listVault (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<LoanVaultActive | LoanVaultLiquidated>> {
+    if (query.next !== undefined) {
+      return await this.api.get(`/loans/vaults?size=${query.size}&next=${query.next}`)
+    }
+    return await this.api.get(`/loans/vaults?size=${query.size}`)
+  }
+
+  async getVault (id: string): Promise<ApiPagedResponse<LoanVaultActive | LoanVaultLiquidated>> {
+    return await this.api.get(`/loans/vaults/${id}`)
+  }
+
+  async listVaultAuctionHistory (id: string, height: number, batchIndex: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<VaultAuctionBatchHistory>> {
+    if (query.next !== undefined) {
+      return await this.api.get(`/loans/vaults/${id}/auctions/${height}/batches/${batchIndex}/history?size=${query.size}&next=${query.next}`)
+    }
+    return await this.api.get(`/loans/vaults/${id}/auctions/${height}/batches/${batchIndex}/history?size=${query.size}`)
+  }
+
+  async listAuction (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<LoanVaultLiquidated>> {
+    if (query.next !== undefined) {
+      return await this.api.get(`/loans/auctions?size=${query.size}&next=${query.next}`)
+    }
+    return await this.api.get(`/loans/auctions?size=${query.size}`)
+  }
+}
+
 export class DMasternodeController extends DefidOceanController {
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<MasternodeData>> {
     if (query.next !== undefined) {
@@ -416,6 +477,7 @@ export class DefidOcean {
     readonly blockController: DBlockController,
     readonly feeController: DFeeController,
     readonly governanceController: DGovernanceController,
+    readonly loanController: DLoanController,
     readonly masternodeController: DMasternodeController,
     readonly oracleController: DOracleController,
     readonly poolPairController: DPoolPairController,
@@ -574,6 +636,7 @@ export class DefidBin {
     new DBlockController(),
     new DFeeController(),
     new DGovernanceController(),
+    new DLoanController(),
     new DMasternodeController(),
     new DOracleController(),
     new DPoolPairController(),
