@@ -1,44 +1,38 @@
-import { PoolPairController } from '../poolpair.controller'
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp, stopTestingApp } from '../../e2e.module'
-import { addPoolLiquidity, createPoolPair, createToken, getNewAddress, mintTokens } from '@defichain/testing'
-import { CACHE_MANAGER, NotFoundException } from '@nestjs/common'
-import { BigNumber } from 'bignumber.js'
-import { DeFiDCache } from '../cache/defid.cache'
-import { CachePrefix } from '@defichain-apps/libs/caches'
-import { Cache } from 'cache-manager'
-import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
 
-const container = new MasterNodeRegTestContainer()
-let app: NestFastifyApplication
-let controller: PoolPairController
+import { NotFoundException } from '@nestjs/common'
+import { BigNumber } from 'bignumber.js'
+import { DPoolPairController, DefidBin, DefidRpc } from '../../e2e.defid.module'
+
+let container: DefidRpc
+let app: DefidBin
+let controller: DPoolPairController
 
 beforeAll(async () => {
-  await container.start()
-  await container.waitForWalletCoinbaseMaturity()
-  await container.waitForWalletBalanceGTE(100)
+  app = new DefidBin()
+  await app.start()
+  controller = app.ocean.poolPairController
+  container = app.rpc
+  await app.waitForBlockHeight(101)
+  await app.waitForIndexedHeight(100)
   await setup()
 
-  app = await createTestingApp(container)
-  controller = app.get(PoolPairController)
-  const cache = app.get<Cache>(CACHE_MANAGER)
-  const defiCache = app.get(DeFiDCache)
+  // const cache = app.get<Cache>(CACHE_MANAGER)
+  // const defiCache = app.get(DeFiDCache)
 
-  const tokenResult = await container.call('listtokens')
-  // precache
-  for (const k in tokenResult) {
-    await defiCache.getTokenInfo(k) as TokenInfo
-  }
+  // const tokenResult = await app.call('listtokens')
+  // // precache
+  // for (const k in tokenResult) {
+  //   await defiCache.getTokenInfo(k) as TokenInfo
+  // }
 
-  // ensure precache is working
-  const tkey = `${CachePrefix.TOKEN_INFO} 31`
-  const token = await cache.get<TokenInfo>(tkey)
-  expect(token?.symbolKey).toStrictEqual('USDT-DFI')
+  // // ensure precache is working
+  // const tkey = `${CachePrefix.TOKEN_INFO} 31`
+  // const token = await cache.get<TokenInfo>(tkey)
+  // expect(token?.symbolKey).toStrictEqual('USDT-DFI')
 })
 
 afterAll(async () => {
-  await stopTestingApp(container, app)
+  await app.stop()
 })
 
 async function setup (): Promise<void> {
@@ -52,139 +46,139 @@ async function setup (): Promise<void> {
   ]
 
   for (const token of tokens) {
-    await container.waitForWalletBalanceGTE(110)
-    await createToken(container, token)
-    await mintTokens(container, token)
+    await app.waitForWalletBalanceGTE(110)
+    await app.createToken(token)
+    await app.mintTokens(token)
   }
 
   // Create non-DAT token - direct RPC call required as createToken() will
   // rpc call 'gettoken' with symbol, but will fail for non-DAT tokens
-  await container.waitForWalletBalanceGTE(110)
-  await container.call('createtoken', [{
+  await app.waitForWalletBalanceGTE(110)
+  await app.call('createtoken', [{
     symbol: 'O',
     name: 'O',
     isDAT: false,
     mintable: true,
     tradeable: true,
-    collateralAddress: await getNewAddress(container)
+    collateralAddress: await app.getNewAddress()
   }])
   await container.generate(1)
 
-  await createPoolPair(container, 'A', 'DFI')
-  await createPoolPair(container, 'B', 'DFI')
-  await createPoolPair(container, 'C', 'DFI')
-  await createPoolPair(container, 'D', 'DFI')
-  await createPoolPair(container, 'E', 'DFI')
-  await createPoolPair(container, 'F', 'DFI')
+  await app.createPoolPair('A', 'DFI')
+  await app.createPoolPair('B', 'DFI')
+  await app.createPoolPair('C', 'DFI')
+  await app.createPoolPair('D', 'DFI')
+  await app.createPoolPair('E', 'DFI')
+  await app.createPoolPair('F', 'DFI')
 
-  await createPoolPair(container, 'G', 'A')
-  await createPoolPair(container, 'I', 'J')
-  await createPoolPair(container, 'J', 'K', { commission: 0.25 })
-  await createPoolPair(container, 'J', 'L', { commission: 0.1 })
-  await createPoolPair(container, 'L', 'K')
-  await createPoolPair(container, 'L', 'M', { commission: 0.50 })
-  await createPoolPair(container, 'M', 'N')
+  await app.createPoolPair('G', 'A')
+  await app.createPoolPair('I', 'J')
+  await app.createPoolPair('J', 'K', { commission: 0.25 })
+  await app.createPoolPair('J', 'L', { commission: 0.1 })
+  await app.createPoolPair('L', 'K')
+  await app.createPoolPair('L', 'M', { commission: 0.50 })
+  await app.createPoolPair('M', 'N')
 
-  await addPoolLiquidity(container, {
+  await app.addPoolLiquidity({
     tokenA: 'A',
     amountA: 100,
     tokenB: 'DFI',
     amountB: 200,
-    shareAddress: await getNewAddress(container)
+    shareAddress: await app.getNewAddress()
   })
-  await addPoolLiquidity(container, {
+  await app.addPoolLiquidity({
     tokenA: 'B',
     amountA: 50,
     tokenB: 'DFI',
     amountB: 300,
-    shareAddress: await getNewAddress(container)
+    shareAddress: await app.getNewAddress()
   })
-  await addPoolLiquidity(container, {
+  await app.addPoolLiquidity({
     tokenA: 'C',
     amountA: 90,
     tokenB: 'DFI',
     amountB: 360,
-    shareAddress: await getNewAddress(container)
+    shareAddress: await app.getNewAddress()
   })
 
   // 1 G = 5 A = 10 DFI
-  await addPoolLiquidity(container, {
+  await app.addPoolLiquidity({
     tokenA: 'G',
     amountA: 10,
     tokenB: 'A',
     amountB: 50,
-    shareAddress: await getNewAddress(container)
+    shareAddress: await app.getNewAddress()
   })
 
   // 1 J = 7 K
-  await addPoolLiquidity(container, {
+  await app.addPoolLiquidity({
     tokenA: 'J',
     amountA: 10,
     tokenB: 'K',
     amountB: 70,
-    shareAddress: await getNewAddress(container)
+    shareAddress: await app.getNewAddress()
   })
 
   // 1 J = 2 L = 8 K
-  await addPoolLiquidity(container, {
+  await app.addPoolLiquidity({
     tokenA: 'J',
     amountA: 4,
     tokenB: 'L',
     amountB: 8,
-    shareAddress: await getNewAddress(container)
+    shareAddress: await app.getNewAddress()
   })
-  await addPoolLiquidity(container, {
+  await app.addPoolLiquidity({
     tokenA: 'L',
     amountA: 5,
     tokenB: 'K',
     amountB: 20,
-    shareAddress: await getNewAddress(container)
+    shareAddress: await app.getNewAddress()
   })
 
-  await addPoolLiquidity(container, {
+  await app.addPoolLiquidity({
     tokenA: 'L',
     amountA: 6,
     tokenB: 'M',
     amountB: 48,
-    shareAddress: await getNewAddress(container)
+    shareAddress: await app.getNewAddress()
   })
-  await addPoolLiquidity(container, {
+  await app.addPoolLiquidity({
     tokenA: 'M',
     amountA: 7,
     tokenB: 'N',
     amountB: 70,
-    shareAddress: await getNewAddress(container)
+    shareAddress: await app.getNewAddress()
   })
 
   // BURN should not be listed as swappable
-  await createToken(container, 'BURN')
-  await createPoolPair(container, 'BURN', 'DFI', { status: false })
-  await mintTokens(container, 'BURN', { mintAmount: 1 })
-  await addPoolLiquidity(container, {
+  await app.createToken('BURN')
+  await app.createPoolPair('BURN', 'DFI', { status: false })
+  await app.mintTokens('BURN', { mintAmount: 1 })
+  await app.addPoolLiquidity({
     tokenA: 'BURN',
     amountA: 1,
     tokenB: 'DFI',
     amountB: 1,
-    shareAddress: await getNewAddress(container)
+    shareAddress: await app.getNewAddress()
   })
 
   // dexUsdtDfi setup
-  await createToken(container, 'USDT')
-  await createPoolPair(container, 'USDT', 'DFI')
-  await mintTokens(container, 'USDT')
-  await addPoolLiquidity(container, {
+  await app.createToken('USDT')
+  await app.createPoolPair('USDT', 'DFI')
+  await app.mintTokens('USDT')
+  await app.addPoolLiquidity({
     tokenA: 'USDT',
     amountA: 1000,
     tokenB: 'DFI',
     amountB: 431.51288,
-    shareAddress: await getNewAddress(container)
+    shareAddress: await app.getNewAddress()
   })
 
-  await container.call('setgov', [{ LP_SPLITS: { 16: 1.0 } }])
-  await container.generate(1)
+  await app.call('setgov', [{ LP_SPLITS: { 16: 1.0 } }])
+  await app.generate(1)
 
   // dex fee set up
-  await container.call('setgov', [{
+  await app.call('setgov', [{
     ATTRIBUTES: {
       'v0/poolpairs/16/token_a_fee_pct': '0.05',
       'v0/poolpairs/16/token_b_fee_pct': '0.08',
@@ -192,7 +186,7 @@ async function setup (): Promise<void> {
       'v0/poolpairs/26/token_b_fee_pct': '0.09'
     }
   }])
-  await container.generate(1)
+  await app.generate(1)
 }
 
 describe('list', () => {

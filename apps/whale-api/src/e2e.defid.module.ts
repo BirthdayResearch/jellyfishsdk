@@ -47,7 +47,7 @@ import { TestingPoolPairAdd, TestingPoolPairCreate, TestingPoolPairRemove, Testi
 import { poolpair } from '@defichain/jellyfish-api-core'
 import { addressToHid } from './module.api/address.controller'
 import { Bech32, Elliptic, HRP, WIF } from '@defichain/jellyfish-crypto'
-import { CreatePoolPairOptions, CreateTokenOptions, CreateSignedTxnHexOptions, MintTokensOptions, UtxosToAccountOptions } from '@defichain/testing'
+import { AddPoolLiquidityMetadata, CreatePoolPairOptions, CreateTokenOptions, CreateSignedTxnHexOptions, MintTokensOptions, UtxosToAccountOptions } from '@defichain/testing'
 
 const SPAWNING_TIME = 180_000
 
@@ -924,6 +924,24 @@ export class DefidBin {
     const txid = await this.call('createpoolpair', [metadata, options?.utxos])
     await this.generate(1)
     return txid
+  }
+
+  async addPoolLiquidity (
+    metadata: AddPoolLiquidityMetadata
+  ): Promise<BigNumber> {
+    const { amountA, amountB, tokenA, tokenB, shareAddress } = metadata
+    const from = { '*': [`${amountA}@${tokenA}`, `${amountB}@${tokenB}`] }
+    await this.call('addpoolliquidity', [from, shareAddress])
+    await this.generate(1)
+
+    const tokens: string[] = await this.call('getaccount', [shareAddress])
+    const lpToken = tokens.find(value => value.endsWith(`@${tokenA}-${tokenB}`))
+    if (lpToken === undefined) {
+      throw new Error('LP token not found in account')
+    }
+
+    const amount = lpToken.replace(`@${tokenA}-${tokenB}`, '')
+    return new BigNumber(amount)
   }
 
   async createSignedTxnHex (
