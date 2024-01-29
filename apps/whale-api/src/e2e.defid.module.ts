@@ -397,14 +397,14 @@ export class DTransactionController extends DefidOceanController {
 
   async getVins (id: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<TransactionVin>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/blocks?size=${query.size}&next=${query.next}`)
+      return await this.api.get(`/transactions?size=${query.size}&next=${query.next}`)
     }
     return await this.api.get(`/transactions/${id}/vins`)
   }
 
   async getVouts (id: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<TransactionVout>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/blocks?size=${query.size}&next=${query.next}`)
+      return await this.api.get(`/transactions?size=${query.size}&next=${query.next}`)
     }
     return await this.api.get(`/transactions/${id}/vouts`)
   }
