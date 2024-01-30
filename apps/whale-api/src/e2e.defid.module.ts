@@ -6,7 +6,7 @@ import BigNumber from 'bignumber.js'
 import { fetch } from 'cross-fetch'
 import { v4 as uuidv4 } from 'uuid'
 import fs from 'fs'
-import { ChildProcess, spawn } from 'child_process'
+import { ChildProcess, exec, spawn } from 'child_process'
 import { RegTestFoundationKeys, RegTest } from '@defichain/jellyfish-network'
 import { ApiPagedResponse } from './module.api/_core/api.paged.response'
 import { AddressToken, AddressHistory } from '@defichain/whale-api-client/dist/api/address'
@@ -50,7 +50,7 @@ import { Bech32, Elliptic, HRP, WIF } from '@defichain/jellyfish-crypto'
 import { AddPoolLiquidityMetadata, CreatePoolPairOptions, CreateTokenOptions, CreateSignedTxnHexOptions, MintTokensOptions, UtxosToAccountOptions } from '@defichain/testing'
 import { VaultAuctionBatchHistory } from './module.model/vault.auction.batch.history'
 
-const SPAWNING_TIME = 180_000
+const SPAWNING_TIME = 60_000
 
 export interface OceanListQuery {
   size: number
@@ -73,15 +73,15 @@ interface RawTxDto {
   maxFeeRate?: number
 }
 
-class DefidOceanApi { // ApiClient
-  protected readonly url = 'http://127.0.0.1:3002'
+class DefidOceanApiClient { // ApiClient
   protected readonly options: ClientOptions
 
-  constructor (options?: ClientOptions) {
+  constructor (private readonly url: string, options?: ClientOptions) {
     this.options = Object.assign(defaultOptions, options ?? {})
   }
 
   async get (path: string): Promise<any> {
+    console.log('ocean get url: ', this.url)
     const res = await this.fetchTimeout(`${this.url}${path}`, {
       method: 'GET'
     })
@@ -122,11 +122,10 @@ class DefidOceanApi { // ApiClient
   }
 }
 
-export class DefidOceanController {
-  protected readonly api: DefidOceanApi = new DefidOceanApi()
-}
+export class DAddressController {
+  constructor (protected readonly api: DefidOceanApiClient) {
+  }
 
-export class DAddressController extends DefidOceanController {
   async getAccountHistory (address: string, height: number, txno: number): Promise<AddressHistory> {
     return await this.api.get(`/address/${address}/history/${height}/${txno}`)
   }
@@ -175,7 +174,10 @@ export class DAddressController extends DefidOceanController {
   }
 }
 
-export class DBlockController extends DefidOceanController {
+export class DBlockController {
+  constructor (protected readonly api: DefidOceanApiClient) {
+  }
+
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<Block>> {
     if (query.next !== undefined) {
       // TODO(canonbrother): `next` should be height, not hash
@@ -211,13 +213,19 @@ export class DBlockController extends DefidOceanController {
   }
 }
 
-export class DFeeController extends DefidOceanController {
+export class DFeeController {
+  constructor (protected readonly api: DefidOceanApiClient) {
+  }
+
   async estimate (target: number = 10): Promise<number> {
     return await this.api.get(`/fee/estimate?confirmationTarget=${target}`)
   }
 }
 
-export class DGovernanceController extends DefidOceanController {
+export class DGovernanceController {
+  constructor (protected readonly api: DefidOceanApiClient) {
+  }
+
   async listProposals (
     status: ListProposalsStatus = ListProposalsStatus.ALL,
     type: ListProposalsType = ListProposalsType.ALL,
@@ -249,7 +257,10 @@ export class DGovernanceController extends DefidOceanController {
   }
 }
 
-export class DLoanController extends DefidOceanController {
+export class DLoanController {
+  constructor (protected readonly api: DefidOceanApiClient) {
+  }
+
   async listScheme (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<LoanScheme>> {
     if (query.next !== undefined) {
       return await this.api.get(`/loans/schemes?size=${query.size}&next=${query.next}`)
@@ -309,7 +320,10 @@ export class DLoanController extends DefidOceanController {
   }
 }
 
-export class DMasternodeController extends DefidOceanController {
+export class DMasternodeController {
+  constructor (protected readonly api: DefidOceanApiClient) {
+  }
+
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<MasternodeData>> {
     if (query.next !== undefined) {
       return await this.api.get(`/masternodes?size=${query.size}&next=${query.next}`)
@@ -322,7 +336,10 @@ export class DMasternodeController extends DefidOceanController {
   }
 }
 
-export class DOracleController extends DefidOceanController {
+export class DOracleController {
+  constructor (protected readonly api: DefidOceanApiClient) {
+  }
+
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<Oracle>> {
     if (query.next !== undefined) {
       return await this.api.get(`/oracles?size=${query.size}&next=${query.next}`)
@@ -339,7 +356,10 @@ export class DOracleController extends DefidOceanController {
   }
 }
 
-export class DPoolPairController extends DefidOceanController {
+export class DPoolPairController {
+  constructor (protected readonly api: DefidOceanApiClient) {
+  }
+
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<PoolPairData>> {
     if (query.next !== undefined) {
       return await this.api.get(`/poolpairs?size=${query.size}&next=${query.next}`)
@@ -389,7 +409,10 @@ export class DPoolPairController extends DefidOceanController {
   }
 }
 
-export class DPriceController extends DefidOceanController {
+export class DPriceController {
+  constructor (protected readonly api: DefidOceanApiClient) {
+  }
+
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<PriceTicker>> {
     if (query.next !== undefined) {
       return await this.api.get(`/prices?size=${query.size}&next=${query.next}`)
@@ -418,7 +441,10 @@ export class DPriceController extends DefidOceanController {
   }
 }
 
-export class DRawTxController extends DefidOceanController {
+export class DRawTxController {
+  constructor (protected readonly api: DefidOceanApiClient) {
+  }
+
   async send (rawTxDto: RawTxDto): Promise<string> {
     return await this.api.post('/rawtx/send', rawTxDto)
   }
@@ -432,7 +458,10 @@ export class DRawTxController extends DefidOceanController {
   }
 }
 
-export class DStatsController extends DefidOceanController {
+export class DStatsController {
+  constructor (protected readonly api: DefidOceanApiClient) {
+  }
+
   async get (): Promise<StatsData> {
     return await this.api.get('/stats')
   }
@@ -450,7 +479,10 @@ export class DStatsController extends DefidOceanController {
   }
 }
 
-export class DTokenController extends DefidOceanController {
+export class DTokenController {
+  constructor (protected readonly api: DefidOceanApiClient) {
+  }
+
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<TokenData>> {
     if (query.next !== undefined) {
       return await this.api.get(`/tokens?size=${query.size}&next=${query.next}`)
@@ -463,7 +495,10 @@ export class DTokenController extends DefidOceanController {
   }
 }
 
-export class DTransactionController extends DefidOceanController {
+export class DTransactionController {
+  constructor (protected readonly api: DefidOceanApiClient) {
+  }
+
   async get (id: string): Promise<Transaction> {
     return await this.api.get(`/transactions/${id}`)
   }
@@ -484,20 +519,22 @@ export class DTransactionController extends DefidOceanController {
 }
 
 export class DefidOcean {
+  readonly addressController = new DAddressController(this.api)
+  readonly blockController = new DBlockController(this.api)
+  readonly feeController = new DFeeController(this.api)
+  readonly governanceController = new DGovernanceController(this.api)
+  readonly loanController = new DLoanController(this.api)
+  readonly masternodeController = new DMasternodeController(this.api)
+  readonly oracleController = new DOracleController(this.api)
+  readonly poolPairController = new DPoolPairController(this.api)
+  readonly priceController = new DPriceController(this.api)
+  readonly rawTxController = new DRawTxController(this.api)
+  readonly statsController = new DStatsController(this.api)
+  readonly transactionController = new DTransactionController(this.api)
+  readonly tokenController = new DTokenController(this.api)
+
   constructor (
-    readonly addressController: DAddressController,
-    readonly blockController: DBlockController,
-    readonly feeController: DFeeController,
-    readonly governanceController: DGovernanceController,
-    readonly loanController: DLoanController,
-    readonly masternodeController: DMasternodeController,
-    readonly oracleController: DOracleController,
-    readonly poolPairController: DPoolPairController,
-    readonly priceController: DPriceController,
-    readonly rawTxController: DRawTxController,
-    readonly statsController: DStatsController,
-    readonly transactionController: DTransactionController,
-    readonly tokenController: DTokenController
+    readonly api: DefidOceanApiClient
   ) {
   }
 }
@@ -638,28 +675,25 @@ export class DefidRpc {
 }
 
 export class DefidBin {
-  tmpDir: string = `/tmp/${uuidv4()}`
-  url = 'http://test:test@127.0.0.1:19554'
+  tmpDir = ''
   binary: ChildProcess | null = null
-  client = new DefidRpcClient(this.url)
-  rpc = new DefidRpc(this, this.client)
-  ocean = new DefidOcean(
-    new DAddressController(),
-    new DBlockController(),
-    new DFeeController(),
-    new DGovernanceController(),
-    new DLoanController(),
-    new DMasternodeController(),
-    new DOracleController(),
-    new DPoolPairController(),
-    new DPriceController(),
-    new DRawTxController(),
-    new DStatsController(),
-    new DTransactionController(),
-    new DTokenController()
-  )
+
+  rpcUrl = 'http://test:test@127.0.0.1:19554'
+  rpcClient = new DefidRpcClient(this.rpcUrl)
+  rpc = new DefidRpc(this, this.rpcClient)
+
+  oceanPort = this.randomPort()
+  oceanClient = new DefidOceanApiClient(`http://127.0.0.1:${this.oceanPort}`)
+  ocean = new DefidOcean(this.oceanClient)
+
+  private randomPort (): number {
+    const min = 30000
+    const max = 90000
+    return Math.floor(Math.random() * max) + min
+  }
 
   async start (opts: string[] = []): Promise<void> {
+    this.tmpDir = `/tmp/${uuidv4()}`
     fs.mkdirSync(this.tmpDir)
 
     if (process.env.DEFID === undefined) {
@@ -684,6 +718,7 @@ export class DefidBin {
       '-txindex=1',
       '-acindex=1',
       '-oceanarchive',
+      `-oceanarchiveport=${this.oceanPort}`,
       ...opts
     ]
 
@@ -727,7 +762,7 @@ export class DefidBin {
         console.error('\x1b[31m Failed to start Defid node.\x1b[0m')
         console.error(logs.map(chunk => chunk.toString()).join('\n'))
         process.exit(1)
-      }, SPAWNING_TIME - 20_000)
+      }, SPAWNING_TIME - 2_000)
 
       const onData = async (chunk: any) => {
         logs.push(chunk)
@@ -735,7 +770,7 @@ export class DefidBin {
         /* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */
         if (chunk.toString().match(/addcon thread start/)) {
           // wait for ocean
-          await new Promise((resolve) => setTimeout(resolve, 1000))
+          await new Promise((resolve) => setTimeout(resolve, 1_000))
 
           try {
             // TODO(canonbrother): blockController.get(0)
@@ -769,20 +804,13 @@ export class DefidBin {
 
   async stop (): Promise<void> {
     const interval = setInterval(() => {
-      if (this.binary?.pid !== undefined && !this.isRunning(this.binary?.pid)) {
+      if (this.binary?.pid !== undefined) {
         clearInterval(interval)
+        exec(`kill -9 ${this.binary?.pid}`)
         fs.rmdirSync(this.tmpDir, { recursive: true })
       }
     }, 500)
     this.binary?.kill()
-  }
-
-  private isRunning (pid: number): boolean {
-    try {
-      return process.kill(pid, 0)
-    } catch (err: any) {
-      return err.code === 'EPERM'
-    }
   }
 
   async call (method: string, params: any = []): Promise<any> {
@@ -807,7 +835,7 @@ export class DefidBin {
   }
 
   async post (body: string): Promise<string> {
-    const response = await fetch(this.url, {
+    const response = await fetch(this.rpcUrl, {
       method: 'POST',
       body: body
     })

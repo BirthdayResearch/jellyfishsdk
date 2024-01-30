@@ -17,7 +17,7 @@ describe('list', () => {
     container = app.rpc
     await app.waitForBlockHeight(101)
     await app.waitForIndexedHeight(100)
-    client = new JsonRpcClient(app.url)
+    client = new JsonRpcClient(app.rpcUrl)
 
     await container.generate(1)
     const height = await client.blockchain.getBlockCount()
@@ -62,7 +62,7 @@ describe('get', () => {
     controller = app.ocean.masternodeController
     container = app.rpc
     await app.waitForBlockHeight(101)
-    client = new JsonRpcClient(app.url)
+    client = new JsonRpcClient(app.rpcUrl)
 
     await container.generate(1)
     const height = await client.blockchain.getBlockCount()
@@ -105,7 +105,7 @@ describe('resign', () => {
     controller = app.ocean.masternodeController
     container = app.rpc
     await app.waitForBlockHeight(101)
-    client = new JsonRpcClient(app.url)
+    client = new JsonRpcClient(app.rpcUrl)
 
     await container.generate(1)
     const height = await client.blockchain.getBlockCount()
@@ -149,7 +149,7 @@ describe('timelock', () => {
     controller = app.ocean.masternodeController
     container = app.rpc
     await app.waitForBlockHeight(101)
-    client = new JsonRpcClient(app.url)
+    client = new JsonRpcClient(app.rpcUrl)
 
     await container.generate(1)
     const height = await client.blockchain.getBlockCount()

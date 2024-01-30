@@ -14,7 +14,7 @@ beforeAll(async () => {
   await app.waitForWalletCoinbaseMaturity()
   await app.waitForWalletBalanceGTE(100)
 
-  client = new JsonRpcClient(app.url)
+  client = new JsonRpcClient(app.rpcUrl)
 
   await app.waitForIndexedHeight(100)
 })

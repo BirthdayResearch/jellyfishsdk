@@ -14,7 +14,7 @@ beforeAll(async () => {
   container = app.rpc
   await app.waitForBlockHeight(101)
   await app.waitForIndexedHeight(100)
-  client = new JsonRpcClient(app.url)
+  client = new JsonRpcClient(app.rpcUrl)
 
   const address = await app.getNewAddress()
   for (let i = 0; i < 4; i += 1) {
