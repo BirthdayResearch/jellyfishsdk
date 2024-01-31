@@ -684,13 +684,17 @@ export class DefidBin {
   tmpDir = ''
   binary: ChildProcess | null = null
 
-  rpcUrl = 'http://test:test@127.0.0.1:19554'
+  port = this.randomPort()
+
+  rpcPort = this.randomPort()
+  rpcUrl = `http://test:test@127.0.0.1:${this.rpcPort}`
   rpcClient = new DefidRpcClient(this.rpcUrl)
   rpc = new DefidRpc(this, this.rpcClient)
 
   oceanPort = this.randomPort()
   // NOTE(canonbrother): url = `${urlString as string}/${version as string}/${network as string}/${path}`
-  oceanClient = new DefidOceanApiClient(`http://127.0.0.1:${this.oceanPort}`)
+  oceanUrl = `http://127.0.0.1:${this.oceanPort}`
+  oceanClient = new DefidOceanApiClient(this.oceanUrl)
   ocean = new DefidOcean(this.oceanClient)
 
   private randomPort (): number {
@@ -726,6 +730,8 @@ export class DefidBin {
       '-acindex=1',
       '-oceanarchive',
       `-oceanarchiveport=${this.oceanPort}`,
+      `-rpcport=${this.rpcPort}`,
+      `-port=${this.port}`,
       ...opts
     ]
 
