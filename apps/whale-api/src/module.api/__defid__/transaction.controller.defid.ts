@@ -15,7 +15,7 @@ beforeAll(async () => {
   await app.waitForWalletCoinbaseMaturity()
   await app.waitForWalletBalanceGTE(100)
 
-  client = new JsonRpcClient(app.url)
+  client = new JsonRpcClient(app.rpcUrl)
 
   await app.waitForIndexedHeight(100)
 })
@@ -81,7 +81,7 @@ describe('get', () => {
     expect.assertions(2)
     try {
       await controller.get('invalidtransactionid')
-    } catch (err) {
+    } catch (err: any) {
       expect(err).toBeInstanceOf(NotFoundException)
       expect(err.response).toStrictEqual({
         statusCode: 404,
