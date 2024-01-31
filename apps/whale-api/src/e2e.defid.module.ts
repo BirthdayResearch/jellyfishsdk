@@ -786,7 +786,7 @@ export class DefidBin {
           try {
             // TODO(canonbrother): blockController.get(0)
             const res = await this.ocean.blockController.list({ size: 1 })
-            console.log('[DefidBin.start()] blockController.list res: ', res)
+            console.log('[DefidBin.start()] blockController.list res.data.length: ', res.data.length)
           } catch (err) {
             console.log('[DefidBin.start()] blockController.get err: ', err)
           }
