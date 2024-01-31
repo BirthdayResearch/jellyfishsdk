@@ -81,9 +81,11 @@ class DefidOceanApiClient { // ApiClient
   }
 
   async get (path: string): Promise<any> {
-    console.log('ocean get url: ', this.url)
     const res = await this.fetchTimeout(`${this.url}${path}`, {
-      method: 'GET'
+      method: 'GET',
+      headers: {
+        connection: 'open'
+      }
     })
     return await res.json()
   }
@@ -91,21 +93,25 @@ class DefidOceanApiClient { // ApiClient
   async post (path: string, body?: any): Promise<any> {
     const res = await this.fetchTimeout(`${this.url}${path}`, {
       method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        connection: 'open'
+      },
       body: JSON.stringify(body)
     })
     return await res.json()
   }
 
-  private async fetchTimeout (path: string, init: any): Promise<Response> {
+  private async fetchTimeout (path: string, init: RequestInit): Promise<Response> {
     const timeout = this.options.timeout ?? 60000
     const controller = new AbortController()
     const id = setTimeout(() => controller.abort(), timeout)
 
     const req = fetch(path, {
-      ...init,
       cache: 'no-cache',
-      headers: this.options.headers,
-      signal: controller.signal as any
+      signal: controller.signal,
+      keepalive: true,
+      ...init
     })
 
     try {
@@ -683,12 +689,13 @@ export class DefidBin {
   rpc = new DefidRpc(this, this.rpcClient)
 
   oceanPort = this.randomPort()
+  // NOTE(canonbrother): url = `${urlString as string}/${version as string}/${network as string}/${path}`
   oceanClient = new DefidOceanApiClient(`http://127.0.0.1:${this.oceanPort}`)
   ocean = new DefidOcean(this.oceanClient)
 
   private randomPort (): number {
-    const min = 30000
-    const max = 90000
+    const min = 10000
+    const max = 40000
     return Math.floor(Math.random() * max) + min
   }
 
