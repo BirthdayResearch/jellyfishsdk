@@ -691,15 +691,13 @@ export class DefidBin {
   rpcClient = new DefidRpcClient(this.rpcUrl)
   rpc = new DefidRpc(this, this.rpcClient)
 
-  oceanPort = this.randomPort()
+  oceanPort = this.randomPort(3000, 3999)
   // NOTE(canonbrother): url = `${urlString as string}/${version as string}/${network as string}/${path}`
   oceanUrl = `http://127.0.0.1:${this.oceanPort}`
   oceanClient = new DefidOceanApiClient(this.oceanUrl)
   ocean = new DefidOcean(this.oceanClient)
 
-  private randomPort (): number {
-    const min = 10000
-    const max = 40000
+  private randomPort (min: number = 10000, max: number = 19999): number {
     return Math.floor(Math.random() * max) + min
   }
 
