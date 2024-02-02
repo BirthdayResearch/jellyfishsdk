@@ -337,6 +337,19 @@ export class Wallet {
   async signMessage (address: string, message: string): Promise<string> {
     return await this.client.call('signmessage', [address, message], 'number')
   }
+
+  /**
+   * Add an nrequired-to-sign multisignature address to the wallet. Requires a new wallet backup.
+   *
+   * @param {number} nRequired The number of required signatures based on number of keys/addresses.
+   * @param {string[]} keys The DeFi addresses or hex-encoded public keys.
+   * @param {string} label optional, a label to assign the addresses to.
+   * @param {string} addressType optional, the address type to use. E.g: “legacy”, “p2sh-segwit”, and “bech32”.
+   * @return {Promise<MultiSigAddressResult>}
+   */
+  async addMultiSigAddress (nRequired: number, keys: string[], label?: string, addressType?: string): Promise<MultiSigAddressResult> {
+    return await this.client.call('addmultisigaddress', [nRequired, keys, label, addressType], 'number')
+  }
 }
 
 export interface UTXO {
@@ -521,4 +534,10 @@ export interface WalletWatchOnlyBalances {
   trusted: BigNumber
   untrusted_pending: BigNumber
   immature: BigNumber
+}
+
+export interface MultiSigAddressResult {
+  address: string
+  redeemScript: string
+  descriptor: string
 }
