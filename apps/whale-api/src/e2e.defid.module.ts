@@ -681,7 +681,7 @@ export class DefidRpc {
 }
 
 export class DefidBin {
-  tmpDir = ''
+  tmpDir = `/tmp/${uuidv4()}`
   binary: ChildProcess | null = null
 
   port = this.randomPort()
@@ -702,7 +702,6 @@ export class DefidBin {
   }
 
   async start (opts: string[] = []): Promise<void> {
-    this.tmpDir = `/tmp/${uuidv4()}`
     fs.mkdirSync(this.tmpDir)
 
     if (process.env.DEFID === undefined) {
