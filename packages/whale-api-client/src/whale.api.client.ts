@@ -47,11 +47,13 @@ export interface WhaleApiClientOptions {
 /**
  * WhaleApiClient default options
  */
-const DEFAULT_OPTIONS: WhaleApiClientOptions = {
-  url: 'https://ocean.defichain.com',
-  timeout: 60000,
-  version: 'v0',
-  network: 'mainnet'
+function getDefaultOptions (network: NetworkName): WhaleApiClientOptions {
+  return {
+    url: `https://${network}.ocean.jellyfishsdk.com`,
+    timeout: 60000,
+    version: 'v0',
+    network
+  }
 }
 
 /**
@@ -88,7 +90,10 @@ export class WhaleApiClient {
   constructor (
     protected readonly options: WhaleApiClientOptions
   ) {
-    this.options = { ...DEFAULT_OPTIONS, ...options }
+    this.options = {
+      ...getDefaultOptions(options?.network ?? 'mainnet'),
+      ...options
+    }
     this.options.url = this.options.url?.replace(/\/$/, '')
   }
 

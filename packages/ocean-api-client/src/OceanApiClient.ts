@@ -2,6 +2,7 @@ import 'url-search-params-polyfill'
 import AbortController from 'abort-controller'
 import fetch from 'cross-fetch'
 import { ApiException, ApiMethod, ApiPagedResponse, ApiResponse, ClientException, TimeoutException } from './'
+import { NetworkName } from '@defichain/jellyfish-network'
 
 /**
  * OceanApiClient configurable options
@@ -24,7 +25,19 @@ export interface OceanApiClientOptions {
   /**
    * Network that ocean client is configured to
    */
-  network?: 'mainnet' | 'testnet' | 'devnet' | 'regtest' | 'changi' | string
+  network?: NetworkName | 'playground'
+}
+
+/**
+ * OceanApiClient default options
+ */
+function getDefaultOptions (network: NetworkName | 'playground'): OceanApiClientOptions {
+  return {
+    url: `https://${network}.ocean.jellyfishsdk.com`,
+    timeout: 60000,
+    version: 'v0',
+    network
+  }
 }
 
 /**
@@ -35,10 +48,7 @@ export class OceanApiClient {
     protected readonly options: OceanApiClientOptions
   ) {
     this.options = {
-      url: 'https://ocean.defichain.com',
-      timeout: 60000,
-      version: 'v1',
-      network: 'mainnet',
+      ...getDefaultOptions(options?.network ?? 'mainnet'),
       ...options
     }
     this.options.url = this.options.url?.replace(/\/$/, '')
