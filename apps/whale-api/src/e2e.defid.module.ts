@@ -138,10 +138,7 @@ export class DAddressController {
   }
 
   async listAccountHistory (address: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<AddressHistory>> {
-    if (query.next !== undefined) {
-      return await this.client.get(`/address/${address}/history?size=${query.size}&next=${query.next}`)
-    }
-    return await this.client.get(`/address/${address}/history?size=${query.size}`)
+    return await this.client.get(`/address/${address}/history?size=${query.size}&next=${query.next}`)
   }
 
   async getBalance (address: string): Promise<string> {
@@ -153,31 +150,19 @@ export class DAddressController {
   }
 
   async listTokens (address: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<AddressToken>> {
-    if (query.next !== undefined) {
-      return await this.client.get(`/address/${address}/tokens?size=${query.size}&next=${query.next}`)
-    }
-    return await this.client.get(`/address/${address}/tokens?size=${query.size}`)
+    return await this.client.get(`/address/${address}/tokens?size=${query.size}&next=${query.next}`)
   }
 
   async listVaults (address: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<LoanVaultActive | LoanVaultLiquidated>> {
-    if (query.next !== undefined) {
-      return await this.client.get(`/address/${address}/vaults?size=${query.size}&next=${query.next}`)
-    }
-    return await this.client.get(`/address/${address}/vaults?size=${query.size}`)
+    return await this.client.get(`/address/${address}/vaults?size=${query.size}&next=${query.next}`)
   }
 
   async listTransactions (address: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<ScriptActivity>> {
-    if (query.next !== undefined) {
-      return await this.client.get(`/address/${address}/transactions?size=${query.size}&next=${query.next}`)
-    }
-    return await this.client.get(`/address/${address}/transactions?size=${query.size}`)
+    return await this.client.get(`/address/${address}/transactions?size=${query.size}&next=${query.next}`)
   }
 
   async listTransactionsUnspent (address: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<ScriptUnspent>> {
-    if (query.next !== undefined) {
-      return await this.client.get(`/address/${address}/transactions/unspent?size=${query.size}&next=${query.next}`)
-    }
-    return await this.client.get(`/address/${address}/transactions/unspent?size=${query.size}`)
+    return await this.client.get(`/address/${address}/transactions/unspent?size=${query.size}&next=${query.next}`)
   }
 }
 
@@ -186,12 +171,9 @@ export class DBlockController {
   }
 
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<Block>> {
-    if (query.next !== undefined) {
-      // TODO(canonbrother): `next` should be height, not hash
-      // const next = parseHeight(query.next)
-      return await this.client.get(`/blocks?size=${query.size}&next=${query.next}`)
-    }
-    return await this.client.get(`/blocks?size=${query.size}`)
+    // TODO(canonbrother): `next` should be height, not hash
+    // const next = parseHeight(query.next)
+    return await this.client.get(`/blocks?size=${query.size}&next=${query.next}`)
   }
 
   async get (hashOrHeight: string): Promise<Block | undefined> {
@@ -209,10 +191,7 @@ export class DBlockController {
     if (!isSHA256Hash(hash)) {
       return ApiPagedResponse.empty()
     }
-    if (query.next !== undefined) {
-      return await this.client.get(`/blocks/${hash}/transactions?size=${query.size}&next=${query.next}`)
-    }
-    return await this.client.get(`/blocks/${hash}/transactions?size=${query.size}`)
+    return await this.client.get(`/blocks/${hash}/transactions?size=${query.size}&next=${query.next}`)
   }
 
   async getHighest (): Promise<Block | undefined> {
@@ -240,10 +219,7 @@ export class DGovernanceController {
     all: boolean = false,
     query: OceanListQuery = { size: 30 }
   ): Promise<ApiPagedResponse<GovernanceProposal>> {
-    if (query.next !== undefined) {
-      return await this.client.get(`/governance/proposals?status=${status}&type=${type}&cycle=${cycle}&all=${all}&size=${query.size}&next=${query.next}`)
-    }
-    return await this.client.get(`/governance/proposals?status=${status}&type=${type}&cycle=${cycle}&all=${all}&size=${query.size}`)
+    return await this.client.get(`/governance/proposals?status=${status}&type=${type}&cycle=${cycle}&all=${all}&size=${query.size}&next=${query.next}`)
   }
 
   async getProposal (id: string): Promise<GovernanceProposal> {
@@ -257,10 +233,7 @@ export class DGovernanceController {
     all: boolean = false,
     query: OceanListQuery = { size: 30 }
   ): Promise<ApiPagedResponse<ProposalVotesResult>> {
-    if (query.next !== undefined) {
-      return await this.client.get(`/governance/proposals/${id}/votes?masternode=${masternode}&cycle=${cycle}&all=${all}&size=${query.size}&next=${query.next}`)
-    }
-    return await this.client.get(`/governance/proposals/${id}/votes?masternode=${masternode}&cycle=${cycle}&all=${all}&size=${query.size}`)
+    return await this.client.get(`/governance/proposals/${id}/votes?masternode=${masternode}&cycle=${cycle}&all=${all}&size=${query.size}&next=${query.next}`)
   }
 }
 
@@ -269,10 +242,7 @@ export class DLoanController {
   }
 
   async listScheme (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<LoanScheme>> {
-    if (query.next !== undefined) {
-      return await this.client.get(`/loans/schemes?size=${query.size}&next=${query.next}`)
-    }
-    return await this.client.get(`/loans/schemes?size=${query.size}`)
+    return await this.client.get(`/loans/schemes?size=${query.size}&next=${query.next}`)
   }
 
   async getScheme (id: string): Promise<LoanScheme> {
@@ -280,10 +250,7 @@ export class DLoanController {
   }
 
   async listCollateral (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<CollateralToken>> {
-    if (query.next !== undefined) {
-      return await this.client.get(`/loans/collaterals?size=${query.size}&next=${query.next}`)
-    }
-    return await this.client.get(`/loans/collaterals?size=${query.size}`)
+    return await this.client.get(`/loans/collaterals?size=${query.size}&next=${query.next}`)
   }
 
   async getCollateral (id: string): Promise<ApiPagedResponse<CollateralToken>> {
@@ -291,10 +258,7 @@ export class DLoanController {
   }
 
   async listLoanToken (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<LoanToken>> {
-    if (query.next !== undefined) {
-      return await this.client.get(`/loans/tokens?size=${query.size}&next=${query.next}`)
-    }
-    return await this.client.get(`/loans/tokens?size=${query.size}`)
+    return await this.client.get(`/loans/tokens?size=${query.size}&next=${query.next}`)
   }
 
   async getLoanToken (id: string): Promise<ApiPagedResponse<LoanToken>> {
@@ -302,10 +266,7 @@ export class DLoanController {
   }
 
   async listVault (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<LoanVaultActive | LoanVaultLiquidated>> {
-    if (query.next !== undefined) {
-      return await this.client.get(`/loans/vaults?size=${query.size}&next=${query.next}`)
-    }
-    return await this.client.get(`/loans/vaults?size=${query.size}`)
+    return await this.client.get(`/loans/vaults?size=${query.size}&next=${query.next}`)
   }
 
   async getVault (id: string): Promise<ApiPagedResponse<LoanVaultActive | LoanVaultLiquidated>> {
@@ -313,17 +274,11 @@ export class DLoanController {
   }
 
   async listVaultAuctionHistory (id: string, height: number, batchIndex: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<VaultAuctionBatchHistory>> {
-    if (query.next !== undefined) {
-      return await this.client.get(`/loans/vaults/${id}/auctions/${height}/batches/${batchIndex}/history?size=${query.size}&next=${query.next}`)
-    }
-    return await this.client.get(`/loans/vaults/${id}/auctions/${height}/batches/${batchIndex}/history?size=${query.size}`)
+    return await this.client.get(`/loans/vaults/${id}/auctions/${height}/batches/${batchIndex}/history?size=${query.size}&next=${query.next}`)
   }
 
   async listAuction (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<LoanVaultLiquidated>> {
-    if (query.next !== undefined) {
-      return await this.client.get(`/loans/auctions?size=${query.size}&next=${query.next}`)
-    }
-    return await this.client.get(`/loans/auctions?size=${query.size}`)
+    return await this.client.get(`/loans/auctions?size=${query.size}&next=${query.next}`)
   }
 }
 
@@ -332,10 +287,7 @@ export class DMasternodeController {
   }
 
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<MasternodeData>> {
-    if (query.next !== undefined) {
-      return await this.client.get(`/masternodes?size=${query.size}&next=${query.next}`)
-    }
-    return await this.client.get(`/masternodes?size=${query.size}`)
+    return await this.client.get(`/masternodes?size=${query.size}&next=${query.next}`)
   }
 
   async get (id: string): Promise<MasternodeData> {
@@ -348,10 +300,7 @@ export class DOracleController {
   }
 
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<Oracle>> {
-    if (query.next !== undefined) {
-      return await this.client.get(`/oracles?size=${query.size}&next=${query.next}`)
-    }
-    return await this.client.get(`/oracles?size=${query.size}`)
+    return await this.client.get(`/oracles?size=${query.size}&next=${query.next}`)
   }
 
   async getPriceFeed (id: string, key: string): Promise<ApiPagedResponse<OraclePriceFeed>> {
@@ -368,10 +317,7 @@ export class DPoolPairController {
   }
 
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<PoolPairData>> {
-    if (query.next !== undefined) {
-      return await this.client.get(`/poolpairs?size=${query.size}&next=${query.next}`)
-    }
-    return await this.client.get(`/poolpairs?size=${query.size}`)
+    return await this.client.get(`/poolpairs?size=${query.size}&next=${query.next}`)
   }
 
   async get (id: string): Promise<PoolPairData> {
@@ -379,24 +325,15 @@ export class DPoolPairController {
   }
 
   async listPoolSwaps (id: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<PoolSwapData>> {
-    if (query.next !== undefined) {
-      return await this.client.get(`/poolpairs/${id}/swaps?size=${query.size}&next=${query.next}`)
-    }
-    return await this.client.get(`/poolpairs/${id}/swaps?size=${query.size}`)
+    return await this.client.get(`/poolpairs/${id}/swaps?size=${query.size}&next=${query.next}`)
   }
 
   async listPoolSwapsVerbose (id: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<PoolSwapData>> {
-    if (query.next !== undefined) {
-      return await this.client.get(`/poolpairs/${id}/swaps/verbose?size=${query.size}&next=${query.next}`)
-    }
-    return await this.client.get(`/poolpairs/${id}/swaps/verbose?size=${query.size}`)
+    return await this.client.get(`/poolpairs/${id}/swaps/verbose?size=${query.size}&next=${query.next}`)
   }
 
   async listPoolSwapsAggregate (id: string, interval: number, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<PoolSwapAggregatedData>> {
-    if (query.next !== undefined) {
-      return await this.client.get(`/poolpairs/${id}/swaps/aggregate/${interval}?size=${query.size}&next=${query.next}`)
-    }
-    return await this.client.get(`/poolpairs/${id}/swaps/aggregate/${interval}?size=${query.size}`)
+    return await this.client.get(`/poolpairs/${id}/swaps/aggregate/${interval}?size=${query.size}&next=${query.next}`)
   }
 
   async listSwappableTokens (id: string): Promise<AllSwappableTokensResult> {
@@ -421,10 +358,7 @@ export class DPriceController {
   }
 
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<PriceTicker>> {
-    if (query.next !== undefined) {
-      return await this.client.get(`/prices?size=${query.size}&next=${query.next}`)
-    }
-    return await this.client.get(`/prices?size=${query.size}`)
+    return await this.client.get(`/prices?size=${query.size}&next=${query.next}`)
   }
 
   async get (id: string): Promise<PriceTicker | undefined> {
@@ -491,10 +425,7 @@ export class DTokenController {
   }
 
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<TokenData>> {
-    if (query.next !== undefined) {
-      return await this.client.get(`/tokens?size=${query.size}&next=${query.next}`)
-    }
-    return await this.client.get(`/tokens?size=${query.size}`)
+    return await this.client.get(`/tokens?size=${query.size}&next=${query.next}`)
   }
 
   async get (id: string): Promise<TokenData> {
@@ -511,17 +442,11 @@ export class DTransactionController {
   }
 
   async getVins (id: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<TransactionVin>> {
-    if (query.next !== undefined) {
-      return await this.client.get(`/transactions?size=${query.size}&next=${query.next}`)
-    }
-    return await this.client.get(`/transactions/${id}/vins`)
+    return await this.client.get(`/transactions?size=${query.size}&next=${query.next}`)
   }
 
   async getVouts (id: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<TransactionVout>> {
-    if (query.next !== undefined) {
-      return await this.client.get(`/transactions?size=${query.size}&next=${query.next}`)
-    }
-    return await this.client.get(`/transactions/${id}/vouts`)
+    return await this.client.get(`/transactions?size=${query.size}&next=${query.next}`)
   }
 }
 
