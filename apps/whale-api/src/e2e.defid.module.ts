@@ -73,7 +73,8 @@ interface RawTxDto {
   maxFeeRate?: number
 }
 
-class DefidOceanApiClient { // ApiClient
+// TODO(canonbrother): extends OceanApiClient
+class DefidOceanApiClient {
   protected readonly options: ClientOptions
 
   constructor (private readonly url: string, options?: ClientOptions) {
@@ -129,77 +130,77 @@ class DefidOceanApiClient { // ApiClient
 }
 
 export class DAddressController {
-  constructor (protected readonly api: DefidOceanApiClient) {
+  constructor (protected readonly client: DefidOceanApiClient) {
   }
 
   async getAccountHistory (address: string, height: number, txno: number): Promise<AddressHistory> {
-    return await this.api.get(`/address/${address}/history/${height}/${txno}`)
+    return await this.client.get(`/address/${address}/history/${height}/${txno}`)
   }
 
   async listAccountHistory (address: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<AddressHistory>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/address/${address}/history?size=${query.size}&next=${query.next}`)
+      return await this.client.get(`/address/${address}/history?size=${query.size}&next=${query.next}`)
     }
-    return await this.api.get(`/address/${address}/history?size=${query.size}`)
+    return await this.client.get(`/address/${address}/history?size=${query.size}`)
   }
 
   async getBalance (address: string): Promise<string> {
-    return await this.api.get(`/address/${address}/balance`)
+    return await this.client.get(`/address/${address}/balance`)
   }
 
   async getAggregation (address: string): Promise<ScriptAggregation | undefined> {
-    return await this.api.get(`/address/${address}/aggregation`)
+    return await this.client.get(`/address/${address}/aggregation`)
   }
 
   async listTokens (address: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<AddressToken>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/address/${address}/tokens?size=${query.size}&next=${query.next}`)
+      return await this.client.get(`/address/${address}/tokens?size=${query.size}&next=${query.next}`)
     }
-    return await this.api.get(`/address/${address}/tokens?size=${query.size}`)
+    return await this.client.get(`/address/${address}/tokens?size=${query.size}`)
   }
 
   async listVaults (address: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<LoanVaultActive | LoanVaultLiquidated>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/address/${address}/vaults?size=${query.size}&next=${query.next}`)
+      return await this.client.get(`/address/${address}/vaults?size=${query.size}&next=${query.next}`)
     }
-    return await this.api.get(`/address/${address}/vaults?size=${query.size}`)
+    return await this.client.get(`/address/${address}/vaults?size=${query.size}`)
   }
 
   async listTransactions (address: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<ScriptActivity>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/address/${address}/transactions?size=${query.size}&next=${query.next}`)
+      return await this.client.get(`/address/${address}/transactions?size=${query.size}&next=${query.next}`)
     }
-    return await this.api.get(`/address/${address}/transactions?size=${query.size}`)
+    return await this.client.get(`/address/${address}/transactions?size=${query.size}`)
   }
 
   async listTransactionsUnspent (address: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<ScriptUnspent>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/address/${address}/transactions/unspent?size=${query.size}&next=${query.next}`)
+      return await this.client.get(`/address/${address}/transactions/unspent?size=${query.size}&next=${query.next}`)
     }
-    return await this.api.get(`/address/${address}/transactions/unspent?size=${query.size}`)
+    return await this.client.get(`/address/${address}/transactions/unspent?size=${query.size}`)
   }
 }
 
 export class DBlockController {
-  constructor (protected readonly api: DefidOceanApiClient) {
+  constructor (protected readonly client: DefidOceanApiClient) {
   }
 
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<Block>> {
     if (query.next !== undefined) {
       // TODO(canonbrother): `next` should be height, not hash
       // const next = parseHeight(query.next)
-      return await this.api.get(`/blocks?size=${query.size}&next=${query.next}`)
+      return await this.client.get(`/blocks?size=${query.size}&next=${query.next}`)
     }
-    return await this.api.get(`/blocks?size=${query.size}`)
+    return await this.client.get(`/blocks?size=${query.size}`)
   }
 
   async get (hashOrHeight: string): Promise<Block | undefined> {
     const height = parseHeight(hashOrHeight)
     if (height !== undefined) {
-      return await this.api.get(`/blocks/${height}`)
+      return await this.client.get(`/blocks/${height}`)
     }
     if (isSHA256Hash(hashOrHeight)) {
-      return await this.api.get(`/blocks/${hashOrHeight}`)
+      return await this.client.get(`/blocks/${hashOrHeight}`)
     }
     return undefined
   }
@@ -209,27 +210,27 @@ export class DBlockController {
       return ApiPagedResponse.empty()
     }
     if (query.next !== undefined) {
-      return await this.api.get(`/blocks/${hash}/transactions?size=${query.size}&next=${query.next}`)
+      return await this.client.get(`/blocks/${hash}/transactions?size=${query.size}&next=${query.next}`)
     }
-    return await this.api.get(`/blocks/${hash}/transactions?size=${query.size}`)
+    return await this.client.get(`/blocks/${hash}/transactions?size=${query.size}`)
   }
 
   async getHighest (): Promise<Block | undefined> {
-    return await this.api.get('/blocks/highest')
+    return await this.client.get('/blocks/highest')
   }
 }
 
 export class DFeeController {
-  constructor (protected readonly api: DefidOceanApiClient) {
+  constructor (protected readonly client: DefidOceanApiClient) {
   }
 
   async estimate (target: number = 10): Promise<number> {
-    return await this.api.get(`/fee/estimate?confirmationTarget=${target}`)
+    return await this.client.get(`/fee/estimate?confirmationTarget=${target}`)
   }
 }
 
 export class DGovernanceController {
-  constructor (protected readonly api: DefidOceanApiClient) {
+  constructor (protected readonly client: DefidOceanApiClient) {
   }
 
   async listProposals (
@@ -240,13 +241,13 @@ export class DGovernanceController {
     query: OceanListQuery = { size: 30 }
   ): Promise<ApiPagedResponse<GovernanceProposal>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/governance/proposals?status=${status}&type=${type}&cycle=${cycle}&all=${all}&size=${query.size}&next=${query.next}`)
+      return await this.client.get(`/governance/proposals?status=${status}&type=${type}&cycle=${cycle}&all=${all}&size=${query.size}&next=${query.next}`)
     }
-    return await this.api.get(`/governance/proposals?status=${status}&type=${type}&cycle=${cycle}&all=${all}&size=${query.size}`)
+    return await this.client.get(`/governance/proposals?status=${status}&type=${type}&cycle=${cycle}&all=${all}&size=${query.size}`)
   }
 
   async getProposal (id: string): Promise<GovernanceProposal> {
-    return await this.api.get(`/governance/proposals/${id}`)
+    return await this.client.get(`/governance/proposals/${id}`)
   }
 
   async listProposalVotes (
@@ -257,270 +258,270 @@ export class DGovernanceController {
     query: OceanListQuery = { size: 30 }
   ): Promise<ApiPagedResponse<ProposalVotesResult>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/governance/proposals/${id}/votes?masternode=${masternode}&cycle=${cycle}&all=${all}&size=${query.size}&next=${query.next}`)
+      return await this.client.get(`/governance/proposals/${id}/votes?masternode=${masternode}&cycle=${cycle}&all=${all}&size=${query.size}&next=${query.next}`)
     }
-    return await this.api.get(`/governance/proposals/${id}/votes?masternode=${masternode}&cycle=${cycle}&all=${all}&size=${query.size}`)
+    return await this.client.get(`/governance/proposals/${id}/votes?masternode=${masternode}&cycle=${cycle}&all=${all}&size=${query.size}`)
   }
 }
 
 export class DLoanController {
-  constructor (protected readonly api: DefidOceanApiClient) {
+  constructor (protected readonly client: DefidOceanApiClient) {
   }
 
   async listScheme (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<LoanScheme>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/loans/schemes?size=${query.size}&next=${query.next}`)
+      return await this.client.get(`/loans/schemes?size=${query.size}&next=${query.next}`)
     }
-    return await this.api.get(`/loans/schemes?size=${query.size}`)
+    return await this.client.get(`/loans/schemes?size=${query.size}`)
   }
 
   async getScheme (id: string): Promise<LoanScheme> {
-    return await this.api.get(`/loans/scheme/${id}`)
+    return await this.client.get(`/loans/scheme/${id}`)
   }
 
   async listCollateral (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<CollateralToken>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/loans/collaterals?size=${query.size}&next=${query.next}`)
+      return await this.client.get(`/loans/collaterals?size=${query.size}&next=${query.next}`)
     }
-    return await this.api.get(`/loans/collaterals?size=${query.size}`)
+    return await this.client.get(`/loans/collaterals?size=${query.size}`)
   }
 
   async getCollateral (id: string): Promise<ApiPagedResponse<CollateralToken>> {
-    return await this.api.get(`/loans/collaterals/${id}`)
+    return await this.client.get(`/loans/collaterals/${id}`)
   }
 
   async listLoanToken (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<LoanToken>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/loans/tokens?size=${query.size}&next=${query.next}`)
+      return await this.client.get(`/loans/tokens?size=${query.size}&next=${query.next}`)
     }
-    return await this.api.get(`/loans/tokens?size=${query.size}`)
+    return await this.client.get(`/loans/tokens?size=${query.size}`)
   }
 
   async getLoanToken (id: string): Promise<ApiPagedResponse<LoanToken>> {
-    return await this.api.get(`/loans/tokens/${id}`)
+    return await this.client.get(`/loans/tokens/${id}`)
   }
 
   async listVault (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<LoanVaultActive | LoanVaultLiquidated>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/loans/vaults?size=${query.size}&next=${query.next}`)
+      return await this.client.get(`/loans/vaults?size=${query.size}&next=${query.next}`)
     }
-    return await this.api.get(`/loans/vaults?size=${query.size}`)
+    return await this.client.get(`/loans/vaults?size=${query.size}`)
   }
 
   async getVault (id: string): Promise<ApiPagedResponse<LoanVaultActive | LoanVaultLiquidated>> {
-    return await this.api.get(`/loans/vaults/${id}`)
+    return await this.client.get(`/loans/vaults/${id}`)
   }
 
   async listVaultAuctionHistory (id: string, height: number, batchIndex: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<VaultAuctionBatchHistory>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/loans/vaults/${id}/auctions/${height}/batches/${batchIndex}/history?size=${query.size}&next=${query.next}`)
+      return await this.client.get(`/loans/vaults/${id}/auctions/${height}/batches/${batchIndex}/history?size=${query.size}&next=${query.next}`)
     }
-    return await this.api.get(`/loans/vaults/${id}/auctions/${height}/batches/${batchIndex}/history?size=${query.size}`)
+    return await this.client.get(`/loans/vaults/${id}/auctions/${height}/batches/${batchIndex}/history?size=${query.size}`)
   }
 
   async listAuction (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<LoanVaultLiquidated>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/loans/auctions?size=${query.size}&next=${query.next}`)
+      return await this.client.get(`/loans/auctions?size=${query.size}&next=${query.next}`)
     }
-    return await this.api.get(`/loans/auctions?size=${query.size}`)
+    return await this.client.get(`/loans/auctions?size=${query.size}`)
   }
 }
 
 export class DMasternodeController {
-  constructor (protected readonly api: DefidOceanApiClient) {
+  constructor (protected readonly client: DefidOceanApiClient) {
   }
 
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<MasternodeData>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/masternodes?size=${query.size}&next=${query.next}`)
+      return await this.client.get(`/masternodes?size=${query.size}&next=${query.next}`)
     }
-    return await this.api.get(`/masternodes?size=${query.size}`)
+    return await this.client.get(`/masternodes?size=${query.size}`)
   }
 
   async get (id: string): Promise<MasternodeData> {
-    return await this.api.get(`/masternodes/${id}`)
+    return await this.client.get(`/masternodes/${id}`)
   }
 }
 
 export class DOracleController {
-  constructor (protected readonly api: DefidOceanApiClient) {
+  constructor (protected readonly client: DefidOceanApiClient) {
   }
 
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<Oracle>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/oracles?size=${query.size}&next=${query.next}`)
+      return await this.client.get(`/oracles?size=${query.size}&next=${query.next}`)
     }
-    return await this.api.get(`/oracles?size=${query.size}`)
+    return await this.client.get(`/oracles?size=${query.size}`)
   }
 
   async getPriceFeed (id: string, key: string): Promise<ApiPagedResponse<OraclePriceFeed>> {
-    return await this.api.get(`/oracles/${id}/${key}/feed`)
+    return await this.client.get(`/oracles/${id}/${key}/feed`)
   }
 
   async getOracleByAddress (address: string): Promise<Oracle> {
-    return await this.api.get(`/oracles/${address}`)
+    return await this.client.get(`/oracles/${address}`)
   }
 }
 
 export class DPoolPairController {
-  constructor (protected readonly api: DefidOceanApiClient) {
+  constructor (protected readonly client: DefidOceanApiClient) {
   }
 
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<PoolPairData>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/poolpairs?size=${query.size}&next=${query.next}`)
+      return await this.client.get(`/poolpairs?size=${query.size}&next=${query.next}`)
     }
-    return await this.api.get(`/poolpairs?size=${query.size}`)
+    return await this.client.get(`/poolpairs?size=${query.size}`)
   }
 
   async get (id: string): Promise<PoolPairData> {
-    return await this.api.get(`/poolpairs/${id}`)
+    return await this.client.get(`/poolpairs/${id}`)
   }
 
   async listPoolSwaps (id: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<PoolSwapData>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/poolpairs/${id}/swaps?size=${query.size}&next=${query.next}`)
+      return await this.client.get(`/poolpairs/${id}/swaps?size=${query.size}&next=${query.next}`)
     }
-    return await this.api.get(`/poolpairs/${id}/swaps?size=${query.size}`)
+    return await this.client.get(`/poolpairs/${id}/swaps?size=${query.size}`)
   }
 
   async listPoolSwapsVerbose (id: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<PoolSwapData>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/poolpairs/${id}/swaps/verbose?size=${query.size}&next=${query.next}`)
+      return await this.client.get(`/poolpairs/${id}/swaps/verbose?size=${query.size}&next=${query.next}`)
     }
-    return await this.api.get(`/poolpairs/${id}/swaps/verbose?size=${query.size}`)
+    return await this.client.get(`/poolpairs/${id}/swaps/verbose?size=${query.size}`)
   }
 
   async listPoolSwapsAggregate (id: string, interval: number, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<PoolSwapAggregatedData>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/poolpairs/${id}/swaps/aggregate/${interval}?size=${query.size}&next=${query.next}`)
+      return await this.client.get(`/poolpairs/${id}/swaps/aggregate/${interval}?size=${query.size}&next=${query.next}`)
     }
-    return await this.api.get(`/poolpairs/${id}/swaps/aggregate/${interval}?size=${query.size}`)
+    return await this.client.get(`/poolpairs/${id}/swaps/aggregate/${interval}?size=${query.size}`)
   }
 
   async listSwappableTokens (id: string): Promise<AllSwappableTokensResult> {
-    return await this.api.get(`/poolpairs/paths/swappable/${id}`)
+    return await this.client.get(`/poolpairs/paths/swappable/${id}`)
   }
 
   async listPaths (fromTokenId: string, toTokenId: string): Promise<SwapPathsResult> {
-    return await this.api.get(`/poolpairs/paths/from/${fromTokenId}/to/${toTokenId}`)
+    return await this.client.get(`/poolpairs/paths/from/${fromTokenId}/to/${toTokenId}`)
   }
 
   async getBestPath (fromTokenId: string, toTokenId: string): Promise<BestSwapPathResult> {
-    return await this.api.get(`/poolpairs/paths/best/from/${fromTokenId}/to/${toTokenId}`)
+    return await this.client.get(`/poolpairs/paths/best/from/${fromTokenId}/to/${toTokenId}`)
   }
 
   async listDexPrices (denomination: string): Promise<DexPricesResult> {
-    return await this.api.get(`/poolpairs/dexprices?denomination=${denomination}`)
+    return await this.client.get(`/poolpairs/dexprices?denomination=${denomination}`)
   }
 }
 
 export class DPriceController {
-  constructor (protected readonly api: DefidOceanApiClient) {
+  constructor (protected readonly client: DefidOceanApiClient) {
   }
 
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<PriceTicker>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/prices?size=${query.size}&next=${query.next}`)
+      return await this.client.get(`/prices?size=${query.size}&next=${query.next}`)
     }
-    return await this.api.get(`/prices?size=${query.size}`)
+    return await this.client.get(`/prices?size=${query.size}`)
   }
 
   async get (id: string): Promise<PriceTicker | undefined> {
-    return await this.api.get(`/prices/${id}`)
+    return await this.client.get(`/prices/${id}`)
   }
 
   async getFeed (id: string): Promise<ApiPagedResponse<OraclePriceAggregated>> {
-    return await this.api.get(`/prices/${id}/feed`)
+    return await this.client.get(`/prices/${id}/feed`)
   }
 
   async getFeedActive (id: string): Promise<ApiPagedResponse<OraclePriceActive>> {
-    return await this.api.get(`/prices/${id}/feed/active`)
+    return await this.client.get(`/prices/${id}/feed/active`)
   }
 
   async getFeedWithInterval (id: string, interval: number): Promise<ApiPagedResponse<PriceFeedInterval>> {
-    return await this.api.get(`/prices/${id}/feed/interval/${interval}`)
+    return await this.client.get(`/prices/${id}/feed/interval/${interval}`)
   }
 
   async listPriceOracles (id: string): Promise<ApiPagedResponse<PriceOracle>> {
-    return await this.api.get(`/prices/${id}/oracles`)
+    return await this.client.get(`/prices/${id}/oracles`)
   }
 }
 
 export class DRawTxController {
-  constructor (protected readonly api: DefidOceanApiClient) {
+  constructor (protected readonly client: DefidOceanApiClient) {
   }
 
   async send (rawTxDto: RawTxDto): Promise<string> {
-    return await this.api.post('/rawtx/send', rawTxDto)
+    return await this.client.post('/rawtx/send', rawTxDto)
   }
 
   async test (rawTxDto: RawTxDto): Promise<void> {
-    return await this.api.post('/rawtx/test', rawTxDto)
+    return await this.client.post('/rawtx/test', rawTxDto)
   }
 
   async get (id: string, verbose = false): Promise<string | RawTransaction> {
-    return await this.api.get(`/rawtx/${id}?verbose=${verbose}`)
+    return await this.client.get(`/rawtx/${id}?verbose=${verbose}`)
   }
 }
 
 export class DStatsController {
-  constructor (protected readonly api: DefidOceanApiClient) {
+  constructor (protected readonly client: DefidOceanApiClient) {
   }
 
   async get (): Promise<StatsData> {
-    return await this.api.get('/stats')
+    return await this.client.get('/stats')
   }
 
   async getSupply (): Promise<SupplyData> {
-    return await this.api.get('/stats/supply')
+    return await this.client.get('/stats/supply')
   }
 
   async getBurn (): Promise<BurnData> {
-    return await this.api.get('/stats/burn')
+    return await this.client.get('/stats/burn')
   }
 
   async getRewardDistribution (): Promise<RewardDistributionData> {
-    return await this.api.get('/stats/reward/distribution')
+    return await this.client.get('/stats/reward/distribution')
   }
 }
 
 export class DTokenController {
-  constructor (protected readonly api: DefidOceanApiClient) {
+  constructor (protected readonly client: DefidOceanApiClient) {
   }
 
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<TokenData>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/tokens?size=${query.size}&next=${query.next}`)
+      return await this.client.get(`/tokens?size=${query.size}&next=${query.next}`)
     }
-    return await this.api.get(`/tokens?size=${query.size}`)
+    return await this.client.get(`/tokens?size=${query.size}`)
   }
 
   async get (id: string): Promise<TokenData> {
-    return await this.api.get(`/tokens/${id}`)
+    return await this.client.get(`/tokens/${id}`)
   }
 }
 
 export class DTransactionController {
-  constructor (protected readonly api: DefidOceanApiClient) {
+  constructor (protected readonly client: DefidOceanApiClient) {
   }
 
   async get (id: string): Promise<Transaction> {
-    return await this.api.get(`/transactions/${id}`)
+    return await this.client.get(`/transactions/${id}`)
   }
 
   async getVins (id: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<TransactionVin>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/transactions?size=${query.size}&next=${query.next}`)
+      return await this.client.get(`/transactions?size=${query.size}&next=${query.next}`)
     }
-    return await this.api.get(`/transactions/${id}/vins`)
+    return await this.client.get(`/transactions/${id}/vins`)
   }
 
   async getVouts (id: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<TransactionVout>> {
     if (query.next !== undefined) {
-      return await this.api.get(`/transactions?size=${query.size}&next=${query.next}`)
+      return await this.client.get(`/transactions?size=${query.size}&next=${query.next}`)
     }
-    return await this.api.get(`/transactions/${id}/vouts`)
+    return await this.client.get(`/transactions/${id}/vouts`)
   }
 }
 
