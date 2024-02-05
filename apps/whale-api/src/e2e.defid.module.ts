@@ -447,11 +447,11 @@ export class DTransactionController {
   }
 
   async getVins (id: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<TransactionVin>> {
-    return await this.client.get(`/transactions?size=${query.size}&next=${query.next}`)
+    return await this.client.get(`/transactions/${id}?size=${query.size}&next=${query.next}`)
   }
 
   async getVouts (id: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<TransactionVout>> {
-    return await this.client.get(`/transactions?size=${query.size}&next=${query.next}`)
+    return await this.client.get(`/transactions/${id}?size=${query.size}&next=${query.next}`)
   }
 }
 
