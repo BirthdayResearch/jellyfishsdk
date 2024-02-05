@@ -40,7 +40,7 @@ import { TransactionVin } from './module.model/transaction.vin'
 import { TransactionVout } from './module.model/transaction.vout'
 import { DeFiDRpcError, waitForCondition } from '@defichain/testcontainers'
 import { isSHA256Hash, parseHeight } from './module.api/block.controller'
-import { ClientOptions, JsonRpcClient, defaultOptions } from '@defichain/jellyfish-api-jsonrpc'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ClientApiError } from '@defichain/jellyfish-api-core/dist/index'
 import waitForExpect from 'wait-for-expect'
 import { TestingPoolPairAdd, TestingPoolPairCreate, TestingPoolPairRemove, TestingTokenBurn, TestingTokenCreate, TestingTokenDFI, TestingTokenMint, TestingTokenSend } from '@defichain/jellyfish-testing'
@@ -49,6 +49,7 @@ import { addressToHid } from './module.api/address.controller'
 import { Bech32, Elliptic, HRP, WIF } from '@defichain/jellyfish-crypto'
 import { AddPoolLiquidityMetadata, CreatePoolPairOptions, CreateTokenOptions, CreateSignedTxnHexOptions, MintTokensOptions, UtxosToAccountOptions } from '@defichain/testing'
 import { VaultAuctionBatchHistory } from './module.model/vault.auction.batch.history'
+import { WhaleApiClientOptions } from '@defichain/whale-api-client/dist/whale.api.client'
 
 const SPAWNING_TIME = 60_000
 
@@ -73,16 +74,23 @@ interface RawTxDto {
   maxFeeRate?: number
 }
 
-// TODO(canonbrother): extends OceanApiClient
 class DefidOceanApiClient {
-  protected readonly options: ClientOptions
-
-  constructor (private readonly url: string, options?: ClientOptions) {
-    this.options = Object.assign(defaultOptions, options ?? {})
+  constructor (protected readonly options: WhaleApiClientOptions) {
+    this.options = {
+      // default
+      url: '',
+      timeout: 60000,
+      version: '0',
+      ...options
+    }
   }
 
   async get (path: string): Promise<any> {
-    const res = await this.fetchTimeout(`${this.url}${path}`, {
+    // TODO(canonbrother): endpoint should include `version` and `network`
+    // const { url: urlString, version, network, timeout } = this.options
+    // const url = `${urlString as string}/${version as string}/${network as string}/${path}`
+
+    const res = await this.fetchTimeout(`${this.options.url}/${path}`, {
       method: 'GET',
       headers: {
         connection: 'open'
@@ -97,7 +105,7 @@ class DefidOceanApiClient {
   }
 
   async post (path: string, body?: any): Promise<any> {
-    const res = await this.fetchTimeout(`${this.url}${path}`, {
+    const res = await this.fetchTimeout(`${this.options.url}${path}`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -139,35 +147,35 @@ export class DAddressController {
   }
 
   async getAccountHistory (address: string, height: number, txno: number): Promise<AddressHistory> {
-    return await this.client.data(`/address/${address}/history/${height}/${txno}`)
+    return await this.client.data(`address/${address}/history/${height}/${txno}`)
   }
 
   async listAccountHistory (address: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<AddressHistory>> {
-    return await this.client.get(`/address/${address}/history?size=${query.size}&next=${query.next}`)
+    return await this.client.get(`address/${address}/history?size=${query.size}&next=${query.next}`)
   }
 
   async getBalance (address: string): Promise<string> {
-    return await this.client.data(`/address/${address}/balance`)
+    return await this.client.data(`address/${address}/balance`)
   }
 
   async getAggregation (address: string): Promise<ScriptAggregation | undefined> {
-    return await this.client.data(`/address/${address}/aggregation`)
+    return await this.client.data(`address/${address}/aggregation`)
   }
 
   async listTokens (address: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<AddressToken>> {
-    return await this.client.get(`/address/${address}/tokens?size=${query.size}&next=${query.next}`)
+    return await this.client.get(`address/${address}/tokens?size=${query.size}&next=${query.next}`)
   }
 
   async listVaults (address: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<LoanVaultActive | LoanVaultLiquidated>> {
-    return await this.client.get(`/address/${address}/vaults?size=${query.size}&next=${query.next}`)
+    return await this.client.get(`address/${address}/vaults?size=${query.size}&next=${query.next}`)
   }
 
   async listTransactions (address: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<ScriptActivity>> {
-    return await this.client.get(`/address/${address}/transactions?size=${query.size}&next=${query.next}`)
+    return await this.client.get(`address/${address}/transactions?size=${query.size}&next=${query.next}`)
   }
 
   async listTransactionsUnspent (address: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<ScriptUnspent>> {
-    return await this.client.get(`/address/${address}/transactions/unspent?size=${query.size}&next=${query.next}`)
+    return await this.client.get(`address/${address}/transactions/unspent?size=${query.size}&next=${query.next}`)
   }
 }
 
@@ -178,16 +186,16 @@ export class DBlockController {
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<Block>> {
     // TODO(canonbrother): `next` should be height, not hash
     // const next = parseHeight(query.next)
-    return await this.client.get(`/blocks?size=${query.size}&next=${query.next}`)
+    return await this.client.get(`blocks?size=${query.size}&next=${query.next}`)
   }
 
   async get (hashOrHeight: string): Promise<Block | undefined> {
     const height = parseHeight(hashOrHeight)
     if (height !== undefined) {
-      return await this.client.data(`/blocks/${height}`)
+      return await this.client.data(`blocks/${height}`)
     }
     if (isSHA256Hash(hashOrHeight)) {
-      return await this.client.data(`/blocks/${hashOrHeight}`)
+      return await this.client.data(`blocks/${hashOrHeight}`)
     }
     return undefined
   }
@@ -196,11 +204,11 @@ export class DBlockController {
     if (!isSHA256Hash(hash)) {
       return ApiPagedResponse.empty()
     }
-    return await this.client.get(`/blocks/${hash}/transactions?size=${query.size}&next=${query.next}`)
+    return await this.client.get(`blocks/${hash}/transactions?size=${query.size}&next=${query.next}`)
   }
 
   async getHighest (): Promise<Block | undefined> {
-    return await this.client.data('/blocks/highest')
+    return await this.client.data('blocks/highest')
   }
 }
 
@@ -209,7 +217,7 @@ export class DFeeController {
   }
 
   async estimate (target: number = 10): Promise<number> {
-    return await this.client.data(`/fee/estimate?confirmationTarget=${target}`)
+    return await this.client.data(`fee/estimate?confirmationTarget=${target}`)
   }
 }
 
@@ -224,11 +232,11 @@ export class DGovernanceController {
     all: boolean = false,
     query: OceanListQuery = { size: 30 }
   ): Promise<ApiPagedResponse<GovernanceProposal>> {
-    return await this.client.get(`/governance/proposals?status=${status}&type=${type}&cycle=${cycle}&all=${all}&size=${query.size}&next=${query.next}`)
+    return await this.client.get(`governance/proposals?status=${status}&type=${type}&cycle=${cycle}&all=${all}&size=${query.size}&next=${query.next}`)
   }
 
   async getProposal (id: string): Promise<GovernanceProposal> {
-    return await this.client.data(`/governance/proposals/${id}`)
+    return await this.client.data(`governance/proposals/${id}`)
   }
 
   async listProposalVotes (
@@ -238,7 +246,7 @@ export class DGovernanceController {
     all: boolean = false,
     query: OceanListQuery = { size: 30 }
   ): Promise<ApiPagedResponse<ProposalVotesResult>> {
-    return await this.client.get(`/governance/proposals/${id}/votes?masternode=${masternode}&cycle=${cycle}&all=${all}&size=${query.size}&next=${query.next}`)
+    return await this.client.get(`governance/proposals/${id}/votes?masternode=${masternode}&cycle=${cycle}&all=${all}&size=${query.size}&next=${query.next}`)
   }
 }
 
@@ -247,43 +255,43 @@ export class DLoanController {
   }
 
   async listScheme (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<LoanScheme>> {
-    return await this.client.get(`/loans/schemes?size=${query.size}&next=${query.next}`)
+    return await this.client.get(`loans/schemes?size=${query.size}&next=${query.next}`)
   }
 
   async getScheme (id: string): Promise<LoanScheme> {
-    return await this.client.data(`/loans/scheme/${id}`)
+    return await this.client.data(`loans/scheme/${id}`)
   }
 
   async listCollateral (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<CollateralToken>> {
-    return await this.client.get(`/loans/collaterals?size=${query.size}&next=${query.next}`)
+    return await this.client.get(`loans/collaterals?size=${query.size}&next=${query.next}`)
   }
 
   async getCollateral (id: string): Promise<ApiPagedResponse<CollateralToken>> {
-    return await this.client.get(`/loans/collaterals/${id}`)
+    return await this.client.get(`loans/collaterals/${id}`)
   }
 
   async listLoanToken (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<LoanToken>> {
-    return await this.client.get(`/loans/tokens?size=${query.size}&next=${query.next}`)
+    return await this.client.get(`loans/tokens?size=${query.size}&next=${query.next}`)
   }
 
   async getLoanToken (id: string): Promise<ApiPagedResponse<LoanToken>> {
-    return await this.client.get(`/loans/tokens/${id}`)
+    return await this.client.get(`loans/tokens/${id}`)
   }
 
   async listVault (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<LoanVaultActive | LoanVaultLiquidated>> {
-    return await this.client.get(`/loans/vaults?size=${query.size}&next=${query.next}`)
+    return await this.client.get(`loans/vaults?size=${query.size}&next=${query.next}`)
   }
 
   async getVault (id: string): Promise<ApiPagedResponse<LoanVaultActive | LoanVaultLiquidated>> {
-    return await this.client.get(`/loans/vaults/${id}`)
+    return await this.client.get(`loans/vaults/${id}`)
   }
 
   async listVaultAuctionHistory (id: string, height: number, batchIndex: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<VaultAuctionBatchHistory>> {
-    return await this.client.get(`/loans/vaults/${id}/auctions/${height}/batches/${batchIndex}/history?size=${query.size}&next=${query.next}`)
+    return await this.client.get(`loans/vaults/${id}/auctions/${height}/batches/${batchIndex}/history?size=${query.size}&next=${query.next}`)
   }
 
   async listAuction (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<LoanVaultLiquidated>> {
-    return await this.client.get(`/loans/auctions?size=${query.size}&next=${query.next}`)
+    return await this.client.get(`loans/auctions?size=${query.size}&next=${query.next}`)
   }
 }
 
@@ -292,11 +300,11 @@ export class DMasternodeController {
   }
 
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<MasternodeData>> {
-    return await this.client.get(`/masternodes?size=${query.size}&next=${query.next}`)
+    return await this.client.get(`masternodes?size=${query.size}&next=${query.next}`)
   }
 
   async get (id: string): Promise<MasternodeData> {
-    return await this.client.data(`/masternodes/${id}`)
+    return await this.client.data(`masternodes/${id}`)
   }
 }
 
@@ -305,15 +313,15 @@ export class DOracleController {
   }
 
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<Oracle>> {
-    return await this.client.get(`/oracles?size=${query.size}&next=${query.next}`)
+    return await this.client.get(`oracles?size=${query.size}&next=${query.next}`)
   }
 
   async getPriceFeed (id: string, key: string): Promise<ApiPagedResponse<OraclePriceFeed>> {
-    return await this.client.get(`/oracles/${id}/${key}/feed`)
+    return await this.client.get(`oracles/${id}/${key}/feed`)
   }
 
   async getOracleByAddress (address: string): Promise<Oracle> {
-    return await this.client.data(`/oracles/${address}`)
+    return await this.client.data(`oracles/${address}`)
   }
 }
 
@@ -322,39 +330,39 @@ export class DPoolPairController {
   }
 
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<PoolPairData>> {
-    return await this.client.get(`/poolpairs?size=${query.size}&next=${query.next}`)
+    return await this.client.get(`poolpairs?size=${query.size}&next=${query.next}`)
   }
 
   async get (id: string): Promise<PoolPairData> {
-    return await this.client.data(`/poolpairs/${id}`)
+    return await this.client.data(`poolpairs/${id}`)
   }
 
   async listPoolSwaps (id: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<PoolSwapData>> {
-    return await this.client.get(`/poolpairs/${id}/swaps?size=${query.size}&next=${query.next}`)
+    return await this.client.get(`poolpairs/${id}/swaps?size=${query.size}&next=${query.next}`)
   }
 
   async listPoolSwapsVerbose (id: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<PoolSwapData>> {
-    return await this.client.get(`/poolpairs/${id}/swaps/verbose?size=${query.size}&next=${query.next}`)
+    return await this.client.get(`poolpairs/${id}/swaps/verbose?size=${query.size}&next=${query.next}`)
   }
 
   async listPoolSwapsAggregate (id: string, interval: number, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<PoolSwapAggregatedData>> {
-    return await this.client.get(`/poolpairs/${id}/swaps/aggregate/${interval}?size=${query.size}&next=${query.next}`)
+    return await this.client.get(`poolpairs/${id}/swaps/aggregate/${interval}?size=${query.size}&next=${query.next}`)
   }
 
   async listSwappableTokens (id: string): Promise<AllSwappableTokensResult> {
-    return await this.client.data(`/poolpairs/paths/swappable/${id}`)
+    return await this.client.data(`poolpairs/paths/swappable/${id}`)
   }
 
   async listPaths (fromTokenId: string, toTokenId: string): Promise<SwapPathsResult> {
-    return await this.client.data(`/poolpairs/paths/from/${fromTokenId}/to/${toTokenId}`)
+    return await this.client.data(`poolpairs/paths/from/${fromTokenId}/to/${toTokenId}`)
   }
 
   async getBestPath (fromTokenId: string, toTokenId: string): Promise<BestSwapPathResult> {
-    return await this.client.data(`/poolpairs/paths/best/from/${fromTokenId}/to/${toTokenId}`)
+    return await this.client.data(`poolpairs/paths/best/from/${fromTokenId}/to/${toTokenId}`)
   }
 
   async listDexPrices (denomination: string): Promise<DexPricesResult> {
-    return await this.client.data(`/poolpairs/dexprices?denomination=${denomination}`)
+    return await this.client.data(`poolpairs/dexprices?denomination=${denomination}`)
   }
 }
 
@@ -363,27 +371,27 @@ export class DPriceController {
   }
 
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<PriceTicker>> {
-    return await this.client.get(`/prices?size=${query.size}&next=${query.next}`)
+    return await this.client.get(`prices?size=${query.size}&next=${query.next}`)
   }
 
   async get (id: string): Promise<PriceTicker | undefined> {
-    return await this.client.data(`/prices/${id}`)
+    return await this.client.data(`prices/${id}`)
   }
 
   async getFeed (id: string): Promise<ApiPagedResponse<OraclePriceAggregated>> {
-    return await this.client.get(`/prices/${id}/feed`)
+    return await this.client.get(`prices/${id}/feed`)
   }
 
   async getFeedActive (id: string): Promise<ApiPagedResponse<OraclePriceActive>> {
-    return await this.client.get(`/prices/${id}/feed/active`)
+    return await this.client.get(`prices/${id}/feed/active`)
   }
 
   async getFeedWithInterval (id: string, interval: number): Promise<ApiPagedResponse<PriceFeedInterval>> {
-    return await this.client.get(`/prices/${id}/feed/interval/${interval}`)
+    return await this.client.get(`prices/${id}/feed/interval/${interval}`)
   }
 
   async listPriceOracles (id: string): Promise<ApiPagedResponse<PriceOracle>> {
-    return await this.client.get(`/prices/${id}/oracles`)
+    return await this.client.get(`prices/${id}/oracles`)
   }
 }
 
@@ -392,15 +400,15 @@ export class DRawTxController {
   }
 
   async send (rawTxDto: RawTxDto): Promise<string> {
-    return await this.client.post('/rawtx/send', rawTxDto)
+    return await this.client.post('rawtx/send', rawTxDto)
   }
 
   async test (rawTxDto: RawTxDto): Promise<void> {
-    return await this.client.post('/rawtx/test', rawTxDto)
+    return await this.client.post('rawtx/test', rawTxDto)
   }
 
   async get (id: string, verbose = false): Promise<string | RawTransaction> {
-    return await this.client.get(`/rawtx/${id}?verbose=${verbose}`)
+    return await this.client.get(`rawtx/${id}?verbose=${verbose}`)
   }
 }
 
@@ -421,7 +429,7 @@ export class DStatsController {
   }
 
   async getRewardDistribution (): Promise<RewardDistributionData> {
-    return await this.client.data('/stats/reward/distribution')
+    return await this.client.data('stats/reward/distribution')
   }
 }
 
@@ -430,11 +438,11 @@ export class DTokenController {
   }
 
   async list (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<TokenData>> {
-    return await this.client.get(`/tokens?size=${query.size}&next=${query.next}`)
+    return await this.client.get(`tokens?size=${query.size}&next=${query.next}`)
   }
 
   async get (id: string): Promise<TokenData> {
-    return await this.client.data(`/tokens/${id}`)
+    return await this.client.data(`tokens/${id}`)
   }
 }
 
@@ -443,15 +451,15 @@ export class DTransactionController {
   }
 
   async get (id: string): Promise<Transaction> {
-    return await this.client.data(`/transactions/${id}`)
+    return await this.client.data(`transactions/${id}`)
   }
 
   async getVins (id: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<TransactionVin>> {
-    return await this.client.get(`/transactions/${id}?size=${query.size}&next=${query.next}`)
+    return await this.client.get(`transactions/${id}?size=${query.size}&next=${query.next}`)
   }
 
   async getVouts (id: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<TransactionVout>> {
-    return await this.client.get(`/transactions/${id}?size=${query.size}&next=${query.next}`)
+    return await this.client.get(`transactions/${id}?size=${query.size}&next=${query.next}`)
   }
 }
 
@@ -623,9 +631,7 @@ export class DefidBin {
   rpc = new DefidRpc(this, this.rpcClient)
 
   oceanPort = this.randomPort(3000, 3999)
-  // NOTE(canonbrother): url = `${urlString as string}/${version as string}/${network as string}/${path}`
-  oceanUrl = `http://127.0.0.1:${this.oceanPort}`
-  oceanClient = new DefidOceanApiClient(this.oceanUrl)
+  oceanClient = new DefidOceanApiClient({ url: `http://127.0.0.1:${this.oceanPort}` })
   ocean = new DefidOcean(this.oceanClient)
 
   private randomPort (min: number = 10000, max: number = 19999): number {
@@ -714,11 +720,10 @@ export class DefidBin {
           await new Promise((resolve) => setTimeout(resolve, 1_000))
 
           try {
-            // TODO(canonbrother): blockController.get(0)
-            const res = await this.ocean.blockController.list({ size: 1 })
-            console.log('[DefidBin.start()] blockController.list res.data.length: ', res.data.length)
+            const res = await this.ocean.blockController.get('0')
+            console.log('[DefidBin.start()] blockController.get genesis.hash: ', res?.hash)
           } catch (err) {
-            console.log('[DefidBin.start()] blockController.get err: ', err)
+            console.log('[DefidBin.start()] blockController.get genesis err: ', err)
           }
 
           clearTimeout(timer)
