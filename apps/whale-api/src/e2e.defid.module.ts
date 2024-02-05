@@ -91,6 +91,11 @@ class DefidOceanApiClient {
     return await res.json()
   }
 
+  async data (path: string): Promise<any> {
+    const res = await this.get(path)
+    return res.data
+  }
+
   async post (path: string, body?: any): Promise<any> {
     const res = await this.fetchTimeout(`${this.url}${path}`, {
       method: 'POST',
@@ -134,7 +139,7 @@ export class DAddressController {
   }
 
   async getAccountHistory (address: string, height: number, txno: number): Promise<AddressHistory> {
-    return await this.client.get(`/address/${address}/history/${height}/${txno}`)
+    return await this.client.data(`/address/${address}/history/${height}/${txno}`)
   }
 
   async listAccountHistory (address: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<AddressHistory>> {
@@ -142,11 +147,11 @@ export class DAddressController {
   }
 
   async getBalance (address: string): Promise<string> {
-    return await this.client.get(`/address/${address}/balance`)
+    return await this.client.data(`/address/${address}/balance`)
   }
 
   async getAggregation (address: string): Promise<ScriptAggregation | undefined> {
-    return await this.client.get(`/address/${address}/aggregation`)
+    return await this.client.data(`/address/${address}/aggregation`)
   }
 
   async listTokens (address: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<AddressToken>> {
@@ -179,10 +184,10 @@ export class DBlockController {
   async get (hashOrHeight: string): Promise<Block | undefined> {
     const height = parseHeight(hashOrHeight)
     if (height !== undefined) {
-      return await this.client.get(`/blocks/${height}`)
+      return await this.client.data(`/blocks/${height}`)
     }
     if (isSHA256Hash(hashOrHeight)) {
-      return await this.client.get(`/blocks/${hashOrHeight}`)
+      return await this.client.data(`/blocks/${hashOrHeight}`)
     }
     return undefined
   }
@@ -195,7 +200,7 @@ export class DBlockController {
   }
 
   async getHighest (): Promise<Block | undefined> {
-    return await this.client.get('/blocks/highest')
+    return await this.client.data('/blocks/highest')
   }
 }
 
@@ -204,7 +209,7 @@ export class DFeeController {
   }
 
   async estimate (target: number = 10): Promise<number> {
-    return await this.client.get(`/fee/estimate?confirmationTarget=${target}`)
+    return await this.client.data(`/fee/estimate?confirmationTarget=${target}`)
   }
 }
 
@@ -223,7 +228,7 @@ export class DGovernanceController {
   }
 
   async getProposal (id: string): Promise<GovernanceProposal> {
-    return await this.client.get(`/governance/proposals/${id}`)
+    return await this.client.data(`/governance/proposals/${id}`)
   }
 
   async listProposalVotes (
@@ -246,7 +251,7 @@ export class DLoanController {
   }
 
   async getScheme (id: string): Promise<LoanScheme> {
-    return await this.client.get(`/loans/scheme/${id}`)
+    return await this.client.data(`/loans/scheme/${id}`)
   }
 
   async listCollateral (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<CollateralToken>> {
@@ -291,7 +296,7 @@ export class DMasternodeController {
   }
 
   async get (id: string): Promise<MasternodeData> {
-    return await this.client.get(`/masternodes/${id}`)
+    return await this.client.data(`/masternodes/${id}`)
   }
 }
 
@@ -308,7 +313,7 @@ export class DOracleController {
   }
 
   async getOracleByAddress (address: string): Promise<Oracle> {
-    return await this.client.get(`/oracles/${address}`)
+    return await this.client.data(`/oracles/${address}`)
   }
 }
 
@@ -321,7 +326,7 @@ export class DPoolPairController {
   }
 
   async get (id: string): Promise<PoolPairData> {
-    return await this.client.get(`/poolpairs/${id}`)
+    return await this.client.data(`/poolpairs/${id}`)
   }
 
   async listPoolSwaps (id: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<PoolSwapData>> {
@@ -337,19 +342,19 @@ export class DPoolPairController {
   }
 
   async listSwappableTokens (id: string): Promise<AllSwappableTokensResult> {
-    return await this.client.get(`/poolpairs/paths/swappable/${id}`)
+    return await this.client.data(`/poolpairs/paths/swappable/${id}`)
   }
 
   async listPaths (fromTokenId: string, toTokenId: string): Promise<SwapPathsResult> {
-    return await this.client.get(`/poolpairs/paths/from/${fromTokenId}/to/${toTokenId}`)
+    return await this.client.data(`/poolpairs/paths/from/${fromTokenId}/to/${toTokenId}`)
   }
 
   async getBestPath (fromTokenId: string, toTokenId: string): Promise<BestSwapPathResult> {
-    return await this.client.get(`/poolpairs/paths/best/from/${fromTokenId}/to/${toTokenId}`)
+    return await this.client.data(`/poolpairs/paths/best/from/${fromTokenId}/to/${toTokenId}`)
   }
 
   async listDexPrices (denomination: string): Promise<DexPricesResult> {
-    return await this.client.get(`/poolpairs/dexprices?denomination=${denomination}`)
+    return await this.client.data(`/poolpairs/dexprices?denomination=${denomination}`)
   }
 }
 
@@ -362,7 +367,7 @@ export class DPriceController {
   }
 
   async get (id: string): Promise<PriceTicker | undefined> {
-    return await this.client.get(`/prices/${id}`)
+    return await this.client.data(`/prices/${id}`)
   }
 
   async getFeed (id: string): Promise<ApiPagedResponse<OraclePriceAggregated>> {
@@ -416,7 +421,7 @@ export class DStatsController {
   }
 
   async getRewardDistribution (): Promise<RewardDistributionData> {
-    return await this.client.get('/stats/reward/distribution')
+    return await this.client.data('/stats/reward/distribution')
   }
 }
 
@@ -429,7 +434,7 @@ export class DTokenController {
   }
 
   async get (id: string): Promise<TokenData> {
-    return await this.client.get(`/tokens/${id}`)
+    return await this.client.data(`/tokens/${id}`)
   }
 }
 
@@ -438,7 +443,7 @@ export class DTransactionController {
   }
 
   async get (id: string): Promise<Transaction> {
-    return await this.client.get(`/transactions/${id}`)
+    return await this.client.data(`/transactions/${id}`)
   }
 
   async getVins (id: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<TransactionVin>> {
