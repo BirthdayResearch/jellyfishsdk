@@ -105,7 +105,7 @@ class DefidOceanApiClient {
   }
 
   async post (path: string, body?: any): Promise<any> {
-    const res = await this.fetchTimeout(`${this.options.url}${path}`, {
+    const res = await this.fetchTimeout(`${this.options.url}/${path}`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
