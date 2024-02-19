@@ -1,4 +1,3 @@
-import { NotFoundException } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasternodeState } from '@defichain/whale-api-client/dist/api/masternodes'
 import { MasternodeTimeLock } from '@defichain/jellyfish-api-core/dist/category/masternode'
@@ -84,17 +83,21 @@ describe('get', () => {
   })
 
   it('should fail due to non-existent masternode', async () => {
-    expect.assertions(2)
-    try {
-      await controller.get('8d4d987dee688e400a0cdc899386f243250d3656d802231755ab4d28178c9816')
-    } catch (err: any) {
-      expect(err).toBeInstanceOf(NotFoundException)
-      expect(err.response).toStrictEqual({
-        statusCode: 404,
-        message: 'Unable to find masternode',
-        error: 'Not Found'
-      })
-    }
+    // expect.assertions(2)
+    // try {
+    //   await controller.get('8d4d987dee688e400a0cdc899386f243250d3656d802231755ab4d28178c9816')
+    // } catch (err: any) {
+    //   console.log('err: ', err)
+    //   // expect(err).toBeInstanceOf(NotFoundException)
+    //   expect(err.response).toStrictEqual({
+    //     statusCode: 404,
+    //     message: 'Unable to find masternode',
+    //     error: 'Not Found'
+    //   })
+    // }
+    const res: any = await controller.get('8d4d987dee688e400a0cdc899386f243250d3656d802231755ab4d28178c9816')
+    expect(res.code).toStrictEqual(404)
+    expect(res.message).toStrictEqual('Unable to find masternode')
   })
 })
 
