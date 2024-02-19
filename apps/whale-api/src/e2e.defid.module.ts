@@ -101,7 +101,7 @@ class DefidOceanApiClient {
 
   async data (path: string): Promise<any> {
     const res = await this.get(path)
-    return res.data
+    return res.error !== undefined ? res.error : res.data
   }
 
   async post (path: string, body?: any): Promise<any> {
