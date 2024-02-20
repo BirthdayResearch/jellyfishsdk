@@ -417,15 +417,15 @@ export class DStatsController {
   }
 
   async get (): Promise<StatsData> {
-    return await this.client.get('/stats')
+    return await this.client.get('stats')
   }
 
   async getSupply (): Promise<SupplyData> {
-    return await this.client.get('/stats/supply')
+    return await this.client.get('stats/supply')
   }
 
   async getBurn (): Promise<BurnData> {
-    return await this.client.get('/stats/burn')
+    return await this.client.get('stats/burn')
   }
 
   async getRewardDistribution (): Promise<RewardDistributionData> {
@@ -829,6 +829,7 @@ export class DefidBin {
   async waitForIndexedHeight (height: number, timeout: number = 30000): Promise<void> {
     await waitForExpect(async () => {
       const block = await this.ocean.blockController.getHighest()
+      console.log('block: ', block?.height)
       expect(block?.height).toBeGreaterThan(height)
       await this.generate(1)
     }, timeout)
