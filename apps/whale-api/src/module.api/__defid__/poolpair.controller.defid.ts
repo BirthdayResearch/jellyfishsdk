@@ -1,5 +1,4 @@
 
-import { NotFoundException } from '@nestjs/common'
 import { BigNumber } from 'bignumber.js'
 import { DPoolPairController, DefidBin, DefidRpc } from '../../e2e.defid.module'
 
@@ -352,17 +351,20 @@ describe('get', () => {
   })
 
   it('should throw error while getting non-existent poolpair', async () => {
-    expect.assertions(2)
-    try {
-      await controller.get('999')
-    } catch (err: any) {
-      expect(err).toBeInstanceOf(NotFoundException)
-      expect(err.response).toStrictEqual({
-        statusCode: 404,
-        message: 'Unable to find poolpair',
-        error: 'Not Found'
-      })
-    }
+    // expect.assertions(2)
+    // try {
+    //   await controller.get('999')
+    // } catch (err: any) {
+    //   expect(err).toBeInstanceOf(NotFoundException)
+    //   expect(err.response).toStrictEqual({
+    //     statusCode: 404,
+    //     message: 'Unable to find poolpair',
+    //     error: 'Not Found'
+    //   })
+    // }
+    const res: any = await controller.get('999')
+    expect(res.code).toStrictEqual(404)
+    expect(res.message).toStrictEqual('Unable to find poolpair')
   })
 })
 
