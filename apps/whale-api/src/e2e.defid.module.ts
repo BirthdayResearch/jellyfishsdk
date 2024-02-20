@@ -266,24 +266,24 @@ export class DLoanController {
     return await this.client.get(`loans/collaterals?size=${query.size}&next=${query.next}`)
   }
 
-  async getCollateral (id: string): Promise<ApiPagedResponse<CollateralToken>> {
-    return await this.client.get(`loans/collaterals/${id}`)
+  async getCollateral (id: string): Promise<CollateralToken> {
+    return await this.client.data(`loans/collaterals/${id}`)
   }
 
   async listLoanToken (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<LoanToken>> {
     return await this.client.get(`loans/tokens?size=${query.size}&next=${query.next}`)
   }
 
-  async getLoanToken (id: string): Promise<ApiPagedResponse<LoanToken>> {
-    return await this.client.get(`loans/tokens/${id}`)
+  async getLoanToken (id: string): Promise<LoanToken> {
+    return await this.client.data(`loans/tokens/${id}`)
   }
 
   async listVault (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<LoanVaultActive | LoanVaultLiquidated>> {
     return await this.client.get(`loans/vaults?size=${query.size}&next=${query.next}`)
   }
 
-  async getVault (id: string): Promise<ApiPagedResponse<LoanVaultActive | LoanVaultLiquidated>> {
-    return await this.client.get(`loans/vaults/${id}`)
+  async getVault (id: string): Promise<LoanVaultActive | LoanVaultLiquidated> {
+    return await this.client.data(`loans/vaults/${id}`)
   }
 
   async listVaultAuctionHistory (id: string, height: number, batchIndex: string, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<VaultAuctionBatchHistory>> {
@@ -349,8 +349,8 @@ export class DPoolPairController {
     return await this.client.get(`poolpairs/${id}/swaps/aggregate/${interval}?size=${query.size}&next=${query.next}`)
   }
 
-  async listSwappableTokens (id: string): Promise<AllSwappableTokensResult> {
-    return await this.client.data(`poolpairs/paths/swappable/${id}`)
+  async listSwappableTokens (id: string): Promise<ApiPagedResponse<AllSwappableTokensResult>> {
+    return await this.client.get(`poolpairs/paths/swappable/${id}`)
   }
 
   async listPaths (fromTokenId: string, toTokenId: string): Promise<SwapPathsResult> {

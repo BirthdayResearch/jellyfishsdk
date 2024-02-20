@@ -1,5 +1,4 @@
 import BigNumber from 'bignumber.js'
-import { NotFoundException } from '@nestjs/common'
 import { DLoanController, DefidBin, DefidRpc } from '../../e2e.defid.module'
 
 let testing: DefidRpc
@@ -203,16 +202,19 @@ describe('get', () => {
   })
 
   it('should throw error while getting non-existent collateral token id', async () => {
-    expect.assertions(2)
-    try {
-      await controller.getCollateral('999')
-    } catch (err: any) {
-      expect(err).toBeInstanceOf(NotFoundException)
-      expect(err.response).toStrictEqual({
-        statusCode: 404,
-        message: 'Unable to find collateral token',
-        error: 'Not Found'
-      })
-    }
+    // expect.assertions(2)
+    // try {
+    //   await controller.getCollateral('999')
+    // } catch (err: any) {
+    //   expect(err).toBeInstanceOf(NotFoundException)
+    //   expect(err.response).toStrictEqual({
+    //     statusCode: 404,
+    //     message: 'Unable to find collateral token',
+    //     error: 'Not Found'
+    //   })
+    // }
+    const res: any = await controller.getCollateral('999')
+    expect(res.code).toStrictEqual(404)
+    expect(res.message).toStrictEqual('Unable to find collateral token') // Token 999 does not exist!
   })
 })

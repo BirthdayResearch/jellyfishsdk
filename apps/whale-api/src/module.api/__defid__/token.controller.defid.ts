@@ -1,4 +1,3 @@
-import { NotFoundException } from '@nestjs/common'
 import { DTokenController, DefidBin } from '../../e2e.defid.module'
 
 let app: DefidBin
@@ -228,15 +227,18 @@ describe('get', () => {
 
   it('should throw error while getting non-existent token', async () => {
     expect.assertions(2)
-    try {
-      await controller.get('999')
-    } catch (err: any) {
-      expect(err).toBeInstanceOf(NotFoundException)
-      expect(err.response).toStrictEqual({
-        statusCode: 404,
-        message: 'Unable to find token',
-        error: 'Not Found'
-      })
-    }
+    // try {
+    //   await controller.get('999')
+    // } catch (err: any) {
+    //   expect(err).toBeInstanceOf(NotFoundException)
+    //   expect(err.response).toStrictEqual({
+    //     statusCode: 404,
+    //     message: 'Unable to find token',
+    //     error: 'Not Found'
+    //   })
+    // }
+    const res: any = await controller.get('999')
+    expect(res.code).toStrictEqual(404)
+    expect(res.message).toStrictEqual('Unable to find token')
   })
 })

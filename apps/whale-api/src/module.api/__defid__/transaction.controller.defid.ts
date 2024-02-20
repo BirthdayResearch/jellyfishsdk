@@ -1,5 +1,4 @@
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { NotFoundException } from '@nestjs/common'
 import { DTransactionController, DefidBin, DefidRpc } from '../../e2e.defid.module'
 
 let container: DefidRpc
@@ -78,17 +77,20 @@ describe('get', () => {
   })
 
   it('should fail due to non-existent transaction', async () => {
-    expect.assertions(2)
-    try {
-      await controller.get('invalidtransactionid')
-    } catch (err: any) {
-      expect(err).toBeInstanceOf(NotFoundException)
-      expect(err.response).toStrictEqual({
-        statusCode: 404,
-        message: 'transaction not found',
-        error: 'Not Found'
-      })
-    }
+    // expect.assertions(2)
+    // try {
+    //   await controller.get('invalidtransactionid')
+    // } catch (err: any) {
+    //   expect(err).toBeInstanceOf(NotFoundException)
+    //   expect(err.response).toStrictEqual({
+    //     statusCode: 404,
+    //     message: 'transaction not found',
+    //     error: 'Not Found'
+    //   })
+    // }
+    const res: any = await controller.get('invalidtransactionid')
+    expect(res.code).toStrictEqual(404)
+    expect(res.message).toStrictEqual('transaction not found')
   })
 })
 
