@@ -15,13 +15,12 @@ describe('list', () => {
     controller = app.ocean.masternodeController
     container = app.rpc
     await app.waitForBlockHeight(101)
-    await app.waitForIndexedHeight(100)
     client = new JsonRpcClient(app.rpcUrl)
 
     await container.generate(1)
     const height = await client.blockchain.getBlockCount()
     await container.generate(1)
-    await app.waitForIndexedHeight(height)
+    await app.waitForBlockHeight(height)
   })
 
   afterAll(async () => {
@@ -66,7 +65,7 @@ describe('get', () => {
     await container.generate(1)
     const height = await client.blockchain.getBlockCount()
     await container.generate(1)
-    await app.waitForIndexedHeight(height)
+    await app.waitForBlockHeight(height)
   })
 
   afterAll(async () => {
@@ -113,7 +112,7 @@ describe('resign', () => {
     await container.generate(1)
     const height = await client.blockchain.getBlockCount()
     await container.generate(1)
-    await app.waitForIndexedHeight(height)
+    await app.waitForBlockHeight(height)
   })
 
   afterAll(async () => {
@@ -129,14 +128,14 @@ describe('resign', () => {
 
     const height = await client.blockchain.getBlockCount()
     await container.generate(1)
-    await app.waitForIndexedHeight(height)
+    await app.waitForBlockHeight(height)
 
     const resignTx = await client.masternode.resignMasternode(masternodeId)
 
     await container.generate(1)
     const resignHeight = await client.blockchain.getBlockCount()
     await container.generate(1)
-    await app.waitForIndexedHeight(resignHeight)
+    await app.waitForBlockHeight(resignHeight)
 
     const result = await controller.get(masternodeId)
     expect(result.state).toStrictEqual(MasternodeState.PRE_RESIGNED)
@@ -157,7 +156,7 @@ describe('timelock', () => {
     await container.generate(1)
     const height = await client.blockchain.getBlockCount()
     await container.generate(1)
-    await app.waitForIndexedHeight(height)
+    await app.waitForBlockHeight(height)
   })
 
   afterAll(async () => {
@@ -176,7 +175,7 @@ describe('timelock', () => {
     await container.generate(1)
     const height = await client.blockchain.getBlockCount()
     await container.generate(1)
-    await app.waitForIndexedHeight(height)
+    await app.waitForBlockHeight(height)
 
     const result = await controller.get(masternodeId)
     expect(result.timelock).toStrictEqual(520)

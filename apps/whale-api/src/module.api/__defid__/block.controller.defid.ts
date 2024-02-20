@@ -13,7 +13,6 @@ beforeAll(async () => {
   controller = app.ocean.blockController
   container = app.rpc
   await app.waitForBlockHeight(101)
-  await app.waitForIndexedHeight(100)
   client = new JsonRpcClient(app.rpcUrl)
 
   const address = await app.getNewAddress()
@@ -22,7 +21,7 @@ beforeAll(async () => {
   }
 
   await container.generate(3)
-  await app.waitForIndexedHeight(103)
+  await app.waitForBlockHeight(103)
 })
 
 afterAll(async () => {

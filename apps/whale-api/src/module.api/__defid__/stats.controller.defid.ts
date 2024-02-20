@@ -9,7 +9,7 @@ beforeAll(async () => {
   await app.start()
   controller = app.ocean.statsController
   container = app.rpc
-  await app.waitForIndexedHeight(100)
+  await app.waitForBlockHeight(100)
 })
 
 afterAll(async () => {
@@ -18,7 +18,7 @@ afterAll(async () => {
 
 it('should getRewardDistribution', async () => {
   await container.generate(10)
-  await app.waitForIndexedHeight(110)
+  await app.waitForBlockHeight(110)
 
   const data = await controller.getRewardDistribution()
   expect(data).toStrictEqual({

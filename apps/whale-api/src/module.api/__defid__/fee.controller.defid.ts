@@ -16,7 +16,7 @@ beforeAll(async () => {
 
   client = new JsonRpcClient(app.rpcUrl)
 
-  await app.waitForIndexedHeight(100)
+  await app.waitForBlockHeight(100)
 })
 
 afterAll(async () => {

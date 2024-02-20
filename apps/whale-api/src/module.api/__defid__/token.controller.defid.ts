@@ -8,7 +8,6 @@ beforeAll(async () => {
   await app.start()
   controller = app.ocean.tokenController
   await app.waitForBlockHeight(101)
-  await app.waitForIndexedHeight(100)
 
   await app.createToken('DBTC')
   await app.createToken('DETH')

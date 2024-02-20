@@ -343,7 +343,7 @@ describe('getBalance', () => {
     await app.start()
     controller = app.ocean.addressController
 
-    await app.waitForIndexedHeight(100)
+    await app.waitForBlockHeight(100)
   })
 
   afterAll(async () => {
@@ -412,7 +412,7 @@ describe('getAggregation', () => {
     await app.waitForWalletCoinbaseMaturity()
     await app.waitForWalletBalanceGTE(100)
 
-    await app.waitForIndexedHeight(100)
+    await app.waitForBlockHeight(100)
   })
 
   afterAll(async () => {
@@ -468,7 +468,7 @@ describe('listTransactions', () => {
     await app.waitForWalletCoinbaseMaturity()
     await app.waitForWalletBalanceGTE(100)
 
-    await app.waitForIndexedHeight(100)
+    await app.waitForBlockHeight(100)
 
     await app.fundAddress(addressA.bech32, 34)
     await app.fundAddress(addressA.bech32, 0.12340001)
@@ -627,7 +627,7 @@ describe('listTransactionsUnspent', () => {
     await app.waitForWalletCoinbaseMaturity()
     await app.waitForWalletBalanceGTE(100)
 
-    await app.waitForIndexedHeight(100)
+    await app.waitForBlockHeight(100)
 
     await app.fundAddress(addressA.bech32, 34)
     await app.fundAddress(addressA.bech32, 0.12340001)
@@ -855,7 +855,7 @@ describe('listTokens', () => {
     await app.waitForWalletCoinbaseMaturity()
     await app.waitForWalletBalanceGTE(100)
 
-    await app.waitForIndexedHeight(100)
+    await app.waitForBlockHeight(100)
 
     for (const token of tokens) {
       await app.waitForWalletBalanceGTE(110)
