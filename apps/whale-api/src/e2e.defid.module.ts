@@ -349,8 +349,8 @@ export class DPoolPairController {
     return await this.client.get(`poolpairs/${id}/swaps/aggregate/${interval}?size=${query.size}&next=${query.next}`)
   }
 
-  async listSwappableTokens (id: string): Promise<ApiPagedResponse<AllSwappableTokensResult>> {
-    return await this.client.get(`poolpairs/paths/swappable/${id}`)
+  async listSwappableTokens (id: string): Promise<AllSwappableTokensResult> {
+    return await this.client.data(`poolpairs/paths/swappable/${id}`)
   }
 
   async listPaths (fromTokenId: string, toTokenId: string): Promise<SwapPathsResult> {
