@@ -11,7 +11,6 @@ beforeAll(async () => {
   controller = app.ocean.loanController
   testing = app.rpc
   await app.waitForBlockHeight(101)
-  await app.waitForIndexedHeight(100)
 
   await testing.rpc.loan.createLoanScheme({
     minColRatio: 100,

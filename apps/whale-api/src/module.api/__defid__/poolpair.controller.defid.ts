@@ -12,7 +12,6 @@ beforeAll(async () => {
   controller = app.ocean.poolPairController
   container = app.rpc
   await app.waitForBlockHeight(101)
-  await app.waitForIndexedHeight(100)
   await setup()
 
   // const cache = app.get<Cache>(CACHE_MANAGER)

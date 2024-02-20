@@ -819,7 +819,6 @@ export class DefidBin {
     await waitForExpect(async () => {
       const block = await this.ocean.blockController.getHighest()
       expect(block?.height).toBeGreaterThan(height)
-      await this.generate(1)
     }, timeout)
     await new Promise((resolve) => setTimeout(resolve, 1000))
   }
