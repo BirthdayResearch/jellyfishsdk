@@ -804,17 +804,6 @@ export class DefidBin {
     }
   }
 
-  async blockHeight (height: number, timeout: number = 590000): Promise<void> {
-    return await waitForCondition(async () => {
-      const count = await this.getBlockCount()
-      if (count > height) {
-        return true
-      }
-      await this.generate(1)
-      return false
-    }, timeout, 100, 'waitForBlockHeight')
-  }
-
   async waitForBlockHeight (height: number, timeout = 590000): Promise<void> {
     return await waitForCondition(async () => {
       const count = await this.getBlockCount()
@@ -829,7 +818,6 @@ export class DefidBin {
   async waitForIndexedHeight (height: number, timeout: number = 30000): Promise<void> {
     await waitForExpect(async () => {
       const block = await this.ocean.blockController.getHighest()
-      console.log('block: ', block?.height)
       expect(block?.height).toBeGreaterThan(height)
       await this.generate(1)
     }, timeout)
@@ -838,7 +826,7 @@ export class DefidBin {
 
   async waitForWalletCoinbaseMaturity (timeout: number = 180000, mockTime: boolean = true): Promise<void> {
     if (!mockTime) {
-      return await this.blockHeight(100, timeout)
+      return await this.waitForBlockHeight(100, timeout)
     }
 
     let fakeTime: number = 1579045065
@@ -849,7 +837,7 @@ export class DefidBin {
       void this.call('setmocktime', [fakeTime])
     }, 200)
 
-    await this.blockHeight(100, timeout)
+    await this.waitForBlockHeight(100, timeout)
 
     clearInterval(intervalId)
     await this.call('setmocktime', [0])
