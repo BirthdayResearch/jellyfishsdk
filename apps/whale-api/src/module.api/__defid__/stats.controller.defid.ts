@@ -9,6 +9,7 @@ beforeAll(async () => {
   await app.start()
   controller = app.ocean.statsController
   container = app.rpc
+  await app.waitForBlockHeight(101)
   await app.waitForIndexedHeight(100)
 })
 
@@ -18,9 +19,11 @@ afterAll(async () => {
 
 it('should getRewardDistribution', async () => {
   await container.generate(10)
+  await app.waitForBlockHeight(111)
   await app.waitForIndexedHeight(110)
 
   const data = await controller.getRewardDistribution()
+  console.log('data: ', data)
   expect(data).toStrictEqual({
     masternode: 66.66,
     community: 9.82,
