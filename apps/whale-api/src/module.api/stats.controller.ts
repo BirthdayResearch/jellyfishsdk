@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common'
+import { Controller, Get, Inject, NotFoundException } from '@nestjs/common'
 import { BurnData, RewardDistributionData, StatsData, SupplyData } from '@defichain/whale-api-client/dist/api/stats'
 import { SemaphoreCache } from '@defichain-apps/libs/caches'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
@@ -11,6 +11,7 @@ import { BlockchainInfo } from '@defichain/jellyfish-api-core/dist/category/bloc
 import { getBlockSubsidy } from './subsidy'
 import {
   BlockSubsidy,
+  NetworkName,
   getBlockRewardDistribution
 } from '@defichain/jellyfish-network'
 import { BurnInfo } from '@defichain/jellyfish-api-core/dist/category/account'
@@ -27,7 +28,8 @@ export class StatsController {
     protected readonly poolPairService: PoolPairService,
     protected readonly rpcClient: JsonRpcClient,
     protected readonly cache: SemaphoreCache,
-    protected readonly blockSubsidy: BlockSubsidy
+    protected readonly blockSubsidy: BlockSubsidy,
+    @Inject('NETWORK') protected readonly network: NetworkName
   ) {
   }
 
@@ -210,13 +212,30 @@ export class StatsController {
     }
   }
 
+  private getBurnAddress (): string {
+    switch (this.network) {
+      case 'mainnet':
+        return '8defichainBurnAddressXXXXXXXdRQkSm'
+      case 'testnet':
+      case 'changi':
+      case 'devnet':
+        return '7DefichainBurnAddressXXXXXXXdMUE5n'
+      case 'regtest':
+        return 'mfburnZSAM7Gs1hpDeNaMotJXSGA7edosG'
+      default:
+        throw new NotFoundException('Unable to get burn address due to unknown network')
+    }
+  }
+
   /**
-   * '76a914f7874e8821097615ec345f74c7e5bcf61b12e2ee88ac' is '8defichainBurnAddressXXXXXXXdRQkSm'
-   * using the hex representation as it's applicable in all network
+   * ~~'76a914f7874e8821097615ec345f74c7e5bcf61b12e2ee88ac' is '8defichainBurnAddressXXXXXXXdRQkSm'~~
+   * ~~using the hex representation as it's applicable in all network~~
+   * update: https://github.com/DeFiCh/ain/pull/2798
+   * rpc `getaccount` only expects regular address, no more scriptpubkey
    */
   private async getBurnedTotal (): Promise<BigNumber> {
-    const address = '76a914f7874e8821097615ec345f74c7e5bcf61b12e2ee88ac'
-    const tokens = await this.rpcClient.account.getAccount(address)
+    const burnAddress = this.getBurnAddress()
+    const tokens = await this.rpcClient.account.getAccount(burnAddress)
     const burnInfo = await this.getBurnInfo()
 
     const utxo = burnInfo.amount
