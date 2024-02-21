@@ -88,7 +88,7 @@ describe('loan.setCollateralToken()', () => {
       activateAfterBlock: 0
     }, script)
     const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'SetLoanCollateralTokenTx: No such token (2) (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'SetLoanCollateralTokenTx: No such token (2)\', code: -26')
   })
 
   it('should setCollateralToken if factor is greater than 1', async () => {
@@ -115,6 +115,6 @@ describe('loan.setCollateralToken()', () => {
       activateAfterBlock: 0
     }, script)
     const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'SetLoanCollateralTokenTx: Price feed MFST/USD does not belong to any oracle (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'SetLoanCollateralTokenTx: Price feed MFST/USD does not belong to any oracle\', code: -26')
   })
 })

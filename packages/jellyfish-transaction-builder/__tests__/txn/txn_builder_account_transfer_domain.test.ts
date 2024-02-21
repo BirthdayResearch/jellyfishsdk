@@ -180,7 +180,7 @@ describe('transferDomain', () => {
       const promise = sendTransaction(testing.container, txn)
 
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Cannot transfer inside same domain (code 16)')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Cannot transfer inside same domain')
     })
 
     it('should fail if amount is different', async () => {
@@ -247,7 +247,7 @@ describe('transferDomain', () => {
       const promise = sendTransaction(testing.container, txn)
 
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Source amount must be equal to destination amount (code 16)')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Source amount must be equal to destination amount')
     })
 
     it('(dvm -> evm) should fail if source address and source domain are not match', async () => {
@@ -314,7 +314,7 @@ describe('transferDomain', () => {
       const promise = sendTransaction(testing.container, txn)
 
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Src address must be a legacy or Bech32 address in case of "DVM" domain (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Src address must be a legacy or Bech32 address in case of "DVM" domain\', code: -26')
     })
 
     it('(evm -> dvm) should fail if source address and source domain are not match', async () => {
@@ -381,7 +381,7 @@ describe('transferDomain', () => {
       const promise = sendTransaction(testing.container, txn)
 
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Src address must be an ERC55 address in case of "EVM" domain (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Src address must be an ERC55 address in case of "EVM" domain\', code: -26')
     })
 
     it('(dvm -> evm) should fail if destination address and destination domain are not match', async () => {
@@ -448,7 +448,7 @@ describe('transferDomain', () => {
       const promise = sendTransaction(testing.container, txn)
 
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Dst address must be an ERC55 address in case of "EVM" domain (code 16)')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Dst address must be an ERC55 address in case of "EVM" domain')
     })
 
     it('(evm -> dvm) should fail if destination address and destination domain are not match', async () => {
@@ -515,7 +515,7 @@ describe('transferDomain', () => {
       const promise = sendTransaction(testing.container, txn)
 
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Dst address must be a legacy or Bech32 address in case of "DVM" domain (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Dst address must be a legacy or Bech32 address in case of "DVM" domain\', code: -26')
     })
 
     it('(dvm -> evm) should fail if address is not owned', async () => {
@@ -584,7 +584,7 @@ describe('transferDomain', () => {
       const promise = sendTransaction(testing.container, txn)
 
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: tx must have at least one input from account owner (code 16)')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: tx must have at least one input from account owner')
     })
 
     it('should not transfer if custom (isDAT = false) token is transferred', async () => {

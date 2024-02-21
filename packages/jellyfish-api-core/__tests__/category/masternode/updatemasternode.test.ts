@@ -529,7 +529,7 @@ describe('Update Masternode', () => {
 
     const promise = container.call('sendrawtransaction', [signedTx.hex])
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'bad-txns-collateral-locked, tried to spend locked collateral for ${masternodeId} (code 16)', code: -26`)
+    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'bad-txns-collateral-locked, tried to spend locked collateral for ${masternodeId}', code: -26`)
   })
 })
 

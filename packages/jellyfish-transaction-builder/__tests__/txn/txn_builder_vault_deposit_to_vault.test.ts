@@ -316,7 +316,7 @@ describe('vault.depositToVault', () => {
 
     const promise = sendTransaction(tGroup.get(0).container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DepositToVaultTx: tx must have at least one input from token owner (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DepositToVaultTx: tx must have at least one input from token owner\', code: -26')
   })
 
   it('should be failed as vault is not exists', async () => {

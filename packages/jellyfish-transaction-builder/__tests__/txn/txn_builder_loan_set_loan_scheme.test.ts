@@ -90,7 +90,7 @@ describe('loan.createLoanScheme()', () => {
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('LoanSchemeTx: minimum collateral ratio cannot be less than 100 (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('LoanSchemeTx: minimum collateral ratio cannot be less than 100\', code: -26')
   })
 
   it('should not createLoanScheme if rate is less than 0.01', async () => {
@@ -104,7 +104,7 @@ describe('loan.createLoanScheme()', () => {
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('LoanSchemeTx: interest rate cannot be less than 0.01 (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('LoanSchemeTx: interest rate cannot be less than 0.01\', code: -26')
   })
 
   it('should not createLoanScheme if same ratio and rate were created before', async () => {
@@ -118,7 +118,7 @@ describe('loan.createLoanScheme()', () => {
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('LoanSchemeTx: Loan scheme default with same interestrate and mincolratio already exists (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('LoanSchemeTx: Loan scheme default with same interestrate and mincolratio already exists\', code: -26')
   })
 
   it('should not createLoanScheme if same identifier was created before', async () => {
@@ -132,7 +132,7 @@ describe('loan.createLoanScheme()', () => {
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('LoanSchemeTx: Loan scheme already exist with id default (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('LoanSchemeTx: Loan scheme already exist with id default\', code: -26')
   })
 
   it('should not createLoanScheme if identifier is an empty string', async () => {
@@ -146,7 +146,7 @@ describe('loan.createLoanScheme()', () => {
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('LoanSchemeTx: id cannot be empty or more than 8 chars long (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('LoanSchemeTx: id cannot be empty or more than 8 chars long\', code: -26')
   })
 
   it('should not createLoanScheme if identifier is more than 8 chars long', async () => {
@@ -160,7 +160,7 @@ describe('loan.createLoanScheme()', () => {
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('LoanSchemeTx: id cannot be empty or more than 8 chars long (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('LoanSchemeTx: id cannot be empty or more than 8 chars long\', code: -26')
   })
 })
 
@@ -254,7 +254,7 @@ describe('loan.updateLoanScheme()', () => {
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('LoanSchemeTx: minimum collateral ratio cannot be less than 100 (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('LoanSchemeTx: minimum collateral ratio cannot be less than 100\', code: -26')
   })
 
   it('should not updateLoanScheme if rate is less than 0.01', async () => {
@@ -268,7 +268,7 @@ describe('loan.updateLoanScheme()', () => {
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('LoanSchemeTx: interest rate cannot be less than 0.01 (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('LoanSchemeTx: interest rate cannot be less than 0.01\', code: -26')
   })
 
   it('should not updateLoanScheme if same ratio and rate were created before', async () => {
@@ -282,7 +282,7 @@ describe('loan.updateLoanScheme()', () => {
 
     const promise = sendTransaction(testing.container, txn) // Failed because its ratio and rate are same as default
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('LoanSchemeTx: Loan scheme default with same interestrate and mincolratio already exists (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('LoanSchemeTx: Loan scheme default with same interestrate and mincolratio already exists\', code: -26')
   })
 
   it('should not updateLoanScheme if identifier does not exist', async () => {
@@ -296,7 +296,7 @@ describe('loan.updateLoanScheme()', () => {
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('LoanSchemeTx: Cannot find existing loan scheme with id scheme2 (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('LoanSchemeTx: Cannot find existing loan scheme with id scheme2\', code: -26')
   })
 
   it('should not updateLoanScheme if identifier is an empty string', async () => {
@@ -310,7 +310,7 @@ describe('loan.updateLoanScheme()', () => {
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('LoanSchemeTx: id cannot be empty or more than 8 chars long (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('LoanSchemeTx: id cannot be empty or more than 8 chars long\', code: -26')
   })
 
   it('should not updateLoanScheme if identifier is more than 8 chars long', async () => {
@@ -324,7 +324,7 @@ describe('loan.updateLoanScheme()', () => {
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('LoanSchemeTx: id cannot be empty or more than 8 chars long (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('LoanSchemeTx: id cannot be empty or more than 8 chars long\', code: -26')
   })
 })
 
@@ -447,7 +447,7 @@ describe('loan.updateLoanScheme() with update less than current height', () => {
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('LoanSchemeTx: Update height below current block height, set future height (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('LoanSchemeTx: Update height below current block height, set future height\', code: -26')
   })
 })
 
@@ -496,6 +496,6 @@ describe('loan.updateLoanScheme() if a pending loan scheme exists with same rate
     // Attempt to update same ratio and rate as the pending scheme
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('LoanSchemeTx: Loan scheme scheme1 with same interestrate and mincolratio already exists (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('LoanSchemeTx: Loan scheme scheme1 with same interestrate and mincolratio already exists\', code: -26')
   })
 })

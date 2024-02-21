@@ -87,7 +87,7 @@ describe('loan.setDefaultLoanScheme()', () => {
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DefaultLoanSchemeTx: id cannot be empty or more than 8 chars long (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DefaultLoanSchemeTx: id cannot be empty or more than 8 chars long\', code: -26')
   })
 
   it('should not setDefaultLoanScheme if identifier is more than 8 chars long', async () => {
@@ -98,7 +98,7 @@ describe('loan.setDefaultLoanScheme()', () => {
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DefaultLoanSchemeTx: id cannot be empty or more than 8 chars long (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DefaultLoanSchemeTx: id cannot be empty or more than 8 chars long\', code: -26')
   })
 
   it('should not setDefaultLoanScheme if identifier does not exists', async () => {
@@ -109,7 +109,7 @@ describe('loan.setDefaultLoanScheme()', () => {
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DefaultLoanSchemeTx: Cannot find existing loan scheme with id scheme3 (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DefaultLoanSchemeTx: Cannot find existing loan scheme with id scheme3\', code: -26')
   })
 
   it('should not setDefaultLoanScheme if the identifier is a default scheme', async () => {
@@ -120,7 +120,7 @@ describe('loan.setDefaultLoanScheme()', () => {
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DefaultLoanSchemeTx: Loan scheme with id scheme1 is already set as default (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DefaultLoanSchemeTx: Loan scheme with id scheme1 is already set as default\', code: -26')
   })
 
   it('should not setDefaultLoanScheme if the scheme is going to be deleted at future block', async () => {
@@ -143,7 +143,7 @@ describe('loan.setDefaultLoanScheme()', () => {
 
     const promise = sendTransaction(container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DefaultLoanSchemeTx: Cannot set scheme3 as default, set to destroyed on block 120 (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DefaultLoanSchemeTx: Cannot set scheme3 as default, set to destroyed on block 120\', code: -26')
 
     // Delete at block 120
     await testing.container.waitForBlockHeight(120)

@@ -146,7 +146,7 @@ describe('loan.setLoanToken()', () => {
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow('SetLoanTokenTx: Invalid token symbol. Valid: Start with an alphabet, non-empty, not contain # or / (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('SetLoanTokenTx: Invalid token symbol. Valid: Start with an alphabet, non-empty, not contain # or /\', code: -26')
   })
 
   it('should not setLoanToken if the symbol is used in other token', async () => {
@@ -180,7 +180,7 @@ describe('loan.setLoanToken()', () => {
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'SetLoanTokenTx: token \'Token3\' already exists! (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'SetLoanTokenTx: token \'Token3\' already exists!\', code: -26')
   })
 
   it('should not setLoanToken if currencyPair does not belong to any oracle', async () => {
@@ -194,7 +194,7 @@ describe('loan.setLoanToken()', () => {
     }, script)
     const promise = sendTransaction(testing.container, txn)
 
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'SetLoanTokenTx: Price feed MFST/USD does not belong to any oracle (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'SetLoanTokenTx: Price feed MFST/USD does not belong to any oracle\', code: -26')
   })
 
   it('should setLoanToken with the given name', async () => {

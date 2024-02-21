@@ -116,7 +116,7 @@ describe('vote', () => {
     const promise = sendTransaction(testing.container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'VoteTx: masternode <${invalidMasternodeId}> does not exist (code 16)', code: -26`)
+    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'VoteTx: masternode <${invalidMasternodeId}> does not exist', code: -26`)
   })
 
   it('should not vote on a proposal that does not exist', async () => {
@@ -146,7 +146,7 @@ describe('vote', () => {
     const promise = sendTransaction(testing.container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'VoteTx: proposal <${proposalId}> does not exist (code 16)', code: -26`)
+    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'VoteTx: proposal <${proposalId}> does not exist', code: -26`)
   })
 
   it('should not vote on a proposal with a masternode that did not mint at least one block', async () => {
@@ -175,7 +175,7 @@ describe('vote', () => {
     const promise = sendTransaction(testing.container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'VoteTx: masternode <${masternodeId}> does not mine at least one block (code 16)', code: -26`)
+    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'VoteTx: masternode <${masternodeId}> does not mine at least one block', code: -26`)
   })
 
   it('should not vote on a proposal not in voting period', async () => {
@@ -207,7 +207,7 @@ describe('vote', () => {
     const promise = sendTransaction(testing.container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'VoteTx: proposal <${proposalId}> is not in voting period (code 16)', code: -26`)
+    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'VoteTx: proposal <${proposalId}> is not in voting period', code: -26`)
   })
 })
 
@@ -273,6 +273,6 @@ describe('vote with masternode operator with legacy address', () => {
     const promise = sendTransaction(testing.container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow("DeFiDRpcError: 'VoteTx: tx must have at least one input from the owner (code 16)', code: -26")
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'VoteTx: tx must have at least one input from the owner', code: -26")
   })
 })

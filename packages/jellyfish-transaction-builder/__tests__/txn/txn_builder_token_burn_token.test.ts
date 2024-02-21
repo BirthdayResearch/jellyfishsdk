@@ -111,7 +111,7 @@ describe('burnToken', () => {
     const promise = sendTransaction(testing.container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow("DeFiDRpcError: 'BurnTokenTx: amount 0.00000000 is less than 15.00000000 (code 16)', code: -26")
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'BurnTokenTx: amount 0.00000000 is less than 15.00000000', code: -26")
   })
 
   it('should burnToken without context', async () => {

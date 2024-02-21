@@ -915,7 +915,7 @@ describe('create futureswap', () => {
     const promise = sendTransaction(testing.container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: DFIP2203 not currently active (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: DFIP2203 not currently active\', code: -26')
   })
 
   it('should refund the futureswap if DFIP2203 is disabled before execution', async () => {
@@ -1009,7 +1009,7 @@ describe('create futureswap', () => {
 
       const promise = sendTransaction(testing.container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Source amount must be more than zero (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Source amount must be more than zero\', code: -26')
     }
     {
       // negative source amount is given
@@ -1035,7 +1035,7 @@ describe('create futureswap', () => {
 
       const promise = sendTransaction(testing.container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Source amount must be more than zero (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Source amount must be more than zero\', code: -26')
     }
     {
       // invalid source dtoken 100
@@ -1049,7 +1049,7 @@ describe('create futureswap', () => {
 
       const promise = sendTransaction(testing.container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Could not get source loan token 100 (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Could not get source loan token 100\', code: -26')
     }
     {
       // non loan source token 1(BTC)
@@ -1063,7 +1063,7 @@ describe('create futureswap', () => {
 
       const promise = sendTransaction(testing.container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Could not get source loan token 1 (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Could not get source loan token 1\', code: -26')
     }
     {
       // destination is given when futureswap dtoken to dusd
@@ -1077,7 +1077,7 @@ describe('create futureswap', () => {
 
       const promise = sendTransaction(testing.container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Destination should not be set when source amount is dToken or DFI (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Destination should not be set when source amount is dToken or DFI\', code: -26')
     }
     {
       // INVALID destination 100 is given when futureswap dusd to dtoken
@@ -1091,7 +1091,7 @@ describe('create futureswap', () => {
 
       const promise = sendTransaction(testing.container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Could not get destination loan token 100. Set valid destination. (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Could not get destination loan token 100. Set valid destination.\', code: -26')
     }
     {
       // arbitrary address without enough balance
@@ -1106,7 +1106,7 @@ describe('create futureswap', () => {
 
       const promise = sendTransaction(testing.container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Transaction must have at least one input from owner (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Transaction must have at least one input from owner\', code: -26')
     }
   })
 
@@ -1135,7 +1135,7 @@ describe('create futureswap', () => {
     // Ensure the created txn is correct
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: DFIP2203 currently disabled for token 2 (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: DFIP2203 currently disabled for token 2\', code: -26')
   })
 
   it('should not create DFI-to-DUSD futureswap while dfip2206f is not active', async () => {
@@ -1154,7 +1154,7 @@ describe('create futureswap', () => {
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: DFIP2206F not currently active (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: DFIP2206F not currently active\', code: -26')
   })
 })
 
@@ -1883,7 +1883,7 @@ describe('withdraw futureswap', () => {
 
       const promise = sendTransaction(testing.container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: amount 1.00000000 is less than 1.00000001 (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: amount 1.00000000 is less than 1.00000001\', code: -26')
     }
 
     // Withdraw fail - Destination should not be set when source amount is dToken or DFI
@@ -1898,7 +1898,7 @@ describe('withdraw futureswap', () => {
 
       const promise = sendTransaction(testing.container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Destination should not be set when source amount is dToken or DFI (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Destination should not be set when source amount is dToken or DFI\', code: -26')
     }
 
     // Withdraw fail - try to withdraw from unavailable futureswap
@@ -1913,7 +1913,7 @@ describe('withdraw futureswap', () => {
 
       const promise = sendTransaction(testing.container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: amount 0.00000000 is less than 0.50000000 (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: amount 0.00000000 is less than 0.50000000\', code: -26')
     }
 
     // Withdraw fail - Invalid source token: 10
@@ -1928,7 +1928,7 @@ describe('withdraw futureswap', () => {
 
       const promise = sendTransaction(testing.container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Could not get source loan token 10 (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Could not get source loan token 10\', code: -26')
     }
 
     // withdraw with BTC(1) which is not a loan token
@@ -1943,7 +1943,7 @@ describe('withdraw futureswap', () => {
 
       const promise = sendTransaction(testing.container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Could not get source loan token 1 (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Could not get source loan token 1\', code: -26')
     }
 
     // withdraw from arbitrary address
@@ -1958,7 +1958,7 @@ describe('withdraw futureswap', () => {
 
       const promise = sendTransaction(testing.container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Transaction must have at least one input from owner (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Transaction must have at least one input from owner\', code: -26')
     }
 
     // withdraw from arbitrary valid address
@@ -1973,7 +1973,7 @@ describe('withdraw futureswap', () => {
 
       const promise = sendTransaction(testing.container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Transaction must have at least one input from owner (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Transaction must have at least one input from owner\', code: -26')
     }
 
     // withdraw 0 amount
@@ -1988,7 +1988,7 @@ describe('withdraw futureswap', () => {
 
       const promise = sendTransaction(testing.container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Source amount must be more than zero (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Source amount must be more than zero\', code: -26')
     }
 
     // withdraw -1 amount
@@ -2016,7 +2016,7 @@ describe('withdraw futureswap', () => {
 
       const promise = sendTransaction(testing.container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Source amount must be more than zero (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Source amount must be more than zero\', code: -26')
     }
 
     // withdraw after setting ${idTSLA}/dfip2203 to false
@@ -2034,7 +2034,7 @@ describe('withdraw futureswap', () => {
 
       const promise = sendTransaction(testing.container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: DFIP2203 currently disabled for token 2 (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: DFIP2203 currently disabled for token 2\', code: -26')
 
       await testing.rpc.masternode.setGov({ [attributeKey]: { [`v0/token/${idTSLA}/dfip2203`]: 'true' } })
     }
@@ -2053,7 +2053,7 @@ describe('withdraw futureswap', () => {
 
       const promise = sendTransaction(testing.container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: DFIP2203 not currently active (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: DFIP2203 not currently active\', code: -26')
       await testing.rpc.masternode.setGov({ [attributeKey]: { 'v0/params/dfip2203/active': 'true' } })
     }
 
@@ -2098,7 +2098,7 @@ describe('withdraw futureswap', () => {
 
       const promise = sendTransaction(testing.container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: amount 0.00000000 is less than 1.00000000 (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: amount 0.00000000 is less than 1.00000000\', code: -26')
     }
   })
 })
