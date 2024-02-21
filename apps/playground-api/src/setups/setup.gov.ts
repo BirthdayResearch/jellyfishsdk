@@ -67,54 +67,54 @@ export class SetupGov extends PlaygroundSetup<Record<string, any>> {
           'v0/vaults/dusd-vault/enabled': 'true',
 
           // On-chain governance
-          'v0/params/feature/gov': 'true',
+          'v0/params/feature/gov': 'true'
 
-          // Enable consortium
-          'v0/params/feature/consortium': 'true',
+          // // Enable consortium
+          // 'v0/params/feature/consortium': 'true'
 
-          // Set a consortium global limit for dBTC
-          'v0/consortium/1/mint_limit': '50',
-          'v0/consortium/1/mint_limit_daily': '5',
+          // // Set a consortium global limit for dBTC
+          // 'v0/consortium/1/mint_limit': '50',
+          // 'v0/consortium/1/mint_limit_daily': '5',
 
-          // Set a consortium member for dBTC
-          'v0/consortium/1/members': {
-            '01': {
-              name: 'Waves HQ',
-              ownerAddress: this.consortiumOwnerAddress1,
-              backingId: 'backing_address_btc_1_c',
-              mintLimitDaily: '5.00000000',
-              mintLimit: '50.00000000'
-            },
-            '02': {
-              name: 'Alexandria',
-              ownerAddress: this.consortiumOwnerAddress2,
-              backingId: 'backing_address_btc_1_br, backing_address_btc_2_br',
-              mintLimitDaily: '5.00000000',
-              mintLimit: '50.00000000'
-            }
-          },
+          // // Set a consortium member for dBTC
+          // 'v0/consortium/1/members': {
+          //   '01': {
+          //     name: 'Waves HQ',
+          //     ownerAddress: this.consortiumOwnerAddress1,
+          //     backingId: 'backing_address_btc_1_c',
+          //     mintLimitDaily: '5.00000000',
+          //     mintLimit: '50.00000000'
+          //   },
+          //   '02': {
+          //     name: 'Alexandria',
+          //     ownerAddress: this.consortiumOwnerAddress2,
+          //     backingId: 'backing_address_btc_1_br, backing_address_btc_2_br',
+          //     mintLimitDaily: '5.00000000',
+          //     mintLimit: '50.00000000'
+          //   }
+          // },
 
-          // Consortium global limit for dETH
-          'v0/consortium/2/mint_limit': '20',
-          'v0/consortium/2/mint_limit_daily': '10',
+          // // Consortium global limit for dETH
+          // 'v0/consortium/2/mint_limit': '20',
+          // 'v0/consortium/2/mint_limit_daily': '10',
 
-          // Set a consortium member for dETH
-          'v0/consortium/2/members': {
-            '01': {
-              name: 'Waves HQ',
-              ownerAddress: this.consortiumOwnerAddress1,
-              backingId: 'backing_address_eth_1_c',
-              mintLimitDaily: '5.00000000',
-              mintLimit: '10.00000000'
-            },
-            '02': {
-              name: 'Alexandria',
-              ownerAddress: this.consortiumOwnerAddress2,
-              backingId: 'backing_address_eth_1_br, backing_address_eth_2_br',
-              mintLimitDaily: '5.00000000',
-              mintLimit: '10.00000000'
-            }
-          }
+          // // Set a consortium member for dETH
+          // 'v0/consortium/2/members': {
+          //   '01': {
+          //     name: 'Waves HQ',
+          //     ownerAddress: this.consortiumOwnerAddress1,
+          //     backingId: 'backing_address_eth_1_c',
+          //     mintLimitDaily: '5.00000000',
+          //     mintLimit: '10.00000000'
+          //   },
+          //   '02': {
+          //     name: 'Alexandria',
+          //     ownerAddress: this.consortiumOwnerAddress2,
+          //     backingId: 'backing_address_eth_1_br, backing_address_eth_2_br',
+          //     mintLimitDaily: '5.00000000',
+          //     mintLimit: '10.00000000'
+          //   }
+          // }
         }
       }
     ]

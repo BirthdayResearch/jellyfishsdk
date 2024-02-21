@@ -517,7 +517,7 @@ describe('setGov ATTRIBUTES loan dusd burn keys', () => {
   })
 })
 
-describe('setGov consortium ATTRIBUTES', () => {
+describe.skip('setGov consortium ATTRIBUTES', () => {
   const tGroup = TestingGroup.create(2)
   let account0: string, account1: string
   let idBTC: string

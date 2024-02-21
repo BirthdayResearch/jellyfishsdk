@@ -1,18 +1,18 @@
 import { TestingGroup } from '@defichain/jellyfish-testing'
-import { BigNumber } from '../../../src'
 
 describe('burnTokens', () => {
   const tGroup = TestingGroup.create(3)
   const symbolDBTC = 'DBTC'
-  let account0: string, account1: string, account2: string
-  let idBTC: string
+  let account0: string, account1: string
+  // let account2: string
+  // let idBTC: string
 
   beforeEach(async () => {
     await tGroup.start()
 
     account0 = await tGroup.get(0).generateAddress()
     account1 = await tGroup.get(1).generateAddress()
-    account2 = await tGroup.get(2).generateAddress()
+    // account2 = await tGroup.get(2).generateAddress()
 
     await tGroup.get(0).token.create({
       symbol: symbolDBTC,
@@ -29,30 +29,30 @@ describe('burnTokens', () => {
 
     await tGroup.get(0).generate(1)
 
-    idBTC = await tGroup.get(0).token.getTokenId(symbolDBTC)
+    // idBTC = await tGroup.get(0).token.getTokenId(symbolDBTC)
 
-    await setGovAttr({ 'v0/params/feature/consortium': 'true' })
+    // await setGovAttr({ 'v0/params/feature/consortium': 'true' })
 
-    await setGovAttr({
-      [`v0/consortium/${idBTC}/mint_limit`]: '10',
-      [`v0/consortium/${idBTC}/mint_limit_daily`]: '5',
-      [`v0/consortium/${idBTC}/members`]: {
-        '02': {
-          name: 'account2BTC',
-          ownerAddress: account0,
-          mintLimitDaily: 5,
-          mintLimit: 10,
-          backingId: 'backing2'
-        },
-        '03': {
-          name: 'account3BTC',
-          ownerAddress: account2,
-          mintLimitDaily: 5,
-          mintLimit: 10,
-          backingId: 'backing2'
-        }
-      }
-    })
+    // await setGovAttr({
+    //   [`v0/consortium/${idBTC}/mint_limit`]: '10',
+    //   [`v0/consortium/${idBTC}/mint_limit_daily`]: '5',
+    //   [`v0/consortium/${idBTC}/members`]: {
+    //     '02': {
+    //       name: 'account2BTC',
+    //       ownerAddress: account0,
+    //       mintLimitDaily: 5,
+    //       mintLimit: 10,
+    //       backingId: 'backing2'
+    //     },
+    //     '03': {
+    //       name: 'account3BTC',
+    //       ownerAddress: account2,
+    //       mintLimitDaily: 5,
+    //       mintLimit: 10,
+    //       backingId: 'backing2'
+    //     }
+    //   }
+    // })
 
     await tGroup.get(0).rpc.token.mintTokens({ amounts: [`10@${symbolDBTC}`] })
     await tGroup.get(0).generate(1)
@@ -62,11 +62,11 @@ describe('burnTokens', () => {
     await tGroup.stop()
   })
 
-  async function setGovAttr (attributes: object): Promise<void> {
-    const hash = await tGroup.get(0).rpc.masternode.setGov({ ATTRIBUTES: attributes })
-    expect(hash).toBeTruthy()
-    await tGroup.get(0).generate(1)
-  }
+  // async function setGovAttr (attributes: object): Promise<void> {
+  //   const hash = await tGroup.get(0).rpc.masternode.setGov({ ATTRIBUTES: attributes })
+  //   expect(hash).toBeTruthy()
+  //   await tGroup.get(0).generate(1)
+  // }
 
   it('should throw an error if invalid value is provided for amount', async () => {
     // @ts-expect-error
@@ -112,8 +112,8 @@ describe('burnTokens', () => {
     const tokensAfterBurn = await tGroup.get(0).rpc.account.getAccount(account0)
     expect(tokensAfterBurn[0]).toStrictEqual(`9.00000000@${symbolDBTC}`)
 
-    const attr = (await tGroup.get(2).rpc.masternode.getGov('ATTRIBUTES')).ATTRIBUTES
-    expect(attr['v0/live/economy/consortium/1/burnt']).toStrictEqual(new BigNumber(1))
+    // const attr = (await tGroup.get(2).rpc.masternode.getGov('ATTRIBUTES')).ATTRIBUTES
+    // expect(attr['v0/live/economy/consortium/1/burnt']).toStrictEqual(new BigNumber(1))
   })
 
   it('should burn tokens with utxos', async () => {

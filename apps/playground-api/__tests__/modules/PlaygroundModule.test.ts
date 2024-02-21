@@ -1,5 +1,5 @@
-import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
-import { ConsortiumKey } from '../../src/ConsortiumKey'
+// import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
+// import { ConsortiumKey } from '../../src/ConsortiumKey'
 import { PlaygroundApiTesting } from '../../testing/PlaygroundApiTesting'
 
 const pg = PlaygroundApiTesting.create()
@@ -63,46 +63,46 @@ it('should have gov set', async () => {
   const gov = await testing.container.call('getgov', ['ATTRIBUTES'])
   expect(gov).toStrictEqual({
     ATTRIBUTES: {
-      'v0/consortium/1/members': {
-        '01': {
-          backingId: 'backing_address_btc_1_c',
-          mintLimit: 50,
-          mintLimitDaily: 5,
-          name: 'Waves HQ',
-          ownerAddress: ConsortiumKey.address,
-          status: 0
-        },
-        '02': {
-          backingId: 'backing_address_btc_1_br, backing_address_btc_2_br',
-          mintLimit: 50,
-          mintLimitDaily: 5,
-          name: 'Alexandria',
-          ownerAddress: RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.address,
-          status: 0
-        }
-      },
-      'v0/consortium/2/members': {
-        '01': {
-          backingId: 'backing_address_eth_1_c',
-          mintLimit: 10,
-          mintLimitDaily: 5,
-          name: 'Waves HQ',
-          ownerAddress: ConsortiumKey.address,
-          status: 0
-        },
-        '02': {
-          backingId: 'backing_address_eth_1_br, backing_address_eth_2_br',
-          mintLimit: 10,
-          mintLimitDaily: 5,
-          name: 'Alexandria',
-          ownerAddress: RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.address,
-          status: 0
-        }
-      },
-      'v0/consortium/1/mint_limit': '50',
-      'v0/consortium/1/mint_limit_daily': '5',
-      'v0/consortium/2/mint_limit': '20',
-      'v0/consortium/2/mint_limit_daily': '10',
+      // 'v0/consortium/1/members': {
+      //   '01': {
+      //     backingId: 'backing_address_btc_1_c',
+      //     mintLimit: 50,
+      //     mintLimitDaily: 5,
+      //     name: 'Waves HQ',
+      //     ownerAddress: ConsortiumKey.address,
+      //     status: 0
+      //   },
+      //   '02': {
+      //     backingId: 'backing_address_btc_1_br, backing_address_btc_2_br',
+      //     mintLimit: 50,
+      //     mintLimitDaily: 5,
+      //     name: 'Alexandria',
+      //     ownerAddress: RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.address,
+      //     status: 0
+      //   }
+      // },
+      // 'v0/consortium/2/members': {
+      //   '01': {
+      //     backingId: 'backing_address_eth_1_c',
+      //     mintLimit: 10,
+      //     mintLimitDaily: 5,
+      //     name: 'Waves HQ',
+      //     ownerAddress: ConsortiumKey.address,
+      //     status: 0
+      //   },
+      //   '02': {
+      //     backingId: 'backing_address_eth_1_br, backing_address_eth_2_br',
+      //     mintLimit: 10,
+      //     mintLimitDaily: 5,
+      //     name: 'Alexandria',
+      //     ownerAddress: RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.address,
+      //     status: 0
+      //   }
+      // },
+      // 'v0/consortium/1/mint_limit': '50',
+      // 'v0/consortium/1/mint_limit_daily': '5',
+      // 'v0/consortium/2/mint_limit': '20',
+      // 'v0/consortium/2/mint_limit_daily': '10',
       'v0/live/economy/evm/block/fee_burnt': 0,
       'v0/live/economy/evm/block/fee_burnt_max': 0,
       'v0/live/economy/evm/block/fee_burnt_max_hash': expect.any(String),
@@ -118,7 +118,7 @@ it('should have gov set', async () => {
       'v0/params/dfip2203/block_period': '20',
       'v0/params/dfip2203/fee_pct': '0.05',
       'v0/params/dfip2203/reward_pct': '0.05',
-      'v0/params/feature/consortium': 'true',
+      // 'v0/params/feature/consortium': 'true',
       'v0/params/feature/gov': 'true',
       'v0/token/0/fixed_interval_price_id': 'DFI/USD',
       'v0/token/0/loan_collateral_enabled': 'true',

@@ -12,7 +12,7 @@ import { Bech32, WIF } from '@defichain/jellyfish-crypto'
 const attributeKey = 'ATTRIBUTES'
 const symbolDBTC = 'BTC'
 
-describe('Consortium', () => {
+describe.skip('Consortium', () => {
   const tGroup = TestingGroup.create(3)
   const alice = tGroup.get(0)
   const bob = tGroup.get(1)

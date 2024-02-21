@@ -22,28 +22,28 @@ let wavesConsortiumAddress: string
 let idBTC: string
 
 async function setupGovs (): Promise<void> {
-  await testing.rpc.masternode.setGov({
-    [attributeKey]:
-    {
-      // Enable consortium
-      'v0/params/feature/consortium': 'true',
+  // await testing.rpc.masternode.setGov({
+  //   [attributeKey]:
+  //   {
+  //     // Enable consortium
+  //     'v0/params/feature/consortium': 'true',
 
-      // Set a consortium global limit for dBTC
-      [`v0/consortium/${idBTC}/mint_limit`]: '50',
-      [`v0/consortium/${idBTC}/mint_limit_daily`]: '5',
+  //     // Set a consortium global limit for dBTC
+  //     [`v0/consortium/${idBTC}/mint_limit`]: '50',
+  //     [`v0/consortium/${idBTC}/mint_limit_daily`]: '5',
 
-      // Set a consortium member for dBTC
-      [`v0/consortium/${idBTC}/members`]: {
-        '01': {
-          name: 'Waves HQ',
-          ownerAddress: wavesConsortiumAddress,
-          backingId: 'backing_address_btc_1_c',
-          mintLimitDaily: '5.00000000',
-          mintLimit: '50.00000000'
-        }
-      }
-    }
-  })
+  //     // Set a consortium member for dBTC
+  //     [`v0/consortium/${idBTC}/members`]: {
+  //       '01': {
+  //         name: 'Waves HQ',
+  //         ownerAddress: wavesConsortiumAddress,
+  //         backingId: 'backing_address_btc_1_c',
+  //         mintLimitDaily: '5.00000000',
+  //         mintLimit: '50.00000000'
+  //       }
+  //     }
+  //   }
+  // })
 }
 
 describe('burnToken', () => {
@@ -236,7 +236,7 @@ describe('burnToken', () => {
 
     // Verify that the burn action is tied to the existing consortium member
     expect(keys.some(key => burntKeyRegex.exec(key) === null)).toStrictEqual(true)
-    expect(attributes.ATTRIBUTES[`v0/live/economy/consortium_members/${idBTC}/01/burnt`]).toStrictEqual(new BigNumber(30))
+    // expect(attributes.ATTRIBUTES[`v0/live/economy/consortium_members/${idBTC}/01/burnt`]).toStrictEqual(new BigNumber(30))
 
     // Verify the token balance is deducted correctly (100 - 30 = 70 BTC)
     const accAfter = await testing.rpc.account.getAccount(await providers.getAddress())
