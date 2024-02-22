@@ -78,19 +78,16 @@ class DefidOceanApiClient {
   constructor (protected readonly options: WhaleApiClientOptions) {
     this.options = {
       // default
-      url: '',
+      url: '`http://127.0.0.1:3002', // DEFAULT_OCEAN_ARCHIVE_PORT: 3002
       timeout: 60000,
-      version: '0',
+      version: 'v0',
+      network: 'regtest',
       ...options
     }
   }
 
   async get (path: string): Promise<any> {
-    // TODO(canonbrother): endpoint should include `version` and `network`
-    // const { url: urlString, version, network, timeout } = this.options
-    // const url = `${urlString as string}/${version as string}/${network as string}/${path}`
-
-    const res = await this.fetchTimeout(`${this.options.url}/${path}`, {
+    const res = await this.fetchTimeout(path, {
       method: 'GET',
       headers: {
         connection: 'open'
@@ -105,7 +102,7 @@ class DefidOceanApiClient {
   }
 
   async post (path: string, body?: any): Promise<any> {
-    const res = await this.fetchTimeout(`${this.options.url}/${path}`, {
+    const res = await this.fetchTimeout(path, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -117,11 +114,13 @@ class DefidOceanApiClient {
   }
 
   private async fetchTimeout (path: string, init: RequestInit): Promise<Response> {
-    const timeout = this.options.timeout ?? 60000
+    const { url: endpoint, version, network, timeout } = this.options
+    const url = `${endpoint}/${version}/${network}/${path}`
+
     const controller = new AbortController()
     const id = setTimeout(() => controller.abort(), timeout)
 
-    const req = fetch(path, {
+    const req = fetch(url, {
       cache: 'no-cache',
       signal: controller.signal,
       keepalive: true,
