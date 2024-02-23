@@ -558,7 +558,7 @@ describe('UpdateMasternode', () => {
       })
       const promise = sendTransaction(container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow("DeFiDRpcError: 'bad-txns-customtx, UpdateMasternodeTx: Owner address must be P2PKH or P2WPKH type (code 16)', code: -26")
+      await expect(promise).rejects.toThrow("DeFiDRpcError: 'UpdateMasternodeTx: Owner address must be P2PKH or P2WPKH type', code: -26")
     }
     {
       const address = await container.getNewAddress('', 'p2sh-segwit')
@@ -572,7 +572,7 @@ describe('UpdateMasternode', () => {
       const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script)
       const promise = sendTransaction(container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow("DeFiDRpcError: 'bad-txns-customtx, UpdateMasternodeTx: Operator address must be P2PKH or P2WPKH type (code 16)', code: -26")
+      await expect(promise).rejects.toThrow("DeFiDRpcError: 'UpdateMasternodeTx: Operator address must be P2PKH or P2WPKH type', code: -26")
     }
     // Updated: P2SH is allowed - https://github.com/DeFiCh/ain/pull/1664
     // {
@@ -587,7 +587,7 @@ describe('UpdateMasternode', () => {
     //   const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script)
     //   const promise = sendTransaction(container, txn)
     //   await expect(promise).rejects.toThrow(DeFiDRpcError)
-    //   await expect(promise).rejects.toThrow("DeFiDRpcError: 'bad-txns-customtx, UpdateMasternodeTx: Reward address must be P2PKH or P2WPKH type (code 16)', code: -26")
+    //   await expect(promise).rejects.toThrow("DeFiDRpcError: 'UpdateMasternodeTx: Reward address must be P2PKH or P2WPKH type', code: -26")
     // }
   })
 
@@ -609,7 +609,7 @@ describe('UpdateMasternode', () => {
       const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script)
       const promise = sendTransaction(container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'bad-txns-customtx, UpdateMasternodeTx: Operator address must be P2PKH or P2WPKH type (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'UpdateMasternodeTx: Operator address must be P2PKH or P2WPKH type\', code: -26')
     }
 
     // NOTE(canonbrother): panic as raw address is not verified on ain
@@ -622,7 +622,7 @@ describe('UpdateMasternode', () => {
     //   const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script)
     //   const promise = sendTransaction(container, txn)
     //   await expect(promise).rejects.toThrow(DeFiDRpcError)
-    //   await expect(promise).rejects.toThrow('DeFiDRpcError: \'bad-txns-customtx, UpdateMasternodeTx: Reward address must be P2SH, P2PKH or P2WPKH type (code 16)\', code: -26')
+    //   await expect(promise).rejects.toThrow('DeFiDRpcError: \'UpdateMasternodeTx: Reward address must be P2SH, P2PKH or P2WPKH type\', code: -26')
     // }
   })
 
@@ -652,7 +652,7 @@ describe('UpdateMasternode', () => {
     const promise = sendTransaction(container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow("DeFiDRpcError: 'bad-txns-customtx, UpdateMasternodeTx: Missing previous collateral from transaction inputs (code 16)', code: -26")
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'UpdateMasternodeTx: Missing previous collateral from transaction inputs', code: -26")
   })
 
   it('should fail to update owner address with same address', async () => {
@@ -686,7 +686,7 @@ describe('UpdateMasternode', () => {
     const promise = sendTransaction(container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow("DeFiDRpcError: 'bad-txns-customtx, UpdateMasternodeTx: Masternode with collateral address as operator or owner already exists (code 16)', code: -26")
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'UpdateMasternodeTx: Masternode with collateral address as operator or owner already exists', code: -26")
   })
 
   it('should fail to update another node with operator address that is already used', async () => {
@@ -720,7 +720,7 @@ describe('UpdateMasternode', () => {
     const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script)
     const promise = sendTransaction(container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow("DeFiDRpcError: 'bad-txns-customtx, UpdateMasternodeTx: Masternode with that operator address already exists (code 16)', code: -26")
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'UpdateMasternodeTx: Masternode with that operator address already exists', code: -26")
   })
 
   it('should not update masternode while in PRE_ENABLED or TRANSFERRING state', async () => {
@@ -756,7 +756,7 @@ describe('UpdateMasternode', () => {
       const txn: TransactionSegWit = await builder.masternode.update(updateMasternode, script)
       const promise = sendTransaction(container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow(`DeFiDRpcError: 'bad-txns-customtx, UpdateMasternodeTx: Masternode ${masternodeId} is not in 'ENABLED' state (code 16)', code: -26`)
+      await expect(promise).rejects.toThrow(`DeFiDRpcError: 'UpdateMasternodeTx: Masternode ${masternodeId} is not in 'ENABLED' state', code: -26`)
     }
 
     await container.generate(20)
@@ -997,6 +997,6 @@ describe('Update Masternode (Multi-containers)', () => {
     const promise = sendTransaction(node[1].container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'bad-txns-customtx, UpdateMasternodeTx: tx must have at least one input from the owner (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'UpdateMasternodeTx: tx must have at least one input from the owner\', code: -26')
   })
 })

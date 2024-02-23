@@ -1,3 +1,5 @@
+// NOTE(canonbrother): skip as consortium is removed, ref: https://github.com/DeFiCh/ain/pull/2730
+
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { StartFlags } from '@defichain/testcontainers'
 import { WhaleApiException } from '../../src'
@@ -124,7 +126,7 @@ async function setup (): Promise<void> {
   }])
 }
 
-describe('getAssetBreakdown', () => {
+describe.skip('getAssetBreakdown', () => {
   it('should respond an empty list if theres no consortium members or tokens initialized', async () => {
     const info = await client.consortium.getAssetBreakdown()
     expect(info).toStrictEqual([])
@@ -190,7 +192,7 @@ describe('getAssetBreakdown', () => {
   })
 })
 
-describe('getMemberStats', () => {
+describe.skip('getMemberStats', () => {
   it('should throw an error if provided consortium member id is invalid', async () => {
     try {
       await setup()

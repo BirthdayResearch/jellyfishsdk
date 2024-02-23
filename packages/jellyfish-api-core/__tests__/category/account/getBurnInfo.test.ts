@@ -50,7 +50,7 @@ it('should getBurnInfo', async () => {
     tokens: ['50.00000000@GOLD'],
     feeburn: new BigNumber('2'),
     auctionburn: new BigNumber(0),
-    consortiumtokens: [],
+    // consortiumtokens: [],
     emissionburn: new BigNumber('6274'),
     paybackburn: [],
     paybackfees: [],

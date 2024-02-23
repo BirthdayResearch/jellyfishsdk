@@ -225,7 +225,7 @@ describe('vault.updateVault', () => {
 
     const promise = sendTransaction(alice.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'UpdateVaultTx: Cannot update vault while any of the asset\'s price is invalid (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'UpdateVaultTx: Cannot update vault while any of the asset\'s price is invalid\', code: -26')
 
     await alice.container.waitForPriceValid('DFI/USD')
 
@@ -273,7 +273,7 @@ describe('vault.updateVault', () => {
 
     const promise = sendTransaction(alice.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'UpdateVaultTx: Vault does not have enough collateralization ratio defined by loan scheme - 147 < 150 (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'UpdateVaultTx: Vault does not have enough collateralization ratio defined by loan scheme - 147 < 150\', code: -26')
   })
 
   it('should not updateVault as different auth address', async () => {
@@ -297,6 +297,6 @@ describe('vault.updateVault', () => {
 
     const promise = sendTransaction(alice.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'UpdateVaultTx: tx must have at least one input from token owner (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'UpdateVaultTx: tx must have at least one input from token owner\', code: -26')
   })
 })

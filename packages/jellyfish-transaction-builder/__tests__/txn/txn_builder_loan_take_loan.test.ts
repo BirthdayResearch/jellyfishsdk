@@ -620,7 +620,7 @@ describe('loans.takeLoan failed', () => {
 
     const promise = sendTransaction(bob.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'TakeLoanTx: At least 50% of the minimum required collateral must be in DFI or DUSD (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'TakeLoanTx: At least 50% of the minimum required collateral must be in DFI or DUSD\', code: -26')
 
     {
       // revert DFI value changes
@@ -1151,7 +1151,7 @@ describe('takeLoan with 50% DUSD or DFI collaterals', () => {
     // Ensure the created txn is correct
     const outs = sendTransaction(bob.container, txn)
     await expect(outs).rejects.toThrow(DeFiDRpcError)
-    await expect(outs).rejects.toThrow('DeFiDRpcError: \'TakeLoanTx: At least 50% of the minimum required collateral must be in DFI or DUSD (code 16)\', code: -26')
+    await expect(outs).rejects.toThrow('DeFiDRpcError: \'TakeLoanTx: At least 50% of the minimum required collateral must be in DFI or DUSD\', code: -26')
   })
 
   it('should not takeLoan with DUSD sole collateral before reaching fort canning road height', async () => {
@@ -1190,7 +1190,7 @@ describe('takeLoan with 50% DUSD or DFI collaterals', () => {
     // Ensure the created txn is correct
     const outs = sendTransaction(bob.container, txn)
     await expect(outs).rejects.toThrow(DeFiDRpcError)
-    await expect(outs).rejects.toThrow('DeFiDRpcError: \'TakeLoanTx: At least 50% of the minimum required collateral must be in DFI or DUSD (code 16)\', code: -26')
+    await expect(outs).rejects.toThrow('DeFiDRpcError: \'TakeLoanTx: At least 50% of the minimum required collateral must be in DFI or DUSD\', code: -26')
   })
 
   it('should not takeLoan with 25% DFI + 25% DUSD collateral before reaching fort canning road height', async () => {
@@ -1226,7 +1226,7 @@ describe('takeLoan with 50% DUSD or DFI collaterals', () => {
     // Ensure the created txn is correct
     const outs = sendTransaction(bob.container, txn)
     await expect(outs).rejects.toThrow(DeFiDRpcError)
-    await expect(outs).rejects.toThrow('DeFiDRpcError: \'TakeLoanTx: At least 50% of the minimum required collateral must be in DFI or DUSD (code 16)\', code: -26')
+    await expect(outs).rejects.toThrow('DeFiDRpcError: \'TakeLoanTx: At least 50% of the minimum required collateral must be in DFI or DUSD\', code: -26')
   })
 
   it('should not takeLoan with 33.33% DUSD collateral', async () => {
@@ -1266,7 +1266,7 @@ describe('takeLoan with 50% DUSD or DFI collaterals', () => {
     // Ensure the created txn is correct
     const outs = sendTransaction(bob.container, txn)
     await expect(outs).rejects.toThrow(DeFiDRpcError)
-    await expect(outs).rejects.toThrow('DeFiDRpcError: \'TakeLoanTx: At least 50% of the minimum required collateral must be in DFI or DUSD (code 16)\', code: -26')
+    await expect(outs).rejects.toThrow('DeFiDRpcError: \'TakeLoanTx: At least 50% of the minimum required collateral must be in DFI or DUSD\', code: -26')
   })
 
   it('should not takeLoan with 24.9975% DFI + 24.9975% DUSD of minimum required collateral', async () => {
@@ -1301,6 +1301,6 @@ describe('takeLoan with 50% DUSD or DFI collaterals', () => {
     // Ensure the created txn is correct
     const outs = sendTransaction(bob.container, txn)
     await expect(outs).rejects.toThrow(DeFiDRpcError)
-    await expect(outs).rejects.toThrow('DeFiDRpcError: \'TakeLoanTx: At least 50% of the minimum required collateral must be in DFI or DUSD (code 16)\', code: -26')
+    await expect(outs).rejects.toThrow('DeFiDRpcError: \'TakeLoanTx: At least 50% of the minimum required collateral must be in DFI or DUSD\', code: -26')
   })
 })

@@ -8,6 +8,7 @@ import { Testing } from '@defichain/jellyfish-testing'
 import { ForbiddenException } from '@nestjs/common'
 import BigNumber from 'bignumber.js'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
+import { RpcApiError } from '@defichain/jellyfish-api-core/dist/index'
 
 const container = new MasterNodeRegTestContainer()
 let app: NestFastifyApplication
@@ -1077,7 +1078,15 @@ describe('listTokens', () => {
   })
 
   it('should return empty and page undefined while listTokens with invalid address', async () => {
-    const tokens = await controller.listTokens('invalid', { size: 30 })
-    expect(tokens).toStrictEqual(expect.objectContaining({ data: [], page: undefined }))
+    try {
+      await controller.listTokens('invalid', { size: 30 })
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(RpcApiError)
+      expect(err.payload).toStrictEqual({
+        code: -5,
+        message: 'Invalid owner address',
+        method: 'getaccount'
+      })
+    }
   })
 })

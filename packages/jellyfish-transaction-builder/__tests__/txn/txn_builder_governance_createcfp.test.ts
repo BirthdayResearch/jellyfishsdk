@@ -150,7 +150,7 @@ describe('createCfp', () => {
     const promise = sendTransaction(testing.container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateCfpTx: proposal title must not be empty (code 16)', code: -26")
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateCfpTx: proposal title must not be empty', code: -26")
   })
 
   it('should reject with invalid title length', async () => {
@@ -169,7 +169,7 @@ describe('createCfp', () => {
     const promise = sendTransaction(testing.container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateCfpTx: proposal title cannot be more than 128 bytes (code 16)', code: -26")
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateCfpTx: proposal title cannot be more than 128 bytes', code: -26")
   })
 
   it('should reject with empty context', async () => {
@@ -188,7 +188,7 @@ describe('createCfp', () => {
     const promise = sendTransaction(testing.container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateCfpTx: proposal context must not be empty (code 16)', code: -26")
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateCfpTx: proposal context must not be empty', code: -26")
   })
 
   it('should reject with invalid context length', async () => {
@@ -207,7 +207,7 @@ describe('createCfp', () => {
     const promise = sendTransaction(testing.container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateCfpTx: proposal context cannot be more than 512 bytes (code 16)', code: -26")
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateCfpTx: proposal context cannot be more than 512 bytes', code: -26")
   })
 
   it('should reject with invalid context hash length', async () => {
@@ -226,7 +226,7 @@ describe('createCfp', () => {
     const promise = sendTransaction(testing.container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateCfpTx: proposal context hash cannot be more than 512 bytes (code 16)', code: -26")
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateCfpTx: proposal context hash cannot be more than 512 bytes', code: -26")
   })
 
   it('should reject if proposal wants to gain all money (amount exceeds 1.2B DFI)', async () => {
@@ -246,6 +246,6 @@ describe('createCfp', () => {
     const promise = sendTransaction(testing.container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateCfpTx: proposal wants to gain all money (code 16)', code: -26")
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateCfpTx: proposal wants to gain all money', code: -26")
   })
 })
