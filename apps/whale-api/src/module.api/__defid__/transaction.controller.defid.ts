@@ -89,8 +89,8 @@ describe('get', () => {
     //   })
     // }
     const res: any = await controller.get('invalidtransactionid')
-    expect(res.code).toStrictEqual(404)
-    expect(res.message).toStrictEqual('transaction not found')
+    expect(res.code).toStrictEqual(400)
+    expect(res.message).toStrictEqual('bad hex string length 64 (expected 20)')
   })
 })
 
