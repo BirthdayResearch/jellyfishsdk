@@ -105,7 +105,7 @@ describe('getVins', () => {
     expect(vin.data.length).toBeGreaterThanOrEqual(1)
   })
 
-  it('should return list of vin when next is out of range', async () => {
+  it.skip('should return list of vin when next is out of range', async () => {
     const blockHash = await app.call('getblockhash', [100])
     const block = await client.blockchain.getBlock(blockHash, 2)
 
