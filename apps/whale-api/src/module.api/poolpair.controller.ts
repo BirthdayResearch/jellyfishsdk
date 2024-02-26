@@ -64,7 +64,7 @@ export class PoolPairController {
       return item.id
     })
     response.data = response.data.filter(value => {
-      return !value.symbol.startsWith('BURN-')
+      return !value.symbol.includes('BURN')
     })
     return response
   }

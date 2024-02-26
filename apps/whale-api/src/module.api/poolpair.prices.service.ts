@@ -89,7 +89,7 @@ export class PoolPairPricesService {
   }
 
   private isUntradeableToken (token: TokenInfoWithId): boolean {
-    return token.isLPS || !token.isDAT || token.symbol === 'BURN' || !token.tradeable
+    return token.isLPS || !token.isDAT || token.symbol.includes('BURN') || !token.tradeable
   }
 }
 
