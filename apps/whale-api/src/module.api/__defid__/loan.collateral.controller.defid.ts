@@ -214,6 +214,6 @@ describe('get', () => {
     // }
     const res: any = await controller.getCollateral('999')
     expect(res.code).toStrictEqual(404)
-    expect(res.message).toStrictEqual('Unable to find collateral token') // Token 999 does not exist!
+    expect(res.message).toStrictEqual('Token 999 does not exist!')
   })
 })
