@@ -258,7 +258,7 @@ export class DLoanController {
   }
 
   async getScheme (id: string): Promise<LoanScheme> {
-    return await this.client.data(`loans/scheme/${id}`)
+    return await this.client.data(`loans/schemes/${id}`)
   }
 
   async listCollateral (query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<CollateralToken>> {
