@@ -238,6 +238,6 @@ describe('get', () => {
     // }
     const res: any = await controller.get('999')
     expect(res.code).toStrictEqual(404)
-    expect(res.message).toStrictEqual('Unable to find token')
+    expect(res.message).toStrictEqual('Token not found')
   })
 })
