@@ -47,7 +47,7 @@ import { TestingPoolPairAdd, TestingPoolPairCreate, TestingPoolPairRemove, Testi
 import { poolpair } from '@defichain/jellyfish-api-core'
 import { addressToHid } from './module.api/address.controller'
 import { Bech32, Elliptic, HRP, WIF } from '@defichain/jellyfish-crypto'
-import { AddPoolLiquidityMetadata, CreatePoolPairOptions, CreateTokenOptions, CreateSignedTxnHexOptions, MintTokensOptions, UtxosToAccountOptions } from '@defichain/testing'
+import { AddPoolLiquidityMetadata, CreatePoolPairOptions, CreateTokenOptions, CreateSignedTxnHexOptions, MintTokensOptions, PoolSwapMetadata, UtxosToAccountOptions } from '@defichain/testing'
 import { VaultAuctionBatchHistory } from './module.model/vault.auction.batch.history'
 import { WhaleApiClientOptions } from '@defichain/whale-api-client/dist/whale.api.client'
 
@@ -87,6 +87,7 @@ class DefidOceanApiClient {
   }
 
   async get (path: string): Promise<any> {
+    console.log('path: ', path)
     const res = await this.fetchTimeout(path, {
       method: 'GET',
       headers: {
@@ -979,6 +980,14 @@ export class DefidBin {
 
     const amount = lpToken.replace(`@${tokenA}-${tokenB}`, '')
     return new BigNumber(amount)
+  }
+
+  async poolSwap (
+    metadata: PoolSwapMetadata
+  ): Promise<string> {
+    const txid = await this.call('poolswap', [metadata])
+    await this.generate(1)
+    return txid
   }
 
   async createSignedTxnHex (
