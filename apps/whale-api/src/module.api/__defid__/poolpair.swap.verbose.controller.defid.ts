@@ -96,7 +96,7 @@ describe('poolswap buy-sell indicator', () => {
   })
 
   it('should get composite pool swap for 2 jumps', async () => {
-    await app.rpc.rpc.poolpair.compositeSwap({
+    await app.rpc.client.poolpair.compositeSwap({
       from: await app.rpc.address('swap'),
       tokenFrom: 'B',
       amountFrom: 10,
@@ -178,7 +178,7 @@ describe('poolswap buy-sell indicator', () => {
   })
 
   it('should get composite pool swap for 2 jumps scenario 2', async () => {
-    await app.rpc.rpc.poolpair.compositeSwap({
+    await app.rpc.client.poolpair.compositeSwap({
       from: await app.rpc.address('swap'),
       tokenFrom: 'DFI',
       amountFrom: 5,
@@ -260,7 +260,7 @@ describe('poolswap buy-sell indicator', () => {
   })
 
   it('should get composite pool swap for 3 jumps', async () => {
-    await app.rpc.rpc.poolpair.compositeSwap({
+    await app.rpc.client.poolpair.compositeSwap({
       from: await app.rpc.address('swap'),
       tokenFrom: 'A',
       amountFrom: 20,
@@ -376,7 +376,7 @@ describe('poolswap buy-sell indicator', () => {
   })
 
   it('should get direct pool swap for composite swap', async () => {
-    await app.rpc.rpc.poolpair.compositeSwap({
+    await app.rpc.client.poolpair.compositeSwap({
       from: await app.rpc.address('swap'),
       tokenFrom: 'C',
       amountFrom: 10,
@@ -384,7 +384,7 @@ describe('poolswap buy-sell indicator', () => {
       tokenTo: 'DFI'
     })
 
-    await app.rpc.rpc.poolpair.compositeSwap({
+    await app.rpc.client.poolpair.compositeSwap({
       from: await app.rpc.address('swap'),
       tokenFrom: 'A',
       amountFrom: 10,

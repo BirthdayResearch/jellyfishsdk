@@ -579,14 +579,14 @@ export class DefidRpcClient extends JsonRpcClient {
 }
 
 export class DefidRpc {
-  readonly token = new DefidRpcToken(this.defid, this.rpc)
-  readonly poolpair = new DefidRpcPoolPair(this.defid, this.rpc)
+  readonly token = new DefidRpcToken(this.defid, this.client)
+  readonly poolpair = new DefidRpcPoolPair(this.defid, this.client)
 
   private readonly addresses: Record<string, string> = {}
 
   constructor (
     private readonly defid: DefidBin,
-    readonly rpc: DefidRpcClient
+    readonly client: DefidRpcClient
   ) {
   }
 
