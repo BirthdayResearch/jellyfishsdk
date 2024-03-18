@@ -12,28 +12,28 @@ beforeAll(async () => {
   testing = app.rpc
   await app.waitForBlockHeight(101)
 
-  await testing.rpc.loan.createLoanScheme({
+  await testing.client.loan.createLoanScheme({
     minColRatio: 100,
     interestRate: new BigNumber(6.5),
     id: 'default'
   })
   await app.generate(1)
 
-  await testing.rpc.loan.createLoanScheme({
+  await testing.client.loan.createLoanScheme({
     minColRatio: 150,
     interestRate: new BigNumber(5.5),
     id: 'scheme1'
   })
   await app.generate(1)
 
-  await testing.rpc.loan.createLoanScheme({
+  await testing.client.loan.createLoanScheme({
     minColRatio: 200,
     interestRate: new BigNumber(4.5),
     id: 'scheme2'
   })
   await app.generate(1)
 
-  await testing.rpc.loan.createLoanScheme({
+  await testing.client.loan.createLoanScheme({
     minColRatio: 250,
     interestRate: new BigNumber(3.5),
     id: 'scheme3'

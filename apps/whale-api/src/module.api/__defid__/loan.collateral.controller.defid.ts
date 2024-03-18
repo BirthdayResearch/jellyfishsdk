@@ -24,7 +24,7 @@ beforeAll(async () => {
   await testing.token.create({ symbol: 'FB' })
   await testing.generate(1)
 
-  const oracleId = await testing.rpc.oracle.appointOracle(await app.getNewAddress(),
+  const oracleId = await testing.client.oracle.appointOracle(await app.getNewAddress(),
     [
       { token: 'AAPL', currency: 'USD' },
       { token: 'TSLA', currency: 'USD' },
@@ -33,25 +33,25 @@ beforeAll(async () => {
     ], { weightage: 1 })
   await testing.generate(1)
 
-  await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
+  await testing.client.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
     prices: [{
       tokenAmount: '1.5@AAPL',
       currency: 'USD'
     }]
   })
-  await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
+  await testing.client.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
     prices: [{
       tokenAmount: '2.5@TSLA',
       currency: 'USD'
     }]
   })
-  await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
+  await testing.client.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
     prices: [{
       tokenAmount: '3.5@MSFT',
       currency: 'USD'
     }]
   })
-  await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
+  await testing.client.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
     prices: [{
       tokenAmount: '4.5@FB',
       currency: 'USD'
@@ -59,28 +59,28 @@ beforeAll(async () => {
   })
   await testing.generate(1)
 
-  await testing.rpc.loan.setCollateralToken({
+  await testing.client.loan.setCollateralToken({
     token: 'AAPL',
     factor: new BigNumber(0.1),
     fixedIntervalPriceId: 'AAPL/USD'
   })
   await testing.generate(1)
 
-  await testing.rpc.loan.setCollateralToken({
+  await testing.client.loan.setCollateralToken({
     token: 'TSLA',
     factor: new BigNumber(0.2),
     fixedIntervalPriceId: 'TSLA/USD'
   })
   await testing.generate(1)
 
-  await testing.rpc.loan.setCollateralToken({
+  await testing.client.loan.setCollateralToken({
     token: 'MSFT',
     factor: new BigNumber(0.3),
     fixedIntervalPriceId: 'MSFT/USD'
   })
   await testing.generate(1)
 
-  await testing.rpc.loan.setCollateralToken({
+  await testing.client.loan.setCollateralToken({
     token: 'FB',
     factor: new BigNumber(0.4),
     fixedIntervalPriceId: 'FB/USD'
