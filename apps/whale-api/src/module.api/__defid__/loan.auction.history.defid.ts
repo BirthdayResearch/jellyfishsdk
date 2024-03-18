@@ -314,7 +314,7 @@
 //   await testing.generate(1)
 // }
 // async function setCollateralToken (testing: Testing, symbol: string): Promise<void> {
-//   await testing.rpc.loan.setCollateralToken({
+//   await testing.client.loan.setCollateralToken({
 //     token: symbol,
 //     factor: new BigNumber(1),
 //     fixedIntervalPriceId: `${symbol}/USD`
@@ -322,25 +322,25 @@
 //   await testing.generate(1)
 // }
 // async function setLoanToken (testing: Testing, symbol: string): Promise<void> {
-//   await testing.rpc.loan.setLoanToken({
+//   await testing.client.loan.setLoanToken({
 //     symbol: symbol,
 //     fixedIntervalPriceId: `${symbol}/USD`
 //   })
 //   await testing.generate(1)
 // }
 // async function createVault (testing: Testing, schemeId: string, address?: string): Promise<string> {
-//   const vaultId = await testing.rpc.container.call(
+//   const vaultId = await testing.client.container.call(
 //     'createvault', [address ?? await testing.generateAddress(), schemeId]
 //   )
 //   await testing.generate(1)
 //   return vaultId
 // }
 // async function depositToVault (testing: Testing, vaultId: string, address: string, tokenAmt: string): Promise<void> {
-//   await testing.rpc.container.call('deposittovault', [vaultId, address, tokenAmt])
+//   await testing.client.container.call('deposittovault', [vaultId, address, tokenAmt])
 //   await testing.generate(1)
 // }
 // async function takeLoan (testing: Testing, vaultId: string, amounts: string | string[]): Promise<void> {
-//   await testing.rpc.container.call('takeloan', [{ vaultId, amounts }])
+//   await testing.client.container.call('takeloan', [{ vaultId, amounts }])
 //   await testing.generate(1)
 // }
 // async function placeAuctionBid (testing: Testing, vaultId: string, index: number, addr: string, tokenAmt: string): Promise<void> {

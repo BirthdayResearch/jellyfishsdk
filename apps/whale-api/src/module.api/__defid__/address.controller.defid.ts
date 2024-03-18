@@ -38,10 +38,10 @@ async function setup (): Promise<void> {
   })
   await testing.generate(1)
 
-  await testing.rpc.account.accountToAccount(colAddr, { [usdcAddr]: '10000@USDC' })
+  await testing.client.account.accountToAccount(colAddr, { [usdcAddr]: '10000@USDC' })
   await testing.generate(1)
 
-  await testing.rpc.poolpair.createPoolPair({
+  await testing.client.poolpair.createPoolPair({
     tokenA: 'DFI',
     tokenB: 'USDC',
     commission: 0,
@@ -50,7 +50,7 @@ async function setup (): Promise<void> {
   })
   await testing.generate(1)
 
-  const poolPairsKeys = Object.keys(await testing.rpc.poolpair.listPoolPairs())
+  const poolPairsKeys = Object.keys(await testing.client.poolpair.listPoolPairs())
   expect(poolPairsKeys.length).toStrictEqual(1)
   dfiUsdc = poolPairsKeys[0]
 
@@ -60,13 +60,13 @@ async function setup (): Promise<void> {
   await app.call('setgov', [{ LP_SPLITS: { [dfiUsdc]: 1.0 } }])
   await testing.generate(1)
 
-  await testing.rpc.poolpair.addPoolLiquidity({
+  await testing.client.poolpair.addPoolLiquidity({
     [colAddr]: '5000@DFI',
     [usdcAddr]: '5000@USDC'
   }, poolAddr)
   await testing.generate(1)
 
-  await testing.rpc.poolpair.poolSwap({
+  await testing.client.poolpair.poolSwap({
     from: colAddr,
     tokenFrom: 'DFI',
     amountFrom: 555,
@@ -75,7 +75,7 @@ async function setup (): Promise<void> {
   })
   await testing.generate(1)
 
-  await testing.rpc.poolpair.removePoolLiquidity(poolAddr, '2@DFI-USDC')
+  await testing.client.poolpair.removePoolLiquidity(poolAddr, '2@DFI-USDC')
   await testing.generate(1)
 
   // for testing same block pagination
@@ -761,7 +761,7 @@ describe('listTransactionsUnspent', () => {
 
 describe('listTokens', () => {
   async function setupLoanToken (): Promise<void> {
-    const oracleId = await testing.rpc.oracle.appointOracle(await testing.generateAddress(), [
+    const oracleId = await testing.client.oracle.appointOracle(await testing.generateAddress(), [
       {
         token: 'DFI',
         currency: 'USD'
@@ -773,7 +773,7 @@ describe('listTokens', () => {
     ], { weightage: 1 })
     await testing.generate(1)
 
-    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
+    await testing.client.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
       prices: [
         {
           tokenAmount: '2@DFI',
@@ -787,12 +787,12 @@ describe('listTokens', () => {
     })
     await testing.generate(1)
 
-    await testing.rpc.loan.setCollateralToken({
+    await testing.client.loan.setCollateralToken({
       token: 'DFI',
       factor: new BigNumber(1),
       fixedIntervalPriceId: 'DFI/USD'
     })
-    await testing.rpc.loan.setLoanToken({
+    await testing.client.loan.setLoanToken({
       symbol: 'LOAN',
       name: 'LOAN',
       fixedIntervalPriceId: 'LOAN/USD',
@@ -806,20 +806,20 @@ describe('listTokens', () => {
       amount: 100
     })
 
-    await testing.rpc.loan.createLoanScheme({
+    await testing.client.loan.createLoanScheme({
       id: 'scheme',
       minColRatio: 110,
       interestRate: new BigNumber(1)
     })
     await testing.generate(1)
 
-    const vaultId = await testing.rpc.loan.createVault({
+    const vaultId = await testing.client.loan.createVault({
       ownerAddress: await testing.address('VAULT'),
       loanSchemeId: 'scheme'
     })
     await testing.generate(1)
 
-    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
+    await testing.client.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
       prices: [
         {
           tokenAmount: '2@DFI',
@@ -833,13 +833,13 @@ describe('listTokens', () => {
     })
     await testing.generate(1)
 
-    await testing.rpc.loan.depositToVault({
+    await testing.client.loan.depositToVault({
       vaultId: vaultId,
       from: await testing.address('DFI'),
       amount: '100@DFI'
     })
     await testing.generate(1)
-    await testing.rpc.loan.takeLoan({
+    await testing.client.loan.takeLoan({
       vaultId: vaultId,
       amounts: '10@LOAN',
       to: address

@@ -19,14 +19,14 @@ beforeAll(async () => {
   await app.waitForWalletBalanceGTE(100)
 
   // loan schemes
-  await testing.rpc.loan.createLoanScheme({
+  await testing.client.loan.createLoanScheme({
     minColRatio: 150,
     interestRate: new BigNumber(1.5),
     id: 'default'
   })
   await testing.generate(1)
 
-  await testing.rpc.loan.createLoanScheme({
+  await testing.client.loan.createLoanScheme({
     minColRatio: 100,
     interestRate: new BigNumber(2.5),
     id: 'scheme'
@@ -35,25 +35,25 @@ beforeAll(async () => {
 
   // Create vaults
   address1 = await testing.generateAddress()
-  vaultId1 = await testing.rpc.loan.createVault({
+  vaultId1 = await testing.client.loan.createVault({
     ownerAddress: address1,
     loanSchemeId: 'default'
   })
   await testing.generate(1)
 
-  await testing.rpc.loan.createVault({
+  await testing.client.loan.createVault({
     ownerAddress: await testing.generateAddress(),
     loanSchemeId: 'default'
   })
   await testing.generate(1)
 
-  await testing.rpc.loan.createVault({
+  await testing.client.loan.createVault({
     ownerAddress: await testing.generateAddress(),
     loanSchemeId: 'default'
   })
   await testing.generate(1)
 
-  await testing.rpc.loan.createVault({
+  await testing.client.loan.createVault({
     ownerAddress: await testing.generateAddress(),
     loanSchemeId: 'default'
   })

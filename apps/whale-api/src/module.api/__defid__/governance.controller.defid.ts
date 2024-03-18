@@ -33,7 +33,7 @@ describe('governance - listProposals and getProposal', () => {
 
     // Create 1 CFP + 1 VOC
     payoutAddress = await testing.generateAddress()
-    cfpProposalId = await testing.rpc.governance.createGovCfp({
+    cfpProposalId = await testing.client.governance.createGovCfp({
       title: 'CFP proposal',
       context: 'github',
       amount: new BigNumber(1.23),
@@ -42,7 +42,7 @@ describe('governance - listProposals and getProposal', () => {
     })
     await app.generate(1)
 
-    vocProposalId = await testing.rpc.governance.createGovVoc({
+    vocProposalId = await testing.client.governance.createGovVoc({
       title: 'VOC proposal',
       context: 'github'
     })
@@ -259,14 +259,14 @@ describe('governance - listProposalVotes', () => {
      * Import the private keys of the masternode_operator in order to be able to mint blocks and vote on proposals.
      * This setup uses the default masternode + two additional masternodes for a total of 3 masternodes.
      */
-    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[1].owner.privKey)
-    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[1].operator.privKey)
-    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[2].owner.privKey)
-    await testing.rpc.wallet.importPrivKey(RegTestFoundationKeys[2].operator.privKey)
+    await testing.client.wallet.importPrivKey(RegTestFoundationKeys[1].owner.privKey)
+    await testing.client.wallet.importPrivKey(RegTestFoundationKeys[1].operator.privKey)
+    await testing.client.wallet.importPrivKey(RegTestFoundationKeys[2].owner.privKey)
+    await testing.client.wallet.importPrivKey(RegTestFoundationKeys[2].operator.privKey)
 
     // Create 1 CFP + 1 VOC
     payoutAddress = await testing.generateAddress()
-    cfpProposalId = await testing.rpc.governance.createGovCfp({
+    cfpProposalId = await testing.client.governance.createGovCfp({
       title: 'CFP proposal',
       context: 'github',
       amount: new BigNumber(1.23),
@@ -275,14 +275,14 @@ describe('governance - listProposalVotes', () => {
     })
     await app.generate(1)
 
-    vocProposalId = await testing.rpc.governance.createGovVoc({
+    vocProposalId = await testing.client.governance.createGovVoc({
       title: 'VOC proposal',
       context: 'github'
     })
     await app.generate(1)
 
     // Vote on CFP
-    await testing.rpc.governance.voteGov({
+    await testing.client.governance.voteGov({
       proposalId: cfpProposalId,
       masternodeId: await getVotableMasternodeId(),
       decision: VoteDecision.YES
@@ -290,19 +290,19 @@ describe('governance - listProposalVotes', () => {
     await app.generate(1)
 
     // Expires cycle 1
-    const creationHeight = await testing.rpc.governance.getGovProposal(cfpProposalId).then(proposal => proposal.creationHeight)
+    const creationHeight = await testing.client.governance.getGovProposal(cfpProposalId).then(proposal => proposal.creationHeight)
     const votingPeriod = 70
     const cycle1 = creationHeight + (votingPeriod - creationHeight % votingPeriod) + votingPeriod
     await app.generate(cycle1 - await app.getBlockCount())
 
     // Vote on cycle 2
-    const masternodes = await testing.rpc.masternode.listMasternodes()
+    const masternodes = await testing.client.masternode.listMasternodes()
     const votes = [VoteDecision.YES, VoteDecision.NO, VoteDecision.NEUTRAL]
     let index = 0
     for (const [id, data] of Object.entries(masternodes)) {
       if (data.operatorIsMine) {
         await app.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
-        await testing.rpc.governance.voteGov({
+        await testing.client.governance.voteGov({
           proposalId: cfpProposalId,
           masternodeId: id,
           decision: votes[index]
@@ -388,7 +388,7 @@ describe('governance - listProposalVotes', () => {
  * Return masternode that mined at least one block to vote on proposal
  */
 async function getVotableMasternodeId (): Promise<string> {
-  const masternodes = await testing.rpc.masternode.listMasternodes()
+  const masternodes = await testing.client.masternode.listMasternodes()
   let masternodeId = ''
   for (const id in masternodes) {
     const masternode = masternodes[id]
