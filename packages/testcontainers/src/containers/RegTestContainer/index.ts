@@ -43,6 +43,7 @@ export class RegTestContainer extends DeFiDContainer {
       '-grandcentralheight=16',
       '-grandcentralepilogueheight=17',
       '-metachainheight=18',
+      '-df23height=19',
       '-regtest-skip-loan-collateral-validation',
       '-regtest-minttoken-simulate-mainnet=0',
       '-rpc-governance-accept-neutral=1'
