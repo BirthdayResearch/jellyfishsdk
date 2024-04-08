@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   defi-blockchain:
-    image: defi/defichain:HEAD-b3f4954724
+    image: defi/defichain:HEAD-5594a9373c
 
     ports:
       - "19554:19554"
