@@ -36,6 +36,9 @@ describe('SetGov v0/locks/token', () => {
       }, {
         token: 'TSLA',
         currency: 'USD'
+      }, {
+        token: 'DUSD',
+        currency: 'USD'
       }],
       { weightage: 1 })
     await testing.generate(1)
@@ -46,6 +49,9 @@ describe('SetGov v0/locks/token', () => {
         currency: 'USD'
       }, {
         tokenAmount: '1@TSLA',
+        currency: 'USD'
+      }, {
+        tokenAmount: '1@DUSD',
         currency: 'USD'
       }]
     })
@@ -64,6 +70,10 @@ describe('SetGov v0/locks/token', () => {
     await testing.rpc.loan.setLoanToken({
       symbol: 'TSLA',
       fixedIntervalPriceId: 'TSLA/USD'
+    })
+    await testing.rpc.loan.setLoanToken({
+      symbol: 'DUSD',
+      fixedIntervalPriceId: 'DUSD/USD'
     })
     await testing.generate(1)
 
