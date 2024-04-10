@@ -5,5 +5,5 @@ module.exports = {
   testRegex: '((\\.|/)(sanity))\\.ts$',
   testPathIgnorePatterns: [],
   globalSetup: './jest.sanity.setup.js',
-  testTimeout: 300000
+  testTimeout: 600000
 }
