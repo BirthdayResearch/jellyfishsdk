@@ -736,7 +736,7 @@ describe('SetGov v0/oracles/splits', () => {
               owner: collateralAddress
             },
             index: 0,
-            loan: '1.00000381@TSLA'
+            loan: '1.00000343@TSLA'
           }]
         }
       )
@@ -790,7 +790,7 @@ describe('SetGov v0/oracles/splits', () => {
               owner: collateralAddress
             },
             index: 0,
-            loan: '2.00000762@TSLA' // 1.00000381 * 2
+            loan: '2.00000686@TSLA' // 1.00000343 * 2
           }]
         }
       )
@@ -810,7 +810,7 @@ describe('SetGov v0/oracles/splits', () => {
       const auction = await testing.rpc.vault.listAuctions()
       expect(auction.length).toStrictEqual(1)
       expect(auction[0].batches.length).toStrictEqual(1)
-      expect(auction[0].batches[0].loan).toStrictEqual('1.00000381@TSLA')
+      expect(auction[0].batches[0].loan).toStrictEqual('1.00000343@TSLA')
       expect(auction[0].batches[0].highestBid?.amount).toStrictEqual('1.10000000@TSLA')
     }
 
@@ -845,7 +845,7 @@ describe('SetGov v0/oracles/splits', () => {
       const auction = await testing.rpc.vault.listAuctions()
       expect(auction.length).toStrictEqual(1)
       expect(auction[0].batches.length).toStrictEqual(1)
-      expect(auction[0].batches[0].loan).toStrictEqual('2.00000762@TSLA') // 1.00000381 * 2
+      expect(auction[0].batches[0].loan).toStrictEqual('2.00000686@TSLA') // 1.00000343 * 2
       expect(auction[0].batches[0].highestBid?.amount).toStrictEqual('2.20000000@TSLA') // 1.10000000 * 2
     }
   })
