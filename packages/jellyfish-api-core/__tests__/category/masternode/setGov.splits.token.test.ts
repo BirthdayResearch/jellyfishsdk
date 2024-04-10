@@ -37,6 +37,9 @@ describe('SetGov v0/oracles/splits', () => {
       }, {
         token: 'TSLA',
         currency: 'USD'
+      }, {
+        token: 'DUSD',
+        currency: 'USD'
       }],
       { weightage: 1 })
     await testing.generate(1)
@@ -47,6 +50,9 @@ describe('SetGov v0/oracles/splits', () => {
         currency: 'USD'
       }, {
         tokenAmount: '0.99999999@TSLA',
+        currency: 'USD'
+      }, {
+        tokenAmount: '0.99999999@DUSD',
         currency: 'USD'
       }]
     })
@@ -62,6 +68,13 @@ describe('SetGov v0/oracles/splits', () => {
     await testing.rpc.loan.setLoanToken({
       symbol: 'TSLA',
       fixedIntervalPriceId: 'TSLA/USD',
+      interest: new BigNumber(1)
+    })
+    await testing.generate(1)
+
+    await testing.rpc.loan.setLoanToken({
+      symbol: 'DUSD',
+      fixedIntervalPriceId: 'DUSD/USD',
       interest: new BigNumber(1)
     })
     await testing.generate(1)
