@@ -451,14 +451,14 @@ describe('SetGov v0/locks/token', () => {
 
   it('should not lock loan token if loan token number is invalid', async () => {
     // Try to lock invalid token
-    const promise = testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/locks/token/2': 'true' } })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test SetGovVariableTx execution failed:\nATTRIBUTES: No loan token with id (2)\', code: -32600, method: setgov')
+    const promise = testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/locks/token/999': 'true' } })
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test SetGovVariableTx execution failed:\nATTRIBUTES: No loan token with id (999)\', code: -32600, method: setgov')
   })
 
   it('should not unlock loan token if loan token number is invalid', async () => {
     // Try to unlock invalid token
-    const promise = testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/locks/token/2': 'false' } })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test SetGovVariableTx execution failed:\nATTRIBUTES: No loan token with id (2)\', code: -32600, method: setgov')
+    const promise = testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/locks/token/999': 'false' } })
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test SetGovVariableTx execution failed:\nATTRIBUTES: No loan token with id (999)\', code: -32600, method: setgov')
   })
 
   it('should not update token if loan token is locked', async () => {
