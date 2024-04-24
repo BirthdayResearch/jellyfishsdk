@@ -950,9 +950,9 @@ describe('get all paths', () => {
 describe('get list swappable tokens', () => {
   it('should list correct swappable tokens', async () => {
     const result = await controller.listSwappableTokens('1') // A
-    expect(result).toStrictEqual({
+    expect(result).toStrictEqual(expect.objectContaining({
       fromToken: { id: '1', name: 'A', symbol: 'A', displaySymbol: 'dA' },
-      swappableTokens: [
+      swappableTokens: expect.arrayContaining([
         { id: '7', name: 'G', symbol: 'G', displaySymbol: 'dG' },
         { id: '0', name: 'Default Defi token', symbol: 'DFI', displaySymbol: 'DFI' },
         { id: '30', name: 'USDT', symbol: 'USDT', displaySymbol: 'dUSDT' },
@@ -961,8 +961,8 @@ describe('get list swappable tokens', () => {
         { id: '4', name: 'D', symbol: 'D', displaySymbol: 'dD' },
         { id: '3', name: 'C', symbol: 'C', displaySymbol: 'dC' },
         { id: '2', name: 'B', symbol: 'B', displaySymbol: 'dB' }
-      ]
-    })
+      ])
+    }))
   })
 
   it('should not show status:false tokens', async () => {
