@@ -327,6 +327,33 @@ export class Wallet {
   }
 
   /**
+   * If a label name is provided, this will return only incoming transactions paying to addresses with the specified label.
+   * Returns up to 'count' most recent transactions skipping the first 'from' transactions.
+   *
+   * @param {string} label If set, should be a valid label name to return only incoming transactions with the specified label, or '*' to disable filtering and return all transactions. (default = '*')
+   * @param {string} count The number of transactions to return (default = 10)
+   * @param {string} skip The number of transactions to skip (default = 0)
+   * @param {boolean} includeWatchOnly Whether to include watch-only addresses (default = true)
+   * @param {boolean} excludeCustomTx False to include all transactions, otherwise exclude custom transactions (default = false)
+   * @return {Promise<Array<InWalletTransactionWithFlatDetails>>}
+   */
+  async listTransactions ({
+    label = '*',
+    count = 10,
+    skip = 0,
+    includeWatchOnly = true,
+    excludeCustomTx = false
+  }: {
+    label?: string
+    count?: number
+    skip?: number
+    includeWatchOnly?: boolean
+    excludeCustomTx?: boolean
+  }): Promise<InWalletTransactionWithFlatDetails[]> {
+    return await this.client.call('listtransactions', [label, count, skip, includeWatchOnly, excludeCustomTx], { amount: 'bignumber' })
+  }
+
+  /**
    * Sign a message with the private key of an address
    * Requires wallet to be unlocked for usage. Use `walletpassphrase` to unlock wallet.
    *
@@ -493,6 +520,26 @@ export interface InWalletTransaction {
   bip125replaceable?: BIP125
   details: InWalletTransactionDetail[]
   hex: string
+}
+
+export interface InWalletTransactionWithFlatDetails {
+  address: string
+  category: InWalletTransactionCategory
+  amount: BigNumber
+  label?: string
+  vout: number
+  fee?: number
+  confirmations: number
+  trusted: boolean
+  blockhash: string
+  blockindex: number
+  blocktime: number
+  txid: string
+  time: number
+  timereceived: number
+  comment?: string
+  'bip125-replaceable': BIP125
+  abandoned?: boolean
 }
 
 export interface InWalletTransactionDetail {
