@@ -180,6 +180,18 @@ async function setup (): Promise<void> {
     shareAddress: await getNewAddress(container)
   })
 
+  // BURN2 should not be listed as Swappable
+  await createToken(container, 'BURN2')
+  await createPoolPair(container, 'BURN2', 'DFI', { status: false })
+  await mintTokens(container, 'BURN2', { mintAmount: 1 })
+  await addPoolLiquidity(container, {
+    tokenA: 'BURN2',
+    amountA: 1,
+    tokenB: 'DFI',
+    amountB: 1,
+    shareAddress: await getNewAddress(container)
+  })
+
   await container.call('setgov', [{ LP_SPLITS: { 16: 1.0 } }])
   await container.generate(1)
 
@@ -266,6 +278,15 @@ describe('list', () => {
     })
   })
 
+  it('list should not include any poolpairs with BURN', async () => {
+    const response = await controller.list({
+      size: 30
+    })
+    const burnTokens = ['BURN', 'BURN2']
+
+    expect(response.data.some(poolpair => burnTokens.includes(poolpair.symbol))).toBe(false)
+  })
+
   it('should list with pagination', async () => {
     const first = await controller.list({
       size: 2
@@ -276,7 +297,7 @@ describe('list', () => {
     expect(first.data[1].symbol).toStrictEqual('B-DFI')
 
     const next = await controller.list({
-      size: 14,
+      size: 15,
       next: first.page?.next
     })
 
@@ -972,8 +993,9 @@ describe('get list swappable tokens', () => {
 
   it('should not show status:false tokens', async () => {
     const result = await controller.listSwappableTokens('1') // A
-    expect(result.swappableTokens.map(token => token.symbol))
-      .not.toContain('BURN')
+    const unswappableTokens = ['BURN', 'BURN2']
+
+    expect(result.swappableTokens.some(token => unswappableTokens.includes(token.symbol))).toBe(false)
   })
 
   it('should list no tokens for token that is not swappable with any', async () => {
@@ -1206,6 +1228,14 @@ describe('latest dex prices', () => {
     await expect(controller.listDexPrices('BURN'))
       .rejects
       .toThrowError('Token \'BURN\' is invalid as it is not tradeable')
+
+    // BURN2 not included in any denominated dex prices
+    expect(result.dexPrices.BURN2).toBeUndefined()
+
+    // BURN2 is not a valid 'denomination' token
+    await expect(controller.listDexPrices('BURN2'))
+      .rejects
+      .toThrowError('Token \'BURN2\' is invalid as it is not tradeable')
   })
 
   describe('param validation - denomination', () => {
