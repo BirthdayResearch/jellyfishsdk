@@ -345,7 +345,7 @@ export class DPoolPairController {
     return await this.client.get(`poolpairs/${id}/swaps/verbose?size=${query.size}&next=${query.next}`)
   }
 
-  async listPoolSwapsAggregate (id: string, interval: number, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<PoolSwapAggregatedData>> {
+  async listPoolSwapAggregates (id: string, interval: number, query: OceanListQuery = { size: 30 }): Promise<ApiPagedResponse<PoolSwapAggregatedData>> {
     return await this.client.get(`poolpairs/${id}/swaps/aggregate/${interval}?size=${query.size}&next=${query.next}`)
   }
 
