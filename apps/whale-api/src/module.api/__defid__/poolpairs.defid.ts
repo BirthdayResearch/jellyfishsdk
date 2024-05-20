@@ -1,30 +1,20 @@
-// import { PoolPairData, PoolSwapAggregatedData, PoolSwapAggregatedInterval, PoolSwapData } from '@defichain/whale-api-client/dist/api/poolpairs'
-// import waitForExpect from 'wait-for-expect'
 import { PoolSwapAggregatedInterval } from '@defichain/whale-api-client/dist/api/poolpairs'
+import { DPoolPairController, DefidBin } from '../../e2e.defid.module'
 
-import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { DPoolPairController, DefidBin, DefidRpc } from '../../e2e.defid.module'
-
-let container: DefidRpc
 let app: DefidBin
 let controller: DPoolPairController
-let client: JsonRpcClient
 
 beforeAll(async () => {
   app = new DefidBin()
   await app.start()
   controller = app.ocean.poolPairController
-  container = app.rpc
-  console.log('container: ', container)
   await app.waitForBlockHeight(101)
-  client = new JsonRpcClient(app.rpcUrl)
-  console.log('client: ', client)
 
   await setup()
 })
 
 afterAll(async () => {
-  // await app.stop()
+  await app.stop()
 })
 
 async function setup (): Promise<void> {
@@ -143,10 +133,6 @@ async function setup (): Promise<void> {
   })
 }
 
-it.only('', async () => {
-  console.log('test')
-})
-
 it('should show aggregated swaps for 24h and 30d', async () => {
   {
     const fiveMinutes = 60 * 5
@@ -177,11 +163,10 @@ it('should show aggregated swaps for 24h and 30d', async () => {
 
     const height = await app.getBlockCount()
     await app.generate(1)
-    await app.waitForIndexedHeight(height)
+    await app.waitForBlockHeight(height)
   }
 
   const { data: dayAggregated } = await controller.listPoolSwapAggregates('11', PoolSwapAggregatedInterval.ONE_DAY, { size: 10 })
-  console.log('dayAggregated: ', JSON.stringify(dayAggregated))
   expect([...dayAggregated]).toStrictEqual([
     {
       aggregated: {
@@ -218,7 +203,6 @@ it('should show aggregated swaps for 24h and 30d', async () => {
   ])
 
   const { data: hourAggregated } = await controller.listPoolSwapAggregates('11', PoolSwapAggregatedInterval.ONE_HOUR, { size: 3 })
-  console.log('hourAggregated: ', JSON.stringify(hourAggregated))
   expect([...hourAggregated]).toStrictEqual([
     {
       aggregated: {
