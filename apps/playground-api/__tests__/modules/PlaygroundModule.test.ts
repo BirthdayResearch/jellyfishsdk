@@ -217,8 +217,7 @@ it('should have gov set', async () => {
       'v0/transferdomain/dvm-evm/dest-formats': ['erc55'],
       'v0/transferdomain/evm-dvm/src-formats': ['erc55'],
       'v0/transferdomain/evm-dvm/auth-formats': ['bech32-erc55'],
-      'v0/transferdomain/evm-dvm/dest-formats': ['bech32', 'p2pkh'],
-      'v0/vaults/params/creation_fee': '2'
+      'v0/transferdomain/evm-dvm/dest-formats': ['bech32', 'p2pkh']
     }
   })
 
