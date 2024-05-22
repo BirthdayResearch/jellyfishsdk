@@ -179,5 +179,12 @@ export class SetupGov extends PlaygroundSetup<Record<string, any>> {
       }
     })
     await this.generate(1)
+
+    // await this.client.masternode.setGov({
+    //   ATTRIBUTES: {
+    //     'v0/vaults/params/creation_fee': '2'
+    //   }
+    // })
+    // await this.generate(1)
   }
 }
