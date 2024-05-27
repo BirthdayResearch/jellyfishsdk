@@ -44,6 +44,18 @@ export class Mining {
   async estimateSmartFee (confirmationTarget: number, estimateMode: EstimateMode = EstimateMode.CONSERVATIVE): Promise<SmartFeeEstimation> {
     return await this.client.call('estimatesmartfee', [confirmationTarget, estimateMode], 'number')
   }
+
+  /**
+   * Attempts to submit new block to network.
+   * See https://en.bitcoin.it/wiki/BIP_0022 for full specification.
+   *
+   * @param {string} hexdata the hex-encoded block data to submit
+   * @param {string} dummy value, for compatibility with BIP22. This value is ignored.
+   * @returns {Promise<void>}
+   */
+  async submitBlock (hexdata: string, dummy: string = ''): Promise<void> {
+    return await this.client.call('submitblock', [hexdata, dummy], 'number')
+  }
 }
 
 /**
