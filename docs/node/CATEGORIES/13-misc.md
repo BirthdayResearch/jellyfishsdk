@@ -43,6 +43,17 @@ interface misc {
 }
 ```
 
+# createMultiSig
+
+Creates a multi-signature address with n signature of m keys required.
+It returns a json object with the address and redeemScript.
+
+```ts title="client.misc.createMultiSig()"
+interface misc {
+  createMultiSig (nrequired: number, keys: string[], addressType: wallet.AddressType = wallet.AddressType.LEGACY): Promise<MultiSigAddress>
+}
+```
+
 # deriveAddresses
 
 Derives one or more addresses corresponding to an output descriptor.

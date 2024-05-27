@@ -1,4 +1,5 @@
 import { ApiClient } from '..'
+import { wallet } from '../../src'
 
 /**
  * Misc RPCs for DeFi Blockchain
@@ -45,6 +46,20 @@ export class Misc {
   }
 
   /**
+   * Creates a multi-signature address with n signature of m keys required.
+   * It returns a json object with the address and redeemScript.
+   *
+   * @param {number} nRequired The number of required signatures out of the n keys.
+   * @param {string[]} keys array of hex-encoded public keys.
+   * @param {wallet.AddressType} [addressType=wallet.AddressType.LEGACY] the address type to use.
+   *  Options are wallet.AddressType.LEGACY, wallet.AddressType.P2SHSEGWIT, and wallet.AddressType.BECH32.
+   * @return Promise<MultiSigAddress> The signature of the message encoded in base 64
+   */
+  async createMultiSig (nRequired: number, keys: string[], addressType: wallet.AddressType = wallet.AddressType.LEGACY): Promise<MultiSigAddress> {
+    return await this.client.call('createmultisig', [nRequired, keys, addressType], 'number')
+  }
+
+  /**
    * Derives one or more addresses corresponding to an output descriptor.
    *
    * @param {string} descriptor The descriptor.
@@ -54,4 +69,9 @@ export class Misc {
   async deriveAddresses (descriptor: string, range?: number[]): Promise<string[]> {
     return await this.client.call('deriveaddresses', [descriptor, range].filter(x => x !== undefined), 'number')
   }
+}
+
+export interface MultiSigAddress {
+  address: string
+  redeemScript: string
 }
