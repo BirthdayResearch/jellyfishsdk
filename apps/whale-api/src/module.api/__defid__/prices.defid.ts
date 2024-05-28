@@ -91,7 +91,7 @@ beforeAll(async () => {
   await app.start()
   controller = app.ocean.priceController
   container = app.rpc
-  await app.waitForBlockHeight(101)
+  await app.waitForWalletCoinbaseMaturity()
   client = new JsonRpcClient(app.rpcUrl)
 
   for (const setup of Object.values(setups)) {
