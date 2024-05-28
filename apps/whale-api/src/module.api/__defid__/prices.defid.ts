@@ -94,13 +94,6 @@ beforeAll(async () => {
   await app.waitForBlockHeight(101)
   client = new JsonRpcClient(app.rpcUrl)
 
-  const address = await app.getNewAddress()
-  for (let i = 0; i < 4; i += 1) {
-    await app.call('sendtoaddress', [address, 0.1])
-  }
-
-  await container.generate(3)
-
   for (const setup of Object.values(setups)) {
     setup.address = await app.getNewAddress()
     setup.id = await client.oracle.appointOracle(setup.address, setup.feed, {
