@@ -87,7 +87,7 @@ class DefidOceanApiClient {
   }
 
   async get (path: string): Promise<any> {
-    console.log('path: ', path)
+    // console.log('path: ', path)
     const res = await this.fetchTimeout(path, {
       method: 'GET',
       headers: {
