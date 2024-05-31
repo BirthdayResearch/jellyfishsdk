@@ -19,6 +19,8 @@ beforeAll(async () => {
   // for (const k in tokenResult) {
   //   await defiCache.getTokenInfo(k)
   // }
+
+  await app.waitForPath(controller)
 })
 
 afterAll(async () => {
@@ -176,7 +178,7 @@ async function setup (): Promise<void> {
   await app.generate(1)
 }
 
-describe('get best path - DEX burn fees', () => {
+describe.only('get best path - DEX burn fees', () => {
   it('should return fees - CAT to DFI - Both token fees direction are in', async () => {
     const paths1 = await controller.getBestPath('3', '0')
     expect(paths1.bestPath).toStrictEqual([

@@ -863,6 +863,16 @@ export class DefidBin {
     }, timeout, 100, 'waitForWalletBalanceGTE')
   }
 
+  async waitForPath (controller: DPoolPairController, timeout: number = 300000): Promise<void> {
+    return await waitForCondition(async () => {
+      const res = await controller.listSwappableTokens('0')
+      if (res.swappableTokens.length > 0) {
+        return true
+      }
+      return false
+    }, timeout, 100, 'waitForPath')
+  }
+
   async fundAddress (address: string, amount: number): Promise<{ txid: string, vout: number }> {
     const txid = await this.call('sendtoaddress', [address, amount])
     await this.generate(1)

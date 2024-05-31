@@ -27,6 +27,8 @@ beforeAll(async () => {
   // const tkey = `${CachePrefix.TOKEN_INFO} 31`
   // const token = await cache.get<TokenInfo>(tkey)
   // expect(token?.symbolKey).toStrictEqual('USDT-DFI')
+
+  await app.waitForPath(controller)
 })
 
 afterAll(async () => {
