@@ -22,6 +22,9 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
+      - run: sudo apt-get update
+      - run: sudo apt-get install libudev-dev
+
       - run: npm ci
       - run: npm run compile
       - run: npm run all:build

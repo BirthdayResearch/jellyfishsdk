@@ -1,0 +1,55 @@
+{
+  "private": false,
+  "name": "@defichain/jellyfish-wallet-ledger",
+  "version": "0.0.0",
+  "description": "A collection of TypeScript + JavaScript tools and libraries for DeFiChain developers to build decentralized finance on Bitcoin",
+  "keywords": [
+    "DeFiChain",
+    "DeFi",
+    "Blockchain",
+    "API",
+    "Bitcoin"
+  ],
+  "repository": "DeFiCh/jellyfish",
+  "bugs": "https://github.com/DeFiCh/jellyfish/issues",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "contributors": [
+    {
+      "name": "DeFiChain Foundation",
+      "email": "engineering@defichain.com",
+      "url": "https://defichain.com/"
+    },
+    {
+      "name": "DeFi Blockchain Contributors"
+    },
+    {
+      "name": "DeFiChain Jellyfish Contributors"
+    }
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b ./tsconfig.build.json"
+  },
+  "dependencies": {
+    "@defichain/jellyfish-wallet": "0.0.0",
+    "@defichain/jellyfish-transaction": "0.0.0",
+    "@ledgerhq/hw-transport": "^6.2.0",
+    "@ledgerhq/hw-transport-node-hid": "^6.2.0",
+    "@ledgerhq/hw-app-btc": "^6.2.0",
+    "tiny-secp256k1": "^1.1.6"
+  },
+  "devDependencies": {
+    "@types/ledgerhq__hw-transport": "^4.21.3",
+    "@ledgerhq/hw-transport-node-speculos": "^6.2.0",
+    "@types/ledgerhq__hw-transport-node-hid": "^4.22.2",
+    "@types/tiny-secp256k1": "^1.0.0",
+    "@types/ledgerhq__hw-app-btc": "^5.19.3"
+  }
+}
