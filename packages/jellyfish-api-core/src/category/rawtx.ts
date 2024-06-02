@@ -189,6 +189,16 @@ export class RawTx {
   ): Promise<string | RawTransaction> {
     return await this.client.call('getrawtransaction', [txid, verbose, blockHash], 'number')
   }
+
+  /**
+   * Decode a hex-encoded script.
+   *
+   * @param {string} hexstring The hex-encoded script
+   * @return {Promise<DecodeScriptResult>}
+   */
+  async decodeScript (hexstring: string): Promise<DecodeScriptResult> {
+    return await this.client.call('decodescript', [hexstring], 'number')
+  }
 }
 
 export interface CreateRawTxOptions {
@@ -352,4 +362,56 @@ export interface RawTransaction {
    * The block time in seconds since epoch (Jan 1 1970 GMT)
    */
   blocktime: number
+}
+
+export interface DecodeScriptResult {
+  /**
+   * Script public key
+   */
+  asm: string
+  /**
+   * The output type
+   */
+  type: string
+  /**
+   * The required signatures
+   */
+  reqSigs: number
+  /**
+   * DeFi address
+   */
+  addresses: string[]
+  /**
+   * address of P2SH script wrapping this redeem script (not returned if the script is already a P2SH)
+   */
+  p2sh: string
+  /**
+   * Result of a witness script public key wrapping this redeem script (not returned if the script is a P2SH or witness)
+   */
+  segwit: {
+    /**
+     * String representation of the script public key
+     */
+    asm: string
+    /**
+     * Hex string of the script public key
+     */
+    hex: string
+    /**
+     * The type of the script public key (e.g. witness_v0_keyhash or witness_v0_scripthash)
+     */
+    type: string
+    /**
+     * The required signatures (always 1)
+     */
+    reqSigs: number
+    /**
+     * segwit address
+     */
+    addresses: string[] // (always length 1)
+    /**
+     * address of the P2SH script wrapping this witness redeem script
+     */
+    p2shsegwit: string
+  }
 }

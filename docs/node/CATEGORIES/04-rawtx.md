@@ -227,3 +227,28 @@ interface ScriptPubKey {
   addresses: string[]
 }
 ```
+
+## decodeScript
+
+Decode a hex-encoded script.
+
+```ts title="client.rawtx.decodeScript()"
+interface rawtx {
+  decodeScript (hexstring: string): Promise<DecodeScriptResult>
+}
+
+interface DecodeScriptResult {
+  asm: string
+  type: string
+  reqSigs: number
+  addresses: string[]
+  p2sh: string
+  segwit: {
+    asm: string
+    hex: string
+    type: string
+    reqSigs: number
+    addresses: string[]
+    p2sh-segwit: string
+  }
+}
