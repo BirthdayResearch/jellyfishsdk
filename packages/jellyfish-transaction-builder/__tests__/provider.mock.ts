@@ -43,14 +43,29 @@ export class MockPrevoutProvider implements PrevoutProvider {
     const address = Bech32.fromPubKey(pubKey, 'bcrt')
 
     // TODO(fuxingloh): minimumSumAmount behavior is weirdly inconsistent, listunspent will always
-    //  return the correct result without providing options. However, with 'minimumSumAmount', it
-    //  will appear sometimes. Likely due to race conditions in bitcoin code,
-    //  e.g. -reindex when importprivkey.
+    // return the correct result without providing options. However, with 'minimumSumAmount', it
+    // will appear sometimes.
+    // Refer -> https://github.com/DeFiCh/ain/issues/1208
+    // Due to the above, we collect all utxos for the given address here and extract what's required to satisfy the minBalance
+    // in jellyfish code.
     const unspent: any[] = await this.container.call('listunspent', [
       1, 9999999, [address], true, options
     ])
 
-    return unspent.map((utxo: any): Prevout => {
+    // extract utxos to satisfy minBalance
+    const utxoSelected: any[] = []
+    let total = new BigNumber(0)
+
+    for (const utxo of unspent) {
+      if (total.isGreaterThanOrEqualTo(minBalance)) {
+        break
+      }
+
+      total = total.plus(utxo.amount)
+      utxoSelected.push(utxo)
+    }
+
+    return utxoSelected.map((utxo: any): Prevout => {
       return MockPrevoutProvider.mapPrevout(utxo, pubKey)
     })
   }

@@ -33,13 +33,8 @@ beforeEach(async () => {
   await container.waitForWalletBalanceGTE(101)
 
   // fund utxos balance
-  await fundEllipticPair(container, providers.elliptic.ellipticPair, 1.1) // 1.1
-  await fundEllipticPair(container, providers.elliptic.ellipticPair, 5.5) // 6.6
-  await fundEllipticPair(container, providers.elliptic.ellipticPair, 10.566) // 17.166
-  await fundEllipticPair(container, providers.elliptic.ellipticPair, 15.51345) // 32.67945
-  await fundEllipticPair(container, providers.elliptic.ellipticPair, 20) // 52.67945
-  await fundEllipticPair(container, providers.elliptic.ellipticPair, 37.98) // 90.65945
-  await fundEllipticPair(container, providers.elliptic.ellipticPair, 9.34055) // 100
+  await fundEllipticPair(container, providers.elliptic.ellipticPair, 10) // 10
+  await fundEllipticPair(container, providers.elliptic.ellipticPair, 10) // 20
 
   await providers.setupMocks()
 })
@@ -73,8 +68,8 @@ describe('account.utxosToAccount()', () => {
     expect(outs[0].value).toStrictEqual(conversionAmount)
     expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
 
-    expect(change.value).toBeLessThan(100 - conversionAmount)
-    expect(change.value).toBeGreaterThan(100 - conversionAmount - 0.001)
+    expect(change.value).toBeLessThan(20 - conversionAmount)
+    expect(change.value).toBeGreaterThan(20 - conversionAmount - 0.001)
     expect(change.scriptPubKey.hex).toStrictEqual(`0014${HASH160(destPubKey).toString('hex')}`)
     expect(change.scriptPubKey.addresses[0]).toStrictEqual(Bech32.fromPubKey(destPubKey, 'bcrt'))
 
@@ -123,8 +118,8 @@ describe('account.utxosToAccount()', () => {
     expect(outs[0].value).toStrictEqual(conversionAmount)
     expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
 
-    expect(change.value).toBeLessThan(100 - conversionAmount)
-    expect(change.value).toBeGreaterThan(100 - conversionAmount - 0.001)
+    expect(change.value).toBeLessThan(20 - conversionAmount)
+    expect(change.value).toBeGreaterThan(20 - conversionAmount - 0.001)
     expect(change.scriptPubKey.hex).toStrictEqual(`0014${HASH160(destPubKey).toString('hex')}`)
     expect(change.scriptPubKey.addresses[0]).toStrictEqual(Bech32.fromPubKey(destPubKey, 'bcrt'))
 

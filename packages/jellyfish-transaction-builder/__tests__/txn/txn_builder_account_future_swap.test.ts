@@ -4,11 +4,12 @@ import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { fundEllipticPair, sendTransaction, TxOut } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
-import { Script, SetFutureSwap } from '@defichain/jellyfish-transaction'
+import { CTransactionSegWit, Script, SetFutureSwap, TransactionSegWit } from '@defichain/jellyfish-transaction'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
 import { DfTxType, FutureSwap } from '@defichain/jellyfish-api-core/dist/category/account'
 import { P2WPKH } from '@defichain/jellyfish-address'
+import { SmartBuffer } from 'smart-buffer'
 
 const container = new MasterNodeRegTestContainer()
 const testing = Testing.create(container)
@@ -159,6 +160,14 @@ async function checkTxouts (outs: TxOut[]): Promise<void> {
   expect(prevouts.length).toStrictEqual(1)
   expect(prevouts[0].value.toNumber()).toBeLessThan(10)
   expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
+}
+
+// send transaction without minting a single block in the process
+async function sendTransactionWithoutBlockMint (transaction: TransactionSegWit): Promise<void> {
+  const buffer = new SmartBuffer()
+  new CTransactionSegWit(transaction).toBuffer(buffer)
+  const hex = buffer.toBuffer().toString('hex')
+  await testing.container.call('sendrawtransaction', [hex])
 }
 
 describe('create futureswap', () => {
@@ -428,6 +437,159 @@ describe('create futureswap', () => {
     const accountHistories = await testing.rpc.account.listAccountHistory('all', { txtype: DfTxType.FUTURE_SWAP_EXECUTION })
     expect(accountHistories[0]).toStrictEqual(expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapExecution', amounts: [`${mintedDUSD.div(2).toFixed(8)}@DUSD`] }))
     expect(accountHistories[1]).toStrictEqual(expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapExecution', amounts: [`${mintedDUSD.div(2).toFixed(8)}@DUSD`] }))
+  })
+
+  it('should create multiple dtoken to dusd futureswaps within the same block', async () => {
+    const tslaAddress = await provider.getAddress()
+    await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: '1@TSLA' })
+    await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: '13@DUSD' })
+    await testing.generate(1)
+
+    {
+      // move to next settle block
+      const nextSettleBlock = await testing.container.call('getfutureswapblock', [])
+      await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount())
+    }
+
+    // NOTE(sp): fund 3 utxos to be used for fees (to send 3 times. This is because once sent, the remaining funds of that utxo will only be available after a block generation)
+    {
+      await fundEllipticPair(testing.container, provider.ellipticPair, 10)
+      await fundEllipticPair(testing.container, provider.ellipticPair, 10)
+      await fundEllipticPair(testing.container, provider.ellipticPair, 10)
+    }
+
+    const fsStartBlock = await testing.rpc.blockchain.getBlockCount()
+    {
+      const txn = await builder.account.futureSwap({
+        owner: await provider.elliptic.script(),
+        source: { token: Number(idTSLA), amount: new BigNumber(0.4) },
+        destination: 0,
+        withdraw: false
+      }, script)
+
+      // send tx
+      await sendTransactionWithoutBlockMint(txn)
+    }
+    {
+      const txn = await builder.account.futureSwap({
+        owner: await provider.elliptic.script(),
+        source: { token: Number(idTSLA), amount: new BigNumber(0.6) },
+        destination: 0,
+        withdraw: false
+      }, script)
+
+      // send tx
+      await sendTransactionWithoutBlockMint(txn)
+    }
+    {
+      // await testing.container.call('sendtoaddress', [tslaAddress, 10])
+      const txn = await builder.account.futureSwap({
+        owner: await provider.elliptic.script(),
+        source: { token: Number(idDUSD), amount: new BigNumber(13) },
+        destination: Number(idTSLA),
+        withdraw: false
+      }, script)
+
+      // send tx
+      await sendTransactionWithoutBlockMint(txn)
+    }
+
+    // check no blocks generated so far
+    expect(fsStartBlock).toStrictEqual(await testing.rpc.blockchain.getBlockCount())
+
+    // generate the block now
+    await testing.generate(1)
+
+    // check the futureswap is in effect
+    {
+      const pendingFutures = await testing.container.call('listpendingfutureswaps')
+      expect(pendingFutures.length).toStrictEqual(3)
+
+      expect(pendingFutures).toStrictEqual(expect.arrayContaining([
+        { owner: tslaAddress, source: `${(0.4).toFixed(8)}@TSLA`, destination: 'DUSD' },
+        { owner: tslaAddress, source: `${(0.6).toFixed(8)}@TSLA`, destination: 'DUSD' },
+        { owner: tslaAddress, source: `${(13).toFixed(8)}@DUSD`, destination: 'TSLA' }
+      ]))
+
+      // check live/economy/dfip2203_*
+      const attributes = await testing.rpc.masternode.getGov(attributeKey)
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_current']).toStrictEqual([`${(0.6 + 0.4).toFixed(8)}@TSLA`, `${(13).toFixed(8)}@DUSD`])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_burned']).toStrictEqual([])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_minted']).toStrictEqual([])
+
+      // dfip2203 burn should be empty
+      const burnBefore = await testing.rpc.account.getBurnInfo()
+      expect(burnBefore.dfip2203).toStrictEqual([])
+
+      {
+        // check contractAddress
+        const balance = await testing.rpc.account.getAccount(contractAddress)
+        expect(balance).toStrictEqual([`${(0.6 + 0.4).toFixed(8)}@TSLA`, `${(13).toFixed(8)}@DUSD`])
+      }
+
+      {
+        // check tslaAddress
+        const balance = await testing.rpc.account.getAccount(tslaAddress)
+        expect(balance).toStrictEqual([])
+      }
+    }
+
+    // get minted DUSD, TSLA
+    const dusdMintedBefore = (await testing.rpc.token.getToken(idDUSD))[idDUSD].minted
+    const tslaMintedBefore = (await testing.rpc.token.getToken(idTSLA))[idTSLA].minted
+
+    // move to next settle block
+    const nextSettleBlock = await testing.container.call('getfutureswapblock', [])
+    await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount())
+
+    let mintedDUSD: BigNumber
+    let mintedTSLA: BigNumber
+    // check future settled
+    {
+      // calculate minted DUSD. dtoken goes for a discount.
+      mintedDUSD = new BigNumber((1 - futRewardPercentage) * 2 * (0.4 + 0.6)).dp(8, BigNumber.ROUND_FLOOR) // (1 - reward percentage) * TSLADUSD value * TSLA swap amount;
+      const dusdMintedAfter = (await testing.rpc.token.getToken(idDUSD))[idDUSD].minted
+      expect(dusdMintedAfter).toStrictEqual(dusdMintedBefore.plus(mintedDUSD))
+
+      // calculate minted TSLA. dtoken goes for a premium.
+      mintedTSLA = new BigNumber((1 / (1 + futRewardPercentage)) * (1 / 2) * 13).dp(8, BigNumber.ROUND_FLOOR) // (1/(1 + reward percentage)) * (DUSDTSLA) value * DUSD swap amount;
+      const tslaMintedAfter = (await testing.rpc.token.getToken(idTSLA))[idTSLA].minted
+      expect(tslaMintedAfter).toStrictEqual(tslaMintedBefore.plus(mintedTSLA))
+
+      const pendingFutures = await testing.container.call('listpendingfutureswaps')
+      expect(pendingFutures.length).toStrictEqual(0)
+
+      // check live/economy/dfip2203_*
+      const attributes = await testing.rpc.masternode.getGov(attributeKey)
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_current']).toStrictEqual([`${(0.4 + 0.6).toFixed(8)}@TSLA`, `${(13).toFixed(8)}@DUSD`])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_burned']).toStrictEqual([`${(0.4 + 0.6).toFixed(8)}@TSLA`, `${(13).toFixed(8)}@DUSD`])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_minted']).toStrictEqual([`${mintedTSLA.toFixed(8)}@TSLA`, `${mintedDUSD.toFixed(8)}@DUSD`])
+
+      {
+        // check contractAddress
+        const balance = await testing.rpc.account.getAccount(contractAddress)
+        expect(balance).toStrictEqual([`${(0.4 + 0.6).toFixed(8)}@TSLA`, `${(13).toFixed(8)}@DUSD`])
+      }
+
+      {
+        // check tslaAddress
+        const balance = await testing.rpc.account.getAccount(tslaAddress)
+        expect(balance).toStrictEqual([`${mintedTSLA.toFixed(8)}@TSLA`, `${mintedDUSD.toFixed(8)}@DUSD`])
+      }
+    }
+
+    // check burn
+    const burnAfter = await testing.rpc.account.getBurnInfo()
+    expect(burnAfter.dfip2203).toStrictEqual([`${(0.4 + 0.6).toFixed(8)}@TSLA`, `${(13).toFixed(8)}@DUSD`])
+
+    // check results can be retrieved via account history
+    const accountHistories = await testing.rpc.account.listAccountHistory('all', { txtype: DfTxType.FUTURE_SWAP_EXECUTION })
+    expect(accountHistories.length).toStrictEqual(3)
+    expect(accountHistories).toStrictEqual(expect.arrayContaining([
+      expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapExecution', amounts: [`${mintedDUSD.multipliedBy(0.4).toFixed(8)}@DUSD`] }),
+      expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapExecution', amounts: [`${mintedDUSD.multipliedBy(0.6).toFixed(8)}@DUSD`] }),
+      expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapExecution', amounts: [`${mintedTSLA.toFixed(8)}@TSLA`] })
+    ]))
   })
 
   it('should create dtoken to dusd futureswap on the next settle block', async () => {
@@ -1761,6 +1923,113 @@ describe('withdraw futureswap', () => {
         // check tslaAddress
         const balance = await testing.rpc.account.getAccount(tslaAddress)
         expect(balance).toStrictEqual([`${(withdrawAmount + oneSatoshi).toFixed(8)}@TSLA`])
+      }
+    }
+
+    // verify that all happened before settle block
+    const currentBlock = await testing.rpc.blockchain.getBlockCount()
+    expect(currentBlock).toBeLessThan(nextSettleBlock)
+  })
+
+  it('should create multiple withdraw futureswaps within the same block', async () => {
+    const swapAmount = 1
+    const swapAmount2 = 10
+    let nextSettleBlock = await testing.container.call('getfutureswapblock', [])
+    const tslaAddress = await provider.getAddress()
+    await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount * 2}@TSLA` })
+    await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount2}@DUSD` })
+    await testing.generate(1)
+
+    // move to next settle block
+    await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount())
+    nextSettleBlock = await testing.container.call('getfutureswapblock', [])
+
+    const fswap: FutureSwap = {
+      address: tslaAddress,
+      amount: `${swapAmount.toFixed(8)}@TSLA`
+    }
+    const fswap2: FutureSwap = {
+      address: tslaAddress,
+      amount: `${swapAmount2}@DUSD`,
+      destination: 'TSLA'
+    }
+    await testing.rpc.account.futureSwap(fswap)
+    await testing.generate(1)
+    await testing.rpc.account.futureSwap(fswap)
+    await testing.generate(1)
+    await testing.rpc.account.futureSwap(fswap2)
+    await testing.generate(1)
+
+    const withdrawAmount1 = swapAmount * 1.5
+    const withdrawAmount2 = swapAmount * 0.2
+
+    // NOTE(sp): fund 2 utxos to be used for fees (to send 2 times. This is because once sent, the remaining funds of that utxo will only be available after a block generation)
+    {
+      await fundEllipticPair(testing.container, provider.ellipticPair, 10)
+      await fundEllipticPair(testing.container, provider.ellipticPair, 10)
+      await fundEllipticPair(testing.container, provider.ellipticPair, 10)
+    }
+
+    const fsStartBlock = await testing.rpc.blockchain.getBlockCount()
+    {
+      const txn = await builder.account.futureSwap({
+        owner: await provider.elliptic.script(),
+        source: { token: Number(idTSLA), amount: new BigNumber(withdrawAmount1) },
+        destination: 0,
+        withdraw: true
+      }, script)
+
+      // send tx
+      await sendTransactionWithoutBlockMint(txn)
+    }
+    {
+      const txn = await builder.account.futureSwap({
+        owner: await provider.elliptic.script(),
+        source: { token: Number(idTSLA), amount: new BigNumber(withdrawAmount2) },
+        destination: 0,
+        withdraw: true
+      }, script)
+
+      // send tx
+      await sendTransactionWithoutBlockMint(txn)
+    }
+
+    // check no blocks generated so far
+    expect(fsStartBlock).toStrictEqual(await testing.rpc.blockchain.getBlockCount())
+
+    // generate the block now
+    await testing.generate(1)
+
+    // check the futureswap is in effect
+    {
+      const pendingFutures = await testing.container.call('listpendingfutureswaps')
+      expect(pendingFutures.length).toStrictEqual(2)
+      expect(pendingFutures[0].owner).toStrictEqual(tslaAddress)
+      expect(pendingFutures[0].source).toStrictEqual(`${(swapAmount * 2 - withdrawAmount1 - withdrawAmount2).toFixed(8)}@TSLA`)
+      expect(pendingFutures[0].destination).toStrictEqual('DUSD')
+      expect(pendingFutures[1].owner).toStrictEqual(tslaAddress)
+      expect(pendingFutures[1].source).toStrictEqual(`${swapAmount2.toFixed(8)}@DUSD`)
+      expect(pendingFutures[1].destination).toStrictEqual('TSLA')
+
+      // check live/economy/dfip2203_*
+      const attributes = await testing.rpc.masternode.getGov(attributeKey)
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_current']).toStrictEqual([`${(swapAmount * 2 - withdrawAmount1 - withdrawAmount2).toFixed(8)}@TSLA`, `${swapAmount2.toFixed(8)}@DUSD`])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_burned']).toStrictEqual([])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_minted']).toStrictEqual([])
+
+      // dfip2203 burn should be empty
+      const burnBefore = await testing.rpc.account.getBurnInfo()
+      expect(burnBefore.dfip2203).toStrictEqual([])
+
+      {
+        // check contractAddress
+        const balance = await testing.rpc.account.getAccount(contractAddress)
+        expect(balance).toStrictEqual([`${(swapAmount * 2 - withdrawAmount1 - withdrawAmount2).toFixed(8)}@TSLA`, `${swapAmount2.toFixed(8)}@DUSD`])
+      }
+      {
+        // check tslaAddress
+        const balance = await testing.rpc.account.getAccount(tslaAddress)
+        expect(balance).toStrictEqual([`${(withdrawAmount1 + withdrawAmount2).toFixed(8)}@TSLA`])
       }
     }
 

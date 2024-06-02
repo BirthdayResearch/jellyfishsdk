@@ -56,6 +56,7 @@ export abstract class P2WPKHTxnBuilder {
     }
 
     const joined = joinPrevouts(prevouts)
+
     if (minBalance.gt(joined.total)) {
       throw new TxnBuilderError(TxnBuilderErrorType.MIN_BALANCE_NOT_ENOUGH,
         'not enough balance after combing all prevouts'
