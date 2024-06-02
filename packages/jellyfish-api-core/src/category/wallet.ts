@@ -337,6 +337,51 @@ export class Wallet {
   async signMessage (address: string, message: string): Promise<string> {
     return await this.client.call('signmessage', [address, message], 'number')
   }
+
+  /**
+   * Encrypts the wallet for the first time using a custom ‘passphrase’.
+   * Transactions related to private keys will thereafter require a passphrase before execution.
+   * To unlock wallet, use 'walletpassphrase'
+   *
+   * @param {string} passphrase The wallet passphrase. Must be at least 1 character, but should be long.
+   * @return {Promise<string>}
+   */
+  async encryptWallet (passphrase: string): Promise<string> {
+    return await this.client.call('encryptwallet', [passphrase], 'number')
+  }
+
+  /**
+   * Stores the wallet decryption key in memory for ‘timeout’ seconds.
+   * Calling 'walletpassphrase' when wallet is unlocked will set a new unlock time that overrides the old setting.
+   *
+   * @param {string} passphrase The wallet passphrase. Must be at least 1 character, but should be long.
+   * @param {number} timeout The time to keep the decryption key in seconds; capped at 100000000 (~3 years).
+   * @return {Promise<>}
+   */
+  async walletPassphrase (passphrase: string, timeout: number): Promise<void> {
+    return await this.client.call('walletpassphrase', [passphrase, timeout], 'number')
+  }
+
+  /**
+   * Changes the wallet passphrase from ‘oldpassphrase’ to ‘newpassphrase’.
+   *
+   * @param {string} oldpassphrase The old wallet passphrase.
+   * @param {string} newpassphrase The new wallet passphrase.
+   * @return {Promise<>}
+   */
+  async walletPassphraseChange (oldpassphrase: string, newpassphrase: string): Promise<void> {
+    return await this.client.call('walletpassphrasechange', [oldpassphrase, newpassphrase], 'number')
+  }
+
+  /**
+   * Removes the wallet encryption key from memory, locking the wallet.
+   * Unlock wallet by calling 'walletpassphrase' to perform wallet-related methods.
+   *
+   * @return {Promise<>}
+   */
+  async walletLock (): Promise<void> {
+    return await this.client.call('walletlock', [], 'number')
+  }
 }
 
 export interface UTXO {
