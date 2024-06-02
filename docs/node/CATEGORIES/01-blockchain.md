@@ -299,7 +299,7 @@ Get all in-mempool ancestors if a transaction id is in mempool as string[] if ve
 interface blockchain {
   getMempoolAncestors (txId: string, verbose?: false): Promise<string[]>
   getMempoolAncestors (txId: string, verbose?: true): Promise<MempoolTx>
-  getMempoolAncestors (txId: string, verbose?: boolean: Promise<string[] | MempoolTx>
+  getMempoolAncestors (txId: string, verbose?: boolean): Promise<string[] | MempoolTx>
 }
 
 interface MempoolTx {
@@ -523,5 +523,25 @@ interface ChainTxStats {
   window_tx_count: number
   window_interval: number
   txrate: number
+}
+```
+
+## invalidateBlock
+
+Permanently marks a block as invalid, as if it violated a consensus rule.
+
+```ts title="client.blockchain.invalidateBlock()"
+interface blockchain {
+  invalidateBlock (blockHash: string): Promise<void>
+}
+```
+
+## reconsiderBlock
+
+Removes invalidity status of a block, its ancestors and its descendants, reconsider them for activation. This can be used to undo the effects of invalidateBlock.
+
+```ts title="client.blockchain.reconsiderBlock()"
+interface blockchain {
+  reconsiderBlock (blockHash: string): Promise<void>
 }
 ```

@@ -317,6 +317,27 @@ export class Blockchain {
   async getChainTxStats (nBlocks?: number, blockHash?: string): Promise<ChainTxStats> {
     return await this.client.call('getchaintxstats', [nBlocks, blockHash], 'number')
   }
+
+  /**
+   * Permanently marks a block as invalid, as if it violated a consensus rule.
+   *
+   * @param {string} blockHash the hash of the block to invalidate
+   * @return {Promise<void>}
+   */
+  async invalidateBlock (blockHash: string): Promise<void> {
+    return await this.client.call('invalidateblock', [blockHash], 'number')
+  }
+
+  /**
+   * Removes invalidity status of a block, its ancestors and its descendants, reconsider them for activation.
+   * This can be used to undo the effects of invalidateBlock.
+   *
+   * @param {string} blockHash the hash of the block to invalidate
+   * @return {Promise<void>}
+   */
+  async reconsiderBlock (blockHash: string): Promise<void> {
+    return await this.client.call('reconsiderblock', [blockHash], 'number')
+  }
 }
 
 /**
