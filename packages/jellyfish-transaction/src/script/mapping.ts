@@ -82,7 +82,9 @@ import {
   CPaybackLoan,
   PaybackLoan,
   CPaybackLoanV2,
-  PaybackLoanV2
+  PaybackLoanV2,
+  CPaybackWithCollateral,
+  PaybackWithCollateral
 } from './dftx/dftx_loans'
 import {
   CCreateVault,
@@ -631,6 +633,14 @@ export const OP_CODES = {
       type: CPaybackLoanV2.OP_CODE,
       name: CPaybackLoanV2.OP_NAME,
       data: paybackLoanV2
+    })
+  },
+  OP_DEFI_TX_PAYBACK_WITH_COLLATERAL: (paybackWithCollateral: PaybackWithCollateral): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CPaybackWithCollateral.OP_CODE,
+      name: CPaybackWithCollateral.OP_NAME,
+      data: paybackWithCollateral
     })
   },
   OP_DEFI_TX_AUCTION_BID: (placeAuctionBid: PlaceAuctionBid): OP_DEFI_TX => {
