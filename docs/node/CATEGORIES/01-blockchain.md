@@ -460,6 +460,21 @@ interface blockchain {
 }
 ```
 
+## getBlockFilter
+
+Retrieve a BIP 157 content filter for a particular block.
+
+```ts title="client.blockchain.getBlockFilter()"
+interface blockchain {
+  getBlockFilter (blockHash: string, filterType: string = 'basic'): Promise<BlockFilter>
+}
+
+interface BlockFilter {
+  filter: string
+  header: string
+}
+```
+
 ## waitForNewBlock
 
 Wait for any new block
