@@ -55,6 +55,15 @@ export class Net {
   async setNetworkActive (state: boolean): Promise<boolean> {
     return await this.client.call('setnetworkactive', [state], 'number')
   }
+
+  /**
+   * Returns an object containing various version info about the node
+   *
+   * @return {Promise<VersionInfo>}
+   */
+  async getVersionInfo (): Promise<VersionInfo> {
+    return await this.client.call('getversioninfo', [], 'number')
+  }
 }
 
 export interface PeerInfo {
@@ -107,6 +116,25 @@ export interface NetworkInfo {
   incrementalfee: number
   localaddresses: LocalAddress[]
   warnings: string
+}
+
+export interface VersionInfo {
+  name: string
+  version: string
+  numericVersion: number
+  fullVersion: string
+  userAgent: string
+  protoVersion: number
+  protoVersionMin: number
+  rpcVersion: string
+  rpcVersionMin: string
+  spv: {
+    btc: {
+      userAgent: string
+      version: number
+      min: number
+    }
+  }
 }
 
 export interface Network {
