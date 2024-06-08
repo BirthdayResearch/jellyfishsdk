@@ -432,7 +432,7 @@ describe('poolswap buy-sell indicator', () => {
 
     {
       const res: ApiPagedResponse<PoolSwapData> = await controller.listPoolSwapsVerbose('4')
-      expect(res.data[0]).toStrictEqual([
+      expect(res.data[0]).toStrictEqual(
         {
           id: expect.any(String),
           txid: expect.stringMatching(/[0-f]{64}/),
@@ -461,7 +461,7 @@ describe('poolswap buy-sell indicator', () => {
           },
           type: 'SELL'
         }
-      ])
+      )
     }
   })
 })
