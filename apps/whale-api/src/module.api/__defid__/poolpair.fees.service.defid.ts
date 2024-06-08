@@ -178,7 +178,7 @@ async function setup (): Promise<void> {
   await app.generate(1)
 }
 
-describe.only('get best path - DEX burn fees', () => {
+describe('get best path - DEX burn fees', () => {
   it('should return fees - CAT to DFI - Both token fees direction are in', async () => {
     const paths1 = await controller.getBestPath('3', '0')
     expect(paths1.bestPath).toStrictEqual([
