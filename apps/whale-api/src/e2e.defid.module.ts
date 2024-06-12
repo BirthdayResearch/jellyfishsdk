@@ -50,6 +50,7 @@ import { Bech32, Elliptic, HRP, WIF } from '@defichain/jellyfish-crypto'
 import { AddPoolLiquidityMetadata, CreatePoolPairOptions, CreateTokenOptions, CreateSignedTxnHexOptions, MintTokensOptions, PoolSwapMetadata, UtxosToAccountOptions } from '@defichain/testing'
 import { VaultAuctionBatchHistory } from './module.model/vault.auction.batch.history'
 import { WhaleApiClientOptions } from '@defichain/whale-api-client/dist/whale.api.client'
+import { raiseIfError } from '@defichain/whale-api-client/dist/errors'
 
 const SPAWNING_TIME = 60_000
 
@@ -94,7 +95,9 @@ class DefidOceanApiClient {
         connection: 'open'
       }
     })
-    return await res.json()
+    const json = await res.json()
+    raiseIfError(json)
+    return json
   }
 
   async data (path: string): Promise<any> {
@@ -111,7 +114,9 @@ class DefidOceanApiClient {
       },
       body: JSON.stringify(body)
     })
-    return await res.json()
+    const json = await res.json()
+    raiseIfError(json)
+    return json
   }
 
   private async fetchTimeout (path: string, init: RequestInit): Promise<Response> {
