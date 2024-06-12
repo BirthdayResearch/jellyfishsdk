@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { DLoanController, DefidBin, DefidRpc } from '../../e2e.defid.module'
+import { WhaleApiException } from '@defichain/whale-api-client/dist/errors'
 
 let testing: DefidRpc
 let app: DefidBin
@@ -172,19 +173,18 @@ describe('get', () => {
   })
 
   it('should throw error while getting non-existent loan token id', async () => {
-    // expect.assertions(2)
-    // try {
-    //   await controller.getLoanToken('999')
-    // } catch (err: any) {
-    //   expect(err).toBeInstanceOf(NotFoundException)
-    //   expect(err.response).toStrictEqual({
-    //     statusCode: 404,
-    //     message: 'Unable to find loan token',
-    //     error: 'Not Found'
-    //   })
-    // }
-    const res: any = await controller.getLoanToken('999')
-    expect(res.code).toStrictEqual(404)
-    expect(res.message).toStrictEqual('Unable to find loan token')
+    expect.assertions(2)
+    try {
+      await controller.getLoanToken('999')
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(WhaleApiException)
+      expect(err.error).toStrictEqual({
+        code: 404,
+        type: 'NotFound',
+        at: expect.any(Number),
+        message: 'Unable to find loan token',
+        url: '/v0/regtest/loans/tokens/999'
+      })
+    }
   })
 })

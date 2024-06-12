@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { DLoanController, DefidBin, DefidRpc } from '../../e2e.defid.module'
+import { WhaleApiException } from '@defichain/whale-api-client/dist/errors'
 
 let testing: DefidRpc
 let app: DefidBin
@@ -201,19 +202,18 @@ describe('get', () => {
   })
 
   it('should throw error while getting non-existent collateral token id', async () => {
-    // expect.assertions(2)
-    // try {
-    //   await controller.getCollateral('999')
-    // } catch (err: any) {
-    //   expect(err).toBeInstanceOf(NotFoundException)
-    //   expect(err.response).toStrictEqual({
-    //     statusCode: 404,
-    //     message: 'Unable to find collateral token',
-    //     error: 'Not Found'
-    //   })
-    // }
-    const res: any = await controller.getCollateral('999')
-    expect(res.code).toStrictEqual(404)
-    expect(res.message).toStrictEqual('Token 999 does not exist!')
+    expect.assertions(2)
+    try {
+      await controller.getCollateral('999')
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(WhaleApiException)
+      expect(err.error).toStrictEqual({
+        code: 404,
+        type: 'NotFound',
+        at: expect.any(Number),
+        message: 'Unable to find collateral token',
+        url: '/v0/regtest/loans/collaterals/999'
+      })
+    }
   })
 })

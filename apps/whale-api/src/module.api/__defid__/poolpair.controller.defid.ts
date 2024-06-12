@@ -1,6 +1,7 @@
 
 import { BigNumber } from 'bignumber.js'
 import { DPoolPairController, DefidBin, DefidRpc } from '../../e2e.defid.module'
+import { WhaleApiException } from '@defichain/whale-api-client/dist/errors'
 
 let container: DefidRpc
 let app: DefidBin
@@ -352,20 +353,19 @@ describe('get', () => {
   })
 
   it('should throw error while getting non-existent poolpair', async () => {
-    // expect.assertions(2)
-    // try {
-    //   await controller.get('999')
-    // } catch (err: any) {
-    //   expect(err).toBeInstanceOf(NotFoundException)
-    //   expect(err.response).toStrictEqual({
-    //     statusCode: 404,
-    //     message: 'Unable to find poolpair',
-    //     error: 'Not Found'
-    //   })
-    // }
-    const res: any = await controller.get('999')
-    expect(res.code).toStrictEqual(404)
-    expect(res.message).toStrictEqual('Unable to find poolpair')
+    expect.assertions(2)
+    try {
+      await controller.get('999')
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(WhaleApiException)
+      expect(err.error).toStrictEqual({
+        code: 404,
+        type: 'NotFound',
+        at: expect.any(Number),
+        message: 'Unable to find poolpair',
+        url: '/v0/regtest/poolpairs/999'
+      })
+    }
   })
 })
 
@@ -654,11 +654,16 @@ describe('get best path', () => {
   })
 
   it('should throw error for invalid tokenId', async () => {
-    await expect(controller.getBestPath('-1', '1')).rejects.toThrowError('Unable to find token -1')
-    await expect(controller.getBestPath('1', '-1')).rejects.toThrowError('Unable to find token -1')
-    await expect(controller.getBestPath('100', '1')).rejects.toThrowError('Unable to find token 100')
-    await expect(controller.getBestPath('1', '100')).rejects.toThrowError('Unable to find token 100')
-    await expect(controller.getBestPath('-1', '100')).rejects.toThrowError('Unable to find token -1')
+    await expect(controller.getBestPath('-1', '1')).rejects.toThrowError('404 - NotFound (/v0/regtest/poolpairs/paths/best/from/-1/to/1): Unable to find token -1')
+    await expect(controller.getBestPath('1', '-1')).rejects.toThrowError('404 - NotFound (/v0/regtest/poolpairs/paths/best/from/1/to/-1): Unable to find token -1')
+    await expect(controller.getBestPath('100', '1')).rejects.toThrowError('404 - NotFound (/v0/regtest/poolpairs/paths/best/from/100/to/1): Unable to find token 100')
+    await expect(controller.getBestPath('1', '100')).rejects.toThrowError('404 - NotFound (/v0/regtest/poolpairs/paths/best/from/1/to/100): Unable to find token 100')
+    await expect(controller.getBestPath('-1', '100')).rejects.toThrowError('404 - NotFound (/v0/regtest/poolpairs/paths/best/from/-1/to/100): Unable to find token -1')
+    // await expect(controller.getBestPath('-1', '1')).rejects.toThrowError('Unable to find token -1')
+    // await expect(controller.getBestPath('1', '-1')).rejects.toThrowError('Unable to find token -1')
+    // await expect(controller.getBestPath('100', '1')).rejects.toThrowError('Unable to find token 100')
+    // await expect(controller.getBestPath('1', '100')).rejects.toThrowError('Unable to find token 100')
+    // await expect(controller.getBestPath('-1', '100')).rejects.toThrowError('Unable to find token -1')
   })
 })
 
@@ -941,11 +946,16 @@ describe('get all paths', () => {
   })
 
   it('should throw error for invalid tokenId', async () => {
-    await expect(controller.listPaths('-1', '1')).rejects.toThrowError('Unable to find token -1')
-    await expect(controller.listPaths('1', '-1')).rejects.toThrowError('Unable to find token -1')
-    await expect(controller.listPaths('100', '1')).rejects.toThrowError('Unable to find token 100')
-    await expect(controller.listPaths('1', '100')).rejects.toThrowError('Unable to find token 100')
-    await expect(controller.listPaths('-1', '100')).rejects.toThrowError('Unable to find token -1')
+    await expect(controller.listPaths('-1', '1')).rejects.toThrowError('404 - NotFound (/v0/regtest/poolpairs/paths/from/-1/to/1): Unable to find token -1')
+    await expect(controller.listPaths('1', '-1')).rejects.toThrowError('404 - NotFound (/v0/regtest/poolpairs/paths/from/1/to/-1): Unable to find token -1')
+    await expect(controller.listPaths('100', '1')).rejects.toThrowError('404 - NotFound (/v0/regtest/poolpairs/paths/from/100/to/1): Unable to find token 100')
+    await expect(controller.listPaths('1', '100')).rejects.toThrowError('404 - NotFound (/v0/regtest/poolpairs/paths/from/1/to/100): Unable to find token 100')
+    await expect(controller.listPaths('-1', '100')).rejects.toThrowError('404 - NotFound (/v0/regtest/poolpairs/paths/from/-1/to/100): Unable to find token -1')
+    // await expect(controller.listPaths('-1', '1')).rejects.toThrowError('Unable to find token -1')
+    // await expect(controller.listPaths('1', '-1')).rejects.toThrowError('Unable to find token -1')
+    // await expect(controller.listPaths('100', '1')).rejects.toThrowError('Unable to find token 100')
+    // await expect(controller.listPaths('1', '100')).rejects.toThrowError('Unable to find token 100')
+    // await expect(controller.listPaths('-1', '100')).rejects.toThrowError('Unable to find token -1')
   })
 })
 
@@ -982,9 +992,12 @@ describe('get list swappable tokens', () => {
   })
 
   it('should throw error for invalid / non-existent tokenId', async () => {
-    await expect(controller.listSwappableTokens('-1')).rejects.toThrowError('Unable to find token -1')
-    await expect(controller.listSwappableTokens('100')).rejects.toThrowError('Unable to find token 100')
-    await expect(controller.listSwappableTokens('a')).rejects.toThrowError('Unable to find token a')
+    await expect(controller.listSwappableTokens('-1')).rejects.toThrowError('404 - NotFound (/v0/regtest/poolpairs/paths/swappable/-1): Unable to find token -1')
+    await expect(controller.listSwappableTokens('100')).rejects.toThrowError('404 - NotFound (/v0/regtest/poolpairs/paths/swappable/100): Unable to find token 100')
+    await expect(controller.listSwappableTokens('a')).rejects.toThrowError('404 - NotFound (/v0/regtest/poolpairs/paths/swappable/a): Unable to find token a')
+    // await expect(controller.listSwappableTokens('-1')).rejects.toThrowError('Unable to find token -1')
+    // await expect(controller.listSwappableTokens('100')).rejects.toThrowError('Unable to find token 100')
+    // await expect(controller.listSwappableTokens('a')).rejects.toThrowError('Unable to find token a')
   })
 })
 
@@ -1191,7 +1204,8 @@ describe('latest dex prices', () => {
     // O is not a valid 'denomination' token
     await expect(controller.listDexPrices('O'))
       .rejects
-      .toThrowError('Could not find token with symbol \'O\'')
+      .toThrowError('404 - NotFound (/v0/regtest/poolpairs/dexprices?denomination=O): Unable to find token')
+      // .toThrowError('Could not find token with symbol \'O\'')
   })
 
   it('should list DAT tokens only - status:false tokens are excluded', async () => {
@@ -1202,16 +1216,20 @@ describe('latest dex prices', () => {
     // BURN is not a valid 'denomination' token
     await expect(controller.listDexPrices('BURN'))
       .rejects
-      .toThrowError('Token \'BURN\' is invalid as it is not tradeable')
+      .toThrowError('500 - Unknown (/v0/regtest/poolpairs/dexprices?denomination=BURN): Token "BURN" is invalid as it is not tradeable')
+      // .toThrowError('Token \'BURN\' is invalid as it is not tradeable')
   })
 
   describe('param validation - denomination', () => {
     it('should throw error for invalid denomination', async () => {
-      await expect(controller.listDexPrices('aaaaa')).rejects.toThrowError('Could not find token with symbol \'aaaaa\'')
-      await expect(controller.listDexPrices('-1')).rejects.toThrowError('Could not find token with symbol \'-1\'')
+      await expect(controller.listDexPrices('aaaaa')).rejects.toThrowError('404 - NotFound (/v0/regtest/poolpairs/dexprices?denomination=aaaaa): Unable to find token')
+      await expect(controller.listDexPrices('-1')).rejects.toThrowError('404 - NotFound (/v0/regtest/poolpairs/dexprices?denomination=-1): Unable to find token')
+      // await expect(controller.listDexPrices('aaaaa')).rejects.toThrowError('Could not find token with symbol \'aaaaa\'')
+      // await expect(controller.listDexPrices('-1')).rejects.toThrowError('Could not find token with symbol \'-1\'')
 
       // endpoint is case-sensitive
-      await expect(controller.listDexPrices('dfi')).rejects.toThrowError('Could not find token with symbol \'dfi\'')
+      await expect(controller.listDexPrices('dfi')).rejects.toThrowError('404 - NotFound (/v0/regtest/poolpairs/dexprices?denomination=dfi): Unable to find token')
+      // await expect(controller.listDexPrices('dfi')).rejects.toThrowError('Could not find token with symbol \'dfi\'')
     })
   })
 })

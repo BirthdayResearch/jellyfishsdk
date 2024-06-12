@@ -1,7 +1,7 @@
-import { NotFoundException } from '@nestjs/common'
 import BigNumber from 'bignumber.js'
 import { LoanVaultState } from '@defichain/whale-api-client/dist/api/loan'
 import { DLoanController, DefidBin, DefidRpc } from '../../e2e.defid.module'
+import { WhaleApiException } from '@defichain/whale-api-client/dist/errors'
 
 let testing: DefidRpc
 let app: DefidBin
@@ -121,22 +121,26 @@ describe('get', () => {
     try {
       await controller.getVault('0530ab29a9f09416a014a4219f186f1d5d530e9a270a9f941275b3972b43ebb7')
     } catch (err: any) {
-      expect(err).toBeInstanceOf(NotFoundException)
-      expect(err.response).toStrictEqual({
-        statusCode: 404,
+      expect(err).toBeInstanceOf(WhaleApiException)
+      expect(err.error).toStrictEqual({
+        code: 404,
+        type: 'NotFound',
+        at: expect.any(Number),
         message: 'Unable to find vault',
-        error: 'Not Found'
+        url: '/v0/regtest/loans/vaults/0530ab29a9f09416a014a4219f186f1d5d530e9a270a9f941275b3972b43ebb7'
       })
     }
 
     try {
       await controller.getVault('999')
     } catch (err: any) {
-      expect(err).toBeInstanceOf(NotFoundException)
-      expect(err.response).toStrictEqual({
-        statusCode: 404,
+      expect(err).toBeInstanceOf(WhaleApiException)
+      expect(err.error).toStrictEqual({
+        code: 404,
+        type: 'NotFound',
+        at: expect.any(Number),
         message: 'Unable to find vault',
-        error: 'Not Found'
+        url: '/v0/regtest/loans/vaults/999'
       })
     }
   })
