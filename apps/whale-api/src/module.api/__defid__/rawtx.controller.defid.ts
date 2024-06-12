@@ -1,6 +1,7 @@
 import { Bech32, Elliptic, HRP } from '@defichain/jellyfish-crypto'
 import { RegTest } from '@defichain/jellyfish-network'
 import { DRawTxController, DefidBin, DefidRpc } from '../../e2e.defid.module'
+import { WhaleApiException } from '@defichain/whale-api-client/dist/errors'
 
 let container: DefidRpc
 let app: DefidBin
@@ -46,41 +47,35 @@ describe('test', () => {
 
   it('should throw BadRequestError due to invalid txn', async () => {
     // expect.assertions(2)
-    // try {
-    //   await controller.test({ hex: '0400000100881133bb11aa00cc' })
-    // } catch (err: any) {
-    //   expect(err).toBeInstanceOf(BadRequestApiException)
-    //   expect(err.response.error).toStrictEqual({
-    //     code: 400,
-    //     type: 'BadRequest',
-    //     message: 'Transaction decode failed',
-    //     at: expect.any(Number)
-    //   })
-    // }
-    const res: any = await controller.test({ hex: '0400000100881133bb11aa00cc' })
-    expect(res.code).toStrictEqual(400)
-    expect(res.message).toStrictEqual('Transaction decode failed')
+    try {
+      await controller.test({ hex: '0400000100881133bb11aa00cc' })
+    } catch (err: any) {
+      // expect(err).toBeInstanceOf(BadRequestApiException)
+      expect(err.error).toStrictEqual({
+        code: 400,
+        type: 'BadRequest',
+        message: 'Transaction decode failed',
+        at: expect.any(Number)
+      })
+    }
   })
 
   it('should throw BadRequestError due to high fees', async () => {
     const hex = await app.createSignedTxnHex(10, 9)
     // expect.assertions(2)
-    // try {
-    //   await controller.test({
-    //     hex: hex, maxFeeRate: 1.0
-    //   })
-    // } catch (err: any) {
-    //   expect(err).toBeInstanceOf(BadRequestApiException)
-    //   expect(err.response.error).toStrictEqual({
-    //     code: 400,
-    //     type: 'BadRequest',
-    //     at: expect.any(Number),
-    //     message: 'Transaction is not allowed to be inserted'
-    //   })
-    // }
-    const res: any = await controller.test({ hex: hex, maxFeeRate: 1.0 })
-    expect(res.code).toStrictEqual(400)
-    expect(res.message).toStrictEqual('Transaction is not allowed to be inserted')
+    try {
+      await controller.test({
+        hex: hex, maxFeeRate: 1.0
+      })
+    } catch (err: any) {
+      // expect(err).toBeInstanceOf(BadRequestApiException)
+      expect(err.error).toStrictEqual({
+        code: 400,
+        type: 'BadRequest',
+        at: expect.any(Number),
+        message: 'Transaction is not allowed to be inserted'
+      })
+    }
   })
 })
 
@@ -114,43 +109,37 @@ describe('send', () => {
 
   it('should throw BadRequestException due to invalid txn', async () => {
     // expect.assertions(2)
-    // try {
-    //   await controller.send({
-    //     hex: '0400000100881133bb11aa00cc'
-    //   })
-    // } catch (err: any) {
-    //   expect(err).toBeInstanceOf(BadRequestApiException)
-    //   expect(err.response.error).toStrictEqual({
-    //     code: 400,
-    //     type: 'BadRequest',
-    //     at: expect.any(Number),
-    //     message: 'Transaction decode failed'
-    //   })
-    // }
-    const res: any = await controller.test({ hex: '0400000100881133bb11aa00cc' })
-    expect(res.code).toStrictEqual(400)
-    expect(res.message).toStrictEqual('Transaction decode failed')
+    try {
+      await controller.send({
+        hex: '0400000100881133bb11aa00cc'
+      })
+    } catch (err: any) {
+      // expect(err).toBeInstanceOf(BadRequestApiException)
+      expect(err.error).toStrictEqual({
+        code: 400,
+        type: 'BadRequest',
+        at: expect.any(Number),
+        message: 'Transaction decode failed'
+      })
+    }
   })
 
   it('should throw BadRequestException due to high fees', async () => {
     const hex = await app.createSignedTxnHex(10, 9)
     // expect.assertions(2)
-    // try {
-    //   await controller.send({
-    //     hex: hex, maxFeeRate: 1
-    //   })
-    // } catch (err: any) {
-    //   expect(err).toBeInstanceOf(BadRequestApiException)
-    //   expect(err.response.error).toStrictEqual({
-    //     code: 400,
-    //     type: 'BadRequest',
-    //     at: expect.any(Number),
-    //     message: 'Absurdly high fee'
-    //   })
-    // }
-    const res: any = await controller.test({ hex: hex, maxFeeRate: 1 })
-    expect(res.code).toStrictEqual(400)
-    expect(res.message).toStrictEqual('Absurdly high fee')
+    try {
+      await controller.send({
+        hex: hex, maxFeeRate: 1
+      })
+    } catch (err: any) {
+      // expect(err).toBeInstanceOf(BadRequestApiException)
+      expect(err.response.error).toStrictEqual({
+        code: 400,
+        type: 'BadRequest',
+        at: expect.any(Number),
+        message: 'Absurdly high fee'
+      })
+    }
   })
 })
 
@@ -167,14 +156,17 @@ describe('get', () => {
   })
 
   it('should throw NotFoundException due to tx id not found', async () => {
-    // try {
-    //   await controller.get('4f9f92b4b2cade30393ecfcd0656db06e57f6edb0a176452b2fecf361dd3a061', false)
-    // } catch (err: any) {
-    //   expect(err).toBeInstanceOf(NotFoundException)
-    //   expect(err.response.error).toStrictEqual('Not Found')
-    // }
-    const res: any = await controller.get('4f9f92b4b2cade30393ecfcd0656db06e57f6edb0a176452b2fecf361dd3a061', false)
-    expect(res.code).toStrictEqual(404)
-    expect(res.message).toStrictEqual('Transaction could not be found')
+    try {
+      await controller.get('4f9f92b4b2cade30393ecfcd0656db06e57f6edb0a176452b2fecf361dd3a061', false)
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(WhaleApiException)
+      expect(err.error).toStrictEqual({
+        code: 404,
+        type: 'NotFound',
+        at: expect.any(Number),
+        message: 'Unable to find rawtx',
+        url: '/v0/regtest/rawtx/4f9f92b4b2cade30393ecfcd0656db06e57f6edb0a176452b2fecf361dd3a061?verbose=false'
+      })
+    }
   })
 })
