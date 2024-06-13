@@ -651,26 +651,33 @@ export class DefidBin {
     }
 
     const args = [
+      // prepend
       `-datadir=${this.tmpDir}`,
-      '-regtest',
       '-printtoconsole',
-      '-gen=0',
+      '-rpcallowip=0.0.0.0/0',
+      '-rpcbind=0.0.0.0',
+      '-rpcworkqueue=512',
       '-rpcuser=test',
       '-rpcpassword=test',
+      `-rpcport=${this.rpcPort}`,
+      `-port=${this.port}`,
+      // regtest
+      '-regtest',
       '-jellyfish_regtest',
-      '-logtimemicros',
-      '-logthreadnames',
-      '-debug',
-      `-masternode_operator=${RegTestFoundationKeys[1].operator.address}`,
-      '-dummypos=0',
+      '-regtest-skip-loan-collateral-validation',
+      '-regtest-minttoken-simulate-mainnet=0',
       '-txnotokens=0',
       '-logtimemicros',
       '-txindex=1',
       '-acindex=1',
+      // mn
+      '-dummypos=0',
+      '-spv=1',
+      '-anchorquorum=2',
+      `-masternode_operator=${RegTestFoundationKeys[1].operator.address}`,
+      // ocean
       '-oceanarchive',
       `-oceanarchiveport=${this.oceanPort}`,
-      `-rpcport=${this.rpcPort}`,
-      `-port=${this.port}`,
       ...opts
     ]
 
@@ -876,6 +883,18 @@ export class DefidBin {
       }
       return false
     }, timeout, 100, 'waitForPath')
+  }
+
+  async waitForActivePrice (fixedIntervalPriceId: string, activePrice: string, timeout = 30000): Promise<void> {
+    return await waitForCondition(async () => {
+      const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
+      // eslint-disable-next-line
+      if (data.activePrice.toString() !== activePrice) {
+        await this.generate(1)
+        return false
+      }
+      return true
+    }, timeout, 100, 'waitForActivePrice')
   }
 
   async fundAddress (address: string, amount: number): Promise<{ txid: string, vout: number }> {
