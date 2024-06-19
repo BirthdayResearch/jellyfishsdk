@@ -47,7 +47,7 @@
     "graphology": "0.25.1",
     "graphology-components": "1.5.4",
     "graphology-simple-path": "0.1.2",
-    "joi": "17.8.4",
+    "joi": "17.13.3",
     "level": "7.0.0",
     "level-js": "6.0.0",
     "level-packager": "6.0.0",
