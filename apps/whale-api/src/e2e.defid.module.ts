@@ -114,6 +114,7 @@ class DefidOceanApiClient {
       },
       body: JSON.stringify(body)
     })
+    console.log('res: ', res)
     const json = await res.json()
     raiseIfError(json)
     return json
@@ -631,6 +632,8 @@ export class DefidBin {
   port = this.randomPort()
 
   rpcPort = this.randomPort()
+  wsPort = this.randomPort()
+  ethRpcPort = this.randomPort()
   rpcUrl = `http://test:test@127.0.0.1:${this.rpcPort}`
   rpcClient = new DefidRpcClient(this.rpcUrl)
   rpc = new DefidRpc(this, this.rpcClient)
@@ -654,13 +657,12 @@ export class DefidBin {
       // prepend
       `-datadir=${this.tmpDir}`,
       '-printtoconsole',
-      '-rpcallowip=0.0.0.0/0',
-      '-rpcbind=0.0.0.0',
-      '-rpcworkqueue=512',
       '-rpcuser=test',
       '-rpcpassword=test',
       `-rpcport=${this.rpcPort}`,
       `-port=${this.port}`,
+      `-wsport=${this.wsPort}`,
+      `-ethrpcport=${this.ethRpcPort}`,
       // regtest
       '-regtest',
       '-jellyfish_regtest',
@@ -680,6 +682,7 @@ export class DefidBin {
       `-oceanarchiveport=${this.oceanPort}`,
       ...opts
     ]
+    console.log('args: ', args)
 
     const extraArgs = [
       '-amkheight=0',
