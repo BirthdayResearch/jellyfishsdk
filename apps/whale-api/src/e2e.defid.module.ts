@@ -681,7 +681,6 @@ export class DefidBin {
       `-oceanarchiveport=${this.oceanPort}`,
       ...opts
     ]
-    console.log('args: ', args)
 
     const extraArgs = [
       '-amkheight=0',
