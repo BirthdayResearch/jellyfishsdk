@@ -55,7 +55,8 @@ describe('test', () => {
         code: 400,
         type: 'BadRequest',
         message: 'Transaction decode failed',
-        at: expect.any(Number)
+        at: expect.any(Number),
+        url: '/v0/regtest/rawtx/test'
       })
     }
   })
