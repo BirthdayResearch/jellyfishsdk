@@ -114,7 +114,6 @@ class DefidOceanApiClient {
       },
       body: JSON.stringify(body)
     })
-    console.log('res: ', res)
     const json = await res.json()
     raiseIfError(json)
     return json
