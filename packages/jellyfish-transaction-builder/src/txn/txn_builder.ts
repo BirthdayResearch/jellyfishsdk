@@ -10,7 +10,7 @@ import {
 } from '@defichain/jellyfish-transaction'
 import { SignInputOption, TransactionSigner } from '@defichain/jellyfish-transaction-signature'
 import BigNumber from 'bignumber.js'
-import { EllipticPairProvider, FeeRateProvider, ListUnspentQueryOptions, Prevout, PrevoutProvider } from '../provider'
+import { EllipticPairProvider, FeeRateProvider, Prevout, PrevoutProvider } from '../provider'
 import { calculateFeeP2WPKH } from './txn_fee'
 import { TxnBuilderError, TxnBuilderErrorType } from './txn_builder_error'
 import { EllipticPair } from '@defichain/jellyfish-crypto'
@@ -45,16 +45,10 @@ export abstract class P2WPKHTxnBuilder {
 
   /**
    * @param {BigNumber} minBalance to collect, required to form a transaction
-   * @param {ListUnspentOptions} [options]
-   * @param {number} [options.minimumAmount] default = 0, minimum value of each UTXO
-   * @param {number} [options.maximumAmount] default is 'unlimited', maximum value of each UTXO
-   * @param {number} [options.maximumCount] default is 'unlimited', maximum number of UTXOs
-   * @param {number} [options.minimumSumAmount] default is 'unlimited', minimum sum value of all UTXOs
-   * @param {string} [options.tokenId] default is 'all', filter by token
    * @return {Promise<Prevouts>}
    */
-  protected async collectPrevouts (minBalance: BigNumber, options?: ListUnspentQueryOptions): Promise<Prevouts> {
-    const prevouts = await this.prevoutProvider.collect(minBalance, options)
+  protected async collectPrevouts (minBalance: BigNumber): Promise<Prevouts> {
+    const prevouts = await this.prevoutProvider.collect(minBalance)
     if (prevouts.length === 0) {
       throw new TxnBuilderError(TxnBuilderErrorType.NO_PREVOUTS,
         'no prevouts available to create a transaction'
@@ -104,21 +98,30 @@ export abstract class P2WPKHTxnBuilder {
    * @param {OP_DEFI_TX} opDeFiTx to create
    * @param {Script} changeScript to send unspent to after deducting the fees
    * @param {BigNumber} [outValue=0] for the opDeFiTx, usually always be 0.
-   * @param {ListUnspentOptions} [options]
-   * @param {number} [options.minimumAmount] default = 0, minimum value of each UTXO
-   * @param {number} [options.maximumAmount] default is 'unlimited', maximum value of each UTXO
-   * @param {number} [options.maximumCount] default is 'unlimited', maximum number of UTXOs
-   * @param {number} [options.minimumSumAmount] default is 'unlimited', minimum sum value of all UTXOs
-   * @param {string} [options.tokenId] default is 'all', filter by token
+   * @param {Prevout[]} [utxos=[]] provide it if you want to spent specific UTXOs
    */
   async createDeFiTx (
     opDeFiTx: OP_DEFI_TX,
     changeScript: Script,
     outValue: BigNumber = new BigNumber('0'),
-    options: ListUnspentQueryOptions = {}
+    utxos: Prevout[] = []
   ): Promise<TransactionSegWit> {
     const minFee = outValue.plus(0.001) // see JSDoc above
-    const { prevouts, vin, total } = await this.collectPrevouts(minFee, options)
+
+    let prevouts: Prevout[] = []
+    let vin: Vin[] = []
+    let total: BigNumber = new BigNumber('0')
+
+    if (utxos.length > 0) {
+      ({ prevouts, vin, total } = joinPrevouts(utxos))
+      if (minFee.gt(total)) {
+        throw new TxnBuilderError(TxnBuilderErrorType.MIN_BALANCE_NOT_ENOUGH,
+          'not enough balance after combing all prevouts'
+        )
+      }
+    } else {
+      ({ prevouts, vin, total } = await this.collectPrevouts(minFee))
+    }
 
     const deFiOut: Vout = {
       value: outValue,

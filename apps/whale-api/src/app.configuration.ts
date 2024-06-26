@@ -23,7 +23,8 @@ export function AppConfiguration (): any {
       level: {
         location: process.env.WHALE_DATABASE_LEVEL_LOCATION
       }
-    }
+    },
+    debug: process.env.WHALE_DEBUG
   }
 }
 
@@ -34,6 +35,7 @@ export function ENV_VALIDATION_SCHEMA (): any {
     WHALE_NETWORK: Joi.string().valid('mainnet', 'testnet', 'regtest', 'devnet', 'changi').default('regtest'),
     WHALE_DEFID_URL: Joi.string().optional(),
     WHALE_DATABASE_PROVIDER: Joi.string().optional(),
-    WHALE_DATABASE_LEVEL_LOCATION: Joi.string().optional()
+    WHALE_DATABASE_LEVEL_LOCATION: Joi.string().optional(),
+    WHALE_DEBUG: Joi.bool().optional()
   })
 }

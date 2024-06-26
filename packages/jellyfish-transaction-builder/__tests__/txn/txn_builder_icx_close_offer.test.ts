@@ -101,7 +101,7 @@ describe('close ICX offer', () => {
     }
     const txn = await builder.icxorderbook.closeOffer(closeOffer, script)
 
-    await expect(sendTransaction(testing.container, txn)).rejects.toThrow("DeFiDRpcError: 'ICXCloseOfferTx: offer with creation tx 0000000000000000000000000000000000000000000000000000000000000000 does not exists! (code 16)', code: -26")
+    await expect(sendTransaction(testing.container, txn)).rejects.toThrow("DeFiDRpcError: 'ICXCloseOfferTx: offer with creation tx 0000000000000000000000000000000000000000000000000000000000000000 does not exists!', code: -26")
   })
 
   it('should not close ICX order with input not from offer owner', async () => {
@@ -120,6 +120,6 @@ describe('close ICX offer', () => {
 
     const txn = await newBuilder.icxorderbook.closeOffer({ offerTx }, newAddressScript)
 
-    await expect(sendTransaction(testing.container, txn)).rejects.toThrow("DeFiDRpcError: 'ICXCloseOfferTx: tx must have at least one input from offer owner (code 16)', code: -26")
+    await expect(sendTransaction(testing.container, txn)).rejects.toThrow("DeFiDRpcError: 'ICXCloseOfferTx: tx must have at least one input from offer owner', code: -26")
   })
 })

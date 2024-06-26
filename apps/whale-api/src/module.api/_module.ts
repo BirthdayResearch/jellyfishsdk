@@ -3,6 +3,7 @@ import { CacheModule, Global, Module } from '@nestjs/common'
 import { RpcController } from './rpc.controller'
 import { ActuatorController } from './actuator.controller'
 import { TransactionController } from './transaction.controller'
+import { DebugController } from './debug.controller'
 import { ApiValidationPipe } from './pipes/api.validation.pipe'
 import { AddressController } from './address.controller'
 import { PoolPairController } from './poolpair.controller'
@@ -62,6 +63,7 @@ import { GovernanceService } from './governance.service'
     LoanController,
     LegacyController,
     ConsortiumController,
+    DebugController,
     GovernanceController
   ],
   providers: [

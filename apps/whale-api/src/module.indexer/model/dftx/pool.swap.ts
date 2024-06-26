@@ -9,7 +9,6 @@ import { HexEncoder } from '../../../module.model/_hex.encoder'
 import { PoolSwapAggregatedMapper } from '../../../module.model/pool.swap.aggregated'
 import { AggregatedIntervals } from './pool.swap.aggregated'
 import { PoolPairInfoWithId } from '../../../module.api/cache/defid.cache'
-import { IndexerError } from '../../error'
 import { PoolPairPathMapping } from './pool.pair.path.mapping'
 
 @Injectable()
@@ -89,11 +88,6 @@ export class PoolSwapIndexer extends DfTxIndexer<PoolSwap> {
   }
 
   async getPair (tokenA: number, tokenB: number): Promise<PoolPairInfoWithId> {
-    const pair = await this.poolPairPathMapping.findPair(tokenA, tokenB)
-    if (pair !== undefined) {
-      return pair
-    }
-
-    throw new IndexerError(`Pool for pair ${tokenA}, ${tokenB} not found in PoolPairPathMapping`)
+    return await this.poolPairPathMapping.findPair(tokenA, tokenB)
   }
 }

@@ -251,7 +251,7 @@ describe('loans.createVault', () => {
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('VaultTx: Cannot find existing loan scheme with id scheme3 (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('VaultTx: Cannot find existing loan scheme with id scheme3\', code: -26')
   })
 
   it('should not createVault with scheme set to be destroyed', async () => {
@@ -275,7 +275,7 @@ describe('loans.createVault', () => {
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('VaultTx: Cannot set scheme4 as loan scheme, set to be destroyed on block 150 (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('VaultTx: Cannot set scheme4 as loan scheme, set to be destroyed on block 150\', code: -26')
   })
 })
 
@@ -314,6 +314,6 @@ describe('loans.createVault when no default scheme and the given schemeId is emp
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'VaultTx: There is no default loan scheme (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'VaultTx: There is no default loan scheme\', code: -26')
   })
 })

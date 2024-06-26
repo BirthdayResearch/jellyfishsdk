@@ -175,7 +175,7 @@ describe('CreateMasternode', () => {
     try {
       await sendTransaction(container, txn)
     } catch (err) {
-      expect(err.message).toStrictEqual('DeFiDRpcError: \'CreateMasternodeTx: malformed tx vouts (wrong creation fee or collateral amount) (code 16)\', code: -26')
+      expect(err.message).toStrictEqual('DeFiDRpcError: \'CreateMasternodeTx: malformed tx vouts (wrong creation fee or collateral amount)\', code: -26')
     }
   })
 })

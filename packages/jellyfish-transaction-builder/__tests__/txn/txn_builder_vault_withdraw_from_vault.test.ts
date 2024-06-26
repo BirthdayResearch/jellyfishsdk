@@ -332,7 +332,7 @@ describe('vault.withdrawFromVault', () => {
 
       const promise = sendTransaction(tGroup.get(0).container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'WithdrawFromVaultTx: At least 50% of the minimum required collateral must be in DFI or DUSD (code 16)')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'WithdrawFromVaultTx: At least 50% of the minimum required collateral must be in DFI or DUSD')
     })
 
     it('should not withdraw from liquidated vault', async () => {

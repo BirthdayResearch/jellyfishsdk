@@ -293,7 +293,7 @@ describe('Vault', () => {
       })
 
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(`Collateral for vault <${vaultId1}> not found`)
+      await expect(promise).rejects.toThrow('amount 9987.77833000 is less than 10000.00000001')
     })
 
     it('should not withdrawFromVault cause DFI collateral value less than 50% of the minimum required collateral', async () => {
@@ -349,7 +349,7 @@ describe('Vault', () => {
       })
 
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(`Collateral for vault <${vaultId2}> not found`)
+      await expect(promise).rejects.toThrow('amount 10000.00000000 is less than 99701.00000000')
     })
 
     it('should not withdrawFromVault liquidated vault', async () => {

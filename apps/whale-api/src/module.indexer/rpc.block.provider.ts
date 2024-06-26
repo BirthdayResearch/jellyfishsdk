@@ -6,6 +6,7 @@ import { Block, BlockMapper } from '../module.model/block'
 import { IndexStatusMapper, Status } from './status'
 import { waitForCondition } from '@defichain/testcontainers/dist/utils'
 import { blockchain as defid, RpcApiError } from '@defichain/jellyfish-api-core'
+import { NotFoundIndexerError } from './error'
 
 @Injectable()
 export class RPCBlockProvider {
@@ -90,6 +91,7 @@ export class RPCBlockProvider {
     if (await RPCBlockProvider.isBestChain(indexed, nextBlock)) {
       await this.index(nextBlock)
     } else {
+      this.logger.error(`indexedBlock{height: ${indexed.height}, hash: ${indexed.hash}}, nextBlock{height: ${nextBlock.height}, prevHash: ${nextBlock.previousblockhash}}`)
       await this.invalidate(indexed.hash, indexed.height)
     }
     return true
@@ -100,7 +102,7 @@ export class RPCBlockProvider {
    * @param {defid.Block<Transaction>} nextBlock to check previous block hash
    */
   private static async isBestChain (indexed: Block, nextBlock: defid.Block<defid.Transaction>): Promise<boolean> {
-    return nextBlock.previousblockhash === indexed.hash
+    return indexed.hash === nextBlock.previousblockhash
   }
 
   public async indexGenesis (): Promise<boolean> {
@@ -121,6 +123,7 @@ export class RPCBlockProvider {
     switch (status.status) {
       case Status.INVALIDATED:
       case Status.INDEXED:
+      case Status.REINDEX:
         return
     }
 
@@ -149,7 +152,11 @@ export class RPCBlockProvider {
       await this.indexer.invalidate(hash)
       await this.statusMapper.put(hash, height, Status.INVALIDATED)
     } catch (err) {
-      await this.statusMapper.put(hash, height, Status.ERROR)
+      if (err instanceof NotFoundIndexerError) {
+        await this.statusMapper.put(hash, height, Status.REINDEX)
+      } else {
+        await this.statusMapper.put(hash, height, Status.ERROR)
+      }
       throw err
     }
   }

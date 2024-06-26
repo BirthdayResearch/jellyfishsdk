@@ -303,7 +303,7 @@ describe('loans.closeVault', () => {
     }, script)
 
     const promise = sendTransaction(tGroup.get(0).container, txn)
-    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'CloseVaultTx: Vault <${'0'.repeat(64)}> not found (code 16)', code: -26`)
+    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'CloseVaultTx: Vault <${'0'.repeat(64)}> not found', code: -26`)
   })
 
   it('should not closeVault for vault with loan taken', async () => {
@@ -314,7 +314,7 @@ describe('loans.closeVault', () => {
     }, script)
 
     const promise = sendTransaction(tGroup.get(0).container, txn)
-    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'CloseVaultTx: Vault <${vaultWithLoanTakenId}> has loans (code 16)', code: -26`)
+    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'CloseVaultTx: Vault <${vaultWithLoanTakenId}> has loans', code: -26`)
   })
 
   it('should not closeVault for mayliquidate vault', async () => {
@@ -333,7 +333,7 @@ describe('loans.closeVault', () => {
     }, script)
 
     const promise = sendTransaction(tGroup.get(0).container, txn)
-    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'CloseVaultTx: Vault <${vaultWithLiquidationId}> has loans (code 16)', code: -26`)
+    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'CloseVaultTx: Vault <${vaultWithLiquidationId}> has loans', code: -26`)
 
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
     await tGroup.get(0).generate(1)
@@ -357,7 +357,7 @@ describe('loans.closeVault', () => {
     }, script)
 
     const promise = sendTransaction(tGroup.get(0).container, txn)
-    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'CloseVaultTx: Vault <${vaultWithLiquidationId}> has loans (code 16)', code: -26`)
+    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'CloseVaultTx: Vault <${vaultWithLiquidationId}> has loans', code: -26`)
 
     await tGroup.get(0).container.waitForPriceValid('TSLA/USD')
 
@@ -385,7 +385,7 @@ describe('loans.closeVault', () => {
     }, script)
 
     const promise = sendTransaction(tGroup.get(0).container, txn)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'CloseVaultTx: Cannot close vault under liquidation (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'CloseVaultTx: Cannot close vault under liquidation\', code: -26')
 
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
     await tGroup.get(0).generate(1)
@@ -405,6 +405,6 @@ describe('loans.closeVault', () => {
 
     const promise = sendTransaction(tGroup.get(0).container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'CloseVaultTx: tx must have at least one input from token owner (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'CloseVaultTx: tx must have at least one input from token owner\', code: -26')
   })
 })

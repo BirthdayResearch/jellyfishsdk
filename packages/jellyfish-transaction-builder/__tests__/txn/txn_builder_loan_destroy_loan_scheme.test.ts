@@ -96,7 +96,7 @@ describe('loan.destroyLoanScheme()', () => {
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DestroyLoanSchemeTx: id cannot be empty or more than 8 chars long (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DestroyLoanSchemeTx: id cannot be empty or more than 8 chars long\', code: -26')
   })
 
   it('should not destroyLoanScheme if identifier is an empty string', async () => {
@@ -108,7 +108,7 @@ describe('loan.destroyLoanScheme()', () => {
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DestroyLoanSchemeTx: id cannot be empty or more than 8 chars long (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DestroyLoanSchemeTx: id cannot be empty or more than 8 chars long\', code: -26')
   })
 
   it('should not destroyLoanScheme if identifier does not exists', async () => {
@@ -120,7 +120,7 @@ describe('loan.destroyLoanScheme()', () => {
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DestroyLoanSchemeTx: Cannot find existing loan scheme with id scheme2 (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DestroyLoanSchemeTx: Cannot find existing loan scheme with id scheme2\', code: -26')
   })
 
   it('should not destroyLoanScheme if identifier is a default scheme', async () => {
@@ -132,7 +132,7 @@ describe('loan.destroyLoanScheme()', () => {
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'DestroyLoanSchemeTx: Cannot destroy default loan scheme, set new default first (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'DestroyLoanSchemeTx: Cannot destroy default loan scheme, set new default first\', code: -26')
   })
 })
 
@@ -239,6 +239,6 @@ describe('loan.destroyLoanScheme() with height less than current height', () => 
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'DestroyLoanSchemeTx: Destruction height below current block height, set future height (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'DestroyLoanSchemeTx: Destruction height below current block height, set future height\', code: -26')
   })
 })

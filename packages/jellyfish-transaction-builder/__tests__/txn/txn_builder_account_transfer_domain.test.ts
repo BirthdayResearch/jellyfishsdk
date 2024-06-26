@@ -1,6 +1,6 @@
 import { DeFiDRpcError, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
-import { P2WPKHTransactionBuilder } from '../../src'
+import { P2WPKHTransactionBuilder, Prevout } from '../../src'
 import { fundEllipticPair, sendTransaction } from '../test.utils'
 import BigNumber from 'bignumber.js'
 import { Interface, ethers } from 'ethers'
@@ -166,11 +166,21 @@ describe('transferDomain', () => {
         }]
       }
 
-      const txn = await builder.account.transferDomain(transferDomain, dvmScript, { maximumAmount: 50 })
+      const utxos: any[] = await container.call('listunspent', [
+        1, 9999999, [dvmAddr], true
+      ])
+      const utxo: Prevout = {
+        txid: utxos[0].txid,
+        vout: utxos[0].vout,
+        value: new BigNumber(utxos[0].amount),
+        script: dvmScript,
+        tokenId: utxos[0].tokenId
+      }
+      const txn = await builder.account.transferDomain(transferDomain, dvmScript, [utxo])
       const promise = sendTransaction(testing.container, txn)
 
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Cannot transfer inside same domain (code 16)')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Cannot transfer inside same domain')
     })
 
     it('should fail if amount is different', async () => {
@@ -223,11 +233,21 @@ describe('transferDomain', () => {
         }]
       }
 
-      const txn = await builder.account.transferDomain(transferDomain, dvmScript, { maximumAmount: 50 })
+      const utxos: any[] = await container.call('listunspent', [
+        1, 9999999, [dvmAddr], true
+      ])
+      const utxo: Prevout = {
+        txid: utxos[0].txid,
+        vout: utxos[0].vout,
+        value: new BigNumber(utxos[0].amount),
+        script: dvmScript,
+        tokenId: utxos[0].tokenId
+      }
+      const txn = await builder.account.transferDomain(transferDomain, dvmScript, [utxo])
       const promise = sendTransaction(testing.container, txn)
 
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Source amount must be equal to destination amount (code 16)')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Source amount must be equal to destination amount')
     })
 
     it('(dvm -> evm) should fail if source address and source domain are not match', async () => {
@@ -280,11 +300,21 @@ describe('transferDomain', () => {
         }]
       }
 
-      const txn = await builder.account.transferDomain(transferDomain, dvmScript, { maximumAmount: 50 })
+      const utxos: any[] = await container.call('listunspent', [
+        1, 9999999, [dvmAddr], true
+      ])
+      const utxo: Prevout = {
+        txid: utxos[0].txid,
+        vout: utxos[0].vout,
+        value: new BigNumber(utxos[0].amount),
+        script: dvmScript,
+        tokenId: utxos[0].tokenId
+      }
+      const txn = await builder.account.transferDomain(transferDomain, dvmScript, [utxo])
       const promise = sendTransaction(testing.container, txn)
 
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Src address must be a legacy or Bech32 address in case of "DVM" domain (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Src address must be a legacy or Bech32 address in case of "DVM" domain\', code: -26')
     })
 
     it('(evm -> dvm) should fail if source address and source domain are not match', async () => {
@@ -337,11 +367,21 @@ describe('transferDomain', () => {
         }]
       }
 
-      const txn = await builder.account.transferDomain(transferDomain, dvmScript, { maximumAmount: 50 })
+      const utxos: any[] = await container.call('listunspent', [
+        1, 9999999, [dvmAddr], true
+      ])
+      const utxo: Prevout = {
+        txid: utxos[0].txid,
+        vout: utxos[0].vout,
+        value: new BigNumber(utxos[0].amount),
+        script: dvmScript,
+        tokenId: utxos[0].tokenId
+      }
+      const txn = await builder.account.transferDomain(transferDomain, dvmScript, [utxo])
       const promise = sendTransaction(testing.container, txn)
 
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Src address must be an ERC55 address in case of "EVM" domain (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Src address must be an ERC55 address in case of "EVM" domain\', code: -26')
     })
 
     it('(dvm -> evm) should fail if destination address and destination domain are not match', async () => {
@@ -394,11 +434,21 @@ describe('transferDomain', () => {
         }]
       }
 
-      const txn = await builder.account.transferDomain(transferDomain, dvmScript, { maximumAmount: 50 })
+      const utxos: any[] = await container.call('listunspent', [
+        1, 9999999, [dvmAddr], true
+      ])
+      const utxo: Prevout = {
+        txid: utxos[0].txid,
+        vout: utxos[0].vout,
+        value: new BigNumber(utxos[0].amount),
+        script: dvmScript,
+        tokenId: utxos[0].tokenId
+      }
+      const txn = await builder.account.transferDomain(transferDomain, dvmScript, [utxo])
       const promise = sendTransaction(testing.container, txn)
 
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Dst address must be an ERC55 address in case of "EVM" domain (code 16)')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Dst address must be an ERC55 address in case of "EVM" domain')
     })
 
     it('(evm -> dvm) should fail if destination address and destination domain are not match', async () => {
@@ -451,11 +501,21 @@ describe('transferDomain', () => {
         }]
       }
 
-      const txn = await builder.account.transferDomain(transferDomain, dvmScript, { maximumAmount: 50 })
+      const utxos: any[] = await container.call('listunspent', [
+        1, 9999999, [dvmAddr], true
+      ])
+      const utxo: Prevout = {
+        txid: utxos[0].txid,
+        vout: utxos[0].vout,
+        value: new BigNumber(utxos[0].amount),
+        script: dvmScript,
+        tokenId: utxos[0].tokenId
+      }
+      const txn = await builder.account.transferDomain(transferDomain, dvmScript, [utxo])
       const promise = sendTransaction(testing.container, txn)
 
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Dst address must be a legacy or Bech32 address in case of "DVM" domain (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: Dst address must be a legacy or Bech32 address in case of "DVM" domain\', code: -26')
     })
 
     it('(dvm -> evm) should fail if address is not owned', async () => {
@@ -510,11 +570,21 @@ describe('transferDomain', () => {
         }]
       }
 
-      const txn = await builder.account.transferDomain(transferDomain, invalidDvmScript, { maximumAmount: 50 })
+      const utxos: any[] = await container.call('listunspent', [
+        1, 9999999, [dvmAddr], true
+      ])
+      const utxo: Prevout = {
+        txid: utxos[0].txid,
+        vout: utxos[0].vout,
+        value: new BigNumber(utxos[0].amount),
+        script: dvmScript,
+        tokenId: utxos[0].tokenId
+      }
+      const txn = await builder.account.transferDomain(transferDomain, invalidDvmScript, [utxo])
       const promise = sendTransaction(testing.container, txn)
 
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: tx must have at least one input from account owner (code 16)')
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'TransferDomainTx: tx must have at least one input from account owner')
     })
 
     it('should not transfer if custom (isDAT = false) token is transferred', async () => {
@@ -568,7 +638,17 @@ describe('transferDomain', () => {
         }]
       }
 
-      const txn = await builder.account.transferDomain(transferDomain, invalidDvmScript, { maximumAmount: 50 })
+      const utxos: any[] = await container.call('listunspent', [
+        1, 9999999, [dvmAddr], true
+      ])
+      const utxo: Prevout = {
+        txid: utxos[0].txid,
+        vout: utxos[0].vout,
+        value: new BigNumber(utxos[0].amount),
+        script: dvmScript,
+        tokenId: utxos[0].tokenId
+      }
+      const txn = await builder.account.transferDomain(transferDomain, invalidDvmScript, [utxo])
       const promise = sendTransaction(testing.container, txn)
 
       await expect(promise).rejects.toThrow(DeFiDRpcError)
@@ -669,7 +749,17 @@ describe('transferDomain', () => {
         }]
       }
 
-      const txn = await builder.account.transferDomain(transferDomain, dvmScript, { maximumAmount: 50 })
+      const utxos: any[] = await container.call('listunspent', [
+        1, 9999999, [dvmAddr], true
+      ])
+      const utxo: Prevout = {
+        txid: utxos[0].txid,
+        vout: utxos[0].vout,
+        value: new BigNumber(utxos[0].amount),
+        script: dvmScript,
+        tokenId: utxos[0].tokenId
+      }
+      const txn = await builder.account.transferDomain(transferDomain, dvmScript, [utxo])
       const promise = sendTransaction(testing.container, txn)
 
       await expect(promise).rejects.toThrow(DeFiDRpcError)
@@ -875,7 +965,17 @@ describe('transferDomain', () => {
         ]
       }
 
-      const txn = await builder.account.transferDomain(transferDomain, dvmScript, { maximumAmount: 50 })
+      const utxos: any[] = await container.call('listunspent', [
+        1, 9999999, [dvmAddr], true
+      ])
+      const utxo: Prevout = {
+        txid: utxos[0].txid,
+        vout: utxos[0].vout,
+        value: new BigNumber(utxos[0].amount),
+        script: dvmScript,
+        tokenId: utxos[0].tokenId
+      }
+      const txn = await builder.account.transferDomain(transferDomain, dvmScript, [utxo])
       const promise = sendTransaction(testing.container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
       await expect(promise).rejects.toThrow('TransferDomain currently only supports a single transfer per transaction')
@@ -935,10 +1035,18 @@ describe('transferDomain', () => {
         }
       }]
     }
-    // NOTE(canonbrother): `maximumAmount` is a workaround to grab only single vin
-    // since maximumCount behaviour does not return by provided value
-    // but catch up total utxos of the tokenId
-    const txn = await builder.account.transferDomain(transferDomain, dvmScript, { maximumAmount: 50 })
+
+    const utxos: any[] = await container.call('listunspent', [
+      1, 9999999, [dvmAddr], true
+    ])
+    const utxo: Prevout = {
+      txid: utxos[0].txid,
+      vout: utxos[0].vout,
+      value: new BigNumber(utxos[0].amount),
+      script: dvmScript,
+      tokenId: utxos[0].tokenId
+    }
+    const txn = await builder.account.transferDomain(transferDomain, dvmScript, [utxo])
     const outs = await sendTransaction(container, txn)
     const encoded: string = OP_CODES.OP_DEFI_TX_TRANSFER_DOMAIN(transferDomain).asBuffer().toString('hex')
     const expectedTransferDomainScript = `6a${encoded}`
@@ -1026,7 +1134,17 @@ describe('transferDomain', () => {
       }]
     }
 
-    const txn = await builder.account.transferDomain(transferDomain, dvmScript, { maximumAmount: 50 })
+    const utxos: any[] = await container.call('listunspent', [
+      1, 9999999, [dvmAddr], true
+    ])
+    const utxo: Prevout = {
+      txid: utxos[0].txid,
+      vout: utxos[0].vout,
+      value: new BigNumber(utxos[0].amount),
+      script: dvmScript,
+      tokenId: utxos[0].tokenId
+    }
+    const txn = await builder.account.transferDomain(transferDomain, dvmScript, [utxo])
     const outs = await sendTransaction(container, txn)
     const encoded: string = OP_CODES.OP_DEFI_TX_TRANSFER_DOMAIN(transferDomain).asBuffer().toString('hex')
     const expectedTransferDomainScript = `6a${encoded}`
@@ -1118,7 +1236,17 @@ describe('transferDomain', () => {
       }]
     }
 
-    const txn = await builder.account.transferDomain(transferDomain, dvmScript, { maximumAmount: 50 })
+    const utxos: any[] = await container.call('listunspent', [
+      1, 9999999, [dvmAddr], true
+    ])
+    const utxo: Prevout = {
+      txid: utxos[0].txid,
+      vout: utxos[0].vout,
+      value: new BigNumber(utxos[0].amount),
+      script: dvmScript,
+      tokenId: utxos[0].tokenId
+    }
+    const txn = await builder.account.transferDomain(transferDomain, dvmScript, [utxo])
     const outs = await sendTransaction(container, txn)
     const encoded: string = OP_CODES.OP_DEFI_TX_TRANSFER_DOMAIN(transferDomain).asBuffer().toString('hex')
     const expectedTransferDomainScript = `6a${encoded}`
@@ -1205,7 +1333,17 @@ describe('transferDomain', () => {
       }]
     }
 
-    const txn = await builder.account.transferDomain(transferDomain, dvmScript, { maximumAmount: 50 })
+    const utxos: any[] = await container.call('listunspent', [
+      1, 9999999, [dvmAddr], true
+    ])
+    const utxo: Prevout = {
+      txid: utxos[0].txid,
+      vout: utxos[0].vout,
+      value: new BigNumber(utxos[0].amount),
+      script: dvmScript,
+      tokenId: utxos[0].tokenId
+    }
+    const txn = await builder.account.transferDomain(transferDomain, dvmScript, [utxo])
     const outs = await sendTransaction(container, txn)
     const encoded: string = OP_CODES.OP_DEFI_TX_TRANSFER_DOMAIN(transferDomain).asBuffer().toString('hex')
     const expectedTransferDomainScript = `6a${encoded}`

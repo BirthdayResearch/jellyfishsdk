@@ -66,6 +66,10 @@ export enum TransferDomainKey {
   DST = 'dst'
 }
 
+export enum TransferDomainOptionalKey {
+  SINGLE_KEY_CHECK = 'singlekeycheck',
+}
+
 /**
  * Account RPCs for DeFi Blockchain
  */
@@ -296,16 +300,18 @@ export class Account {
   /**
    * Create an transfer domain transaction submitted to a connected node.
    *
-   * @param {Array<Record<TransferDomainKey, TransferDomainInfo>>} payload[]
-   * @param {Record<TransferDomainKey, TransferDomainInfo>} payload
+   * @param {Array<Record<TransferDomainKey, TransferDomainInfo> | Record<TransferDomainOptionalKey, TransferDomainOptionalInfo>>} payload[]
+   * @param {Record<TransferDomainKey, TransferDomainInfo> | Record<TransferDomainOptionalKey, TransferDomainOptionalInfo>} payload
    * @param {TransferDomainInfo} info
    * @param {string} info.address
    * @param {string} info.amount
    * @param {TransferDomainType} info.domain
    * @param {string} [info.data] optional data, note: currently its not used
+   * @param {TransferDomainOptionalInfo} optionalInfo
+   * @param {boolean} [optionalInfo.singleKeyCheck=true]
    * @return {Promise<string>}
    */
-  async transferDomain (payload: Array<Record<TransferDomainKey, TransferDomainInfo>>): Promise<string> {
+  async transferDomain (payload: Array<Record<TransferDomainKey, TransferDomainInfo> | Record<TransferDomainOptionalKey, TransferDomainOptionalInfo>>): Promise<string> {
     return await this.client.call('transferdomain', [payload], 'number')
   }
 
@@ -724,4 +730,8 @@ export interface TransferDomainInfo {
   address: string
   amount: string
   domain: TransferDomainType
+}
+
+export interface TransferDomainOptionalInfo {
+  singleKeyCheck: boolean
 }

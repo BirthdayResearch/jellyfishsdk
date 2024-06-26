@@ -219,6 +219,6 @@ describe('claim DFC HTLC', () => {
       seed: 'INVALID_SEED'
     }
     const txn = await builder.icxorderbook.claimDFCHTLC(claimDFCHTLC, script)
-    await expect(sendTransaction(testing.container, txn)).rejects.toThrow('DeFiDRpcError: \'ICXClaimDFCHTLCTx: hash generated from given seed is different than in dfc htlc: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 - 957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220! (code 16)\', code: -26')
+    await expect(sendTransaction(testing.container, txn)).rejects.toThrow('DeFiDRpcError: \'ICXClaimDFCHTLCTx: hash generated from given seed is different than in dfc htlc: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 - 957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220!\', code: -26')
   })
 })

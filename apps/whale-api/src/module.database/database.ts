@@ -38,6 +38,8 @@ export abstract class Database {
     mapping: ModelMapping<M>,
     id: string
   ): Promise<void>
+
+  abstract dump (): Promise<boolean>
 }
 
 export enum SortOrder {

@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   defi-blockchain:
-    image: defi/defichain:4.0.0-beta13
+    image: defi/defichain:4.0.9
 
     ports:
       - "19554:19554"
@@ -42,7 +42,7 @@ services:
       -fortcanningepilogueheight=15
       -grandcentralheight=16
       -grandcentralepilogueheight=17
-      -nextnetworkupgradeheight=18
+      -metachainheight=18
       -regtest-skip-loan-collateral-validation
       -regtest-minttoken-simulate-mainnet=0
 

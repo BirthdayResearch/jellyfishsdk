@@ -864,7 +864,7 @@ describe('paybackLoan failed #2', () => {
 
     const promise = sendTransaction(bob.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'PaybackLoanTx: amount 0.00000000 is less than 0.00006850 (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'PaybackLoanTx: amount 0.00000000 is less than 0.00006850\', code: -26')
   })
 })
 
@@ -2110,7 +2110,7 @@ describe('paybackLoan for any token', () => {
     }, script)
     let promise = sendTransaction(testing.container, txn)
 
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'PaybackLoanTx: Payback of loan via DFI token is not currently active (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'PaybackLoanTx: Payback of loan via DFI token is not currently active\', code: -26')
 
     await testing.rpc.masternode.setGov({ [attributeKey]: { [key]: 'false' } })
     await testing.container.generate(1)
@@ -2129,7 +2129,7 @@ describe('paybackLoan for any token', () => {
     }, script)
     promise = sendTransaction(testing.container, txn)
 
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'PaybackLoanTx: Payback of loan via DFI token is not currently active (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'PaybackLoanTx: Payback of loan via DFI token is not currently active\', code: -26')
   })
 
   it('should not be able to payback TSLA loan using DFI when the governance is set to payback DUSD using DFI', async () => {
@@ -2155,7 +2155,7 @@ describe('paybackLoan for any token', () => {
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'PaybackLoanTx: There is no loan on token (DUSD) in this vault! (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'PaybackLoanTx: There is no loan on token (DUSD) in this vault!\', code: -26')
   })
 
   it('should not be able to payback DUSD loan using other tokens', async () => {
@@ -2173,7 +2173,7 @@ describe('paybackLoan for any token', () => {
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'PaybackLoanTx: There is no loan on token (TSLA) in this vault! (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'PaybackLoanTx: There is no loan on token (TSLA) in this vault!\', code: -26')
   })
 
   it('should not be able to payback TSLA loan using DFI - without PaybackLoanMetadataV2', async () => {
@@ -2207,7 +2207,7 @@ describe('paybackLoan for any token', () => {
     }, script)
     const payBackPromise = sendTransaction(testing.container, txn)
 
-    await expect(payBackPromise).rejects.toThrow('DeFiDRpcError: \'PaybackLoanTx: Payback of loan via DFI token is not currently active (code 16)\', code: -26')
+    await expect(payBackPromise).rejects.toThrow('DeFiDRpcError: \'PaybackLoanTx: Payback of loan via DFI token is not currently active\', code: -26')
   })
 
   it('should not be able to payback TSLA loan using BTC - without PaybackLoanMetadataV2', async () => {
@@ -2265,7 +2265,7 @@ describe('paybackLoan for any token', () => {
     }, script)
     const payBackPromise = sendTransaction(testing.container, txn)
 
-    await expect(payBackPromise).rejects.toThrow('DeFiDRpcError: \'PaybackLoanTx: Loan token with id (3) does not exist! (code 16)\', code: -26')
+    await expect(payBackPromise).rejects.toThrow('DeFiDRpcError: \'PaybackLoanTx: Loan token with id (3) does not exist!\', code: -26')
   })
 
   it('should not be able to payback DUSD loan using TSLA - without PaybackLoanMetadataV2', async () => {
@@ -2296,6 +2296,6 @@ describe('paybackLoan for any token', () => {
     }, script)
     const payBackPromise = sendTransaction(testing.container, txn)
 
-    await expect(payBackPromise).rejects.toThrow('DeFiDRpcError: \'PaybackLoanTx: There is no loan on token (TSLA) in this vault! (code 16)\', code: -26')
+    await expect(payBackPromise).rejects.toThrow('DeFiDRpcError: \'PaybackLoanTx: There is no loan on token (TSLA) in this vault!\', code: -26')
   })
 })

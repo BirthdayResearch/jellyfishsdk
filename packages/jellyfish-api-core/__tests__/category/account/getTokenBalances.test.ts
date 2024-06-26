@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { TransferDomainType } from '../../../src/category/account'
+import { TransferDomainType, TransferDomainOptionalInfo } from '../../../src/category/account'
 import waitForExpect from 'wait-for-expect'
 import BigNumber from 'bignumber.js'
 
@@ -137,7 +137,8 @@ describe('Account', () => {
           address: evmAddr,
           amount: '3@DFI',
           domain: TransferDomainType.EVM
-        }
+        },
+        singlekeycheck: false as unknown as TransferDomainOptionalInfo
       }
     ])
     await container.generate(1)

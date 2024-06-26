@@ -1,4 +1,4 @@
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { MasterNodeRegTestContainer, StartFlags } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { TransferDomainType } from '../../../src/category/account'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
@@ -8,9 +8,11 @@ describe('TransferDomain', () => {
   let dvmAddr: string, evmAddr: string, p2shAddr: string
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
+  // add `-tdsinglekeycheck` for backward compatibility
+  const startFlags: StartFlags[] = [{ name: 'tdsinglekeycheck', value: 0 }]
 
   beforeAll(async () => {
-    await container.start()
+    await container.start({ startFlags })
     await container.waitForWalletCoinbaseMaturity()
 
     await client.masternode.setGov({
@@ -218,7 +220,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('Failed to create and sign TX: Invalid address')
+      await expect(promise).rejects.toThrow('Dst address must be an ERC55 address in case of "EVM" domain')
     })
 
     it('(evm -> dvm) should fail if src address is not ERC55 address in case of "EVM" domain', async () => {
@@ -486,7 +488,7 @@ describe('TransferDomain', () => {
         }
       ])
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('Failed to create and sign TX: Invalid address')
+      await expect(promise).rejects.toThrow('Cannot transfer inside same domain')
     })
 
     it('(evm -> evm) should fail if transfer within same domain', async () => {

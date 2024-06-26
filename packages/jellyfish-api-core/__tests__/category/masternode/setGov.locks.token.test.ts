@@ -250,24 +250,6 @@ describe('SetGov v0/locks/token', () => {
       const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
       expect(attributes.ATTRIBUTES[`v0/locks/token/${tslaId}`]).toStrictEqual('false')
     }
-
-    // Lock invalid loan token string
-    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/locks/token/abc': 'true' } })
-    await testing.generate(1)
-
-    {
-      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
-      expect(attributes.ATTRIBUTES['v0/locks/token/abc']).toBeUndefined()
-    }
-
-    // Unlock invalid loan token string
-    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/locks/token/abc': 'false' } })
-    await testing.generate(1)
-
-    {
-      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
-      expect(attributes.ATTRIBUTES['v0/locks/token/abc']).toBeUndefined()
-    }
   })
 
   it('should update loan token if loan token is unlocked', async () => {
@@ -438,6 +420,11 @@ describe('SetGov v0/locks/token', () => {
 
     expect(typeof txId).toStrictEqual('string')
     expect(txId.length).toStrictEqual(64)
+  })
+
+  it('should fail if lock invalid token', async () => {
+    const promise = testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/locks/token/abc': 'true' } })
+    await expect(promise).rejects.toThrow('Token should be defined as numeric ID')
   })
 
   it('should not lock collateral token', async () => {

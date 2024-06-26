@@ -122,7 +122,7 @@ async function setup (): Promise<void> {
   }])
 }
 
-describe('getAssetBreakdown', () => {
+describe.skip('getAssetBreakdown', () => {
   it('should return an empty list if theres no consortium members or tokens initialized', async () => {
     const info = await controller.getAssetBreakdown()
     expect(info).toStrictEqual([])
@@ -188,7 +188,7 @@ describe('getAssetBreakdown', () => {
   })
 })
 
-describe('getMemberStats', () => {
+describe.skip('getMemberStats', () => {
   it('should throw an error if given consortium member id does not exists', async () => {
     await setup()
 

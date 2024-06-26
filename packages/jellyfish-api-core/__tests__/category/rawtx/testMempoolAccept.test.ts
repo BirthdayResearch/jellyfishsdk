@@ -76,12 +76,12 @@ describe('Raw transaction', () => {
   it('testMempoolAccept() should fail with low fee rate', async () => {
     const result = await testMempoolAcceptFees(new BigNumber('4.5'))
     expect(result.allowed).toStrictEqual(false)
-    expect(result['reject-reason']).toStrictEqual('256: absurdly-high-fee')
+    expect(result['reject-reason']).toStrictEqual('absurdly-high-fee')
   })
 
   it('testMempoolAccept() should fail with extreme low fee rate', async () => {
     const result = await testMempoolAcceptFees(new BigNumber('0.01'))
     expect(result.allowed).toStrictEqual(false)
-    expect(result['reject-reason']).toStrictEqual('256: absurdly-high-fee')
+    expect(result['reject-reason']).toStrictEqual('absurdly-high-fee')
   })
 })

@@ -183,7 +183,7 @@ describe('createVoc', () => {
     const promise = sendTransaction(testing.container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateVocTx: proposal title must not be empty (code 16)', code: -26")
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateVocTx: proposal title must not be empty', code: -26")
   })
 
   it('should reject with invalid title length', async () => {
@@ -203,7 +203,7 @@ describe('createVoc', () => {
     const promise = sendTransaction(testing.container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateVocTx: proposal title cannot be more than 128 bytes (code 16)', code: -26")
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateVocTx: proposal title cannot be more than 128 bytes', code: -26")
   })
 
   it('should reject with empty context', async () => {
@@ -223,7 +223,7 @@ describe('createVoc', () => {
     const promise = sendTransaction(testing.container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateVocTx: proposal context must not be empty (code 16)', code: -26")
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateVocTx: proposal context must not be empty', code: -26")
   })
 
   it('should reject with invalid context length', async () => {
@@ -243,7 +243,7 @@ describe('createVoc', () => {
     const promise = sendTransaction(testing.container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateVocTx: proposal context cannot be more than 512 bytes (code 16)', code: -26")
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateVocTx: proposal context cannot be more than 512 bytes', code: -26")
   })
 
   it('should reject with invalid context hash length', async () => {
@@ -263,6 +263,6 @@ describe('createVoc', () => {
     const promise = sendTransaction(testing.container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateVocTx: proposal context hash cannot be more than 512 bytes (code 16)', code: -26")
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateVocTx: proposal context hash cannot be more than 512 bytes', code: -26")
   })
 })
