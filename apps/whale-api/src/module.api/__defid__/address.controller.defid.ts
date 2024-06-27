@@ -360,7 +360,7 @@ describe('getBalance', () => {
     const address = 'bcrt1qf5v8n3kfe6v5mharuvj0qnr7g74xnu9leut39r'
 
     await app.fundAddress(address, 1.23)
-    await app.waitForAddressTxCount(address, 1)
+    await app.waitForAddressTxCount(controller, address, 1)
 
     const balance = await controller.getBalance(address)
     expect(balance).toStrictEqual('1.23000000')
@@ -370,7 +370,7 @@ describe('getBalance', () => {
     const address = await app.getNewAddress('', 'legacy')
 
     await app.fundAddress(address, 0.00100000)
-    await app.waitForAddressTxCount(address, 1)
+    await app.waitForAddressTxCount(controller, address, 1)
 
     const balance = await controller.getBalance(address)
     expect(balance).toStrictEqual('0.00100000')
@@ -380,7 +380,7 @@ describe('getBalance', () => {
     const address = await app.getNewAddress('', 'p2sh-segwit')
 
     await app.fundAddress(address, 10.99999999)
-    await app.waitForAddressTxCount(address, 1)
+    await app.waitForAddressTxCount(controller, address, 1)
 
     const balance = await controller.getBalance(address)
     expect(balance).toStrictEqual('10.99999999')
@@ -396,7 +396,7 @@ describe('getBalance', () => {
     await app.fundAddress(address, 0.12340001)
     await app.fundAddress(address, 4.32412313)
     await app.fundAddress(address, 12.93719381)
-    await app.waitForAddressTxCount(address, 3)
+    await app.waitForAddressTxCount(controller, address, 3)
 
     const balance = await controller.getBalance(address)
     expect(balance).toStrictEqual('17.38471695')
@@ -425,7 +425,7 @@ describe('getAggregation', () => {
     await app.fundAddress(address, 0.12340001)
     await app.fundAddress(address, 4.32412313)
     await app.fundAddress(address, 12.93719381)
-    await app.waitForAddressTxCount(address, 3)
+    await app.waitForAddressTxCount(controller, address, 3)
 
     const agg = await controller.getAggregation(address)
     expect(agg).toStrictEqual({
@@ -484,7 +484,7 @@ describe('listTransactions', () => {
       await app.createSignedTxnHex(1.123, 1.1228, options)
     ])
     await app.generate(1)
-    await app.waitForAddressTxCount(addressB.bech32, 2)
+    await app.waitForAddressTxCount(controller, addressB.bech32, 2)
   })
 
   afterAll(async () => {
@@ -643,7 +643,7 @@ describe('listTransactionsUnspent', () => {
       await app.createSignedTxnHex(1.123, 1.1228, options)
     ])
     await app.generate(1)
-    await app.waitForAddressTxCount(addressB.bech32, 2)
+    await app.waitForAddressTxCount(controller, addressB.bech32, 2)
   })
 
   afterAll(async () => {
