@@ -45,7 +45,6 @@ import { ClientApiError } from '@defichain/jellyfish-api-core/dist/index'
 import waitForExpect from 'wait-for-expect'
 import { TestingPoolPairAdd, TestingPoolPairCreate, TestingPoolPairRemove, TestingTokenBurn, TestingTokenCreate, TestingTokenDFI, TestingTokenMint, TestingTokenSend } from '@defichain/jellyfish-testing'
 import { poolpair } from '@defichain/jellyfish-api-core'
-import { addressToHid } from './module.api/address.controller'
 import { Bech32, Elliptic, HRP, WIF } from '@defichain/jellyfish-crypto'
 import { AddPoolLiquidityMetadata, CreatePoolPairOptions, CreateTokenOptions, CreateSignedTxnHexOptions, MintTokensOptions, PoolSwapMetadata, UtxosToAccountOptions } from '@defichain/testing'
 import { VaultAuctionBatchHistory } from './module.model/vault.auction.batch.history'
@@ -855,14 +854,15 @@ export class DefidBin {
     await this.call('setmocktime', [0])
   }
 
-  async waitForAddressTxCount (address: string, txCount: number, timeout: number = 15000): Promise<void> {
-    const hid = addressToHid('regtest', address)
-    console.log('hid: ', hid)
-    // const aggregationMapper = app.get(ScriptAggregationMapper)
-    await waitForExpect(async () => {
-      // const agg = await aggregationMapper.getLatest(hid)
-      // expect(agg?.statistic.txCount).toStrictEqual(txCount)
-    }, timeout)
+  async waitForAddressTxCount (controller: DAddressController, address: string, txCount: number, timeout: number = 15000): Promise<void> {
+    return await waitForCondition(async () => {
+      const agg = await controller.getAggregation(address)
+      if (agg?.statistic.txCount === txCount) {
+        return true
+      }
+      await this.generate(1)
+      return false
+    }, timeout, 100, 'waitForAddressTxCcount')
   }
 
   async waitForWalletBalanceGTE (balance: number, timeout: number = 300000): Promise<void> {
