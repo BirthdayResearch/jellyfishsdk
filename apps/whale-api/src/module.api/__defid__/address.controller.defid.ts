@@ -3,6 +3,7 @@ import { ForbiddenException } from '@nestjs/common'
 import BigNumber from 'bignumber.js'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { DAddressController, DefidBin, DefidRpc } from '../../e2e.defid.module'
+import { WhaleApiException } from '@defichain/whale-api-client/dist/errors'
 
 let testing: DefidRpc
 let app: DefidBin
@@ -942,7 +943,17 @@ describe('listTokens', () => {
   })
 
   it('should return empty and page undefined while listTokens with invalid address', async () => {
-    const tokens = await controller.listTokens('invalid', { size: 30 })
-    expect(tokens).toStrictEqual(expect.objectContaining({ data: [], page: undefined }))
+    try {
+      await controller.listTokens('invalid', { size: 30 })
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(WhaleApiException)
+      expect(err.error).toStrictEqual({
+        code: 404,
+        type: 'NotFound',
+        at: expect.any(Number),
+        message: 'Invalid owner address',
+        url: '/v0/regtest/address/invalid/tokens?size=30&next=undefined'
+      })
+    }
   })
 })
