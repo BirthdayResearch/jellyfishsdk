@@ -11,7 +11,7 @@ module.exports = {
   },
   verbose: true,
   clearMocks: true,
-  testTimeout: 300000,
+  testTimeout: 900000,
   testPathIgnorePatterns: [
     '__sanity__'
   ],

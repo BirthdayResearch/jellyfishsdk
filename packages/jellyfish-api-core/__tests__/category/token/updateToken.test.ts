@@ -64,7 +64,7 @@ describe('Token', () => {
     const data = await client.token.updateToken(`DTEST#${tokenDTESTId}`, {
       symbol: 'DDEST',
       name: 'DDEST',
-      isDAT: true,
+      // isDAT: true, // NOTE(canonbrother): Cannot change isDAT flag after DF23Height
       mintable: false,
       tradeable: false,
       finalize: false
@@ -72,15 +72,14 @@ describe('Token', () => {
     expect(typeof data).toStrictEqual('string')
     await container.generate(1)
 
-    const { [tokenDTESTId]: tokenAfter } = await client.token.getToken('DDEST')
+    const { [tokenDTESTId]: tokenAfter } = await client.token.getToken(`DDEST#${tokenDTESTId}`)
     expect(tokenAfter.symbol).toStrictEqual('DDEST')
     expect(tokenAfter.name).toStrictEqual('DDEST')
-    expect(tokenAfter.isDAT).toStrictEqual(true)
     expect(tokenAfter.mintable).toStrictEqual(false)
     expect(tokenAfter.tradeable).toStrictEqual(false)
     expect(tokenAfter.finalized).toStrictEqual(false)
     // NOTE(canonbrother): isDAT will not show the ID
-    expect(tokenAfter.symbolKey).toStrictEqual('DDEST')
+    expect(tokenAfter.symbolKey).toStrictEqual(`DDEST#${tokenDTESTId}`)
   })
 
   it('should updateToken by token id', async () => {
