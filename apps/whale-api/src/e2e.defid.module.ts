@@ -666,6 +666,7 @@ export class DefidBin {
       '-jellyfish_regtest',
       '-regtest-skip-loan-collateral-validation',
       '-regtest-minttoken-simulate-mainnet=0',
+      '-rpc-governance-accept-neutral=1',
       '-txnotokens=0',
       '-logtimemicros',
       '-txindex=1',
