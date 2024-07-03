@@ -663,7 +663,7 @@ export class DefidBin {
       `-ethrpcport=${this.ethRpcPort}`,
       // regtest
       '-regtest',
-      '-jellyfish_regtest',
+      '-jellyfish_regtest=1',
       '-regtest-skip-loan-collateral-validation',
       '-regtest-minttoken-simulate-mainnet=0',
       '-rpc-governance-accept-neutral=1',
