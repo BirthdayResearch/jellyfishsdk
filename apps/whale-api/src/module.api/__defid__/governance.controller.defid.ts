@@ -239,10 +239,11 @@ describe('governance - listProposals and getProposal', () => {
   })
 })
 
-describe('governance - listProposalVotes', () => {
+describe.only('governance - listProposalVotes', () => {
   beforeAll(async () => {
     app = new DefidBin()
     await app.start([
+      `-masternode_operator=${RegTestFoundationKeys[1].operator.address}`,
       `-masternode_operator=${RegTestFoundationKeys[2].operator.address}`,
       `-masternode_operator=${RegTestFoundationKeys[3].operator.address}`
     ])
@@ -263,6 +264,8 @@ describe('governance - listProposalVotes', () => {
     await testing.client.wallet.importPrivKey(RegTestFoundationKeys[1].operator.privKey)
     await testing.client.wallet.importPrivKey(RegTestFoundationKeys[2].owner.privKey)
     await testing.client.wallet.importPrivKey(RegTestFoundationKeys[2].operator.privKey)
+    await testing.client.wallet.importPrivKey(RegTestFoundationKeys[3].owner.privKey)
+    await testing.client.wallet.importPrivKey(RegTestFoundationKeys[3].operator.privKey)
 
     // Create 1 CFP + 1 VOC
     payoutAddress = await testing.generateAddress()
@@ -297,10 +300,13 @@ describe('governance - listProposalVotes', () => {
 
     // Vote on cycle 2
     const masternodes = await testing.client.masternode.listMasternodes()
+    console.log('masternodes: ', masternodes)
     const votes = [VoteDecision.YES, VoteDecision.NO, VoteDecision.NEUTRAL]
     let index = 0
     for (const [id, data] of Object.entries(masternodes)) {
+      console.log('data: ', data)
       if (data.operatorIsMine) {
+        console.log('votes[index]: ', votes[index])
         await app.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
         await testing.client.governance.voteGov({
           proposalId: cfpProposalId,
@@ -317,8 +323,9 @@ describe('governance - listProposalVotes', () => {
     await app.stop()
   })
 
-  it('should listProposalVotes', async () => {
+  it.only('should listProposalVotes', async () => {
     const result = await controller.listProposalVotes(cfpProposalId)
+    console.log('result: ', result)
     const yesVote = result.data.find(vote => vote.vote === ProposalVoteResultType.YES)
     const noVote = result.data.find(vote => vote.vote === ProposalVoteResultType.NO)
     const neutralVote = result.data.find(vote => vote.vote === ProposalVoteResultType.NEUTRAL)
