@@ -239,7 +239,7 @@ describe('governance - listProposals and getProposal', () => {
   })
 })
 
-describe.only('governance - listProposalVotes', () => {
+describe('governance - listProposalVotes', () => {
   beforeAll(async () => {
     app = new DefidBin()
     await app.start([
@@ -323,7 +323,7 @@ describe.only('governance - listProposalVotes', () => {
     await app.stop()
   })
 
-  it.only('should listProposalVotes', async () => {
+  it('should listProposalVotes', async () => {
     const result = await controller.listProposalVotes(cfpProposalId)
     console.log('result: ', result)
     const yesVote = result.data.find(vote => vote.vote === ProposalVoteResultType.YES)
