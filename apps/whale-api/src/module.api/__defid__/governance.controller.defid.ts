@@ -300,13 +300,10 @@ describe('governance - listProposalVotes', () => {
 
     // Vote on cycle 2
     const masternodes = await testing.client.masternode.listMasternodes()
-    console.log('masternodes: ', masternodes)
     const votes = [VoteDecision.YES, VoteDecision.NO, VoteDecision.NEUTRAL]
     let index = 0
     for (const [id, data] of Object.entries(masternodes)) {
-      console.log('data: ', data)
       if (data.operatorIsMine) {
-        console.log('votes[index]: ', votes[index])
         await app.generate(1, data.operatorAuthAddress) // Generate a block to operatorAuthAddress to be allowed to vote on proposal
         await testing.client.governance.voteGov({
           proposalId: cfpProposalId,
@@ -325,7 +322,6 @@ describe('governance - listProposalVotes', () => {
 
   it('should listProposalVotes', async () => {
     const result = await controller.listProposalVotes(cfpProposalId)
-    console.log('result: ', result)
     const yesVote = result.data.find(vote => vote.vote === ProposalVoteResultType.YES)
     const noVote = result.data.find(vote => vote.vote === ProposalVoteResultType.NO)
     const neutralVote = result.data.find(vote => vote.vote === ProposalVoteResultType.NEUTRAL)
