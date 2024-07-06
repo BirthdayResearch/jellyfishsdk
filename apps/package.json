@@ -57,7 +57,7 @@
     "memdown": "6.1.1",
     "pg": "8.9.0",
     "reflect-metadata": "0.1.13",
-    "rimraf": "3.0.2",
+    "rimraf": "5.0.8",
     "rxjs": "7.8.0",
     "subleveldown": "^6.0.1"
   },
