@@ -17,11 +17,12 @@ function now (): number {
 
 beforeAll(async () => {
   app = new DefidBin()
-  await app.start()
   rpc = app.rpc
   client = app.rpcClient
-
   controller = app.ocean.loanController
+
+  await app.start()
+  await app.waitForWalletCoinbaseMaturity()
 
   const aliceColAddr = await rpc.generateAddress()
   await rpc.token.dfi({ address: aliceColAddr, amount: 300000 })
