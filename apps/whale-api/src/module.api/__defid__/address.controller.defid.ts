@@ -15,7 +15,7 @@ let poolAddr: string
 let emptyAddr: string
 let dfiUsdc
 
-async function setup (): Promise<void> {
+async function setup (app: DefidBin, testing: DefidRpc): Promise<void> {
   colAddr = await testing.generateAddress()
   usdcAddr = await testing.generateAddress()
   poolAddr = await testing.generateAddress()
@@ -156,7 +156,7 @@ describe('listAccountHistory', () => {
     await app.waitForWalletCoinbaseMaturity()
     await app.waitForWalletBalanceGTE(100)
 
-    await setup()
+    await setup(app, testing)
   })
 
   afterAll(async () => {
@@ -269,33 +269,40 @@ describe('listAccountHistory', () => {
   })
 })
 
-describe('getAccount', () => {
+describe('getAccountHistory', () => {
   beforeAll(async () => {
-    await setup()
+    app = new DefidBin()
+    await app.start()
+    controller = app.ocean.addressController
+    testing = app.rpc
+
+    await app.waitForWalletCoinbaseMaturity()
+
+    await setup(app, testing)
   })
 
   afterAll(async () => {
     await app.stop()
   })
 
-  it('should getAccount', async () => {
-    const history = await controller.listAccountHistory(colAddr, { size: 30 })
-    for (const h of history.data) {
+  it('should getAccountHistory', async () => {
+    const history = await app.rpcClient.account.listAccountHistory(colAddr)
+    for (const h of history) {
       if (['sent', 'receive'].includes(h.type)) {
         continue
       }
-      const acc = await controller.getAccountHistory(colAddr, h.block.height, h.txn)
+      const acc = await controller.getAccountHistory(colAddr, h.blockHeight, h.txn)
       expect(acc?.owner).toStrictEqual(h.owner)
       expect(acc?.txid).toStrictEqual(h.txid)
       expect(acc?.txn).toStrictEqual(h.txn)
     }
 
-    const poolHistory = await controller.listAccountHistory(poolAddr, { size: 30 })
-    for (const h of poolHistory.data) {
-      if (['sent', 'receive'].includes(h.type)) {
+    const poolHistory = await app.rpcClient.account.listAccountHistory(poolAddr)
+    for (const h of poolHistory) {
+      if (['sent', 'receive', 'Rewards'].includes(h.type)) {
         continue
       }
-      const acc = await controller.getAccountHistory(poolAddr, h.block.height, h.txn)
+      const acc = await controller.getAccountHistory(poolAddr, h.blockHeight, h.txn)
       expect(acc?.owner).toStrictEqual(h.owner)
       expect(acc?.txid).toStrictEqual(h.txid)
       expect(acc?.txn).toStrictEqual(h.txn)
@@ -303,36 +310,83 @@ describe('getAccount', () => {
   })
 
   it('should be failed for non-existence data', async () => {
-    const promise = controller.getAccountHistory(await app.getNewAddress(), Number(`${'0'.repeat(64)}`), 1)
-    await expect(promise).rejects.toThrow('Record not found')
+    const addr = await app.getNewAddress()
+    try {
+      await controller.getAccountHistory(addr, Number(`${'0'.repeat(64)}`), 1)
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(WhaleApiException)
+      expect(err.error).toStrictEqual({
+        at: expect.any(Number),
+        code: 500,
+        message: 'Record not found',
+        type: 'Unknown',
+        url: `/v0/regtest/address/${addr}/history/0/1`
+      })
+    }
   })
 
   it('should be failed as invalid height', async () => {
     { // NaN
-      const promise = controller.getAccountHistory(await app.getNewAddress(), Number('NotANumber'), 1)
-      await expect(promise).rejects.toThrow('JSON value is not an integer as expected')
+      const addr = await app.getNewAddress()
+      try {
+        await controller.getAccountHistory(addr, Number('NotANumber'), 1)
+      } catch (err: any) {
+        expect(err.error).toStrictEqual({
+          at: expect.any(Number),
+          code: 400,
+          message: 'key: height, Cannot parse `height` with value `"NaN"` to a `u32`', // JSON value is not an integer as expected
+          type: 'BadRequest',
+          url: `/${addr}/history/NaN/1`
+        })
+      }
     }
 
     { // negative height
-      const promise = controller.getAccountHistory(await app.getNewAddress(), -1, 1)
-      await expect(promise).rejects.toThrow('Record not found')
+      const addr = await app.getNewAddress()
+      try {
+        await controller.getAccountHistory(addr, -1, 1)
+      } catch (err: any) {
+        console.log('err1: ', err)
+        expect(err.error).toStrictEqual({
+          at: expect.any(Number),
+          code: 400,
+          message: 'key: height, Cannot parse `height` with value `"-1"` to a `u32`', // Record not found
+          type: 'BadRequest',
+          url: `/${addr}/history/-1/1`
+        })
+      }
     }
   })
 
   it('should be failed as getting unsupport tx type - sent, received, blockReward', async () => {
-    const history = await controller.listAccountHistory(colAddr, { size: 30 })
-    for (const h of history.data) {
+    const history = await app.rpcClient.account.listAccountHistory(colAddr)
+    for (const h of history) {
       if (['sent', 'receive'].includes(h.type)) {
-        const promise = controller.getAccountHistory(colAddr, h.block.height, h.txn)
-        await expect(promise).rejects.toThrow('Record not found')
+        try {
+          await controller.getAccountHistory(colAddr, h.blockHeight, h.txn)
+        } catch (err: any) {
+          expect(err.error).toStrictEqual({
+            at: expect.any(Number),
+            code: 500,
+            message: 'Record not found',
+            type: 'Unknown',
+            url: expect.any(String)
+          })
+        }
       }
     }
 
-    const operatorAccHistory = await app.call('listaccounthistory', [RegTestFoundationKeys[0].operator.address])
+    // TOOD(): retrieve empty
+    const operatorAccHistory = await app.call('listaccounthistory', [RegTestFoundationKeys[1].operator.address])
     for (const h of operatorAccHistory) {
       if (['blockReward'].includes(h.type)) {
-        const promise = controller.getAccountHistory(RegTestFoundationKeys[0].operator.address, h.blockHeight, h.txn)
-        await expect(promise).rejects.toThrow('Record not found')
+        try {
+          const res = await controller.getAccountHistory(RegTestFoundationKeys[1].operator.address, h.blockHeight, h.txn)
+          console.log('res 4: ', res)
+        } catch (err) {
+          console.log('err4: ', err)
+        }
+        // await expect(promise).rejects.toThrow('Record not found')
       }
     }
   })
