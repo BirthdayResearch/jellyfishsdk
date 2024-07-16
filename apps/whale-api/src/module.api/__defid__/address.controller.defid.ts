@@ -1011,3 +1011,62 @@ describe('listTokens', () => {
     }
   })
 })
+
+describe('listVaults', () => {
+  let vaultId: string
+  const address = 'bcrt1qf5v8n3kfe6v5mharuvj0qnr7g74xnu9leut39r'
+
+  beforeAll(async () => {
+    app = new DefidBin()
+    await app.start()
+    controller = app.ocean.addressController
+    testing = app.rpc
+    await app.waitForWalletCoinbaseMaturity()
+    await app.waitForWalletBalanceGTE(100)
+
+    await app.waitForBlockHeight(100)
+
+    await testing.client.loan.createLoanScheme({
+      id: 'scheme',
+      minColRatio: 110,
+      interestRate: new BigNumber(1)
+    })
+    await testing.generate(1)
+
+    vaultId = await testing.client.vault.createVault({
+      ownerAddress: address,
+      loanSchemeId: 'scheme'
+    })
+
+    await testing.client.vault.createVault({
+      ownerAddress: await testing.address('VaultId1'),
+      loanSchemeId: 'scheme'
+    })
+    await app.generate(1)
+  })
+
+  afterAll(async () => {
+    await app.stop()
+  })
+
+  it('should listVaults', async () => {
+    const response = await controller.listVaults(address, {
+      size: 30
+    })
+    expect(response.data.length).toStrictEqual(1)
+    expect(response.data[0]).toStrictEqual({
+      vaultId: vaultId,
+      loanScheme: expect.any(Object),
+      ownerAddress: address,
+      state: 'active',
+      informativeRatio: '-1',
+      collateralRatio: '-1',
+      collateralValue: '0',
+      loanValue: '0',
+      interestValue: '0',
+      collateralAmounts: [],
+      loanAmounts: [],
+      interestAmounts: []
+    })
+  })
+})
