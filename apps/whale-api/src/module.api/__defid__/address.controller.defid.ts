@@ -1069,4 +1069,45 @@ describe('listVaults', () => {
       interestAmounts: []
     })
   })
+
+  it('should return empty for other address', async () => {
+    const response = await controller.listVaults(await app.getNewAddress(), {
+      size: 30
+    })
+    expect(response.data).toStrictEqual([])
+  })
+
+  it('should fail if providing empty address', async () => {
+    try {
+      await controller.listVaults('', {
+        size: 30
+      })
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(WhaleApiException)
+      expect(err.error).toStrictEqual({
+        at: expect.any(Number),
+        code: 404,
+        message: 'recipient () does not refer to any valid address',
+        type: 'NotFound',
+        url: '/v0/regtest/address//vaults?size=30&next=undefined'
+      })
+    }
+  })
+
+  it('should fail if providing invalid address', async () => {
+    try {
+      await controller.listVaults('INVALID', {
+        size: 30
+      })
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(WhaleApiException)
+      expect(err.error).toStrictEqual({
+        at: expect.any(Number),
+        code: 404,
+        message: 'recipient (INVALID) does not refer to any valid address',
+        type: 'NotFound',
+        url: '/v0/regtest/address/INVALID/vaults?size=30&next=undefined'
+      })
+    }
+  })
 })
