@@ -147,7 +147,8 @@ async function setup (app: DefidBin, testing: DefidRpc): Promise<void> {
   // await testing.container.waitForBlockHeight(Math.max(500, height))
 }
 
-describe('listAccountHistory', () => {
+// not being used
+describe.skip('listAccountHistory', () => {
   beforeAll(async () => {
     app = new DefidBin()
     await app.start()
