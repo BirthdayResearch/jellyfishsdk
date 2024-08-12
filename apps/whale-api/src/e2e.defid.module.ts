@@ -661,6 +661,7 @@ export class DefidBin {
       `-port=${this.port}`,
       `-wsport=${this.wsPort}`,
       `-ethrpcport=${this.ethRpcPort}`,
+      '-rpcallowip=0.0.0.0/0',
       // regtest
       '-regtest',
       '-jellyfish_regtest=1',
@@ -679,6 +680,7 @@ export class DefidBin {
       // ocean
       '-oceanarchive',
       `-oceanarchiveport=${this.oceanPort}`,
+      '-oceanarchivebind=0.0.0.0',
       ...opts
     ]
 
