@@ -82,21 +82,7 @@ describe('get', () => {
   })
 
   it('should fail due to non-existent masternode', async () => {
-    // expect.assertions(2)
-    // try {
-    //   await controller.get('8d4d987dee688e400a0cdc899386f243250d3656d802231755ab4d28178c9816')
-    // } catch (err: any) {
-    //   console.log('err: ', err)
-    //   // expect(err).toBeInstanceOf(NotFoundException)
-    //   expect(err.response).toStrictEqual({
-    //     statusCode: 404,
-    //     message: 'Unable to find masternode',
-    //     error: 'Not Found'
-    //   })
-    // }
-    const res: any = await controller.get('8d4d987dee688e400a0cdc899386f243250d3656d802231755ab4d28178c9816')
-    expect(res.code).toStrictEqual(404)
-    expect(res.message).toStrictEqual('Unable to find masternode')
+    await expect(controller.get('8d4d987dee688e400a0cdc899386f243250d3656d802231755ab4d28178c9816')).rejects.toThrowError('404 - NotFound (/v0/regtest/masternodes/8d4d987dee688e400a0cdc899386f243250d3656d802231755ab4d28178c9816): Unable to find masternode')
   })
 })
 
