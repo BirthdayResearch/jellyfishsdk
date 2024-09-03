@@ -89,7 +89,7 @@ describe('get', () => {
 describe('resign', () => {
   beforeAll(async () => {
     app = new DefidBin()
-    await app.start()
+    await app.start(['-eunospayaheight=200'])
     controller = app.ocean.masternodeController
     container = app.rpc
     await app.waitForBlockHeight(101)

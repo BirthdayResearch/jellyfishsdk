@@ -681,10 +681,7 @@ export class DefidBin {
       '-oceanarchive',
       `-oceanarchiveport=${this.oceanPort}`,
       '-oceanarchivebind=0.0.0.0',
-      ...opts
-    ]
-
-    const extraArgs = [
+      // hf
       '-amkheight=0',
       '-bayfrontheight=1',
       '-bayfrontgardensheight=2',
@@ -703,10 +700,11 @@ export class DefidBin {
       '-fortcanningepilogueheight=15',
       '-grandcentralheight=16',
       '-grandcentralepilogueheight=17',
-      '-metachainheight=18'
+      '-metachainheight=18',
+      ...opts
     ]
 
-    const binary = spawn(process.env.DEFID, args.concat(extraArgs))
+    const binary = spawn(process.env.DEFID, args)
 
     binary.on('error', err => {
       if ((err as any).errno === 'ENOENT') {
