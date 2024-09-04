@@ -679,6 +679,7 @@ export class DefidBin {
       `-masternode_operator=${RegTestFoundationKeys[1].operator.address}`,
       // ocean
       '-oceanarchive',
+      '-oceanarchiverest',
       `-oceanarchiveport=${this.oceanPort}`,
       '-oceanarchivebind=0.0.0.0',
       // hf
