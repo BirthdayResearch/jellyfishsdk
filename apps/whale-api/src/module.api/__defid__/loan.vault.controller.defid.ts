@@ -1,5 +1,4 @@
 import BigNumber from 'bignumber.js'
-import { LoanVaultState } from '@defichain/whale-api-client/dist/api/loan'
 import { DLoanController, DefidBin, DefidRpc } from '../../e2e.defid.module'
 import { WhaleApiException } from '@defichain/whale-api-client/dist/errors'
 
@@ -104,7 +103,8 @@ describe('get', () => {
         minColRatio: '150'
       },
       ownerAddress: address1,
-      state: LoanVaultState.ACTIVE,
+      // state: LoanVaultState.ACTIVE,
+      state: 'active',
       informativeRatio: '-1',
       collateralRatio: '-1',
       collateralValue: '0',
