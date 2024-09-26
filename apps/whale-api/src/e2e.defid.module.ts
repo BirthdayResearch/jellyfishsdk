@@ -734,8 +734,8 @@ export class DefidBin {
           await new Promise((resolve) => setTimeout(resolve, 1_000))
 
           try {
-            const res = await this.ocean.blockController.get('0')
-            console.log('[DefidBin.start()] blockController.get genesis.hash: ', res?.hash)
+            await this.ocean.blockController.get('0')
+            // console.log('[DefidBin.start()] blockController.get genesis.hash: ', res?.hash)
           } catch (err) {
             console.log('[DefidBin.start()] blockController.get genesis err: ', err)
           }
