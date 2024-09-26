@@ -239,7 +239,8 @@ describe('list', () => {
       commission: '0',
       totalLiquidity: {
         token: '122.47448713',
-        usd: '1390.4567576291117892'
+        // usd: '1390.4567576291117892'
+        usd: '1390.4567576291117892008229279'
       },
       tradeEnabled: true,
       ownerAddress: expect.any(String),
@@ -330,7 +331,8 @@ describe('get', () => {
       commission: '0',
       totalLiquidity: {
         token: '141.42135623',
-        usd: '926.9711717527411928'
+        // usd: '926.9711717527411928'
+        usd: '926.9711717527411928005486186'
       },
       tradeEnabled: true,
       ownerAddress: expect.any(String),
