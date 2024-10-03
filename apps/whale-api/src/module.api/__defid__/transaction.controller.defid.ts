@@ -76,7 +76,7 @@ describe('get', () => {
     })
   })
 
-  it('should fail due to non-existent transaction', async () => {
+  it.only('should fail due to non-existent transaction', async () => {
     // expect.assertions(2)
     // try {
     //   await controller.get('invalidtransactionid')
@@ -88,9 +88,7 @@ describe('get', () => {
     //     error: 'Not Found'
     //   })
     // }
-    const res: any = await controller.get('invalidtransactionid')
-    expect(res.code).toStrictEqual(400)
-    expect(res.message).toStrictEqual('bad hex string length 64 (expected 20)')
+    await expect(controller.get('invalidtransactionid')).rejects.toThrowError('400 - BadRequest (/invalidtransactionid): bad hex string length 20 (expected 64)')
   })
 })
 
