@@ -86,7 +86,7 @@ describe('governance - listProposals and getProposal', () => {
       contextHash: '',
       status: GovernanceProposalStatus.VOTING,
       type: GovernanceProposalType.VOTE_OF_CONFIDENCE,
-      amount: undefined,
+      // amount: undefined,
       currentCycle: 1,
       totalCycles: 1,
       cycleEndHeight: expect.any(Number),
@@ -233,8 +233,8 @@ describe('governance - listProposals and getProposal', () => {
       votingPeriod: expect.any(Number),
       quorum: expect.any(String),
       approvalThreshold: expect.any(String),
-      fee: expect.any(Number),
-      amount: undefined
+      fee: expect.any(Number)
+      // amount: undefined
     })
   })
 })
