@@ -250,7 +250,7 @@ describe('list', () => {
       },
       rewardPct: '1',
       rewardLoanPct: '0',
-      customRewards: undefined,
+      // customRewards: undefined,
       creation: {
         tx: expect.any(String),
         height: expect.any(Number)
@@ -311,8 +311,8 @@ describe('get', () => {
         symbol: 'A',
         reserve: '100',
         blockCommission: '0',
-        displaySymbol: 'dA',
-        fee: undefined
+        displaySymbol: 'dA'
+        // fee: undefined
       },
       tokenB: {
         id: '0',
@@ -320,8 +320,8 @@ describe('get', () => {
         symbol: 'DFI',
         reserve: '200',
         blockCommission: '0',
-        displaySymbol: 'DFI',
-        fee: undefined
+        displaySymbol: 'DFI'
+        // fee: undefined
       },
       apr: {
         reward: 0,
@@ -342,7 +342,7 @@ describe('get', () => {
       },
       rewardPct: '0',
       rewardLoanPct: '0',
-      customRewards: undefined,
+      // customRewards: undefined,
       creation: {
         tx: expect.any(String),
         height: expect.any(Number)
