@@ -74,6 +74,11 @@ interface RawTxDto {
   maxFeeRate?: number
 }
 
+interface RpcDto {
+  method: string
+  params: any[]
+}
+
 class DefidOceanApiClient {
   constructor (protected readonly options: WhaleApiClientOptions) {
     this.options = {
@@ -467,6 +472,14 @@ export class DTransactionController {
   }
 }
 
+export class DRpcController {
+  constructor (protected readonly client: DefidOceanApiClient) {}
+
+  async post (rpcDto: RpcDto): Promise<any> {
+    return await this.client.post('rpc', rpcDto)
+  }
+}
+
 export class DefidOcean {
   readonly addressController = new DAddressController(this.api)
   readonly blockController = new DBlockController(this.api)
@@ -481,6 +494,7 @@ export class DefidOcean {
   readonly statsController = new DStatsController(this.api)
   readonly transactionController = new DTransactionController(this.api)
   readonly tokenController = new DTokenController(this.api)
+  readonly rpcController = new DRpcController(this.api)
 
   constructor (
     readonly api: DefidOceanApiClient
