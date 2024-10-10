@@ -76,7 +76,7 @@ describe('get', () => {
     })
   })
 
-  it.only('should fail due to non-existent transaction', async () => {
+  it('should fail due to non-existent transaction', async () => {
     // expect.assertions(2)
     // try {
     //   await controller.get('invalidtransactionid')
